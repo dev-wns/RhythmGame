@@ -37,6 +37,12 @@ public class GlobalSettings : MonoBehaviour
 
     public static float volume = 1.0f;
 
+    public static int decide;
+    public static int diffSelection;
+    public static int sortSelection;
+    public static int modSelection;
+    public static int specialSelection;
+
     public static int keyCount = 6;
     public static int UID = 2;
 
@@ -46,10 +52,6 @@ public class GlobalSettings : MonoBehaviour
     public static bool isMirror      = false;
     public static bool isRandom      = false;
     public static bool isAutoPlay    = false;
-
-    public Sprite[] squareNotes;
-    public Sprite[] circleNotes;
-    public bool isCircleNote;
 
     public int res;
     public int fps;
@@ -69,7 +71,7 @@ public class GlobalSettings : MonoBehaviour
             newKeys[ 4 ] = ( KeyCode )PlayerPrefs.GetInt( "K4" );
             newKeys[ 5 ] = ( KeyCode )PlayerPrefs.GetInt( "K5" );
 
-            for ( int i = 0; i < (int)KeyAction.KEYCOUNT; ++i )
+            for ( int i = 0; i < ( int )KeyAction.KEYCOUNT; ++i )
             {
                 KeySetting.keys.Add( ( KeyAction )i, newKeys[ i ] );
             }
@@ -77,7 +79,7 @@ public class GlobalSettings : MonoBehaviour
         else
         {
             // 초기값
-            for ( int i = 0; i < (int)KeyAction.KEYCOUNT; ++i )
+            for ( int i = 0; i < ( int )KeyAction.KEYCOUNT; ++i )
             {
                 KeySetting.keys.Add( ( KeyAction )i, defaultKeys[ i ] );
             }
@@ -90,6 +92,46 @@ public class GlobalSettings : MonoBehaviour
         hpCoolRecover = 0.001f; // Cool 회복량
         hpBadDamage = 0.013f;
         hpMissDamage = 0.026f;
+    }
+
+    public static void SaveControlKeyBinds ()
+    {
+        int key;
+        key = ( int )KeySetting.keys[ KeyAction._0 ];
+        PlayerPrefs.SetInt( "K0", key );
+        key = ( int )KeySetting.keys[ KeyAction._1 ];
+        PlayerPrefs.SetInt( "K1", key );
+        key = ( int )KeySetting.keys[ KeyAction._2 ];
+        PlayerPrefs.SetInt( "K2", key );
+        key = ( int )KeySetting.keys[ KeyAction._3 ];
+        PlayerPrefs.SetInt( "K3", key );
+        key = ( int )KeySetting.keys[ KeyAction._4 ];
+        PlayerPrefs.SetInt( "K4", key );
+        key = ( int )KeySetting.keys[ KeyAction._5 ];
+        PlayerPrefs.SetInt( "K5", key );
+
+        PlayerPrefs.Save();
+    }
+
+    public void SaveSetting ()
+    {
+        PlayerPrefs.SetInt( "SCROLL", Global.BoolToInt( isFixedScroll ) );
+        PlayerPrefs.SetInt( "VIDEO", Global.BoolToInt( isPlayVideo ) );
+        PlayerPrefs.SetInt( "FULLSCREEN", Global.BoolToInt( isFullScreen ) );
+        PlayerPrefs.SetInt( "RESOLUTION", res );
+        PlayerPrefs.SetInt( "FPS", fps );
+        PlayerPrefs.SetFloat( "VOLUME", volume );
+        PlayerPrefs.SetFloat( "GOFFSET", globalOffset );
+        PlayerPrefs.SetFloat( "CW", colWidth );
+        PlayerPrefs.SetFloat( "XX", stagePosX );
+        PlayerPrefs.SetFloat( "YY", stagePosY );
+        PlayerPrefs.SetString( "FOLDER", folderPath );
+    }
+
+    public void SaveSelection()
+    {
+        PlayerPrefs.SetFloat( "SPEED", scrollSpeed );
+        PlayerPrefs.SetInt( "MOD", modSelection );
     }
 
     private void LoadSetting()
@@ -109,6 +151,21 @@ public class GlobalSettings : MonoBehaviour
         }
 
         SwitchResolution();
+        SwitchFrameRate();
+
+        if ( isFullScreen )
+            Screen.fullScreen = true;
+        else
+            Screen.fullScreen = false;
+    }
+
+    private void LoadSelection()
+    {
+        if ( PlayerPrefs.HasKey( "SPEED" ) )
+        {
+            scrollSpeed = PlayerPrefs.GetFloat( "SPPED" );
+            modSelection = PlayerPrefs.GetInt( "MOD" );
+        }
     }
 
     private void SwitchResolution()
@@ -133,11 +190,22 @@ public class GlobalSettings : MonoBehaviour
         }
     }
 
-    //private void SwitchFrameRate()
-    //{
-    //    switch ( fps )
-    //    {
-
-    //    }
-    //}
+    private void SwitchFrameRate()
+    {
+        switch ( fps )
+        {
+            case 0:
+                Application.targetFrameRate = 60;
+                break;
+            case 1:
+                Application.targetFrameRate = 144;
+                break;
+            case 2:
+                Application.targetFrameRate = 240;
+                break;
+            case 3:
+                Application.targetFrameRate = 1000;
+                break;
+        }
+    }
 }
