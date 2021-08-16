@@ -14,11 +14,11 @@ public class NowPlaying : MonoBehaviour
     public static int LengthMS;
     public int note, longNote;
 
-    private MusicHandler player;
+    private SoundHandler player;
 
     private void Start ()
     {
-        player = GameObject.FindWithTag( "World" ).GetComponent<MusicHandler>();
+        player = GameObject.FindWithTag( "World" ).GetComponent<SoundHandler>();
     }
 
     private void Update ()
