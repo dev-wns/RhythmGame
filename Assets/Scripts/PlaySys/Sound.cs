@@ -26,11 +26,11 @@ public class Sound
 
     public struct Timing
     {
-        public int time;          // time when bpm changes
+        public float time;          // time when bpm changes
         public float bpm;         // 1 / beat length * 1000 ( ms ) * 60 ( minute )
         private float beatLength;
 
-        public Timing( int _time, float _beatLength )
+        public Timing( float _time, float _beatLength )
         {
             time = _time;
             beatLength = _beatLength;

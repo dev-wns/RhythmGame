@@ -2,9 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using System.Diagnostics;
 
 public class Parser : MonoBehaviour
 {
+    Stopwatch sw = new Stopwatch();
+    private void Start()
+    {
+        sw.Start();
+        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );
+        foreach( var dir in info.GetDirectories() )
+        {
+            foreach ( var file in dir.GetFiles( "*.osu" ) )
+            {
+                PreRead( file.FullName );
+            }
+        }
+        sw.Stop();
+        UnityEngine.Debug.Log( sw.ElapsedMilliseconds / 1000f );
+    }
 
     // preview, timing data parsing
     private void PreRead( string _path )
@@ -59,7 +75,7 @@ public class Parser : MonoBehaviour
                 }
                 
                 string[] img = arr[ 1 ].Split( ',' );
-                sound.preview.img = img[ 2 ].Trim();
+                sound.preview.img = img[ 2 ].Trim().Replace( "\"", string.Empty );
             }
 
             if ( line.Contains( "[TimingPoints]" ) )
@@ -71,20 +87,23 @@ public class Parser : MonoBehaviour
                         continue;
                     }
 
-                    if ( line.Contains( "[HitObjects]" ) )
+                    if ( line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) )
                     {
                         break;
                     }
 
                     string[] arr = line.Split( ',' );
-                    sound.timings.Add( new Sound.Timing( int.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
+                    sound.timings.Add( new Sound.Timing( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
                 }
             }
 
-            if ( line.Contains( "[HitObjects]" ) )
+            if ( line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) )
             {
                 break;
             }
         }
+        GameManager.soundList.Add( sound.preview.audio, sound );
+
+        reader.Close();
     }
 }

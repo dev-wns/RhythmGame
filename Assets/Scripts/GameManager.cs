@@ -5,5 +5,4 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static Dictionary<string /* sound name */, Sound> soundList = new Dictionary<string, Sound>();
-
 }
