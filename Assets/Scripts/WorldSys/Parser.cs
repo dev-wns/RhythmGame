@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class FileReader
+public class Parser : MonoBehaviour
 {
 
+    // preview, timing data parsing
     private void PreRead( string _path )
     {
         string line;
         StreamReader reader = new StreamReader( _path );
         Sound sound = new Sound();
-        while ( ( line = reader.ReadLine() ) is not null )
+        while ( ( line = reader.ReadLine() ) != null )
         {
             if ( line.Contains( "[General]" ) )
             {
                 List<string> arr = new List<string>();
                 for ( int index = 0; index < 3; ++index )
                 {
-                    if ( line.Contains( "[Metadata]" ) )
+                    if ( string.IsNullOrEmpty( line ) || line.Contains( "[Metadata]" ) )
                     {
                         break;
                     }
@@ -34,7 +35,7 @@ public class FileReader
                 List<string> arr = new List<string>();
                 for ( int index = 0; index < 6; ++index )
                 {
-                    if ( line.Contains( "[Events]" ) )
+                    if ( string.IsNullOrEmpty( line ) || line.Contains( "[Events]" ) )
                     {
                         break;
                     }
@@ -45,12 +46,12 @@ public class FileReader
                 sound.preview.artist = arr[ 2 ].Substring( 7 ).Trim();
             }
 
-            if ( line.Contains( "[Event]" ) )
+            if ( line.Contains( "[Events]" ) )
             {
                 List<string> arr = new List<string>();
                 for ( int index = 0; index < 4; ++index )
                 {
-                    if ( line.Contains( "[TimingPoints]" ) )
+                    if ( string.IsNullOrEmpty( line ) || line.Contains( "[TimingPoints]" ) )
                     {
                         break;
                     }
@@ -63,11 +64,19 @@ public class FileReader
 
             if ( line.Contains( "[TimingPoints]" ) )
             {
-                while ( !line.Contains( "[HitObjects]" ) )
+                while ( true )
                 {
-                    line = reader.ReadLine();
-                    string[] arr = line.Split( ',' );
+                    if ( string.IsNullOrEmpty( line = reader.ReadLine() ) )
+                    {
+                        continue;
+                    }
 
+                    if ( line.Contains( "[HitObjects]" ) )
+                    {
+                        break;
+                    }
+
+                    string[] arr = line.Split( ',' );
                     sound.timings.Add( new Sound.Timing( int.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
                 }
             }

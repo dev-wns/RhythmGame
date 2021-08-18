@@ -57,7 +57,7 @@ public class Sound
     }
     #endregion
 
-    public List<Note> notes;
-    public List<Timing> timings;
+    public List<Note> notes = new List<Note>();
+    public List<Timing> timings = new List<Timing>();
     public Preview preview;
 }
