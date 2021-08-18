@@ -27,6 +27,8 @@ Ex ) 905,312.5,4,2,0,10,1,0
 8. Effects ( Integer )
 타이밍 포인트에 추가 효과를 추는 비트 플래그
 
+
+
 # HitObjects
 X, Y, Time, Type, Hit Sound, Object Parameters, Hit Sample
 Ex) 42,192,1371,128,0,1528:0:0:0:0:
@@ -51,6 +53,9 @@ Osu! Mania 기준으로 1은 일반노트 128이 롱노트 인것 같음
 
 7. Hit Sample ( Colon-Separated List)
 개체가 적중할때 재생되는 사운드 샘플에 대한 정보
+
+
+
 # BPM 공식
 Timing Points의 2번째 요소 값 = 333.33
 1 / 333.33 * 1000 * 60 = 180BPM
