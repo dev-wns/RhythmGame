@@ -9,57 +9,36 @@ public class LobbySelector : MonoBehaviour
     public Image fadein;
     public Image fadeout;
     public Sprite[] images;
-    private int curIdx = 0;
-    private Sequence fadeIn, fadeOut;
+    public RectTransform textpos;
 
     private struct LBSeclect
     {
         public Sprite sprite;
-        public float pos;
+        public int pos;
 
-        public LBSeclect( Sprite _sprite, float _pos )
+        public LBSeclect( Sprite _sprite, int _pos )
         {
             sprite = _sprite;
             pos = _pos;
         }
     }
+
     private List<LBSeclect> selects = new List<LBSeclect>();
+    private int curIdx = 0;
+
+    public delegate void SelectDel();
+    public static event SelectDel LobbySelectEvent;
 
     void Start()
     {
         DOTween.Init();
-        fadeIn = DOTween.Sequence();
-        fadeOut = DOTween.Sequence();
 
         for ( int idx = 0; idx < 4; ++idx )
         {
-            selects.Add( new LBSeclect( images[ idx ], -1400f + ( 1400f * idx ) ) );
+            selects.Add( new LBSeclect( images[ idx ], 1400 - ( 1400 * idx ) ) );
         }
-
-        fadeIn.OnStart( () =>
-        {
-            if ( curIdx < -1 && curIdx > 4 )
-                return;
-
-            fadein.DOFade( 0, 0 );
-            fadein.sprite = selects[ curIdx ].sprite;
-            fadeout.sprite = selects[ curIdx ].sprite;
-        } );
-        fadeIn.Append( fadein.DOFade( 1, 1 ) );
-
-        fadeOut.OnStart( () =>
-        {
-            if ( curIdx < -1 && curIdx > 4 )
-                return;
-
-            fadeout.DOFade( 1, 0 );
-            fadein.sprite = selects[ curIdx ].sprite;
-            fadeout.sprite = selects[ curIdx ].sprite;
-        } );
-        fadeIn.Append( fadein.DOFade( 0, 1 ) );
     }
 
-    // Update is called once per frame
     void Update()
     {
         if ( Input.GetKeyDown( KeyCode.LeftArrow ) )
@@ -79,6 +58,8 @@ public class LobbySelector : MonoBehaviour
             fadein.DOFade( 0, 0 );
             fadein.sprite = selects[ curIdx ].sprite;
             fadein.DOFade( 1, 1 );
+
+            textpos.DOLocalMoveX( 1400 - ( 1400 * curIdx ), 0.5f ).SetEase( Ease.OutBounce );
         }
         
         if ( Input.GetKeyDown( KeyCode.RightArrow ) )
@@ -98,6 +79,8 @@ public class LobbySelector : MonoBehaviour
             fadein.DOFade( 0, 0 );
             fadein.sprite = selects[ curIdx ].sprite;
             fadein.DOFade( 1, 1 );
+
+            textpos.DOLocalMoveX( 1400 - ( 1400 * curIdx ), 0.5f ).SetEase( Ease.OutBounce );
         }
     }
 }
