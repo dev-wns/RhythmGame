@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Sound Data
-public class Sound
+public class SoundInfo
 {
     #region Structures
-    public struct Note
+    public struct NoteInfo
     {
         public int x, y;        // position
         public int timing;      // hit timing
@@ -13,7 +13,7 @@ public class Sound
         public int length_LN;   // long note length
         public string hitSound; // hit sound name
 
-        public Note( int _x, int _y, int _timing, int _type, int _length_LN, string _hitSound )
+        public NoteInfo( int _x, int _y, int _timing, int _type, int _length_LN, string _hitSound )
         {
             x = _x;
             y = _y;
@@ -24,13 +24,13 @@ public class Sound
         }
     }
 
-    public struct Timing
+    public struct TimingInfo
     {
-        public float time;          // time when bpm changes
+        public float time;        // bpm changes time
         public float bpm;         // 1 / beat length * 1000 ( ms ) * 60 ( minute )
         private float beatLength;
 
-        public Timing( float _time, float _beatLength )
+        public TimingInfo( float _time, float _beatLength )
         {
             time = _time;
             beatLength = _beatLength;
@@ -38,7 +38,7 @@ public class Sound
         }
     }
 
-    public struct Preview
+    public struct PreviewInfo
     {
         public int time; // preview start time
         public string audio;
@@ -46,7 +46,7 @@ public class Sound
         public string title;
         public string artist;
 
-        public Preview( string _audio, string _img, string _title, string _artist, int _time )
+        public PreviewInfo( string _audio, string _img, string _title, string _artist, int _time )
         {
             audio = _audio;
             img = _img;
@@ -57,7 +57,7 @@ public class Sound
     }
     #endregion
 
-    public List<Note> notes = new List<Note>();
-    public List<Timing> timings = new List<Timing>();
-    public Preview preview;
+    public List<NoteInfo> notes     = new List<NoteInfo>();
+    public List<TimingInfo> timings = new List<TimingInfo>();
+    public PreviewInfo preview;
 }

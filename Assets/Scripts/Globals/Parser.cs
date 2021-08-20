@@ -1,33 +1,66 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
-using System.Diagnostics;
 
-public class Parser : MonoBehaviour
+public class Parser
 {
-    Stopwatch sw = new Stopwatch();
-    private void Start()
+    public enum Extension { Osu, Bms, Custom }
+
+    public struct FileInfo
     {
-        sw.Start();
-        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );
-        foreach( var dir in info.GetDirectories() )
+        public Extension type;
+        public string path;
+        public FileInfo( Extension _type, string _path )
         {
-            foreach ( var file in dir.GetFiles( "*.osu" ) )
-            {
-                PreRead( file.FullName );
-            }
+            type = _type;
+            path = _path;
         }
-        sw.Stop();
-        UnityEngine.Debug.Log( sw.ElapsedMilliseconds / 1000f );
     }
 
+    //private void Start()
+    //{
+    //    //info = new DirectoryInfo( Application.streamingAssetsPath + "/Sounds/Lobby/Background" );
+    //    //foreach ( var dir in info.GetDirectories() )
+    //    //{
+    //    //    foreach ( var file in dir.GetFiles( "*.mp3" ) )
+    //    //    {
+    //    //        Load( file.FullName );
+    //    //        Play( Path.GetFileNameWithoutExtension( file.FullName ) );
+    //    //    }
+    //    //}
+    //}
+
     // preview, timing data parsing
-    private void PreRead( string _path )
+    public SoundInfo Read( FileInfo _info )
+    {
+        SoundInfo sound = null;
+
+        switch ( _info.type )
+        {
+            case Extension.Osu:
+            {
+                sound = OsuExtension( _info.path );
+                break;
+            }
+            case Extension.Bms:
+            {
+                break;
+            }
+            case Extension.Custom:
+            {
+                break;
+            }
+            default: break;
+        }
+
+        return sound;
+    }
+
+    private SoundInfo OsuExtension( string _path )
     {
         string line;
         StreamReader reader = new StreamReader( _path );
-        Sound sound = new Sound();
+        SoundInfo sound = new SoundInfo();
+
         while ( ( line = reader.ReadLine() ) != null )
         {
             if ( line.Contains( "[General]" ) )
@@ -42,8 +75,8 @@ public class Parser : MonoBehaviour
                     arr.Add( line = reader.ReadLine() );
                 }
 
-                sound.preview.audio = arr[0].Substring( 14 ).Trim();
-                sound.preview.time = int.Parse( arr[2].Substring( 12 ).Trim() );
+                sound.preview.audio = Path.GetFileNameWithoutExtension( arr[ 0 ].Substring( 14 ).Trim() );
+                sound.preview.time = int.Parse( arr[ 2 ].Substring( 12 ).Trim() );
             }
 
             if ( line.Contains( "[Metadata]" ) )
@@ -73,7 +106,7 @@ public class Parser : MonoBehaviour
                     }
                     arr.Add( line = reader.ReadLine() );
                 }
-                
+
                 string[] img = arr[ 1 ].Split( ',' );
                 sound.preview.img = img[ 2 ].Trim().Replace( "\"", string.Empty );
             }
@@ -93,7 +126,7 @@ public class Parser : MonoBehaviour
                     }
 
                     string[] arr = line.Split( ',' );
-                    sound.timings.Add( new Sound.Timing( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
+                    sound.timings.Add( new SoundInfo.TimingInfo( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
                 }
             }
 
@@ -102,8 +135,18 @@ public class Parser : MonoBehaviour
                 break;
             }
         }
-        GameManager.soundList.Add( sound.preview.audio, sound );
-
         reader.Close();
+
+        return sound;
+    }
+
+    private void BmsExtension( string _path )
+    {
+
+    }
+
+    private void CustomExtention( string _path )
+    {
+
     }
 }
