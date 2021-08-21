@@ -7,16 +7,6 @@ using DG.Tweening;
 
 public class Lobby : Scene
 {
-    [Header( "# Lobby" )]
-    #region variables
-    public Sprite[] images;       // background에 사용될 texture
-    public Image fadein, fadeout; // background image 2장
-    public RectTransform textpos;  
-
-    private List<ImageInfo> selects = new List<ImageInfo>();
-    private int curIdx = 0;
-    #endregion
-
     #region structures
     private struct ImageInfo
     {
@@ -31,12 +21,19 @@ public class Lobby : Scene
     }
     #endregion
 
-    #region unity callback function
-    protected override void Start()
-    {
-        base.Start();
+    #region variables
+    public Sprite[] images;       // background에 사용될 texture
+    public Image fadein, fadeout; // background image 2장
+    public RectTransform textpos;  
 
-        DOTween.Init();
+    private List<ImageInfo> selects = new List<ImageInfo>();
+    private int curIdx = 0;
+    #endregion
+
+    #region unity callback function
+    protected override void Awake()
+    {
+        base.Awake();
 
         for ( int idx = 0; idx < 4; ++idx )
         {
@@ -44,7 +41,14 @@ public class Lobby : Scene
         }
     }
 
-    protected void Update()
+    protected override void Start()
+    {
+        base.Start();
+
+        DOTween.Init();
+    }
+
+    private void Update()
     {
         if ( Input.GetKeyDown( KeyCode.RightArrow ) )
         {

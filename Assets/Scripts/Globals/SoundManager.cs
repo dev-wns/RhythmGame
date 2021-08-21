@@ -6,17 +6,6 @@ using System.IO;
 public class SoundManager : Singleton<SoundManager>
 {
 
-    #region variables
-    private Dictionary<string /* file name */, Sound> sounds = new Dictionary<string, Sound>();
-
-    private FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
-    public int frequency { get; private set; }
-    private readonly ushort bufferSize = 256;
-
-    private FMOD.RESULT result;
-    private bool isGroupActive = false;
-    #endregion
-
     #region structures
     public struct Sound
     {
@@ -29,6 +18,17 @@ public class SoundManager : Singleton<SoundManager>
             channel = _channel;
         }
     }
+    #endregion
+
+    #region variables
+    private Dictionary<string /* file name */, Sound> sounds = new Dictionary<string, Sound>();
+
+    private FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
+    private readonly ushort bufferSize = 256;
+    private bool isGroupActive = false;
+    private FMOD.RESULT result;
+
+    public int frequency { get; private set; }
     #endregion
 
     #region properties

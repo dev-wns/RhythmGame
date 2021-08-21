@@ -7,7 +7,6 @@ using UnityEditor;
 public class Scene : MonoBehaviour
 {
     protected enum SceneType { FreeStyle, Online, Collection, Ranking, Lobby }
-    protected enum SfxType { BackGround, Move, Click, Return, }
 
     [Serializable]
     public struct SceneClips
@@ -18,8 +17,6 @@ public class Scene : MonoBehaviour
         public AudioClip escape;
     }
 
-
-    [Header( "# Clips" )]
     public SceneClips clips;
     private AudioSource bgAudio, sfxAudio;
 
@@ -34,11 +31,14 @@ public class Scene : MonoBehaviour
         sfxAudio.PlayOneShot( _clip );
     }
 
-    protected virtual void Start()
+    protected virtual void Awake()
     {
         bgAudio  = gameObject.AddComponent<AudioSource>();
         sfxAudio = gameObject.AddComponent<AudioSource>();
+    }
 
+    protected virtual void Start()
+    { 
         bgAudio.loop = true;
         if ( clips.background != null )
         {

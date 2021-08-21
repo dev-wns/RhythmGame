@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    private Dictionary<string /* sound name */, SoundData> SoundInfomations = new Dictionary<string, SoundData>();
+    public static Dictionary<string /* sound name */, SoundData> SoundInfomations = new Dictionary<string, SoundData>();
 
     public delegate void InitLoading();
     public static event InitLoading GameInit;

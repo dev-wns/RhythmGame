@@ -61,7 +61,7 @@ public class FileReader
                 }
 
                 string[] img = arr[ 1 ].Split( ',' );
-                sound.preview.img = img[ 2 ].Trim().Replace( "\"", string.Empty );
+                sound.preview.img = Path.GetDirectoryName( _path ) + "\\" + img[ 2 ].Trim().Replace( "\"", string.Empty );
             }
 
             if ( line.Contains( "[TimingPoints]" ) )
