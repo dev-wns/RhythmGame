@@ -5,11 +5,12 @@ using System.IO;
 
 public class SoundManager : Singleton<SoundManager>
 {
+
     #region variables
     private Dictionary<string /* file name */, Sound> sounds = new Dictionary<string, Sound>();
 
     private FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
-    private int frequency;    
+    public int frequency { get; private set; }
     private readonly ushort bufferSize = 256;
 
     private FMOD.RESULT result;
@@ -17,7 +18,7 @@ public class SoundManager : Singleton<SoundManager>
     #endregion
 
     #region structures
-    struct Sound
+    public struct Sound
     {
         public FMOD.Sound sound;
         public FMOD.Channel channel;
@@ -56,32 +57,27 @@ public class SoundManager : Singleton<SoundManager>
     #endregion
 
     #region unity callback functions
-    private void Start()
+    private void Awake()
     {
-        FMODUnity.RuntimeManager.CoreSystem.setDSPBufferSize( bufferSize, 4 );
-        FMOD.SPEAKERMODE speakmode;
-        int numlowspeak;
-        FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat( out frequency, out speakmode, out numlowspeak );
-        Debug.Log( "frequency : " + frequency );
-
-        result = FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup( out channelGroup );
-        if ( result == FMOD.RESULT.OK ) isGroupActive = true;
-        Debug.Log( "get masterchannelgroup result : " + result );
-
-        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Sounds" );
-        foreach ( var dir in info.GetDirectories() )
-        {
-            foreach ( var file in dir.GetFiles( "*.mp3" ) )
-            {
-                Load( file.FullName );
-                Play( Path.GetFileNameWithoutExtension( file.FullName ) );
-            }
-        }
+        GameManager.GameInit += Initialize;
     }
     #endregion
 
-    #region user functions
-    public void Load( string _path, bool _loop = false )
+    #region customize functions
+    private void Initialize()
+    {
+        int freq, numlowspeak;
+        FMOD.SPEAKERMODE speakmode;
+        FMODUnity.RuntimeManager.CoreSystem.setDSPBufferSize( bufferSize, 4 );
+        FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat( out freq, out speakmode, out numlowspeak );
+
+        result = FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup( out channelGroup );
+        if ( result == FMOD.RESULT.OK ) isGroupActive = true;
+
+        Debug.Log( "SoundManager Initizlize Successful." );
+    }
+
+    public Sound Load( string _path, bool _loop = false )
     {
         FMOD.Sound sound = new FMOD.Sound();
         FMOD.Channel channel = new FMOD.Channel();
@@ -97,7 +93,10 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogError( "failed to load sound. #Code : " + result.ToString() );
         }
         string name = Path.GetFileNameWithoutExtension( _path );
-        sounds.Add( name, new Sound( sound, channel ) );
+        Sound newSound = new Sound( sound, channel );
+        sounds.Add( name, newSound );
+
+        return newSound;
     }
 
     // _name : name with removed extenstion.
@@ -118,8 +117,17 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogError( "sound playback failed. #Code : " + result );
             return;
         }
+    }
 
-        Debug.Log( "sound playback successful. #Name : " + _name );
+    public void Play( Sound _sound )
+    {
+        result = FMODUnity.RuntimeManager.CoreSystem.playSound( _sound.sound, channelGroup, false, out _sound.channel );
+
+        if ( result != FMOD.RESULT.OK )
+        {
+            Debug.LogError( "sound playback failed. #Code : " + result );
+            return;
+        }
     }
 
     public void Stop( string _name )

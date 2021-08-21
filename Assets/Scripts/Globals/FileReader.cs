@@ -1,65 +1,18 @@
-using System.Collections.Generic;
+using System;
 using System.IO;
+using System.Collections.Generic;
+using UnityEngine;
+using Timings = SoundData.Timings;
+using Notes = SoundData.Notes;
 
-public class Parser
+public class FileReader
 {
-    public enum Extension { Osu, Bms, Custom }
-
-    public struct FileInfo
-    {
-        public Extension type;
-        public string path;
-        public FileInfo( Extension _type, string _path )
-        {
-            type = _type;
-            path = _path;
-        }
-    }
-
-    //private void Start()
-    //{
-    //    //info = new DirectoryInfo( Application.streamingAssetsPath + "/Sounds/Lobby/Background" );
-    //    //foreach ( var dir in info.GetDirectories() )
-    //    //{
-    //    //    foreach ( var file in dir.GetFiles( "*.mp3" ) )
-    //    //    {
-    //    //        Load( file.FullName );
-    //    //        Play( Path.GetFileNameWithoutExtension( file.FullName ) );
-    //    //    }
-    //    //}
-    //}
-
     // preview, timing data parsing
-    public SoundInfo Read( FileInfo _info )
-    {
-        SoundInfo sound = null;
-
-        switch ( _info.type )
-        {
-            case Extension.Osu:
-            {
-                sound = OsuExtension( _info.path );
-                break;
-            }
-            case Extension.Bms:
-            {
-                break;
-            }
-            case Extension.Custom:
-            {
-                break;
-            }
-            default: break;
-        }
-
-        return sound;
-    }
-
-    private SoundInfo OsuExtension( string _path )
+    public SoundData Read( string _path )
     {
         string line;
         StreamReader reader = new StreamReader( _path );
-        SoundInfo sound = new SoundInfo();
+        SoundData sound = new SoundData();
 
         while ( ( line = reader.ReadLine() ) != null )
         {
@@ -75,7 +28,7 @@ public class Parser
                     arr.Add( line = reader.ReadLine() );
                 }
 
-                sound.preview.audio = Path.GetFileNameWithoutExtension( arr[ 0 ].Substring( 14 ).Trim() );
+                sound.preview.name = Path.GetFileNameWithoutExtension( arr[ 0 ].Substring( 14 ).Trim() );
                 sound.preview.time = int.Parse( arr[ 2 ].Substring( 12 ).Trim() );
             }
 
@@ -126,7 +79,7 @@ public class Parser
                     }
 
                     string[] arr = line.Split( ',' );
-                    sound.timings.Add( new SoundInfo.TimingInfo( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
+                    sound.timings.Add( new Timings( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
                 }
             }
 
@@ -140,13 +93,19 @@ public class Parser
         return sound;
     }
 
-    private void BmsExtension( string _path )
+    // directories since streaming asset path
+    public static string[] GetFiles( string _path, string _extension = "*.osu" )
     {
+        List<string> directories = new List<string>();
+        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + _path );
+        foreach ( var dir in info.GetDirectories() )
+        {
+            foreach ( var file in dir.GetFiles( _extension ) )
+            {
+                directories.Add( file.FullName );
+            }
+        }
 
-    }
-
-    private void CustomExtention( string _path )
-    {
-
+        return directories.ToArray();
     }
 }

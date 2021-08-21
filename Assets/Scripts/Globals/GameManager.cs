@@ -1,34 +1,40 @@
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static Dictionary<string /* sound name */, SoundInfo> SoundInfomations = new Dictionary<string, SoundInfo>();
-    private Parser parser = new Parser();
+    private Dictionary<string /* sound name */, SoundData> SoundInfomations = new Dictionary<string, SoundData>();
+
+    public delegate void InitLoading();
+    public static event InitLoading GameInit;
+
+    private void Initialize()
+    {
+        // Osu Parsing
+        FileReader parser = new FileReader();
+        foreach ( var path in FileReader.GetFiles( "/Songs", "*.osu" ) )
+        {
+            SoundData soundInfo = parser.Read( path );
+            if ( ReferenceEquals( null, soundInfo ) )
+            {
+                Debug.Log( "parsing failed. no data was created. #Path : " + path );
+            }
+
+            SoundInfomations.Add( soundInfo.preview.name, soundInfo );
+        }
+
+        Debug.Log( "GamaManager Initizlize Successful." );
+    }
 
     private void Awake()
     {
-        Stopwatch sw = new Stopwatch();
-        // Osu Parsing
-        sw.Start();
-        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );
-        foreach ( var dir in info.GetDirectories() )
-        {
-            foreach ( var file in dir.GetFiles( "*.osu" ) )
-            {
-                SoundInfo soundInfo = parser.Read( new Parser.FileInfo( Parser.Extension.Osu, file.FullName ) );
-                if ( ReferenceEquals( null, soundInfo ) )
-                {
-                    UnityEngine.Debug.Log( "parsing failed. no data was created. #Path : " + file.FullName );
-                }
+        GameInit += Initialize;
+    }
 
-                SoundInfomations.Add( soundInfo.preview.audio, soundInfo );
-            }
-        }
-        sw.Stop();
-        UnityEngine.Debug.Log( "time to read the *.osu file in the folder : " + sw.ElapsedMilliseconds / 1000f );
+    private void Start()
+    {
+        GameInit();
+        SceneChanger.Inst.Change( "Lobby" );
     }
 }

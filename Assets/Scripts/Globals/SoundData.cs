@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
-// Sound Data
-public class SoundInfo
+public class SoundData
 {
-    #region Structures
-    public struct NoteInfo
+    #region structures
+    public struct Notes
     {
         public int x, y;        // position
         public int timing;      // hit timing
@@ -13,7 +12,7 @@ public class SoundInfo
         public int length_LN;   // long note length
         public string hitSound; // hit sound name
 
-        public NoteInfo( int _x, int _y, int _timing, int _type, int _length_LN, string _hitSound )
+        public Notes( int _x, int _y, int _timing, int _type, int _length_LN, string _hitSound )
         {
             x = _x;
             y = _y;
@@ -24,13 +23,13 @@ public class SoundInfo
         }
     }
 
-    public struct TimingInfo
+    public struct Timings
     {
         public float time;        // bpm changes time
         public float bpm;         // 1 / beat length * 1000 ( ms ) * 60 ( minute )
         private float beatLength;
 
-        public TimingInfo( float _time, float _beatLength )
+        public Timings( float _time, float _beatLength )
         {
             time = _time;
             beatLength = _beatLength;
@@ -38,17 +37,17 @@ public class SoundInfo
         }
     }
 
-    public struct PreviewInfo
+    public struct Preview
     {
         public int time; // preview start time
-        public string audio;
+        public string name; // sound name
         public string img;
         public string title;
         public string artist;
 
-        public PreviewInfo( string _audio, string _img, string _title, string _artist, int _time )
+        public Preview( string _name, string _img, string _title, string _artist, int _time )
         {
-            audio = _audio;
+            name = _name;
             img = _img;
             title = _title;
             artist = _artist;
@@ -57,7 +56,7 @@ public class SoundInfo
     }
     #endregion
 
-    public List<NoteInfo> notes     = new List<NoteInfo>();
-    public List<TimingInfo> timings = new List<TimingInfo>();
-    public PreviewInfo preview;
+    public List<Notes> notes = new List<Notes>();
+    public List<Timings> timings = new List<Timings>();
+    public Preview preview;
 }
