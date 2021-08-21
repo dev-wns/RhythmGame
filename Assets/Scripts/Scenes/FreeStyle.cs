@@ -89,39 +89,32 @@ public class FreeStyle : Scene
         {
             selectTransform.DOScale( new Vector3( 1f, 1f, 1f ), 0.1f );
 
-            if ( focusIdx > 0 && focusIdx < 7 ) --focusIdx;
-            if ( selectIdx == 0 || selectIdx == 7 )
+            if ( focusIdx > 0 ) --focusIdx;
+            if ( focusIdx == 0 && selectIdx > 0 )
             {
                 movePos -= moveDuration;
                 contents.DOLocalMoveY( movePos, 0.1f );
             }
+            if ( selectIdx > 0 ) --selectIdx;
 
-            if ( selectIdx > 0 && selectIdx < soundList.Count - 1 )
-            {
-                --selectIdx;
-                selectObject = soundList[ selectIdx ];
-                ShowSelectInfo();
-            }
-            
+            selectObject = soundList[ selectIdx ];
+            ShowSelectInfo();
             selectTransform.DOScale( new Vector3( 1.1f, 1.1f, 1f ), 0.1f );
         }
 
         if ( Input.GetKeyDown( KeyCode.DownArrow ) )
         {
             selectTransform.DOScale( new Vector3( 1f, 1f, 1f ), 0.1f );
-            if ( focusIdx > 0 && focusIdx < 7 ) ++focusIdx;
-            if ( selectIdx == 0 || selectIdx == 7)
+            if ( focusIdx < 8 ) ++focusIdx;
+            if ( focusIdx == 8 && selectIdx < soundList.Count - 1 )
             {
                 movePos += moveDuration;
                 contents.DOLocalMoveY( movePos, 0.1f );
             }
+            if ( selectIdx < soundList.Count - 1 ) ++selectIdx;
 
-            if ( selectIdx > 0 && selectIdx < soundList.Count - 1 )
-            {
-                ++selectIdx;
-                selectObject = soundList[ selectIdx ];
-                ShowSelectInfo();
-            }
+            selectObject = soundList[ selectIdx ];
+            ShowSelectInfo();
             selectTransform.DOScale( new Vector3( 1.1f, 1.1f, 1f ), 0.1f );
         }
 
