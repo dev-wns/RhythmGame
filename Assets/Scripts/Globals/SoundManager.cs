@@ -25,25 +25,28 @@ public class SoundManager : Singleton<SoundManager>
 
     private FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
     private readonly ushort bufferSize = 256;
-    private bool isGroupActive = false;
     private FMOD.RESULT result;
 
     public int frequency { get; private set; }
+    public FMOD.ChannelGroup group { get { return channelGroup; } }
     #endregion
 
     #region properties
 
-    public float volume
+    private float volume;
+    public float Volume
     {
-        get { return volume; }
-        set
-        {
-            if ( !isGroupActive )
+        get 
+        { 
+            if ( volume == 0f )
             {
-                Debug.Log( "master channel group is not assigned." );
-                return;
+                channelGroup.getVolume( out volume );
             }
 
+            return volume; 
+        }
+        set
+        {
             if ( value < 0f || value > 1f )
             {
                 Debug.Log( "out of range configurable values. value from 0 ~ 1 are allowed." );
@@ -59,22 +62,23 @@ public class SoundManager : Singleton<SoundManager>
     #region unity callback functions
     private void Awake()
     {
-        GameManager.GameInit += Initialize;
-    }
-    #endregion
-
-    #region customize functions
-    private void Initialize()
-    {
         int freq, numlowspeak;
         FMOD.SPEAKERMODE speakmode;
         FMODUnity.RuntimeManager.CoreSystem.setDSPBufferSize( bufferSize, 4 );
         FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat( out freq, out speakmode, out numlowspeak );
 
         result = FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup( out channelGroup );
-        if ( result == FMOD.RESULT.OK ) isGroupActive = true;
 
         Debug.Log( "SoundManager Initizlize Successful." );
+
+        //GameManager.GameInit += Initialize;
+    }
+    #endregion
+
+    #region customize functions
+    private void Initialize()
+    {
+
     }
 
     public Sound Load( string _path, bool _loop = false )
@@ -151,8 +155,7 @@ public class SoundManager : Singleton<SoundManager>
 
     public void AllStop()
     {
-        if ( isGroupActive )
-            channelGroup.stop();
+        channelGroup.stop();
     }
     #endregion
 }

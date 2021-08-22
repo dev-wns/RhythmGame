@@ -43,7 +43,7 @@ public class Scene : MonoBehaviour
         if ( clips.background != null )
         {
             bgAudio.clip = clips.background;
-            bgAudio.Play();
+            //bgAudio.Play();
         }
     }
 }

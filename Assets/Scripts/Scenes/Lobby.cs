@@ -45,6 +45,9 @@ public class Lobby : Scene
     {
         base.Start();
 
+        SoundManager.Inst.Load( "E:\\Downloads ( E )\\y2mate.com - NAV5J  Hana_320kbps.mp3" );
+        SoundManager.Inst.Play( "y2mate.com - NAV5J  Hana_320kbps" );
+
         DOTween.Init();
     }
 
