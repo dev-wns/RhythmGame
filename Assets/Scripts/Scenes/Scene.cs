@@ -39,11 +39,11 @@ public class Scene : MonoBehaviour
 
     protected virtual void Start()
     { 
-        bgAudio.loop = true;
-        if ( clips.background != null )
-        {
-            bgAudio.clip = clips.background;
-            //bgAudio.Play();
-        }
+        //bgAudio.loop = true;
+        //if ( clips.background != null )
+        //{
+        //    bgAudio.clip = clips.background;
+        //    //bgAudio.Play();
+        //}
     }
 }

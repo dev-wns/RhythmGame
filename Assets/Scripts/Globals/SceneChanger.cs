@@ -8,7 +8,6 @@ public class SceneChanger : Singleton<SceneChanger>
     public void Change( string _name )
     {
         StartCoroutine( LoadScene( _name ) );
-        SoundManager.Inst.AllStop();
     }
 
     private IEnumerator LoadScene( string _name )
