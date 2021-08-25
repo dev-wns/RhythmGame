@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8569710904741997433}
   - component: {fileID: 8569710904741997432}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Spectrum
   m_TagString: Untagged
   m_Icon: {fileID: 0}

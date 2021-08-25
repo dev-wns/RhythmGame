@@ -13,7 +13,8 @@ public class Spectrum : MonoBehaviour
     private Transform[] visualSpectrums;
     private readonly short spectrumCount = 128;
 
-    private float bassPower = 3f;
+    private readonly int bassRange = 14;
+    private float bassPower = 4f;
     private float spectrumPower = 150f;
     private float[][] spectrum;
 
@@ -54,23 +55,23 @@ public class Spectrum : MonoBehaviour
         System.IntPtr data;
         dsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
         FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
-
         spectrum = fftData.spectrum;
+
         if ( fftData.numchannels > 0 )
         {
             for ( int idx = 0; idx < spectrumCount; ++idx )
             {
-                float value = spectrum[ 0 ][ 10 + idx ] * spectrumPower * CurrentVolume();
                 float y = visualSpectrums[idx].localScale.y;
-                Vector3 scale = Vector3.Lerp( new Vector3(.1f, y, .1f ), new Vector3(.1f, value, .1f ), .225f );
-                visualSpectrums[idx].localScale = scale;
-                visualSpectrums[( spectrumCount * 2 ) - 1 - idx].localScale = scale;
+                float value = spectrum[0][31 + idx] * spectrumPower * CurrentVolume();
+                float scale = Mathf.Lerp( y, value, 0.225f );
+                visualSpectrums[idx].localScale = new Vector3( .1f, scale, .1f );
+                visualSpectrums[( spectrumCount * 2 ) - 1 - idx].localScale = new Vector3( .1f, scale, .1f );
             }
 
             float bassAmount = 0f;
-            for ( int idx = 0; idx < 32; ++idx )
+            for ( int idx = 0; idx < bassRange; ++idx )
             {
-                bassAmount += spectrum[ 0 ][ idx ];
+                bassAmount += spectrum[0][idx];
             }
 
             DOTween.Kill( centerImage );

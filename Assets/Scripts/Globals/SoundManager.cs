@@ -6,24 +6,7 @@ using System.IO;
 public class SoundManager : Singleton<SoundManager>
 {
 
-    #region structures
-    //public struct Sound
-    //{
-    //    public FMOD.Sound sound;
-    //    public FMOD.Channel channel;
-    //    public uint length;
-
-    //    public Sound( FMOD.Sound _sound, FMOD.Channel _channel )
-    //    {
-    //        sound = _sound;
-    //        channel = _channel;
-    //        sound.getLength( out length, FMOD.TIMEUNIT.MS );
-    //    }
-    //}
-    #endregion
-
     #region variables
-    //private Dictionary<string /* file name */, Sound> sounds = new Dictionary<string, Sound>();
 
     public FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
     private FMOD.Channel[] channels = new FMOD.Channel[100];
@@ -32,6 +15,9 @@ public class SoundManager : Singleton<SoundManager>
 
     public int frequency { get; private set; }
     public FMOD.ChannelGroup group { get { return channelGroup; } }
+
+    public delegate void OnQuitSoundRelease();
+    public static event OnQuitSoundRelease SoundRelease;
     #endregion
 
     #region properties
@@ -78,8 +64,12 @@ public class SoundManager : Singleton<SoundManager>
         }
 
         Debug.Log( "SoundManager Initizlize Successful." );
+    }
 
-        //GameManager.GameInit += Initialize;
+    private void OnApplicationQuit()
+    {
+        SoundRelease();
+        //result = FMODUnity.RuntimeManager.CoreSystem.release();
     }
     #endregion
 
@@ -92,8 +82,6 @@ public class SoundManager : Singleton<SoundManager>
     public FMOD.Sound Load( string _path, bool _loop = false )
     {
         FMOD.Sound sound;// = new FMOD.Sound();
-        //FMOD.Channel channel = new FMOD.Channel();
-        //channel.setChannelGroup( channelGroup );
         
         FMOD.MODE mode;
         if ( _loop ) mode = FMOD.MODE.LOOP_NORMAL  | FMOD.MODE.ACCURATETIME;
@@ -105,34 +93,8 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogError( "failed to load sound. #Code : " + result.ToString() );
         }
 
-
-        //string name = Path.GetFileNameWithoutExtension( _path );
-        //Sound newSound = new Sound( sound, channel );
-        //sounds.Add( name, newSound );
-
         return sound;
     }
-
-    // _name : name with removed extenstion.
-    //public void Play( string _name )
-    //{
-    //    if ( !sounds.ContainsKey( _name ) )
-    //    {
-    //        Debug.LogError( "the sound was not loaded. #Name : " + _name );
-    //    }
-        
-    //    FMOD.Sound sound = sounds[ _name ].sound;
-    //    FMOD.Channel channel = sounds[ _name ].channel;
-
-    //    result = FMODUnity.RuntimeManager.CoreSystem.playSound( sound, channelGroup, false, out channels[0] );
-        
-
-    //    if ( result != FMOD.RESULT.OK )
-    //    {
-    //        Debug.LogError( "sound playback failed. #Code : " + result );
-    //        return;
-    //    }
-    //}
 
     public void Play( FMOD.Sound _sound )
     {
@@ -144,25 +106,6 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
     }
-
-    //public void Stop( string _name )
-    //{
-    //    //if ( !sounds.ContainsKey( _name ) )
-    //    //{
-    //    //    Debug.LogError( "the sound was not loaded. #Name : " + _name );
-    //    //}
-
-    //    //FMOD.Sound sound = sounds[ _name ].sound;
-    //    //FMOD.Channel channel = sounds[ _name ].channel;
-
-    //    bool isPlay = false;
-    //    channel.isPlaying( out isPlay );
-
-    //    if ( isPlay )
-    //    {
-    //        channel.stop();
-    //    }
-    //}
 
     public void Stop()
     {
