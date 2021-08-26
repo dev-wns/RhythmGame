@@ -2,17 +2,17 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using Timings = SoundData.Timings;
-using Notes = SoundData.Notes;
+using Timings = Song.Timings;
+using Notes = Song.Notes;
 
 public class FileReader
 {
     // preview, timing data parsing
-    public SoundData Read( string _path )
+    public Song Read( string _path )
     {
         string line;
         StreamReader reader = new StreamReader( _path );
-        SoundData sound = new SoundData();
+        Song song = new Song();
 
         while ( ( line = reader.ReadLine() ) != null )
         {
@@ -28,8 +28,8 @@ public class FileReader
                     arr.Add( line = reader.ReadLine() );
                 }
 
-                sound.preview.name = Path.GetFileNameWithoutExtension( arr[ 0 ].Substring( 14 ).Trim() );
-                sound.preview.time = int.Parse( arr[ 2 ].Substring( 12 ).Trim() );
+                song.preview.name = Path.GetFileNameWithoutExtension( arr[ 0 ].Substring( 14 ).Trim() );
+                song.preview.time = int.Parse( arr[ 2 ].Substring( 12 ).Trim() );
             }
 
             if ( line.Contains( "[Metadata]" ) )
@@ -44,8 +44,8 @@ public class FileReader
                     arr.Add( line = reader.ReadLine() );
                 }
 
-                sound.preview.title = arr[ 0 ].Substring( 6 ).Trim();
-                sound.preview.artist = arr[ 2 ].Substring( 7 ).Trim();
+                song.preview.title = arr[ 0 ].Substring( 6 ).Trim();
+                song.preview.artist = arr[ 2 ].Substring( 7 ).Trim();
             }
 
             if ( line.Contains( "[Events]" ) )
@@ -61,7 +61,7 @@ public class FileReader
                 }
 
                 string[] img = arr[ 1 ].Split( ',' );
-                sound.preview.img = Path.GetDirectoryName( _path ) + "\\" + img[ 2 ].Trim().Replace( "\"", string.Empty );
+                song.preview.img = Path.GetDirectoryName( _path ) + "\\" + img[ 2 ].Trim().Replace( "\"", string.Empty );
             }
 
             if ( line.Contains( "[TimingPoints]" ) )
@@ -79,7 +79,7 @@ public class FileReader
                     }
 
                     string[] arr = line.Split( ',' );
-                    sound.timings.Add( new Timings( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
+                    song.timings.Add( new Timings( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
                 }
             }
 
@@ -90,7 +90,7 @@ public class FileReader
         }
         reader.Close();
 
-        return sound;
+        return song;
     }
 
     // directories since streaming asset path

@@ -4,37 +4,34 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
-    public static Dictionary<string /* sound name */, SoundData> SoundInfomations = new Dictionary<string, SoundData>();
-
-    public delegate void InitLoading();
-    public static event InitLoading GameInit;
-
-    private void Initialize()
+    public static List<Song> songs = new List<Song>();
+    private void Awake()
     {
         // Osu Parsing
+        Debug.Log( "Osu FileParsing Start" );
         FileReader parser = new FileReader();
-        foreach ( var path in FileReader.GetFiles( "/Songs", "*.osu" ) )
+        System.IO.DirectoryInfo info = new System.IO.DirectoryInfo( Application.streamingAssetsPath + "/Songs" );
+        foreach ( var dir in info.GetDirectories() )
         {
-            SoundData soundInfo = parser.Read( path );
-            if ( ReferenceEquals( null, soundInfo ) )
+            foreach ( var file in dir.GetFiles( "*.osu" ) )
             {
-                Debug.Log( "parsing failed. no data was created. #Path : " + path );
-            }
+                Song song = parser.Read( file.FullName );
+                if ( ReferenceEquals( null, song ) )
+                {
+                    Debug.Log( "parsing failed. no data was created. #Path : " + file.FullName );
+                }
 
-            SoundInfomations.Add( soundInfo.preview.name, soundInfo );
+                song.preview.path = file.DirectoryName + "\\" + song.preview.name + ".mp3";
+                songs.Add( song );
+            }
         }
+        Debug.Log( "Osu FileParsing End" );
 
         Debug.Log( "GamaManager Initizlize Successful." );
     }
 
-    private void Awake()
-    {
-        GameInit += Initialize;
-    }
-
     private void Start()
     {
-        GameInit();
         SceneChanger.Inst.Change( "Lobby" );
     }
 }

@@ -74,10 +74,6 @@ public class SoundManager : Singleton<SoundManager>
     #endregion
 
     #region customize functions
-    private void Initialize()
-    {
-
-    }
 
     public FMOD.Sound Load( string _path, bool _loop = false )
     {

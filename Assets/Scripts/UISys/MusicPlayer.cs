@@ -19,11 +19,10 @@ public class MusicPlayer : MonoBehaviour
     public delegate void OnMusicListClick( int _idx );
     public static OnMusicListClick LobbyMusicSelect;
 
-    private void Awake()
+    private void Start()
     {
         // music files loading.
         System.IO.DirectoryInfo info = new System.IO.DirectoryInfo( Application.streamingAssetsPath + "/Musics" );
-
         foreach ( var file in info.GetFiles( "*.mp3" ) )
         {
             Sound sound = SoundManager.Inst.Load( file.FullName );

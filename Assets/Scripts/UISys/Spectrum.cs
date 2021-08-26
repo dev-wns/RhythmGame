@@ -15,11 +15,12 @@ public class Spectrum : MonoBehaviour
 
     private readonly int bassRange = 14;
     private float bassPower = 4f;
-    private float spectrumPower = 150f;
+    private float spectrumPower = 250f;
     private float[][] spectrum;
 
     private void Start()
     {
+        DOTween.Init();
         // DSP setting
         FMODUnity.RuntimeManager.CoreSystem.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp );
         dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 );
@@ -59,11 +60,17 @@ public class Spectrum : MonoBehaviour
 
         if ( fftData.numchannels > 0 )
         {
+            float maxValue = 0f;
+            for( int idx = 0; idx < spectrumCount; ++idx )
+            {
+                if ( maxValue < spectrum[0][31 + idx] ) maxValue = spectrum[0][31 + idx];
+            }
+
             for ( int idx = 0; idx < spectrumCount; ++idx )
             {
                 float y = visualSpectrums[idx].localScale.y;
                 float value = spectrum[0][31 + idx] * spectrumPower * CurrentVolume();
-                float scale = Mathf.Lerp( y, value, 0.225f );
+                float scale = Mathf.SmoothStep( y, value, .25f );// Mathf.Clamp(abs, .1f, .3f) );
                 visualSpectrums[idx].localScale = new Vector3( .1f, scale, .1f );
                 visualSpectrums[( spectrumCount * 2 ) - 1 - idx].localScale = new Vector3( .1f, scale, .1f );
             }
@@ -83,7 +90,7 @@ public class Spectrum : MonoBehaviour
     private float CurrentVolume()
     {
         float volume = SoundManager.Inst.Volume;
-        if ( volume >= 1 ) return 1f;
+        if ( volume >= 1f ) return 1f;
         else               return ( 1f - volume ) * 10f;
     }
     private Color GetGradationColor( int _index )
