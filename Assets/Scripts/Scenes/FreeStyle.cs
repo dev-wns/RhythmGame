@@ -1,12 +1,9 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Sound = FMOD.Sound;
-using System.Threading.Tasks;
-using UnityEngine.Networking;
 
 public class FreeStyle : MonoBehaviour
 {
@@ -17,105 +14,33 @@ public class FreeStyle : MonoBehaviour
     public TextMeshProUGUI time, bpm, combo, record, rate;
     public Image background, previewBG;
 
-    private List<Sprite> backgrounds = new List<Sprite>();
-    private List<Sprite> previewBGs = new List<Sprite>();
+    private Sound sound;
+    private Coroutine curSoundLoadCoroutine;
 
-    private struct PreviewSound
-    {
-        public Sound sound;
-        public int time;
+    private int Index { get { return snap.SelectIndex; } }
 
-        public PreviewSound( Sound _sound, int _time)
-        {
-            sound = _sound;
-            time = _time;
-        }
-    }
-
-    private List<PreviewSound> previewSounds = new List<PreviewSound>();
-    Sound sound;
     #region unity callbacks
-    protected void Start()
+    protected void Awake()
     {
         SoundManager.SoundRelease += Release;
         SoundManager.Inst.Volume = 0.1f;
 
-        StartCoroutine( SpriteLoad() );
-        SoundLoadAsync();
-
-        previewSounds.Capacity = GameManager.songs.Count;
-        foreach ( var data in GameManager.songs )
+        foreach ( var data in GameManager.datas )
         {
             // scrollview song contents
             GameObject obj = Instantiate( prefab, scrollSoundsContent );
             TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
-            info[0].text = data.preview.name;
-            info[1].text = data.preview.artist;
-            obj.name = data.preview.name;
 
-
-
-            //byte[] byteTex = System.IO.File.ReadAllBytes( data.preview.img );
-            //if ( byteTex.Length > 0 )
-            //{
-            //    Texture2D tex = new Texture2D( 0, 0 );
-            //    tex.LoadImage( byteTex );
-            //    Sprite sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( 0.5f, 0.5f ) );
-            //    Sprite sprite2 = Sprite.Create( tex, new Rect( tex.width / 6, tex.height / 6, tex.width - ( tex.width / 6 * 2 ), tex.height - ( tex.height / 6 * 2 ) ), new Vector2( 0.5f, 0.5f ) );
-
-            //    backgrounds.Add( sprite );
-            //    previewBGs.Add( sprite2 );
-            //}
+            int idx = data.version.IndexOf( "-" );
+            info[0].text = data.version.Substring( idx + 1, data.version.Length - idx - 1 ).Trim();
+            info[1].text = data.version.Substring( 0, idx ); 
         }
 
         // details
-        if ( GameManager.songs.Count > 0 )
+        if ( GameManager.datas.Count > 0 )
         {
             ChangePreview();
         }
-    }
-
-    private async void SoundLoadAsync()
-    {
-        await Task.Run( () =>
-        {
-            foreach ( var data in GameManager.songs )
-            {
-                // preview sounds loading
-                Sound sound = SoundManager.Inst.Load( data.preview.path, true );
-                previewSounds.Add( new PreviewSound( sound, data.preview.time ) );
-                Debug.Log( "Load : " + data.preview.name );
-            }
-        } );
-    }
-
-    private IEnumerator SpriteLoad()
-    {
-        foreach ( var data in GameManager.songs )
-        {
-            // backgrounds
-            UnityWebRequest www = UnityWebRequestTexture.GetTexture( data.preview.img );
-            yield return www.SendWebRequest();
-            if ( www.result != UnityWebRequest.Result.Success )
-            {
-                Debug.Log( www.error );
-            }
-            else
-            {
-                Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
-
-                Sprite sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( 0.5f, 0.5f ) );
-                Sprite sprite2 = Sprite.Create( tex, new Rect( tex.width / 6, tex.height / 6, tex.width - ( tex.width / 6 * 2 ), tex.height - ( tex.height / 6 * 2 ) ), new Vector2( 0.5f, 0.5f ) );
-
-                backgrounds.Add( sprite );
-                previewBGs.Add( sprite2 );
-            }
-        }
-    }
-
-    private void Load( int _idx )
-    {
-        sound = SoundManager.Inst.Load( GameManager.songs[_idx].preview.path, true );
     }
 
     private void Update()
@@ -133,39 +58,51 @@ public class FreeStyle : MonoBehaviour
 
         if ( Input.GetKeyDown( KeyCode.Return ) )
         {
-            SceneChanger.Inst.Change( "Lobby" );
         }
     }
 
     private void ChangePreview()
     {
         if ( snap.IsDuplicateKeyCheck ) return;
+        
         ChangePreviewInfo();
-        PreviewSoundPlay();
+
+        if ( !ReferenceEquals( curSoundLoadCoroutine, null ) )
+        {
+            StopCoroutine( curSoundLoadCoroutine );
+        }
+        curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
     }
 
     private void ChangePreviewInfo()
     {
-        Song song = GameManager.songs[snap.SelectIndex];
-        bpm.text = song.timings[0].bpm.ToString();
+        MetaData data = GameManager.datas[Index];
+        bpm.text = data.timings[0].bpm.ToString();
 
-        background.sprite = backgrounds[snap.SelectIndex];
-        previewBG.sprite = previewBGs[snap.SelectIndex];
+        background.sprite = GameManager.backgrounds[Index];
+        previewBG.sprite = GameManager.previewBGs[Index];
     }
 
-    private void PreviewSoundPlay()
+    private IEnumerator PreviewSoundPlay()
     {
+        yield return new WaitForSecondsRealtime( .5f );
+
+        MetaData data = GameManager.datas[Index];
+
+        sound.release();
+        sound = SoundManager.Inst.Load( data.audioPath );
+
         SoundManager.Inst.Stop();
-        SoundManager.Inst.Play( previewSounds[snap.SelectIndex].sound );
+        SoundManager.Inst.Play( sound );
 
         FMOD.Channel channel;
         SoundManager.Inst.channelGroup.getChannel( 0, out channel );
 
-        int time = previewSounds[snap.SelectIndex].time;
+        int time = data.previewTime;
         if ( time <= 0 )
         {
             uint length = 0;
-            previewSounds[snap.SelectIndex].sound.getLength( out length, FMOD.TIMEUNIT.MS );
+            sound.getLength( out length, FMOD.TIMEUNIT.MS );
             time = ( int )( length / 3.65f );
         }
 
@@ -174,15 +111,7 @@ public class FreeStyle : MonoBehaviour
 
     private void Release()
     {
-        foreach ( var music in previewSounds )
-        {
-            FMOD.RESULT res = music.sound.release();
-            if ( res != FMOD.RESULT.OK )
-            {
-                Debug.LogError( "sound release failed." );
-            }
-        }
-        Debug.Log( "FreeStyle preview Sounds release" );
+        sound.release();
     }
     #endregion
 }

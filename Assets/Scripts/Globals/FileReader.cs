@@ -2,17 +2,17 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using Timings = Song.Timings;
-using Notes = Song.Notes;
+//using Timings = Song.Timings;
+//using Notes = Song.Notes;
 
 public class FileReader
 {
     // preview, timing data parsing
-    public Song Read( string _path )
+    public MetaData Read( string _path )
     {
         string line;
         StreamReader reader = new StreamReader( _path );
-        Song song = new Song();
+        MetaData data = new MetaData();
 
         while ( ( line = reader.ReadLine() ) != null )
         {
@@ -28,8 +28,9 @@ public class FileReader
                     arr.Add( line = reader.ReadLine() );
                 }
 
-                song.preview.name = Path.GetFileNameWithoutExtension( arr[ 0 ].Substring( 14 ).Trim() );
-                song.preview.time = int.Parse( arr[ 2 ].Substring( 12 ).Trim() );
+                data.audioName = Path.GetFileName( arr[ 0 ].Substring( 14 ).Trim() );
+                data.audioPath = Path.GetDirectoryName( _path ) + "\\" + data.audioName;
+                data.previewTime = int.Parse( arr[ 2 ].Substring( 12 ).Trim() );
             }
 
             if ( line.Contains( "[Metadata]" ) )
@@ -44,8 +45,10 @@ public class FileReader
                     arr.Add( line = reader.ReadLine() );
                 }
 
-                song.preview.title = arr[ 0 ].Substring( 6 ).Trim();
-                song.preview.artist = arr[ 2 ].Substring( 7 ).Trim();
+                data.title = arr[0].Substring( 6 ).Trim();
+                data.artist = arr[2].Substring( 7 ).Trim();
+                data.creator = arr[4].Substring( 8 ).Trim();
+                data.version = arr[5].Substring( 8 ).Trim();
             }
 
             if ( line.Contains( "[Events]" ) )
@@ -61,36 +64,48 @@ public class FileReader
                 }
 
                 string[] img = arr[ 1 ].Split( ',' );
-                song.preview.img = Path.GetDirectoryName( _path ) + "\\" + img[ 2 ].Trim().Replace( "\"", string.Empty );
+                data.imgName = img[ 2 ].Trim().Replace( "\"", string.Empty );
+                data.imgPath = Path.GetDirectoryName( _path ) + "\\" + data.imgName;
             }
 
             if ( line.Contains( "[TimingPoints]" ) )
             {
-                while ( true )
+                while ( !( string.IsNullOrEmpty( line = reader.ReadLine() ) || line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) ) )
                 {
-                    if ( string.IsNullOrEmpty( line = reader.ReadLine() ) )
-                    {
-                        continue;
-                    }
-
-                    if ( line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) )
-                    {
-                        break;
-                    }
-
                     string[] arr = line.Split( ',' );
-                    song.timings.Add( new Timings( float.Parse( arr[ 0 ] ), float.Parse( arr[ 1 ] ) ) );
+                    data.timings.Add( new MetaData.Timings( float.Parse( arr[0] ), float.Parse( arr[1] ) ) );
                 }
             }
 
-            if ( line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) )
+            if ( line.Contains( "[HitObjects]" ) )
             {
-                break;
+                while ( !string.IsNullOrEmpty( line = reader.ReadLine() ) )
+                {
+                    string[] arr = line.Split( ',' );
+                    string[] LNTiming = arr[5].Split( ':' );
+                    data.notes.Add( new MetaData.Notes( int.Parse( arr[0] ), int.Parse( arr[1] ), int.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
+                }
             }
         }
         reader.Close();
 
-        return song;
+        int idx = data.audioName.IndexOf( "-" );
+        if ( idx >= 0 )
+        {
+            string src = data.audioName;
+            data.audioName = data.audioName.Replace( "-", "" );
+            File.Move( Path.GetDirectoryName( _path ) + "\\" + src, Path.GetDirectoryName( _path ) + "\\" + data.audioName );
+
+            string[] lines = File.ReadAllLines( _path );
+            var pos = Array.FindIndex( lines, row => row.Contains( "AudioFilename:" ) );
+            if ( pos > 0 )
+            {
+                lines[pos] = "AudioFilename:" + data.audioName;
+                File.WriteAllLines( _path, lines );
+            }
+        }
+
+        return data;
     }
 
     // directories since streaming asset path

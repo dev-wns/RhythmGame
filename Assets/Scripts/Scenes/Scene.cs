@@ -2,23 +2,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
+using UnityEngine.SceneManagement;
 
 public class Scene : MonoBehaviour
 {
-    protected enum SceneType { FreeStyle, Online, Collection, Ranking, Lobby }
+    protected enum SceneType { Lobby, FreeStyle, Game };
 
     [Serializable]
     public struct SceneClips
     {
-        public AudioClip background;
         public AudioClip move;
         public AudioClip click;
         public AudioClip escape;
     }
 
     public SceneClips clips;
-    private AudioSource bgAudio, sfxAudio;
+    private AudioSource sfxAudio;
 
     protected void SfxPlay( AudioClip _clip )
     {
@@ -33,17 +32,15 @@ public class Scene : MonoBehaviour
 
     protected virtual void Awake()
     {
-        bgAudio  = gameObject.AddComponent<AudioSource>();
+        SoundManager.SoundRelease += SoundRelease;
         sfxAudio = gameObject.AddComponent<AudioSource>();
     }
 
-    protected virtual void Start()
-    { 
-        //bgAudio.loop = true;
-        //if ( clips.background != null )
-        //{
-        //    bgAudio.clip = clips.background;
-        //    //bgAudio.Play();
-        //}
+    protected virtual void SoundRelease() { }
+
+    protected void Change( SceneType _type )
+    {
+        SceneManager.LoadScene( _type.ToString() );
+        SoundManager.Inst.Stop();
     }
 }
