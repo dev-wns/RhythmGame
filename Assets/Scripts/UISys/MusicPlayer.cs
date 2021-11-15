@@ -15,7 +15,7 @@ public class MusicPlayer : MonoBehaviour
     {
         SoundManager.SoundRelease += SoundRelease;
 
-        backgroundSound = SoundManager.Inst.Load( Application.streamingAssetsPath + "/Musics/LobbyBackground.mp3", true );
+        backgroundSound = SoundManager.Inst.Load( Application.streamingAssetsPath + "/Musics/O2i3 - ooi.mp3", true );
         SoundManager.Inst.Play( backgroundSound );
 
         backgroundSound.getLength( out totalTime, FMOD.TIMEUNIT.MS );

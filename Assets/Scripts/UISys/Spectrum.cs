@@ -60,16 +60,11 @@ public class Spectrum : MonoBehaviour
 
         if ( fftData.numchannels > 0 )
         {
-            float maxValue = 0f;
-            for( int idx = 0; idx < spectrumCount; ++idx )
-            {
-                if ( maxValue < spectrum[0][31 + idx] ) maxValue = spectrum[0][31 + idx];
-            }
-
+            float volume = CurrentVolume();
             for ( int idx = 0; idx < spectrumCount; ++idx )
             {
                 float y = visualSpectrums[idx].localScale.y;
-                float value = spectrum[0][31 + idx] * spectrumPower * CurrentVolume();
+                float value = ( spectrum[0][0 + idx] * spectrumPower * volume ) * .5f;
                 float scale = Mathf.SmoothStep( y, value, .25f );// Mathf.Clamp(abs, .1f, .3f) );
                 visualSpectrums[idx].localScale = new Vector3( .1f, scale, .1f );
                 visualSpectrums[( spectrumCount * 2 ) - 1 - idx].localScale = new Vector3( .1f, scale, .1f );
@@ -82,7 +77,7 @@ public class Spectrum : MonoBehaviour
             }
 
             DOTween.Kill( centerImage );
-            float values = Mathf.Clamp( bassAmount * bassPower * CurrentVolume(), 2f, 2.5f );
+            float values = Mathf.Clamp( bassAmount * bassPower * volume, 2f, 2.5f );
             centerImage.DOScale( new Vector3( values, values, 0f ), .15f );
         }
     }

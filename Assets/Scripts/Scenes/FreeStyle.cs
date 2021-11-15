@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using Sound = FMOD.Sound;
 
-public class FreeStyle : MonoBehaviour
+public class FreeStyle : Scene
 {
     public GameObject prefab; // sound infomation prefab
     public Transform scrollSoundsContent;
@@ -20,8 +20,10 @@ public class FreeStyle : MonoBehaviour
     private int Index { get { return snap.SelectIndex; } }
 
     #region unity callbacks
-    protected void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         SoundManager.SoundRelease += Release;
         SoundManager.Inst.Volume = 0.1f;
 
@@ -33,13 +35,23 @@ public class FreeStyle : MonoBehaviour
 
             int idx = data.version.IndexOf( "-" );
             info[0].text = data.version.Substring( idx + 1, data.version.Length - idx - 1 ).Trim();
-            info[1].text = data.version.Substring( 0, idx ); 
+            //info[1].text = data.version.Substring( 0, idx ); 
         }
 
         // details
         if ( GameManager.datas.Count > 0 )
         {
             ChangePreview();
+        }
+        //StartCoroutine( RandomBPM() );
+    }
+
+    private IEnumerator RandomBPM()
+    {
+        while ( true )
+        {
+            yield return new WaitForSeconds( 5f );
+            GameManager.Inst.globalBpm = UnityEngine.Random.Range( 60f, 250f );
         }
     }
 
@@ -58,13 +70,17 @@ public class FreeStyle : MonoBehaviour
 
         if ( Input.GetKeyDown( KeyCode.Return ) )
         {
+            //NowPlaying.Inst.data = GameManager.datas[Index];
+            //NowPlaying.Inst.Init();
+            Change( SceneType.InGame );
         }
     }
 
     private void ChangePreview()
     {
         if ( snap.IsDuplicateKeyCheck ) return;
-        
+        NowPlaying.Inst.data = GameManager.datas[Index];
+
         ChangePreviewInfo();
 
         if ( !ReferenceEquals( curSoundLoadCoroutine, null ) )
@@ -90,7 +106,7 @@ public class FreeStyle : MonoBehaviour
         MetaData data = GameManager.datas[Index];
 
         sound.release();
-        sound = SoundManager.Inst.Load( data.audioPath );
+        sound = SoundManager.Inst.Load( data.audioPath, true );
 
         SoundManager.Inst.Stop();
         SoundManager.Inst.Play( sound );

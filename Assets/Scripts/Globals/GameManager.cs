@@ -12,11 +12,18 @@ public class GameManager : Singleton<GameManager>
 
     public delegate void OnLoad( float _offset );
     public static OnLoad loadProgress;
+    [SerializeField]
+    public float globalBpm = 150f;
+    public float GlobalScroll = 300f;
 
     public static bool isDone { get; private set; } = false;
 
     private void Awake()
     {
+        Application.targetFrameRate = 144;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
+
         // Osu Parsing
         FileReader parser = new FileReader();
         
@@ -30,13 +37,15 @@ public class GameManager : Singleton<GameManager>
                 {
                     Debug.Log( "parsing failed. no data was created. #Path : " + file.FullName );
                 }
-
+                
                 datas.Add( data );
             }
+            StartCoroutine( BackgroundsLoad() );
+            //return;
         }
         Debug.Log( "Osu FileParsing Finish" );
 
-        StartCoroutine( BackgroundsLoad() );
+        //StartCoroutine( BackgroundsLoad() );
     }
 
     private IEnumerator LobbySceneAsyncLoad()

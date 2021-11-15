@@ -8,6 +8,14 @@ using UnityEngine;
 public class FileReader
 {
     // preview, timing data parsing
+
+    bool StringToBoolean( string _value )
+    {
+        int value = int.Parse( _value );
+        if ( value != 0 ) return true;
+        else return false;
+    }
+
     public MetaData Read( string _path )
     {
         string line;
@@ -73,7 +81,7 @@ public class FileReader
                 while ( !( string.IsNullOrEmpty( line = reader.ReadLine() ) || line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) ) )
                 {
                     string[] arr = line.Split( ',' );
-                    data.timings.Add( new MetaData.Timings( float.Parse( arr[0] ), float.Parse( arr[1] ) ) );
+                    data.timings.Add( new MetaData.Timings( float.Parse( arr[0] ), float.Parse( arr[1] ), StringToBoolean( arr[6] ) ) );
                 }
             }
 
@@ -83,7 +91,7 @@ public class FileReader
                 {
                     string[] arr = line.Split( ',' );
                     string[] LNTiming = arr[5].Split( ':' );
-                    data.notes.Add( new MetaData.Notes( int.Parse( arr[0] ), int.Parse( arr[1] ), int.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
+                    data.notes.Add( new MetaData.Notes( int.Parse( arr[0] ), int.Parse( arr[1] ), ( uint )int.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
                 }
             }
         }

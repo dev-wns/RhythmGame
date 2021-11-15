@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class Scene : MonoBehaviour
 {
-    protected enum SceneType { Lobby, FreeStyle, Game };
+    protected enum SceneType { Lobby, FreeStyle, InGame };
 
     [Serializable]
     public struct SceneClips

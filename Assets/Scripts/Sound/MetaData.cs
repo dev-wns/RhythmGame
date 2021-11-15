@@ -8,22 +8,25 @@ public class MetaData
     {
         public float changeTime;
         public float beatLength;
-        public int bpm;
-        public Timings ( float _changeTime, float _beatLength )
+        public double bpm;
+        public bool isUninherited;
+
+        public Timings ( float _changeTime, float _beatLength, bool _isUninherited )
         {
             changeTime = _changeTime;
             beatLength = _beatLength;
-            bpm = Mathf.FloorToInt( 1f / _beatLength * 1000f * 60f );
+            bpm = 1f / _beatLength * 1000f * 60f;
+            isUninherited = _isUninherited;
         }
     }
 
     public struct Notes
     {
         public int x, y;
-        public int hitTiming;
+        public uint hitTiming;
         public int type;
         public int lengthLN;
-        public Notes( int _x, int _y, int _hitTiming, int _type, int _lengthLN )
+        public Notes( int _x, int _y, uint _hitTiming, int _type, int _lengthLN )
         {
             x = _x;
             y = _y;
