@@ -21,6 +21,7 @@ public class FileReader
         string line;
         StreamReader reader = new StreamReader( _path );
         MetaData data = new MetaData();
+        float prevBPM = 0f;
 
         while ( ( line = reader.ReadLine() ) != null )
         {
@@ -81,7 +82,17 @@ public class FileReader
                 while ( !( string.IsNullOrEmpty( line = reader.ReadLine() ) || line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) ) )
                 {
                     string[] arr = line.Split( ',' );
-                    data.timings.Add( new MetaData.Timings( float.Parse( arr[0] ), float.Parse( arr[1] ), StringToBoolean( arr[6] ) ) );
+
+                    float changeTime = float.Parse( arr[0] );
+                    float beatLength = Mathf.Abs( float.Parse( arr[1] ) );
+                    bool isUninherited = StringToBoolean( arr[6] );
+
+                    if ( beatLength >= 99999999 ) continue;
+
+                    if ( isUninherited ) prevBPM = beatLength;
+                    else beatLength = Mathf.Abs( ( prevBPM * 100f / beatLength ) );
+
+                    data.timings.Add( new MetaData.Timings( changeTime, beatLength, isUninherited ) );
                 }
             }
 

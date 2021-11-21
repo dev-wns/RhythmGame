@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Sound = FMOD.Sound;
+using UnityEngine.Networking;
 
 public class FreeStyle : Scene
 {
@@ -14,9 +15,7 @@ public class FreeStyle : Scene
     public TextMeshProUGUI time, bpm, combo, record, rate;
     public Image background, previewBG;
 
-    private Sound sound;
     private Coroutine curSoundLoadCoroutine;
-
     private int Index { get { return snap.SelectIndex; } }
 
     #region unity callbacks
@@ -24,7 +23,6 @@ public class FreeStyle : Scene
     {
         base.Awake();
 
-        SoundManager.SoundRelease += Release;
         SoundManager.Inst.Volume = 0.1f;
 
         foreach ( var data in GameManager.datas )
@@ -43,16 +41,6 @@ public class FreeStyle : Scene
         {
             ChangePreview();
         }
-        //StartCoroutine( RandomBPM() );
-    }
-
-    private IEnumerator RandomBPM()
-    {
-        while ( true )
-        {
-            yield return new WaitForSeconds( 5f );
-            GameManager.Inst.globalBpm = UnityEngine.Random.Range( 60f, 250f );
-        }
     }
 
     private void Update()
@@ -70,8 +58,6 @@ public class FreeStyle : Scene
 
         if ( Input.GetKeyDown( KeyCode.Return ) )
         {
-            //NowPlaying.Inst.data = GameManager.datas[Index];
-            //NowPlaying.Inst.Init();
             Change( SceneType.InGame );
         }
     }
@@ -79,7 +65,7 @@ public class FreeStyle : Scene
     private void ChangePreview()
     {
         if ( snap.IsDuplicateKeyCheck ) return;
-        NowPlaying.Inst.data = GameManager.datas[Index];
+        GameManager.SelectData = GameManager.datas[Index];
 
         ChangePreviewInfo();
 
@@ -95,21 +81,21 @@ public class FreeStyle : Scene
         MetaData data = GameManager.datas[Index];
         bpm.text = data.timings[0].bpm.ToString();
 
-        background.sprite = GameManager.backgrounds[Index];
-        previewBG.sprite = GameManager.previewBGs[Index];
+        background.sprite = GameManager.backgrounds[GameManager.datas[Index].imgName]; //GameManager.backgrounds[Index];
     }
 
     private IEnumerator PreviewSoundPlay()
     {
-        yield return new WaitForSecondsRealtime( .5f );
+        yield return new WaitForSecondsRealtime( .1f );
 
         MetaData data = GameManager.datas[Index];
 
-        sound.release();
-        sound = SoundManager.Inst.Load( data.audioPath, true );
+        //sound.release();
+        //sound = SoundManager.Inst.Load( data.audioPath, true );
 
         SoundManager.Inst.Stop();
-        SoundManager.Inst.Play( sound );
+        //SoundManager.Inst.Play( sound );
+        SoundManager.Inst.Play( GameManager.sounds[Index] );
 
         FMOD.Channel channel;
         SoundManager.Inst.channelGroup.getChannel( 0, out channel );
@@ -118,16 +104,11 @@ public class FreeStyle : Scene
         if ( time <= 0 )
         {
             uint length = 0;
-            sound.getLength( out length, FMOD.TIMEUNIT.MS );
+            GameManager.sounds[Index].getLength( out length, FMOD.TIMEUNIT.MS );
             time = ( int )( length / 3.65f );
         }
 
         channel.setPosition( ( uint )time, FMOD.TIMEUNIT.MS );
-    }
-
-    private void Release()
-    {
-        sound.release();
     }
     #endregion
 }
