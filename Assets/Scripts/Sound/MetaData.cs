@@ -23,10 +23,10 @@ public class MetaData
     public struct Notes
     {
         public int x, y;
-        public uint hitTiming;
+        public float hitTiming;
         public int type;
         public int lengthLN;
-        public Notes( int _x, int _y, uint _hitTiming, int _type, int _lengthLN )
+        public Notes( int _x, int _y, float _hitTiming, int _type, int _lengthLN )
         {
             x = _x;
             y = _y;

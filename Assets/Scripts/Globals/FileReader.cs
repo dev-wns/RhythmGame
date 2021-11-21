@@ -91,7 +91,7 @@ public class FileReader
                 {
                     string[] arr = line.Split( ',' );
                     string[] LNTiming = arr[5].Split( ':' );
-                    data.notes.Add( new MetaData.Notes( int.Parse( arr[0] ), int.Parse( arr[1] ), ( uint )int.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
+                    data.notes.Add( new MetaData.Notes( int.Parse( arr[0] ), int.Parse( arr[1] ), float.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
                 }
             }
         }

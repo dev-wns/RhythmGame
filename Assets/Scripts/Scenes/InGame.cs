@@ -10,11 +10,9 @@ public class InGame : Scene
     public static float PlayBackChanged = 0f;
     public static uint changeTime;
     public static double BPM = 0d;
-    private int BPMIdx = 0;
-    public static double GlobalSpeed = 0;
-    private float ScrollSpeed = 10;
+    public static double GlobalSpeed = 0d;
 
-    private int  noteIdx = 0;
+    private int noteIdx = 0;
     public int timingIdx = 0;
     public double prevBpm = 1d;
 
@@ -23,6 +21,9 @@ public class InGame : Scene
     private float MedianBPM = 0f;
 
     public TextMeshProUGUI timeText;
+
+    private ObjectPool<Note> notePool;
+    public Note notePrefab;
     
 
     //private uint GetNoteTime( uint _time )
@@ -55,6 +56,7 @@ public class InGame : Scene
     //    //prevBpm = curBpm;
     //    return ( uint )newTime;
     //}
+
     private List<double> BPMList = new List<double>();
 
     List<MedianCac> medianlist = new List<MedianCac>();
@@ -72,6 +74,8 @@ public class InGame : Scene
     protected override void Awake()
     {
         base.Awake();
+
+        notePool = new ObjectPool<Note>( notePrefab );
 
         data = NowPlaying.Inst.data;
 
@@ -140,8 +144,23 @@ public class InGame : Scene
         {
             if ( data.notes.Count - 1 == noteIdx ) return;
 
-            Note obj = NotePool.Inst.Dequeue();
-            obj.SetNote( data.notes[idx], GetNoteTime( data.notes[idx].hitTiming / 1000d ) );
+            MetaData.Notes note = data.notes[idx];
+
+            Note obj = notePool.Spawn();// NotePool.Inst.Dequeue();
+            Note LNStart = null;
+            Note LNEnd = null;
+
+            if ( note.type == 128 )
+            {
+                LNStart = notePool.Spawn();
+                LNStart.SetNote( note.x, 2566, GetNoteTime( note.hitTiming / 1000d ), null );
+
+                LNEnd = notePool.Spawn();
+                LNEnd.SetNote( note.x, 3333, GetNoteTime( note.lengthLN / 1000d ), null );
+            }
+
+            obj.SetNote( note.x, note.type, GetNoteTime( note.hitTiming / 1000d ), LNEnd );
+            
             noteIdx++;
         }
     }

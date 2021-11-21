@@ -2008,8 +2008,6 @@ MonoBehaviour:
   progressTimer: {fileID: 1551977229}
   totalTimer: {fileID: 1098365667}
   progressBar: {fileID: 979974822}
-  musicInfoPrefab: {fileID: 8993112760401155474, guid: 08a9b73048165614b9b2792bfcd4d522, type: 3}
-  scrollViewContent: {fileID: 0}
 --- !u!1 &1874528746
 GameObject:
   m_ObjectHideFlags: 0
