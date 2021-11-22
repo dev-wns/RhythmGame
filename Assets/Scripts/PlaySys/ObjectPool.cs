@@ -24,9 +24,11 @@ public class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
             Debug.LogError( "not find ingame canvas" );
         }
 
-        GameObject parentObj = Instantiate( new GameObject(), canvas.transform );
+        GameObject parentObj = new GameObject(); //Instantiate( new GameObject(), canvas.transform );
+        parentObj.transform.parent = canvas.transform;
         parentObj.transform.position = Vector3.zero;
         parentObj.transform.rotation = Quaternion.identity;
+        parentObj.transform.localScale = Vector3.one;
         parentObj.name = string.Format( "{0} Pool", typeof( T ).Name );
 
         parent = parentObj.transform;

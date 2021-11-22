@@ -3,8 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Sound = FMOD.Sound;
-using UnityEngine.Networking;
 
 public class FreeStyle : Scene
 {
@@ -16,6 +14,7 @@ public class FreeStyle : Scene
     public Image background, previewBG;
 
     private Coroutine curSoundLoadCoroutine;
+    private FMOD.Sound sound;
     private int Index { get { return snap.SelectIndex; } }
 
     #region unity callbacks
@@ -65,6 +64,7 @@ public class FreeStyle : Scene
     private void ChangePreview()
     {
         if ( snap.IsDuplicateKeyCheck ) return;
+
         GameManager.SelectData = GameManager.datas[Index];
 
         ChangePreviewInfo();
@@ -79,9 +79,9 @@ public class FreeStyle : Scene
     private void ChangePreviewInfo()
     {
         MetaData data = GameManager.datas[Index];
-        bpm.text = data.timings[0].bpm.ToString();
+        bpm.text = Mathf.FloorToInt( ( float )data.timings[0].bpm ).ToString();
 
-        background.sprite = GameManager.backgrounds[GameManager.datas[Index].imgName]; //GameManager.backgrounds[Index];
+        background.sprite = GameManager.datas[Index].background;
     }
 
     private IEnumerator PreviewSoundPlay()
@@ -89,13 +89,10 @@ public class FreeStyle : Scene
         yield return new WaitForSecondsRealtime( .1f );
 
         MetaData data = GameManager.datas[Index];
-
-        //sound.release();
-        //sound = SoundManager.Inst.Load( data.audioPath, true );
+        sound = data.sound;
 
         SoundManager.Inst.Stop();
-        //SoundManager.Inst.Play( sound );
-        SoundManager.Inst.Play( GameManager.sounds[Index] );
+        SoundManager.Inst.Play( sound );
 
         FMOD.Channel channel;
         SoundManager.Inst.channelGroup.getChannel( 0, out channel );
@@ -104,7 +101,7 @@ public class FreeStyle : Scene
         if ( time <= 0 )
         {
             uint length = 0;
-            GameManager.sounds[Index].getLength( out length, FMOD.TIMEUNIT.MS );
+            sound.getLength( out length, FMOD.TIMEUNIT.MS );
             time = ( int )( length / 3.65f );
         }
 

@@ -8,7 +8,7 @@ public class MetaData
     {
         public float changeTime;
         public float beatLength;
-        public double bpm;
+        public float bpm;
         public bool isUninherited;
 
         public Timings ( float _changeTime, float _beatLength, bool _isUninherited )
@@ -43,4 +43,7 @@ public class MetaData
 
     public List<Notes> notes = new List<Notes>();
     public List<Timings> timings = new List<Timings>();
+
+    public Sprite background;
+    public FMOD.Sound sound;
 }

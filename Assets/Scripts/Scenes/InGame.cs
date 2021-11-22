@@ -6,26 +6,94 @@ public class InGame : Scene
 {
     public MetaData data;
 
-    public static uint PlaybackTime = 0;
-    public static float PlaybackChanged = 0f;
+    private uint PlaybackTime = 0;             // ms
+    public static float PlaybackChanged = 0f; // second
 
     private int noteIdx = 0;
-    public int timingIdx = 0;
+    private int timingIdx = 0;
 
     private FMOD.Sound sound;
-    private bool isLoaded, isBpmWeight, isSoundLoad;
+    private uint soundLength; // ms
+    private bool isLoaded;
 
     public TextMeshProUGUI timeText;
 
-    private ObjectPool<Note> notePool;
-    public Note notePrefab;
+    private ObjectPool<Note> nPool;
+    public Note nPrefab;
+
+    private List<float> mTimings = new List<float>(); // measure Timings
+    private ObjectPool<MeasureLine> mPool;
+    public MeasureLine mPrefab;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        nPool = new ObjectPool<Note>( nPrefab );
+        mPool = new ObjectPool<MeasureLine>( mPrefab );
+
+        data = GameManager.SelectData;
+
+        GlobalSetting.BPM = data.timings[0].bpm;
+        StartCoroutine( BpmChange() );
+        SoundLoad();
+        FindBpmWeight();
+        SetMeasureTiming();
+
+        for ( int idx = 0; idx < data.notes.Count - 1; idx++ )
+        {
+            if ( data.notes.Count - 1 == noteIdx ) return;
+
+            MetaData.Notes note = data.notes[idx];
+
+            Note obj = nPool.Spawn();
+            Note LNStart = null;
+            Note LNEnd = null;
+
+            if ( note.type == 128 )
+            {
+                LNStart = nPool.Spawn();
+                LNStart.SetNote( note.x, 2566, GetNoteTime( note.hitTiming / 1000f ), null );
+
+                LNEnd = nPool.Spawn();
+                LNEnd.SetNote( note.x, 3333, GetNoteTime( note.lengthLN / 1000f ), null );
+            }
+
+            obj.SetNote( note.x, note.type, GetNoteTime( note.hitTiming / 1000f ), LNEnd );
+
+            noteIdx++;
+        }
+
+        for ( int i = 0; i < mTimings.Count - 1; i++ )
+        {
+            MeasureLine measure = mPool.Spawn();
+            measure.SetInfo( GetNoteTime( mTimings[i] / 1000f ) );
+        }
+
+        SoundManager.Inst.Play( sound );
+        isLoaded = true;
+    }
+
+    private void Update()
+    {
+        if ( !isLoaded ) return;
+
+        FMOD.Channel channel;
+        FMOD.RESULT res = SoundManager.Inst.channelGroup.getChannel( 0, out channel );
+        channel.getPosition( out PlaybackTime, FMOD.TIMEUNIT.MS );
+        PlaybackChanged = GetNoteTime( PlaybackTime / 1000f );
+
+        if ( res != FMOD.RESULT.OK ) return;
+
+        timeText.text = PlaybackTime.ToString();
+    }
 
     private IEnumerator BpmChange()
     {
         float changeTime = data.timings[timingIdx].changeTime;
         yield return new WaitUntil(()=> PlaybackTime >= changeTime );
 
-        GlobalSetting.BPM = (float)data.timings[timingIdx].bpm;
+        GlobalSetting.BPM = data.timings[timingIdx].bpm;
         if ( timingIdx < data.timings.Count - 1 ) timingIdx++;
 
         StartCoroutine( BpmChange() );
@@ -36,7 +104,7 @@ public class InGame : Scene
         List<float> bpmList = new List<float>();
         foreach ( var data in data.timings )
         {
-            float bpm = ( float )data.bpm;
+            float bpm = data.bpm;
             if ( !bpmList.Contains( bpm ) )
             {
                 bpmList.Add( bpm );
@@ -45,56 +113,16 @@ public class InGame : Scene
 
         bpmList.Sort();
         GlobalSetting.BPMWeight = bpmList[Mathf.FloorToInt( bpmList.Count / 2f )];
-        isBpmWeight = true;
     }
 
     private void SoundLoad()
     {
         sound = SoundManager.Inst.Load( data.audioPath );
-        isSoundLoad = true;
+        sound.getLength( out soundLength, FMOD.TIMEUNIT.MS );
     }
 
-    protected override void Awake()
-    {
-        base.Awake();
 
-        notePool = new ObjectPool<Note>( notePrefab );
-
-        data = GameManager.SelectData;
-
-        StartCoroutine( BpmChange() );
-        SoundLoad();
-        FindBpmWeight();
-
-        for ( int idx = 0; idx < data.notes.Count - 1; idx++ )
-        {
-            if ( data.notes.Count - 1 == noteIdx ) return;
-
-            MetaData.Notes note = data.notes[idx];
-
-            Note obj = notePool.Spawn();
-            Note LNStart = null;
-            Note LNEnd = null;
-
-            if ( note.type == 128 )
-            {
-                LNStart = notePool.Spawn();
-                LNStart.SetNote( note.x, 2566, GetNoteTime( note.hitTiming / 1000d ), null );
-
-                LNEnd = notePool.Spawn();
-                LNEnd.SetNote( note.x, 3333, GetNoteTime( note.lengthLN / 1000d ), null );
-            }
-
-            obj.SetNote( note.x, note.type, GetNoteTime( note.hitTiming / 1000d ), LNEnd );
-
-            noteIdx++;
-        }
-
-        SoundManager.Inst.Play( sound );
-        isLoaded = true;
-    }
-
-    private float GetNoteTime( double _time ) //BPM에 따른 노트 위치 계산
+    private float GetNoteTime( float _time ) //BPM에 따른 노트 위치 계산
     {
         double newTime = _time;
         double prevBpm = 1;
@@ -108,21 +136,26 @@ public class InGame : Scene
             newTime += ( double )( bpm - prevBpm ) * ( _time - time ); //거리계산
             prevBpm = bpm; //이전bpm값
         }
-        return ( float )newTime; //최종값 리턴
+        return ( float )newTime; 
     }
 
-    private void Update()
+    private void SetMeasureTiming()
     {
-        if ( !isLoaded ) return;
+        for ( int i = 0; i < data.timings.Count; i++ )
+        {
+            float time;
+            MetaData.Timings timing = data.timings[i];
 
-        FMOD.Channel channel;
-        FMOD.RESULT res = SoundManager.Inst.channelGroup.getChannel( 0, out channel );
-        channel.getPosition( out PlaybackTime, FMOD.TIMEUNIT.MS );
-        PlaybackChanged = GetNoteTime( PlaybackTime / 1000d );
+            if ( i + 1 == data.timings.Count ) time = soundLength;
+            else                               time = data.timings[i + 1].changeTime;
 
+            int a = Mathf.FloorToInt( ( time - timing.changeTime ) / ( timing.bpm * 4f ) );
+            mTimings.Add( timing.changeTime );
 
-        if ( res != FMOD.RESULT.OK ) return;
-
-        timeText.text = PlaybackTime.ToString();
+            for( int j = 0; j < a; j++ )
+            {
+                mTimings.Add( timing.changeTime + ( j * timing.bpm * 4f ) );
+            }
+        }
     }
 }

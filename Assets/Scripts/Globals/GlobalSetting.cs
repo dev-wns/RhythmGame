@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GlobalSetting : MonoBehaviour
 {
-    public static float ScrollSpeed = 20f;
+    public static float ScrollSpeed = 10f;
     public static float JudgeLine = -540f;
 
     public static float BPM = 0f;
