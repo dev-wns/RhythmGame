@@ -19,7 +19,9 @@ public class GameManager : Singleton<GameManager>
     private void Awake()
     {
         // Setting
+        Screen.SetResolution( 1920, 1080, false );
         Application.targetFrameRate = 144;
+        
         SoundManager.SoundRelease += Release;
 
         // Parsing
@@ -50,6 +52,8 @@ public class GameManager : Singleton<GameManager>
         {
             // backgrounds
             UnityWebRequest www = UnityWebRequestTexture.GetTexture( data.imgPath );
+            if ( ReferenceEquals( www, null ) ) Debug.Log( "Asdfasdfsadf" );
+
             yield return www.SendWebRequest();
             if ( www.result != UnityWebRequest.Result.Success )
             {

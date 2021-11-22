@@ -6,71 +6,47 @@ public class InGame : Scene
 {
     public MetaData data;
 
-    private uint PlaybackTime = 0;             // ms
+    private float __time = 0f;
+    private uint playbackTime = 0;             // ms
     public static float PlaybackChanged = 0f; // second
 
-    private int noteIdx = 0;
     private int timingIdx = 0;
 
     private FMOD.Sound sound;
     private uint soundLength; // ms
-    private bool isLoaded;
+    private bool isLoaded, isMusicStart;
 
+    // ui
     public TextMeshProUGUI timeText;
 
-    private ObjectPool<Note> nPool;
+    // create
+    private int nIdx, mIdx = 0; // note, measure create index
+    private float createOffset = 0f;
+    private readonly float cOffset = 1f; // 판정선에 닫기 value초 전에 생성
+
+    public static ObjectPool<Note> nPool;
     public Note nPrefab;
 
     private List<float> mTimings = new List<float>(); // measure Timings
-    private ObjectPool<MeasureLine> mPool;
+    public static ObjectPool<MeasureLine> mPool;
     public MeasureLine mPrefab;
 
     protected override void Awake()
     {
         base.Awake();
-
         nPool = new ObjectPool<Note>( nPrefab );
         mPool = new ObjectPool<MeasureLine>( mPrefab );
 
         data = GameManager.SelectData;
 
         GlobalSetting.BPM = data.timings[0].bpm;
-        StartCoroutine( BpmChange() );
         SoundLoad();
         FindBpmWeight();
         SetMeasureTiming();
+        StartCoroutine( BpmChange() );
+        StartCoroutine( NoteSystem() );
+        StartCoroutine( MeasureSystem() );
 
-        for ( int idx = 0; idx < data.notes.Count - 1; idx++ )
-        {
-            if ( data.notes.Count - 1 == noteIdx ) return;
-
-            MetaData.Notes note = data.notes[idx];
-
-            Note obj = nPool.Spawn();
-            Note LNStart = null;
-            Note LNEnd = null;
-
-            if ( note.type == 128 )
-            {
-                LNStart = nPool.Spawn();
-                LNStart.SetNote( note.x, 2566, GetNoteTime( note.hitTiming / 1000f ), null );
-
-                LNEnd = nPool.Spawn();
-                LNEnd.SetNote( note.x, 3333, GetNoteTime( note.lengthLN / 1000f ), null );
-            }
-
-            obj.SetNote( note.x, note.type, GetNoteTime( note.hitTiming / 1000f ), LNEnd );
-
-            noteIdx++;
-        }
-
-        for ( int i = 0; i < mTimings.Count - 1; i++ )
-        {
-            MeasureLine measure = mPool.Spawn();
-            measure.SetInfo( GetNoteTime( mTimings[i] / 1000f ) );
-        }
-
-        SoundManager.Inst.Play( sound );
         isLoaded = true;
     }
 
@@ -78,20 +54,68 @@ public class InGame : Scene
     {
         if ( !isLoaded ) return;
 
-        FMOD.Channel channel;
-        FMOD.RESULT res = SoundManager.Inst.channelGroup.getChannel( 0, out channel );
-        channel.getPosition( out PlaybackTime, FMOD.TIMEUNIT.MS );
-        PlaybackChanged = GetNoteTime( PlaybackTime / 1000f );
+        if ( !isMusicStart )
+        {
+            SoundManager.Inst.Play( sound );
+            isMusicStart = true;
+        }
 
-        if ( res != FMOD.RESULT.OK ) return;
+        //FMOD.Channel channel;
+        //FMOD.RESULT res = SoundManager.Inst.channelGroup.getChannel( 0, out channel );
+        //channel.getPosition( out playbackTime, FMOD.TIMEUNIT.MS );
+        __time += Time.deltaTime;
+        PlaybackChanged = GetNoteTime( __time );
+        //PlaybackChanged = GetNoteTime( playbackTime / 1000f );
+        createOffset = GetNoteTime( cOffset );
 
-        timeText.text = PlaybackTime.ToString();
+        //if ( res != FMOD.RESULT.OK ) return;
+
+        timeText.text = playbackTime.ToString();
+    }
+
+    private IEnumerator NoteSystem()
+    {
+        MetaData.Notes note = data.notes[nIdx];
+        float time = GetNoteTime( note.hitTiming / 1000f );
+        yield return new WaitUntil( () => time <= PlaybackChanged + createOffset );
+
+        Note obj = nPool.Spawn();
+        Note LNStart = null;
+        Note LNEnd = null;
+
+        if ( note.type == 128 )
+        {
+            LNStart = nPool.Spawn();
+            LNStart.SetNote( nIdx, note.x, 2566, time, null );
+
+            LNEnd = nPool.Spawn();
+            LNEnd.SetNote( nIdx, note.x, 3333, GetNoteTime( note.lengthLN / 1000f ), null );
+        }
+
+        obj.SetNote( nIdx - 1, note.x, note.type, time, LNEnd );
+
+        if ( nIdx < data.notes.Count - 1 ) nIdx++;
+
+        StartCoroutine( NoteSystem() );
+    }
+
+    private IEnumerator MeasureSystem()
+    {
+        float time = GetNoteTime( mTimings[mIdx] / 1000f );
+        yield return new WaitUntil( () => time <= PlaybackChanged + createOffset );
+
+        MeasureLine measure = mPool.Spawn();
+        measure.SetInfo( time );
+
+        if ( mIdx < mTimings.Count - 1 ) mIdx++;
+
+        StartCoroutine( MeasureSystem() );
     }
 
     private IEnumerator BpmChange()
     {
         float changeTime = data.timings[timingIdx].changeTime;
-        yield return new WaitUntil(()=> PlaybackTime >= changeTime );
+        yield return new WaitUntil(()=> playbackTime >= changeTime + createOffset );
 
         GlobalSetting.BPM = data.timings[timingIdx].bpm;
         if ( timingIdx < data.timings.Count - 1 ) timingIdx++;

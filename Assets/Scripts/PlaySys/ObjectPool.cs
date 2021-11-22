@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
+public class ObjectPool<T> where T : MonoBehaviour
 {
     private T poolableObject;
     private Transform parent;
     private Stack<T> pool = new Stack<T>();
-
+    
     private int allocateCount = 100;
 
     public ObjectPool( T _poolableObject )
@@ -38,7 +38,7 @@ public class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
     {
         for( int i = 0; i < allocateCount; i++ )
         {
-            T obj = Instantiate( poolableObject, parent );
+            T obj = UnityEngine.GameObject.Instantiate( poolableObject, parent );
             obj.gameObject.SetActive( false );
             pool.Push( obj );
         }

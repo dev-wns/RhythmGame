@@ -22,16 +22,27 @@ public class Note : MonoBehaviour
             float height = tf.rect.height;
             float gap = Mathf.Abs( lnEnd.tf.anchoredPosition.y - tf.anchoredPosition.y );
             transform.localScale = new Vector3( 1f, gap / height, 1f );
+
+            if ( lnEnd.tf.anchoredPosition.y <= GlobalSetting.JudgeLine + 10f )
+                InGame.nPool.Despawn( this );
+        }
+        else 
+        {
+            if ( tf.anchoredPosition.y <= GlobalSetting.JudgeLine + 10f )
+                InGame.nPool.Despawn( this );
         }
     }
 
     private void LateUpdate()
     {
-        tf.anchoredPosition = new Vector2( posX, GlobalSetting.JudgeLine + ( ( hitTiming - InGame.PlaybackChanged ) * GlobalSetting.BPMWeight * GlobalSetting.ScrollSpeed ) );
+        tf.anchoredPosition = new Vector3( posX, GlobalSetting.JudgeLine + ( ( hitTiming - InGame.PlaybackChanged ) * 100f * GlobalSetting.ScrollSpeed ) );
     }
 
-    public void SetNote( float _PosX, int _type, float _timing, Note _lnEnd )
+    public void SetNote( int _key, float _PosX, int _type, float _timing, Note _lnEnd )
     {
+        transform.localScale = Vector3.one;
+        GetComponent<SpriteRenderer>().sortingOrder = _key;
+
         int posCacIdx = Mathf.FloorToInt( _PosX * 6f / 512f );
         float startPos = ( 1f * posCacIdx ) + ( 100f * posCacIdx );
         posX = -( ( 1f * 6 ) + ( 100f * 6 ) / 2f ) + startPos;

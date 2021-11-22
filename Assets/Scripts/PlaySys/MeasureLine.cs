@@ -16,9 +16,16 @@ public class MeasureLine : MonoBehaviour
     {
         hitTiming = _hitTiming;
     }
+    private void Update()
+    {
+        if ( tf.anchoredPosition.y <= GlobalSetting.JudgeLine + 10f )
+        {
+            InGame.mPool.Despawn( this );
+        }
+    }
 
     private void LateUpdate()
     {
-        tf.anchoredPosition = new Vector2( 0, GlobalSetting.JudgeLine + ( ( hitTiming - InGame.PlaybackChanged ) * GlobalSetting.BPMWeight * GlobalSetting.ScrollSpeed ) );
+        tf.anchoredPosition = new Vector2( 0, GlobalSetting.JudgeLine + ( ( hitTiming - InGame.PlaybackChanged ) * 100f * GlobalSetting.ScrollSpeed ) );
     }
 }

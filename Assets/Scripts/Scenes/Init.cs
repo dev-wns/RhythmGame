@@ -15,6 +15,7 @@ public class Init : Scene
     protected override void Awake()
     {
         base.Awake();
+        QualitySettings.vSyncCount = 0;
 
         GameManager.loadProgress = ProgressChange;
         text.color = new Color( 255, 255, 255, 0 );

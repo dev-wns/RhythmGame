@@ -72,4 +72,8 @@ public class VerticalScrollSnap : MonoBehaviour
         contents[selectIdx].DOScale( new Vector3( 1.1f, 1.1f, 1f ), 0.1f );
         isDuplicateKey = false;
     }
+    private void OnDestroy()
+    {
+        DOTween.KillAll();
+    }
 }
