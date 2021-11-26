@@ -5,11 +5,14 @@ using UnityEngine;
 public class Note : MonoBehaviour
 {
     private Note lnEnd;
+    public ColNote col;
     private RectTransform tf;
-    private float hitTiming;
-    private float posX;
-    private int type; // default or long note, 0 or 128
-
+    private float column, weight;
+    public float originTiming { get; private set; }
+    public float timing { get; private set; }
+    private int type; // LN( 128 ) or Default
+    public bool IsLN { get; private set; }
+    
     private void Awake()
     {
         tf = GetComponent<RectTransform>();
@@ -23,39 +26,49 @@ public class Note : MonoBehaviour
             float gap = Mathf.Abs( lnEnd.tf.anchoredPosition.y - tf.anchoredPosition.y );
             transform.localScale = new Vector3( 1f, gap / height, 1f );
 
-            if ( lnEnd.tf.anchoredPosition.y <= GlobalSetting.JudgeLine + 10f )
-                InGame.nPool.Despawn( this );
+            // if ( lnEnd.tf.anchoredPosition.y <= GlobalSetting.JudgeLine - 300 )
+            //if ( originTiming + 178.4f < InGame.__time )
+                ////InGame.nPool.Despawn( this;
         }
         else 
         {
-            if ( tf.anchoredPosition.y <= GlobalSetting.JudgeLine + 10f )
-                InGame.nPool.Despawn( this );
+            //if ( tf.anchoredPosition.y <= GlobalSetting.JudgeLine )
+            //    InGame.nPool.Despawn( this );
+            //if ( originTiming + 178.4f < InGame.__time )
         }
     }
 
     private void LateUpdate()
     {
-        tf.anchoredPosition = new Vector3( posX, GlobalSetting.JudgeLine + ( ( hitTiming - InGame.PlaybackChanged ) * 100f * GlobalSetting.ScrollSpeed ) );
+        tf.anchoredPosition = new Vector3( column, GlobalSetting.JudgeLine + ( ( timing - InGame.PlaybackChanged ) * weight ) );
     }
 
-    public void SetNote( int _key, float _PosX, int _type, float _timing, Note _lnEnd )
+    public void SetNote( int _lineNum, int _key, float _weight, int _type, float _originTiming, float _timing, Note _lnEnd, ColNote _col )
     {
+        weight = _weight;
         transform.localScale = Vector3.one;
         GetComponent<SpriteRenderer>().sortingOrder = _key;
 
-        int posCacIdx = Mathf.FloorToInt( _PosX * 6f / 512f );
-        float startPos = ( 1f * posCacIdx ) + ( 100f * posCacIdx );
-        posX = -( ( 1f * 6 ) + ( 100f * 6 ) / 2f ) + startPos;
-        tf.anchoredPosition = new Vector2( posX, 540 );
-        hitTiming = _timing;
-        type = _type;
-        lnEnd = _lnEnd;
+        column = GlobalSetting.NoteStartPos + ( _lineNum * GlobalSetting.NoteWidth ) + ( ( _lineNum + 1 ) * GlobalSetting.NoteBlank );
 
-        if ( type == 128 )
-            GetComponent<SpriteRenderer>().color = new Color( 0, 0, 255, 255 );
-        else if ( type == 2566 || type == 3333 )
-            GetComponent<SpriteRenderer>().color = new Color( 0, 255, 0, 255 );
-        else
-            GetComponent<SpriteRenderer>().color = new Color( 255, 255, 255, 255 );
+        tf.anchoredPosition = new Vector2( column, 540 );
+        timing = _timing;
+        originTiming = _originTiming;
+        lnEnd = _lnEnd;
+        col = _col;
+
+        type = _type;
+        if ( type == 128 ) IsLN = true;
+        else IsLN = false;
+
+
+        //if ( type == 128 )
+        //    GetComponent<SpriteRenderer>().color = new Color( 0, 0, 255, 255 );
+        //else if ( type == 2566 || type == 3333 )
+        //    GetComponent<SpriteRenderer>().color = new Color( 0, 255, 0, 255 );
+        //else
+        //    GetComponent<SpriteRenderer>().color = new Color( 255, 255, 255, 255 );
+
+        //GetComponent<UnityEngine.UI.Image>().color = new Color( 255, 0, 255, 255 );
     }
 }

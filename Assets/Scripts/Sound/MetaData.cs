@@ -2,40 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct Timings
+{
+    public float changeTime;
+    public float beatLength;
+    public float bpm;
+    public bool isUninherited;
+
+    public Timings( float _changeTime, float _beatLength, bool _isUninherited )
+    {
+        changeTime = _changeTime;
+        beatLength = _beatLength;
+        bpm = 1f / _beatLength * 1000f * 60f;
+        isUninherited = _isUninherited;
+    }
+}
+
+public struct Notes
+{
+    public int line;
+    public float hitTiming;
+    public int type;
+    public int lengthLN;
+    public Notes( int _x, float _hitTiming, int _type, int _lengthLN )
+    {
+        line = Mathf.FloorToInt( _x * 6f / 512f );
+        hitTiming = _hitTiming;
+        type = _type;
+        lengthLN = _lengthLN;
+    }
+}
+
 public class MetaData
 { 
-    public struct Timings
-    {
-        public float changeTime;
-        public float beatLength;
-        public float bpm;
-        public bool isUninherited;
-
-        public Timings ( float _changeTime, float _beatLength, bool _isUninherited )
-        {
-            changeTime = _changeTime;
-            beatLength = _beatLength;
-            bpm = 1f / _beatLength * 1000f * 60f;
-            isUninherited = _isUninherited;
-        }
-    }
-
-    public struct Notes
-    {
-        public int x, y;
-        public float hitTiming;
-        public int type;
-        public int lengthLN;
-        public Notes( int _x, int _y, float _hitTiming, int _type, int _lengthLN )
-        {
-            x = _x;
-            y = _y;
-            hitTiming = _hitTiming;
-            type = _type;
-            lengthLN = _lengthLN;
-        }
-    }
-
     public string title, artist, creator, version;
     public string audioName, imgName;
     public string audioPath, imgPath;

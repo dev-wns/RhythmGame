@@ -60,6 +60,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     public void Despawn( T _obj )
     {
         _obj.gameObject.SetActive( false );
+        _obj.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, 4000f );
         pool.Push( _obj );
     }
 }

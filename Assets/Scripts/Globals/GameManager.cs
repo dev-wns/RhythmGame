@@ -8,13 +8,14 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
-    public static List<MetaData> datas = new List<MetaData>();
+    public static List<MetaData> Datas = new List<MetaData>();
     public static MetaData SelectData = null;
 
     public delegate void OnLoad( float _offset );
-    public static OnLoad loadProgress;
+    public static OnLoad LoadProgress;
 
     public static bool isDone { get; private set; } = false;
+    public static int Combo;
 
     private void Awake()
     {
@@ -37,9 +38,9 @@ public class GameManager : Singleton<GameManager>
                 }
 
                 data.sound = SoundManager.Inst.Load( data.audioPath, true );
-                data.timings[0] = new MetaData.Timings( 0, data.timings[0].beatLength, data.timings[0].isUninherited );
+                //data.timings[0] = new MetaData.Timings( 0, data.timings[0].beatLength, data.timings[0].isUninherited );
 
-                datas.Add( data );
+                Datas.Add( data );
             }
             StartCoroutine( BackgroundsLoad() );
         }
@@ -48,7 +49,7 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator BackgroundsLoad()
     {
-        foreach ( var data in datas )
+        foreach ( var data in Datas )
         {
             // backgrounds
             UnityWebRequest www = UnityWebRequestTexture.GetTexture( data.imgPath );
@@ -67,7 +68,7 @@ public class GameManager : Singleton<GameManager>
                 data.background = sprite;
             }
 
-            loadProgress( 1f / datas.Count );
+            LoadProgress( 1f / Datas.Count );
         }
 
         isDone = true;
@@ -151,7 +152,7 @@ public class GameManager : Singleton<GameManager>
                     if ( isUninherited ) prevBPM = beatLength;
                     else beatLength = Mathf.Abs( ( prevBPM * 100f / beatLength ) );
 
-                    data.timings.Add( new MetaData.Timings( changeTime, beatLength, isUninherited ) );
+                    data.timings.Add( new Timings( changeTime, beatLength, isUninherited ) );
                 }
             }
 
@@ -161,7 +162,7 @@ public class GameManager : Singleton<GameManager>
                 {
                     string[] arr = line.Split( ',' );
                     string[] LNTiming = arr[5].Split( ':' );
-                    data.notes.Add( new MetaData.Notes( int.Parse( arr[0] ), int.Parse( arr[1] ), float.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
+                    data.notes.Add( new Notes( int.Parse( arr[0] ), float.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
                 }
             }
         }
@@ -212,7 +213,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Release()
     {
-        foreach( var data in datas )
+        foreach( var data in Datas )
         {
             data.sound.release();
         }

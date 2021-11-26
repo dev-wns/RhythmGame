@@ -24,7 +24,7 @@ public class FreeStyle : Scene
 
         SoundManager.Inst.Volume = 0.1f;
 
-        foreach ( var data in GameManager.datas )
+        foreach ( var data in GameManager.Datas )
         {
             // scrollview song contents
             GameObject obj = Instantiate( prefab, scrollSoundsContent );
@@ -36,7 +36,7 @@ public class FreeStyle : Scene
         }
 
         // details
-        if ( GameManager.datas.Count > 0 )
+        if ( GameManager.Datas.Count > 0 )
         {
             ChangePreview();
         }
@@ -65,7 +65,7 @@ public class FreeStyle : Scene
     {
         if ( snap.IsDuplicateKeyCheck ) return;
 
-        GameManager.SelectData = GameManager.datas[Index];
+        GameManager.SelectData = GameManager.Datas[Index];
 
         ChangePreviewInfo();
 
@@ -78,17 +78,17 @@ public class FreeStyle : Scene
 
     private void ChangePreviewInfo()
     {
-        MetaData data = GameManager.datas[Index];
+        MetaData data = GameManager.Datas[Index];
         bpm.text = Mathf.FloorToInt( ( float )data.timings[0].bpm ).ToString();
 
-        background.sprite = GameManager.datas[Index].background;
+        background.sprite = GameManager.Datas[Index].background;
     }
 
     private IEnumerator PreviewSoundPlay()
     {
         yield return new WaitForSecondsRealtime( .1f );
 
-        MetaData data = GameManager.datas[Index];
+        MetaData data = GameManager.Datas[Index];
         sound = data.sound;
 
         SoundManager.Inst.Stop();
