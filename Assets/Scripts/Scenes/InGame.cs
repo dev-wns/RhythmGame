@@ -18,7 +18,7 @@ public class InGame : Scene
     private float preLoad;
 
     // ui
-    public TextMeshProUGUI timeText, bpmText, comboText;
+    public TextMeshProUGUI timeText, bpmText, comboText, frameText;
 
     // create
     private int nIdx, mIdx; // note, measure create index
@@ -27,13 +27,13 @@ public class InGame : Scene
     public Note nPrefab;
 
     private List<float> mTimings = new List<float>(); // measure Timings
-    public static ObjectPool<MeasureLine> mPool;
-    public MeasureLine mPrefab;
+    public static ObjectPool<Measure> mPool;
+    public Measure mPrefab;
 
     public InputSystem[] ISystems = new InputSystem[6];
 
     private float bpm, medianBpm, weight;
-
+    float delta;
 
     protected override void Awake()
     {
@@ -42,8 +42,8 @@ public class InGame : Scene
         data = GameManager.SelectData;
         bpm = data.timings[0].bpm;
 
-        nPool = new ObjectPool<Note>( nPrefab );
-        mPool = new ObjectPool<MeasureLine>( mPrefab );
+        nPool = new ObjectPool<Note>( nPrefab, 25 );
+        mPool = new ObjectPool<Measure>( mPrefab, 5 );
 
         SoundLoad();
         FindBpmMedian();
@@ -66,10 +66,8 @@ public class InGame : Scene
             isMusicStart = true;
         }
 
-        if ( !GlobalSetting.IsFixedScroll )
-            weight = 3f / 410f * GlobalSetting.ScrollSpeed;
-        else
-            weight = 3f / medianBpm * GlobalSetting.ScrollSpeed;
+        if ( !GlobalSetting.IsFixedScroll ) weight = 3f / 410f * GlobalSetting.ScrollSpeed;
+        else                                weight = 3f / medianBpm * GlobalSetting.ScrollSpeed;
 
         //FMOD.Channel channel;
         //FMOD.RESULT res = SoundManager.Inst.channelGroup.getChannel( 0, out channel );
@@ -82,65 +80,69 @@ public class InGame : Scene
 
         timeText.text = string.Format( "{0:F1}", __time / 1000f ) + " ÃÊ";
         comboText.text = string.Format( "{0}", GameManager.Combo );
+        delta += ( Time.unscaledDeltaTime - delta ) * .1f;
+        frameText.text = string.Format( "{0:F1}", 1f / delta );
     }
 
     private IEnumerator NoteSystem()
     {
-        float timing = data.notes[nIdx].hitTiming;
-        yield return new WaitUntil( () => timing <= __time + preLoad );
-
-        float temp = timing;
-        float calcTiming = GetNoteTime( timing );
-        for ( int i = 0; i < 6; i++ )
+        while ( true )
         {
-            Notes note = data.notes[nIdx];
-            Note LNStart = null;
-            Note LNEnd = null;
-            if ( note.type == 128 )
+            float timing = data.notes[nIdx].hitTiming;
+            yield return new WaitUntil( () => timing <= __time + preLoad );
+
+            float calcTiming = GetNoteTime( timing );
+            for ( int i = 0; i < 6; i++ )
             {
-                LNStart = nPool.Spawn();
-                LNStart.SetNote( note.line, nIdx, weight, 2566, note.hitTiming, calcTiming, null, null );
+                Notes note = data.notes[nIdx];
+                Note LNStart = null;
+                Note LNEnd = null;
+                if ( note.type == 128 )
+                {
+                    LNStart = nPool.Spawn();
+                    LNStart.SetNote( note.line, nIdx, weight, 2566, note.hitTiming, calcTiming, null );
 
-                LNEnd = nPool.Spawn();
-                LNEnd.SetNote( note.line, nIdx, weight, 3333, note.hitTiming, GetNoteTime( note.lengthLN ), null, null );
+                    LNEnd = nPool.Spawn();
+                    LNEnd.SetNote( note.line, nIdx, weight, 3333, note.hitTiming, GetNoteTime( note.lengthLN ), null );
+                }
+
+                Note obj = nPool.Spawn();
+                obj.SetNote( note.line, nIdx - 1, weight, note.type, note.hitTiming, calcTiming, LNEnd );
+                ISystems[note.line].notes.Enqueue( obj );
+
+
+                if ( nIdx < data.notes.Count - 1 ) nIdx++;
+                if ( nIdx == data.notes.Count || timing != data.notes[nIdx].hitTiming ) break;
             }
-
-            Note obj = nPool.Spawn();
-            obj.SetNote( note.line, nIdx - 1, weight, note.type, note.hitTiming, calcTiming, LNEnd, null );
-            ISystems[note.line].notes.Enqueue( obj );
-
-
-            if ( nIdx < data.notes.Count - 1 ) nIdx++;
-            if ( nIdx == data.notes.Count || timing != data.notes[nIdx].hitTiming ) break;
         }
-        StartCoroutine( NoteSystem() );
     }
 
     private IEnumerator MeasureSystem()
     {
-        float time = GetNoteTime( mTimings[mIdx] );
-        yield return new WaitUntil( () => time <= PlaybackChanged + preLoad );
+        while ( true )
+        {
+            float time = GetNoteTime( mTimings[mIdx] );
+            yield return new WaitUntil( () => time <= PlaybackChanged + preLoad );
 
-        MeasureLine measure = mPool.Spawn();
-        measure.GetComponent<RectTransform>().sizeDelta = new Vector2( GlobalSetting.GearWidth, GlobalSetting.MeasureHeight );        
-        measure.SetInfo( time, weight );
+            Measure measure = mPool.Spawn();
+            measure.SetInfo( time, weight );
 
-        if ( mIdx < mTimings.Count - 1 ) mIdx++;
-
-        StartCoroutine( MeasureSystem() );
+            if ( mIdx < mTimings.Count - 1 ) mIdx++;
+        }
     }
 
     private IEnumerator BpmChange()
     {
-        float changeTime = data.timings[timingIdx].changeTime;
-        yield return new WaitUntil(()=> __time >= changeTime );
+        while ( true )
+        {
+            float changeTime = data.timings[timingIdx].changeTime;
+            yield return new WaitUntil( () => __time >= changeTime );
 
-        bpm = data.timings[timingIdx].bpm;
-        bpmText.text = string.Format( "{0}", ( int )data.timings[timingIdx].bpm ) + " BPM";
+            bpm = data.timings[timingIdx].bpm;
+            bpmText.text = string.Format( "{0}", ( int )data.timings[timingIdx].bpm ) + " BPM";
 
-        if ( timingIdx < data.timings.Count - 1 ) timingIdx++;
-
-        StartCoroutine( BpmChange() );
+            if ( timingIdx < data.timings.Count - 1 ) timingIdx++;
+        }
     }
 
     private void FindBpmMedian()

@@ -34,6 +34,8 @@ public class Scene : MonoBehaviour
     {
         SoundManager.SoundRelease += SoundRelease;
         sfxAudio = gameObject.AddComponent<AudioSource>();
+
+        Camera.main.orthographicSize = ( Screen.height / ( GlobalSetting.PPU * 2f ) ) * GlobalSetting.PPU;
     }
 
     protected virtual void SoundRelease() { }

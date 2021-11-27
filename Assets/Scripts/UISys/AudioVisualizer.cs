@@ -4,23 +4,28 @@ using UnityEngine;
 using System.Runtime.InteropServices;
 using DG.Tweening;
 
-public class Spectrum : MonoBehaviour
+public class AudioVisualizer : MonoBehaviour
 {
-    public Transform prefab;
-    private Transform centerImage;
+    public Transform spectrumPrefab;
+    public Transform centerImage;
 
     private FMOD.DSP dsp;
     private Transform[] visualSpectrums;
-    private readonly short spectrumCount = 128;
+    public int spectrumCount = 128;
 
     private readonly int bassRange = 14;
-    private float bassPower = 4f;
-    private float spectrumPower = 250f;
+    private float bassPower = 10f;
+    private float spectrumPower = 175f;
     private float[][] spectrum;
+
+    private readonly float imageSize = 500f;
+    private float specWidth;
 
     private void Start()
     {
         DOTween.Init();
+        specWidth = imageSize * .001f * 2f;
+
         // DSP setting
         FMODUnity.RuntimeManager.CoreSystem.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp );
         dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 );
@@ -30,24 +35,23 @@ public class Spectrum : MonoBehaviour
 
         // create spectrum objects
         int symmetryColorIdx = spectrumCount;
-        float angle = 180f / spectrumCount ;
-        visualSpectrums = new Transform[ spectrumCount * 2 ];
+        float angle = 180f / spectrumCount;
+        visualSpectrums = new Transform[spectrumCount * 2];
         for ( int idx = 0; idx < spectrumCount * 2; ++idx )
         {
-            Transform obj = Instantiate( prefab, transform );
+            Transform obj = Instantiate( spectrumPrefab, transform );
             obj.rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle + angle * idx ) );
-            obj.Translate( transform.up );
+            obj.Translate( transform.up * imageSize * .5f );
 
             if ( idx < spectrumCount )
                 obj.GetComponent<SpriteRenderer>().material.color = GetGradationColor( idx );
             else
                 obj.GetComponent<SpriteRenderer>().material.color = GetGradationColor( symmetryColorIdx-- );
-            visualSpectrums[ idx ] = obj;
+            visualSpectrums[idx] = obj;
         }
 
-        // detail setting
-        centerImage = transform.parent;
-        centerImage.localScale = new Vector3( 2f, 2f, 2f );
+        // details
+        centerImage.localScale = new Vector3( imageSize, imageSize, 1f );
     }
 
     private void FixedUpdate()
@@ -66,8 +70,10 @@ public class Spectrum : MonoBehaviour
                 float y = visualSpectrums[idx].localScale.y;
                 float value = ( spectrum[0][0 + idx] * spectrumPower * volume ) * .5f;
                 float scale = Mathf.SmoothStep( y, value, .25f );// Mathf.Clamp(abs, .1f, .3f) );
-                visualSpectrums[idx].localScale = new Vector3( .1f, scale, .1f );
-                visualSpectrums[( spectrumCount * 2 ) - 1 - idx].localScale = new Vector3( .1f, scale, .1f );
+
+                Vector3 newScale = new Vector3( specWidth, scale, 1f );
+                visualSpectrums[idx].localScale = newScale;                             // left
+                visualSpectrums[( spectrumCount * 2 ) - 1 - idx].localScale = newScale; // right
             }
 
             float bassAmount = 0f;
@@ -77,7 +83,7 @@ public class Spectrum : MonoBehaviour
             }
 
             DOTween.Kill( centerImage );
-            float values = Mathf.Clamp( bassAmount * bassPower * volume, 2f, 2.5f );
+            float values = Mathf.Clamp( bassAmount * bassPower * volume, imageSize, imageSize * 1.5f );
             centerImage.DOScale( new Vector3( values, values, 0f ), .15f );
         }
     }
@@ -86,7 +92,7 @@ public class Spectrum : MonoBehaviour
     {
         float volume = SoundManager.Inst.Volume;
         if ( volume >= 1f ) return 1f;
-        else                return ( 1f - volume ) * 10f;
+        else return ( 1f - volume ) * 10f;
     }
     private Color GetGradationColor( int _index )
     {

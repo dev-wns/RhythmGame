@@ -187,7 +187,7 @@ public class GameManager : Singleton<GameManager>
         return data;
     }
 
-    bool StringToBoolean( string _value )
+    private bool StringToBoolean( string _value )
     {
         int value = int.Parse( _value );
         if ( value != 0 ) return true;

@@ -8,23 +8,25 @@ public class ObjectPool<T> where T : MonoBehaviour
     private Transform parent;
     private Stack<T> pool = new Stack<T>();
     
-    private int allocateCount = 100;
+    private int allocateCount;
 
-    public ObjectPool( T _poolableObject )
+    public ObjectPool( T _poolableObject, int _allocate = 100 )
     {
+        allocateCount = _allocate;
+
         if ( ReferenceEquals( _poolableObject, null ) )
         {
             Debug.LogError( "objectpool Constructor failed" );
         }
         poolableObject = _poolableObject;
 
-        GameObject canvas = GameObject.FindGameObjectWithTag( "InGameCanvas" );
+        GameObject canvas = GameObject.FindGameObjectWithTag( "Pools" );
         if ( ReferenceEquals( canvas, null ) )
         {
             Debug.LogError( "not find ingame canvas" );
         }
 
-        GameObject parentObj = new GameObject(); //Instantiate( new GameObject(), canvas.transform );
+        GameObject parentObj = new GameObject();
         parentObj.transform.parent = canvas.transform;
         parentObj.transform.position = Vector3.zero;
         parentObj.transform.rotation = Quaternion.identity;
@@ -60,7 +62,6 @@ public class ObjectPool<T> where T : MonoBehaviour
     public void Despawn( T _obj )
     {
         _obj.gameObject.SetActive( false );
-        _obj.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, 4000f );
         pool.Push( _obj );
     }
 }

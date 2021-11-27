@@ -6,16 +6,17 @@ public class Gear : MonoBehaviour
 {
     public GameObject background, left, right;
     private RectTransform rtBackground, rtLeft, rtRight;
-
+    private Transform tfBackground, tfLeft, tfRight;
 
     private void Awake()
     {
-        rtBackground = background.GetComponent<RectTransform>();
-        rtLeft = left.GetComponent<RectTransform>();
-        rtRight = right.GetComponent<RectTransform>();
+        tfBackground = background.GetComponent<Transform>();
+        tfLeft = left.GetComponent<Transform>();
+        tfRight = right.GetComponent<Transform>();
 
-        rtLeft.anchoredPosition = new Vector2( GlobalSetting.GearStartPos, 64f );
-        rtRight.anchoredPosition = new Vector2( -GlobalSetting.GearStartPos, 94f );
-        rtBackground.sizeDelta = new Vector2( GlobalSetting.GearWidth, 1080f );
+        tfLeft.localPosition = new Vector3( GlobalSetting.GearStartPos, .94f, .0f );
+        tfRight.localPosition = new Vector3( -GlobalSetting.GearStartPos, .94f, 0f );
+        tfBackground.localPosition = new Vector3( 0f, -( Screen.height * .5f * .01f ), 100f );
+        tfBackground.localScale = new Vector3( GlobalSetting.GearWidth, Screen.height * .01f, 0f );
     }
 }

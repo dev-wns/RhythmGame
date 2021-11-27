@@ -5,31 +5,29 @@ using TMPro;
 
 public class InputSystem : MonoBehaviour
 {
-    public int keyIndex;
-    private RectTransform rt;
     public Queue<Note> notes = new Queue<Note>();
-    public Queue<ColNote> cNotes = new Queue<ColNote>();
-    private ColNote curColNote;
     private Note curNote;
-    private bool isCheckComplate = true;
+
     private float diff = 0f;
-    public TextMeshProUGUI difftext;
+    private bool isCheckComplate = true;
+
+    public int keyIndex;
 
     private void Awake()
     {
-        rt = GetComponent<RectTransform>();
-        rt.anchoredPosition = new Vector2( GlobalSetting.NoteStartPos + ( GlobalSetting.NoteWidth * keyIndex ) + 
-                                         ( GlobalSetting.NoteBlank * keyIndex ) + GlobalSetting.NoteBlank, 0f );
+        transform.position = new Vector3( GlobalSetting.NoteStartPos + ( GlobalSetting.NoteWidth * keyIndex ) +
+                                        ( GlobalSetting.NoteBlank * keyIndex ) + GlobalSetting.NoteBlank, 
+                                          transform.parent.transform.position.y, 0f );
 
-        StartCoroutine( Process() );
-        StartCoroutine( CheckOutLine() );
+        //StartCoroutine( Process() );
+        //StartCoroutine( CheckOutLine() );
     }
 
     IEnumerator Process()
     {
         yield return new WaitUntil( () => !isCheckComplate );
 
-        if ( Input.GetKeyDown( KEY.Keys[( KeyAction )keyIndex] ) )
+        if ( Input.GetKeyDown( KeySetting.Keys[( KeyAction )keyIndex] ) )
         {
             if ( diff < 150f )
             {
@@ -46,7 +44,8 @@ public class InputSystem : MonoBehaviour
     {
         yield return new WaitUntil( () => !isCheckComplate );
 
-        if ( curNote.timing - InGame.__time < 0 && diff > 150f )
+        //if ( curNote.timing - InGame.__time < 0 && diff > 150f )
+        if ( diff < 150f )
         {
             //GameManager.Combo = 0;
             InGame.nPool.Despawn( curNote );
@@ -57,20 +56,40 @@ public class InputSystem : MonoBehaviour
         StartCoroutine( CheckOutLine() );
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if ( isCheckComplate && notes.Count >= 1 )
         {
             curNote = notes.Dequeue();
-            //curColNote = cNotes.Dequeue();
 
             isCheckComplate = false;
         }
 
-        if ( !isCheckComplate )
-            diff = Mathf.Abs( InGame.__time - curNote.originTiming );
+        if ( isCheckComplate ) return;
 
-        if ( keyIndex == 5 )
-            difftext.text = string.Format( "{0}", diff );
+        diff = Mathf.Abs( InGame.__time - curNote.originTiming );
+
+        if ( Input.GetKeyDown( KeySetting.Keys[( KeyAction )keyIndex] ) )
+        {
+            if ( diff < 150f )
+            {
+                GameManager.Combo++;
+                curNote.gameObject.SetActive( false );
+                InGame.nPool.Despawn( curNote );
+                //InGame.cPool.Despawn( curColNote );
+                isCheckComplate = true;
+                return;
+            }
+        }
+
+        //if ( diff < 150f )
+        if ( curNote.timing - InGame.__time < 0 && diff > 150f )
+        {
+            //GameManager.Combo = 0;
+            InGame.nPool.Despawn( curNote );
+            //InGame.cPool.Despawn( curColNote );
+            isCheckComplate = true;
+            return;
+        }
     }
 }

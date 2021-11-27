@@ -5,26 +5,33 @@ using UnityEngine;
 public class Note : MonoBehaviour
 {
     private Note lnEnd;
-    public ColNote col;
-    private RectTransform tf;
     private float column, weight;
     public float originTiming { get; private set; }
     public float timing { get; private set; }
     private int type; // LN( 128 ) or Default
     public bool IsLN { get; private set; }
-    
+    private SpriteRenderer rdr;
+    // Caches
+    private static Vector3 InitPosition = new Vector3( 0f, 4000f, 0f );
+
     private void Awake()
     {
-        tf = GetComponent<RectTransform>();
+        rdr = GetComponent<SpriteRenderer>();
+        transform.localScale = new Vector3( GlobalSetting.NoteWidth, GlobalSetting.NoteHeight, 1f );
+    }
+
+    private void OnDisable()
+    {
+        transform.position = InitPosition;
     }
 
     private void Update()
     {
         if ( type == 128 )
         {
-            float height = tf.rect.height;
-            float gap = Mathf.Abs( lnEnd.tf.anchoredPosition.y - tf.anchoredPosition.y );
-            transform.localScale = new Vector3( 1f, gap / height, 1f );
+            //float height = tf.rect.height;
+            //float gap = Mathf.Abs( lnEnd.tf.anchoredPosition.y - tf.anchoredPosition.y );
+            //transform.localScale = new Vector3( 1f, gap / height, 1f );
 
             // if ( lnEnd.tf.anchoredPosition.y <= GlobalSetting.JudgeLine - 300 )
             //if ( originTiming + 178.4f < InGame.__time )
@@ -40,22 +47,21 @@ public class Note : MonoBehaviour
 
     private void LateUpdate()
     {
-        tf.anchoredPosition = new Vector3( column, GlobalSetting.JudgeLine + ( ( timing - InGame.PlaybackChanged ) * weight ) );
+        transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( timing - InGame.PlaybackChanged ) * weight ) , 0f );
     }
 
-    public void SetNote( int _lineNum, int _key, float _weight, int _type, float _originTiming, float _timing, Note _lnEnd, ColNote _col )
+    public void SetNote( int _lineNum, int _key, float _weight, int _type, float _originTiming, float _timing, Note _lnEnd )
     {
         weight = _weight;
-        transform.localScale = Vector3.one;
-        GetComponent<SpriteRenderer>().sortingOrder = _key;
+        //transform.localScale = Vector3.one;
+        rdr.sortingOrder = _key;
 
         column = GlobalSetting.NoteStartPos + ( _lineNum * GlobalSetting.NoteWidth ) + ( ( _lineNum + 1 ) * GlobalSetting.NoteBlank );
 
-        tf.anchoredPosition = new Vector2( column, 540 );
+        transform.position = new Vector3( column, 540f, 0f );
         timing = _timing;
         originTiming = _originTiming;
         lnEnd = _lnEnd;
-        col = _col;
 
         type = _type;
         if ( type == 128 ) IsLN = true;

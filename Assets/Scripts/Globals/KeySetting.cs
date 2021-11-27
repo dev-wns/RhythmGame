@@ -8,14 +8,10 @@ public enum KeyAction : int
     _Esc,
 };
 
-[System.Serializable]
-public static class KEY
-{
-    public static Dictionary<KeyAction, KeyCode> Keys = new Dictionary<KeyAction, KeyCode>();
-}
 public class KeySetting : MonoBehaviour
 {
-    
+    public static Dictionary<KeyAction, KeyCode> Keys = new Dictionary<KeyAction, KeyCode>();
+
     private KeyCode[] defaultKeys = new KeyCode[]
     {
         KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.K, KeyCode.L, KeyCode.Semicolon,
@@ -27,7 +23,7 @@ public class KeySetting : MonoBehaviour
     {
         for ( int i = 0; i < defaultKeys.Length; i++ )
         {
-            KEY.Keys.Add( ( KeyAction )i, defaultKeys[i] );
+            Keys.Add( ( KeyAction )i, defaultKeys[i] );
         }
     }
 }
