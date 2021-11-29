@@ -20,7 +20,8 @@ public class GameManager : Singleton<GameManager>
     {
         // Setting
         Screen.SetResolution( 1920, 1080, false );
-        Application.targetFrameRate = 60;
+        Screen.fullScreen = true;
+        Application.targetFrameRate = 144;
         
         SoundManager.SoundRelease += Release;
 

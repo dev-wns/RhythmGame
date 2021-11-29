@@ -63,6 +63,6 @@ public class Note : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( timing - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ) , 0f );
+        transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( calcTiming - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ), 0f );
     }
 }

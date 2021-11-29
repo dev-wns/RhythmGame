@@ -63,7 +63,7 @@ public class InGame : Scene
         MSystem = system.GetComponent<MeasureSystem>();
         nPool = new ObjectPool<Note>( nPrefab, 25 );
 
-        NowPlaying.BPMChangeEvent += () => { bpmText.text = NowPlaying.BPM.ToString(); };
+        NowPlaying.BPMChangeEvent += () => { bpmText.text = string.Format( "{0} BPM", ( int )NowPlaying.BPM ); };
     }
 
     private void Start()

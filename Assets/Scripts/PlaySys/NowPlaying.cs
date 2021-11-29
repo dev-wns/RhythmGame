@@ -9,8 +9,14 @@ public class NowPlaying : Singleton<NowPlaying>
     // Bpm
     public static float BPM       { get; private set; } // 현재 BPM
     public static float MedianBPM { get; private set; } // BPM이 많을 때 중간값
-    public static float Weight    { get; private set; } // BPM 변화와 스크롤 속도를 고려한 오브젝트 속도 가중치
-
+    public static float Weight // BPM 변화와 스크롤 속도를 고려한 오브젝트 속도 가중치
+    {
+        get
+        {
+            if ( GlobalSetting.IsFixedScroll ) return 0.25f * GlobalSetting.ScrollSpeed;              // 60bpm 1/4 박자 가중치 ( 60bpm / 60( bpm -> bps ) / 4 ( 1beat = 4/4박자 -> 1/4박자 만들기 ) )
+            else                               return ( BPM / 60f / 4f ) * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
+        }
+    }
     public delegate void BPMChangeDel();
     public static event BPMChangeDel BPMChangeEvent;
 
@@ -18,13 +24,15 @@ public class NowPlaying : Singleton<NowPlaying>
     // time ( millisecond )
     public static float Playback        { get; private set; } // 노래 재생 시간
     public static float PlaybackChanged { get; private set; } // BPM 변화에 따른 노래 재생 시간
-    public static float PreLoadTime     { get; private set; } // 중간 BPM 기준 4마디 전 시간
+    
+    // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
+    public static float PreLoadTime     { get { return ( 5f / GlobalSetting.ScrollSpeed * 1000f ); } } // 5박자 시간 ( 고정 스크롤 일때 )
     public static uint EndTime          { get; private set; } // 노래 끝 시간 
 
     private static readonly float InitWaitTime = -3000f;      // 시작 전 대기시간
 
     public static bool IsPlaying        { get; private set; } = false;
-    private static bool IsInitializing                        = true;
+    private bool IsInitializing                               = true;
     private bool isSimpleMode                                 = false;
     private int TimingIdx;
 
@@ -50,8 +58,7 @@ public class NowPlaying : Singleton<NowPlaying>
         uint endTimeTemp;
         Data.sound.getLength( out endTimeTemp, FMOD.TIMEUNIT.MS );
         EndTime = endTimeTemp;
-
-        PreLoadTime = ( MedianBPM / 60f / 4 ) * 1000f;
+        
         Playback = InitWaitTime;
         IsInitializing = false;
     }
@@ -128,9 +135,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
         if ( !isSimpleMode )
         {
-            if ( !GlobalSetting.IsFixedScroll ) Weight = 3f / 410f * GlobalSetting.ScrollSpeed;
-            else Weight = 3f / MedianBPM * GlobalSetting.ScrollSpeed;
-
             PlaybackChanged = GetChangedTime( Playback );
         }
 
