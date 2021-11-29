@@ -9,7 +9,6 @@ using UnityEngine.SceneManagement;
 public class GameManager : Singleton<GameManager>
 {
     public static List<MetaData> Datas = new List<MetaData>();
-    public static MetaData SelectData = null;
 
     public delegate void OnLoad( float _offset );
     public static OnLoad LoadProgress;
@@ -21,7 +20,7 @@ public class GameManager : Singleton<GameManager>
     {
         // Setting
         Screen.SetResolution( 1920, 1080, false );
-        Application.targetFrameRate = 144;
+        Application.targetFrameRate = 60;
         
         SoundManager.SoundRelease += Release;
 

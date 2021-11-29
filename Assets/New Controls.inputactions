@@ -1,0 +1,33 @@
+{
+    "name": "New Controls",
+    "maps": [
+        {
+            "name": "Lobby",
+            "id": "ab902108-292d-4d8e-a8d7-24f87e070f8f",
+            "actions": [
+                {
+                    "name": "Scene Change",
+                    "type": "Button",
+                    "id": "eeb4db38-5ad0-4f1a-b8b6-5468ca7f3f17",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "e6afef21-825a-4202-bf36-22d27d0fc55f",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Scene Change",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

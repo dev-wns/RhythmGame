@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7488151667474778151}
   - component: {fileID: 4395201887785650862}
   - component: {fileID: -7792808250688496138}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SpriteNote
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,4 +96,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64f9746872415024fa31cc011f9ced2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  col: {fileID: 0}

@@ -4,29 +4,28 @@ using UnityEngine;
 
 public class Measure : MonoBehaviour
 {
-    private float timing;
-    private float weight;
+    private float time; // calculated timing
 
-    private void OnEnable()
+    public void Initialized( float _time )
+    {
+        time = _time;
+    }
+
+    private void Awake()
     {
         transform.localScale = new Vector3( GlobalSetting.GearWidth, GlobalSetting.MeasureHeight, 1f );
     }
 
-    public void SetInfo( float _timing, float _weight )
-    {
-        timing = _timing;
-        weight = _weight;
-    }
     private void Update()
     {
-        if ( transform.position.y <= GlobalSetting.JudgeLine - .5f )
+        if ( transform.position.y <= -Screen.height * .5f )
         {
-            InGame.mPool.Despawn( this );
+            MeasureSystem.mPool.Despawn( this );
         }
     }
 
     private void LateUpdate()
     {
-        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( timing - InGame.PlaybackChanged ) * weight ), 0f );
+        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( time - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ), 0f );
     }
 }

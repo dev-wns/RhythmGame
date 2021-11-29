@@ -14,8 +14,8 @@ public class AudioVisualizer : MonoBehaviour
     public int spectrumCount = 128;
 
     private readonly int bassRange = 14;
-    private float bassPower = 10f;
-    private float spectrumPower = 175f;
+    private float bassPower = 900f;
+    private float spectrumPower = 750f;
     private float[][] spectrum;
 
     private readonly float imageSize = 500f;
@@ -65,21 +65,21 @@ public class AudioVisualizer : MonoBehaviour
         if ( fftData.numchannels > 0 )
         {
             float volume = CurrentVolume();
-            for ( int idx = 0; idx < spectrumCount; ++idx )
+            for ( int i = 0; i < spectrumCount; ++i )
             {
-                float y = visualSpectrums[idx].localScale.y;
-                float value = ( spectrum[0][0 + idx] * spectrumPower * volume ) * .5f;
-                float scale = Mathf.SmoothStep( y, value, .25f );// Mathf.Clamp(abs, .1f, .3f) );
+                float y = visualSpectrums[i].localScale.y;
+                float value = spectrum[0][0 + i] * spectrumPower * volume;
+                float scale = Mathf.SmoothStep( y, value, .25f );
 
                 Vector3 newScale = new Vector3( specWidth, scale, 1f );
-                visualSpectrums[idx].localScale = newScale;                             // left
-                visualSpectrums[( spectrumCount * 2 ) - 1 - idx].localScale = newScale; // right
+                visualSpectrums[i].localScale                             = newScale; // left
+                visualSpectrums[( spectrumCount * 2 ) - 1 - i].localScale = newScale; // right
             }
 
             float bassAmount = 0f;
-            for ( int idx = 0; idx < bassRange; ++idx )
+            for ( int i = 0; i < bassRange; ++i )
             {
-                bassAmount += spectrum[0][idx];
+                bassAmount += spectrum[0][i];
             }
 
             DOTween.Kill( centerImage );
@@ -92,8 +92,9 @@ public class AudioVisualizer : MonoBehaviour
     {
         float volume = SoundManager.Inst.Volume;
         if ( volume >= 1f ) return 1f;
-        else return ( 1f - volume ) * 10f;
+        else                return ( 1f - volume ) * 10f;
     }
+
     private Color GetGradationColor( int _index )
     {
         int r = 0, g = 0, b = 0;

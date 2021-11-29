@@ -11,23 +11,27 @@ public class InputSystem : MonoBehaviour
     private float diff = 0f;
     private bool isCheckComplate = true;
 
-    public int keyIndex;
+    public KeyAction key;
+    private int keyIndex;
 
     private void Awake()
     {
+        keyIndex = ( int )key;
+
         transform.position = new Vector3( GlobalSetting.NoteStartPos + ( GlobalSetting.NoteWidth * keyIndex ) +
                                         ( GlobalSetting.NoteBlank * keyIndex ) + GlobalSetting.NoteBlank, 
                                           transform.parent.transform.position.y, 0f );
 
+        //key = KeySetting.Keys[( KeyAction )keyIndex];
         //StartCoroutine( Process() );
         //StartCoroutine( CheckOutLine() );
-    }
+    }   
 
     IEnumerator Process()
     {
         yield return new WaitUntil( () => !isCheckComplate );
 
-        if ( Input.GetKeyDown( KeySetting.Keys[( KeyAction )keyIndex] ) )
+        if ( Input.GetKeyDown( KeySetting.Keys[key] ) )
         {
             if ( diff < 150f )
             {
@@ -44,8 +48,8 @@ public class InputSystem : MonoBehaviour
     {
         yield return new WaitUntil( () => !isCheckComplate );
 
-        //if ( curNote.timing - InGame.__time < 0 && diff > 150f )
-        if ( diff < 150f )
+        if ( curNote.timing - NowPlaying.Playback < 0 && diff > 150f )
+            //if ( diff < 150f )
         {
             //GameManager.Combo = 0;
             InGame.nPool.Despawn( curNote );
@@ -61,15 +65,15 @@ public class InputSystem : MonoBehaviour
         if ( isCheckComplate && notes.Count >= 1 )
         {
             curNote = notes.Dequeue();
-
             isCheckComplate = false;
         }
 
         if ( isCheckComplate ) return;
 
-        diff = Mathf.Abs( InGame.__time - curNote.originTiming );
+        diff = Mathf.Abs( NowPlaying.PlaybackChanged - curNote.calcTiming );
 
-        if ( Input.GetKeyDown( KeySetting.Keys[( KeyAction )keyIndex] ) )
+
+        if ( Input.GetKeyDown( KeySetting.Keys[key] ) )
         {
             if ( diff < 150f )
             {
@@ -82,8 +86,7 @@ public class InputSystem : MonoBehaviour
             }
         }
 
-        //if ( diff < 150f )
-        if ( curNote.timing - InGame.__time < 0 && diff > 150f )
+        if ( curNote.calcTiming - NowPlaying.PlaybackChanged < 0 && diff > 150f )
         {
             //GameManager.Combo = 0;
             InGame.nPool.Despawn( curNote );

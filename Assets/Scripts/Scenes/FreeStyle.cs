@@ -65,7 +65,7 @@ public class FreeStyle : Scene
     {
         if ( snap.IsDuplicateKeyCheck ) return;
 
-        GameManager.SelectData = GameManager.Datas[Index];
+        NowPlaying.Inst.Initialized( GameManager.Datas[Index] );
 
         ChangePreviewInfo();
 
