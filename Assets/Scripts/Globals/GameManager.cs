@@ -10,10 +10,10 @@ public class GameManager : Singleton<GameManager>
 {
     public static List<MetaData> Datas = new List<MetaData>();
 
-    public delegate void OnLoad( float _offset );
-    public static OnLoad LoadProgress;
+    public delegate void DelLoaded( float _offset );
+    public static DelLoaded OnLoaded;
 
-    public static bool isDone { get; private set; } = false;
+    public static bool IsDone { get; private set; } = false;
     public static int Combo;
 
     private void Awake()
@@ -23,7 +23,7 @@ public class GameManager : Singleton<GameManager>
         Screen.fullScreen = true;
         Application.targetFrameRate = 144;
         
-        SoundManager.SoundRelease += Release;
+        SoundManager.OnRelease += Release;
 
         // Parsing
         DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );
@@ -67,10 +67,10 @@ public class GameManager : Singleton<GameManager>
                 data.background = sprite;
             }
 
-            LoadProgress( 1f / Datas.Count );
+            OnLoaded( 1f / Datas.Count );
         }
 
-        isDone = true;
+        IsDone = true;
         Debug.Log( "Backgrounds Load Finish." );
     }
 

@@ -2,10 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class GlobalSetting : MonoBehaviour
 {
-    public static float ScrollSpeed = 5f;
+    public static float ScrollSpeed = 10f;
     public static bool IsFixedScroll { get; private set; } = true;
+
+    public delegate void DelScrollChanged();
+    public static event DelScrollChanged OnScrollChanged;
+
     public static float PPU { get; private set; } = 100f; // pixel per unit
 
     // Measure
@@ -30,13 +35,15 @@ public class GlobalSetting : MonoBehaviour
     {
         if ( Input.GetKeyDown( KeyCode.Alpha1 ) )
         { 
-            ScrollSpeed -= .1f; 
+            ScrollSpeed -= .1f;
+            OnScrollChanged();
             Debug.Log( string.Format( "Current ScrollSpeed {0}", ScrollSpeed ) ); 
         }
 
         if ( Input.GetKeyDown( KeyCode.Alpha2 ) )
         {
             ScrollSpeed += .1f;
+            OnScrollChanged();
             Debug.Log( string.Format( "Current ScrollSpeed {0}", ScrollSpeed ) ); 
         }
     }

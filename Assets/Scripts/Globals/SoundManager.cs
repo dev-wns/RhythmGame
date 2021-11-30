@@ -16,8 +16,8 @@ public class SoundManager : Singleton<SoundManager>
     public FMOD.ChannelGroup group { get { return channelGroup; } }
     public static FMOD.Channel channel { get { return Inst.channels[0]; } }
 
-    public delegate void OnQuitSoundRelease();
-    public static event OnQuitSoundRelease SoundRelease;
+    public delegate void DelSoundReleased();
+    public static event DelSoundReleased OnRelease;
     #endregion
 
     #region properties
@@ -68,7 +68,7 @@ public class SoundManager : Singleton<SoundManager>
 
     private void OnApplicationQuit()
     {
-        SoundRelease();
+        OnRelease();
         //result = FMODUnity.RuntimeManager.CoreSystem.release();
     }
     #endregion

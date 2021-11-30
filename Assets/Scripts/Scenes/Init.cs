@@ -17,7 +17,7 @@ public class Init : Scene
         base.Awake();
         QualitySettings.vSyncCount = 0;
 
-        GameManager.LoadProgress = ProgressChange;
+        GameManager.OnLoaded = ProgressChange;
         text.color = new Color( 255, 255, 255, 0 );
     }
 
@@ -28,7 +28,7 @@ public class Init : Scene
 
     private void Update()
     {
-        if ( GameManager.isDone )
+        if ( GameManager.IsDone )
         {
             Change( SceneType.Lobby );
         }

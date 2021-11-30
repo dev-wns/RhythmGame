@@ -26,7 +26,15 @@ public class InGame : Scene
         var notes = NowPlaying.Data.notes;
         for ( int i = 0; i < notes.Count; i++ )
         {
-            NoteData mydata = new NoteData( notes[i].hitTiming, NowPlaying.GetChangedTime( notes[i].hitTiming ), notes[i].lengthLN, notes[i].type, notes[i].line );
+            float LNEndTime = 0f;
+            if ( notes[i].type == 128 )
+            {
+                LNEndTime = NowPlaying.GetChangedTime( notes[i].lengthLN );
+            }
+
+            NoteData mydata = new NoteData( notes[i].hitTiming, NowPlaying.GetChangedTime( notes[i].hitTiming ), 
+                                            notes[i].lengthLN, LNEndTime, 
+                                            notes[i].type, notes[i].line );
             NSystems[notes[i].line].datas.Enqueue( mydata );
         }
 

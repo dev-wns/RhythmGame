@@ -13,7 +13,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         get
         {
-            if ( GlobalSetting.IsFixedScroll ) return 0.25f * GlobalSetting.ScrollSpeed;              // 60bpm 1/4 박자 가중치 ( 60bpm / 60( bpm -> bps ) / 4 ( 1beat = 4/4박자 -> 1/4박자 만들기 ) )
+            if ( GlobalSetting.IsFixedScroll ) return 0.25f * GlobalSetting.ScrollSpeed;              // 60bpm 1/4 박자 가중치 ( 60bpm / 60( bpm -> bps ) / 4 ( 1beat = 4/4박자 -> 1/4박자 변환 ) )
             else                               return ( BPM / 60f / 4f ) * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
         }
     }
@@ -32,7 +32,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private static readonly float InitWaitTime = 3f;      // 시작 전 대기시간
 
     public static bool IsPlaying        { get; private set; } = false;
-    private int TimingIdx;
+    private int timingIdx;
     private Coroutine curCoroutine = null;
 
     public void Initialized( MetaData _data )
@@ -64,7 +64,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private void InitializedVariables() 
     {
         Playback = 0f; PlaybackChanged = 0f;
-        TimingIdx = 0; EndTime = 0;
+        timingIdx = 0; EndTime = 0;
         BPM = 0; MedianBPM = 0;
         IsPlaying = false; 
     }
@@ -96,14 +96,14 @@ public class NowPlaying : Singleton<NowPlaying>
         BPM = Data.timings[0].bpm;
         BPMChangeEvent();
 
-        while ( TimingIdx < Data.timings.Count )
+        while ( timingIdx < Data.timings.Count )
         {
-            float changeTime = Data.timings[TimingIdx].changeTime;
+            float changeTime = Data.timings[timingIdx].changeTime;
             yield return new WaitUntil( () => Playback >= changeTime );
 
-            BPM = Data.timings[TimingIdx].bpm;
+            BPM = Data.timings[timingIdx].bpm;
             BPMChangeEvent();
-            TimingIdx++;
+            timingIdx++;
         }
     }
 

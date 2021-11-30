@@ -7,12 +7,13 @@ public struct NoteData
     public float time; // hit timing
     public float calcTime;
     public float LNEndTime;
+    public float calcEndTime;
     public int line;
     public int type; // 128 = Long Note or Default Note
 
-    public NoteData( float _time, float _calcTime, float _LNEndTime, int _type, int _line )
+    public NoteData( float _time, float _calcTime, float _LNEndTime, float _calcEndTime, int _type, int _line  )
     {
-        time = _time; calcTime = _calcTime; LNEndTime = _LNEndTime; type = _type; line = _line;
+        time = _time; calcTime = _calcTime; LNEndTime = _LNEndTime; calcEndTime = _calcEndTime; type = _type; line = _line;
     }
 }
 

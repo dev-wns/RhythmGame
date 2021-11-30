@@ -13,7 +13,7 @@ public class MusicPlayer : MonoBehaviour
 
     private void Awake()
     {
-        SoundManager.SoundRelease += SoundRelease;
+        SoundManager.OnRelease += SoundRelease;
 
         //backgroundSound = SoundManager.Inst.Load( Application.streamingAssetsPath + "/Musics/O2i3 - ooi.mp3", true );
         //SoundManager.Inst.Play( backgroundSound );
