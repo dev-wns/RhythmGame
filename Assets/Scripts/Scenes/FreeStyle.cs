@@ -86,7 +86,7 @@ public class FreeStyle : Scene
 
     private IEnumerator PreviewSoundPlay()
     {
-        yield return new WaitForSecondsRealtime( .1f );
+        yield return YieldCache.WaitForSeconds( .1f );
 
         MetaData data = GameManager.Datas[Index];
         sound = data.sound;

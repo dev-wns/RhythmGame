@@ -13,7 +13,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
             {
                 T[] objs = FindObjectsOfType<T>();
                 if ( objs.Length > 0 ) instance = objs[0];
-                if ( objs.Length > 1 ) Debug.Log( "create multiple singleton objects. #Name : " + typeof( T ) );
+                if ( objs.Length > 1 ) Debug.Log( string.Format( "create multiple singleton objects. #Name : {0}", typeof( T ) ) );
                 if ( ReferenceEquals( null, instance ) )
                 {
                     GameObject obj = new GameObject( typeof( T ).Name );

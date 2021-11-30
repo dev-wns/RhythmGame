@@ -27,21 +27,18 @@ public class MeasureSystem : MonoBehaviour
             return;
         }
 
-        curTiming = timings.Dequeue();
         StartCoroutine( Process() );
     }
 
     private IEnumerator Process()
     {
-        yield return new WaitUntil( () => curTiming <= NowPlaying.PlaybackChanged + NowPlaying.PreLoadTime );
-        
-        Measure measure = mPool.Spawn();
-        measure.Initialized( curTiming );
-
-        if ( timings.Count > 0 )
+        while ( timings.Count > 0 )
         {
             curTiming = timings.Dequeue();
-            StartCoroutine( Process() );
+            yield return new WaitUntil( () => curTiming <= NowPlaying.PlaybackChanged + NowPlaying.PreLoadTime && NowPlaying.IsPlaying );
+
+            Measure measure = mPool.Spawn();
+            measure.Initialized( curTiming );
         }
     }
 }

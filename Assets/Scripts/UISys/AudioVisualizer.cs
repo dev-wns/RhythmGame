@@ -15,11 +15,12 @@ public class AudioVisualizer : MonoBehaviour
 
     private readonly int bassRange = 14;
     private float bassPower = 900f;
-    private float spectrumPower = 750f;
+    private float spectrumPower = 600f;
     private float[][] spectrum;
 
     private readonly float imageSize = 500f;
     private float specWidth;
+    public static float bassAmount = 0f;
 
     private void Start()
     {
@@ -69,19 +70,19 @@ public class AudioVisualizer : MonoBehaviour
             {
                 float y = visualSpectrums[i].localScale.y;
                 float value = spectrum[0][0 + i] * spectrumPower * volume;
-                float scale = Mathf.SmoothStep( y, value, .25f );
+                float scale = Mathf.SmoothStep( y, value, .3141592f );
 
                 Vector3 newScale = new Vector3( specWidth, scale, 1f );
                 visualSpectrums[i].localScale                             = newScale; // left
                 visualSpectrums[( spectrumCount * 2 ) - 1 - i].localScale = newScale; // right
             }
 
-            float bassAmount = 0f;
+            bassAmount = 0f;
             for ( int i = 0; i < bassRange; ++i )
             {
                 bassAmount += spectrum[0][i];
             }
-
+            
             DOTween.Kill( centerImage );
             float values = Mathf.Clamp( bassAmount * bassPower * volume, imageSize, imageSize * 1.5f );
             centerImage.DOScale( new Vector3( values, values, 0f ), .15f );

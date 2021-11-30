@@ -36,6 +36,7 @@ public class InGame : Scene
         {
             float time;
             Timings timing = timings[i];
+            if ( timing.beatLength >= 99999999 ) continue;
             float bpm = ( timing.bpm / 60f / 4f ) * 1000f; // beat per milliseconds
 
             if ( i + 1 == timings.Count ) time = NowPlaying.EndTime;
@@ -49,7 +50,7 @@ public class InGame : Scene
                 MSystem.timings.Enqueue( NowPlaying.GetChangedTime( timing.changeTime + ( j * bpm ) ) );
             }
         }
-
+        
         SystemsInitialized();
     }
 
@@ -74,11 +75,9 @@ public class InGame : Scene
 
     private void Update()
     {
-        timeText.text = string.Format( "{0:F1} √ ", NowPlaying.Playback / 1000f );
+        timeText.text = string.Format( "{0:F1} √ ", NowPlaying.Playback * 0.001f );
         comboText.text = string.Format( "{0}", GameManager.Combo );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;
         frameText.text = string.Format( "{0:F1}", 1f / delta );
     }
-
-    
 }

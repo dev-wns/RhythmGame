@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Note : MonoBehaviour
 {
-    public float calcTiming { get; private set; }
     public float timing     { get; private set; }
+    public float calcTiming { get; private set; }
 
     private float column;
     private int type; // LN( 128 ) or Default
@@ -14,8 +14,8 @@ public class Note : MonoBehaviour
     public void Initialized( NoteData _data )
     {
         //rdr.sortingOrder = _key;
-        calcTiming = _data.calcTime;
         timing = _data.time;
+        calcTiming = _data.calcTime;
         type = _data.type;
 
         column = GlobalSetting.NoteStartPos + ( _data.line * GlobalSetting.NoteWidth ) + ( ( _data.line + 1 ) * GlobalSetting.NoteBlank );

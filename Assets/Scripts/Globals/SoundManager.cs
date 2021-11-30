@@ -7,7 +7,6 @@ public class SoundManager : Singleton<SoundManager>
 {
 
     #region variables
-
     public FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
     private FMOD.Channel[] channels = new FMOD.Channel[100];
     private readonly ushort bufferSize = 256;
@@ -15,6 +14,7 @@ public class SoundManager : Singleton<SoundManager>
 
     public int frequency { get; private set; }
     public FMOD.ChannelGroup group { get { return channelGroup; } }
+    public static FMOD.Channel channel { get { return Inst.channels[0]; } }
 
     public delegate void OnQuitSoundRelease();
     public static event OnQuitSoundRelease SoundRelease;
@@ -86,7 +86,7 @@ public class SoundManager : Singleton<SoundManager>
 
         if ( result != FMOD.RESULT.OK )
         {
-            Debug.LogError( "failed to load sound. #Code : " + result.ToString() );
+            Debug.LogError( string.Format( "failed to load sound. #Code : {0}", result.ToString() ) );
         }
 
         return sound;
@@ -98,7 +98,7 @@ public class SoundManager : Singleton<SoundManager>
 
         if ( result != FMOD.RESULT.OK )
         {
-            Debug.LogError( "sound playback failed. #Code : " + result );
+            Debug.LogError( string.Format( "sound play failed. #Code : {0}", result ) );
             return;
         }
     }

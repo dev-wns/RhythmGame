@@ -26,8 +26,5 @@ public class Lobby : Scene
 
         if ( Input.GetKeyDown( KeyCode.Return ) )
             Change( SceneType.FreeStyle );
-
-        if ( Input.GetKeyDown( KeyCode.K ) )
-            Debug.Log( "asdfjaskldf" );
     }
 }

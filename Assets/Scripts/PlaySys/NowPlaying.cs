@@ -29,17 +29,18 @@ public class NowPlaying : Singleton<NowPlaying>
     public static float PreLoadTime     { get { return ( 5f / GlobalSetting.ScrollSpeed * 1000f ); } } // 5박자 시간 ( 고정 스크롤 일때 )
     public static uint EndTime          { get; private set; } // 노래 끝 시간 
 
-    private static readonly float InitWaitTime = -3000f;      // 시작 전 대기시간
+    private static readonly float InitWaitTime = 3f;      // 시작 전 대기시간
 
     public static bool IsPlaying        { get; private set; } = false;
-    private bool IsInitializing                               = true;
-    private bool isSimpleMode                                 = false;
     private int TimingIdx;
+    private Coroutine curCoroutine = null;
 
     public void Initialized( MetaData _data )
     {
+        if ( !ReferenceEquals( curCoroutine, null ) ) StopCoroutine( curCoroutine );
+
         Data = _data;
-        InitializedValiables();
+        InitializedVariables();
 
         // Find Median BPM
         List<float> bpmList = new List<float>();
@@ -58,39 +59,35 @@ public class NowPlaying : Singleton<NowPlaying>
         uint endTimeTemp;
         Data.sound.getLength( out endTimeTemp, FMOD.TIMEUNIT.MS );
         EndTime = endTimeTemp;
-        
-        Playback = InitWaitTime;
-        IsInitializing = false;
     }
 
-    private void InitializedValiables()
+    private void InitializedVariables() 
     {
-        TimingIdx = 0;
-        IsPlaying = false; IsInitializing = true;
+        Playback = 0f; PlaybackChanged = 0f;
+        TimingIdx = 0; EndTime = 0;
+        BPM = 0; MedianBPM = 0;
+        IsPlaying = false; 
     }
 
     public void Play( bool _isSimpleMode = false ) 
     {
-        isSimpleMode = _isSimpleMode;
-        StartCoroutine( StartProcess( _isSimpleMode ) ); 
+        curCoroutine = StartCoroutine( PlayMusic( _isSimpleMode ) ); 
     }
 
-    private IEnumerator StartProcess( bool _isSimpleMode )
+    private IEnumerator PlayMusic( bool _isSimpleMode )
     {
-        if ( !_isSimpleMode ) StartCoroutine( BpmChange() );
-        else                  Playback = 0f;
+        if ( !_isSimpleMode )
+        {
+            StartCoroutine( BpmChange() );
+            yield return YieldCache.WaitForSeconds( InitWaitTime );
+        }
+        else yield return null;
 
-        yield return new WaitUntil( () => !IsInitializing && Playback >= 0f );
-
+        uint playback;
         SoundManager.Inst.Play( Data.sound );
+        SoundManager.channel.getPosition( out playback, FMOD.TIMEUNIT.MS );
+        Playback = playback;
 
-        uint playbackPos = 0;
-        FMOD.Channel channel;
-        FMOD.RESULT res = SoundManager.Inst.channelGroup.getChannel( 0, out channel );
-        channel.getPosition( out playbackPos, FMOD.TIMEUNIT.MS );
-
-        // first sync
-        Playback = playbackPos;
         IsPlaying = true;
     }
 
@@ -119,29 +116,24 @@ public class NowPlaying : Singleton<NowPlaying>
             double time = Data.timings[i].changeTime;
             double listBpm = Data.timings[i].bpm;
             double bpm;
-            if ( time > _time ) break; //변속할 타이밍이 아니면 빠져나오기
+            if ( time > _time ) break;
             bpm = MedianBPM / listBpm;
-            newTime += ( double )( bpm - prevBpm ) * ( _time - time ); // 시간 계산
-            prevBpm = bpm; //이전bpm값
+            newTime += ( double )( bpm - prevBpm ) * ( _time - time );
+            prevBpm = bpm;
         }
         return ( float )newTime;
     }
 
     private void Update()
     {
-        if ( IsInitializing ) return;
-        
-        Playback += Time.deltaTime * 1000f; // second to millisecond
+        if ( !IsPlaying ) return;
 
-        if ( !isSimpleMode )
-        {
-            PlaybackChanged = GetChangedTime( Playback );
-        }
+        Playback += Time.deltaTime * 1000f;
+        PlaybackChanged = GetChangedTime( Playback );
 
         if ( Playback >= EndTime )
         {
             IsPlaying = false;
-            IsInitializing = true;
             SoundManager.Inst.Stop();
         }
     }

@@ -34,7 +34,7 @@ public class GameManager : Singleton<GameManager>
                 MetaData data = Read( file.FullName );
                 if ( ReferenceEquals( null, data ) )
                 {
-                    Debug.Log( "parsing failed. no data was created. #Path : " + file.FullName );
+                    Debug.Log( string.Format( "parsing failed. no data was created. #Path : {0}", file.FullName ) );
                 }
 
                 data.sound = SoundManager.Inst.Load( data.audioPath, true );
@@ -53,7 +53,6 @@ public class GameManager : Singleton<GameManager>
         {
             // backgrounds
             UnityWebRequest www = UnityWebRequestTexture.GetTexture( data.imgPath );
-            if ( ReferenceEquals( www, null ) ) Debug.Log( "Asdfasdfsadf" );
 
             yield return www.SendWebRequest();
             if ( www.result != UnityWebRequest.Result.Success )
@@ -147,7 +146,7 @@ public class GameManager : Singleton<GameManager>
                     float beatLength = Mathf.Abs( float.Parse( arr[1] ) );
                     bool isUninherited = StringToBoolean( arr[6] );
 
-                    if ( beatLength >= 99999999 ) continue;
+                    //if ( beatLength >= 99999999 ) continue;
 
                     if ( isUninherited ) prevBPM = beatLength;
                     else beatLength = Mathf.Abs( ( prevBPM * 100f / beatLength ) );
@@ -179,7 +178,7 @@ public class GameManager : Singleton<GameManager>
             var pos = Array.FindIndex( lines, row => row.Contains( "AudioFilename:" ) );
             if ( pos > 0 )
             {
-                lines[pos] = "AudioFilename:" + data.audioName;
+                lines[pos] = string.Format( "AudioFilename:{0}", data.audioName );
                 File.WriteAllLines( _path, lines );
             }
         }

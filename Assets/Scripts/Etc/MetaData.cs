@@ -13,8 +13,10 @@ public struct Timings
     {
         changeTime = _changeTime;
         beatLength = _beatLength;
-        bpm = 1f / _beatLength * 1000f * 60f;
         isUninherited = _isUninherited;
+        if ( _beatLength >= 99999999 ) bpm = .005f;
+        else bpm = 1f / _beatLength * 1000f * 60f;
+
     }
 }
 

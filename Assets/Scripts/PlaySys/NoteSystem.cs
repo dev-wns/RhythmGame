@@ -37,23 +37,20 @@ public class NoteSystem : MonoBehaviour
             return;
         }
 
-        curData = datas.Dequeue();
         StartCoroutine( Process() );
     }
 
     private IEnumerator Process()
     {
-        float timing = curData.calcTime;
-        yield return new WaitUntil( () => timing <= NowPlaying.PlaybackChanged + NowPlaying.PreLoadTime );
-
-        Note note = InGame.nPool.Spawn();
-        note.Initialized( curData );
-        ISystem.notes.Enqueue( note );
-
-        if ( datas.Count > 0 )
+        while ( datas.Count > 0 )
         {
             curData = datas.Dequeue();
-            StartCoroutine( Process() );
+            float timing = curData.calcTime;
+            yield return new WaitUntil( () => timing <= NowPlaying.PlaybackChanged + NowPlaying.PreLoadTime && NowPlaying.IsPlaying );
+
+            Note note = InGame.nPool.Spawn();
+            note.Initialized( curData );
+            ISystem.notes.Enqueue( note );
         }
     } 
 }
