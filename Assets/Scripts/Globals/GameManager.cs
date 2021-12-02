@@ -80,7 +80,7 @@ public class GameManager : Singleton<GameManager>
         string line;
         StreamReader reader = new StreamReader( _path );
         MetaData data = new MetaData();
-        float prevBPM = 0f;
+        double prevBPM = 0d;
 
         while ( ( line = reader.ReadLine() ) != null )
         {
@@ -142,16 +142,15 @@ public class GameManager : Singleton<GameManager>
                 {
                     string[] arr = line.Split( ',' );
 
-                    float changeTime = float.Parse( arr[0] );
-                    float beatLength = Mathf.Abs( float.Parse( arr[1] ) );
                     bool isUninherited = StringToBoolean( arr[6] );
+                    float changeTime = float.Parse( arr[0] );
+                    double beatLength = Mathf.Abs( float.Parse( arr[1] ) );
+                    double BPM = 1d / beatLength * 60000d;
 
-                    //if ( beatLength >= 99999999 ) continue;
+                    if ( isUninherited ) prevBPM = BPM;
+                    else                 BPM = ( prevBPM * 100d ) / beatLength;
 
-                    if ( isUninherited ) prevBPM = beatLength;
-                    else beatLength = Mathf.Abs( ( prevBPM * 100f / beatLength ) );
-
-                    data.timings.Add( new Timings( changeTime, beatLength, isUninherited ) );
+                    data.timings.Add( new Timings( changeTime, ( float )BPM, isUninherited ) );
                 }
             }
 

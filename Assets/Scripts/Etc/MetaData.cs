@@ -5,18 +5,14 @@ using UnityEngine;
 public struct Timings
 {
     public float changeTime;
-    public float beatLength;
     public float bpm;
     public bool isUninherited;
 
-    public Timings( float _changeTime, float _beatLength, bool _isUninherited )
+    public Timings( float _changeTime, float _bpm, bool _isUninherited )
     {
         changeTime = _changeTime;
-        beatLength = _beatLength;
         isUninherited = _isUninherited;
-        if ( _beatLength >= 99999999 ) bpm = .005f;
-        else bpm = 1f / _beatLength * 1000f * 60f;
-
+        bpm = _bpm;
     }
 }
 

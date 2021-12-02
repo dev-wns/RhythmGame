@@ -7,6 +7,7 @@ public class Note : MonoBehaviour
     private static readonly Vector3 InitScale = new Vector3( GlobalSetting.NoteWidth, GlobalSetting.NoteHeight, 1f );
     public float timing { get; private set; }
     public float calcTiming { get; private set; }
+    public float endEiming { get; private set; }
     public float calcEndTiming { get; private set; }
     public bool IsLN { get; private set; }
 
@@ -17,6 +18,7 @@ public class Note : MonoBehaviour
     {
         timing = _data.time;
         calcTiming = _data.calcTime;
+        endEiming = _data.LNEndTime;
         calcEndTiming = _data.calcEndTime;
 
         column = GlobalSetting.NoteStartPos + ( _data.line * GlobalSetting.NoteWidth ) + ( ( _data.line + 1 ) * GlobalSetting.NoteBlank );

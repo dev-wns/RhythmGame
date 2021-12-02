@@ -8,12 +8,11 @@ public class NowPlaying : Singleton<NowPlaying>
 
     // Bpm
     public static float BPM       { get; private set; } // 현재 BPM
-    public static float MedianBPM { get; private set; } // BPM이 많을 때 중간값
     public static float Weight // BPM 변화와 스크롤 속도를 고려한 오브젝트 속도 가중치
     {
         get
         {
-            if ( GlobalSetting.IsFixedScroll ) return 0.25f * GlobalSetting.ScrollSpeed;              // 60bpm 1/4 박자 가중치 ( 60bpm / 60( bpm -> bps ) / 4 ( 1beat = 4/4박자 -> 1/4박자 변환 ) )
+            if ( GlobalSetting.IsFixedScroll ) return .25f * GlobalSetting.ScrollSpeed;              // 60bpm 1/4 박자 가중치 ( 60bpm / 60( bpm -> bps ) / 4 ( 1beat = 4/4박자 -> 1/4박자 변환 ) )
             else                               return ( BPM / 60f / 4f ) * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
         }
     }
@@ -42,19 +41,6 @@ public class NowPlaying : Singleton<NowPlaying>
         Data = _data;
         InitializedVariables();
 
-        // Find Median BPM
-        List<float> bpmList = new List<float>();
-        foreach ( var data in Data.timings )
-        {
-            float bpm = data.bpm;
-            if ( !bpmList.Contains( bpm ) )
-            {
-                bpmList.Add( bpm );
-            }
-        }
-        bpmList.Sort();
-        MedianBPM = bpmList[Mathf.FloorToInt( bpmList.Count / 2f )];
-
         // Sound Work
         uint endTimeTemp;
         Data.sound.getLength( out endTimeTemp, FMOD.TIMEUNIT.MS );
@@ -64,8 +50,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private void InitializedVariables() 
     {
         Playback = 0f; PlaybackChanged = 0f;
-        timingIdx = 0; EndTime = 0;
-        BPM = 0; MedianBPM = 0;
+        timingIdx = 0; EndTime = 0; BPM = 0f;
         IsPlaying = false; 
     }
 
@@ -110,15 +95,14 @@ public class NowPlaying : Singleton<NowPlaying>
     public static float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
     {
         double newTime = _time;
-        double prevBpm = 1;
-        for ( int i = 0; i < Data.timings.Count - 1; i++ )
+        double prevBpm = 0d;
+        for ( int i = 0; i < Data.timings.Count; i++ )
         {
             double time = Data.timings[i].changeTime;
-            double listBpm = Data.timings[i].bpm;
-            double bpm;
+            double bpm = Data.timings[i].bpm;
+
             if ( time > _time ) break;
-            bpm = MedianBPM / listBpm;
-            newTime += ( double )( bpm - prevBpm ) * ( _time - time );
+            newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }
         return ( float )newTime;

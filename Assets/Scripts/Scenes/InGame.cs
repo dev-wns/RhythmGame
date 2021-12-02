@@ -44,8 +44,9 @@ public class InGame : Scene
         {
             float time;
             Timings timing = timings[i];
-            if ( timing.beatLength >= 99999999 ) continue;
-            float bpm = ( timing.bpm / 60f / 4f ) * 1000f; // beat per milliseconds
+            
+            if ( timing.bpm < 60 || timing.bpm > 999 ) continue;
+            float bpm = ( timing.bpm / 60f ) * 1000f; // beat per milliseconds
 
             if ( i + 1 == timings.Count ) time = NowPlaying.EndTime;
             else time = timings[i + 1].changeTime;
