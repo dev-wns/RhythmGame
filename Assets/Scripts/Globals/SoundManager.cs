@@ -94,7 +94,7 @@ public class SoundManager : Singleton<SoundManager>
 
     private void OnApplicationQuit()
     {
-        if ( ReferenceEquals( sound, null ) ) sound.release();
+        if ( !ReferenceEquals( sound, null ) ) sound.release();
 
         OnRelease();
         //result = FMODUnity.RuntimeManager.CoreSystem.release();
@@ -129,7 +129,7 @@ public class SoundManager : Singleton<SoundManager>
 
     public void Play( FMOD.Sound _sound )
     {
-        if ( ReferenceEquals( sound, null ) ) sound.release();
+        if ( !ReferenceEquals( sound, null ) ) sound.release();
 
         FMOD.RESULT result = FMOD.RESULT.OK;
         result = FMODUnity.RuntimeManager.CoreSystem.playSound( _sound, channelGroup, false, out channels[0] );

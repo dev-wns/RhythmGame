@@ -23,12 +23,13 @@ public class NowPlaying : Singleton<NowPlaying>
     // time ( millisecond )
     public static float Playback        { get; private set; } // 노래 재생 시간
     public static float PlaybackChanged { get; private set; } // BPM 변화에 따른 노래 재생 시간
+    private Timer timer = new Timer();
     
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
     public static float PreLoadTime     { get { return ( 5f / GlobalSetting.ScrollSpeed * 1000f ); } } // 5박자 시간 ( 고정 스크롤 일때 )
     public static uint EndTime          { get; private set; } // 노래 끝 시간 
 
-    public static readonly float InitWaitTime = 3f;      // 시작 전 대기시간
+    public static readonly float InitWaitTime = 1f;      // 시작 전 대기시간
 
     public static bool IsPlaying        { get; private set; } = false;
     private int timingIdx;
@@ -65,12 +66,9 @@ public class NowPlaying : Singleton<NowPlaying>
         }
         else yield return null;
 
-        // first sync
         SoundManager.Inst.LoadAndPlay( Data.audioPath );
         EndTime  = SoundManager.Inst.Length;
-        //Playback = SoundManager.Inst.Position;
-
-        IsPlaying = true;
+        StartCoroutine( TimeUpdate() );
     }
 
     private IEnumerator BpmChange()
@@ -105,17 +103,19 @@ public class NowPlaying : Singleton<NowPlaying>
         return ( float )newTime;
     }
 
-    private void Update()
+    private IEnumerator TimeUpdate()
     {
-        if ( !IsPlaying ) return;
-
-        Playback += Time.deltaTime * 1000f;
-        PlaybackChanged = GetChangedTime( Playback );
-
-        if ( Playback >= EndTime )
+        Playback = 0;
+        timer.Initialized();
+        SoundManager.Inst.Position = 0;
+        while ( Playback <= EndTime )
         {
-            IsPlaying = false;
-            SoundManager.Inst.Stop();
+            Playback = timer.elapsedMilliSeconds;
+            //Playback += Time.deltaTime * 1000f;
+            PlaybackChanged = GetChangedTime( Playback );
+            yield return null;
         }
+
+        SoundManager.Inst.Stop();
     }
 }

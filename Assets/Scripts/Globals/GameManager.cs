@@ -24,7 +24,8 @@ public class GameManager : Singleton<GameManager>
         Screen.SetResolution( 1920, 1080, false );
         Screen.fullScreen = true;
         Application.targetFrameRate = 144;
-
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         SoundManager.OnRelease += Release;
 
         // Parsing

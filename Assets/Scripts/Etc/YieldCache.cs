@@ -6,12 +6,12 @@ public class YieldCache : MonoBehaviour
 {
     class FloatComparer : IEqualityComparer<float>
     {
-        bool IEqualityComparer<float>.Equals(float x, float y)
+        bool IEqualityComparer<float>.Equals( float x, float y )
         {
             return x == y;
         }
 
-        int IEqualityComparer<float>.GetHashCode(float obj)
+        int IEqualityComparer<float>.GetHashCode( float obj )
         {
             return obj.GetHashCode();
         }
