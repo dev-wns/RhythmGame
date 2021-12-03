@@ -79,7 +79,7 @@ public class FreeStyle : Scene
     private void ChangePreviewInfo()
     {
         MetaData data = GameManager.Datas[Index];
-        bpm.text = Mathf.FloorToInt( ( float )data.timings[0].bpm ).ToString();
+        bpm.text = Mathf.FloorToInt( data.timings[0].bpm ).ToString();
 
         background.sprite = GameManager.Datas[Index].background;
     }

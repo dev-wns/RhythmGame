@@ -38,8 +38,6 @@ public class GameManager : Singleton<GameManager>
                 }
 
                 data.sound = SoundManager.Inst.Load( data.audioPath, true );
-                //data.timings[0] = new MetaData.Timings( 0, data.timings[0].beatLength, data.timings[0].isUninherited );
-
                 Datas.Add( data );
             }
             StartCoroutine( BackgroundsLoad() );
@@ -80,7 +78,6 @@ public class GameManager : Singleton<GameManager>
         string line;
         StreamReader reader = new StreamReader( _path );
         MetaData data = new MetaData();
-        double prevBPM = 0d;
 
         while ( ( line = reader.ReadLine() ) != null )
         {
@@ -138,6 +135,7 @@ public class GameManager : Singleton<GameManager>
 
             if ( line.Contains( "[TimingPoints]" ) )
             {
+                double prevBPM = 0d;
                 while ( !( string.IsNullOrEmpty( line = reader.ReadLine() ) || line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) ) )
                 {
                     string[] arr = line.Split( ',' );
@@ -150,7 +148,7 @@ public class GameManager : Singleton<GameManager>
                     if ( isUninherited ) prevBPM = BPM;
                     else                 BPM = ( prevBPM * 100d ) / beatLength;
 
-                    data.timings.Add( new Timings( changeTime, ( float )BPM, isUninherited ) );
+                    data.timings.Add( new Timings( changeTime, ( float )BPM ) );
                 }
             }
 

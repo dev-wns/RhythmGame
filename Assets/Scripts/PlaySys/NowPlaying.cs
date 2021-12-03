@@ -12,8 +12,8 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         get
         {
-            if ( GlobalSetting.IsFixedScroll ) return .25f * GlobalSetting.ScrollSpeed;              // 60bpm 1/4 박자 가중치 ( 60bpm / 60( bpm -> bps ) / 4 ( 1beat = 4/4박자 -> 1/4박자 변환 ) )
-            else                               return ( BPM / 60f / 4f ) * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
+            if ( GlobalSetting.IsFixedScroll ) return .25f * GlobalSetting.ScrollSpeed;          // 60bpm 1/4 박자 가중치
+            else                               return ( BPM / 60f ) * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
         }
     }
     public delegate void BPMChangeDel();
@@ -28,7 +28,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static float PreLoadTime     { get { return ( 5f / GlobalSetting.ScrollSpeed * 1000f ); } } // 5박자 시간 ( 고정 스크롤 일때 )
     public static uint EndTime          { get; private set; } // 노래 끝 시간 
 
-    private static readonly float InitWaitTime = 3f;      // 시작 전 대기시간
+    public static readonly float InitWaitTime = -3000f;      // 시작 전 대기시간
 
     public static bool IsPlaying        { get; private set; } = false;
     private int timingIdx;
@@ -49,7 +49,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private void InitializedVariables() 
     {
-        Playback = 0f; PlaybackChanged = 0f;
+        Playback = InitWaitTime; PlaybackChanged = 0f;
         timingIdx = 0; EndTime = 0; BPM = 0f;
         IsPlaying = false; 
     }
@@ -64,10 +64,13 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( !_isSimpleMode )
         {
             StartCoroutine( BpmChange() );
-            yield return YieldCache.WaitForSeconds( InitWaitTime );
+            IsPlaying = true;
+            yield return new WaitUntil( () => Playback >= 0 );
+            //yield return YieldCache.WaitForSeconds( InitWaitTime );
         }
         else yield return null;
 
+        // first sync
         uint playback;
         SoundManager.Inst.Play( Data.sound );
         SoundManager.channel.getPosition( out playback, FMOD.TIMEUNIT.MS );

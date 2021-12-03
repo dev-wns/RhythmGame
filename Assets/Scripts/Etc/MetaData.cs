@@ -6,12 +6,10 @@ public struct Timings
 {
     public float changeTime;
     public float bpm;
-    public bool isUninherited;
 
-    public Timings( float _changeTime, float _bpm, bool _isUninherited )
+    public Timings( float _changeTime, float _bpm )
     {
         changeTime = _changeTime;
-        isUninherited = _isUninherited;
         bpm = _bpm;
     }
 }

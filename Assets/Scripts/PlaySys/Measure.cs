@@ -26,6 +26,6 @@ public class Measure : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( time - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ), 0f );
+        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( time - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ), 3f );
     }
 }

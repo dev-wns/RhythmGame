@@ -7,18 +7,18 @@ public class Note : MonoBehaviour
     private static readonly Vector3 InitScale = new Vector3( GlobalSetting.NoteWidth, GlobalSetting.NoteHeight, 1f );
     public float timing { get; private set; }
     public float calcTiming { get; private set; }
-    public float endEiming { get; private set; }
+    public float endTiming { get; private set; }
     public float calcEndTiming { get; private set; }
     public bool IsLN { get; private set; }
-
-    private float column;
+    public bool isHolding;
+    public float column;
     private SpriteRenderer rdr;
 
     public void Initialized( NoteData _data )
     {
         timing = _data.time;
         calcTiming = _data.calcTime;
-        endEiming = _data.LNEndTime;
+        endTiming = _data.LNEndTime;
         calcEndTiming = _data.calcEndTime;
 
         column = GlobalSetting.NoteStartPos + ( _data.line * GlobalSetting.NoteWidth ) + ( ( _data.line + 1 ) * GlobalSetting.NoteBlank );
@@ -51,6 +51,15 @@ public class Note : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( calcTiming - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ), 0f );
+        if ( isHolding )
+        {
+            if ( transform.localScale.y > 0 )
+            {
+                transform.localScale = new Vector3( GlobalSetting.NoteWidth, ( calcEndTiming * NowPlaying.Weight ) - ( NowPlaying.PlaybackChanged * NowPlaying.Weight ), 1f );
+            }
+
+            transform.position = new Vector3( column, GlobalSetting.JudgeLine, 2f );
+        }else
+        transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( calcTiming - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ), 2f );
     }
 }

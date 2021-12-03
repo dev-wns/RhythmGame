@@ -6,7 +6,7 @@ public class Judgement : MonoBehaviour
 {
     private void Awake()
     {
-        transform.position = new Vector3( 0f, GlobalSetting.JudgeLine );
+        transform.position = new Vector3( 0f, GlobalSetting.JudgeLine, 1f );
         transform.localScale = new Vector3( GlobalSetting.GearWidth, GlobalSetting.JudgeHeight, 1f );
     }
 }
