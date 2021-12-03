@@ -10,18 +10,16 @@ public class SoundManager : Singleton<SoundManager>
     public FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
     private FMOD.Channel[] channels = new FMOD.Channel[100];
     private readonly ushort bufferSize = 256;
-    private FMOD.RESULT result;
+    private FMOD.Sound sound;
 
-    public int frequency { get; private set; }
-    public FMOD.ChannelGroup group { get { return channelGroup; } }
-    public static FMOD.Channel channel { get { return Inst.channels[0]; } }
 
     public delegate void DelSoundReleased();
     public static event DelSoundReleased OnRelease;
     #endregion
 
     #region properties
-
+    private uint pos;
+    private bool isPlay;
     private float volume;
     public float Volume
     {
@@ -46,6 +44,35 @@ public class SoundManager : Singleton<SoundManager>
             volume = value;
         }
     }
+    public bool IsPlay
+    {
+        get
+        {
+            channels[0].isPlaying( out isPlay );
+            return isPlay;
+        }
+    }
+    public uint Position 
+    { 
+        get
+        {
+            if ( FMOD.RESULT.OK != channels[0].getPosition( out pos, FMOD.TIMEUNIT.MS ) ) return 0;
+            return pos;
+        }
+        set
+        {
+            if ( IsPlay ) channels[0].setPosition( value, FMOD.TIMEUNIT.MS );
+        }
+    }
+    public uint Length
+    {
+        get
+        {
+            if ( FMOD.RESULT.OK != sound.getLength( out pos, FMOD.TIMEUNIT.MS ) ) return 0;
+            return pos;
+        }
+    }
+
     #endregion
 
     #region unity callback functions
@@ -55,8 +82,7 @@ public class SoundManager : Singleton<SoundManager>
         FMOD.SPEAKERMODE speakmode;
         FMODUnity.RuntimeManager.CoreSystem.setDSPBufferSize( bufferSize, 4 );
         FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat( out freq, out speakmode, out numlowspeak );
-
-        result = FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup( out channelGroup );
+        FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup( out channelGroup );
 
         for( int idx = 0; idx < 100; ++idx )
         {
@@ -68,6 +94,8 @@ public class SoundManager : Singleton<SoundManager>
 
     private void OnApplicationQuit()
     {
+        if ( ReferenceEquals( sound, null ) ) sound.release();
+
         OnRelease();
         //result = FMODUnity.RuntimeManager.CoreSystem.release();
     }
@@ -77,12 +105,13 @@ public class SoundManager : Singleton<SoundManager>
 
     public FMOD.Sound Load( string _path, bool _loop = false )
     {
+        FMOD.RESULT result = FMOD.RESULT.OK;
         FMOD.Sound sound;// = new FMOD.Sound();
         
         FMOD.MODE mode;
         if ( _loop ) mode = FMOD.MODE.LOOP_NORMAL  | FMOD.MODE.ACCURATETIME;
         else         mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME;
-        result = FMODUnity.RuntimeManager.CoreSystem.createSound( _path, mode, out sound );
+        FMODUnity.RuntimeManager.CoreSystem.createSound( _path, mode, out sound );
 
         if ( result != FMOD.RESULT.OK )
         {
@@ -92,8 +121,17 @@ public class SoundManager : Singleton<SoundManager>
         return sound;
     }
 
+    public void LoadAndPlay( string _path, bool _loop = false )
+    {
+        Stop();
+        Play( Load( _path, _loop ) );
+    }
+
     public void Play( FMOD.Sound _sound )
     {
+        if ( ReferenceEquals( sound, null ) ) sound.release();
+
+        FMOD.RESULT result = FMOD.RESULT.OK;
         result = FMODUnity.RuntimeManager.CoreSystem.playSound( _sound, channelGroup, false, out channels[0] );
 
         if ( result != FMOD.RESULT.OK )
@@ -101,6 +139,8 @@ public class SoundManager : Singleton<SoundManager>
             Debug.LogError( string.Format( "sound play failed. #Code : {0}", result ) );
             return;
         }
+
+        sound = _sound;
     }
 
     public void Stop()

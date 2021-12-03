@@ -40,5 +40,6 @@ public class MetaData
     public List<Timings> timings = new List<Timings>();
 
     public Sprite background;
-    public FMOD.Sound sound;
+    //public AudioClip clip;
+    //public FMOD.Sound sound;
 }

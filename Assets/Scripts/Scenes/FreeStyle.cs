@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Networking;
 
 public class FreeStyle : Scene
 {
@@ -14,7 +15,7 @@ public class FreeStyle : Scene
     public Image background, previewBG;
 
     private Coroutine curSoundLoadCoroutine;
-    private FMOD.Sound sound;
+
     private int Index { get { return snap.SelectIndex; } }
 
     #region unity callbacks
@@ -57,6 +58,7 @@ public class FreeStyle : Scene
 
         if ( Input.GetKeyDown( KeyCode.Return ) )
         {
+            NowPlaying.Inst.Initialized( GameManager.Datas[Index] );
             Change( SceneType.InGame );
         }
     }
@@ -64,8 +66,6 @@ public class FreeStyle : Scene
     private void ChangePreview()
     {
         if ( snap.IsDuplicateKeyCheck ) return;
-
-        NowPlaying.Inst.Initialized( GameManager.Datas[Index] );
 
         ChangePreviewInfo();
 
@@ -75,7 +75,6 @@ public class FreeStyle : Scene
         }
         curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
     }
-
     private void ChangePreviewInfo()
     {
         MetaData data = GameManager.Datas[Index];
@@ -86,26 +85,14 @@ public class FreeStyle : Scene
 
     private IEnumerator PreviewSoundPlay()
     {
-        yield return YieldCache.WaitForSeconds( .1f );
+        yield return YieldCache.WaitForSeconds( .5f );
 
         MetaData data = GameManager.Datas[Index];
-        sound = data.sound;
-
-        SoundManager.Inst.Stop();
-        SoundManager.Inst.Play( sound );
-
-        FMOD.Channel channel;
-        SoundManager.Inst.channelGroup.getChannel( 0, out channel );
+        SoundManager.Inst.LoadAndPlay( data.audioPath );
 
         int time = data.previewTime;
-        if ( time <= 0 )
-        {
-            uint length = 0;
-            sound.getLength( out length, FMOD.TIMEUNIT.MS );
-            time = ( int )( length / 3.65f );
-        }
-
-        channel.setPosition( ( uint )time, FMOD.TIMEUNIT.MS );
+        if ( time <= 0 ) SoundManager.Inst.Position = ( uint )( SoundManager.Inst.Length / 3f );
+        else             SoundManager.Inst.Position = ( uint )time; 
     }
     #endregion
 }

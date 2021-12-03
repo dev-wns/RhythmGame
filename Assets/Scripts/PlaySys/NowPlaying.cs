@@ -28,7 +28,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static float PreLoadTime     { get { return ( 5f / GlobalSetting.ScrollSpeed * 1000f ); } } // 5박자 시간 ( 고정 스크롤 일때 )
     public static uint EndTime          { get; private set; } // 노래 끝 시간 
 
-    public static readonly float InitWaitTime = -3000f;      // 시작 전 대기시간
+    public static readonly float InitWaitTime = 3f;      // 시작 전 대기시간
 
     public static bool IsPlaying        { get; private set; } = false;
     private int timingIdx;
@@ -40,16 +40,11 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Data = _data;
         InitializedVariables();
-
-        // Sound Work
-        uint endTimeTemp;
-        Data.sound.getLength( out endTimeTemp, FMOD.TIMEUNIT.MS );
-        EndTime = endTimeTemp;
     }
 
     private void InitializedVariables() 
     {
-        Playback = InitWaitTime; PlaybackChanged = 0f;
+        Playback = 0f; PlaybackChanged = 0f;
         timingIdx = 0; EndTime = 0; BPM = 0f;
         IsPlaying = false; 
     }
@@ -65,16 +60,15 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             StartCoroutine( BpmChange() );
             IsPlaying = true;
-            yield return new WaitUntil( () => Playback >= 0 );
-            //yield return YieldCache.WaitForSeconds( InitWaitTime );
+            // yield return new WaitUntil( () => Playback >= 0 );
+            yield return YieldCache.WaitForSeconds( InitWaitTime );
         }
         else yield return null;
 
         // first sync
-        uint playback;
-        SoundManager.Inst.Play( Data.sound );
-        SoundManager.channel.getPosition( out playback, FMOD.TIMEUNIT.MS );
-        Playback = playback;
+        SoundManager.Inst.LoadAndPlay( Data.audioPath );
+        EndTime  = SoundManager.Inst.Length;
+        //Playback = SoundManager.Inst.Position;
 
         IsPlaying = true;
     }

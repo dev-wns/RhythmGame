@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -22,11 +24,11 @@ public class GameManager : Singleton<GameManager>
         Screen.SetResolution( 1920, 1080, false );
         Screen.fullScreen = true;
         Application.targetFrameRate = 144;
-        
+
         SoundManager.OnRelease += Release;
 
         // Parsing
-        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );
+        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );// new DirectoryInfo( "Assets/Sounds/Musics/" );
         foreach ( var dir in info.GetDirectories() )
         {
             foreach ( var file in dir.GetFiles( "*.osu" ) )
@@ -37,16 +39,58 @@ public class GameManager : Singleton<GameManager>
                     Debug.Log( string.Format( "parsing failed. no data was created. #Path : {0}", file.FullName ) );
                 }
 
-                data.sound = SoundManager.Inst.Load( data.audioPath, true );
                 Datas.Add( data );
             }
-            StartCoroutine( BackgroundsLoad() );
         }
+
+        // Stopwatch sw = new Stopwatch();
+        // sw.Start();
+        // foreach ( var data in Datas )
+        // {
+        //     data.sound = SoundManager.Inst.Load( data.audioPath, true );
+        // }
+        // sw.Stop();
+        // Debug.Log( string.Format( "Sound Load : {0}ms", sw.ElapsedMilliseconds ) );
+
+        StartCoroutine( BackgroundsLoad() );
+        //StartCoroutine( SoundsLoad() );
+
         Debug.Log( "Data Parsing Finish" );
     }
 
+    //private IEnumerator SoundsLoad()
+    //{
+    //    Stopwatch sw = new Stopwatch();
+    //    sw.Start();
+    //    foreach ( var data in Datas )
+    //    {
+    //        // backgrounds
+    //        using ( UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip( "file:///" + data.audioPath, AudioType.MPEG ) )
+    //        {
+    //            yield return www.SendWebRequest();
+    //            if ( www.result == UnityWebRequest.Result.ConnectionError )
+    //            {
+    //                Debug.Log( www.error );
+    //            }
+    //            else
+    //            {
+    //                data.clip = DownloadHandlerAudioClip.GetContent( www );
+    //            }
+    //        }
+    //        OnLoaded( 1f / Datas.Count );
+    //    }
+
+    //    sw.Stop();
+    //    Debug.Log( string.Format( "Sound Load : {0}ms", sw.ElapsedMilliseconds ) );
+
+    //    IsDone = true;
+    //}
+    
     private IEnumerator BackgroundsLoad()
     {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        
         foreach ( var data in Datas )
         {
             // backgrounds
@@ -67,6 +111,9 @@ public class GameManager : Singleton<GameManager>
 
             OnLoaded( 1f / Datas.Count );
         }
+
+        sw.Stop();
+        Debug.Log( string.Format( "Back Load : {0}ms", sw.ElapsedMilliseconds ) );
 
         IsDone = true;
         Debug.Log( "Backgrounds Load Finish." );
@@ -136,6 +183,7 @@ public class GameManager : Singleton<GameManager>
             if ( line.Contains( "[TimingPoints]" ) )
             {
                 double prevBPM = 0d;
+                bool isFirst = true;
                 while ( !( string.IsNullOrEmpty( line = reader.ReadLine() ) || line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) ) )
                 {
                     string[] arr = line.Split( ',' );
@@ -148,6 +196,11 @@ public class GameManager : Singleton<GameManager>
                     if ( isUninherited ) prevBPM = BPM;
                     else                 BPM = ( prevBPM * 100d ) / beatLength;
 
+                    if ( isFirst )
+                    {
+                        data.timings.Add( new Timings( -10000, ( float )BPM ) );
+                        isFirst = false;
+                    }
                     data.timings.Add( new Timings( changeTime, ( float )BPM ) );
                 }
             }
@@ -211,7 +264,7 @@ public class GameManager : Singleton<GameManager>
     {
         foreach( var data in Datas )
         {
-            data.sound.release();
+            //data.sound.release();
         }
     }
 }

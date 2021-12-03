@@ -9,15 +9,16 @@ public class Scene : MonoBehaviour
     protected enum SceneType { Lobby, FreeStyle, InGame };
 
     [Serializable]
-    public struct SceneClips
+    public struct ClipSfx
     {
         public AudioClip move;
         public AudioClip click;
         public AudioClip escape;
     }
 
-    public SceneClips clips;
-    private AudioSource sfxAudio;
+    private AudioSource audioSource;
+    public AudioClip bgClip;
+    public ClipSfx clips;
 
     protected void SfxPlay( AudioClip _clip )
     {
@@ -27,13 +28,26 @@ public class Scene : MonoBehaviour
             return;
         }
 
-        sfxAudio.PlayOneShot( _clip );
+        audioSource.PlayOneShot( _clip );
     }
+
+    protected void BgPlay( AudioClip _clip )
+    {
+        if ( _clip == null )
+        {
+            Debug.LogError( "clip is null." );
+            return;
+        }
+
+        audioSource.clip = _clip;
+        audioSource.Play();
+    }
+
 
     protected virtual void Awake()
     {
         SoundManager.OnRelease += SoundRelease;
-        sfxAudio = gameObject.AddComponent<AudioSource>();
+        audioSource = gameObject.AddComponent<AudioSource>();
 
         Camera.main.orthographicSize = ( Screen.height / ( GlobalSetting.PPU * 2f ) ) * GlobalSetting.PPU;
     }

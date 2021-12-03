@@ -16,13 +16,13 @@ public class Lobby : Scene
     {
         base.Awake();
 
-        ChangeMusic();
+        //ChangeMusic();
     }
 
     private void Update()
     {
-        if ( NowPlaying.Playback > NowPlaying.EndTime )
-            ChangeMusic();
+        //if ( NowPlaying.Playback > NowPlaying.EndTime )
+        //    ChangeMusic();
 
         if ( Input.GetKeyDown( KeyCode.Return ) )
             Change( SceneType.FreeStyle );

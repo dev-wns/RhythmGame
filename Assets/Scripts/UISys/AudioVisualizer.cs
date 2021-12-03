@@ -31,7 +31,7 @@ public class AudioVisualizer : MonoBehaviour
         FMODUnity.RuntimeManager.CoreSystem.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp );
         dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 );
         dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS );
-        SoundManager.Inst.group.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, dsp );
+        SoundManager.Inst.channelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, dsp );
         SoundManager.Inst.Volume = 0.1f;
 
         // create spectrum objects

@@ -264,6 +264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4324c8e0e41ac4442a162b1dd6cee55c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bgClip: {fileID: 0}
   clips:
     move: {fileID: 0}
     click: {fileID: 0}
