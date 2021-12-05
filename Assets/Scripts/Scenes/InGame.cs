@@ -5,7 +5,7 @@ using TMPro;
 public class InGame : Scene
 {
     // ui
-    public TextMeshProUGUI timeText, bpmText, comboText, frameText;
+    public TextMeshProUGUI timeText, bpmText, comboText, frameText, medianText;
 
     // Systems
     private NoteSystem[]  NSystems;
@@ -88,5 +88,6 @@ public class InGame : Scene
         comboText.text = string.Format( "{0}", GameManager.Combo );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;
         frameText.text = string.Format( "{0:F1}", 1f / delta );
+        medianText.text = string.Format( "{0:F1}", NowPlaying.MedianBpm ); 
     }
 }

@@ -25,14 +25,14 @@ public class FreeStyle : Scene
 
         SoundManager.Inst.Volume = 0.1f;
 
-        foreach ( var data in GameManager.Datas )
+        foreach ( var data in GameManager.songs )
         {
             // scrollview song contents
             GameObject obj = Instantiate( prefab, scrollSoundsContent );
             TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
 
-            int idx = data.version.IndexOf( "-" );
-            info[0].text = data.version.Substring( idx + 1, data.version.Length - idx - 1 ).Trim();
+            int idx = data.Version.IndexOf( "-" );
+            info[0].text = data.Version.Substring( idx + 1, data.Version.Length - idx - 1 ).Trim();
             //info[1].text = data.version.Substring( 0, idx ); 
         }
 
@@ -73,14 +73,41 @@ public class FreeStyle : Scene
         {
             StopCoroutine( curSoundLoadCoroutine );
         }
-        curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
+
+        //curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
     }
+    private IEnumerator BackgroundsLoad()
+    {
+        //// backgrounds
+        //UnityWebRequest www = UnityWebRequestTexture.GetTexture( GameManager.songs[_idx].ImagePath );
+        //
+        //yield return www.SendWebRequest();
+        //if ( www.result != UnityWebRequest.Result.Success )
+        //{
+        //    Debug.Log( www.error );
+        //}
+        //else
+        //{
+        //    Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
+        //    Sprite sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( 0.5f, 0.5f ) );
+        //
+        //    background.sprite = sprite;
+        //}
+
+        Texture2D t = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
+        byte[] binaryData = System.IO.File.ReadAllBytes( GameManager.songs[Index].ImagePath );
+        while ( !t.LoadImage( binaryData ) ) yield return null;
+
+        background.sprite = Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
+        // background.sprite = Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ) );
+    }
+    private Coroutine loadIageCoroutine = null;
     private void ChangePreviewInfo()
     {
-        MetaData data = GameManager.Datas[Index];
-        bpm.text = Mathf.FloorToInt( data.timings[0].bpm ).ToString();
-
-        background.sprite = GameManager.Datas[Index].background;
+        if ( !ReferenceEquals( null, loadIageCoroutine ) ) StopCoroutine( loadIageCoroutine );
+        //MetaData data = GameManager.Datas[Index];
+        //bpm.text = Mathf.FloorToInt( data.timings[0].bpm ).ToString();
+        loadIageCoroutine = StartCoroutine( BackgroundsLoad() );
     }
 
     private IEnumerator PreviewSoundPlay()

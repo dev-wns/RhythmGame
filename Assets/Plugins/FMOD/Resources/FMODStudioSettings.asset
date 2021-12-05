@@ -304,7 +304,7 @@ MonoBehaviour:
   BoltUnitOptionsBuildPending: 0
   EnableErrorCallback: 0
   SharedLibraryUpdateStage: 0
-  SharedLibraryTimeSinceStart: 0
+  SharedLibraryTimeSinceStart: 21041.655987
   HideSetupWizard: 1
   Platforms:
   - {fileID: 680451075809079163}

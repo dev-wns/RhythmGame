@@ -106,7 +106,7 @@ public class SoundManager : Singleton<SoundManager>
     public FMOD.Sound Load( string _path, bool _loop = false )
     {
         FMOD.RESULT result = FMOD.RESULT.OK;
-        FMOD.Sound sound;// = new FMOD.Sound();
+        FMOD.Sound sound;
         
         FMOD.MODE mode;
         if ( _loop ) mode = FMOD.MODE.LOOP_NORMAL  | FMOD.MODE.ACCURATETIME;
@@ -115,7 +115,7 @@ public class SoundManager : Singleton<SoundManager>
 
         if ( result != FMOD.RESULT.OK )
         {
-            Debug.LogError( string.Format( "failed to load sound. #Code : {0}", result.ToString() ) );
+            Debug.LogError( $"failed to load sound. #Code : {result.ToString()}" );
         }
 
         return sound;
@@ -136,7 +136,7 @@ public class SoundManager : Singleton<SoundManager>
 
         if ( result != FMOD.RESULT.OK )
         {
-            Debug.LogError( string.Format( "sound play failed. #Code : {0}", result ) );
+            Debug.LogError( $"sound play failed. #Code : {result.ToString()}" );
             return;
         }
 

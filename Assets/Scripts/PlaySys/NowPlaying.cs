@@ -12,10 +12,11 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         get
         {
-            if ( GlobalSetting.IsFixedScroll ) return .25f * GlobalSetting.ScrollSpeed;          // 60bpm 1/4 박자 가중치
-            else                               return ( BPM / 60f ) * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
+            if ( !GlobalSetting.IsFixedScroll ) return 3f / BPM * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
+            else                               return 3f / MedianBpm * GlobalSetting.ScrollSpeed;          // 60bpm 1/4 박자 가중치
         }
     }
+    public static float MedianBpm;
     public delegate void BPMChangeDel();
     public static event BPMChangeDel BPMChangeEvent;
 
@@ -26,7 +27,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private Timer timer = new Timer();
     
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
-    public static float PreLoadTime     { get { return ( 5f / GlobalSetting.ScrollSpeed * 1000f ); } } // 5박자 시간 ( 고정 스크롤 일때 )
+    public static float PreLoadTime     { get { return ( 150f / GlobalSetting.ScrollSpeed ) * 1000f; } } // 5박자 시간 ( 고정 스크롤 일때 )
     public static uint EndTime          { get; private set; } // 노래 끝 시간 
 
     public static readonly float InitWaitTime = 1f;      // 시작 전 대기시간
@@ -34,12 +35,73 @@ public class NowPlaying : Singleton<NowPlaying>
     public static bool IsPlaying        { get; private set; } = false;
     private int timingIdx;
     private Coroutine curCoroutine = null;
-
+    class BPMS
+    {
+        public float bpm, time;
+        public BPMS( float _bpm, float _time )
+        { bpm = _bpm; time = _time; }
+    }
+    class MedianCac
+    {
+        public float time; public double bpm; public int key;
+        public MedianCac( float time, double bpm )
+        {
+            this.time = time;
+            this.bpm = bpm;
+            key = Mathf.FloorToInt( ( float )bpm );
+        }
+    }
     public void Initialized( MetaData _data )
     {
         if ( !ReferenceEquals( curCoroutine, null ) ) StopCoroutine( curCoroutine );
 
         Data = _data;
+
+        List<BPMS> bpms = new List<BPMS>();
+        for( int i = 0; i < Data.timings.Count; i++  )
+        {
+            bpms.Add( new BPMS( Data.timings[i].bpm, Data.timings[i].changeTime ) );
+        }
+
+        List<MedianCac> medianCalc = new List<MedianCac>();
+        for ( int i = 0; i < bpms.Count; i++ )
+        {
+            float t;
+            double b;
+            if ( i == 0 )
+            {
+                t = 0;
+                b = bpms[0].bpm;
+            }
+            else
+            {
+                t = bpms[i - 1].time;
+                b = bpms[i - 1].bpm;
+            }
+            bool find = false;
+            for ( int j = 0; j < medianCalc.Count; j++ )
+            {
+                if ( Mathf.Abs( ( float )( b - medianCalc[j].bpm ) ) < 0.1f )
+                {
+                    find = true;
+                    medianCalc[j].time += bpms[i].time - t;
+                }
+            }
+            if ( !find ) medianCalc.Add( new MedianCac( bpms[i].time - t, (float)b ) );
+        }
+
+        for ( int i = 0; i < medianCalc.Count; i++ )
+            if ( medianCalc[i].bpm <= 30f ) medianCalc.RemoveAt( i ); //너무 적은 수치일시 적용방지
+
+        medianCalc.Sort( delegate ( MedianCac A, MedianCac B )
+        {
+
+            if ( A.time >= B.time ) return -1;
+            else return 1;
+        }
+        );
+        MedianBpm = 1 / ( ( float )medianCalc[0].bpm / 60000f );
+
         InitializedVariables();
     }
 
@@ -97,6 +159,7 @@ public class NowPlaying : Singleton<NowPlaying>
             double bpm = Data.timings[i].bpm;
 
             if ( time > _time ) break;
+            bpm = MedianBpm / bpm;
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }

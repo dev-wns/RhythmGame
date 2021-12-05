@@ -5,9 +5,8 @@ using UnityEngine;
 
 public class GlobalSetting : MonoBehaviour
 {
-    private static int OriginScrollSpeed = 13;
-    public static float ScrollSpeed { get { return OriginScrollSpeed / 60f / 4f; } }
-
+    private static int OriginScrollSpeed = 6;
+    public static float ScrollSpeed { get { return OriginScrollSpeed / 60f * 4f; } }
     public static bool IsFixedScroll { get; private set; } = true;
 
     public delegate void DelScrollChanged();

@@ -11,7 +11,7 @@ using Debug = UnityEngine.Debug;
 public class GameManager : Singleton<GameManager>
 {
     public static List<MetaData> Datas = new List<MetaData>();
-
+    public static List<Song> songs = new List<Song>();
     public delegate void DelLoaded( float _offset );
     public static DelLoaded OnLoaded;
 
@@ -21,28 +21,31 @@ public class GameManager : Singleton<GameManager>
     private void Awake()
     {
         // Setting
-        Screen.SetResolution( 1920, 1080, false );
-        Screen.fullScreen = true;
+        Screen.SetResolution( 1920, 1080, true );
+        //Screen.fullScreen = true;
         Application.targetFrameRate = 144;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
         SoundManager.OnRelease += Release;
 
+        var path = Path.Combine( Application.streamingAssetsPath, "Songs" );
+        using ( FileReader reader = new OsuReader( path ) ) reader.Read();
+        IsDone = true;
         // Parsing
-        DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );// new DirectoryInfo( "Assets/Sounds/Musics/" );
-        foreach ( var dir in info.GetDirectories() )
-        {
-            foreach ( var file in dir.GetFiles( "*.osu" ) )
-            {
-                MetaData data = Read( file.FullName );
-                if ( ReferenceEquals( null, data ) )
-                {
-                    Debug.Log( string.Format( "parsing failed. no data was created. #Path : {0}", file.FullName ) );
-                }
+        //DirectoryInfo info = new DirectoryInfo( Application.streamingAssetsPath + "/Songs" );// new DirectoryInfo( "Assets/Sounds/Musics/" );
+        //foreach ( var dir in info.GetDirectories() )
+        //{
+        //    foreach ( var file in dir.GetFiles( "*.osu" ) )
+        //    {
+        //        MetaData data = Read( file.FullName );
+        //        if ( ReferenceEquals( null, data ) )
+        //        {
+        //            Debug.Log( string.Format( "parsing failed. no data was created. #Path : {0}", file.FullName ) );
+        //        }
 
-                Datas.Add( data );
-            }
-        }
+        //        Datas.Add( data );
+        //    }
+        //}
 
         // Stopwatch sw = new Stopwatch();
         // sw.Start();
@@ -92,23 +95,34 @@ public class GameManager : Singleton<GameManager>
         Stopwatch sw = new Stopwatch();
         sw.Start();
         
-        foreach ( var data in Datas )
+        foreach ( var data in songs )
         {
-            // backgrounds
-            UnityWebRequest www = UnityWebRequestTexture.GetTexture( data.imgPath );
+            Texture2D t = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
+            byte[] binaryData = System.IO.File.ReadAllBytes( data.ImagePath );
+            
+            while ( !t.LoadImage( binaryData ) ) yield return null;
+            
+            //UnityEngine.UI.Image i;
+            //Sprite sprite;
 
-            yield return www.SendWebRequest();
-            if ( www.result != UnityWebRequest.Result.Success )
-            {
-                Debug.Log( www.error );
-            }
-            else
-            {
-                Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
-                Sprite sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( 0.5f, 0.5f ) );
+            Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
+            //Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ) );
 
-                data.background = sprite;
-            }
+            //// backgrounds
+            //UnityWebRequest www = UnityWebRequestTexture.GetTexture( data.ImagePath );
+            //
+            //yield return www.SendWebRequest();
+            //if ( www.result != UnityWebRequest.Result.Success )
+            //{
+            //    Debug.Log( www.error );
+            //}
+            //else
+            //{
+            //    Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
+            //    Sprite sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( 0.5f, 0.5f ) );
+            //
+            //    // data.background = sprite;
+            //}
 
             OnLoaded( 1f / Datas.Count );
         }
