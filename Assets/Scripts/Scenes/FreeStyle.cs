@@ -25,7 +25,7 @@ public class FreeStyle : Scene
 
         SoundManager.Inst.Volume = 0.1f;
 
-        foreach ( var data in GameManager.songs )
+        foreach ( var data in NowPlaying.Songs )
         {
             // scrollview song contents
             GameObject obj = Instantiate( prefab, scrollSoundsContent );
@@ -37,7 +37,7 @@ public class FreeStyle : Scene
         }
 
         // details
-        if ( GameManager.Datas.Count > 0 )
+        if ( NowPlaying.Songs.Count > 0 )
         {
             ChangePreview();
         }
@@ -95,29 +95,29 @@ public class FreeStyle : Scene
         //}
 
         Texture2D t = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
-        byte[] binaryData = System.IO.File.ReadAllBytes( GameManager.songs[Index].ImagePath );
+        byte[] binaryData = System.IO.File.ReadAllBytes( NowPlaying.Songs[Index].ImagePath );
         while ( !t.LoadImage( binaryData ) ) yield return null;
 
         background.sprite = Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
         // background.sprite = Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ) );
     }
-    private Coroutine loadIageCoroutine = null;
+    private Coroutine loadImageCoroutine = null;
     private void ChangePreviewInfo()
     {
-        if ( !ReferenceEquals( null, loadIageCoroutine ) ) StopCoroutine( loadIageCoroutine );
+        if ( !ReferenceEquals( null, loadImageCoroutine ) ) StopCoroutine( loadImageCoroutine );
         //MetaData data = GameManager.Datas[Index];
         //bpm.text = Mathf.FloorToInt( data.timings[0].bpm ).ToString();
-        loadIageCoroutine = StartCoroutine( BackgroundsLoad() );
+        loadImageCoroutine = StartCoroutine( BackgroundsLoad() );
     }
 
     private IEnumerator PreviewSoundPlay()
     {
         yield return YieldCache.WaitForSeconds( .5f );
 
-        MetaData data = GameManager.Datas[Index];
-        SoundManager.Inst.LoadAndPlay( data.audioPath );
+        Song data = NowPlaying.Songs[Index];
+        SoundManager.Inst.LoadAndPlay( data.AudioPath );
 
-        int time = data.previewTime;
+        int time = data.PreviewTime;
         if ( time <= 0 ) SoundManager.Inst.Position = ( uint )( SoundManager.Inst.Length / 3f );
         else             SoundManager.Inst.Position = ( uint )time; 
     }

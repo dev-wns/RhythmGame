@@ -14,6 +14,11 @@ public class GlobalSetting : MonoBehaviour
 
     public static float PPU { get; private set; } = 100f; // pixel per unit
 
+    // IO
+    public static string OsuDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Osu" );
+    public static string BmsDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Bms" );
+    public static string DefaultImagePath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Default", "DefaultImage.jpg" );
+
     // Measure
     public static float MeasureHeight { get; private set; } = 3f;
 
@@ -30,7 +35,7 @@ public class GlobalSetting : MonoBehaviour
     // Gear
     public static float GearStartPos { get { return ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f ); } }
     public static float GearWidth    { get { return ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
-
+    
     private void Update()
     {
         if ( Input.GetKeyDown( KeyCode.Alpha1 ) )

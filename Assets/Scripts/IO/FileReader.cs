@@ -1,24 +1,18 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 
 public abstract class FileReader : IDisposable
 {
     private StreamReader streamReader;
     public string line { get; private set; }
-    public string directory { get; private set; }
-
-    public FileReader( string _directory )
-    {
-        directory = _directory;
-    }
 
     public void Initialize( string _path )
     {
-        Dispose();
+        if ( !ReferenceEquals( null, streamReader ) ) 
+            Dispose();
 
-        streamReader = new StreamReader( _path );
+        try { streamReader = new StreamReader( _path ); }
+        catch ( Exception error ) { UnityEngine.Debug.Log( $"The file could not be read : {error.Message}" ); }
     }
 
     // 한줄 읽기

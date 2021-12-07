@@ -5,6 +5,7 @@ using UnityEngine;
 public class NowPlaying : Singleton<NowPlaying>
 {
     public static MetaData Data   { get; private set; }
+    public static List<Song> Songs { get; private set; } = new List<Song>();
 
     // Bpm
     public static float BPM       { get; private set; } // 현재 BPM
@@ -12,8 +13,8 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         get
         {
-            if ( !GlobalSetting.IsFixedScroll ) return 3f / BPM * GlobalSetting.ScrollSpeed; // 가변bpm 1/4 박자 가중치
-            else                               return 3f / MedianBpm * GlobalSetting.ScrollSpeed;          // 60bpm 1/4 박자 가중치
+            if ( !GlobalSetting.IsFixedScroll ) return 3f / BPM * GlobalSetting.ScrollSpeed; 
+            else                                return 3f / MedianBpm * GlobalSetting.ScrollSpeed;          
         }
     }
     public static float MedianBpm;
@@ -51,6 +52,7 @@ public class NowPlaying : Singleton<NowPlaying>
             key = Mathf.FloorToInt( ( float )bpm );
         }
     }
+
     public void Initialized( MetaData _data )
     {
         if ( !ReferenceEquals( curCoroutine, null ) ) StopCoroutine( curCoroutine );
