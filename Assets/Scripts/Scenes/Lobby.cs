@@ -6,10 +6,10 @@ public class Lobby : Scene
 {
     private void ChangeMusic()
     {
-        var datas = GameManager.Datas;
-        NowPlaying.Inst.Initialized( datas[Random.Range( 0, datas.Count )] );
+        //var datas = GameManager.Datas;
+        //NowPlaying.Inst.Initialized( datas[Random.Range( 0, datas.Count )] );
 
-        NowPlaying.Inst.Play( true );
+        //NowPlaying.Inst.Play( true );
     }
 
     protected override void Awake()

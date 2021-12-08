@@ -4,25 +4,29 @@ using System.IO;
 public abstract class FileReader : IDisposable
 {
     private StreamReader streamReader;
-    public string line { get; private set; }
+    protected string path { get; private set; }
+    protected string directory { get; private set; }
+    protected string line { get; private set; }
 
-    public void Initialize( string _path )
+    protected FileReader( string _path )
     {
-        if ( !ReferenceEquals( null, streamReader ) ) 
-            Dispose();
-
-        try { streamReader = new StreamReader( _path ); }
-        catch ( Exception error ) { UnityEngine.Debug.Log( $"The file could not be read : {error.Message}" ); }
+        path = _path;
+        try 
+        {
+            streamReader = new StreamReader( _path );
+            directory    = Path.GetDirectoryName( _path );
+        }
+        catch ( Exception error ) { UnityEngine.Debug.Log( $"The file could not be read : { error.Message }" ); }
     }
 
     // 한줄 읽기
-    public string ReadLine()
+    protected string ReadLine()
     {
         return line = streamReader.ReadLine();
     }
 
     // 현재 라인에서 단어 찾기
-    public bool Contains( string _str )
+    protected bool Contains( string _str )
     {
         if ( line == null )
             return false;
@@ -31,7 +35,7 @@ public abstract class FileReader : IDisposable
     }
 
     // 토큰 자르고 공백없앤 후 반환
-    public string SplitAndTrim( char _separator )
+    protected string SplitAndTrim( char _separator )
     {
         if ( line == null || line == string.Empty ) 
             return string.Empty;
@@ -40,7 +44,7 @@ public abstract class FileReader : IDisposable
     }
 
     // 특정 단어 나올때까지 Read
-    public string ReadContainsLine( string _str )
+    protected string ReadContainsLine( string _str )
     {
         if ( _str == string.Empty ) 
             return string.Empty;
@@ -50,8 +54,6 @@ public abstract class FileReader : IDisposable
 
         return line;
     }
-
-    public abstract void Read();
 
     public void Dispose() => streamReader?.Dispose();
 }

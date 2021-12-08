@@ -269,8 +269,9 @@ MonoBehaviour:
     move: {fileID: 0}
     click: {fileID: 0}
     escape: {fileID: 0}
-  prefab: {fileID: 2143760026432302663, guid: 2cf1d03b17ecd8e42bb304316048ccc4, type: 3}
-  scrollSoundsContent: {fileID: 1876200923}
+  songPrefab: {fileID: 2143760026432302663, guid: 2cf1d03b17ecd8e42bb304316048ccc4,
+    type: 3}
+  songContents: {fileID: 1876200923}
   snap: {fileID: 1876200926}
   time: {fileID: 1519519956}
   bpm: {fileID: 2134217707}

@@ -22,43 +22,43 @@ public class InGame : Scene
 
     private void Initialized()
     {
-        // Note
-        var notes = NowPlaying.Data.notes;
-        for ( int i = 0; i < notes.Count; i++ )
-        {
-            float LNEndTime = 0f;
-            if ( notes[i].type == 128 )
-            {
-                LNEndTime = NowPlaying.GetChangedTime( notes[i].lengthLN );
-            }
+        //// Note
+        //var notes = NowPlaying.Data.notes;
+        //for ( int i = 0; i < notes.Count; i++ )
+        //{
+        //    float LNEndTime = 0f;
+        //    if ( notes[i].type == 128 )
+        //    {
+        //        LNEndTime = NowPlaying.GetChangedTime( notes[i].lengthLN );
+        //    }
 
-            NoteData mydata = new NoteData( notes[i].hitTiming, NowPlaying.GetChangedTime( notes[i].hitTiming ), 
-                                            notes[i].lengthLN, LNEndTime, 
-                                            notes[i].type, notes[i].line );
-            NSystems[notes[i].line].datas.Enqueue( mydata );
-        }
+        //    NoteData mydata = new NoteData( notes[i].hitTiming, NowPlaying.GetChangedTime( notes[i].hitTiming ), 
+        //                                    notes[i].lengthLN, LNEndTime, 
+        //                                    notes[i].type, notes[i].line );
+        //    NSystems[notes[i].line].datas.Enqueue( mydata );
+        //}
 
-        // Measure
-        var timings = NowPlaying.Data.timings;
-        for ( int i = 0; i < timings.Count; i++ )
-        {
-            float time;
-            Timings timing = timings[i];
+        //// Measure
+        //var timings = NowPlaying.Data.timings;
+        //for ( int i = 0; i < timings.Count; i++ )
+        //{
+        //    float time;
+        //    Timings timing = timings[i];
             
-            if ( timing.bpm < 60 || timing.bpm > 999 ) continue;
-            float bpm = ( timing.bpm / 60f ) * 1000f; // beat per milliseconds
+        //    if ( timing.bpm < 60 || timing.bpm > 999 ) continue;
+        //    float bpm = ( timing.bpm / 60f ) * 1000f; // beat per milliseconds
 
-            if ( i + 1 == timings.Count ) time = NowPlaying.EndTime;
-            else time = timings[i + 1].changeTime;
+        //    if ( i + 1 == timings.Count ) time = NowPlaying.EndTime;
+        //    else time = timings[i + 1].changeTime;
 
-            int a = Mathf.FloorToInt( ( time - timing.changeTime ) / bpm );
-            MSystem.timings.Enqueue( NowPlaying.GetChangedTime( timing.changeTime ) );
+        //    int a = Mathf.FloorToInt( ( time - timing.changeTime ) / bpm );
+        //    MSystem.timings.Enqueue( NowPlaying.GetChangedTime( timing.changeTime ) );
 
-            for ( int j = 0; j < a; j++ )
-            {
-                MSystem.timings.Enqueue( NowPlaying.GetChangedTime( timing.changeTime + ( j * bpm ) ) );
-            }
-        }
+        //    for ( int j = 0; j < a; j++ )
+        //    {
+        //        MSystem.timings.Enqueue( NowPlaying.GetChangedTime( timing.changeTime + ( j * bpm ) ) );
+        //    }
+        //}
         
         SystemsInitialized();
     }
@@ -85,7 +85,7 @@ public class InGame : Scene
     private void Update()
     {
         timeText.text = string.Format( "{0:F1} ÃÊ", NowPlaying.Playback * 0.001f );
-        comboText.text = string.Format( "{0}", GameManager.Combo );
+        //comboText.text = string.Format( "{0}", GameManager.Combo );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;
         frameText.text = string.Format( "{0:F1}", 1f / delta );
         medianText.text = string.Format( "{0:F1}", NowPlaying.MedianBpm ); 

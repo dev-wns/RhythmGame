@@ -49,12 +49,12 @@ public class InputSystem : MonoBehaviour
                 {
                     curNote.isHolding = true;
                     isHolding = true;
-                    GameManager.Combo++;
+                    //GameManager.Combo++;
                 }
             }
             else if ( isHolding && Input.GetKey( KeySetting.Keys[key] ) )
             {
-                GameManager.Combo++;
+                //GameManager.Combo++;
             }
             else if ( isHolding && Input.GetKeyUp( KeySetting.Keys[key] ) )
             {
@@ -65,7 +65,7 @@ public class InputSystem : MonoBehaviour
                 }
                 else if ( endDiffAbs < 150f )
                 {
-                    GameManager.Combo++;
+                    //GameManager.Combo++;
                     isHolding = false;
                     curNote.isHolding = false;
                     isCheckComplate = true;
@@ -95,7 +95,7 @@ public class InputSystem : MonoBehaviour
             {
                 if ( Input.GetKeyDown( KeySetting.Keys[key] ) )
                 {
-                    GameManager.Combo++;
+                    //GameManager.Combo++;
                     curNote.gameObject.SetActive( false );
                     InGame.nPool.Despawn( curNote );
                     //InGame.cPool.Despawn( curColNote );

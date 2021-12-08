@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class NowPlaying : Singleton<NowPlaying>
 {
-    public static MetaData Data   { get; private set; }
-    public static List<Song> Songs { get; private set; } = new List<Song>();
-
+    public static Song CurrentSong   { get; private set; }
+    
     // Bpm
     public static float BPM       { get; private set; } // 현재 BPM
     public static float Weight // BPM 변화와 스크롤 속도를 고려한 오브젝트 속도 가중치
@@ -20,7 +19,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public static float MedianBpm;
     public delegate void BPMChangeDel();
     public static event BPMChangeDel BPMChangeEvent;
-
 
     // time ( millisecond )
     public static float Playback        { get; private set; } // 노래 재생 시간
@@ -53,56 +51,61 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
 
-    public void Initialized( MetaData _data )
+    private void Awake()
+    {
+        DontDestroyOnLoad( this );
+    }
+
+    public void Initialized( Song _data )
     {
         if ( !ReferenceEquals( curCoroutine, null ) ) StopCoroutine( curCoroutine );
 
-        Data = _data;
+        CurrentSong = _data;
 
-        List<BPMS> bpms = new List<BPMS>();
-        for( int i = 0; i < Data.timings.Count; i++  )
-        {
-            bpms.Add( new BPMS( Data.timings[i].bpm, Data.timings[i].changeTime ) );
-        }
+        //List<BPMS> bpms = new List<BPMS>();
+        //for( int i = 0; i < Data.timings.Count; i++  )
+        //{
+        //    bpms.Add( new BPMS( Data.timings[i].bpm, Data.timings[i].changeTime ) );
+        //}
 
-        List<MedianCac> medianCalc = new List<MedianCac>();
-        for ( int i = 0; i < bpms.Count; i++ )
-        {
-            float t;
-            double b;
-            if ( i == 0 )
-            {
-                t = 0;
-                b = bpms[0].bpm;
-            }
-            else
-            {
-                t = bpms[i - 1].time;
-                b = bpms[i - 1].bpm;
-            }
-            bool find = false;
-            for ( int j = 0; j < medianCalc.Count; j++ )
-            {
-                if ( Mathf.Abs( ( float )( b - medianCalc[j].bpm ) ) < 0.1f )
-                {
-                    find = true;
-                    medianCalc[j].time += bpms[i].time - t;
-                }
-            }
-            if ( !find ) medianCalc.Add( new MedianCac( bpms[i].time - t, (float)b ) );
-        }
+        //List<MedianCac> medianCalc = new List<MedianCac>();
+        //for ( int i = 0; i < bpms.Count; i++ )
+        //{
+        //    float t;
+        //    double b;
+        //    if ( i == 0 )
+        //    {
+        //        t = 0;
+        //        b = bpms[0].bpm;
+        //    }
+        //    else
+        //    {
+        //        t = bpms[i - 1].time;
+        //        b = bpms[i - 1].bpm;
+        //    }
+        //    bool find = false;
+        //    for ( int j = 0; j < medianCalc.Count; j++ )
+        //    {
+        //        if ( Mathf.Abs( ( float )( b - medianCalc[j].bpm ) ) < 0.1f )
+        //        {
+        //            find = true;
+        //            medianCalc[j].time += bpms[i].time - t;
+        //        }
+        //    }
+        //    if ( !find ) medianCalc.Add( new MedianCac( bpms[i].time - t, (float)b ) );
+        //}
 
-        for ( int i = 0; i < medianCalc.Count; i++ )
-            if ( medianCalc[i].bpm <= 30f ) medianCalc.RemoveAt( i ); //너무 적은 수치일시 적용방지
+        //for ( int i = 0; i < medianCalc.Count; i++ )
+        //    if ( medianCalc[i].bpm <= 30f ) medianCalc.RemoveAt( i ); //너무 적은 수치일시 적용방지
 
-        medianCalc.Sort( delegate ( MedianCac A, MedianCac B )
-        {
+        //medianCalc.Sort( delegate ( MedianCac A, MedianCac B )
+        //{
 
-            if ( A.time >= B.time ) return -1;
-            else return 1;
-        }
-        );
-        MedianBpm = 1 / ( ( float )medianCalc[0].bpm / 60000f );
+        //    if ( A.time >= B.time ) return -1;
+        //    else return 1;
+        //}
+        //);
+        //MedianBpm = 1 / ( ( float )medianCalc[0].bpm / 60000f );
 
         InitializedVariables();
     }
@@ -130,41 +133,42 @@ public class NowPlaying : Singleton<NowPlaying>
         }
         else yield return null;
 
-        SoundManager.Inst.LoadAndPlay( Data.audioPath );
+        //SoundManager.Inst.LoadAndPlay( Data.audioPath );
         EndTime  = SoundManager.Inst.Length;
         StartCoroutine( TimeUpdate() );
     }
 
     private IEnumerator BpmChange()
     {
-        BPM = Data.timings[0].bpm;
-        BPMChangeEvent();
+        //BPM = Data.timings[0].bpm;
+        //BPMChangeEvent();
 
-        while ( timingIdx < Data.timings.Count )
-        {
-            float changeTime = Data.timings[timingIdx].changeTime;
-            yield return new WaitUntil( () => Playback >= changeTime );
+        //while ( timingIdx < Data.timings.Count )
+        //{
+        //    float changeTime = Data.timings[timingIdx].changeTime;
+        //    yield return new WaitUntil( () => Playback >= changeTime );
 
-            BPM = Data.timings[timingIdx].bpm;
-            BPMChangeEvent();
-            timingIdx++;
-        }
+        //    BPM = Data.timings[timingIdx].bpm;
+        //    BPMChangeEvent();
+        //    timingIdx++;
+        //}
+        yield return null;
     }
 
     public static float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
     {
         double newTime = _time;
         double prevBpm = 0d;
-        for ( int i = 0; i < Data.timings.Count; i++ )
-        {
-            double time = Data.timings[i].changeTime;
-            double bpm = Data.timings[i].bpm;
+        //for ( int i = 0; i < Data.timings.Count; i++ )
+        //{
+        //    double time = Data.timings[i].changeTime;
+        //    double bpm = Data.timings[i].bpm;
 
-            if ( time > _time ) break;
-            bpm = MedianBpm / bpm;
-            newTime += ( bpm - prevBpm ) * ( _time - time );
-            prevBpm = bpm;
-        }
+        //    if ( time > _time ) break;
+        //    bpm = MedianBpm / bpm;
+        //    newTime += ( bpm - prevBpm ) * ( _time - time );
+        //    prevBpm = bpm;
+        //}
         return ( float )newTime;
     }
 

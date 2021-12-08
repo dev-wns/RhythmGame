@@ -7,16 +7,19 @@ using UnityEngine.Networking;
 
 public class FreeStyle : Scene
 {
-    public GameObject prefab; // sound infomation prefab
-    public Transform scrollSoundsContent;
+    public GameObject songPrefab; // sound infomation prefab
+    public Transform songContents;
     public VerticalScrollSnap snap;
 
     public TextMeshProUGUI time, bpm, combo, record, rate;
     public Image background, previewBG;
 
-    private Coroutine curSoundLoadCoroutine;
+    private Coroutine curSoundLoad = null;
+    private Coroutine curImageLoad = null;
 
     private int Index { get { return snap.SelectIndex; } }
+
+    private void CoroutineRelease( Coroutine _coroutine ) { if ( !ReferenceEquals( null, _coroutine ) ) StopCoroutine( _coroutine ); }
 
     #region unity callbacks
     protected override void Awake()
@@ -25,10 +28,10 @@ public class FreeStyle : Scene
 
         SoundManager.Inst.Volume = 0.1f;
 
-        foreach ( var data in NowPlaying.Songs )
+        foreach ( var data in MetaData.Songs )
         {
             // scrollview song contents
-            GameObject obj = Instantiate( prefab, scrollSoundsContent );
+            GameObject obj = Instantiate( songPrefab, songContents );
             TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
 
             int idx = data.Version.IndexOf( "-" );
@@ -37,10 +40,12 @@ public class FreeStyle : Scene
         }
 
         // details
-        if ( NowPlaying.Songs.Count > 0 )
+        if ( MetaData.Songs.Count > 0 )
         {
             ChangePreview();
         }
+
+        DontDestroyOnLoad( this );
     }
 
     private void Update()
@@ -58,7 +63,7 @@ public class FreeStyle : Scene
 
         if ( Input.GetKeyDown( KeyCode.Return ) )
         {
-            NowPlaying.Inst.Initialized( GameManager.Datas[Index] );
+            //NowPlaying.Inst.Initialized( GameManager.Datas[Index] );
             Change( SceneType.InGame );
         }
     }
@@ -69,53 +74,36 @@ public class FreeStyle : Scene
 
         ChangePreviewInfo();
 
-        if ( !ReferenceEquals( curSoundLoadCoroutine, null ) )
-        {
-            StopCoroutine( curSoundLoadCoroutine );
-        }
-
+        CoroutineRelease( curSoundLoad );
+        //curSoundLoad = StartCoroutine( PreviewSoundPlay() );
         //curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
     }
+
     private IEnumerator BackgroundsLoad()
     {
-        //// backgrounds
-        //UnityWebRequest www = UnityWebRequestTexture.GetTexture( GameManager.songs[_idx].ImagePath );
-        //
-        //yield return www.SendWebRequest();
-        //if ( www.result != UnityWebRequest.Result.Success )
-        //{
-        //    Debug.Log( www.error );
-        //}
-        //else
-        //{
-        //    Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
-        //    Sprite sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( 0.5f, 0.5f ) );
-        //
-        //    background.sprite = sprite;
-        //}
-
+        // backgrounds
         Texture2D t = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
-        byte[] binaryData = System.IO.File.ReadAllBytes( NowPlaying.Songs[Index].ImagePath );
+        byte[] binaryData = System.IO.File.ReadAllBytes( MetaData.Songs[Index].ImagePath );
         while ( !t.LoadImage( binaryData ) ) yield return null;
 
         background.sprite = Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
-        // background.sprite = Sprite.Create( t, new Rect( 0, 0, t.width, t.height ), new Vector2( .5f, .5f ) );
     }
-    private Coroutine loadImageCoroutine = null;
+
+
     private void ChangePreviewInfo()
     {
-        if ( !ReferenceEquals( null, loadImageCoroutine ) ) StopCoroutine( loadImageCoroutine );
         //MetaData data = GameManager.Datas[Index];
         //bpm.text = Mathf.FloorToInt( data.timings[0].bpm ).ToString();
-        loadImageCoroutine = StartCoroutine( BackgroundsLoad() );
+        CoroutineRelease( curImageLoad );
+        curImageLoad = StartCoroutine( BackgroundsLoad() );
     }
 
     private IEnumerator PreviewSoundPlay()
     {
         yield return YieldCache.WaitForSeconds( .5f );
 
-        Song data = NowPlaying.Songs[Index];
-        SoundManager.Inst.LoadAndPlay( data.AudioPath );
+        Song data = MetaData.Songs[Index];
+        SoundManager.Inst.BGMPlay( SoundManager.Inst.Load( data.AudioPath ) );
 
         int time = data.PreviewTime;
         if ( time <= 0 ) SoundManager.Inst.Position = ( uint )( SoundManager.Inst.Length / 3f );

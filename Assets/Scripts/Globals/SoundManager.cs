@@ -8,7 +8,10 @@ public class SoundManager : Singleton<SoundManager>
 
     #region variables
     public FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
-    private FMOD.Channel[] channels = new FMOD.Channel[100];
+    private FMOD.Channel bgmChannel = new FMOD.Channel();
+    private const int sfxChannelCount = 100;
+    private FMOD.Channel[] sfxChannels = new FMOD.Channel[sfxChannelCount];
+
     private readonly ushort bufferSize = 256;
     private FMOD.Sound sound;
 
@@ -48,7 +51,7 @@ public class SoundManager : Singleton<SoundManager>
     {
         get
         {
-            channels[0].isPlaying( out isPlay );
+            bgmChannel.isPlaying( out isPlay );
             return isPlay;
         }
     }
@@ -56,12 +59,12 @@ public class SoundManager : Singleton<SoundManager>
     { 
         get
         {
-            if ( FMOD.RESULT.OK != channels[0].getPosition( out pos, FMOD.TIMEUNIT.MS ) ) return 0;
+            if ( FMOD.RESULT.OK != bgmChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) ) return 0;
             return pos;
         }
         set
         {
-            if ( IsPlay ) channels[0].setPosition( value, FMOD.TIMEUNIT.MS );
+            if ( IsPlay ) bgmChannel.setPosition( value, FMOD.TIMEUNIT.MS );
         }
     }
     public uint Length
@@ -84,9 +87,10 @@ public class SoundManager : Singleton<SoundManager>
         FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat( out freq, out speakmode, out numlowspeak );
         FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup( out channelGroup );
 
-        for( int idx = 0; idx < 100; ++idx )
+        bgmChannel.setChannelGroup( channelGroup );
+        for( int idx = 0; idx < sfxChannelCount; ++idx )
         {
-            channels[idx].setChannelGroup( channelGroup );
+            sfxChannels[idx].setChannelGroup( channelGroup );
         }
 
         Debug.Log( "SoundManager Initizlize Successful." );
@@ -121,26 +125,19 @@ public class SoundManager : Singleton<SoundManager>
         return sound;
     }
 
-    public void LoadAndPlay( string _path, bool _loop = false )
+    public void BGMPlay( FMOD.Sound _sound )
     {
-        Stop();
-        Play( Load( _path, _loop ) );
-    }
-
-    public void Play( FMOD.Sound _sound )
-    {
-        if ( !ReferenceEquals( sound, null ) ) sound.release();
-
-        FMOD.RESULT result = FMOD.RESULT.OK;
-        result = FMODUnity.RuntimeManager.CoreSystem.playSound( _sound, channelGroup, false, out channels[0] );
-
+        FMOD.RESULT result = FMODUnity.RuntimeManager.CoreSystem.playSound( _sound, channelGroup, false, out bgmChannel );
         if ( result != FMOD.RESULT.OK )
         {
             Debug.LogError( $"sound play failed. #Code : {result.ToString()}" );
             return;
         }
+    }
 
-        sound = _sound;
+    public void SfxPlay( FMOD.Sound _sound )
+    {
+
     }
 
     public void Stop()

@@ -13,8 +13,6 @@ public class MusicPlayer : MonoBehaviour
 
     private void Awake()
     {
-        SoundManager.OnRelease += SoundRelease;
-
         //backgroundSound = SoundManager.Inst.Load( Application.streamingAssetsPath + "/Musics/O2i3 - ooi.mp3", true );
         //SoundManager.Inst.Play( backgroundSound );
 
@@ -31,11 +29,6 @@ public class MusicPlayer : MonoBehaviour
         progressTimer.text = IntToTime( progressTime );
         
         if ( !isDrag ) { progressBar.value = progressTime; }
-    }
-
-    protected void SoundRelease()
-    {
-        backgroundSound.release();
     }
 
     public void SliderDownEvent() { isDrag = true; }
