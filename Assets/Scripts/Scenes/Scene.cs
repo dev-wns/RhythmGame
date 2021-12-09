@@ -46,17 +46,14 @@ public class Scene : MonoBehaviour
 
     protected virtual void Awake()
     {
-        SoundManager.OnRelease += SoundRelease;
         audioSource = gameObject.AddComponent<AudioSource>();
 
         Camera.main.orthographicSize = ( Screen.height / ( GlobalSetting.PPU * 2f ) ) * GlobalSetting.PPU;
     }
 
-    protected virtual void SoundRelease() { }
-
     protected void Change( SceneType _type )
     {
         SceneManager.LoadScene( _type.ToString() );
-        SoundManager.Inst.Stop();
+        SoundManager.Inst.AllStop();
     }
 }

@@ -33,7 +33,7 @@ public class Init : Scene
         yield return YieldCache.WaitForSeconds( 1f );
 
         text.DOFade( 1f, 5f );
-        yield return YieldCache.WaitForSeconds( 5f );
+        yield return YieldCache.WaitForSeconds( 2f );
         Change( SceneType.Lobby );
     }
 }

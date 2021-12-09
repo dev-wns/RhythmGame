@@ -9,7 +9,6 @@ public class AudioVisualizer : MonoBehaviour
     public Transform spectrumPrefab;
     public Transform centerImage;
 
-    private FMOD.DSP dsp;
     private Transform[] visualSpectrums;
     public int spectrumCount = 128;
 
@@ -25,14 +24,6 @@ public class AudioVisualizer : MonoBehaviour
     private void Start()
     {
         DOTween.Init();
-        specWidth = imageSize * .001f * 2f;
-
-        // DSP setting
-        FMODUnity.RuntimeManager.CoreSystem.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp );
-        dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 );
-        dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS );
-        SoundManager.Inst.channelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, dsp );
-        SoundManager.Inst.Volume = 0.1f;
 
         // create spectrum objects
         int symmetryColorIdx = spectrumCount;
@@ -52,6 +43,7 @@ public class AudioVisualizer : MonoBehaviour
         }
 
         // details
+        specWidth = imageSize * .001f * 2f;
         centerImage.localScale = new Vector3( imageSize, imageSize, 1f );
     }
 
@@ -59,7 +51,7 @@ public class AudioVisualizer : MonoBehaviour
     {
         uint length;
         System.IntPtr data;
-        dsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
+        SoundManager.Inst.VisualizerDsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
         FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
         spectrum = fftData.spectrum;
 

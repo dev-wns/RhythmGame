@@ -185,6 +185,6 @@ public class NowPlaying : Singleton<NowPlaying>
             yield return null;
         }
 
-        SoundManager.Inst.Stop();
+        SoundManager.Inst.AllStop();
     }
 }
