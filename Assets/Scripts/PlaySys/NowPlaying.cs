@@ -175,7 +175,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private IEnumerator TimeUpdate()
     {
         Playback = 0;
-        timer.Initialized();
+        timer.Start();
         SoundManager.Inst.Position = 0;
         while ( Playback <= EndTime )
         {

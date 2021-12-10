@@ -1,6 +1,8 @@
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -16,11 +18,9 @@ public class FreeStyle : Scene
     public Image background, previewBG;
 
     private Coroutine curSoundLoad = null;
-    private Coroutine curImageLoad = null;
 
     private void CoroutineRelease( Coroutine _coroutine ) { if ( !ReferenceEquals( null, _coroutine ) ) StopCoroutine( _coroutine ); }
     private Song curSong;
-    private Texture2D tex = null;
 
     #region unity callbacks
     protected override void Awake()
@@ -47,7 +47,7 @@ public class FreeStyle : Scene
             }
         }
 
-        // Create Scroll Contents
+        // Background Load and Create Scroll Contents
         foreach ( var data in songs )
         {
             // scrollview song contents
@@ -90,37 +90,12 @@ public class FreeStyle : Scene
         if ( scrollSystem.IsDuplicate ) return;
         
         curSong = songs[int.Parse( scrollSystem.curObject.name )];
-
-        Timer timer = new Timer();
-        timer.Initialized();
-        ChangePreviewInfo();
-        CoroutineRelease( curSoundLoad );
-        Debug.Log( timer.elapsedMilliSeconds );
+        background.sprite = curSong.background;
+        
+        //CoroutineRelease( curSoundLoad );
         //curSoundLoad = StartCoroutine( PreviewSoundPlay() );
         //curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
     }
-
-    private IEnumerator BackgroundsLoad()
-    {
-        if ( tex != null )
-            DestroyImmediate( tex );
-
-        tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
-        byte[] binaryData = File.ReadAllBytes( curSong.ImagePath );
-        while ( !tex.LoadImage( binaryData ) ) yield return null;
-
-        background.sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
-    }
-
-
-    private void ChangePreviewInfo()
-    {
-        //MetaData data = GameManager.Datas[Index];
-        //bpm.text = Mathf.FloorToInt( data.timings[0].bpm ).ToString();
-        CoroutineRelease( curImageLoad );
-        curImageLoad = StartCoroutine( BackgroundsLoad() );
-    }
-
     private IEnumerator PreviewSoundPlay()
     {
         yield return YieldCache.WaitForSeconds( .5f );

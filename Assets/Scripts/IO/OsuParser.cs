@@ -43,6 +43,8 @@ public class OsuParser : Parser
             
                     FileInfo imageInfo = new FileInfo( song.ImagePath );
                     if ( !imageInfo.Exists ) song.ImagePath = GlobalSetting.DefaultImagePath;
+
+                    LoadBackground( song.ImagePath );
                 }
             }
         }
