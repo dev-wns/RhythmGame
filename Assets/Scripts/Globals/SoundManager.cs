@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Runtime.InteropServices;
 
 public class SoundManager : Singleton<SoundManager>
 {
@@ -9,10 +8,9 @@ public class SoundManager : Singleton<SoundManager>
     public FMOD.ChannelGroup channelGroup    = new FMOD.ChannelGroup();
     private FMOD.Channel     bgmChannel      = new FMOD.Channel();
     //private FMOD.Channel[]   sfxChannels     = new FMOD.Channel[sfxChannelCount];
-    private const int        sfxChannelCount = 100;
+    //private const int        sfxChannelCount = 100;
 
     private FMOD.Sound bgmSound;
-    // private FMOD.Sound[] sfxSounds = new FMOD.Sound[100];
 
     private int sampleRate, numLowSpeak;
     private FMOD.SPEAKERMODE speakMode;
@@ -160,11 +158,6 @@ public class SoundManager : Singleton<SoundManager>
     {
         ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.playSound( _sound, channelGroup, false, out bgmChannel ) );
         ErrorCheck( bgmChannel.setPitch( pitch ) );
-    }
-
-    public void SfxPlay( FMOD.Sound _sound )
-    {
-
     }
 
     public void AllStop()
