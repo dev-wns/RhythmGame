@@ -23,10 +23,10 @@ public class MusicPlayer : MonoBehaviour
 
     private void Update()
     {
-        FMOD.Channel channel;
-        SoundManager.Inst.channelGroup.getChannel( 0, out channel );
-        channel.getPosition( out progressTime, FMOD.TIMEUNIT.MS );
-        progressTimer.text = IntToTime( progressTime );
+        //FMOD.Channel channel;
+        //SoundManager.Inst.channelGroup.getChannel( 0, out channel );
+        //channel.getPosition( out progressTime, FMOD.TIMEUNIT.MS );
+        //progressTimer.text = IntToTime( progressTime );
         
         if ( !isDrag ) { progressBar.value = progressTime; }
     }
@@ -35,28 +35,28 @@ public class MusicPlayer : MonoBehaviour
 
     public void SliderUpEvent()
     {
-        FMOD.Channel channel;
-        SoundManager.Inst.channelGroup.getChannel( 0, out channel );
-        channel.setPosition( ( uint )progressBar.value, FMOD.TIMEUNIT.MS );
-        isDrag = false;
+        //FMOD.Channel channel;
+        //SoundManager.Inst.channelGroup.getChannel( 0, out channel );
+        //channel.setPosition( ( uint )progressBar.value, FMOD.TIMEUNIT.MS );
+        //isDrag = false;
     }
 
     public void Pause()
     {
         if ( !isPlay ) return;
 
-        FMOD.Channel channel;
-        SoundManager.Inst.channelGroup.getChannel( 0, out channel );
+        //FMOD.Channel channel;
+        //SoundManager.Inst.channelGroup.getChannel( 0, out channel );
 
-        channel.setPaused( true );
+        //channel.setPaused( true );
         isPlay = false;
     }
 
     public void PrevPlay()
     {
-        FMOD.Channel channel;
-        SoundManager.Inst.channelGroup.getChannel( 0, out channel );
-        channel.setPosition( 0, FMOD.TIMEUNIT.MS );
+        //FMOD.Channel channel;
+        //SoundManager.Inst.channelGroup.getChannel( 0, out channel );
+        //channel.setPosition( 0, FMOD.TIMEUNIT.MS );
     }
 
     private string IntToTime( uint _ms )

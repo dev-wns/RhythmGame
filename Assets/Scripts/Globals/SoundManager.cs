@@ -4,19 +4,31 @@ using UnityEngine;
 
 public class SoundManager : Singleton<SoundManager>
 {
+    public enum SoundLoadType { Default, Stream }
+
     #region variables
-    public FMOD.ChannelGroup channelGroup    = new FMOD.ChannelGroup();
-    private FMOD.Channel     bgmChannel      = new FMOD.Channel();
+    private FMOD.System       system;
+    private FMOD.ChannelGroup masterChannelGroup, sfxChannelGroup;
+    private FMOD.Channel      bgmChannel;
     //private FMOD.Channel[]   sfxChannels     = new FMOD.Channel[sfxChannelCount];
     //private const int        sfxChannelCount = 100;
 
-    private FMOD.Sound bgmSound;
-
-    private int sampleRate, numLowSpeak;
-    private FMOD.SPEAKERMODE speakMode;
+    private FMOD.Sound? bgmSound;
 
     public FMOD.DSP VisualizerDsp { get { return visualizerDsp; } }
     private FMOD.DSP visualizerDsp, lowEffectEQ;
+
+    private struct SoundDriver
+    {
+        public System.Guid guid;
+        public int index;
+        public string name;
+        public int systemRate, speakModeChannels;
+        public FMOD.SPEAKERMODE mode;
+    }
+    private List<SoundDriver> soundDrivers = new List<SoundDriver>();
+    private int driverCount, currentDriverIndex;
+    private uint version;
 
     private uint bgmLength, bgmPosition;
     private float volume, pitch = 1f;
@@ -49,7 +61,7 @@ public class SoundManager : Singleton<SoundManager>
     {
         get 
         {
-            if ( !ErrorCheck( channelGroup.getVolume( out volume ) ) ) return float.NaN;
+            if ( !ErrorCheck( masterChannelGroup.getVolume( out volume ) ) ) return float.NaN;
             return volume; 
         }
         set
@@ -60,7 +72,7 @@ public class SoundManager : Singleton<SoundManager>
                 return;
             }
 
-            if ( !ErrorCheck( channelGroup.setVolume( value ) ) ) return;
+            if ( !ErrorCheck( masterChannelGroup.setVolume( value ) ) ) return;
         }
     }
     public uint Position
@@ -89,7 +101,7 @@ public class SoundManager : Singleton<SoundManager>
         get
         {
             if ( !IsPlaying || 
-                 !ErrorCheck( bgmSound.getLength( out bgmLength, FMOD.TIMEUNIT.MS ) ) )
+                 !ErrorCheck( bgmSound.Value.getLength( out bgmLength, FMOD.TIMEUNIT.MS ) ) )
             {
                 return uint.MaxValue;
             }
@@ -106,69 +118,141 @@ public class SoundManager : Singleton<SoundManager>
     }
     #endregion
 
+
     #region unity callback functions
+
     private void Awake()
     {
+        
+        // System Init
+        ErrorCheck( FMOD.Factory.System_Create( out system ) );
+        ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
+
+        // to do before system initialize
+        //ErrorCheck( system.setSoftwareFormat( 48000, FMOD.SPEAKERMODE.MONO, 4 ) );
+        //ErrorCheck( system.setDSPBufferSize( 1024, 4 ) );
+
+        System.IntPtr extraDriverData = new System.IntPtr();
+        ErrorCheck( system.init( 100, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
+
+        
+        ErrorCheck( system.getVersion( out version ) );
+        if ( version < FMOD.VERSION.number )
+            Debug.LogError( "using the old version." );
+
+        // Sound Drivers
+        ErrorCheck( system.getNumDrivers( out driverCount ) );
+        for ( int i = 0; i < driverCount; i++ )
+        {
+            SoundDriver driver;
+            if ( ErrorCheck( system.getDriverInfo( i, out driver.name, 256, out driver.guid, out driver.systemRate, out driver.mode, out driver.speakModeChannels ) ) )
+            {
+                driver.index = i;
+                soundDrivers.Add( driver );
+            }
+        }
+        ErrorCheck( system.getDriver( out currentDriverIndex ) );
+        Debug.Log( $"Current Sound Device : {soundDrivers[currentDriverIndex].name}" );
+
+
         // Channel Initialize
-        ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.getSoftwareFormat( out sampleRate, out speakMode, out numLowSpeak ) );
-        ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup( out channelGroup ) );
-        Debug.Log( $"SampleRate : {sampleRate.ToString()}, SpeakMode = {speakMode.ToString()}, NumLowSpeak : {numLowSpeak}" );
-     
-        bgmChannel.setChannelGroup( channelGroup );
-        //for( int idx = 0; idx < sfxChannelCount; ++idx )
-        //{
-        //    sfxChannels[idx].setChannelGroup( channelGroup );
-        //}
+        ErrorCheck( system.createChannelGroup( "MasterChannelGroup", out masterChannelGroup ) );
+        ErrorCheck( system.createChannelGroup( "SfxChannelGroup", out sfxChannelGroup ) );
 
         // DSP Setting
-        ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.createDSPByType( FMOD.DSP_TYPE.FFT, out visualizerDsp ) );
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out visualizerDsp ) );
         ErrorCheck( visualizerDsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
         ErrorCheck( visualizerDsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
-        ErrorCheck( channelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, visualizerDsp ) );
+        ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, visualizerDsp ) );
 
         CreateLowEffectDsp();
+        //ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
 
         // Details
         Volume = 0.1f;
 
         Debug.Log( "SoundManager Initizlize Successful." );
     }
+    private void Update()
+    {
+        system.update();
+    }
+
+    private void OnApplicationQuit()
+    {
+        // 생성한 역순으로 release
+        if ( bgmSound != null )
+        {
+            ErrorCheck( bgmSound.Value.release() );
+            bgmSound = null;
+        }
+
+        ErrorCheck( masterChannelGroup.removeDSP( visualizerDsp ) );
+        ErrorCheck( visualizerDsp.release() );
+
+        ErrorCheck( masterChannelGroup.removeDSP( lowEffectEQ ) );
+        ErrorCheck( lowEffectEQ.release() );
+
+        ErrorCheck( masterChannelGroup.release() );
+        ErrorCheck( system.release() ); // 내부에서 close 함.
+    }
+
     #endregion
 
     #region customize functions
-
     public FMOD.Sound Load( string _path, bool _loop = false )
     {
         FMOD.MODE mode;
         if ( _loop ) mode = FMOD.MODE.LOOP_NORMAL  | FMOD.MODE.ACCURATETIME;
         else         mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME;
-        
-        ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.createSound( _path, mode, out bgmSound ) );
 
-        return bgmSound;
+        FMOD.Sound sound;
+        // FMODUnity.RuntimeManager.CoreSystem.createSound( _path, mode, out sound );
+        if ( ErrorCheck( system.createStream( _path, mode, out sound ) ) )
+        {
+            if ( bgmSound != null )
+            {
+                ErrorCheck( bgmSound.Value.release() );
+                bgmSound = null;
+            }
+
+            bgmSound = sound;
+        }
+
+        return sound;
     }
 
     public void BGMPlay()
     {
-        ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.playSound( bgmSound, channelGroup, false, out bgmChannel ) );
+        ErrorCheck( system.playSound( bgmSound.Value, masterChannelGroup, false, out bgmChannel ) );
+        ErrorCheck( bgmChannel.setChannelGroup( masterChannelGroup ) );
         ErrorCheck( bgmChannel.setPitch( pitch ) );
     }
 
     public void BGMPlay( FMOD.Sound _sound )
     {
-        ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.playSound( _sound, channelGroup, false, out bgmChannel ) );
+        ErrorCheck( system.playSound( _sound, masterChannelGroup, false, out bgmChannel ) );
+        ErrorCheck( bgmChannel.setChannelGroup( masterChannelGroup ) );
         ErrorCheck( bgmChannel.setPitch( pitch ) );
+
+        //int numChannels;
+        //ErrorCheck( masterChannelGroup.getNumChannels( out numChannels ) );
+        //Debug.Log( $"number of channels in the masterchannelgroup : {numChannels}" );
     }
 
     public void AllStop()
     {
         bool isPlay = false;
-        ErrorCheck( channelGroup.isPlaying( out isPlay ) );
+        ErrorCheck( masterChannelGroup.isPlaying( out isPlay ) );
 
         if ( isPlay )
         {
-            ErrorCheck( channelGroup.stop() );
-            ErrorCheck( bgmSound.release() );
+            ErrorCheck( masterChannelGroup.stop() );
+            if ( bgmSound != null )
+            {
+                ErrorCheck( bgmSound.Value.release() );
+                bgmSound = null;
+            }
         }
     }
 
@@ -187,7 +271,7 @@ public class SoundManager : Singleton<SoundManager>
     /// </summary>
     private void CreateLowEffectDsp()
     {
-        ErrorCheck( FMODUnity.RuntimeManager.CoreSystem.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out lowEffectEQ ) );
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out lowEffectEQ ) );
 
         // multiband 구조체 정보 확인
         // int numParameters = 0;
@@ -222,13 +306,13 @@ public class SoundManager : Singleton<SoundManager>
     }
     private void AddLowEqualizer()
     {
-        ErrorCheck( channelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
+        ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
 
     }
 
     private void RemoveLowEqualizer()
     {
-        ErrorCheck( channelGroup.removeDSP( lowEffectEQ ) );
+        ErrorCheck( masterChannelGroup.removeDSP( lowEffectEQ ) );
     }
     #endregion
 

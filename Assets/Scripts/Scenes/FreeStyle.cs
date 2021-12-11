@@ -1,6 +1,7 @@
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -18,6 +19,7 @@ public class FreeStyle : Scene
     public Image background, previewBG;
 
     private Coroutine curSoundLoad = null;
+    private FMOD.Sound sound;
 
     private void CoroutineRelease( Coroutine _coroutine ) { if ( !ReferenceEquals( null, _coroutine ) ) StopCoroutine( _coroutine ); }
     private Song curSong;
@@ -60,7 +62,6 @@ public class FreeStyle : Scene
             //info[1].text = data.version.Substring( 0, idx ); 
         }
 
-        SoundManager.Inst.Volume = 0.1f;
         scrollSystem.OnInitialize += () => { ChangePreview(); };
         DontDestroyOnLoad( this );
     }
@@ -91,11 +92,51 @@ public class FreeStyle : Scene
         
         curSong = songs[int.Parse( scrollSystem.curObject.name )];
         background.sprite = curSong.background;
-        
+
+        SoundManager.Inst.AllStop();
+
+        Globals.Timer.Start();
+        SoundManager.Inst.BGMPlay( SoundManager.Inst.Load( curSong.AudioPath ) );
+
+        int time = curSong.PreviewTime;
+        if ( time <= 0 ) SoundManager.Inst.Position = ( uint )( SoundManager.Inst.Length / 3f );
+        else SoundManager.Inst.Position = ( uint )time;
+
+        Debug.Log( $"Sound Load {Globals.Timer.End()} ms" );
+
         //CoroutineRelease( curSoundLoad );
         //curSoundLoad = StartCoroutine( PreviewSoundPlay() );
         //curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
     }
+
+    //private async void LoadSoundAsync()
+    //{
+    //    //Debug.Log( "Thread Start" );
+    //    //Globals.Timer.Start();
+
+    //    var tasks = new List<Task>();
+
+    //    foreach( var song in songs )
+    //    {
+    //        tasks.Add( LoadSound( song.AudioPath ) );
+    //    }
+
+    //    await Task.WhenAll( tasks );
+        
+    //    //Debug.Log( $"Thread End : {Globals.Timer.elapsedMilliSeconds} MS" );
+    //}
+
+    //private Task LoadSound( string _path )
+    //{
+    //    return Task.Run( () => Load( _path ) );
+    //}
+
+    //private void Load( string _path )
+    //{
+    //    FMOD.Sound sound = SoundManager.Load( _path );
+    //    SoundManager.Inst.BGMPlay( sound );
+    //}
+
     private IEnumerator PreviewSoundPlay()
     {
         yield return YieldCache.WaitForSeconds( .5f );
