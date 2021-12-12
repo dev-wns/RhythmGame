@@ -9,14 +9,14 @@ public class MusicPlayer : MonoBehaviour
     private uint progressTime, totalTime;
     public TextMeshProUGUI progressTimer, totalTimer;
     public Slider progressBar;
-    private Sound backgroundSound;
+    //private Sound backgroundSound;
 
     private void Awake()
     {
         //backgroundSound = SoundManager.Inst.Load( Application.streamingAssetsPath + "/Musics/O2i3 - ooi.mp3", true );
         //SoundManager.Inst.Play( backgroundSound );
 
-        backgroundSound.getLength( out totalTime, FMOD.TIMEUNIT.MS );
+        //backgroundSound.getLength( out totalTime, FMOD.TIMEUNIT.MS );
         totalTimer.text = IntToTime( totalTime );
         progressBar.maxValue = totalTime;
     }

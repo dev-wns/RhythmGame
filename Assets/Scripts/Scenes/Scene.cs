@@ -51,9 +51,18 @@ public class Scene : MonoBehaviour
         Camera.main.orthographicSize = ( Screen.height / ( GlobalSetting.PPU * 2f ) ) * GlobalSetting.PPU;
     }
 
-    protected void Change( SceneType _type )
+    protected void Change( SceneType _type ) 
     {
         SceneManager.LoadScene( _type.ToString() );
         SoundManager.Inst.AllStop();
+        // StartCoroutine( ChangeAsync( _type ) ); 
+    }
+
+    private IEnumerator ChangeAsync( SceneType _type )
+    {
+        var acyncOper = SceneManager.LoadSceneAsync( _type.ToString() );
+
+        while ( !acyncOper.isDone ) yield return null;
+
     }
 }

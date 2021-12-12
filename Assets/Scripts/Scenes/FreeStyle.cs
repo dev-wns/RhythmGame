@@ -1,9 +1,6 @@
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -18,10 +15,6 @@ public class FreeStyle : Scene
     public TextMeshProUGUI time, bpm, combo, record, rate;
     public Image background, previewBG;
 
-    private Coroutine curSoundLoad = null;
-    private FMOD.Sound sound;
-
-    private void CoroutineRelease( Coroutine _coroutine ) { if ( !ReferenceEquals( null, _coroutine ) ) StopCoroutine( _coroutine ); }
     private Song curSong;
 
     #region unity callbacks
@@ -59,20 +52,30 @@ public class FreeStyle : Scene
             TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
             int idx = data.Version.IndexOf( "-" );
             info[0].text = data.Version.Substring( idx + 1, data.Version.Length - idx - 1 ).Trim();
-            //info[1].text = data.version.Substring( 0, idx ); 
+            //info[1].text = data.version.Substring( 0, idx );
         }
 
         scrollSystem.OnInitialize += () => { ChangePreview(); };
-        DontDestroyOnLoad( this );
     }
 
     private void Update()
     {
+        if ( !SoundManager.Inst.IsPlaying() )
+        {
+            SoundManager.Inst.Play();
+
+            // 중간부터 재생
+            int time = curSong.PreviewTime;
+            if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
+            else             SoundManager.Inst.SetPosition( ( uint )time );
+        }
+
         if ( Input.GetKeyDown( KeyCode.UpArrow ) ) 
         {
             scrollSystem.PrevMove();
             ChangePreview();
         }
+
         if ( Input.GetKeyDown( KeyCode.DownArrow ) ) 
         {
             scrollSystem.NextMove();
@@ -84,6 +87,21 @@ public class FreeStyle : Scene
             //NowPlaying.Inst.Initialized( GameManager.Datas[Index] );
             Change( SceneType.InGame );
         }
+
+        if ( Input.GetKeyDown( KeyCode.A ) )
+            SoundManager.Inst.UseLowEqualizer( true );
+
+        if ( Input.GetKeyDown( KeyCode.S ) )
+            SoundManager.Inst.UseLowEqualizer( false );
+
+        if ( Input.GetKeyDown( KeyCode.S ) )
+            SoundManager.Inst.UseLowEqualizer( false );
+
+        if ( Input.GetKeyDown( KeyCode.LeftArrow ) )
+            SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch - .1f );
+
+        if ( Input.GetKeyDown( KeyCode.RightArrow ) )
+            SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch + .1f );
     }
 
     private void ChangePreview()
@@ -93,59 +111,18 @@ public class FreeStyle : Scene
         curSong = songs[int.Parse( scrollSystem.curObject.name )];
         background.sprite = curSong.background;
 
-        SoundManager.Inst.AllStop();
-
         Globals.Timer.Start();
-        SoundManager.Inst.BGMPlay( SoundManager.Inst.Load( curSong.AudioPath ) );
-
-        int time = curSong.PreviewTime;
-        if ( time <= 0 ) SoundManager.Inst.Position = ( uint )( SoundManager.Inst.Length / 3f );
-        else SoundManager.Inst.Position = ( uint )time;
-
+        {
+            SoundManager.Inst.Load( curSong.AudioPath, Sound.LoadType.Stream );
+            SoundManager.Inst.Play();
+        }
         Debug.Log( $"Sound Load {Globals.Timer.End()} ms" );
 
-        //CoroutineRelease( curSoundLoad );
-        //curSoundLoad = StartCoroutine( PreviewSoundPlay() );
-        //curSoundLoadCoroutine = StartCoroutine( PreviewSoundPlay() );
-    }
-
-    //private async void LoadSoundAsync()
-    //{
-    //    //Debug.Log( "Thread Start" );
-    //    //Globals.Timer.Start();
-
-    //    var tasks = new List<Task>();
-
-    //    foreach( var song in songs )
-    //    {
-    //        tasks.Add( LoadSound( song.AudioPath ) );
-    //    }
-
-    //    await Task.WhenAll( tasks );
-        
-    //    //Debug.Log( $"Thread End : {Globals.Timer.elapsedMilliSeconds} MS" );
-    //}
-
-    //private Task LoadSound( string _path )
-    //{
-    //    return Task.Run( () => Load( _path ) );
-    //}
-
-    //private void Load( string _path )
-    //{
-    //    FMOD.Sound sound = SoundManager.Load( _path );
-    //    SoundManager.Inst.BGMPlay( sound );
-    //}
-
-    private IEnumerator PreviewSoundPlay()
-    {
-        yield return YieldCache.WaitForSeconds( .5f );
-
-        SoundManager.Inst.BGMPlay( SoundManager.Inst.Load( curSong.AudioPath ) );
-
+        // 중간부터 재생
         int time = curSong.PreviewTime;
-        if ( time <= 0 ) SoundManager.Inst.Position = ( uint )( SoundManager.Inst.Length / 3f );
-        else             SoundManager.Inst.Position = ( uint )time; 
+        if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
+        else             SoundManager.Inst.SetPosition( ( uint )time );
+
     }
     #endregion
 
@@ -154,7 +131,15 @@ public class FreeStyle : Scene
     {
         List<string> path = new List<string>();
 
-        string[] subDirectories = Directory.GetDirectories( _dirPath );
+        string[] subDirectories;
+        try { subDirectories = Directory.GetDirectories( _dirPath ); }
+        catch ( System.Exception e )
+        {
+            // 대부분 폴더가 없는 경우.
+            Debug.Log( e.ToString() );
+            return path.ToArray(); 
+        }
+
         foreach ( string subDir in subDirectories )
         {
             DirectoryInfo dirInfo = new DirectoryInfo( subDir );

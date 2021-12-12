@@ -599,9 +599,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 783865333}
-  - component: {fileID: 783865334}
   - component: {fileID: 783865336}
   - component: {fileID: 783865337}
+  - component: {fileID: 783865334}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged

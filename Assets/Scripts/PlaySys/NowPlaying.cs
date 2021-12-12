@@ -134,7 +134,7 @@ public class NowPlaying : Singleton<NowPlaying>
         else yield return null;
 
         //SoundManager.Inst.LoadAndPlay( Data.audioPath );
-        EndTime  = SoundManager.Inst.Length;
+        //EndTime  = SoundManager.Inst.Length;
         StartCoroutine( TimeUpdate() );
     }
 
@@ -176,7 +176,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         Playback = 0;
         timer.Start();
-        SoundManager.Inst.Position = 0;
+        //SoundManager.Inst.Position = 0;
         while ( Playback <= EndTime )
         {
             Playback = timer.elapsedMilliSeconds;

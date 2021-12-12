@@ -20,6 +20,7 @@ public class VerticalScrollSystem : MonoBehaviour
     public int maxShowContentsCount = 3;
     public int startContent = 0;
     public int spacing      = 0;
+    public int numExtraEnable = 2;
 
     public delegate void Callback();
     public event Callback OnInitialize;
@@ -69,6 +70,7 @@ public class VerticalScrollSystem : MonoBehaviour
         curPos     = ( startContent - minIndex ) * moveOffset;
 
         rt.localPosition = new Vector2( rt.localPosition.x, curPos );
+        ( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .5f );
 
         OnInitialize();
     }
@@ -81,22 +83,22 @@ public class VerticalScrollSystem : MonoBehaviour
             return;
         }
 
-        ( curObject.transform as RectTransform ).DOScale( Vector2.one, .1f );
+        ( curObject.transform as RectTransform ).DOScale( Vector2.one, .5f );
 
         curPos -= moveOffset;
-        rt.DOLocalMoveY( curPos, .1f );
+        rt.DOLocalMoveY( curPos, .5f );
         curObject = contents[--curIndex].gameObject;
 
-        ( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .1f );
+        ( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .5f );
 
         if ( minIndex <= curIndex )
         {
             contents[curIndex - minIndex].gameObject.SetActive( true );
         }
 
-        if ( maxIndex > curIndex )
+        if ( maxIndex > curIndex + numExtraEnable )
         {
-            contents[minIndex + curIndex + 1].gameObject.SetActive( false );
+            contents[minIndex + curIndex + numExtraEnable + 1].gameObject.SetActive( false );
         }
 
         IsDuplicate = false;
@@ -110,22 +112,22 @@ public class VerticalScrollSystem : MonoBehaviour
             return;
         }
 
-        ( curObject.transform as RectTransform ).DOScale( Vector2.one, .1f );
+        ( curObject.transform as RectTransform ).DOScale( Vector2.one, .5f );
 
         curPos += moveOffset;
-        rt.DOLocalMoveY( curPos, .1f );
+        rt.DOLocalMoveY( curPos, .5f );
         curObject = contents[++curIndex].gameObject;
 
-        ( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .1f );
+        ( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .5f );
 
         if ( maxIndex >= curIndex )
         {
             contents[minIndex + curIndex].gameObject.SetActive( true );
         }
 
-        if ( minIndex < curIndex )
+        if ( minIndex < curIndex - numExtraEnable )
         {
-            contents[curIndex - minIndex - 1].gameObject.SetActive( false );
+            contents[curIndex - minIndex - numExtraEnable - 1].gameObject.SetActive( false );
         }
         IsDuplicate = false;
     }

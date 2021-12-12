@@ -83,7 +83,7 @@ public class AudioVisualizer : MonoBehaviour
 
     private float CurrentVolume()
     {
-        float volume = SoundManager.Inst.Volume;
+        float volume = SoundManager.Inst.GetVolume();
         if ( volume >= 1f ) return 1f;
         else                return ( 1f - volume ) * 10f;
     }
