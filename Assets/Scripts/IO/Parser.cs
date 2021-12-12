@@ -44,6 +44,7 @@ public struct Chart
 
 public abstract class Parser : FileReader
 {
+    public bool IsComplete { get; protected set; } = true;
     protected Song song;
     protected Chart chart;
 
@@ -51,13 +52,4 @@ public abstract class Parser : FileReader
 
     public abstract Song PreRead();
     public abstract Chart PostRead();
-
-    protected void LoadBackground( string _path )
-    {
-        Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
-        byte[] binaryData = File.ReadAllBytes( _path );
-        
-        while ( !tex.LoadImage( binaryData ) ) { }
-        song.background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
-    }
 }

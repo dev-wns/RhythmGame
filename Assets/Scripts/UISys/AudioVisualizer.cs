@@ -10,10 +10,11 @@ public class AudioVisualizer : MonoBehaviour
     public Transform centerImage;
 
     private Transform[] visualSpectrums;
-    public int spectrumCount = 128;
+    public int numSpectrum = 128;
+    private float[] spectrumValues;
 
     private readonly int bassRange = 14;
-    private float bassPower = 900f;
+    private float bassPower = 800f;
     private float spectrumPower = 600f;
     private float[][] spectrum;
 
@@ -25,17 +26,19 @@ public class AudioVisualizer : MonoBehaviour
     {
         DOTween.Init();
 
+        spectrumValues = new float[numSpectrum];
+
         // create spectrum objects
-        int symmetryColorIdx = spectrumCount;
-        float angle = 180f / spectrumCount;
-        visualSpectrums = new Transform[spectrumCount * 2];
-        for ( int idx = 0; idx < spectrumCount * 2; ++idx )
+        int symmetryColorIdx = numSpectrum;
+        float angle = 180f / numSpectrum;
+        visualSpectrums = new Transform[numSpectrum * 2];
+        for ( int idx = 0; idx < numSpectrum * 2; ++idx )
         {
             Transform obj = Instantiate( spectrumPrefab, transform );
             obj.rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle + angle * idx ) );
             obj.Translate( transform.up * imageSize * .5f );
 
-            if ( idx < spectrumCount )
+            if ( idx < numSpectrum )
                 obj.GetComponent<SpriteRenderer>().material.color = GetGradationColor( idx );
             else
                 obj.GetComponent<SpriteRenderer>().material.color = GetGradationColor( symmetryColorIdx-- );
@@ -45,41 +48,76 @@ public class AudioVisualizer : MonoBehaviour
         // details
         specWidth = imageSize * .001f * 2f;
         centerImage.localScale = new Vector3( imageSize, imageSize, 1f );
+
+        StartCoroutine( UpdateValue() );
     }
 
-    private void FixedUpdate()
+    private IEnumerator UpdateValue()
     {
-        uint length;
-        System.IntPtr data;
-        SoundManager.Inst.VisualizerDsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
-        FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
-        spectrum = fftData.spectrum;
-
-        if ( fftData.numchannels > 0 )
+        DOTween.SetTweensCapacity( numSpectrum, 0 );
+        while( true )
         {
+            uint length;
+            System.IntPtr data;
+            SoundManager.Inst.VisualizerDsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
+            FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
+            spectrum = fftData.spectrum;
+
             float volume = CurrentVolume();
-            for ( int i = 0; i < spectrumCount; ++i )
+            for ( int i = 0; i < numSpectrum; ++i )
             {
-                float y = visualSpectrums[i].localScale.y;
+                DOTween.Kill( visualSpectrums[i] );
+                DOTween.Kill( visualSpectrums[( numSpectrum * 2 ) - 1 - i] );
+
                 float value = spectrum[0][0 + i] * spectrumPower * volume;
-                float scale = Mathf.SmoothStep( y, value, .3141592f );
 
-                Vector3 newScale = new Vector3( specWidth, scale, 1f );
-                visualSpectrums[i].localScale                             = newScale; // left
-                visualSpectrums[( spectrumCount * 2 ) - 1 - i].localScale = newScale; // right
+                Vector3 newScale = new Vector3( specWidth, value, 1f );
+                visualSpectrums[i].DOScale( newScale, .125f );
+                visualSpectrums[( numSpectrum * 2 ) - 1 - i].DOScale( newScale, .125f );
             }
 
-            bassAmount = 0f;
-            for ( int i = 0; i < bassRange; ++i )
-            {
-                bassAmount += spectrum[0][i];
-            }
-            
-            DOTween.Kill( centerImage );
-            float values = Mathf.Clamp( bassAmount * bassPower * volume, imageSize, imageSize * 1.5f );
-            centerImage.DOScale( new Vector3( values, values, 0f ), .15f );
+            yield return YieldCache.WaitForSeconds( .1f );
         }
     }
+
+    //private void FixedUpdate()
+    //{
+    //    uint length;
+    //    System.IntPtr data;
+    //    SoundManager.Inst.VisualizerDsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
+    //    FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
+    //    spectrum = fftData.spectrum;
+
+    //    if ( fftData.numchannels > 0 )
+    //    {
+    //        float volume =  CurrentVolume();
+    //        for ( int i = 0; i < numSpectrum; ++i )
+    //        {
+
+    //            float y = visualSpectrums[i].localScale.y;
+    //            float value = ( spectrum[0][0 + i] / 10f ) * spectrumPower * volume * 10f ;
+    //            // float value = spectrum[0][0 + i] * spectrumPower * volume;
+    //            float scale = Mathf.SmoothStep( y, value, .3141592f );
+
+    //            visualSpectrums[i].DOScale( new Vector3( specWidth, value, 1f ), .2f );
+    //            visualSpectrums[( numSpectrum * 2 ) - 1 - i].DOScale( new Vector3( specWidth, value, 1f ), .2f );
+
+    //            //Vector3 newScale = new Vector3( specWidth, value, 1f );
+    //            //visualSpectrums[i].localScale                             = newScale; // left
+    //            //visualSpectrums[( spectrumCount * 2 ) - 1 - i].localScale = newScale; // right
+    //        }
+
+    //        bassAmount = 0f;
+    //        for ( int i = 0; i < bassRange; ++i )
+    //        {
+    //            bassAmount += spectrum[0][i];
+    //        }
+            
+    //        DOTween.Kill( centerImage );
+    //        float values = Mathf.Clamp( bassAmount * bassPower * volume, imageSize, imageSize * 1.5f );
+    //        centerImage.DOScale( new Vector3( values, values, 0f ), .15f );
+    //    }
+    //}
 
     private float CurrentVolume()
     {
@@ -91,7 +129,7 @@ public class AudioVisualizer : MonoBehaviour
     private Color GetGradationColor( int _index )
     {
         int r = 0, g = 0, b = 0;
-        float a = ( 1.0f - ( ( 1.0f / spectrumCount * ( spectrumCount - _index ) ) ) ) / 0.25f;
+        float a = ( 1.0f - ( ( 1.0f / numSpectrum * ( numSpectrum - _index ) ) ) ) / 0.25f;
         int X = ( int )Mathf.Floor( a );
         int Y = ( int )Mathf.Floor( 255 * ( a - X ) );
         switch ( X )

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Sound
 { 
@@ -37,6 +38,9 @@ public class SoundManager : Singleton<SoundManager>
 
     public uint? Length { get; private set; }
     public float Pitch  { get; private set; } = 1f;
+
+    private Coroutine fadeOutVolumeCoroutine;
+    private float volume;
     #endregion
 
 
@@ -82,10 +86,12 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp ) );
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
+        
         VisualizerDsp = dsp;
+        CreateLowEffectDsp();
+        //ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, lowEffectEQ ) );
         ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, VisualizerDsp ) );
 
-        CreateLowEffectDsp();
 
         // Details
         SetVolume( .1f );
@@ -116,7 +122,6 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( masterChannelGroup.release() );
         ErrorCheck( system.release() ); // 내부에서 close 함.
     }
-
     #endregion
 
     #region customize functions
@@ -154,10 +159,10 @@ public class SoundManager : Singleton<SoundManager>
     public void Play()
     {
         if ( bgmSound == null ) return;
-        
         AllStop();
         
         ErrorCheck( system.playSound( bgmSound.Value, masterChannelGroup, false, out bgmChannel ) );
+        var a = DOTween.To( () => 0, x => ErrorCheck( masterChannelGroup.setVolume( x ) ), volume, 1.5f );
         // ErrorCheck( bgmChannel.setChannelGroup( masterChannelGroup ) );
 
         //int numChannels;
@@ -198,7 +203,7 @@ public class SoundManager : Singleton<SoundManager>
 
     public void SetVolume( float _value, Sound.ChannelType _type = Sound.ChannelType.MasterGroup )
     {
-        float volume = _value;
+        volume = _value;
         if ( _value < 0f ) volume = 0f;
         if ( _value > 1f ) volume = 1f;
 

@@ -4,58 +4,54 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 public class FreeStyle : Scene
 {
-    private List<Song> songs = new List<Song>();
+    public VerticalScrollSound scrollSound;
+    
+    public static ObjectPool<FadeBackground> backgrounds;
+    public FadeBackground bgPrefab, curBackground;
+    private Sprite background;
 
-    public GameObject songPrefab; // sound infomation prefab
-    public VerticalScrollSystem scrollSystem;
-
-    public TextMeshProUGUI time, bpm, combo, record, rate;
-    public Image background, previewBG;
-
-    private Song curSong;
+    private bool IsBGLoadDone = false;
 
     #region unity callbacks
     protected override void Awake()
     {
         base.Awake();
-        
-        // Osu Parsing
-        string[] osuFiles = GetFilesInSubDirectories( GlobalSetting.OsuDirectoryPath, "*.osu" );
-        for ( int i = 0; i < osuFiles.Length; i++ )
+
+        backgrounds = new ObjectPool<FadeBackground>( bgPrefab, 5 );
+
+        StartCoroutine( FadeBackground() );
+    }
+
+    protected IEnumerator LoadBackground( string _path )
+    {
+        Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
+        byte[] binaryData = File.ReadAllBytes( _path );
+
+        while ( !tex.LoadImage( binaryData ) ) yield return null;
+        background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
+
+        IsBGLoadDone = true;
+    }
+
+    public IEnumerator FadeBackground()
+    {
+        Globals.Timer.Start();
         {
-            using ( Parser parser = new OsuParser( osuFiles[i] ) )
-            {
-                songs.Add( parser.PreRead() );
-            }
+            StartCoroutine( LoadBackground( GlobalSoundInfo.CurrentSound.ImagePath ) );
+            yield return new WaitUntil( () => IsBGLoadDone );
+            if ( curBackground != null ) 
+                 curBackground.Despawn();
+
+            curBackground = backgrounds.Spawn();
+            curBackground.image.sprite = background;
+
+            IsBGLoadDone = false;
         }
-
-        // BMS Parsing
-        string[] bmsFiles = GetFilesInSubDirectories( GlobalSetting.BmsDirectoryPath, "*.bms" );
-        for ( int i = 0; i < bmsFiles.Length; i++ )
-        {
-            using ( Parser parser = new BmsParser( bmsFiles[i] ) )
-            {
-                songs.Add( parser.PreRead() );
-            }
-        }
-
-        // Background Load and Create Scroll Contents
-        foreach ( var data in songs )
-        {
-            // scrollview song contents
-            GameObject obj = Instantiate( songPrefab, scrollSystem.transform );
-            //obj.GetComponent<SoundInfomation>().song.Initialize( data );
-
-            TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
-            int idx = data.Version.IndexOf( "-" );
-            info[0].text = data.Version.Substring( idx + 1, data.Version.Length - idx - 1 ).Trim();
-            //info[1].text = data.version.Substring( 0, idx );
-        }
-
-        scrollSystem.OnInitialize += () => { ChangePreview(); };
+        Debug.Log( $"BackgroundLoad {Globals.Timer.elapsedMilliSeconds} ms" );
     }
 
     private void Update()
@@ -65,20 +61,20 @@ public class FreeStyle : Scene
             SoundManager.Inst.Play();
 
             // 중간부터 재생
-            int time = curSong.PreviewTime;
+            int time = GlobalSoundInfo.CurrentSound.PreviewTime;
             if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
             else             SoundManager.Inst.SetPosition( ( uint )time );
         }
 
         if ( Input.GetKeyDown( KeyCode.UpArrow ) ) 
         {
-            scrollSystem.PrevMove();
+            scrollSound.PrevMove();
             ChangePreview();
         }
 
         if ( Input.GetKeyDown( KeyCode.DownArrow ) ) 
         {
-            scrollSystem.NextMove();
+            scrollSound.NextMove();
             ChangePreview();
         }
 
@@ -106,10 +102,10 @@ public class FreeStyle : Scene
 
     private void ChangePreview()
     {
-        if ( scrollSystem.IsDuplicate ) return;
+        if ( scrollSound.IsDuplicate ) return;
         
-        curSong = songs[int.Parse( scrollSystem.curObject.name )];
-        background.sprite = curSong.background;
+        Song curSong = GlobalSoundInfo.CurrentSound;
+        StartCoroutine( FadeBackground() );
 
         Globals.Timer.Start();
         {
@@ -122,33 +118,6 @@ public class FreeStyle : Scene
         int time = curSong.PreviewTime;
         if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
         else             SoundManager.Inst.SetPosition( ( uint )time );
-
-    }
-    #endregion
-
-    #region customize function
-    private string[] GetFilesInSubDirectories( string _dirPath, string _extension )
-    {
-        List<string> path = new List<string>();
-
-        string[] subDirectories;
-        try { subDirectories = Directory.GetDirectories( _dirPath ); }
-        catch ( System.Exception e )
-        {
-            // 대부분 폴더가 없는 경우.
-            Debug.Log( e.ToString() );
-            return path.ToArray(); 
-        }
-
-        foreach ( string subDir in subDirectories )
-        {
-            DirectoryInfo dirInfo = new DirectoryInfo( subDir );
-            FileInfo[] files = dirInfo.GetFiles( _extension );
-            for ( int i = 0; i < files.Length; i++ )
-                path.Add( files[i].FullName );
-        }
-
-        return path.ToArray();
     }
     #endregion
 }

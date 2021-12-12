@@ -28,8 +28,8 @@ public class ObjectPool<T> where T : MonoBehaviour
 
         GameObject parentObj = new GameObject();
         parentObj.transform.parent = canvas.transform;
-        parentObj.transform.position = Vector3.zero;
-        parentObj.transform.rotation = Quaternion.identity;
+        parentObj.transform.localPosition = Vector3.zero;
+        parentObj.transform.localRotation = Quaternion.identity;
         parentObj.transform.localScale = Vector3.one;
         parentObj.name = string.Format( "{0} Pool", typeof( T ).Name );
 
