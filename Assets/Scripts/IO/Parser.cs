@@ -2,44 +2,35 @@ using System.Collections;
 using UnityEngine;
 using System.IO;
 
+
+public enum ParseType { Osu, Bms };
 public struct Song
 {
-    public string AudioPath { get; set; }
-    public string ImagePath { get; set; }
-    public string VideoPath { get; set; }
-    public bool HasVideo { get; set; }
+    public ParseType type;
+    public string filePath;
+    public string audioPath;
+    public string imagePath;
+    public string videoPath;
+    public bool hasVideo;
 
-    public string Title { get; set; }
-    public string Artist { get; set; }
-    public string Creator { get; set; }
-    public string Version { get; set; }
+    public string title;
+    public string artist;
+    public string creator;
+    public string version;
 
-    public int PreviewTime { get; set; }
+    public int previewTime;
+    public int totalTime;
 
-    public Sprite background { get; set; }
-
-    public Song( Song _song )
-    {
-        AudioPath = _song.AudioPath;
-        ImagePath = _song.ImagePath;
-        VideoPath = _song.VideoPath;
-        HasVideo = _song.HasVideo;
-        Title = _song.Title;
-        Artist = _song.Artist;
-        Creator = _song.Creator;
-        Version = _song.Version;
-        PreviewTime = _song.PreviewTime;
-        background = _song.background;
-    }
+    public int noteCount;
+    public int longNoteCount;
+    public int minBpm;
+    public int maxBpm;
+    public int keyCount;
 }
 
 public struct Chart
 {
-    public int NoteCount { get; set; }
-    public int LongNoteCount { get; set; }
-    public int MinBPM { get; set; }
-    public int MaxBPM { get; set; }
-    public int KeyCount { get; set; }
+
 }
 
 public abstract class Parser : FileReader
@@ -51,5 +42,6 @@ public abstract class Parser : FileReader
     protected Parser( string _path ) : base( _path ) { }
 
     public abstract Song PreRead();
+
     public abstract Chart PostRead();
 }

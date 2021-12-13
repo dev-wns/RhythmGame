@@ -16,6 +16,9 @@ public class FreeStyle : Scene
 
     private bool IsBGLoadDone = false;
 
+    public delegate void DelSelectSound( Song _song );
+    public event DelSelectSound OnSelectSound;
+
     #region unity callbacks
     protected override void Awake()
     {
@@ -41,7 +44,7 @@ public class FreeStyle : Scene
     {
         Globals.Timer.Start();
         {
-            StartCoroutine( LoadBackground( GlobalSoundInfo.CurrentSound.ImagePath ) );
+            StartCoroutine( LoadBackground( GlobalSoundInfo.CurrentSound.imagePath ) );
             yield return new WaitUntil( () => IsBGLoadDone );
             if ( curBackground != null ) 
                  curBackground.Despawn();
@@ -61,7 +64,7 @@ public class FreeStyle : Scene
             SoundManager.Inst.Play();
 
             // 중간부터 재생
-            int time = GlobalSoundInfo.CurrentSound.PreviewTime;
+            int time = GlobalSoundInfo.CurrentSound.previewTime;
             if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
             else             SoundManager.Inst.SetPosition( ( uint )time );
         }
@@ -109,13 +112,15 @@ public class FreeStyle : Scene
 
         Globals.Timer.Start();
         {
-            SoundManager.Inst.Load( curSong.AudioPath, Sound.LoadType.Stream );
+            SoundManager.Inst.Load( curSong.audioPath, Sound.LoadType.Stream );
             SoundManager.Inst.Play();
         }
+        OnSelectSound( curSong );
+
         Debug.Log( $"Sound Load {Globals.Timer.End()} ms" );
 
         // 중간부터 재생
-        int time = curSong.PreviewTime;
+        int time = curSong.previewTime;
         if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
         else             SoundManager.Inst.SetPosition( ( uint )time );
     }

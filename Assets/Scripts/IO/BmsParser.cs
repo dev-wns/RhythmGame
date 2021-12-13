@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BmsParser : Parser
 {
-    public BmsParser( string _path ) : base( _path ) { }
+    public BmsParser( string _path ) : base( _path ) { song.type = ParseType.Bms; }
 
     public override Song PreRead()
     {

@@ -3,7 +3,7 @@ using System.IO;
 
 public class OsuParser : Parser
 {
-    public OsuParser( string _path ) : base( _path ) { }
+    public OsuParser( string _path ) : base( _path ) { song.type = ParseType.Osu; }
 
     public override Song PreRead()
     {
@@ -12,17 +12,17 @@ public class OsuParser : Parser
             // [General] ~ [Editor]
             while ( ReadLine() != "[Metadata]" )
             {
-                if ( Contains( "AudioFilename" ) ) song.AudioPath = Path.Combine( directory, SplitAndTrim( ':' ) );
-                if ( Contains( "PreviewTime" ) ) song.PreviewTime = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "AudioFilename" ) ) song.audioPath   = Path.Combine( directory, SplitAndTrim( ':' ) );
+                if ( Contains( "PreviewTime" ) )   song.previewTime = int.Parse( SplitAndTrim( ':' ) );
             }
             
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Events]" )
             {
-                if ( Contains( "Title" ) )   song.Title   = SplitAndTrim( ':' );
-                if ( Contains( "Artist" ) )  song.Artist  = SplitAndTrim( ':' );
-                if ( Contains( "Creator" ) ) song.Creator = SplitAndTrim( ':' );
-                if ( Contains( "Version" ) ) song.Version = SplitAndTrim( ':' );
+                if ( Contains( "Title" ) )   song.title   = SplitAndTrim( ':' );
+                if ( Contains( "Artist" ) )  song.artist  = SplitAndTrim( ':' );
+                if ( Contains( "Creator" ) ) song.creator = SplitAndTrim( ':' );
+                if ( Contains( "Version" ) ) song.version = SplitAndTrim( ':' );
             }
             
             // [Events]
@@ -30,20 +30,55 @@ public class OsuParser : Parser
             {
                 if ( Contains( ".avi" ) || Contains( ".mp4" ) || Contains( ".mpg" ) )
                 {
-                    song.VideoPath = Path.Combine( directory, SplitAndTrim( '"' ) );
-                    song.HasVideo  = true;
+                    song.videoPath = Path.Combine( directory, SplitAndTrim( '"' ) );
+                    song.hasVideo  = true;
             
-                    FileInfo videoInfo = new FileInfo( song.VideoPath );
-                    if ( !videoInfo.Exists ) song.HasVideo = false;
+                    FileInfo videoInfo = new FileInfo( song.videoPath );
+                    if ( !videoInfo.Exists ) song.hasVideo = false;
                 }
             
                 if ( Contains( ".jpg" ) || Contains( ".png" ) )
                 {
-                    song.ImagePath = Path.Combine( directory, SplitAndTrim( '"' ) );
+                    song.imagePath = Path.Combine( directory, SplitAndTrim( '"' ) );
             
-                    FileInfo imageInfo = new FileInfo( song.ImagePath );
-                    if ( !imageInfo.Exists ) song.ImagePath = GlobalSetting.DefaultImagePath;
+                    FileInfo imageInfo = new FileInfo( song.imagePath );
+                    if ( !imageInfo.Exists ) song.imagePath = GlobalSetting.DefaultImagePath;
                 }
+            }
+
+            // [TimingPoints]
+            double prevBPM = 0d;
+            while ( ReadLine() != "[HitObjects]" )
+            { 
+                string[] splitDatas = line.Split( ',' );
+                if ( splitDatas.Length != 8 ) continue;
+
+                bool isUninherited;
+                int uninherited = int.Parse( splitDatas[6] );
+                if ( uninherited == 0 ) isUninherited = false;
+                else                    isUninherited = true;
+
+                double beatLength    = Math.Abs( float.Parse( splitDatas[1] ) );
+                double BPM           = 1d / beatLength * 60000d;
+
+                if ( isUninherited ) prevBPM = BPM;
+                else                 BPM = ( prevBPM * 100d ) / beatLength; // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
+
+                if ( song.minBpm > BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
+                if ( song.maxBpm < BPM )                     song.maxBpm = ( int )BPM;
+            }
+
+            while( ReadLineEndOfStream() )
+            {
+                string[] splitDatas = line.Split( ',' );
+                if ( splitDatas.Length != 6 ) continue;
+
+                song.totalTime = int.Parse( splitDatas[2] );
+                int note       = int.Parse( splitDatas[3] );
+
+                if ( note == 128 ) song.longNoteCount++;
+                else               song.noteCount++;
+
             }
         }
         catch ( Exception _error )

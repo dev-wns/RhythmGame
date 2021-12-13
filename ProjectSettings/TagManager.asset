@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Pools
   - Systems
+  - Scene
   layers:
   - Default
   - TransparentFX

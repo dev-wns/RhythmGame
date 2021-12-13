@@ -8,6 +8,16 @@ public abstract class FileReader : IDisposable
     protected string directory { get; private set; }
     protected string line { get; private set; }
 
+    protected bool ReadLineEndOfStream()
+    {
+        if ( streamReader.EndOfStream ) return false;
+        else
+        {
+            line = streamReader.ReadLine();
+            return true;
+        }
+    }
+
     protected FileReader( string _path )
     {
         path = _path;
@@ -41,18 +51,6 @@ public abstract class FileReader : IDisposable
             return string.Empty;
 
         return line.Split( _separator )[1].Trim();
-    }
-
-    // 특정 단어 나올때까지 Read
-    protected string ReadContainsLine( string _str )
-    {
-        if ( _str == string.Empty ) 
-            return string.Empty;
-
-        while ( Contains( _str ) ) 
-            ReadLine();
-
-        return line;
     }
 
     public void Dispose() => streamReader?.Dispose();

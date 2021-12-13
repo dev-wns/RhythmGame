@@ -37,15 +37,14 @@ public class VerticalScrollSound : MonoBehaviour
         contents.Capacity = GlobalSoundInfo.Songs.Count;
         for ( int i = 0; i < GlobalSoundInfo.Songs.Count; i++ )
         {
-            Song data = GlobalSoundInfo.Songs[i];
-
             // scrollview song contents
             GameObject obj = Instantiate( songPrefab, rt );
-            //obj.GetComponent<SoundInfomation>().song.Initialize( data );
 
-            //TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
-            //int idx      = data.Version.IndexOf( "-" );
-            //info[0].text = data.Version.Substring( idx + 1, data.Version.Length - idx - 1 ).Trim();
+            // 사운드 이름 설정
+            Song data = GlobalSoundInfo.Songs[i];
+            TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
+            int idx      = data.version.IndexOf( "-" );
+            info[0].text = data.version.Substring( idx + 1, data.version.Length - idx - 1 ).Trim();
 
             // 객체 위치 설정
             RectTransform dataTransform = obj.transform as RectTransform;
