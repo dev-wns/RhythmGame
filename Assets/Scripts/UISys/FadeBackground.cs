@@ -30,6 +30,6 @@ public class FadeBackground : MonoBehaviour
     {
         image.DOFade( 0f, .5f );
         yield return YieldCache.WaitForSeconds( .5f );
-        FreeStyle.backgrounds.Despawn( this );
+        FreeStyle.bgPool.Despawn( this );
     }
 }

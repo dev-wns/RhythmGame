@@ -42,9 +42,14 @@ public class VerticalScrollSound : MonoBehaviour
 
             // 사운드 이름 설정
             Song data = GlobalSoundInfo.Songs[i];
+            System.Text.StringBuilder artist = new System.Text.StringBuilder();
+            artist.Capacity = data.artist.Length + 8 + data.creator.Length;
+            artist.Append( data.artist ).Append( " // " ).Append( data.creator );
+
             TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
-            int idx      = data.version.IndexOf( "-" );
-            info[0].text = data.version.Substring( idx + 1, data.version.Length - idx - 1 ).Trim();
+            info[0].text = data.title;
+            info[1].text = data.version; 
+            info[2].text = artist.ToString();
 
             // 객체 위치 설정
             RectTransform dataTransform = obj.transform as RectTransform;
