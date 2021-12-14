@@ -35,7 +35,7 @@ public class FreeStyle : Scene
         byte[] binaryData = File.ReadAllBytes( _path );
 
         while ( !tex.LoadImage( binaryData ) ) yield return null;
-        background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
+        background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GlobalSetting.PPU, 0, SpriteMeshType.FullRect );
 
         IsBGLoadDone = true;
     }

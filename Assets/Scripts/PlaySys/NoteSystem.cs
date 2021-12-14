@@ -2,56 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct NoteData
-{
-    public float time; // hit timing
-    public float calcTime;
-    public float LNEndTime;
-    public float calcEndTime;
-    public int line;
-    public int type; // 128 = Long Note or Default Note
-
-    public NoteData( float _time, float _calcTime, float _LNEndTime, float _calcEndTime, int _type, int _line  )
-    {
-        time = _time; calcTime = _calcTime; LNEndTime = _LNEndTime; calcEndTime = _calcEndTime; type = _type; line = _line;
-    }
-}
-
 public class NoteSystem : MonoBehaviour
 {
-    public Queue<NoteData> datas;
-    private NoteData curData;
+    private InGame scene;
+
+    // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
+    public ObjectPool<NoteRenderer> nPool;
+    public NoteRenderer nPrefab;
+
+    private List<Note> notes = new List<Note>();
+    private int curIdx;
     private InputSystem ISystem;
 
     private void Awake()
     {
+        scene   = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        nPool   = new ObjectPool<NoteRenderer>( nPrefab );
         ISystem = GetComponent<InputSystem>();
-        datas = new Queue<NoteData>();
-        InGame.SystemsInitialized += Initialized;
+
+        scene.SystemInitialized += Initialized;
+        scene.StartGame += () => StartCoroutine( Process() );
     }
 
-    private void Initialized()
+    private void Initialized( Chart _chart )
     {
-        if ( datas.Count == 0 )
-        {
-            Debug.Log( "Note System Initialize Fail " );
-            return;
-        }
-
-        StartCoroutine( Process() );
+        notes = _chart.notes;
     }
 
     private IEnumerator Process()
     {
-        while ( datas.Count > 0 )
+        while ( curIdx < notes.Count - 1 )
         {
-            curData = datas.Dequeue();
-            float timing = curData.calcTime;
-            yield return new WaitUntil( () => timing <= NowPlaying.PlaybackChanged + NowPlaying.PreLoadTime && NowPlaying.IsPlaying );
+            Note curNote = notes[curIdx];
+            yield return new WaitUntil( () => curNote.calcTime <= InGame.PlaybackChanged + InGame.PreLoadTime );
 
-            Note note = InGame.nPool.Spawn();
-            note.Initialized( curData );
-            ISystem.notes.Enqueue( note );
+            NoteRenderer note = nPool.Spawn();
+            note.Initialized( curNote );
+            //ISystem.notes.Enqueue( note );
+            curIdx++;
         }
     } 
 }

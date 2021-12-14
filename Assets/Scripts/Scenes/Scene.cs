@@ -53,6 +53,7 @@ public class Scene : MonoBehaviour
 
     protected void Change( SceneType _type ) 
     {
+        DG.Tweening.DOTween.KillAll();
         SceneManager.LoadScene( _type.ToString() );
         SoundManager.Inst.AllStop();
         // StartCoroutine( ChangeAsync( _type ) ); 

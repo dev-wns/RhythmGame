@@ -187,7 +187,7 @@ GameObject:
   - component: {fileID: 120703473}
   - component: {fileID: 120703472}
   m_Layer: 5
-  m_Name: LongLote
+  m_Name: SliderCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -858,7 +858,7 @@ GameObject:
   - component: {fileID: 766506994}
   - component: {fileID: 766506993}
   m_Layer: 5
-  m_Name: Note
+  m_Name: NoteCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1037,7 +1037,7 @@ MonoBehaviour:
   soundName: {fileID: 207525903}
   time: {fileID: 622096969}
   noteCount: {fileID: 2070180808}
-  longNoteCount: {fileID: 120703472}
+  sliderCount: {fileID: 120703472}
   Bpm: {fileID: 205589583}
 --- !u!1 &981946133
 GameObject:
@@ -1371,7 +1371,7 @@ GameObject:
   - component: {fileID: 1387884815}
   - component: {fileID: 1387884814}
   m_Layer: 5
-  m_Name: LongLote
+  m_Name: SliderCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2086,7 +2086,7 @@ GameObject:
   - component: {fileID: 2070180809}
   - component: {fileID: 2070180808}
   m_Layer: 5
-  m_Name: Note
+  m_Name: NoteCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

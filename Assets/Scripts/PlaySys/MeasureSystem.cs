@@ -5,40 +5,57 @@ using UnityEngine;
 
 public class MeasureSystem : MonoBehaviour
 {
-    public static ObjectPool<Measure> mPool;
-    public Measure mPrefab;
+    private InGame scene;
 
-    private float curTiming;
-    public Queue<float> timings;
+    public ObjectPool<MeasureRenderer> mPool;
+    public MeasureRenderer mPrefab;
+    // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
+    public List<float> measures = new List<float>();
+    private int curIdx;
 
     private void Awake()
     {
-        mPool = new ObjectPool<Measure>( mPrefab, 5 );
-        timings = new Queue<float>();
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
 
-        InGame.SystemsInitialized += Initialized;
+        scene.SystemInitialized += Initialized;
+        scene.StartGame += () => StartCoroutine( Process() );
     }
 
-    private void Initialized()
+    private void Initialized( Chart _chart )
     {
-        if ( timings.Count == 0 )
+        var timings = _chart.timings;
+        for ( int i = 0; i < timings.Count; i++ )
         {
-            Debug.Log( "Measure System Initialize Fail " );
-            return;
-        }
+            float time;
+            Timing timing = timings[i];
 
-        StartCoroutine( Process() );
+            if ( timing.bpm < 60 || timing.bpm > 999 ) continue;
+            float bpm = ( timing.bpm / 60f ) * 1000f; // beat per milliseconds
+
+            if ( i + 1 == timings.Count ) time = _chart.notes[_chart.notes.Count - 1].time;
+            else time = timings[i + 1].time;
+
+            int a = Mathf.FloorToInt( ( time - timing.time ) / bpm );
+            measures.Add( InGame.GetChangedTime( timing.time, _chart ) );
+
+            for ( int j = 0; j < a; j++ )
+            {
+                measures.Add( InGame.GetChangedTime( timing.time + ( j * bpm ), _chart ) );
+            }
+        }
     }
 
     private IEnumerator Process()
     {
-        while ( timings.Count > 0 )
+        while ( curIdx < measures.Count - 1 )
         {
-            curTiming = timings.Dequeue();
-            yield return new WaitUntil( () => curTiming <= NowPlaying.PlaybackChanged + NowPlaying.PreLoadTime && NowPlaying.IsPlaying );
+            float curTime = measures[curIdx];
+            yield return new WaitUntil( () => curTime <= InGame.PlaybackChanged + InGame.PreLoadTime );
 
-            Measure measure = mPool.Spawn();
-            measure.Initialized( curTiming );
+            MeasureRenderer measure = mPool.Spawn();
+            measure.Initialized( curTime );
+            curIdx++;
         }
     }
 }

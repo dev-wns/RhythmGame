@@ -11,7 +11,7 @@ public class BmsParser : Parser
         throw new System.NotImplementedException();
     }
 
-    public override Chart PostRead()
+    public override Chart PostRead( Song _song )
     {
         throw new System.NotImplementedException();
     }

@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Measure : MonoBehaviour
+public class MeasureRenderer : MonoBehaviour
 {
-    private float time; // calculated timing
+    private MeasureSystem MSystem;
+    private float time;
 
     public void Initialized( float _time )
     {
@@ -13,6 +14,7 @@ public class Measure : MonoBehaviour
 
     private void Awake()
     {
+        MSystem = GameObject.FindGameObjectWithTag( "Systems" ).GetComponent<MeasureSystem>();
         transform.localScale = new Vector3( GlobalSetting.GearWidth, GlobalSetting.MeasureHeight, 1f );
     }
 
@@ -20,12 +22,13 @@ public class Measure : MonoBehaviour
     {
         if ( transform.position.y <= -Screen.height * .5f )
         {
-            MeasureSystem.mPool.Despawn( this );
+            gameObject.SetActive( false );
+            MSystem.mPool.Despawn( this );
         }
     }
 
     private void LateUpdate()
     {
-        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( time - NowPlaying.PlaybackChanged ) * NowPlaying.Weight ), 3f );
+        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( time - InGame.PlaybackChanged ) * GlobalSetting.ScrollSpeed ), 3f );
     }
 }

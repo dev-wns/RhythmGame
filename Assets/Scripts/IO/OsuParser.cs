@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 public class OsuParser : Parser
 {
@@ -66,6 +67,7 @@ public class OsuParser : Parser
 
                 if ( song.minBpm > BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
                 if ( song.maxBpm < BPM )                     song.maxBpm = ( int )BPM;
+                song.timingCount++;
             }
 
             while( ReadLineEndOfStream() )
@@ -76,9 +78,8 @@ public class OsuParser : Parser
                 song.totalTime = int.Parse( splitDatas[2] );
                 int note       = int.Parse( splitDatas[3] );
 
-                if ( note == 128 ) song.longNoteCount++;
+                if ( note == 128 ) song.sliderCount++;
                 else               song.noteCount++;
-
             }
         }
         catch ( Exception _error )
@@ -91,118 +92,56 @@ public class OsuParser : Parser
         return song;
     }
 
-    public override Chart PostRead()
+    public override Chart PostRead( Song _song )
     {
-        //string line;
-        //StreamReader reader = new StreamReader( path );
-        //MetaData data = new MetaData();
+        chart.timings = new List<Timing>();
+        chart.timings.Capacity = _song.noteCount +_song.sliderCount;
 
-        //while ( ( line = reader.ReadLine() ) != null )
-        //{
-        //    if ( line.Contains( "[General]" ) )
-        //    {
-        //        List<string> arr = new List<string>();
-        //        for ( int index = 0; index < 3; ++index )
-        //        {
-        //            if ( string.IsNullOrEmpty( line ) || line.Contains( "[Metadata]" ) )
-        //            {
-        //                break;
-        //            }
-        //            arr.Add( line = reader.ReadLine() );
-        //        }
+        chart.notes = new List<Note>();
+        chart.notes.Capacity = _song.timingCount;
 
-        //        data.audioName = Path.GetFileName( arr[0].Substring( 14 ).Trim() );
-        //        data.audioPath = Path.GetDirectoryName( _path ) + "\\" + data.audioName;
-        //        data.previewTime = int.Parse( arr[2].Substring( 12 ).Trim() );
-        //    }
+        // [TimingPoints]
+        double prevBPM = 0d;
+        while ( ReadLine() != "[HitObjects]" )
+        {
+            string[] splitDatas = line.Split( ',' );
+            if ( splitDatas.Length != 8 ) continue;
 
-        //    if ( line.Contains( "[Metadata]" ) )
-        //    {
-        //        List<string> arr = new List<string>();
-        //        for ( int index = 0; index < 6; ++index )
-        //        {
-        //            if ( string.IsNullOrEmpty( line ) || line.Contains( "[Events]" ) )
-        //            {
-        //                break;
-        //            }
-        //            arr.Add( line = reader.ReadLine() );
-        //        }
+            bool isUninherited;
+            int uninherited = int.Parse( splitDatas[6] );
+            if ( uninherited == 0 ) isUninherited = false;
+            else                    isUninherited = true;
 
-        //        data.title = arr[0].Substring( 6 ).Trim();
-        //        data.artist = arr[2].Substring( 7 ).Trim();
-        //        data.creator = arr[4].Substring( 8 ).Trim();
-        //        data.version = arr[5].Substring( 8 ).Trim();
-        //    }
+            double beatLength = Math.Abs( float.Parse( splitDatas[1] ) );
+            double BPM = 1d / beatLength * 60000d;
 
-        //    if ( line.Contains( "[Events]" ) )
-        //    {
-        //        List<string> arr = new List<string>();
-        //        for ( int index = 0; index < 4; ++index )
-        //        {
-        //            if ( string.IsNullOrEmpty( line ) || line.Contains( "[TimingPoints]" ) )
-        //            {
-        //                break;
-        //            }
-        //            arr.Add( line = reader.ReadLine() );
-        //        }
+            if ( isUninherited ) prevBPM = BPM;
+            else BPM = ( prevBPM * 100d ) / beatLength; // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
 
-        //        string[] img = arr[1].Split( ',' );
-        //        data.imgName = img[2].Trim().Replace( "\"", string.Empty );
-        //        data.imgPath = Path.GetDirectoryName( _path ) + "\\" + data.imgName;
-        //    }
+            chart.timings.Add( new Timing( float.Parse( splitDatas[0] ), ( float )BPM ) );
+        }
+        chart.medianBpm = GetMedianBpm( chart.timings );
 
-        //    if ( line.Contains( "[TimingPoints]" ) )
-        //    {
-        //        double prevBPM = 0d;
-        //        bool isFirst = true;
-        //        while ( !( string.IsNullOrEmpty( line = reader.ReadLine() ) || line.Contains( "[Colours]" ) || line.Contains( "[HitObjects]" ) ) )
-        //        {
-        //            string[] arr = line.Split( ',' );
+        while ( ReadLineEndOfStream() )
+        {
+            string[] splitDatas = line.Split( ',' );
+            if ( splitDatas.Length != 6 ) continue;
 
-        //            bool isUninherited = StringToBoolean( arr[6] );
-        //            float changeTime = float.Parse( arr[0] );
-        //            double beatLength = Mathf.Abs( float.Parse( arr[1] ) );
-        //            double BPM = 1d / beatLength * 60000d;
+            bool isSlider;
+            float sliderTime = 0;
+            int type = int.Parse( splitDatas[3] );
+            if ( type == 128 )
+            {
+                isSlider = true;
+                string[] splitSliderData = splitDatas[5].Split( ':' );
+                sliderTime = int.Parse( splitSliderData[0] );
+            }
+            else isSlider = false;
 
-        //            if ( isUninherited ) prevBPM = BPM;
-        //            else BPM = ( prevBPM * 100d ) / beatLength;
-
-        //            if ( isFirst )
-        //            {
-        //                data.timings.Add( new Timings( -10000, ( float )BPM ) );
-        //                isFirst = false;
-        //            }
-        //            data.timings.Add( new Timings( changeTime, ( float )BPM ) );
-        //        }
-        //    }
-
-        //    if ( line.Contains( "[HitObjects]" ) )
-        //    {
-        //        while ( !string.IsNullOrEmpty( line = reader.ReadLine() ) )
-        //        {
-        //            string[] arr = line.Split( ',' );
-        //            string[] LNTiming = arr[5].Split( ':' );
-        //            data.notes.Add( new Notes( int.Parse( arr[0] ), float.Parse( arr[2] ), int.Parse( arr[3] ), int.Parse( LNTiming[0] ) ) );
-        //        }
-        //    }
-        //}
-        //reader.Close();
-
-        //int idx = data.audioName.IndexOf( "-" );
-        //if ( idx >= 0 )
-        //{
-        //    string src = data.audioName;
-        //    data.audioName = data.audioName.Replace( "-", "" );
-        //    File.Move( Path.GetDirectoryName( _path ) + "\\" + src, Path.GetDirectoryName( _path ) + "\\" + data.audioName );
-
-        //    string[] lines = File.ReadAllLines( _path );
-        //    var pos = Array.FindIndex( lines, row => row.Contains( "AudioFilename:" ) );
-        //    if ( pos > 0 )
-        //    {
-        //        lines[pos] = string.Format( "AudioFilename:{0}", data.audioName );
-        //        File.WriteAllLines( _path, lines );
-        //    }
-        //}
+            float time = int.Parse( splitDatas[2] );
+            chart.notes.Add( new Note( int.Parse( splitDatas[0] ), time, InGame.GetChangedTime( time, chart ), 
+                                                  sliderTime, InGame.GetChangedTime( sliderTime, chart ), isSlider ) );
+        }
         return chart;
     }
 }

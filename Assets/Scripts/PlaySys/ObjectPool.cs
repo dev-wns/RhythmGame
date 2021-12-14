@@ -61,10 +61,7 @@ public class ObjectPool<T> where T : MonoBehaviour
 
     public void Despawn( T _obj )
     {
-        GameObject obj = _obj.gameObject;
-        if ( obj.activeSelf )
-             obj.SetActive( false );
-
+        _obj.gameObject.SetActive( false );
         pool.Push( _obj );
     }
 }

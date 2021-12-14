@@ -9,9 +9,8 @@ public static class Globals
 
 public class GlobalSetting : MonoBehaviour
 {
-    private static int OriginScrollSpeed = 6;
-    public static float ScrollSpeed { get { return OriginScrollSpeed / 60f * 4f; } }
-    public static bool IsFixedScroll { get; private set; } = true;
+    private static float OriginScrollSpeed = 10;
+    public static float ScrollSpeed { get { return OriginScrollSpeed * .1f; } }
 
     public delegate void DelScrollChanged();
     public static event DelScrollChanged OnScrollChanged;
@@ -39,21 +38,21 @@ public class GlobalSetting : MonoBehaviour
     // Gear
     public static float GearStartPos { get { return ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f ); } }
     public static float GearWidth    { get { return ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
-    
+
     private void Update()
     {
         if ( Input.GetKeyDown( KeyCode.Alpha1 ) )
         {
             OriginScrollSpeed -= 1;
             OnScrollChanged();
-            Debug.Log( string.Format( "Current ScrollSpeed {0}", OriginScrollSpeed ) ); 
+            Debug.Log( string.Format( "Current ScrollSpeed {0}", OriginScrollSpeed ) );
         }
 
         if ( Input.GetKeyDown( KeyCode.Alpha2 ) )
         {
             OriginScrollSpeed += 1;
             OnScrollChanged();
-            Debug.Log( string.Format( "Current ScrollSpeed {0}", OriginScrollSpeed ) ); 
+            Debug.Log( string.Format( "Current ScrollSpeed {0}", OriginScrollSpeed ) );
         }
 
         if ( OriginScrollSpeed < 1 ) OriginScrollSpeed = 1;

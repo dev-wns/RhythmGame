@@ -11,9 +11,8 @@ public class SelectChangeInfo : MonoBehaviour
     public TextMeshProUGUI soundName;
     public TextMeshProUGUI time;
     public TextMeshProUGUI noteCount;
-    public TextMeshProUGUI longNoteCount;
+    public TextMeshProUGUI sliderCount;
     public TextMeshProUGUI Bpm;
-
 
     private void Awake()
     {
@@ -25,7 +24,7 @@ public class SelectChangeInfo : MonoBehaviour
     {
         soundName.text     = _song.version;
         noteCount.text     = _song.noteCount.ToString();
-        longNoteCount.text = _song.longNoteCount.ToString();
+        sliderCount.text   = _song.sliderCount.ToString();
 
         int second = ( int )( _song.totalTime * .001f );
         int minute = second / 60;
