@@ -12,7 +12,7 @@ public class SelectChangeInfo : MonoBehaviour
     public TextMeshProUGUI time;
     public TextMeshProUGUI noteCount;
     public TextMeshProUGUI sliderCount;
-    public TextMeshProUGUI Bpm;
+    public TextMeshProUGUI bpm;
 
     private void Awake()
     {
@@ -31,7 +31,7 @@ public class SelectChangeInfo : MonoBehaviour
         second     = second % 60;
         time.text  = $"{minute:00}:{second:00}";
 
-        if ( _song.minBpm == _song.maxBpm ) Bpm.text = _song.minBpm.ToString();
-        else                                Bpm.text = $"{_song.minBpm} ~ {_song.maxBpm}";
+        if ( _song.minBpm == _song.maxBpm ) bpm.text = _song.minBpm.ToString();
+        else                                bpm.text = $"{_song.minBpm} ~ {_song.maxBpm}";
     }
 }

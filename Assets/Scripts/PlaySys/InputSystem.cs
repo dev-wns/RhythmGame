@@ -43,7 +43,7 @@ public class InputSystem : MonoBehaviour
             endDiff    = curNote.SliderTime - InGame.Playback;
             endDiffAbs = Mathf.Abs( endDiff );
 
-            if ( Input.GetKeyDown( KeySetting.Keys[key] ) )
+            if ( Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
             {
                 if ( startDiff < 150f )
                 {
@@ -52,11 +52,11 @@ public class InputSystem : MonoBehaviour
                     //GameManager.Combo++;
                 }
             }
-            else if ( isHolding && Input.GetKey( KeySetting.Keys[key] ) )
+            else if ( isHolding && Input.GetKey( GlobalKeySetting.Inst.Keys[key] ) )
             {
                 //GameManager.Combo++;
             }
-            else if ( isHolding && Input.GetKeyUp( KeySetting.Keys[key] ) )
+            else if ( isHolding && Input.GetKeyUp( GlobalKeySetting.Inst.Keys[key] ) )
             {
                 if ( endDiff > 150f )
                 {
@@ -70,12 +70,14 @@ public class InputSystem : MonoBehaviour
                     curNote.isHolding = false;
                     isCheckComplate = true;
                     curNote.Destroy();
+                    curNote.gameObject.SetActive( false );
                 }
             }
 
             if ( endDiff < -150f )
             {
                 curNote.Destroy();
+                curNote.gameObject.SetActive( false );
                 isHolding = false;
                 curNote.isHolding = false;
                 isCheckComplate = true;
@@ -87,15 +89,17 @@ public class InputSystem : MonoBehaviour
             {
                 //GameManager.Combo = 0;
                 curNote.Destroy();
+                curNote.gameObject.SetActive( false );
                 //InGame.cPool.Despawn( curColNote );
                 isCheckComplate = true;
             }
             else if ( startDiffAbs < 150f )
             {
-                if ( Input.GetKeyDown( KeySetting.Keys[key] ) )
+                if ( Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
                 {
                     //GameManager.Combo++;
                     curNote.Destroy();
+                    curNote.gameObject.SetActive( false );
                     //InGame.cPool.Despawn( curColNote );
                     isCheckComplate = true;
                 }

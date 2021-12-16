@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
 namespace Sound
 { 
@@ -16,10 +15,9 @@ public class SoundManager : Singleton<SoundManager>
     private FMOD.System       system;
     private FMOD.ChannelGroup masterChannelGroup, sfxChannelGroup;
     private FMOD.Channel      bgmChannel;
+    private FMOD.Sound?       bgmSound;
     //private FMOD.Channel[]   sfxChannels     = new FMOD.Channel[sfxChannelCount];
     //private const int        sfxChannelCount = 100;
-
-    private FMOD.Sound? bgmSound;
 
     public  FMOD.DSP VisualizerDsp { get; private set; }
     private FMOD.DSP lowEffectEQ;
@@ -47,6 +45,8 @@ public class SoundManager : Singleton<SoundManager>
     #region unity callback functions
     private void Awake()
     {
+        DontDestroyOnLoad( this );
+
         // System Init
         ErrorCheck( FMOD.Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
@@ -76,7 +76,6 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( system.getDriver( out currentDriverIndex ) );
         Debug.Log( $"Current Sound Device : {soundDrivers[currentDriverIndex].name}" );
 
-
         // Channel Initialize
         ErrorCheck( system.createChannelGroup( "MasterChannelGroup", out masterChannelGroup ) );
         ErrorCheck( system.createChannelGroup( "SfxChannelGroup", out sfxChannelGroup ) );
@@ -92,10 +91,8 @@ public class SoundManager : Singleton<SoundManager>
         //ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, lowEffectEQ ) );
         ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, VisualizerDsp ) );
 
-
         // Details
         SetVolume( .1f );
-
         Debug.Log( "SoundManager Initizlize Successful." );
     }
 
@@ -155,14 +152,17 @@ public class SoundManager : Singleton<SoundManager>
         
         bgmSound = sound;
     }
-
+    
     public void Play()
     {
         if ( bgmSound == null ) return;
-        AllStop();
-        
+        // AllStop();
+
         ErrorCheck( system.playSound( bgmSound.Value, masterChannelGroup, false, out bgmChannel ) );
-        var a = DOTween.To( () => 0, x => ErrorCheck( masterChannelGroup.setVolume( x ) ), volume, 1.5f );
+        // DOTween.To( () => 0, x => ErrorCheck( bgmChannel.setVolume( x ) ), volume, 1.5f );
+
+
+
         // ErrorCheck( bgmChannel.setChannelGroup( masterChannelGroup ) );
 
         //int numChannels;
@@ -301,7 +301,7 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_GAIN, ( float )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
     }
 
-    public bool UseLowEqualizer( bool _isUse )
+    public void UseLowEqualizer( bool _isUse )
     {
         int numDsp;
         ErrorCheck( masterChannelGroup.getNumDSPs( out numDsp ) );
@@ -311,20 +311,20 @@ public class SoundManager : Singleton<SoundManager>
             ErrorCheck( masterChannelGroup.getDSP( i, out dsp ) );
 
             bool isEquals = Equals( dsp, lowEffectEQ );
-            if ( isEquals && _isUse ) // 이미 적용된 상태
+            if ( isEquals && _isUse == true ) // 이미 적용된 상태
             {
-                return _isUse;
+                return;
             }
-            else if ( isEquals && !_isUse )
+            else if ( isEquals && _isUse == false )
             {
                 ErrorCheck( masterChannelGroup.removeDSP( lowEffectEQ ) );
-                return _isUse;
+                return;
             }
         }
 
         // 적용된 dsp가 없어서 추가함.
-        if ( _isUse ) ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
-        return _isUse;
+        if ( _isUse == true )
+             ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
     }
     #endregion
 }

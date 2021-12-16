@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Scene : MonoBehaviour
+public abstract class Scene : MonoBehaviour
 {
-    protected enum SceneType { Lobby, FreeStyle, InGame };
+    public enum SceneType { Lobby, FreeStyle, InGame };
 
     [Serializable]
     public struct ClipSfx
@@ -19,6 +19,9 @@ public class Scene : MonoBehaviour
     private AudioSource audioSource;
     public AudioClip bgClip;
     public ClipSfx clips;
+
+    protected KeyActions keyAction = new KeyActions();
+    protected bool IsSceneChange = false;
 
     protected void SfxPlay( AudioClip _clip )
     {
@@ -43,27 +46,27 @@ public class Scene : MonoBehaviour
         audioSource.Play();
     }
 
-
     protected virtual void Awake()
     {
         audioSource = gameObject.AddComponent<AudioSource>();
 
         Camera.main.orthographicSize = ( Screen.height / ( GlobalSetting.PPU * 2f ) ) * GlobalSetting.PPU;
+
+        KeyBind();
     }
 
-    protected void Change( SceneType _type ) 
+    protected virtual void Update()
+    {
+        keyAction.ActionCheck();
+    }
+
+    protected void ChangeScene( SceneType _type ) 
     {
         DG.Tweening.DOTween.KillAll();
         SceneManager.LoadScene( _type.ToString() );
         SoundManager.Inst.AllStop();
-        // StartCoroutine( ChangeAsync( _type ) ); 
+        IsSceneChange = true;
     }
 
-    private IEnumerator ChangeAsync( SceneType _type )
-    {
-        var acyncOper = SceneManager.LoadSceneAsync( _type.ToString() );
-
-        while ( !acyncOper.isDone ) yield return null;
-
-    }
+    protected abstract void KeyBind();
 }

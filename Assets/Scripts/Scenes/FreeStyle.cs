@@ -2,9 +2,6 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using DG.Tweening;
 
 public class FreeStyle : Scene
 {
@@ -19,57 +16,26 @@ public class FreeStyle : Scene
     public delegate void DelSelectSound( Song _song );
     public event DelSelectSound OnSelectSound;
 
+    private float playback;
+    private float soundEndPosition;
+
     #region unity callbacks
     protected override void Awake()
     {
         base.Awake();
 
         bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
-
-        StartCoroutine( FadeBackground() );
+        //StartCoroutine( FadeBackground() );
     }
 
-    private void Update()
+    public void Start()
     {
-        if ( !SoundManager.Inst.IsPlaying() )
-        {
-            SoundManager.Inst.Play();
+        ChangePreview();
+    }
 
-            // 중간부터 재생
-            int time = GlobalSoundInfo.CurrentSound.previewTime;
-            if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
-            else             SoundManager.Inst.SetPosition( ( uint )time );
-        }
-
-        if ( Input.GetKeyDown( KeyCode.UpArrow ) ) 
-        {
-            scrollSound.PrevMove();
-            ChangePreview();
-        }
-
-        if ( Input.GetKeyDown( KeyCode.DownArrow ) ) 
-        {
-            scrollSound.NextMove();
-            ChangePreview();
-        }
-
-        if ( Input.GetKeyDown( KeyCode.Return ) )
-        {
-            //NowPlaying.Inst.Initialized( GameManager.Datas[Index] );
-            Change( SceneType.InGame );
-        }
-
-        if ( Input.GetKeyDown( KeyCode.A ) )
-            SoundManager.Inst.UseLowEqualizer( true );
-
-        if ( Input.GetKeyDown( KeyCode.S ) )
-            SoundManager.Inst.UseLowEqualizer( false );
-
-        if ( Input.GetKeyDown( KeyCode.LeftArrow ) )
-            SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch - .1f );
-
-        if ( Input.GetKeyDown( KeyCode.RightArrow ) )
-            SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch + .1f );
+    protected override void Update()
+    {
+        base.Update();
     }
 
     private void ChangePreview()
@@ -122,4 +88,34 @@ public class FreeStyle : Scene
         Debug.Log( $"BackgroundLoad {Globals.Timer.elapsedMilliSeconds} ms" );
     }
     #endregion
+
+
+
+    protected override void KeyBind()
+    {
+        StaticSceneKeyAction scene = new StaticSceneKeyAction();
+        scene.Bind( KeyCode.UpArrow, KeyType.Down, () => scrollSound.PrevMove() );
+        scene.Bind( KeyCode.UpArrow, KeyType.Down, () => ChangePreview() );
+
+        scene.Bind( KeyCode.DownArrow, KeyType.Down, () => scrollSound.NextMove() );
+        scene.Bind( KeyCode.DownArrow, KeyType.Down, () => ChangePreview() );
+
+        scene.Bind( KeyCode.Return, KeyType.Down, () => ChangeScene( SceneType.InGame ) );
+
+        scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( true ) );
+        scene.Bind( KeyCode.Space, KeyType.Down, () => keyAction.ChangeAction( SceneAction.FreeStyleSetting ) );
+
+        scene.Bind( KeyCode.LeftArrow, KeyType.Down,  () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch - .1f ) );
+        scene.Bind( KeyCode.RightArrow, KeyType.Down, () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch + .1f ) );
+
+        scene.Bind( KeyCode.Escape, KeyType.Down, () => ChangeScene( SceneType.Lobby ) );
+        keyAction.Bind( SceneAction.FreeStyle, scene );
+
+        StaticSceneKeyAction setting = new StaticSceneKeyAction();
+        setting.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( false ) );
+        setting.Bind( KeyCode.Space, KeyType.Down, () => keyAction.ChangeAction( SceneAction.FreeStyle ) );
+        keyAction.Bind( SceneAction.FreeStyleSetting, setting );
+
+        keyAction.ChangeAction( SceneAction.FreeStyle );
+    }
 }

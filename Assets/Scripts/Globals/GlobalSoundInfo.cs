@@ -7,6 +7,7 @@ public class GlobalSoundInfo : Singleton<GlobalSoundInfo>
 {
     public static List<Song> Songs = new List<Song>();
     public static Song CurrentSound { get; private set; }
+    public static int CurrentSoundIndex { get; private set; }
 
     private void Awake()
     {
@@ -33,6 +34,9 @@ public class GlobalSoundInfo : Singleton<GlobalSoundInfo>
         }
 
         if ( Songs.Count > 0 ) { CurrentSound = Songs[0]; }
+        Debug.Log( "Parse Success " );
+
+        DontDestroyOnLoad( this );
     }
 
     public void SelectSong( int _index )
@@ -44,6 +48,7 @@ public class GlobalSoundInfo : Singleton<GlobalSoundInfo>
         }
 
         CurrentSound = Songs[_index];
+        CurrentSoundIndex = _index;
     }
 
     private string[] GetFilesInSubDirectories( string _dirPath, string _extension )

@@ -1,123 +1,80 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Runtime.InteropServices;
-using DG.Tweening;
 
 public class AudioVisualizer : MonoBehaviour
 {
-    public Transform spectrumPrefab;
-    public Transform centerImage;
+    public RectTransform spectrumPrefab;
+    public RectTransform centerImage;
 
-    private Transform[] visualSpectrums;
+    private RectTransform[] visualSpectrums;
     public int numSpectrum = 128;
-    private float[] spectrumValues;
 
+    private float[][] spectrums;
     private readonly int bassRange = 14;
-    private float bassPower = 800f;
-    private float spectrumPower = 600f;
-    private float[][] spectrum;
+    public float pumpingPower  = 15f;
+    public float spectrumPower = 5f;
+    public float specWidth = 2f;
 
-    private readonly float imageSize = 500f;
-    private float specWidth;
-    public static float bassAmount = 0f;
+    private float imageSize = 500f;
 
     private void Start()
     {
-        DOTween.Init();
-
-        spectrumValues = new float[numSpectrum];
-
         // create spectrum objects
+        imageSize = imageSize * Screen.width / 1920;
+
         int symmetryColorIdx = numSpectrum;
         float angle = 180f / numSpectrum;
-        visualSpectrums = new Transform[numSpectrum * 2];
+        visualSpectrums = new RectTransform[numSpectrum * 2];
         for ( int idx = 0; idx < numSpectrum * 2; ++idx )
         {
             Transform obj = Instantiate( spectrumPrefab, transform );
-            obj.rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle + angle * idx ) );
-            obj.Translate( transform.up * imageSize * .5f );
+            visualSpectrums[idx] = obj.transform as RectTransform;
+            visualSpectrums[idx].rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle + angle * idx ) );
+            visualSpectrums[idx].Translate( transform.up * imageSize * .5f );
 
             if ( idx < numSpectrum )
-                obj.GetComponent<SpriteRenderer>().material.color = GetGradationColor( idx );
+                obj.GetComponent<Image>().color = GetGradationColor( idx );
             else
-                obj.GetComponent<SpriteRenderer>().material.color = GetGradationColor( symmetryColorIdx-- );
-            visualSpectrums[idx] = obj;
+                obj.GetComponent<Image>().color = GetGradationColor( symmetryColorIdx-- );
         }
 
         // details
-        specWidth = imageSize * .001f * 2f;
         centerImage.localScale = new Vector3( imageSize, imageSize, 1f );
-
-        StartCoroutine( UpdateValue() );
     }
 
-    private IEnumerator UpdateValue()
+    private void FixedUpdate()
     {
-        DOTween.SetTweensCapacity( numSpectrum, 0 );
-        while( true )
-        {
-            uint length;
-            System.IntPtr data;
-            SoundManager.Inst.VisualizerDsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
-            FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
-            spectrum = fftData.spectrum;
+        uint length;
+        System.IntPtr data;
+        SoundManager.Inst.VisualizerDsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
+        FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
+        spectrums = fftData.spectrum;
 
-            float volume = CurrentVolume();
+        if ( fftData.numchannels > 0 )
+        {
+            float average = 0f;
             for ( int i = 0; i < numSpectrum; ++i )
             {
-                DOTween.Kill( visualSpectrums[i] );
-                DOTween.Kill( visualSpectrums[( numSpectrum * 2 ) - 1 - i] );
+                float value = spectrums[0][i] * 1000f * spectrumPower;
+                float y = visualSpectrums[i].localScale.y;
+                float scale = Mathf.Lerp( y, value, ( value / y ) * .5f ); //Mathf.SmoothStep( y, value, value / y );
 
-                float value = spectrum[0][0 + i] * spectrumPower * volume;
-
-                Vector3 newScale = new Vector3( specWidth, value, 1f );
-                visualSpectrums[i].DOScale( newScale, .125f );
-                visualSpectrums[( numSpectrum * 2 ) - 1 - i].DOScale( newScale, .125f );
+                Vector3 newScale = new Vector3( specWidth, scale, 1f );
+                visualSpectrums[i].localScale                           = newScale; // left
+                visualSpectrums[( numSpectrum * 2 ) - 1 - i].localScale = newScale; // right
+             
+                if ( i < bassRange )
+                    average += spectrums[0][i] * ( 1 + i );
             }
 
-            yield return YieldCache.WaitForSeconds( .1f );
+
+            average = ( average / bassRange ) * 1000f;
+            float values     = Mathf.Clamp( average * pumpingPower, imageSize, imageSize * 1.5f );
+            float scaleValue = Mathf.Lerp( centerImage.localScale.y, values, .15f );
+            centerImage.localScale = new Vector3( scaleValue, scaleValue, 1f );
         }
     }
-
-    //private void FixedUpdate()
-    //{
-    //    uint length;
-    //    System.IntPtr data;
-    //    SoundManager.Inst.VisualizerDsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
-    //    FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
-    //    spectrum = fftData.spectrum;
-
-    //    if ( fftData.numchannels > 0 )
-    //    {
-    //        float volume =  CurrentVolume();
-    //        for ( int i = 0; i < numSpectrum; ++i )
-    //        {
-
-    //            float y = visualSpectrums[i].localScale.y;
-    //            float value = ( spectrum[0][0 + i] / 10f ) * spectrumPower * volume * 10f ;
-    //            // float value = spectrum[0][0 + i] * spectrumPower * volume;
-    //            float scale = Mathf.SmoothStep( y, value, .3141592f );
-
-    //            visualSpectrums[i].DOScale( new Vector3( specWidth, value, 1f ), .2f );
-    //            visualSpectrums[( numSpectrum * 2 ) - 1 - i].DOScale( new Vector3( specWidth, value, 1f ), .2f );
-
-    //            //Vector3 newScale = new Vector3( specWidth, value, 1f );
-    //            //visualSpectrums[i].localScale                             = newScale; // left
-    //            //visualSpectrums[( spectrumCount * 2 ) - 1 - i].localScale = newScale; // right
-    //        }
-
-    //        bassAmount = 0f;
-    //        for ( int i = 0; i < bassRange; ++i )
-    //        {
-    //            bassAmount += spectrum[0][i];
-    //        }
-            
-    //        DOTween.Kill( centerImage );
-    //        float values = Mathf.Clamp( bassAmount * bassPower * volume, imageSize, imageSize * 1.5f );
-    //        centerImage.DOScale( new Vector3( values, values, 0f ), .15f );
-    //    }
-    //}
 
     private float CurrentVolume()
     {

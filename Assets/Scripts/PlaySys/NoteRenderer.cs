@@ -28,7 +28,7 @@ public class NoteRenderer : MonoBehaviour
 
         if ( _data.isSlider )
         {
-            transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime * GlobalSetting.ScrollSpeed ) - ( GlobalSetting.ScrollSpeed ) ), 1f );
+            transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * ( GlobalSetting.ScrollSpeed ) ), 1f );
             IsSlider = true;
         }
         else
@@ -57,6 +57,11 @@ public class NoteRenderer : MonoBehaviour
         rdr = GetComponent<SpriteRenderer>();
         transform.localScale = InitScale;
         GlobalSetting.OnScrollChanged += OnScrollSpeedChange;
+    }
+
+    private void OnDestroy()
+    {
+        GlobalSetting.OnScrollChanged -= OnScrollSpeedChange;
     }
 
     private void LateUpdate()

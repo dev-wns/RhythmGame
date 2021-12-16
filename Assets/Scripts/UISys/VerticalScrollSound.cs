@@ -17,7 +17,7 @@ public class VerticalScrollSound : MonoBehaviour
     public bool IsDuplicate { get; private set; }
 
     public int maxShowContentsCount = 3;
-    public int startContent = 0;
+    //public int startContent = 0;
     public int spacing = 0;
     public int numExtraEnable = 2;
 
@@ -30,8 +30,7 @@ public class VerticalScrollSound : MonoBehaviour
 
         minIndex = Mathf.FloorToInt( maxShowContentsCount * .5f );
         maxIndex = GlobalSoundInfo.Songs.Count - minIndex - 1;
-        curIndex = startContent;
-        GlobalSoundInfo.Inst.SelectSong( curIndex );
+        curIndex = GlobalSoundInfo.CurrentSoundIndex;
 
         // Create Scroll Contents
         contents.Capacity = GlobalSoundInfo.Songs.Count;
@@ -57,14 +56,12 @@ public class VerticalScrollSound : MonoBehaviour
             dataTransform.anchoredPosition = new Vector2( 0, ( ( height + spacing ) * minIndex ) - ( ( height + spacing ) * i ) );
 
             // 화면에 그려지는 객체만 활성화
-            if ( startContent - minIndex <= i && startContent + minIndex >= i )
+            if ( GlobalSoundInfo.CurrentSoundIndex - minIndex <= i && GlobalSoundInfo.CurrentSoundIndex + minIndex >= i )
                  dataTransform.gameObject.SetActive( true );
             else dataTransform.gameObject.SetActive( false );
 
             contents.Add( dataTransform );
         }
-        
-        //curObject = contents[curIndex].gameObject;
 
         // 보여줄 최대 개수가 짝수면 홀수인것처럼 중간에 자리 잡도록 설정
         RectTransform prefabRT = songPrefab.transform as RectTransform;
@@ -82,9 +79,8 @@ public class VerticalScrollSound : MonoBehaviour
         moveOffset = prefabRT.rect.height + spacing;
         
         // 시작인덱스 위치로 이동
-        curPos = ( startContent - minIndex ) * moveOffset;
+        curPos = ( GlobalSoundInfo.CurrentSoundIndex - minIndex ) * moveOffset;
         rt.localPosition = new Vector2( rt.localPosition.x, curPos );
-        //( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .5f );
     }
 
     public void PrevMove()
@@ -95,12 +91,9 @@ public class VerticalScrollSound : MonoBehaviour
             return;
         }
 
-        //( curObject.transform as RectTransform ).DOScale( Vector2.one, .5f );
-
         curPos -= moveOffset;
         rt.DOLocalMoveY( curPos, .5f );
         GlobalSoundInfo.Inst.SelectSong( --curIndex );
-        //( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .5f );
 
         if ( minIndex <= curIndex )
         {
@@ -122,13 +115,9 @@ public class VerticalScrollSound : MonoBehaviour
             return;
         }
 
-        //( curObject.transform as RectTransform ).DOScale( Vector2.one, .5f );
-
         curPos += moveOffset;
         rt.DOLocalMoveY( curPos, .5f );
         GlobalSoundInfo.Inst.SelectSong( ++curIndex );
-
-        //( curObject.transform as RectTransform ).DOScale( new Vector2( 1.1f, 1.1f ), .5f );
 
         if ( maxIndex >= curIndex )
         {

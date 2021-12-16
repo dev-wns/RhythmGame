@@ -4,19 +4,19 @@ using UnityEngine;
 using TMPro;
 using DG.Tweening;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class Init : Scene
+public class Init : MonoBehaviour
 {
     public TextMeshProUGUI text;
     public Slider slider;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         // setting
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 144;
-        Screen.SetResolution( 1920, 1080, true );
+        //QualitySettings.vSyncCount = 0;
+        //Application.targetFrameRate = 144;
+        //Screen.SetResolution( 1920, 1080, true );
         //Cursor.lockState = CursorLockMode.Locked;
         //Cursor.visible = false;
 
@@ -34,6 +34,6 @@ public class Init : Scene
 
         text.DOFade( 1f, 5f );
         yield return YieldCache.WaitForSeconds( 2f );
-        Change( SceneType.Lobby );
+        SceneManager.LoadScene( Scene.SceneType.Lobby.ToString() );
     }
 }

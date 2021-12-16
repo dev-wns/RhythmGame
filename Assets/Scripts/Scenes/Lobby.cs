@@ -4,32 +4,26 @@ using UnityEngine;
 
 public class Lobby : Scene
 {
-    private void ChangeMusic()
-    {
-        //var datas = GameManager.Datas;
-        //NowPlaying.Inst.Initialized( datas[Random.Range( 0, datas.Count )] );
-
-        //NowPlaying.Inst.Play( true );
-    }
-
     protected override void Awake()
     {
         base.Awake();
 
-        SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Osu", "1169912 VA - Arkman 6k Collection A7", "Angelic Party.mp3" ) );
+        SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Osu", "1169912 VA - Arkman 6k Collection A7", "Angelic Party.mp3" ), 
+                                Sound.LoadType.Default, Sound.Mode.Loop );
         SoundManager.Inst.Play();
-
-        //SoundManager.Inst.AllStop();
-
-        //ChangeMusic();
     }
 
-    private void Update()
+    protected override void Update()
     {
-        //if ( NowPlaying.Playback > NowPlaying.EndTime )
-        //    ChangeMusic();
+        base.Update();
+    }
 
-        if ( Input.GetKeyDown( KeyCode.Return ) )
-            Change( SceneType.FreeStyle );
+    protected override void KeyBind()
+    {
+        StaticSceneKeyAction scene = new StaticSceneKeyAction();
+        scene.Bind( KeyCode.Return, KeyType.Down, () => ChangeScene( SceneType.FreeStyle ) );
+
+        keyAction.Bind( SceneAction.Lobby, scene );
+        keyAction.ChangeAction( SceneAction.Lobby );
     }
 }

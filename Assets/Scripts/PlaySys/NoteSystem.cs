@@ -12,13 +12,13 @@ public class NoteSystem : MonoBehaviour
 
     private List<Note> notes = new List<Note>();
     private int curIdx;
-    private InputSystem ISystem;
+    private InputSystem[] ISystem;
 
     private void Awake()
     {
         scene   = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         nPool   = new ObjectPool<NoteRenderer>( nPrefab );
-        ISystem = GetComponent<InputSystem>();
+        ISystem = GetComponentsInChildren<InputSystem>();
 
         scene.SystemInitialized += Initialized;
         scene.StartGame += () => StartCoroutine( Process() );
@@ -38,7 +38,7 @@ public class NoteSystem : MonoBehaviour
 
             NoteRenderer note = nPool.Spawn();
             note.Initialized( curNote );
-            //ISystem.notes.Enqueue( note );
+            ISystem[curNote.line].notes.Enqueue( note );
             curIdx++;
         }
     } 

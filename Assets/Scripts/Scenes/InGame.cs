@@ -22,7 +22,7 @@ public class InGame : Scene
     // Bpm
     public static float BPM { get; private set; } // 현재 BPM
 
-    public static float PreLoadTime { get { return ( 12500f / GlobalSetting.ScrollSpeed ) * 1000f; } }
+    public static float PreLoadTime { get { return ( 1250f / GlobalSetting.ScrollSpeed ); } }
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
     public static float Weight { get { return .1f * GlobalSetting.ScrollSpeed; } }
     private static float MedianBpm;
@@ -51,6 +51,7 @@ public class InGame : Scene
     protected override void Awake()
     {
         base.Awake();
+
         Playback = 0f;
 
         Parser parser;
@@ -71,24 +72,35 @@ public class InGame : Scene
         SystemInitialized( chart );
 
         SoundManager.Inst.Load( GlobalSoundInfo.CurrentSound.audioPath );
-        SoundManager.Inst.Play();
         StartGame();
         isStart = true;
+        SoundManager.Inst.Play();
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         if ( !isStart ) return;
         
         Playback += Time.deltaTime * 1000f;
         PlaybackChanged = GetChangedTime( Playback, chart );
 
-        if ( Input.GetKeyDown( KeyCode.Escape ) ) { Change( SceneType.FreeStyle ); }
+        if ( Input.GetKeyDown( KeyCode.Escape ) ) { ChangeScene( SceneType.FreeStyle ); }
 
         timeText.text = string.Format( "{0:F1} 초", Playback * 0.001f );
         //comboText.text = string.Format( "{0}", GameManager.Combo );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;
         frameText.text = string.Format( "{0:F1}", 1f / delta );
         //medianText.text = string.Format( "{0:F1}", MedianBpm ); 
+    }
+
+    protected override void KeyBind()
+    {
+        StaticSceneKeyAction scene = new StaticSceneKeyAction();
+        scene.Bind( KeyCode.Escape, KeyType.Down, () => ChangeScene( SceneType.FreeStyle ) );
+
+        keyAction.Bind( SceneAction.InGame, scene );
+        keyAction.ChangeAction( SceneAction.InGame );
     }
 }
