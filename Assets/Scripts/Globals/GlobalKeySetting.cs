@@ -20,9 +20,8 @@ public class GlobalKeySetting : Singleton<GlobalKeySetting>
         KeyCode.Escape
     };
 
-    private void Awake()
+    public void Initialize()
     {
-        DontDestroyOnLoad( this );
         for ( int i = 0; i < defaultKeys.Length; i++ )
         {
             Keys.Add( ( KeyAction )i, defaultKeys[i] );

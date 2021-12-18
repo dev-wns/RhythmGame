@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class FreeStyle : Scene
 {
@@ -42,7 +43,7 @@ public class FreeStyle : Scene
     {
         if ( scrollSound.IsDuplicate ) return;
         
-        Song curSong = GlobalSoundInfo.CurrentSound;
+        Song curSong = GameManager.CurrentSound;
         StartCoroutine( FadeBackground() );
 
         Globals.Timer.Start();
@@ -62,11 +63,18 @@ public class FreeStyle : Scene
 
     protected IEnumerator LoadBackground( string _path )
     {
-        Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
-        byte[] binaryData = File.ReadAllBytes( _path );
+        UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path );
+        yield return www.SendWebRequest();
 
-        while ( !tex.LoadImage( binaryData ) ) yield return null;
+        Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
         background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GlobalSetting.PPU, 0, SpriteMeshType.FullRect );
+
+        // 원시 버젼 메모리 재할당이 큼
+        //Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
+        //byte[] binaryData = File.ReadAllBytes( _path );
+
+        //while ( !tex.LoadImage( binaryData ) ) yield return null;
+        //background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GlobalSetting.PPU, 0, SpriteMeshType.FullRect );
 
         IsBGLoadDone = true;
     }
@@ -75,7 +83,7 @@ public class FreeStyle : Scene
     {
         Globals.Timer.Start();
         {
-            StartCoroutine( LoadBackground( GlobalSoundInfo.CurrentSound.imagePath ) );
+            StartCoroutine( LoadBackground( GameManager.CurrentSound.imagePath ) );
             yield return new WaitUntil( () => IsBGLoadDone );
             if ( curBackground != null )
                 curBackground.Despawn();
@@ -100,7 +108,7 @@ public class FreeStyle : Scene
         scene.Bind( KeyCode.DownArrow, KeyType.Down, () => scrollSound.NextMove() );
         scene.Bind( KeyCode.DownArrow, KeyType.Down, () => ChangePreview() );
 
-        scene.Bind( KeyCode.Return, KeyType.Down, () => ChangeScene( SceneType.InGame ) );
+        scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.InGame ) );
 
         scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( true ) );
         scene.Bind( KeyCode.Space, KeyType.Down, () => keyAction.ChangeAction( SceneAction.FreeStyleSetting ) );
@@ -108,7 +116,7 @@ public class FreeStyle : Scene
         scene.Bind( KeyCode.LeftArrow, KeyType.Down,  () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch - .1f ) );
         scene.Bind( KeyCode.RightArrow, KeyType.Down, () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch + .1f ) );
 
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => ChangeScene( SceneType.Lobby ) );
+        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.Lobby ) );
         keyAction.Bind( SceneAction.FreeStyle, scene );
 
         StaticSceneKeyAction setting = new StaticSceneKeyAction();

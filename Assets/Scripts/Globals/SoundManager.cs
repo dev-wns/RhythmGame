@@ -37,16 +37,14 @@ public class SoundManager : Singleton<SoundManager>
     public uint? Length { get; private set; }
     public float Pitch  { get; private set; } = 1f;
 
-    private Coroutine fadeOutVolumeCoroutine;
     private float volume;
     #endregion
 
 
-    #region unity callback functions
-    private void Awake()
-    {
-        DontDestroyOnLoad( this );
+    public void Update() => system.update();
 
+    public void Initialize()
+    {
         // System Init
         ErrorCheck( FMOD.Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
@@ -96,12 +94,8 @@ public class SoundManager : Singleton<SoundManager>
         Debug.Log( "SoundManager Initizlize Successful." );
     }
 
-    private void Update()
-    {
-        system.update();
-    }
 
-    private void OnApplicationQuit()
+    public void Release()
     {
         // 생성한 역순으로 release
         if ( bgmSound != null )
@@ -119,7 +113,6 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( masterChannelGroup.release() );
         ErrorCheck( system.release() ); // 내부에서 close 함.
     }
-    #endregion
 
     #region customize functions
     public void Load( string _path, Sound.LoadType _type = Sound.LoadType.Default, Sound.Mode _mode = Sound.Mode.Default )

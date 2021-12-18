@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class SelectChangeInfo : MonoBehaviour
+public class SelectInfomation : MonoBehaviour
 {
     private FreeStyle scene;
 

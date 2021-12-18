@@ -1,9 +1,9 @@
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
-public class GlobalSoundInfo : Singleton<GlobalSoundInfo>
+public class GameManager : SingletonUnity<GameManager>
 {
     public static List<Song> Songs = new List<Song>();
     public static Song CurrentSound { get; private set; }
@@ -11,6 +11,11 @@ public class GlobalSoundInfo : Singleton<GlobalSoundInfo>
 
     private void Awake()
     {
+        DontDestroyOnLoad( this );
+
+        SoundManager.Inst.Initialize();
+        GlobalKeySetting.Inst.Initialize();
+
         // Osu Parsing
         string[] osuFiles = GetFilesInSubDirectories( GlobalSetting.OsuDirectoryPath, "*.osu" );
         for ( int i = 0; i < osuFiles.Length; i++ )
@@ -35,8 +40,16 @@ public class GlobalSoundInfo : Singleton<GlobalSoundInfo>
 
         if ( Songs.Count > 0 ) { CurrentSound = Songs[0]; }
         Debug.Log( "Parse Success " );
+    }
 
-        DontDestroyOnLoad( this );
+    private void Update()
+    {
+        SoundManager.Inst.Update();
+    }
+
+    private void OnApplicationQuit()
+    {
+        SoundManager.Inst.Release();
     }
 
     public void SelectSong( int _index )
@@ -50,7 +63,6 @@ public class GlobalSoundInfo : Singleton<GlobalSoundInfo>
         CurrentSound = Songs[_index];
         CurrentSoundIndex = _index;
     }
-
     private string[] GetFilesInSubDirectories( string _dirPath, string _extension )
     {
         List<string> path = new List<string>();

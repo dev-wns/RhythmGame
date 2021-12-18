@@ -15,6 +15,8 @@ public class KeyActions
     private Dictionary<SceneAction, StaticSceneKeyAction> keyActions = new Dictionary<SceneAction, StaticSceneKeyAction>();
     public StaticSceneKeyAction curAction;
 
+    public void ActionCheck() => curAction?.ActionCheck();
+
     public void Bind( SceneAction _type, StaticSceneKeyAction _action )
     {
         if ( _action == null || keyActions.ContainsKey( _type ) )
@@ -34,8 +36,4 @@ public class KeyActions
         curAction = keyActions[_type];
     }
 
-    public void ActionCheck()
-    {
-        if ( curAction != null ) curAction.ActionCheck();
-    }
 }

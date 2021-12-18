@@ -39,12 +39,6 @@ public class GlobalSetting : MonoBehaviour
     public static float GearStartPos { get { return ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f ); } }
     public static float GearWidth    { get { return ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
 
-
-    private void Awake()
-    {
-        Screen.SetResolution( 1920, 1080, true );
-        DontDestroyOnLoad( this );
-    }
     private void Update()
     {
         if ( Input.GetKeyDown( KeyCode.Alpha1 ) )

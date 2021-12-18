@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public abstract class Scene : MonoBehaviour
 {
-    public enum SceneType { Lobby, FreeStyle, InGame };
 
     [Serializable]
     public struct ClipSfx
@@ -21,7 +20,9 @@ public abstract class Scene : MonoBehaviour
     public ClipSfx clips;
 
     protected KeyActions keyAction = new KeyActions();
-    protected bool IsSceneChange = false;
+    private static KeyActions DefaultKeyAction = new KeyActions();
+
+    public void InputLock() => keyAction = DefaultKeyAction;
 
     protected void SfxPlay( AudioClip _clip )
     {
@@ -46,6 +47,7 @@ public abstract class Scene : MonoBehaviour
         audioSource.Play();
     }
 
+
     protected virtual void Awake()
     {
         audioSource = gameObject.AddComponent<AudioSource>();
@@ -55,18 +57,7 @@ public abstract class Scene : MonoBehaviour
         KeyBind();
     }
 
-    protected virtual void Update()
-    {
-        keyAction.ActionCheck();
-    }
-
-    protected void ChangeScene( SceneType _type ) 
-    {
-        DG.Tweening.DOTween.KillAll();
-        SceneManager.LoadScene( _type.ToString() );
-        SoundManager.Inst.AllStop();
-        IsSceneChange = true;
-    }
+    protected virtual void Update() => keyAction.ActionCheck();
 
     protected abstract void KeyBind();
 }

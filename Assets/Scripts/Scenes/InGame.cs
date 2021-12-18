@@ -55,23 +55,23 @@ public class InGame : Scene
         Playback = 0f;
 
         Parser parser;
-        switch( GlobalSoundInfo.CurrentSound.type )
+        switch( GameManager.CurrentSound.type )
         {
             case ParseType.Osu:
             {
-                using ( parser = new OsuParser( GlobalSoundInfo.CurrentSound.filePath ) )
-                    chart = parser.PostRead( GlobalSoundInfo.CurrentSound );
+                using ( parser = new OsuParser( GameManager.CurrentSound.filePath ) )
+                    chart = parser.PostRead( GameManager.CurrentSound );
             } break;
             case ParseType.Bms:
             {
-                using ( parser = new BmsParser( GlobalSoundInfo.CurrentSound.filePath ) )
-                    chart = parser.PostRead( GlobalSoundInfo.CurrentSound );
+                using ( parser = new BmsParser( GameManager.CurrentSound.filePath ) )
+                    chart = parser.PostRead( GameManager.CurrentSound );
             } break;
         }
         MedianBpm = chart.medianBpm;
         SystemInitialized( chart );
 
-        SoundManager.Inst.Load( GlobalSoundInfo.CurrentSound.audioPath );
+        SoundManager.Inst.Load( GameManager.CurrentSound.audioPath );
         StartGame();
         isStart = true;
         SoundManager.Inst.Play();
@@ -86,7 +86,7 @@ public class InGame : Scene
         Playback += Time.deltaTime * 1000f;
         PlaybackChanged = GetChangedTime( Playback, chart );
 
-        if ( Input.GetKeyDown( KeyCode.Escape ) ) { ChangeScene( SceneType.FreeStyle ); }
+        if ( Input.GetKeyDown( KeyCode.Escape ) ) { SceneChanger.Inst.LoadScene( SceneType.FreeStyle ); }
 
         timeText.text = string.Format( "{0:F1} ÃÊ", Playback * 0.001f );
         //comboText.text = string.Format( "{0}", GameManager.Combo );
@@ -98,7 +98,7 @@ public class InGame : Scene
     protected override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => ChangeScene( SceneType.FreeStyle ) );
+        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
         keyAction.Bind( SceneAction.InGame, scene );
         keyAction.ChangeAction( SceneAction.InGame );

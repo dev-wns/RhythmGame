@@ -21,7 +21,7 @@ public class Lobby : Scene
     protected override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.Return, KeyType.Down, () => ChangeScene( SceneType.FreeStyle ) );
+        scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
         keyAction.Bind( SceneAction.Lobby, scene );
         keyAction.ChangeAction( SceneAction.Lobby );

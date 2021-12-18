@@ -68,7 +68,6 @@ public class AudioVisualizer : MonoBehaviour
                     average += spectrums[0][i] * ( 1 + i );
             }
 
-
             average = ( average / bassRange ) * 1000f;
             float values     = Mathf.Clamp( average * pumpingPower, imageSize, imageSize * 1.5f );
             float scaleValue = Mathf.Lerp( centerImage.localScale.y, values, .15f );

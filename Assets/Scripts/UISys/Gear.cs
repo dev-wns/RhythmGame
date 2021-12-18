@@ -13,9 +13,9 @@ public class Gear : MonoBehaviour
         tfLeft = left.GetComponent<Transform>();
         tfRight = right.GetComponent<Transform>();
 
-        tfLeft.localPosition = new Vector3( GlobalSetting.GearStartPos, .94f, .0f );
-        tfRight.localPosition = new Vector3( -GlobalSetting.GearStartPos, .94f, 0f );
+        tfLeft.localPosition       = new Vector3( GlobalSetting.GearStartPos, .94f, .0f );
+        tfRight.localPosition      = new Vector3( -GlobalSetting.GearStartPos, .94f, 0f );
         tfBackground.localPosition = new Vector3( 0f, -( Screen.height * .5f ), 100f );
-        tfBackground.localScale = new Vector3( GlobalSetting.GearWidth, Screen.height, 0f );
+        tfBackground.localScale    = new Vector3( GlobalSetting.GearWidth, Screen.height, 0f );
     }
 }

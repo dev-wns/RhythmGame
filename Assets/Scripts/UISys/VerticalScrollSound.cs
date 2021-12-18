@@ -29,18 +29,18 @@ public class VerticalScrollSound : MonoBehaviour
         rt.anchorMax = new Vector2( 0, 1 );
 
         minIndex = Mathf.FloorToInt( maxShowContentsCount * .5f );
-        maxIndex = GlobalSoundInfo.Songs.Count - minIndex - 1;
-        curIndex = GlobalSoundInfo.CurrentSoundIndex;
+        maxIndex = GameManager.Songs.Count - minIndex - 1;
+        curIndex = GameManager.CurrentSoundIndex;
 
         // Create Scroll Contents
-        contents.Capacity = GlobalSoundInfo.Songs.Count;
-        for ( int i = 0; i < GlobalSoundInfo.Songs.Count; i++ )
+        contents.Capacity = GameManager.Songs.Count;
+        for ( int i = 0; i < GameManager.Songs.Count; i++ )
         {
             // scrollview song contents
             GameObject obj = Instantiate( songPrefab, rt );
 
             // 사운드 이름 설정
-            Song data = GlobalSoundInfo.Songs[i];
+            Song data = GameManager.Songs[i];
             System.Text.StringBuilder artist = new System.Text.StringBuilder();
             artist.Capacity = data.artist.Length + 8 + data.creator.Length;
             artist.Append( data.artist ).Append( " // " ).Append( data.creator );
@@ -56,14 +56,14 @@ public class VerticalScrollSound : MonoBehaviour
             dataTransform.anchoredPosition = new Vector2( 0, ( ( height + spacing ) * minIndex ) - ( ( height + spacing ) * i ) );
 
             // 화면에 그려지는 객체만 활성화
-            if ( GlobalSoundInfo.CurrentSoundIndex - minIndex <= i && GlobalSoundInfo.CurrentSoundIndex + minIndex >= i )
+            if ( GameManager.CurrentSoundIndex - minIndex <= i && GameManager.CurrentSoundIndex + minIndex >= i )
                  dataTransform.gameObject.SetActive( true );
             else dataTransform.gameObject.SetActive( false );
 
             contents.Add( dataTransform );
         }
 
-        // 보여줄 최대 개수가 짝수면 홀수인것처럼 중간에 자리 잡도록 설정
+        // 보여줄 객체가 짝수면 홀수인것처럼 중간에 자리 잡도록 설정
         RectTransform prefabRT = songPrefab.transform as RectTransform;
         if ( maxShowContentsCount % 2 == 0 )
         {
@@ -79,7 +79,7 @@ public class VerticalScrollSound : MonoBehaviour
         moveOffset = prefabRT.rect.height + spacing;
         
         // 시작인덱스 위치로 이동
-        curPos = ( GlobalSoundInfo.CurrentSoundIndex - minIndex ) * moveOffset;
+        curPos = ( GameManager.CurrentSoundIndex - minIndex ) * moveOffset;
         rt.localPosition = new Vector2( rt.localPosition.x, curPos );
     }
 
@@ -93,7 +93,7 @@ public class VerticalScrollSound : MonoBehaviour
 
         curPos -= moveOffset;
         rt.DOLocalMoveY( curPos, .5f );
-        GlobalSoundInfo.Inst.SelectSong( --curIndex );
+        GameManager.Inst.SelectSong( --curIndex );
 
         if ( minIndex <= curIndex )
         {
@@ -117,7 +117,7 @@ public class VerticalScrollSound : MonoBehaviour
 
         curPos += moveOffset;
         rt.DOLocalMoveY( curPos, .5f );
-        GlobalSoundInfo.Inst.SelectSong( ++curIndex );
+        GameManager.Inst.SelectSong( ++curIndex );
 
         if ( maxIndex >= curIndex )
         {
