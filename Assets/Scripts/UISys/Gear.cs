@@ -5,17 +5,17 @@ using UnityEngine;
 public class Gear : MonoBehaviour
 {
     public GameObject background, left, right;
-    private Transform tfBackground, tfLeft, tfRight;
+    private RectTransform tfBackground, tfLeft, tfRight;
 
     private void Awake()
     {
-        tfBackground = background.GetComponent<Transform>();
-        tfLeft = left.GetComponent<Transform>();
-        tfRight = right.GetComponent<Transform>();
+        tfBackground = background.GetComponent<Transform>() as RectTransform;
+        tfLeft  = left.GetComponent<Transform>()  as RectTransform;
+        tfRight = right.GetComponent<Transform>() as RectTransform;
 
-        tfLeft.localPosition       = new Vector3( GlobalSetting.GearStartPos, .94f, .0f );
-        tfRight.localPosition      = new Vector3( -GlobalSetting.GearStartPos, .94f, 0f );
-        tfBackground.localPosition = new Vector3( 0f, -( Screen.height * .5f ), 100f );
-        tfBackground.localScale    = new Vector3( GlobalSetting.GearWidth, Screen.height, 0f );
+        tfLeft.anchoredPosition       = new Vector3(  GlobalSetting.GearStartPos, 94f, 0f );
+        tfRight.anchoredPosition      = new Vector3( -GlobalSetting.GearStartPos, 94f, 0f );
+        tfBackground.anchoredPosition = new Vector3( 0f, 0f, 0f );
+        tfBackground.sizeDelta        = new Vector3( GlobalSetting.GearWidth, Screen.height, 0f );
     }
 }

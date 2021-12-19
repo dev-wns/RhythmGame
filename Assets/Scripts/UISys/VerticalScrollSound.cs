@@ -56,7 +56,7 @@ public class VerticalScrollSound : MonoBehaviour
             dataTransform.anchoredPosition = new Vector2( 0, ( ( height + spacing ) * minIndex ) - ( ( height + spacing ) * i ) );
 
             // 화면에 그려지는 객체만 활성화
-            if ( GameManager.CurrentSoundIndex - minIndex <= i && GameManager.CurrentSoundIndex + minIndex >= i )
+            if ( curIndex - minIndex <= i && curIndex + minIndex >= i )
                  dataTransform.gameObject.SetActive( true );
             else dataTransform.gameObject.SetActive( false );
 
@@ -79,7 +79,7 @@ public class VerticalScrollSound : MonoBehaviour
         moveOffset = prefabRT.rect.height + spacing;
         
         // 시작인덱스 위치로 이동
-        curPos = ( GameManager.CurrentSoundIndex - minIndex ) * moveOffset;
+        curPos = ( curIndex - minIndex ) * moveOffset;
         rt.localPosition = new Vector2( rt.localPosition.x, curPos );
     }
 

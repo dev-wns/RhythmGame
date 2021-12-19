@@ -86,8 +86,6 @@ public class InGame : Scene
         Playback += Time.deltaTime * 1000f;
         PlaybackChanged = GetChangedTime( Playback, chart );
 
-        if ( Input.GetKeyDown( KeyCode.Escape ) ) { SceneChanger.Inst.LoadScene( SceneType.FreeStyle ); }
-
         timeText.text = string.Format( "{0:F1} √ ", Playback * 0.001f );
         //comboText.text = string.Format( "{0}", GameManager.Combo );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;

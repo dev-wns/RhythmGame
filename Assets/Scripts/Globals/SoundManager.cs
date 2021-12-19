@@ -9,7 +9,7 @@ namespace Sound
     public enum ChannelType { MasterGroup, sfxGroup };
 }
 
-public class SoundManager : Singleton<SoundManager>
+public class SoundManager : SingletonUnity<SoundManager>
 {
     #region variables
     private FMOD.System       system;
@@ -19,7 +19,7 @@ public class SoundManager : Singleton<SoundManager>
     //private FMOD.Channel[]   sfxChannels     = new FMOD.Channel[sfxChannelCount];
     //private const int        sfxChannelCount = 100;
 
-    public  FMOD.DSP VisualizerDsp { get; private set; }
+    public  FMOD.DSP? FFT { get; private set; }
     private FMOD.DSP lowEffectEQ;
 
     private struct SoundDriver
@@ -40,10 +40,32 @@ public class SoundManager : Singleton<SoundManager>
     private float volume;
     #endregion
 
+    public void AddFFT( int _size, FMOD.DSP_FFT_WINDOW _type, out FMOD.DSP _dsp )
+    {
+        if ( FFT != null ) RemoveFFT();
 
-    public void Update() => system.update();
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out _dsp ) );
+        ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, _size ) );
+        ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )_type ) );
+        ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, _dsp ) );
+        FFT = _dsp;
+    }
 
-    public void Initialize()
+    public void RemoveFFT()
+    {
+        if ( FFT != null )
+        {
+            ErrorCheck( masterChannelGroup.removeDSP( FFT.Value ) );
+            ErrorCheck( FFT.Value.release() );
+            FFT = null;
+        }
+    }
+
+    //public void Update() => system.update();
+    private void Update() => system.update();
+
+    //public void Initialize()
+    private void Awake()
     {
         // System Init
         ErrorCheck( FMOD.Factory.System_Create( out system ) );
@@ -79,15 +101,7 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( system.createChannelGroup( "SfxChannelGroup", out sfxChannelGroup ) );
 
         // DSP Setting
-        FMOD.DSP dsp;
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp ) );
-        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
-        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
-        
-        VisualizerDsp = dsp;
         CreateLowEffectDsp();
-        //ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, lowEffectEQ ) );
-        ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, VisualizerDsp ) );
 
         // Details
         SetVolume( .1f );
@@ -95,7 +109,8 @@ public class SoundManager : Singleton<SoundManager>
     }
 
 
-    public void Release()
+    //public void Release()
+    private void OnApplicationQuit()
     {
         // 생성한 역순으로 release
         if ( bgmSound != null )
@@ -104,8 +119,7 @@ public class SoundManager : Singleton<SoundManager>
             bgmSound = null;
         }
 
-        ErrorCheck( masterChannelGroup.removeDSP( VisualizerDsp ) );
-        ErrorCheck( VisualizerDsp.release() );
+        RemoveFFT();
 
         ErrorCheck( masterChannelGroup.removeDSP( lowEffectEQ ) );
         ErrorCheck( lowEffectEQ.release() );

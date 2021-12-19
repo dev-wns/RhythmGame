@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Lobby : Scene
 {
+    public ParticleSystem particle;
+
     protected override void Awake()
     {
         base.Awake();
@@ -21,6 +23,7 @@ public class Lobby : Scene
     protected override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
+        scene.Bind( KeyCode.Return, KeyType.Down, () => particle.gameObject.SetActive( false ) );
         scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
         keyAction.Bind( SceneAction.Lobby, scene );

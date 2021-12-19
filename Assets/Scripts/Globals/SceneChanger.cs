@@ -10,17 +10,23 @@ public class SceneChanger : SingletonUnity<SceneChanger>
 {
     public Scene CurrentScene { get; private set; }
     private SpriteRenderer blackSprite;
+    private Coroutine curCoroutine;
 
     private void Awake()
     {
         DontDestroyOnLoad( this );
         blackSprite = GetComponent<SpriteRenderer>();
-        transform.position   = new Vector3( 0f, 0f, 80f );
+        transform.position   = new Vector3( 0f, 0f, -9 );
         transform.localScale = new Vector3( Screen.width, Screen.height, 1f );
 
         StartCoroutine( InitSceneChange( SceneType.Lobby ) );
     }
-    public void LoadScene( SceneType _type ) => StartCoroutine( FadeBackground( _type ) );
+    public void LoadScene( SceneType _type )
+    {
+        if ( curCoroutine != null ) return;
+
+        curCoroutine = StartCoroutine( FadeBackground( _type ) );
+    }
 
     private IEnumerator InitSceneChange( SceneType _type )
     {
@@ -54,5 +60,6 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         
         blackSprite.enabled = false;
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        curCoroutine = null;
     }
 }

@@ -13,7 +13,7 @@ public class GameManager : SingletonUnity<GameManager>
     {
         DontDestroyOnLoad( this );
 
-        SoundManager.Inst.Initialize();
+        //SoundManager.Inst.Initialize();
         GlobalKeySetting.Inst.Initialize();
 
         // Osu Parsing
@@ -44,12 +44,12 @@ public class GameManager : SingletonUnity<GameManager>
 
     private void Update()
     {
-        SoundManager.Inst.Update();
+        //SoundManager.Inst.Update();
     }
 
     private void OnApplicationQuit()
     {
-        SoundManager.Inst.Release();
+        //SoundManager.Inst.Release();
     }
 
     public void SelectSong( int _index )
