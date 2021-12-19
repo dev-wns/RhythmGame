@@ -10,7 +10,7 @@ public class Lobby : Scene
     {
         base.Awake();
 
-        SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Osu", "1169912 VA - Arkman 6k Collection A7", "Angelic Party.mp3" ), 
+        SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Default", "Sylrica  Sweet Victory.mp3" ), 
                                 Sound.LoadType.Default, Sound.Mode.Loop );
         SoundManager.Inst.Play();
     }
