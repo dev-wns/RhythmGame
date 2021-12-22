@@ -5,12 +5,12 @@ using UnityEngine;
 public class Lobby : Scene
 {
     public ParticleSystem particle;
-
+    public string soundName;
     protected override void Awake()
     {
         base.Awake();
 
-        SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Default", "Sylrica  Sweet Victory.mp3" ), 
+        SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Default", soundName + ".mp3" ), 
                                 Sound.LoadType.Default, Sound.Mode.Loop );
         SoundManager.Inst.Play();
     }

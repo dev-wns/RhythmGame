@@ -52,10 +52,18 @@ public class Spectrum : MonoBehaviour
 
     private void UpdateSpectrum( float[] _values )
     {
+        float highValue = 1f;
+        for ( int i = 0; i < numSpectrum; i++ )
+        {
+            if ( highValue < _values[i] ) highValue = _values[i];
+        }
+
         float average = 0f;
         for ( int i = 0; i < numSpectrum; i++ )
         {
-            float value = _values[i] * 1000f * spectrumPower;
+            float value = ( _values[i] / highValue ) * 1000f * spectrumPower;
+
+            //float value = _values[i] * 1000f * spectrumPower;
             float y = visualSpectrums[i].localScale.y;
             float scale = Mathf.Lerp( y, value, .25f ); //Mathf.SmoothStep( y, value, value / y );
 
