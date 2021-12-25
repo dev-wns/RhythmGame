@@ -12,7 +12,6 @@ public class FrequencyBand : MonoBehaviour
     private Vector3[] newPos;
     private float[] freqBands;
 
-    public Sprite sprite;
     public int numBands = 11; // max 11
     public float defaultPos = 450f;
     public float bandPower;
@@ -30,7 +29,6 @@ public class FrequencyBand : MonoBehaviour
         {
             GameObject obj = new GameObject( i.ToString() );
             obj.transform.SetParent( this.transform );
-            obj.AddComponent<SpriteRenderer>().sprite = sprite;
             freqObjects[i] = obj.transform;
             freqObjects[i].rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle * i ) );
             freqObjects[i].position = freqObjects[i].transform.up * defaultPos;
@@ -73,7 +71,7 @@ public class FrequencyBand : MonoBehaviour
         {
             freqObjects[i].position = Vector3.Slerp( freqObjects[i].position,
                                                    ( freqObjects[i].transform.up * defaultPos ) + ( freqObjects[i].transform.up * freqBands[i + 1] * 1000f * bandPower ), .25f );
-            newPos[i]        = freqObjects[i].position;
+            newPos[i]        = transform.position + freqObjects[i].position;
 
             rdr.SetPositions( newPos );
         }

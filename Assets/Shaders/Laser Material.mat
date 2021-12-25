@@ -21,7 +21,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - Laser_Tex:
-        m_Texture: {fileID: 2800000, guid: fc147abb3de90b9449cb3ef714065bc9, type: 3}
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -37,8 +41,13 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - DistortionAmount: 0.15
+    - Height: 0.15
+    - NoiseScale: 65
+    - Width: 1
     m_Colors:
     - Laser_Speed: {r: 2, g: 0, b: 0, a: 0}
-    - _Color: {r: 0, g: 2.9129252, b: 156.38048, a: 0}
+    - NoiseSpeed: {r: -0.7, g: 0, b: 0, a: 0}
+    - _Color: {r: 0.9826814, g: 4.0848722, b: 1.0302413, a: 1}
   m_BuildTextureStacks: []

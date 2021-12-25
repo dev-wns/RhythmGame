@@ -43,10 +43,8 @@ public class Spectrum : MonoBehaviour
             visualSpectrums[i].rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle + angle * i ) );
             visualSpectrums[i].Translate( transform.up * imageSize * .5f );
 
-            if ( i < numSpectrum )
-                obj.GetComponent<SpriteRenderer>().color = GetGradationColor( i );
-            else
-                obj.GetComponent<SpriteRenderer>().color = GetGradationColor( symmetryColorIdx-- );
+            if ( i < numSpectrum ) obj.GetComponent<SpriteRenderer>().color = GetGradationColor( i );
+            else                   obj.GetComponent<SpriteRenderer>().color = GetGradationColor( symmetryColorIdx-- );
         }
     }
 

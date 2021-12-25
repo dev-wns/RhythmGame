@@ -829,7 +829,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1068476985}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2136235394}
@@ -879,9 +879,10 @@ LineRenderer:
   m_Positions:
   - {x: 0, y: 500, z: 0}
   - {x: 500, y: 0, z: 0}
+  - {x: 500, y: 500, z: 0}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 24.70399
+    widthMultiplier: 99.58087
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -899,16 +900,16 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.5, b: 0.5, a: 1}
-      key1: {r: 0.5, g: 0.65, b: 1, a: 1}
-      key2: {r: 1, g: 0.5, b: 0.5, a: 0}
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 1, g: 1, b: 1, a: 0}
       key3: {r: 1, g: 0.5, b: 0.5, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
-      ctime1: 32768
+      ctime1: 65535
       ctime2: 65535
       ctime3: 65535
       ctime4: 0
@@ -924,9 +925,9 @@ LineRenderer:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_NumColorKeys: 3
+      m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 3
     numCapVertices: 0
     alignment: 0
     textureMode: 0
@@ -946,7 +947,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bef85f6e902255548ad174923e106b2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprite: {fileID: 21300000, guid: 1ced2e2b19034474a9ac009264140b64, type: 3}
   numBands: 7
   defaultPos: 420
   bandPower: 3

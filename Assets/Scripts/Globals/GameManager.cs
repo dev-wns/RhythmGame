@@ -13,6 +13,8 @@ public class GameManager : SingletonUnity<GameManager>
     {
         DontDestroyOnLoad( this );
 
+        QualitySettings.vSyncCount = 0;
+
         //SoundManager.Inst.Initialize();
         GlobalKeySetting.Inst.Initialize();
 
