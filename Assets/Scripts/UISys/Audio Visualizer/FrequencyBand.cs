@@ -41,7 +41,7 @@ public class FrequencyBand : MonoBehaviour
         // renderer setting 
         rdr = GetComponent<LineRenderer>();
         rdr.positionCount = newPos.Length;
-        rdr.loop = true;
+        //rdr.loop = true;
 
         if ( numBands % 2 != 0 )
             transform.rotation = Quaternion.Euler( new Vector3( 0, 0, 90 ) );
@@ -71,9 +71,8 @@ public class FrequencyBand : MonoBehaviour
         {
             freqObjects[i].position = Vector3.Slerp( freqObjects[i].position,
                                                    ( freqObjects[i].transform.up * defaultPos ) + ( freqObjects[i].transform.up * freqBands[i + 1] * 1000f * bandPower ), .25f );
-            newPos[i]        = transform.position + freqObjects[i].position;
-
-            rdr.SetPositions( newPos );
+            newPos[i] = transform.position + freqObjects[i].position;
+            rdr.SetPositions( newPos ); 
         }
     }
 }
