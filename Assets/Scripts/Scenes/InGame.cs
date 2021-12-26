@@ -71,6 +71,8 @@ public class InGame : Scene
         MedianBpm = chart.medianBpm;
         SystemInitialized( chart );
 
+        ChangeKeyAction( SceneAction.InGame );
+
         SoundManager.Inst.Load( GameManager.CurrentSound.audioPath );
         StartGame();
         isStart = true;
@@ -98,7 +100,6 @@ public class InGame : Scene
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
         scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
-        keyAction.Bind( SceneAction.InGame, scene );
-        keyAction.ChangeAction( SceneAction.InGame );
+        KeyBind( SceneAction.InGame, scene );
     }
 }

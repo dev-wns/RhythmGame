@@ -6,9 +6,10 @@ using DG.Tweening;
 
 public enum SceneType { Lobby, FreeStyle, InGame };
 
+[RequireComponent( typeof( SpriteRenderer ) )]
 public class SceneChanger : SingletonUnity<SceneChanger>
 {
-    public Scene CurrentScene { get; private set; }
+    private Scene CurrentScene;
     private SpriteRenderer blackSprite;
     private Coroutine curCoroutine;
 
@@ -20,7 +21,10 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         transform.localScale = new Vector3( Screen.width, Screen.height, 1f );
 
         StartCoroutine( InitSceneChange( SceneType.Lobby ) );
+
+        Debug.Log( "SceneChanger INit" );
     }
+
     public void LoadScene( SceneType _type )
     {
         if ( curCoroutine != null ) return;
@@ -54,12 +58,14 @@ public class SceneChanger : SingletonUnity<SceneChanger>
 
         AsyncOperation oper = SceneManager.LoadSceneAsync( _type.ToString() );
         if ( !oper.isDone ) yield return null;
+        
 
         blackSprite.DOFade( 0f, 1f );
         yield return YieldCache.WaitForSeconds( 1f );
         
-        blackSprite.enabled = false;
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+
+        blackSprite.enabled = false;
         curCoroutine = null;
     }
 }

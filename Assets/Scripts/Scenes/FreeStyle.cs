@@ -27,6 +27,7 @@ public class FreeStyle : Scene
 
         bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
         //StartCoroutine( FadeBackground() );
+        ChangeKeyAction( SceneAction.FreeStyle );
     }
 
     public void Start()
@@ -111,19 +112,17 @@ public class FreeStyle : Scene
         scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.InGame ) );
 
         scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( true ) );
-        scene.Bind( KeyCode.Space, KeyType.Down, () => keyAction.ChangeAction( SceneAction.FreeStyleSetting ) );
+        scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.FreeStyleOption ) );
 
         scene.Bind( KeyCode.LeftArrow, KeyType.Down,  () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch - .1f ) );
         scene.Bind( KeyCode.RightArrow, KeyType.Down, () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch + .1f ) );
 
         scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.Lobby ) );
-        keyAction.Bind( SceneAction.FreeStyle, scene );
+        KeyBind( SceneAction.FreeStyle, scene );
 
         StaticSceneKeyAction setting = new StaticSceneKeyAction();
         setting.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( false ) );
-        setting.Bind( KeyCode.Space, KeyType.Down, () => keyAction.ChangeAction( SceneAction.FreeStyle ) );
-        keyAction.Bind( SceneAction.FreeStyleSetting, setting );
-
-        keyAction.ChangeAction( SceneAction.FreeStyle );
+        setting.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.FreeStyle ) );
+        KeyBind( SceneAction.FreeStyleOption, setting );
     }
 }

@@ -19,10 +19,9 @@ public abstract class Scene : MonoBehaviour
     public AudioClip bgClip;
     public ClipSfx clips;
 
-    protected KeyActions keyAction = new KeyActions();
+    private KeyActions keyAction = new KeyActions();
     private static KeyActions DefaultKeyAction = new KeyActions();
 
-    public void InputLock() => keyAction = DefaultKeyAction;
 
     protected void SfxPlay( AudioClip _clip )
     {
@@ -47,13 +46,17 @@ public abstract class Scene : MonoBehaviour
         audioSource.Play();
     }
 
+    public void InputLock() => keyAction = DefaultKeyAction;
+
+    public void ChangeKeyAction( SceneAction _type ) => keyAction.ChangeAction( _type );
+
+    public void KeyBind( SceneAction _type, StaticSceneKeyAction _action ) => keyAction.Bind( _type, _action );
 
     protected virtual void Awake()
     {
         audioSource = gameObject.AddComponent<AudioSource>();
 
         Camera.main.orthographicSize = ( Screen.height / ( GlobalSetting.PPU * 2f ) ) * GlobalSetting.PPU;
-
         KeyBind();
     }
 

@@ -13,6 +13,8 @@ public class Lobby : Scene
         SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Default", soundName + ".mp3" ), 
                                 Sound.LoadType.Default, Sound.Mode.Loop );
         SoundManager.Inst.Play();
+
+        ChangeKeyAction( SceneAction.Lobby );
     }
 
     protected override void Update()
@@ -26,7 +28,8 @@ public class Lobby : Scene
         scene.Bind( KeyCode.Return, KeyType.Down, () => particle.gameObject.SetActive( false ) );
         scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
-        keyAction.Bind( SceneAction.Lobby, scene );
-        keyAction.ChangeAction( SceneAction.Lobby );
+        scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.LobbyOption ) );
+
+        KeyBind( SceneAction.Lobby, scene );
     }
 }

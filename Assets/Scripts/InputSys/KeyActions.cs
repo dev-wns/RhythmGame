@@ -4,8 +4,8 @@ using UnityEngine;
 
 public enum SceneAction
 {
-    Lobby,
-    FreeStyle, FreeStyleSetting,
+    Lobby, LobbyOption,
+    FreeStyle, FreeStyleOption,
     InGame, InGamePause,
     Result,
 }
@@ -13,9 +13,16 @@ public enum SceneAction
 public class KeyActions 
 {
     private Dictionary<SceneAction, StaticSceneKeyAction> keyActions = new Dictionary<SceneAction, StaticSceneKeyAction>();
-    public StaticSceneKeyAction curAction;
 
-    public void ActionCheck() => curAction?.ActionCheck();
+    public SceneAction curAction { get; private set; }
+
+    public void ActionCheck()
+    {
+        if ( !keyActions.ContainsKey( curAction ) )
+             Debug.Log( "The bound key does not exist." );
+
+        keyActions[curAction].ActionCheck();
+    }
 
     public void Bind( SceneAction _type, StaticSceneKeyAction _action )
     {
@@ -33,7 +40,7 @@ public class KeyActions
             return;
         }
 
-        curAction = keyActions[_type];
+        curAction = _type;
     }
 
 }
