@@ -2,11 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public abstract class Scene : MonoBehaviour
+public abstract class Scene : MonoBehaviour, IKeyBind
 {
-
     [Serializable]
     public struct ClipSfx
     {
@@ -20,7 +18,6 @@ public abstract class Scene : MonoBehaviour
     public ClipSfx clips;
 
     private KeyActions keyAction = new KeyActions();
-    private static KeyActions DefaultKeyAction = new KeyActions();
 
 
     protected void SfxPlay( AudioClip _clip )
@@ -46,7 +43,7 @@ public abstract class Scene : MonoBehaviour
         audioSource.Play();
     }
 
-    public void InputLock() => keyAction = DefaultKeyAction;
+    public void InputLock( bool _isLock ) => keyAction.IsLock = _isLock;
 
     public void ChangeKeyAction( SceneAction _type ) => keyAction.ChangeAction( _type );
 
@@ -62,5 +59,5 @@ public abstract class Scene : MonoBehaviour
 
     protected virtual void Update() => keyAction.ActionCheck();
 
-    protected abstract void KeyBind();
+    public abstract void KeyBind();
 }

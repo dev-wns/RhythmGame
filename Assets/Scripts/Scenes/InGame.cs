@@ -95,7 +95,7 @@ public class InGame : Scene
         //medianText.text = string.Format( "{0:F1}", MedianBpm ); 
     }
 
-    protected override void KeyBind()
+    public override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
         scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );

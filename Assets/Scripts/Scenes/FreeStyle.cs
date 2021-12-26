@@ -100,7 +100,7 @@ public class FreeStyle : Scene
 
 
 
-    protected override void KeyBind()
+    public override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
         scene.Bind( KeyCode.UpArrow, KeyType.Down, () => scrollSound.PrevMove() );

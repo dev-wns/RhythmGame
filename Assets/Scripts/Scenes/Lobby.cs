@@ -6,6 +6,9 @@ public class Lobby : Scene
 {
     public ParticleSystem particle;
     public string soundName;
+
+    public GameObject optionCanvas;
+
     protected override void Awake()
     {
         base.Awake();
@@ -22,12 +25,13 @@ public class Lobby : Scene
         base.Update();
     }
 
-    protected override void KeyBind()
+    public override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
         scene.Bind( KeyCode.Return, KeyType.Down, () => particle.gameObject.SetActive( false ) );
         scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
+        scene.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( true ) );
         scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.LobbyOption ) );
 
         KeyBind( SceneAction.Lobby, scene );

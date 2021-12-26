@@ -5,6 +5,7 @@ using UnityEngine;
 public enum SceneAction
 {
     Lobby, LobbyOption,
+    Resolution, FrameRate, ScreenMode, SoundDriver, KeySetting,
     FreeStyle, FreeStyleOption,
     InGame, InGamePause,
     Result,
@@ -13,11 +14,13 @@ public enum SceneAction
 public class KeyActions 
 {
     private Dictionary<SceneAction, StaticSceneKeyAction> keyActions = new Dictionary<SceneAction, StaticSceneKeyAction>();
-
     public SceneAction curAction { get; private set; }
+    public bool IsLock { get; set; } = false;
 
     public void ActionCheck()
     {
+        if ( IsLock ) return;
+
         if ( !keyActions.ContainsKey( curAction ) )
              Debug.Log( "The bound key does not exist." );
 

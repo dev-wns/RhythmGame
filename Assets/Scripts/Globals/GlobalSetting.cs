@@ -15,6 +15,8 @@ public class GlobalSetting : MonoBehaviour
     public delegate void DelScrollChanged();
     public static event DelScrollChanged OnScrollChanged;
 
+    public static FullScreenMode CurrentFullScreenMode;
+
     public static float PPU { get; private set; } = 100f; // pixel per unit
 
     // IO

@@ -17,6 +17,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
     {
         DontDestroyOnLoad( this );
         blackSprite = GetComponent<SpriteRenderer>();
+        blackSprite.sortingOrder = 100;
         transform.position   = new Vector3( 0f, 0f, -9 );
         transform.localScale = new Vector3( Screen.width, Screen.height, 1f );
 
@@ -47,7 +48,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
     private IEnumerator FadeBackground( SceneType _type )
     {
         DOTween.KillAll();
-        CurrentScene?.InputLock();
+        CurrentScene?.InputLock( true );
 
         blackSprite.enabled = true;
         blackSprite.color = Color.clear;
@@ -64,7 +65,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         yield return YieldCache.WaitForSeconds( 1f );
         
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-
+        CurrentScene?.InputLock( false );
         blackSprite.enabled = false;
         curCoroutine = null;
     }
