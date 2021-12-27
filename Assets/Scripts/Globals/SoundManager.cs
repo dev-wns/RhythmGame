@@ -6,7 +6,7 @@ namespace Sound
 { 
     public enum LoadType { Default, Stream }
     public enum Mode { Default, Loop }
-    public enum ChannelType { MasterGroup, sfxGroup };
+    public enum ChannelType { MasterGroup, sfxGroup, InterfaceGroup, BackgroundGroup };
 }
 
 public class SoundManager : SingletonUnity<SoundManager>
@@ -22,7 +22,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     public  FMOD.DSP? FFT { get; private set; }
     private FMOD.DSP lowEffectEQ;
 
-    private struct SoundDriver
+    public struct SoundDriver
     {
         public System.Guid guid;
         public int index;
@@ -30,7 +30,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         public int systemRate, speakModeChannels;
         public FMOD.SPEAKERMODE mode;
     }
-    private List<SoundDriver> soundDrivers = new List<SoundDriver>();
+    public List<SoundDriver> soundDrivers { get; private set; } = new List<SoundDriver>();
     private int driverCount, currentDriverIndex;
     private uint version;
 
@@ -39,6 +39,20 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     private float volume;
     #endregion
+
+    public void SetDriver( int _index )
+    {
+        int curIndex;
+        ErrorCheck( system.getDriver( out curIndex ) );
+
+        if ( soundDrivers.Count <= _index ||
+             curIndex == _index )
+        {
+            return;
+        }
+
+        ErrorCheck( system.setDriver( _index ) );
+    }
 
     public void AddFFT( int _size, FMOD.DSP_FFT_WINDOW _type, out FMOD.DSP _dsp )
     {

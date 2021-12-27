@@ -2,21 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VerticalScrollBase : MonoBehaviour
+public class ScrollBase : MonoBehaviour
 {
     public GameObject[] contents;
 
     public bool IsDuplicate { get; private set; }
     protected GameObject curOption { get; private set; }
-    private int curIndex;
+    protected int curIndex;
 
     protected virtual void Awake()
     {
-        if ( contents.Length > 0 )
+        SelectPosition( 0 );
+    }
+
+    protected GameObject GetContent( int _index )
+    {
+        if ( contents.Length <= _index ) return null;
+
+
+        return contents[_index];
+    }
+
+    protected GameObject GetContent( string _name )
+    {
+        for ( int i = 0; i < contents.Length; i++ )
         {
-            curIndex = 0;
-            curOption = contents[0];
+            if ( Equals( contents[i].name, _name ) )
+                return contents[i];
         }
+
+        return null;
+    }
+
+    protected void SelectPosition( int _pos )
+    {
+        if ( contents.Length <= 0 ) return;
+
+        curIndex = 0;
+        curOption = contents[0];
     }
 
     protected virtual void PrevMove()

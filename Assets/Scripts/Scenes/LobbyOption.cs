@@ -2,82 +2,88 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LobbyOption : MonoBehaviour, IKeyBind
+public class LobbyOption : ScrollBase, IKeyBind
 {
-    public GameObject[] contents;
-    public GameObject outline;
+    public RectTransform outline;
 
-    public GameObject optionCanvas;
+    public GameObject optionCanvas, subOptionCanvas;
 
-    public bool IsDuplicate { get; private set; }
-    public GameObject curOption;
-    public int curIndex;
+    private StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
+    private Scene currentScene;
+    private LobbySubOption subOption;
 
-    public Scene currentScene;
-
-    private void Awake()
+    protected override void Awake()
     {
-        if ( contents.Length > 0 )
-        {
-            curIndex = 0;
-            curOption = contents[0];
+        base.Awake();
 
-            outline.transform.SetParent( curOption.transform );
-            RectTransform rt = outline.transform as RectTransform;
-            rt.anchoredPosition = Vector2.zero;
-        }
-
-        currentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
+        currentScene = scene.GetComponent<Scene>();
+        subOption    = scene.GetComponent<LobbySubOption>();
         KeyBind();
     }
 
-    private void PrevMove()
+    private void SetOutline()
     {
-        if ( curIndex == 0 )
-        {
-            IsDuplicate = true;
-            return;
-        }
-
-        curOption = contents[--curIndex];
         outline.transform.SetParent( curOption.transform );
-        RectTransform rt = outline.transform as RectTransform;
-        rt.anchoredPosition = Vector2.zero;
-
-        IsDuplicate = false;
+        outline.anchoredPosition = Vector2.zero;
     }
 
-    private void NextMove()
+    private void ButtonProcess()
     {
-        if ( curIndex == contents.Length - 1 )
-        {
-            IsDuplicate = true;
-            return;
-        }
+        if ( curOption == null ) return;
 
-        curOption = contents[++curIndex];
-        outline.transform.SetParent( curOption.transform );
-        RectTransform rt = outline.transform as RectTransform;
-        rt.anchoredPosition = Vector2.zero;
+        subOptionCanvas.SetActive( true );
+        currentScene.ChangeKeyAction( SceneAction.LobbySubOption );
 
-        IsDuplicate = false;
+        var subOptionContent = subOptionCanvas.transform.Find( curOption.name );
+        subOption.Initialize( subOptionContent );
+    }
+
+    private void SliderProcess( int _value )
+    {
+        if ( curOption == null ) return;
+
+        IOption option = curOption.GetComponent<IOption>();
+        if ( option.type != OptionType.Slider ) return;
+
+        var button = option as LobbyOptionSlider;
+        button.Process( _value );
+    }
+
+    protected override void PrevMove()
+    {
+        base.PrevMove();
+
+        if ( IsDuplicate ) return;
+
+        SetOutline();
+    }
+
+    protected override void NextMove()
+    {
+        base.NextMove();
+
+        if ( IsDuplicate ) return;
+
+        SetOutline();
     }
 
     public void KeyBind()
     {
-        StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
-        scene.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
+        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
+        keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
 
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => optionCanvas.SetActive( false ) );
+        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
+        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => optionCanvas.SetActive( false ) );
 
-        scene.Bind( KeyCode.Space,  KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
-        scene.Bind( KeyCode.Space,  KeyType.Down, () => optionCanvas.SetActive( false ) );
+        keyAction.Bind( KeyCode.Space,  KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
+        keyAction.Bind( KeyCode.Space,  KeyType.Down, () => optionCanvas.SetActive( false ) );
 
-        scene.Bind( KeyCode.Return, KeyType.Down, () => curOption.GetComponent<OptionBase>().Process() );
+        keyAction.Bind( KeyCode.Return,     KeyType.Down, () => ButtonProcess() );
+        keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SliderProcess( 10 ) );
+        keyAction.Bind( KeyCode.LeftArrow,  KeyType.Down, () => SliderProcess( -10 ) );
 
 
-        currentScene.KeyBind( SceneAction.LobbyOption, scene );
+        currentScene.KeyBind( SceneAction.LobbyOption, keyAction );
     }
 }

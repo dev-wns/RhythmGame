@@ -8,7 +8,6 @@ TagManager:
   - Scene
   - Systems
   - Visualizer
-  - SubOption
   layers:
   - Default
   - TransparentFX
