@@ -7,6 +7,7 @@ public class Lobby : Scene
     public string soundName;
 
     public GameObject optionCanvas;
+    float masterVolume,bgVolume;
 
     protected override void Awake()
     {
@@ -17,6 +18,8 @@ public class Lobby : Scene
         SoundManager.Inst.Play();
 
         ChangeKeyAction( SceneAction.Lobby );
+        masterVolume = SoundManager.Inst.GetVolume( Sound.ChannelType.MasterGroup );
+        bgVolume     = SoundManager.Inst.GetVolume( Sound.ChannelType.BackgroundGroup );
     }
 
     protected override void Update()
@@ -24,6 +27,7 @@ public class Lobby : Scene
         base.Update();
     }
 
+    
     public override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();

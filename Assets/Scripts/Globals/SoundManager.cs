@@ -6,14 +6,14 @@ namespace Sound
 { 
     public enum LoadType { Default, Stream }
     public enum Mode { Default, Loop }
-    public enum ChannelType { MasterGroup, sfxGroup, InterfaceGroup, BackgroundGroup };
+    public enum ChannelType { MasterGroup, sfxGroup, InterfaceGroup, BackgroundGroup, _COUNT };
 }
 
 public class SoundManager : SingletonUnity<SoundManager>
 {
     #region variables
     private FMOD.System       system;
-    private FMOD.ChannelGroup masterChannelGroup, sfxChannelGroup;
+    private FMOD.ChannelGroup masterGroup, sfxGroup, interfaceGroup, backgroundGroup;
     private FMOD.Channel      bgmChannel;
     private FMOD.Sound?       bgmSound;
     //private FMOD.Channel[]   sfxChannels     = new FMOD.Channel[sfxChannelCount];
@@ -61,7 +61,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out _dsp ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, _size ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )_type ) );
-        ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, _dsp ) );
+        ErrorCheck( masterGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, _dsp ) );
         FFT = _dsp;
     }
 
@@ -69,7 +69,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( FFT != null )
         {
-            ErrorCheck( masterChannelGroup.removeDSP( FFT.Value ) );
+            ErrorCheck( masterGroup.removeDSP( FFT.Value ) );
             ErrorCheck( FFT.Value.release() );
             FFT = null;
         }
@@ -111,8 +111,15 @@ public class SoundManager : SingletonUnity<SoundManager>
         Debug.Log( $"Current Sound Device : {soundDrivers[currentDriverIndex].name}" );
 
         // Channel Initialize
-        ErrorCheck( system.createChannelGroup( "MasterChannelGroup", out masterChannelGroup ) );
-        ErrorCheck( system.createChannelGroup( "SfxChannelGroup", out sfxChannelGroup ) );
+        ErrorCheck( system.createChannelGroup( "MasterGroup", out masterGroup ) );
+        ErrorCheck( system.createChannelGroup( "SfxGroup", out sfxGroup ) );
+        ErrorCheck( system.createChannelGroup( "InterfaceGroup", out interfaceGroup ) );
+        ErrorCheck( system.createChannelGroup( "BackgroundGroup", out backgroundGroup ) );
+
+        ErrorCheck( masterGroup.addGroup( sfxGroup ) );
+        ErrorCheck( masterGroup.addGroup( interfaceGroup ) );
+        ErrorCheck( masterGroup.addGroup( backgroundGroup ) );
+
 
         // DSP Setting
         CreateLowEffectDsp();
@@ -135,10 +142,14 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         RemoveFFT();
 
-        ErrorCheck( masterChannelGroup.removeDSP( lowEffectEQ ) );
+        ErrorCheck( masterGroup.removeDSP( lowEffectEQ ) );
         ErrorCheck( lowEffectEQ.release() );
 
-        ErrorCheck( masterChannelGroup.release() );
+        ErrorCheck( backgroundGroup.release() );
+        ErrorCheck( interfaceGroup.release() );
+        ErrorCheck( sfxGroup.release() );
+        ErrorCheck( masterGroup.release() );
+
         ErrorCheck( system.release() ); // 내부에서 close 함.
     }
 
@@ -179,7 +190,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         if ( bgmSound == null ) return;
         // AllStop();
 
-        ErrorCheck( system.playSound( bgmSound.Value, masterChannelGroup, false, out bgmChannel ) );
+        ErrorCheck( system.playSound( bgmSound.Value, backgroundGroup, false, out bgmChannel ) );
         // DOTween.To( () => 0, x => ErrorCheck( bgmChannel.setVolume( x ) ), volume, 1.5f );
 
 
@@ -193,8 +204,10 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public void AllStop()
     {
-        if ( IsPlaying( Sound.ChannelType.MasterGroup ) ) ErrorCheck( masterChannelGroup.stop() );
-        if ( IsPlaying( Sound.ChannelType.sfxGroup ) )    ErrorCheck( sfxChannelGroup.stop() );
+        if ( IsPlaying( Sound.ChannelType.MasterGroup ) ) ErrorCheck( masterGroup.stop() );
+        if ( IsPlaying( Sound.ChannelType.sfxGroup ) ) ErrorCheck( sfxGroup.stop() );
+        if ( IsPlaying( Sound.ChannelType.sfxGroup ) ) ErrorCheck( interfaceGroup.stop() );
+        if ( IsPlaying( Sound.ChannelType.sfxGroup ) ) ErrorCheck( backgroundGroup.stop() );
     }
 
     public bool IsPlaying( Sound.ChannelType _type = Sound.ChannelType.MasterGroup )
@@ -202,9 +215,11 @@ public class SoundManager : SingletonUnity<SoundManager>
         bool isPlay = false;
         switch ( _type )
         {
-            case Sound.ChannelType.MasterGroup: { ErrorCheck( masterChannelGroup.isPlaying( out isPlay ) ); } break;
-            case Sound.ChannelType.sfxGroup:    { ErrorCheck( sfxChannelGroup.isPlaying( out isPlay ) );    } break;
-            default:                            { ErrorCheck( masterChannelGroup.isPlaying( out isPlay ) ); } break;
+            case Sound.ChannelType.MasterGroup:     { ErrorCheck( masterGroup.isPlaying( out isPlay ) ); }     break;
+            case Sound.ChannelType.sfxGroup:        { ErrorCheck( sfxGroup.isPlaying( out isPlay ) ); }        break;
+            case Sound.ChannelType.InterfaceGroup:  { ErrorCheck( interfaceGroup.isPlaying( out isPlay ) ); }  break;
+            case Sound.ChannelType.BackgroundGroup: { ErrorCheck( backgroundGroup.isPlaying( out isPlay ) ); } break;
+            default:                                { ErrorCheck( masterGroup.isPlaying( out isPlay ) ); }     break;
         }
 
         return isPlay;
@@ -215,14 +230,16 @@ public class SoundManager : SingletonUnity<SoundManager>
         float volume = 0f;
         switch( _type )
         {
-            case Sound.ChannelType.MasterGroup: { ErrorCheck( masterChannelGroup.getVolume( out volume ) ); } break;
-            case Sound.ChannelType.sfxGroup:    { ErrorCheck( sfxChannelGroup.getVolume( out volume ) );    } break;
-            default:                            { ErrorCheck( masterChannelGroup.getVolume( out volume ) ); } break;
+            case Sound.ChannelType.MasterGroup:     { ErrorCheck( masterGroup.getVolume( out volume ) ); }     break;
+            case Sound.ChannelType.sfxGroup:        { ErrorCheck( sfxGroup.getVolume( out volume ) ); }        break;
+            case Sound.ChannelType.InterfaceGroup:  { ErrorCheck( interfaceGroup.getVolume( out volume ) ); }  break;
+            case Sound.ChannelType.BackgroundGroup: { ErrorCheck( backgroundGroup.getVolume( out volume ) ); } break;
+            default:                                { ErrorCheck( masterGroup.getVolume( out volume ) ); }     break;
         }
         return volume;
     }
 
-    public void SetVolume( float _value, Sound.ChannelType _type = Sound.ChannelType.MasterGroup )
+    public float SetVolume( float _value, Sound.ChannelType _type = Sound.ChannelType.MasterGroup )
     {
         volume = _value;
         if ( _value < 0f ) volume = 0f;
@@ -230,10 +247,14 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         switch ( _type )
         {
-            case Sound.ChannelType.MasterGroup: { ErrorCheck( masterChannelGroup.setVolume( volume ) ); } break;
-            case Sound.ChannelType.sfxGroup:    { ErrorCheck( sfxChannelGroup.setVolume( volume ) );    } break;
-            default:                            { ErrorCheck( masterChannelGroup.setVolume( volume ) ); } break;
+            case Sound.ChannelType.MasterGroup:        { ErrorCheck( masterGroup.setVolume( volume ) ); }     break;
+            case Sound.ChannelType.sfxGroup:           { ErrorCheck( sfxGroup.setVolume( volume ) ); }        break;
+            case Sound.ChannelType.InterfaceGroup:     { ErrorCheck( interfaceGroup.setVolume( volume ) ); }  break;
+            case Sound.ChannelType.BackgroundGroup:    { ErrorCheck( backgroundGroup.setVolume( volume ) ); } break;
+            default:                                   { ErrorCheck( masterGroup.setVolume( volume ) ); }     break;
         }
+
+        return volume;
     }
 
     public void SetPosition( uint _position )
@@ -255,7 +276,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         if ( IsPlaying( Sound.ChannelType.MasterGroup ) )
         {
-            masterChannelGroup.setPitch( _value );
+            masterGroup.setPitch( _value );
         }
 
         Pitch = _value;
@@ -325,11 +346,11 @@ public class SoundManager : SingletonUnity<SoundManager>
     public void UseLowEqualizer( bool _isUse )
     {
         int numDsp;
-        ErrorCheck( masterChannelGroup.getNumDSPs( out numDsp ) );
+        ErrorCheck( masterGroup.getNumDSPs( out numDsp ) );
         for ( int i = 0; i < numDsp; i++ )
         {
             FMOD.DSP dsp;
-            ErrorCheck( masterChannelGroup.getDSP( i, out dsp ) );
+            ErrorCheck( masterGroup.getDSP( i, out dsp ) );
 
             bool isEquals = Equals( dsp, lowEffectEQ );
             if ( isEquals && _isUse == true ) // 이미 적용된 상태
@@ -338,14 +359,14 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
             else if ( isEquals && _isUse == false )
             {
-                ErrorCheck( masterChannelGroup.removeDSP( lowEffectEQ ) );
+                ErrorCheck( masterGroup.removeDSP( lowEffectEQ ) );
                 return;
             }
         }
 
         // 적용된 dsp가 없어서 추가함.
         if ( _isUse == true )
-             ErrorCheck( masterChannelGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
+             ErrorCheck( masterGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
     }
     #endregion
 }
