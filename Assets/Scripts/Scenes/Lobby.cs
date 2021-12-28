@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Lobby : Scene
 {
-    public ParticleSystem particle;
     public string soundName;
 
     public GameObject optionCanvas;
@@ -28,7 +27,6 @@ public class Lobby : Scene
     public override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.Return, KeyType.Down, () => particle.gameObject.SetActive( false ) );
         scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
         scene.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( true ) );

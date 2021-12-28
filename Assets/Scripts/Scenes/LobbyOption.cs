@@ -50,7 +50,7 @@ public class LobbyOption : ScrollBase, IKeyBind
         button.Process( _value );
     }
 
-    protected override void PrevMove()
+    public override void PrevMove()
     {
         base.PrevMove();
 
@@ -59,7 +59,7 @@ public class LobbyOption : ScrollBase, IKeyBind
         SetOutline();
     }
 
-    protected override void NextMove()
+    public override void NextMove()
     {
         base.NextMove();
 

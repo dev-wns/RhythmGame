@@ -169,7 +169,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 103959471}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.1969043, y: 0.2192809, z: 80.49062}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -657,8 +657,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -1004, y: -132}
-  m_SizeDelta: {x: 1100, y: -135}
+  m_AnchoredPosition: {x: -1000, y: -130}
+  m_SizeDelta: {x: 1100, y: -130}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &508040317
 MonoBehaviour:
@@ -1070,9 +1070,9 @@ RectTransform:
   m_Father: {fileID: 508040316}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 100, y: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -450, y: 0}
   m_SizeDelta: {x: 1000, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &981946135
@@ -1087,11 +1087,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a985e8d25c966b48831045ce9b3dfa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  contents: []
+  maxShowContentsCount: 9
+  numExtraEnable: 2
   songPrefab: {fileID: 2143760026432302663, guid: 2cf1d03b17ecd8e42bb304316048ccc4,
     type: 3}
-  maxShowContentsCount: 9
   spacing: 5
-  numExtraEnable: 2
 --- !u!1 &1093945988
 GameObject:
   m_ObjectHideFlags: 0

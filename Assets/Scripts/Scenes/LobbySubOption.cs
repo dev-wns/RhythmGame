@@ -45,13 +45,13 @@ public class LobbySubOption : ScrollBase, IKeyBind
         currentScene.KeyBind( SceneAction.LobbySubOption, keyAction );
     }
 
-    protected override void PrevMove()
+    public override void PrevMove()
     {
         base.PrevMove();
         OutlineSetting();
     }
 
-    protected override void NextMove()
+    public override void NextMove()
     {
         base.NextMove();
         OutlineSetting();
@@ -71,10 +71,10 @@ public class LobbySubOption : ScrollBase, IKeyBind
         curSubOption.SetActive( true );
 
         int length = _contentParent.childCount;
-        contents = new GameObject[length];
+        contents.Capacity = length;
         for ( int i = 0; i < length; i++ )
         {
-            contents[i] = _contentParent.GetChild( i ).gameObject;
+            contents.Add( _contentParent.GetChild( i ).gameObject );
         }
 
         SelectPosition( 0 );

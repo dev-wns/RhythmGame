@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ScrollBase : MonoBehaviour
 {
-    public GameObject[] contents;
+    public List<GameObject> contents;
 
     public bool IsDuplicate { get; private set; }
     protected GameObject curOption { get; private set; }
@@ -13,11 +13,14 @@ public class ScrollBase : MonoBehaviour
     protected virtual void Awake()
     {
         SelectPosition( 0 );
+        CreateContents();
     }
+
+    protected virtual void CreateContents() { }
 
     protected GameObject GetContent( int _index )
     {
-        if ( contents.Length <= _index ) return null;
+        if ( contents.Count <= _index ) return null;
 
 
         return contents[_index];
@@ -25,7 +28,7 @@ public class ScrollBase : MonoBehaviour
 
     protected GameObject GetContent( string _name )
     {
-        for ( int i = 0; i < contents.Length; i++ )
+        for ( int i = 0; i < contents.Count; i++ )
         {
             if ( Equals( contents[i].name, _name ) )
                 return contents[i];
@@ -36,13 +39,13 @@ public class ScrollBase : MonoBehaviour
 
     protected void SelectPosition( int _pos )
     {
-        if ( contents.Length <= 0 ) return;
+        if ( contents.Count <= 0 ) return;
 
         curIndex = 0;
         curOption = contents[0];
     }
 
-    protected virtual void PrevMove()
+    public virtual void PrevMove()
     {
         if ( curIndex == 0 )
         {
@@ -54,9 +57,9 @@ public class ScrollBase : MonoBehaviour
         IsDuplicate = false;
     }
 
-    protected virtual void NextMove()
+    public virtual void NextMove()
     {
-        if ( curIndex == contents.Length - 1 )
+        if ( curIndex == contents.Count - 1 )
         {
             IsDuplicate = true;
             return;
