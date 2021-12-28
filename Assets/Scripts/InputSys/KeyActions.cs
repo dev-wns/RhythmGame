@@ -5,7 +5,6 @@ using UnityEngine;
 public enum SceneAction
 {
     Lobby, LobbyOption, LobbySubOption,
-    Resolution, FrameRate, ScreenMode, SoundDriver, KeySetting,
     FreeStyle, FreeStyleOption,
     InGame, InGamePause,
     Result,

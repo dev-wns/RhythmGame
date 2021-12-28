@@ -22,6 +22,11 @@ public class LobbyOption : ScrollBase, IKeyBind
         KeyBind();
     }
 
+    private void Start()
+    {
+        currentScene.KeyBind( SceneAction.LobbyOption, keyAction );
+    }
+
     private void SetOutline()
     {
         outline.transform.SetParent( curOption.transform );
@@ -46,8 +51,8 @@ public class LobbyOption : ScrollBase, IKeyBind
         IOption option = curOption.GetComponent<IOption>();
         if ( option.type != OptionType.Slider ) return;
 
-        var button = option as LobbyOptionSlider;
-        button.Process( _value );
+        var slider = option as LobbyOptionSlider;
+        slider.Process( _value );
     }
 
     public override void PrevMove()
@@ -82,8 +87,5 @@ public class LobbyOption : ScrollBase, IKeyBind
         keyAction.Bind( KeyCode.Return,     KeyType.Down, () => ButtonProcess() );
         keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SliderProcess( 10 ) );
         keyAction.Bind( KeyCode.LeftArrow,  KeyType.Down, () => SliderProcess( -10 ) );
-
-
-        currentScene.KeyBind( SceneAction.LobbyOption, keyAction );
     }
 }

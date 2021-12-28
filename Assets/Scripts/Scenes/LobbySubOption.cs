@@ -26,7 +26,7 @@ public class LobbySubOption : ScrollBase, IKeyBind
 
         currentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
 
-        GameObject driver = GetContent( "Driver" );
+        GameObject driver = subOptionCanvas.transform.Find( "Driver" ).gameObject;
         var drivers = SoundManager.Inst.soundDrivers;
         for( int i = 0; i < drivers.Count; i++ )
         {
@@ -48,16 +48,16 @@ public class LobbySubOption : ScrollBase, IKeyBind
     public override void PrevMove()
     {
         base.PrevMove();
-        OutlineSetting();
+        OutlineUpdate();
     }
 
     public override void NextMove()
     {
         base.NextMove();
-        OutlineSetting();
+        OutlineUpdate();
     }
 
-    private void OutlineSetting()
+    private void OutlineUpdate()
     {
         outline.transform.SetParent( curOption.transform );
         RectTransform rt = outline.transform as RectTransform;
@@ -70,21 +70,19 @@ public class LobbySubOption : ScrollBase, IKeyBind
         curSubOption = _contentParent.gameObject;
         curSubOption.SetActive( true );
 
+        contents.Clear();
         int length = _contentParent.childCount;
         contents.Capacity = length;
+
         for ( int i = 0; i < length; i++ )
         {
-            contents.Add( _contentParent.GetChild( i ).gameObject );
+            if ( i >= contents.Count ) contents.Add( _contentParent.GetChild( i ).gameObject );
+            else contents[i] = _contentParent.GetChild( i ).gameObject;
         }
 
         SelectPosition( 0 );
-
-        if ( curSubOption.name == "Key Setting" )
-            currentValueText.text = "";
-        else
-            currentValueText.text = curOption?.name ?? "";
-
-        OutlineSetting();
+        ContentValueTextUpdate();
+        OutlineUpdate();
     }
 
     public void ContentProcess()
@@ -95,16 +93,26 @@ public class LobbySubOption : ScrollBase, IKeyBind
         var button = option as LobbyOptionButton;
         button.key = curIndex;
         button.Process();
+        ContentValueTextUpdate();
+    }
 
+    private void ContentValueTextUpdate()
+    {
         if ( curSubOption.name == "Key Setting" )
-             currentValueText.text = "";
-        else 
-             currentValueText.text = curOption?.name ?? "";
+        {
+            currentValueText.gameObject.SetActive( false );
+            currentValueText.text = string.Empty;
+        }
+        else
+        {
+            currentValueText.gameObject.SetActive( true );
+            currentValueText.text = curOption?.name ?? string.Empty;
+        }
     }
 
     public void KeyBind()
     {
-        keyAction.Bind( KeyCode.UpArrow, KeyType.Down, () => PrevMove() );
+        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
         keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
 
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( prevKeyAction ) );

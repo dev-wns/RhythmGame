@@ -8,7 +8,7 @@ public enum KeyAction : int
     _Esc,
 };
 
-public class GlobalKeySetting : Singleton<GlobalKeySetting>
+public class GlobalKeySetting : SingletonUnity<GlobalKeySetting>
 {
     public Dictionary<KeyAction, KeyCode> Keys = new Dictionary<KeyAction, KeyCode>();
 
@@ -20,7 +20,7 @@ public class GlobalKeySetting : Singleton<GlobalKeySetting>
         KeyCode.Escape
     };
 
-    public void Initialize()
+    private void Awake()
     {
         for ( int i = 0; i < defaultKeys.Length; i++ )
         {

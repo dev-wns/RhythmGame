@@ -16,7 +16,7 @@ public class GameManager : SingletonUnity<GameManager>
         QualitySettings.vSyncCount = 0;
 
         //SoundManager.Inst.Initialize();
-        GlobalKeySetting.Inst.Initialize();
+        //GlobalKeySetting.Inst.Initialize();
 
         // Osu Parsing
         string[] osuFiles = GetFilesInSubDirectories( GlobalSetting.OsuDirectoryPath, "*.osu" );
