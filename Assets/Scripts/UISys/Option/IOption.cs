@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum OptionType { Button, Slider, CheckBox }
+
 public interface IOption
 {
     public OptionType type { get; }
@@ -10,10 +11,10 @@ public interface IOption
 
 public interface IOptionButton : IOption
 {
-    public void Process();
+    void Process();
 }
 
 public interface IOptionSlider : IOption
 {
-    public void Process( int _value );
+    void Process( int _value );
 }

@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public enum KeyAction : int
+
+public enum GAME_KEY_ACTION : int
 {
     _0, _1, _2, _3, _4, _5, // InGame Input Keys
-    _ScrollUp, _ScrollDown,
-    _Esc,
+    SCROLL_UP, SCROLL_DOWN,
 };
 
 public class GlobalKeySetting : SingletonUnity<GlobalKeySetting>
 {
-    public Dictionary<KeyAction, KeyCode> Keys = new Dictionary<KeyAction, KeyCode>();
+    public Dictionary<GAME_KEY_ACTION, KeyCode> Keys = new Dictionary<GAME_KEY_ACTION, KeyCode>();
 
 
     private KeyCode[] defaultKeys = new KeyCode[]
@@ -24,7 +24,7 @@ public class GlobalKeySetting : SingletonUnity<GlobalKeySetting>
     {
         for ( int i = 0; i < defaultKeys.Length; i++ )
         {
-            Keys.Add( ( KeyAction )i, defaultKeys[i] );
+            Keys.Add( ( GAME_KEY_ACTION )i, defaultKeys[i] );
         }
     }
 }

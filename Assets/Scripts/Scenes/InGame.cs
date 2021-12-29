@@ -98,7 +98,7 @@ public class InGame : Scene
     public override void KeyBind()
     {
         StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
+        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
 
         KeyBind( SceneAction.InGame, scene );
     }

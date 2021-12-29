@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 
 
-public class KeySetting : LobbyOptionButton
+public class KeySetting : CustomButton
 {
     private Scene currentScene;
 
@@ -26,14 +26,15 @@ public class KeySetting : LobbyOptionButton
             Transform obj = transform.GetChild( i );
             trackTexts.Add( obj.transform.GetChild( 0 ).GetComponent<TextMeshProUGUI>() );
 
-            trackTexts[i].text = GlobalKeySetting.Inst.Keys[( KeyAction )i].ToString();
+            trackTexts[i].text = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i].ToString();
         }
     }
 
     public override void Process()
     {
+        base.Process();
         keySettingPanel.SetActive( true );
-        panelText.text = GlobalKeySetting.Inst.Keys[( KeyAction )key].ToString();
+        panelText.text = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key].ToString();
 
         currentScene.InputLock( true );
         StartCoroutine( ChangeGameKey() );
@@ -41,7 +42,7 @@ public class KeySetting : LobbyOptionButton
 
     public IEnumerator ChangeGameKey()
     {
-        keyCode = GlobalKeySetting.Inst.Keys[( KeyAction )key];
+        keyCode = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key];
         while ( true )
         {
             yield return null;
@@ -55,14 +56,14 @@ public class KeySetting : LobbyOptionButton
             {
                 for( int i = 0; i < 6; i++ )
                 {
-                    if ( keyCode == GlobalKeySetting.Inst.Keys[( KeyAction )i] )
+                    if ( keyCode == GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i] )
                     {
-                        GlobalKeySetting.Inst.Keys[( KeyAction )i] = KeyCode.None;
+                        GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i] = KeyCode.None;
                         trackTexts[i].text = KeyCode.None.ToString();
                     }
                 }
 
-                GlobalKeySetting.Inst.Keys[( KeyAction )key] = keyCode;
+                GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key] = keyCode;
                 trackTexts[key].text = keyCode.ToString();
                 Debug.Log( $"Key : {keyCode}" );
                 break;

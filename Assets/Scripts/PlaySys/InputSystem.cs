@@ -12,7 +12,7 @@ public class InputSystem : MonoBehaviour
     private float endDiff = 0f, endDiffAbs = 0f;
     private bool isCheckComplate = true;
 
-    public KeyAction key;
+    public GAME_KEY_ACTION key;
     private int keyIndex;
     bool isHolding = false;
 

@@ -49,7 +49,7 @@ public class FreeStyle : Scene
 
         Globals.Timer.Start();
         {
-            SoundManager.Inst.Load( curSong.audioPath, Sound.LoadType.Stream );
+            SoundManager.Inst.Load( curSong.audioPath, SOUND_LOAD_TYPE.STREAM );
             SoundManager.Inst.Play();
         }
         OnSelectSound( curSong );
@@ -109,7 +109,7 @@ public class FreeStyle : Scene
         scene.Bind( KeyCode.DownArrow, KeyType.Down, () => scrollSound.NextMove() );
         scene.Bind( KeyCode.DownArrow, KeyType.Down, () => ChangePreview() );
 
-        scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.InGame ) );
+        scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME ) );
 
         scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( true ) );
         scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.FreeStyleOption ) );
@@ -117,7 +117,7 @@ public class FreeStyle : Scene
         scene.Bind( KeyCode.LeftArrow, KeyType.Down,  () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch - .1f ) );
         scene.Bind( KeyCode.RightArrow, KeyType.Down, () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch + .1f ) );
 
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SceneType.Lobby ) );
+        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.LOBBY ) );
         KeyBind( SceneAction.FreeStyle, scene );
 
         StaticSceneKeyAction setting = new StaticSceneKeyAction();

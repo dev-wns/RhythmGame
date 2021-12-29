@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Resolution : LobbyOptionButton
+public class Resolution : CustomButton
 {
     public int width, height;
 
     public override void Process()
     {
+        base.Process();
         var splitData = transform.GetChild( key ).name.Split('x');
         width  = int.Parse( splitData[0] );
         height = int.Parse( splitData[1] );

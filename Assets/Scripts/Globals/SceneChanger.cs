@@ -4,7 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
 
-public enum SceneType { Lobby, FreeStyle, InGame };
+
+// Build Index
+public enum SCENE_TYPE : int { LOBBY = 1, FREESTYLE, GAME, RESULT };
 
 [RequireComponent( typeof( SpriteRenderer ) )]
 public class SceneChanger : SingletonUnity<SceneChanger>
@@ -21,19 +23,17 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         transform.position   = new Vector3( 0f, 0f, -9 );
         transform.localScale = new Vector3( Screen.width, Screen.height, 1f );
 
-        StartCoroutine( InitSceneChange( SceneType.Lobby ) );
-
-        Debug.Log( "SceneChanger INit" );
+        StartCoroutine( InitSceneChange( SCENE_TYPE.LOBBY ) );
     }
 
-    public void LoadScene( SceneType _type )
+    public void LoadScene( SCENE_TYPE _type )
     {
         if ( curCoroutine != null ) return;
 
         curCoroutine = StartCoroutine( FadeBackground( _type ) );
     }
 
-    private IEnumerator InitSceneChange( SceneType _type )
+    private IEnumerator InitSceneChange( SCENE_TYPE _type )
     {
         blackSprite.enabled = true;
         blackSprite.color = Color.black;
@@ -45,7 +45,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         StartCoroutine( FadeBackground( _type ) );
     }
 
-    private IEnumerator FadeBackground( SceneType _type )
+    private IEnumerator FadeBackground( SCENE_TYPE _type )
     {
         DOTween.KillAll();
         CurrentScene?.InputLock( true );
@@ -57,7 +57,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
 
         SoundManager.Inst.AllStop();
 
-        AsyncOperation oper = SceneManager.LoadSceneAsync( _type.ToString() );
+        AsyncOperation oper = SceneManager.LoadSceneAsync( ( int )_type );
         if ( !oper.isDone ) yield return null;
         
 

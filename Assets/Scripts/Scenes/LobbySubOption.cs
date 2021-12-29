@@ -1,19 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class LobbySubOption : ScrollBase, IKeyBind
 {
-    public OptionType type { get; } = OptionType.Button;
-
     public SceneAction prevKeyAction;
-    protected StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
+    private StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
 
     public GameObject subOptionCanvas;
     public GameObject outline;
     public TextMeshProUGUI currentValueText;
+    public GameObject driver;
 
     protected Scene currentScene;
     public GameObject curSubOption;
@@ -26,14 +24,13 @@ public class LobbySubOption : ScrollBase, IKeyBind
 
         currentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
 
-        GameObject driver = subOptionCanvas.transform.Find( "Driver" ).gameObject;
         var drivers = SoundManager.Inst.soundDrivers;
-        for( int i = 0; i < drivers.Count; i++ )
+        for ( int i = 0; i < drivers.Count; i++ )
         {
             GameObject obj = Instantiate( buttonPrefab, driver.transform );
             obj.name = drivers[i].name;
 
-            var buttonText  = obj.GetComponentInChildren<TextMeshProUGUI>();
+            var buttonText = obj.GetComponentInChildren<TextMeshProUGUI>();
             buttonText.text = drivers[i].name;
         }
 
@@ -65,19 +62,18 @@ public class LobbySubOption : ScrollBase, IKeyBind
         rt.pivot = new Vector2( .5f, .5f );
     }
 
-    public void Initialize( Transform _contentParent )
+    public void ContentsUpdate( GameObject _obj )
     {
-        curSubOption = _contentParent.gameObject;
-        curSubOption.SetActive( true );
+        curSubOption = _obj;
 
         contents.Clear();
-        int length = _contentParent.childCount;
+        int length = _obj.transform.childCount;
         contents.Capacity = length;
 
         for ( int i = 0; i < length; i++ )
         {
-            if ( i >= contents.Count ) contents.Add( _contentParent.GetChild( i ).gameObject );
-            else contents[i] = _contentParent.GetChild( i ).gameObject;
+            if ( i >= contents.Count ) contents.Add( _obj.transform.GetChild( i ).gameObject );
+            else contents[i] = _obj.transform.GetChild( i ).gameObject;
         }
 
         SelectPosition( 0 );
@@ -90,9 +86,9 @@ public class LobbySubOption : ScrollBase, IKeyBind
         IOption option = curSubOption.GetComponent<IOption>();
         if ( option.type != OptionType.Button ) return;
 
-        var button = option as LobbyOptionButton;
-        button.key = curIndex;
-        button.Process();
+        var content = option as CustomButton;
+        content.key = curIndex;
+        content.Process();
         ContentValueTextUpdate();
     }
 
@@ -112,7 +108,7 @@ public class LobbySubOption : ScrollBase, IKeyBind
 
     public void KeyBind()
     {
-        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
+        keyAction.Bind( KeyCode.UpArrow, KeyType.Down, () => PrevMove() );
         keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
 
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( prevKeyAction ) );

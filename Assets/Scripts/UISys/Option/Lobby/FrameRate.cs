@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FrameRate : LobbyOptionButton
+public class FrameRate : CustomButton
 {
     public enum FPSType { _vSync, _NoLimit, _60, _144, _300, _960 };
     public FPSType fpsType;
 
     public override void Process()
     {
+        base.Process();
         fpsType = ( FPSType )key;
         Debug.Log( $"FrameRate {fpsType}" );
 

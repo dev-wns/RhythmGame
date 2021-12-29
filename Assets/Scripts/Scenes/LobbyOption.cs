@@ -5,12 +5,9 @@ using UnityEngine;
 public class LobbyOption : ScrollBase, IKeyBind
 {
     public RectTransform outline;
-
     public GameObject optionCanvas, subOptionCanvas;
-
     private StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
     private Scene currentScene;
-    private LobbySubOption subOption;
 
     protected override void Awake()
     {
@@ -18,7 +15,6 @@ public class LobbyOption : ScrollBase, IKeyBind
 
         GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
         currentScene = scene.GetComponent<Scene>();
-        subOption    = scene.GetComponent<LobbySubOption>();
         KeyBind();
     }
 
@@ -37,11 +33,11 @@ public class LobbyOption : ScrollBase, IKeyBind
     {
         if ( curOption == null ) return;
 
-        subOptionCanvas.SetActive( true );
-        currentScene.ChangeKeyAction( SceneAction.LobbySubOption );
+        IOption option = curOption.GetComponent<IOption>();
+        if ( option.type != OptionType.Button ) return;
 
-        var subOptionContent = subOptionCanvas.transform.Find( curOption.name );
-        subOption.Initialize( subOptionContent );
+        var button = option as IOptionButton;
+        button.Process();
     }
 
     private void SliderProcess( int _value )
@@ -51,7 +47,7 @@ public class LobbyOption : ScrollBase, IKeyBind
         IOption option = curOption.GetComponent<IOption>();
         if ( option.type != OptionType.Slider ) return;
 
-        var slider = option as LobbyOptionSlider;
+        var slider = option as IOptionSlider;
         slider.Process( _value );
     }
 
@@ -81,11 +77,19 @@ public class LobbyOption : ScrollBase, IKeyBind
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => optionCanvas.SetActive( false ) );
 
-        keyAction.Bind( KeyCode.Space,  KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
-        keyAction.Bind( KeyCode.Space,  KeyType.Down, () => optionCanvas.SetActive( false ) );
+        keyAction.Bind( KeyCode.Space, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
+        keyAction.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( false ) );
 
-        keyAction.Bind( KeyCode.Return,     KeyType.Down, () => ButtonProcess() );
+        keyAction.Bind( KeyCode.Return, KeyType.Down, () => ButtonProcess() );
         keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SliderProcess( 10 ) );
         keyAction.Bind( KeyCode.LeftArrow,  KeyType.Down, () => SliderProcess( -10 ) );
+    }
+
+    public void ActiveSubOption( GameObject _obj )
+    {
+        subOptionCanvas.SetActive( true );
+        _obj.SetActive( true );
+
+        currentScene.ChangeKeyAction( SceneAction.LobbySubOption );
     }
 }
