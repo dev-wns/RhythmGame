@@ -108,13 +108,17 @@ public class LobbySubOption : ScrollBase, IKeyBind
 
     public void KeyBind()
     {
-        keyAction.Bind( KeyCode.UpArrow, KeyType.Down, () => PrevMove() );
+        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
+        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
         keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
+        keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
 
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( prevKeyAction ) );
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => curSubOption.SetActive( false ) );
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => subOptionCanvas.SetActive( false ) );
+        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
 
         keyAction.Bind( KeyCode.Return, KeyType.Down, () => ContentProcess() );
+        keyAction.Bind( KeyCode.Return, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
     }
 }

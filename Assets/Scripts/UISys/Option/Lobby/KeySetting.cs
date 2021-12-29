@@ -12,7 +12,7 @@ public class KeySetting : CustomButton
     public GameObject keySettingPanel;
     public TextMeshProUGUI panelText;
 
-    private KeyCode prevKeyCode, keyCode;
+    private KeyCode currentKeyCode;
 
     private List<TextMeshProUGUI> trackTexts = new List<TextMeshProUGUI>();
 
@@ -42,30 +42,29 @@ public class KeySetting : CustomButton
 
     public IEnumerator ChangeGameKey()
     {
-        keyCode = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key];
+        currentKeyCode = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key];
         while ( true )
         {
             yield return null;
 
-            if ( prevKeyCode != keyCode )
-            {
-                panelText.text = keyCode.ToString();
-            }
+            if ( Input.anyKeyDown && !Input.GetKeyDown( KeyCode.Return ) && !Input.GetKeyDown( KeyCode.Escape ) )
+                 SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.INCREASE );
 
             if ( Input.GetKeyDown( KeyCode.Return ) )
             {
                 for( int i = 0; i < 6; i++ )
                 {
-                    if ( keyCode == GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i] )
+                    if ( currentKeyCode == GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i] )
                     {
                         GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i] = KeyCode.None;
                         trackTexts[i].text = KeyCode.None.ToString();
                     }
                 }
 
-                GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key] = keyCode;
-                trackTexts[key].text = keyCode.ToString();
-                Debug.Log( $"Key : {keyCode}" );
+                GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key] = currentKeyCode;
+                trackTexts[key].text = currentKeyCode.ToString();
+                SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN );
+                Debug.Log( $"Key : {currentKeyCode}" );
                 break;
             }
         }
@@ -79,8 +78,11 @@ public class KeySetting : CustomButton
         Event e = Event.current;
         if ( e.isKey && e.keyCode != KeyCode.None && e.keyCode != KeyCode.Return )
         {
-            prevKeyCode = keyCode;
-            keyCode = e.keyCode;
+            if ( e.keyCode != currentKeyCode )
+            {
+                panelText.text = e.keyCode.ToString();
+                currentKeyCode = e.keyCode;
+            }
         }
     }
 }

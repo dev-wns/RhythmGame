@@ -49,8 +49,8 @@ public class FreeStyle : Scene
 
         Globals.Timer.Start();
         {
-            SoundManager.Inst.Load( curSong.audioPath, SOUND_LOAD_TYPE.STREAM );
-            SoundManager.Inst.Play();
+            SoundManager.Inst.LoadBgm( curSong.audioPath, SOUND_LOAD_TYPE.STREAM );
+            SoundManager.Inst.PlayBgm();
         }
         OnSelectSound( curSong );
 

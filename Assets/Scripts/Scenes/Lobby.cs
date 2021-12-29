@@ -13,32 +13,14 @@ public class Lobby : Scene
     {
         base.Awake();
 
-        SoundManager.Inst.Load( System.IO.Path.Combine( Application.streamingAssetsPath, "Default", soundName + ".mp3" ), 
+        SoundManager.Inst.LoadBgm( System.IO.Path.Combine( Application.streamingAssetsPath, "Default", soundName + ".mp3" ), 
                                 SOUND_LOAD_TYPE.DEFAULT, SOUND_PLAY_MODE.LOOP );
-        SoundManager.Inst.Play();
+        SoundManager.Inst.PlayBgm();
 
         ChangeKeyAction( SceneAction.Lobby );
-        masterVolume = SoundManager.Inst.GetVolume( SOUND_GROUP_TYPE.MASTER );
-        bgVolume     = SoundManager.Inst.GetVolume( SOUND_GROUP_TYPE.BACKGROUND );
-
-        SoundManager.Inst.InterfaceSfxLoad( "Assets/Sounds/InterfaceSfx/confirm_style_2_001.wav", 0 );
-        SoundManager.Inst.InterfaceSfxLoad( "Assets/Sounds/InterfaceSfx/confirm_style_2_echo_001.wav", 1 );
+        masterVolume = SoundManager.Inst.GetVolume( CHANNEL_GROUP_TYPE.MASTER );
+        bgVolume     = SoundManager.Inst.GetVolume( CHANNEL_GROUP_TYPE.BGM );
     }
-
-    protected override void Update()
-    {
-        base.Update();
-
-        if ( Input.GetKeyDown( KeyCode.A ) )
-        {
-            SoundManager.Inst.PlayInterfaceSfx( 0 );
-        }
-        if ( Input.GetKeyDown( KeyCode.S ) )
-        {
-            SoundManager.Inst.PlayInterfaceSfx( 1 );
-        }
-    }
-
     
     public override void KeyBind()
     {
@@ -47,6 +29,7 @@ public class Lobby : Scene
 
         scene.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( true ) );
         scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.LobbyOption ) );
+        scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
 
         KeyBind( SceneAction.Lobby, scene );
     }

@@ -73,10 +73,10 @@ public class InGame : Scene
 
         ChangeKeyAction( SceneAction.InGame );
 
-        SoundManager.Inst.Load( GameManager.CurrentSound.audioPath );
+        SoundManager.Inst.LoadBgm( GameManager.CurrentSound.audioPath );
         StartGame();
         isStart = true;
-        SoundManager.Inst.Play();
+        SoundManager.Inst.PlayBgm();
     }
 
     protected override void Update()

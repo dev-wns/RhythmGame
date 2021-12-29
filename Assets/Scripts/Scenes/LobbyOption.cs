@@ -72,17 +72,26 @@ public class LobbyOption : ScrollBase, IKeyBind
     public void KeyBind()
     {
         keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
+        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
         keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
+        keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
 
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
         keyAction.Bind( KeyCode.Escape, KeyType.Down, () => optionCanvas.SetActive( false ) );
+        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
 
         keyAction.Bind( KeyCode.Space, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
         keyAction.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( false ) );
+        keyAction.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
 
         keyAction.Bind( KeyCode.Return, KeyType.Down, () => ButtonProcess() );
+        keyAction.Bind( KeyCode.Return, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
+        
         keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SliderProcess( 10 ) );
-        keyAction.Bind( KeyCode.LeftArrow,  KeyType.Down, () => SliderProcess( -10 ) );
+        keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.INCREASE ) );
+
+        keyAction.Bind( KeyCode.LeftArrow, KeyType.Down, () => SliderProcess( -10 ) );
+        keyAction.Bind( KeyCode.LeftArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.DECREASE ) );
     }
 
     public void ActiveSubOption( GameObject _obj )

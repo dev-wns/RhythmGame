@@ -8,7 +8,7 @@ public class VolumeControl : MonoBehaviour, IOptionSlider
 {
     public Slider slider;
     public TextMeshProUGUI valueText;
-    public SOUND_GROUP_TYPE groupType = SOUND_GROUP_TYPE.MASTER;
+    public CHANNEL_GROUP_TYPE groupType = CHANNEL_GROUP_TYPE.MASTER;
     public OptionType type { get; } = OptionType.Slider;
     private float volume_0_1;
     private int volume_0_100;

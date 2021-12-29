@@ -2719,7 +2719,7 @@ PrefabInstance:
     - target: {fileID: 8194981642351212062, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 8194981642351212062, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
@@ -2814,7 +2814,7 @@ PrefabInstance:
     - target: {fileID: 8194981642351212063, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
       propertyPath: m_Name
-      value: Sfx Volume
+      value: Interface Volume
       objectReference: {fileID: 0}
     - target: {fileID: 8194981642372875169, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
@@ -2844,7 +2844,7 @@ PrefabInstance:
     - target: {fileID: 8194981644113248205, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
       propertyPath: m_text
-      value: "\uD0A4\uC74C \uBCFC\uB968"
+      value: "\uC778\uD130\uD398\uC774\uC2A4 \uBCFC\uB968"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4fd8c1de39ddefa499f23d1515adc8fc, type: 3}
@@ -6527,8 +6527,8 @@ RectTransform:
   - {fileID: 1322333167}
   - {fileID: 644185738}
   - {fileID: 283980701}
-  - {fileID: 603623681}
   - {fileID: 1666191997}
+  - {fileID: 603623681}
   - {fileID: 1884082968}
   - {fileID: 540524948}
   - {fileID: 1888509713}
@@ -8446,7 +8446,7 @@ PrefabInstance:
     - target: {fileID: 8194981642351212062, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8194981642351212062, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
@@ -8541,7 +8541,7 @@ PrefabInstance:
     - target: {fileID: 8194981642351212063, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
       propertyPath: m_Name
-      value: Interface Volume
+      value: Sfx Volume
       objectReference: {fileID: 0}
     - target: {fileID: 8194981642372875169, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
@@ -8571,7 +8571,7 @@ PrefabInstance:
     - target: {fileID: 8194981644113248205, guid: 4fd8c1de39ddefa499f23d1515adc8fc,
         type: 3}
       propertyPath: m_text
-      value: "\uC778\uD130\uD398\uC774\uC2A4 \uBCFC\uB968"
+      value: "\uD0A4\uC74C \uBCFC\uB968"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4fd8c1de39ddefa499f23d1515adc8fc, type: 3}
@@ -8955,8 +8955,8 @@ MonoBehaviour:
   - {fileID: 2061866955}
   - {fileID: 1852847831}
   - {fileID: 283980700}
-  - {fileID: 1484853840}
   - {fileID: 1519360263}
+  - {fileID: 1484853840}
   - {fileID: 2051971881}
   - {fileID: 2052681302}
   outline: {fileID: 1471918822}
