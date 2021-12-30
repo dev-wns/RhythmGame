@@ -8,6 +8,7 @@ public enum SceneAction
     FreeStyle, FreeStyleOption,
     InGame, InGamePause,
     Result,
+    Exit,
 }
 
 public class KeyActions 

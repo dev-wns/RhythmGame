@@ -204,6 +204,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         ErrorCheck( system.playSound( sfxSound[_type], Groups[CHANNEL_GROUP_TYPE.SFX], false, out sfxChannel ) );
+        ErrorCheck( sfxChannel.setPriority( 0 ) );
     }
 
     public void PlayBgm( bool _isPause = false )

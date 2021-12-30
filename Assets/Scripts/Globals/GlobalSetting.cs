@@ -22,7 +22,7 @@ public class GlobalSetting : MonoBehaviour
     // IO
     public static string OsuDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Osu" );
     public static string BmsDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Bms" );
-    public static string DefaultImagePath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Default", "DefaultImage.jpg" );
+    public static string DefaultImagePath { get; private set; } = System.IO.Path.Combine( "Assets", "Textures", "Default", "DefaultImage.jpg" );
 
     // Measure
     public static float MeasureHeight { get; private set; } = 3f;

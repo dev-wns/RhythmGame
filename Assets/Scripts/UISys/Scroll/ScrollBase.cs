@@ -7,6 +7,8 @@ public class ScrollBase : MonoBehaviour
     public List<GameObject> contents;
 
     public bool IsDuplicate { get; private set; }
+    public bool IsLoop { get; protected set; } = false;
+
     protected GameObject curOption { get; private set; }
     protected int curIndex;
 
@@ -47,8 +49,16 @@ public class ScrollBase : MonoBehaviour
 
     public virtual void PrevMove()
     {
+
         if ( curIndex == 0 )
         {
+            if ( IsLoop )
+            {
+                curIndex = contents.Count - 1;
+                curOption = contents[curIndex];
+                return;
+            }
+
             IsDuplicate = true;
             return;
         }
@@ -61,6 +71,13 @@ public class ScrollBase : MonoBehaviour
     {
         if ( curIndex == contents.Count - 1 )
         {
+            if ( IsLoop )
+            {
+                curIndex = 0;
+                curOption = contents[curIndex];
+                return;
+            }
+
             IsDuplicate = true;
             return;
         }

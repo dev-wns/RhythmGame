@@ -36,6 +36,8 @@ public class LobbyOption : ScrollBase, IKeyBind
         IOption option = curOption.GetComponent<IOption>();
         if ( option.type != OptionType.Button ) return;
 
+        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN );
+
         var button = option as IOptionButton;
         button.Process();
     }
@@ -46,6 +48,9 @@ public class LobbyOption : ScrollBase, IKeyBind
 
         IOption option = curOption.GetComponent<IOption>();
         if ( option.type != OptionType.Slider ) return;
+
+        if ( _value > 0 ) SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.INCREASE );
+        else              SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.DECREASE );
 
         var slider = option as IOptionSlider;
         slider.Process( _value );
@@ -85,13 +90,9 @@ public class LobbyOption : ScrollBase, IKeyBind
         keyAction.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
 
         keyAction.Bind( KeyCode.Return, KeyType.Down, () => ButtonProcess() );
-        keyAction.Bind( KeyCode.Return, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
         
         keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SliderProcess( 10 ) );
-        keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.INCREASE ) );
-
-        keyAction.Bind( KeyCode.LeftArrow, KeyType.Down, () => SliderProcess( -10 ) );
-        keyAction.Bind( KeyCode.LeftArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.DECREASE ) );
+        keyAction.Bind( KeyCode.LeftArrow,  KeyType.Down, () => SliderProcess( -10 ) );
     }
 
     public void ActiveSubOption( GameObject _obj )
