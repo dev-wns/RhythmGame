@@ -18,6 +18,8 @@ public abstract class FileReader : IDisposable
         }
     }
 
+    public FileReader() { }
+
     protected FileReader( string _path )
     {
         path = _path;
@@ -25,6 +27,19 @@ public abstract class FileReader : IDisposable
         {
             streamReader = new StreamReader( _path );
             directory    = Path.GetDirectoryName( _path );
+        }
+        catch ( Exception error ) { UnityEngine.Debug.Log( $"The file could not be read : { error.Message }" ); }
+    }
+
+    public void OpenFile( string _path )
+    {
+        streamReader?.Dispose();
+
+        path = _path;
+        try
+        {
+            streamReader = new StreamReader( _path );
+            directory = Path.GetDirectoryName( _path );
         }
         catch ( Exception error ) { UnityEngine.Debug.Log( $"The file could not be read : { error.Message }" ); }
     }

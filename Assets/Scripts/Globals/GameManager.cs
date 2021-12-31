@@ -5,19 +5,13 @@ using UnityEngine;
 
 public class GameManager : SingletonUnity<GameManager>
 {
-    public static List<Song> Songs = new List<Song>();
-    public static Song CurrentSound { get; private set; }
-    public static int CurrentSoundIndex { get; private set; }
+    public List<Song> Songs = new List<Song>();
+    public Song CurrentSound { get; private set; }
+    public int CurrentSoundIndex { get; private set; }
+
 
     private void Awake()
     {
-        DontDestroyOnLoad( this );
-
-        QualitySettings.vSyncCount = 0;
-
-        //SoundManager.Inst.Initialize();
-        //GlobalKeySetting.Inst.Initialize();
-
         // Osu Parsing
         string[] osuFiles = GetFilesInSubDirectories( GlobalSetting.OsuDirectoryPath, "*.osu" );
         for ( int i = 0; i < osuFiles.Length; i++ )
@@ -65,6 +59,7 @@ public class GameManager : SingletonUnity<GameManager>
         CurrentSound = Songs[_index];
         CurrentSoundIndex = _index;
     }
+
     private string[] GetFilesInSubDirectories( string _dirPath, string _extension )
     {
         List<string> path = new List<string>();

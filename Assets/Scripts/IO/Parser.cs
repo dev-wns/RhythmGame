@@ -26,7 +26,6 @@ public struct Song
     public int timingCount;
     public int minBpm;
     public int maxBpm;
-    public int keyCount;
 }
 public class Timing
 {

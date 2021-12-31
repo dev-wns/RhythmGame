@@ -16,7 +16,7 @@ public class VerticalScrollSound : HideScroll
     {
         base.Awake();
 
-        curIndex = GameManager.CurrentSoundIndex;
+        curIndex = GameManager.Inst.CurrentSoundIndex;
         moveOffset = ( songPrefab.transform as RectTransform ).rect.height + spacing;
 
         // 시작인덱스 위치로 이동
@@ -29,14 +29,14 @@ public class VerticalScrollSound : HideScroll
         rt = GetComponent<RectTransform>();
 
         // Create Scroll Contents
-        contents.Capacity = GameManager.Songs.Count;
-        for ( int i = 0; i < GameManager.Songs.Count; i++ )
+        contents.Capacity =  GameManager.Inst.Songs.Count;
+        for ( int i = 0; i < GameManager.Inst.Songs.Count; i++ )
         {
             // scrollview song contents
             GameObject obj = Instantiate( songPrefab, rt );
 
             // 사운드 이름 설정
-            Song data = GameManager.Songs[i];
+            Song data = GameManager.Inst.Songs[i];
             System.Text.StringBuilder artist = new System.Text.StringBuilder();
             artist.Capacity = data.artist.Length + 8 + data.creator.Length;
             artist.Append( data.artist ).Append( " // " ).Append( data.creator );
@@ -44,7 +44,7 @@ public class VerticalScrollSound : HideScroll
             TextMeshProUGUI[] info = obj.GetComponentsInChildren<TextMeshProUGUI>();
             info[0].text = data.title;
             info[1].text = data.version;
-            info[2].text = artist.ToString();
+            //info[2].text = artist.ToString();
 
             // 객체 위치 설정
             RectTransform dataTransform = obj.transform as RectTransform;
@@ -60,7 +60,7 @@ public class VerticalScrollSound : HideScroll
     public override void PrevMove()
     {
         base.PrevMove();
-        if ( IsDuplicate ) return;
+        if ( !IsLoop && IsDuplicate ) return;
 
         curPos -= moveOffset;
         rt.DOLocalMoveY( curPos, .5f );
@@ -70,7 +70,7 @@ public class VerticalScrollSound : HideScroll
     public override void NextMove()
     {
         base.NextMove();
-        if ( IsDuplicate ) return;
+        if ( !IsLoop && IsDuplicate ) return;
 
         curPos += moveOffset;
         rt.DOLocalMoveY( curPos, .5f );

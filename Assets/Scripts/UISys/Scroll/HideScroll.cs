@@ -10,13 +10,16 @@ public class HideScroll : ScrollBase
     public int maxShowContentsCount = 3;
     public int numExtraEnable = 2;
 
-    // Start is called before the first frame update
     protected override void Awake()
     {
         base.Awake();
+
         minIndex = Mathf.FloorToInt( maxShowContentsCount * .5f );
         maxIndex = contents.Count - minIndex - 1;
+    }
 
+    private void Start()
+    {
         // 화면에 그려지는 객체만 활성화
         for ( int i = 0; i < contents.Count; i++ )
         {
@@ -29,7 +32,7 @@ public class HideScroll : ScrollBase
     public override void PrevMove()
     {
         base.PrevMove();
-        if ( IsDuplicate ) return;
+        if ( !IsLoop && IsDuplicate ) return;
 
         if ( minIndex <= curIndex )
         {
@@ -45,7 +48,7 @@ public class HideScroll : ScrollBase
     public override void NextMove()
     {
         base.NextMove();
-        if ( IsDuplicate ) return;
+        if ( !IsLoop && IsDuplicate ) return;
 
         if ( maxIndex >= curIndex )
         {

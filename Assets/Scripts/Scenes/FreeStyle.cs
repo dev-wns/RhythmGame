@@ -17,9 +17,6 @@ public class FreeStyle : Scene
     public delegate void DelSelectSound( Song _song );
     public event DelSelectSound OnSelectSound;
 
-    private float playback;
-    private float soundEndPosition;
-
     #region unity callbacks
     protected override void Awake()
     {
@@ -44,7 +41,7 @@ public class FreeStyle : Scene
     {
         if ( scrollSound.IsDuplicate ) return;
         
-        Song curSong = GameManager.CurrentSound;
+        Song curSong = GameManager.Inst.CurrentSound;
         StartCoroutine( FadeBackground() );
 
         Globals.Timer.Start();
@@ -84,7 +81,7 @@ public class FreeStyle : Scene
     {
         Globals.Timer.Start();
         {
-            StartCoroutine( LoadBackground( GameManager.CurrentSound.imagePath ) );
+            StartCoroutine( LoadBackground( GameManager.Inst.CurrentSound.imagePath ) );
             yield return new WaitUntil( () => IsBGLoadDone );
             if ( curBackground != null )
                 curBackground.Despawn();

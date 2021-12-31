@@ -15,14 +15,16 @@ public class GlobalSetting : MonoBehaviour
     public delegate void DelScrollChanged();
     public static event DelScrollChanged OnScrollChanged;
 
-    public static FullScreenMode CurrentFullScreenMode;
-
     public static float PPU { get; private set; } = 100f; // pixel per unit
 
     // IO
     public static string OsuDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Osu" );
     public static string BmsDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Bms" );
+
+    public static string SoundDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
+    public static string FailedPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
     public static string DefaultImagePath { get; private set; } = System.IO.Path.Combine( "Assets", "Textures", "Default", "DefaultImage.jpg" );
+    public static string Extension { get; private set; } = ".wns";
 
     // Measure
     public static float MeasureHeight { get; private set; } = 3f;

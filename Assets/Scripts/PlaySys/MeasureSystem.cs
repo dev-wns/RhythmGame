@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MeasureSystem : MonoBehaviour
 {
-    private InGame scene;
+    private InGame game;
 
     public ObjectPool<MeasureRenderer> mPool;
     public MeasureRenderer mPrefab;
@@ -15,11 +15,13 @@ public class MeasureSystem : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        var scene = GameObject.FindGameObjectWithTag( "Scene" );
+        game = scene.GetComponent<InGame>();
+
         mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
 
-        scene.SystemInitialized += Initialized;
-        scene.StartGame += () => StartCoroutine( Process() );
+        game.SystemInitialized += Initialized;
+        game.StartGame += () => StartCoroutine( Process() );
     }
 
     private void Initialized( Chart _chart )

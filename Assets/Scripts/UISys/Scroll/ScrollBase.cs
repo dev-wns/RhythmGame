@@ -14,7 +14,7 @@ public class ScrollBase : MonoBehaviour
 
     protected virtual void Awake()
     {
-        SelectPosition( 0 );
+        //SelectPosition( 0 );
         CreateContents();
     }
 

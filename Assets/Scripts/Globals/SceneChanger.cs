@@ -17,14 +17,21 @@ public class SceneChanger : SingletonUnity<SceneChanger>
 
     private void Awake()
     {
-        DontDestroyOnLoad( this );
-        blackSprite = GetComponent<SpriteRenderer>();
-        blackSprite.sortingOrder = 100;
-        transform.position   = new Vector3( 0f, 0f, -9 );
-        transform.localScale = new Vector3( Screen.width, Screen.height, 1f );
+        gameObject.layer = 5; // UI
 
-        StartCoroutine( InitSceneChange( SCENE_TYPE.LOBBY ) );
+        Texture2D tex = Texture2D.whiteTexture;
+        blackSprite = GetComponent<SpriteRenderer>();
+        blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
+
+        blackSprite.drawMode = SpriteDrawMode.Sliced;
+        blackSprite.size = new Vector2( 1920, 1080 );
+        blackSprite.sortingOrder = 100;
+
+        transform.position   = new Vector3( 0f, 0f, -9f );
+        transform.localScale = Vector3.one;
     }
+
+    public void InitSceneChange() => StartCoroutine( InitSceneChange( SCENE_TYPE.LOBBY ) );
 
     public void LoadScene( SCENE_TYPE _type )
     {

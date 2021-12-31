@@ -244,7 +244,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public void SetPitch( float _value )
     {
-        if ( IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
+        if ( !IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
         {
             Debug.Log( "bgm is not playing" );
             return;

@@ -55,17 +55,17 @@ public class InGame : Scene
         Playback = 0f;
 
         Parser parser;
-        switch( GameManager.CurrentSound.type )
+        switch( GameManager.Inst.CurrentSound.type )
         {
             case ParseType.Osu:
             {
-                using ( parser = new OsuParser( GameManager.CurrentSound.filePath ) )
-                    chart = parser.PostRead( GameManager.CurrentSound );
+                using ( parser = new OsuParser( GameManager.Inst.CurrentSound.filePath ) )
+                    chart = parser.PostRead( GameManager.Inst.CurrentSound );
             } break;
             case ParseType.Bms:
             {
-                using ( parser = new BmsParser( GameManager.CurrentSound.filePath ) )
-                    chart = parser.PostRead( GameManager.CurrentSound );
+                using ( parser = new BmsParser( GameManager.Inst.CurrentSound.filePath ) )
+                    chart = parser.PostRead( GameManager.Inst.CurrentSound );
             } break;
         }
         MedianBpm = chart.medianBpm;
@@ -73,7 +73,7 @@ public class InGame : Scene
 
         ChangeKeyAction( SceneAction.InGame );
 
-        SoundManager.Inst.LoadBgm( GameManager.CurrentSound.audioPath );
+        SoundManager.Inst.LoadBgm( GameManager.Inst.CurrentSound.audioPath );
         StartGame();
         isStart = true;
         SoundManager.Inst.PlayBgm();
