@@ -28,7 +28,7 @@ public class NoteRenderer : MonoBehaviour
 
         if ( _data.isSlider )
         {
-            transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * ( GlobalSetting.ScrollSpeed ) ), 1f );
+            transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * ( InGame.Weight ) ), 1f );
             IsSlider = true;
         }
         else
@@ -37,12 +37,12 @@ public class NoteRenderer : MonoBehaviour
             IsSlider = false;
         }
 
-        if ( _data.line == 1 || _data.line == 4 ) rdr.color = Color.blue;
-        else                                      rdr.color = Color.white;
+        if ( _data.line == 1 || _data.line == 4 ) rdr.color = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
+        else rdr.color = Color.white;
     }
     private void OnScrollSpeedChange()
     {
-        if ( IsSlider ) transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * GlobalSetting.ScrollSpeed ), 1f );
+        if ( IsSlider ) transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * InGame.Weight ), 1f );
     }
 
     public void Destroy() 
@@ -70,14 +70,14 @@ public class NoteRenderer : MonoBehaviour
         {
             if ( transform.localScale.y > 0 )
             {
-                transform.localScale = new Vector3( GlobalSetting.NoteWidth, ( CalcSliderTime - InGame.PlaybackChanged ) * GlobalSetting.ScrollSpeed , 1f );
+                transform.localScale = new Vector3( GlobalSetting.NoteWidth, ( CalcSliderTime - InGame.PlaybackChanged ) * InGame.Weight, 1f );
             }
 
             transform.position = new Vector3( column, GlobalSetting.JudgeLine, 2f );
         }
         else
         {
-            transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( CalcTime - InGame.PlaybackChanged ) * GlobalSetting.ScrollSpeed ), 2f );
+            transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( CalcTime - InGame.PlaybackChanged ) * InGame.Weight ), 2f );
         }
     }
 }

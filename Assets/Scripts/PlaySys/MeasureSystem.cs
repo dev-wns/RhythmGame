@@ -32,18 +32,18 @@ public class MeasureSystem : MonoBehaviour
             float time;
             Timing timing = timings[i];
 
-            if ( timing.bpm < 60 || timing.bpm > 999 ) continue;
-            float bpm = ( timing.bpm / 60f ) * 1000f; // beat per milliseconds
+            if ( timing.bpm < 10 ) continue;
+            float bpms = ( timing.bpm / 60f ) * 1000f / 4; // beat per milliseconds
 
             if ( i + 1 == timings.Count ) time = _chart.notes[_chart.notes.Count - 1].time;
             else time = timings[i + 1].time;
 
-            int a = Mathf.FloorToInt( ( time - timing.time ) / bpm );
+            int a = Mathf.FloorToInt( ( time - timing.time ) / bpms );
             measures.Add( InGame.GetChangedTime( timing.time, _chart ) );
 
-            for ( int j = 0; j < a; j++ )
+            for ( int j = 1; j < a + 1; j++ )
             {
-                measures.Add( InGame.GetChangedTime( timing.time + ( j * bpm ), _chart ) );
+                measures.Add( InGame.GetChangedTime( timing.time + ( j * bpms ), _chart ) );
             }
         }
     }

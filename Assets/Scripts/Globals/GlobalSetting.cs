@@ -9,8 +9,8 @@ public static class Globals
 
 public class GlobalSetting : MonoBehaviour
 {
-    private static float OriginScrollSpeed = 10;
-    public static float ScrollSpeed { get { return OriginScrollSpeed * .1f; } }
+    private static float OriginScrollSpeed = 30;
+    public static float ScrollSpeed { get { return OriginScrollSpeed * .0015f; } }
 
     public delegate void DelScrollChanged();
     public static event DelScrollChanged OnScrollChanged;
@@ -31,10 +31,10 @@ public class GlobalSetting : MonoBehaviour
 
     // Jugdement
     public static float JudgeLine = -400f; // posY
-    public static float JudgeHeight { get; private set; } = 10f; // scaleY
+    public static float JudgeHeight { get; private set; } = 100f; // scaleY
 
     // note
-    public static float NoteWidth  { get; private set; } = 95f;
+    public static float NoteWidth  { get; private set; } = 80f;
     public static float NoteHeight { get; private set; } = 30f;
     public static float NoteBlank  { get; private set; } = 2f;
     public static float NoteStartPos { get { return -( ( NoteWidth * 5f ) + ( NoteBlank * 7f ) ) * .5f; } }

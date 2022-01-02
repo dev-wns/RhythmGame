@@ -13,8 +13,9 @@ public class Gear : MonoBehaviour
         tfLeft  = left.GetComponent<Transform>()  as RectTransform;
         tfRight = right.GetComponent<Transform>() as RectTransform;
 
-        tfLeft.anchoredPosition       = new Vector3(  GlobalSetting.GearStartPos, 94f, 0f );
-        tfRight.anchoredPosition      = new Vector3( -GlobalSetting.GearStartPos, 94f, 0f );
+        tfLeft.anchoredPosition       = new Vector3(  GlobalSetting.GearStartPos, -Screen.height * .5f, 0f );
+        tfRight.anchoredPosition      = new Vector3( -GlobalSetting.GearStartPos, -Screen.height * .5f, 0f );
+
         tfBackground.anchoredPosition = new Vector3( 0f, 0f, 0f );
         tfBackground.sizeDelta        = new Vector3( GlobalSetting.GearWidth, Screen.height, 0f );
     }

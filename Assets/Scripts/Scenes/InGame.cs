@@ -22,9 +22,9 @@ public class InGame : Scene
     // Bpm
     public static float BPM { get; private set; } // 현재 BPM
 
-    public static float PreLoadTime { get { return ( 1250f / GlobalSetting.ScrollSpeed ); } }
+    public static float PreLoadTime { get { return ( 1250f / Weight ); } }
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
-    public static float Weight { get { return .1f * GlobalSetting.ScrollSpeed; } }
+    public static float Weight { get { return ( 60f / MedianBpm ) * GlobalSetting.ScrollSpeed; } }
     private static float MedianBpm;
 
     // time ( millisecond )
@@ -41,7 +41,7 @@ public class InGame : Scene
             double bpm = chart.timings[i].bpm;
 
             if ( time > _time ) break;
-            bpm = bpm / chart.medianBpm;
+            //bpm = chart.medianBpm / bpm;
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }
@@ -72,11 +72,18 @@ public class InGame : Scene
         SystemInitialized( chart );
 
         ChangeKeyAction( SceneAction.InGame );
-
+        
         SoundManager.Inst.LoadBgm( GameManager.Inst.CurrentSound.audioPath );
         StartGame();
+        SoundManager.Inst.PlayBgm( true );
+        StartCoroutine( WaitBeginningTime() );
+    }
+
+    private IEnumerator WaitBeginningTime()
+    {
+        yield return YieldCache.WaitForSeconds( 3f );
+        SoundManager.Inst.PauseBgm( false );
         isStart = true;
-        SoundManager.Inst.PlayBgm();
     }
 
     protected override void Update()

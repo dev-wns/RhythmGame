@@ -13,37 +13,43 @@ public class FrameRate : CustomButton
         fpsType = ( FPSType )key;
         Debug.Log( $"FrameRate {fpsType}" );
 
-        //switch( fpsType )
-        //{
-        //    case FPSType._vSync:
-        //    {
-        //        QualitySettings.vSyncCount = 1;
-        //    } break;
-        //    case FPSType._NoLimit:
-        //    {
-        //        QualitySettings.vSyncCount = 0;
-        //        Application.targetFrameRate = 0;
-        //    } break;
-        //    case FPSType._60:
-        //    {
-        //        QualitySettings.vSyncCount = 0;
-        //        Application.targetFrameRate = 60;
-        //    } break;
-        //    case FPSType._144:
-        //    {
-        //        QualitySettings.vSyncCount = 0;
-        //        Application.targetFrameRate = 144;
-        //    } break;
-        //    case FPSType._300:
-        //    {
-        //        QualitySettings.vSyncCount = 0;
-        //        Application.targetFrameRate = 300;
-        //    } break;
-        //    case FPSType._960:
-        //    {
-        //        QualitySettings.vSyncCount = 0;
-        //        Application.targetFrameRate = 960;
-        //    } break;
-        //}
+        switch ( fpsType )
+        {
+            case FPSType._vSync:
+            {
+                QualitySettings.vSyncCount = 1;
+            }
+            break;
+            case FPSType._NoLimit:
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 0;
+            }
+            break;
+            case FPSType._60:
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 60;
+            }
+            break;
+            case FPSType._144:
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 144;
+            }
+            break;
+            case FPSType._300:
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 300;
+            }
+            break;
+            case FPSType._960:
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 960;
+            }
+            break;
+        }
     }
 }
