@@ -24,8 +24,7 @@ public class InGame : Scene
 
     public static float PreLoadTime { get { return ( 1250f / Weight ); } }
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
-    public static float Weight { get { return ( 60f / MedianBpm ) * GlobalSetting.ScrollSpeed; } }
-    private static float MedianBpm;
+    public static float Weight { get { return ( 60f / GameManager.Inst.MedianBpm ) * GlobalSetting.ScrollSpeed; } }
 
     // time ( millisecond )
     public static float Playback { get; private set; } // 노래 재생 시간
@@ -41,7 +40,6 @@ public class InGame : Scene
             double bpm = chart.timings[i].bpm;
 
             if ( time > _time ) break;
-            //bpm = chart.medianBpm / bpm;
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }
@@ -54,21 +52,11 @@ public class InGame : Scene
 
         Playback = 0f;
 
-        Parser parser;
-        switch( GameManager.Inst.CurrentSound.type )
+        using ( FileParser parser = new FileParser() )
         {
-            case ParseType.Osu:
-            {
-                using ( parser = new OsuParser( GameManager.Inst.CurrentSound.filePath ) )
-                    chart = parser.PostRead( GameManager.Inst.CurrentSound );
-            } break;
-            case ParseType.Bms:
-            {
-                using ( parser = new BmsParser( GameManager.Inst.CurrentSound.filePath ) )
-                    chart = parser.PostRead( GameManager.Inst.CurrentSound );
-            } break;
+            parser.TryParse( GameManager.Inst.CurrentSound.filePath, out chart );
         }
-        MedianBpm = chart.medianBpm;
+
         SystemInitialized( chart );
 
         ChangeKeyAction( SceneAction.InGame );

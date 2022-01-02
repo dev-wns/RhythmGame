@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 public abstract class FileReader : IDisposable
 {
@@ -69,4 +71,28 @@ public abstract class FileReader : IDisposable
     }
 
     public void Dispose() => streamReader?.Dispose();
+
+    protected string[] GetFilesInSubDirectories( string _dirPath, string _extension )
+    {
+        List<string> path = new List<string>();
+
+        string[] subDirectories;
+        try { subDirectories = Directory.GetDirectories( _dirPath ); }
+        catch ( Exception e )
+        {
+            // 대부분 폴더가 없는 경우.
+            Debug.Log( e.ToString() );
+            return path.ToArray();
+        }
+
+        foreach ( string subDir in subDirectories )
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo( subDir );
+            FileInfo[] files = dirInfo.GetFiles( _extension );
+            for ( int i = 0; i < files.Length; i++ )
+                path.Add( files[i].FullName );
+        }
+
+        return path.ToArray();
+    }
 }

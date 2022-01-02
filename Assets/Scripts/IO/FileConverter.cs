@@ -4,22 +4,86 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
-public class FileSensor : FileReader
-{
-    Song song;
-    Chart chart;
 
+public struct Song
+{
+    public string filePath;
+    public string audioPath;
+    public string imagePath;
+    public string videoPath;
+    public bool   hasVideo;
+
+    public string title;
+    public string artist;
+    public string creator;
+    public string version;
+
+    public int previewTime;
+    public int totalTime;
+
+    public int noteCount;
+    public int sliderCount;
+    public int timingCount;
+    public int minBpm;
+    public int maxBpm;
+    public int medianBpm;
+}
+
+public class Timing
+{
+    public float time;
+    public float bpm;
+
+    public Timing() { }
+    public Timing( float _time, float _bpm )
+    {
+        time = _time;
+        bpm = _bpm;
+    }
+}
+
+public struct Note
+{
+    public int line;
+    public float time;
+    public float sliderTime;
+    public bool isSlider;
+    public float calcTime;
+    public float calcSliderTime;
+
+    public Note( int _x, float _time, float _calcTime, float _sliderTime, float _calcSliderTime, bool _isSlider )
+    {
+        line = Mathf.FloorToInt( _x * 6f / 512f );
+        time = _time;
+        calcTime = _calcTime;
+        sliderTime = _sliderTime;
+        calcSliderTime = _calcSliderTime;
+        isSlider = _isSlider;
+    }
+}
+
+public struct Chart
+{
+    public List<Timing> timings;
+    public List<Note> notes;
+}
+
+public class FileConverter : FileReader
+{
     public void ReLoad()
     {
         string[] osuFiles = GetFilesInSubDirectories( GlobalSetting.SoundDirectoryPath, "*.osu" );
         for ( int i = 0; i < osuFiles.Length; i++ )
         {
-            FileConvert( osuFiles[i] );  
+            Convert( osuFiles[i] );
         }
     }
 
-    private void FileConvert( string _path )
+    private void Convert( string _path )
     {
+        Song song   = new Song();
+        Chart chart = new Chart();
+
         try
         {
             OpenFile( _path );
@@ -27,45 +91,49 @@ public class FileSensor : FileReader
             // [General] ~ [Editor]
             while ( ReadLine() != "[Metadata]" )
             {
-                if ( Contains( "AudioFilename" ) ) song.audioPath = SplitAndTrim( ':' );
+                if ( Contains( "AudioFilename" ) ) song.audioPath   = SplitAndTrim( ':' );
                 if ( Contains( "PreviewTime" ) )   song.previewTime = int.Parse( SplitAndTrim( ':' ) );
             }
 
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Events]" )
             {
-                if ( Contains( "Title" ) ) song.title = SplitAndTrim( ':' );
-                if ( Contains( "Artist" ) ) song.artist = SplitAndTrim( ':' );
+                if ( Contains( "Title" ) )   song.title   = SplitAndTrim( ':' );
+                if ( Contains( "Artist" ) )  song.artist  = SplitAndTrim( ':' );
                 if ( Contains( "Creator" ) ) song.creator = SplitAndTrim( ':' );
                 if ( Contains( "Version" ) ) song.version = SplitAndTrim( ':' );
             }
 
             // [Events]
+
+            var directory = Path.GetDirectoryName( _path );
+
             while ( ReadLine() != "[TimingPoints]" )
             {
                 if ( Contains( ".avi" ) || Contains( ".mp4" ) || Contains( ".mpg" ) )
                 {
                     song.videoPath = SplitAndTrim( '"' );
-                    song.hasVideo = true;
+                    song.hasVideo  = true;
 
-                    FileInfo videoInfo = new FileInfo( song.videoPath );
-                    if ( !videoInfo.Exists ) song.hasVideo = false;
+                    if ( File.Exists( Path.Combine( directory, song.videoPath ) ) ) song.hasVideo = true;
+                    else                                                            song.hasVideo = false;
                 }
 
                 if ( Contains( ".jpg" ) || Contains( ".png" ) )
                 {
                     song.imagePath = SplitAndTrim( '"' );
 
-                    if ( !File.Exists( song.imagePath ) ) song.imagePath = GlobalSetting.DefaultImagePath;
+                    if ( !File.Exists( Path.Combine( directory, song.imagePath ) ) ) 
+                         song.imagePath = GlobalSetting.DefaultImagePath;
                 }
             }
 
             chart.timings?.Clear();
-            chart.timings = new List<Timing>();
+            chart.timings ??= new List<Timing>();
             chart.timings.Capacity = song.noteCount + song.sliderCount;
 
             chart.notes?.Clear();
-            chart.notes = new List<Note>();
+            chart.notes ??= new List<Note>();
             chart.notes.Capacity = song.timingCount;
 
             // [TimingPoints]
@@ -88,12 +156,12 @@ public class FileSensor : FileReader
                 else BPM = ( prevBPM * 100d ) / beatLength; // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
 
                 if ( song.minBpm > BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
-                if ( song.maxBpm < BPM )                     song.maxBpm = ( int )BPM;
+                if ( song.maxBpm < BPM ) song.maxBpm = ( int )BPM;
                 song.timingCount++;
 
                 chart.timings.Add( new Timing( float.Parse( splitDatas[0] ), ( float )BPM ) );
             }
-            chart.medianBpm = GetMedianBpm( chart.timings );
+            song.medianBpm = ( int )GetMedianBpm( chart.timings );
 
             // [HitObjects]
             song.noteCount = 0;
@@ -104,10 +172,10 @@ public class FileSensor : FileReader
                 if ( splitDatas.Length != 6 ) continue;
 
                 song.totalTime = int.Parse( splitDatas[2] );
-                int note = int.Parse( splitDatas[3] );
-
+                
+                int note       = int.Parse( splitDatas[3] );
                 if ( note == 128 ) song.sliderCount++;
-                else               song.noteCount++;
+                else song.noteCount++;
 
                 bool isSlider;
                 float sliderTime = 0;
@@ -130,7 +198,7 @@ public class FileSensor : FileReader
         catch ( Exception _error )
         {
             if ( !Directory.Exists( GlobalSetting.FailedPath ) )
-                  Directory.CreateDirectory( GlobalSetting.FailedPath );
+                Directory.CreateDirectory( GlobalSetting.FailedPath );
 
             if ( File.Exists( path ) )
             {
@@ -138,7 +206,7 @@ public class FileSensor : FileReader
                 Debug.LogWarning( $"File Move Failed Directory : {path}" );
             }
 
-            UnityEngine.Debug.LogError( _error.Message );
+            Debug.LogError( _error.Message );
             Dispose();
         }
     }
@@ -147,7 +215,7 @@ public class FileSensor : FileReader
     {
         try
         {
-            string fileName = Path.GetFileNameWithoutExtension( path ) + GlobalSetting.Extension;
+            string fileName = Path.GetFileNameWithoutExtension( path ) + ".wns";
             string filePath = Path.Combine( Path.GetDirectoryName( path ), fileName );
 
             using ( var stream = new FileStream( filePath, FileMode.Create ) )
@@ -155,7 +223,6 @@ public class FileSensor : FileReader
                 using ( var writer = new StreamWriter( stream ) )
                 {
                     writer.WriteLine( "[General]" );
-                    writer.WriteLine( filePath );
                     writer.WriteLine( "AudioPath: " + _song.audioPath );
                     writer.WriteLine( "ImagePath: " + _song.imagePath );
                     writer.WriteLine( "VideoPath: " + _song.videoPath );
@@ -172,12 +239,10 @@ public class FileSensor : FileReader
                     writer.WriteLine( "NumSlider: " + _song.sliderCount );
                     writer.WriteLine( "NumTiming: " + _song.timingCount );
 
-                    writer.WriteLine( "MinBPM: " + _song.minBpm );
-                    writer.WriteLine( "MaxBPM: " + _song.maxBpm );
-                    
-                    writer.WriteLine( "Median: " + chart.medianBpm );
+                    writer.WriteLine( "MinBPM: "    + _song.minBpm );
+                    writer.WriteLine( "MaxBPM: "    + _song.maxBpm );
+                    writer.WriteLine( "MedianBPM: " + _song.medianBpm );
 
-                    
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );
                     for ( int i = 0; i < _chart.timings.Count; i++ )
@@ -205,7 +270,7 @@ public class FileSensor : FileReader
                 }
             }
         }
-        catch( Exception _error )
+        catch ( Exception _error )
         {
             Debug.Log( _error.Message );
             Dispose();
@@ -214,21 +279,21 @@ public class FileSensor : FileReader
         Dispose();
 
         // 원본 파일 삭제
-        if ( File.Exists( path ) )
-        {
-            Debug.Log( $"File Delete : {path}" );
-            File.Delete( path );
-        }
+        //if ( File.Exists( path ) )
+        //{
+        //    Debug.Log( $"File Delete : {path}" );
+        //    File.Delete( path );
+        //}
     }
 
-    protected float GetMedianBpm( List<Timing> timings )
+    private float GetMedianBpm( List<Timing> timings )
     {
         List<Timing> medianCalc = new List<Timing>();
         medianCalc.Add( new Timing( 0f, timings[0].bpm ) );
         for ( int i = 1; i < timings.Count; i++ )
         {
             float prevTime = timings[i - 1].time;
-            float prevBpm  = timings[i - 1].bpm;
+            float prevBpm = timings[i - 1].bpm;
 
             bool isFind = false;
             for ( int j = 0; j < medianCalc.Count; j++ )
@@ -245,15 +310,16 @@ public class FileSensor : FileReader
 
         medianCalc.Sort( delegate ( Timing A, Timing B )
         {
-            if ( A.time == B.time )     return 0;
-            else if ( A.time < B.time ) return 1;
-            else                        return -1;
+            if ( A.time < B.time ) return 1;
+            else if ( A.time > B.time ) return -1;
+            else return 0;
         } );
 
         //return 1f / medianCalc[0].bpm * 60000f;
         return medianCalc[0].bpm;
     }
-    public float GetChangedTime( float _time, Chart chart ) // BPM 변화에 따른 시간 계산
+
+    private float GetChangedTime( float _time, Chart chart ) // BPM 변화에 따른 시간 계산
     {
         double newTime = _time;
         double prevBpm = 0d;
@@ -263,34 +329,10 @@ public class FileSensor : FileReader
             double bpm = chart.timings[i].bpm;
 
             if ( time > _time ) break;
-            bpm = bpm / chart.medianBpm;
+            //bpm = bpm / chart.medianBpm;
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }
         return ( float )newTime;
-    }
-
-    private string[] GetFilesInSubDirectories( string _dirPath, string _extension )
-    {
-        List<string> path = new List<string>();
-
-        string[] subDirectories;
-        try { subDirectories = Directory.GetDirectories( _dirPath ); }
-        catch ( System.Exception e )
-        {
-            // 대부분 폴더가 없는 경우.
-            Debug.Log( e.ToString() );
-            return path.ToArray();
-        }
-
-        foreach ( string subDir in subDirectories )
-        {
-            DirectoryInfo dirInfo = new DirectoryInfo( subDir );
-            FileInfo[] files = dirInfo.GetFiles( _extension );
-            for ( int i = 0; i < files.Length; i++ )
-                path.Add( files[i].FullName );
-        }
-
-        return path.ToArray();
     }
 }

@@ -8,33 +8,21 @@ public class GameManager : SingletonUnity<GameManager>
     public List<Song> Songs = new List<Song>();
     public Song CurrentSound { get; private set; }
     public int CurrentSoundIndex { get; private set; }
-
+    public float MedianBpm { get; private set; }
 
     private void Awake()
     {
-        // Osu Parsing
-        string[] osuFiles = GetFilesInSubDirectories( GlobalSetting.OsuDirectoryPath, "*.osu" );
-        for ( int i = 0; i < osuFiles.Length; i++ )
+        using ( FileConverter converter = new FileConverter() )
         {
-            using ( Parser parser = new OsuParser( osuFiles[i] ) )
-            {
-                var song = parser.PreRead();
-                if ( parser.IsComplete ) Songs.Add( song );
-            }
+            converter.ReLoad();
         }
 
-        // BMS Parsing
-        string[] bmsFiles = GetFilesInSubDirectories( GlobalSetting.BmsDirectoryPath, "*.bms" );
-        for ( int i = 0; i < bmsFiles.Length; i++ )
+        using ( FileParser parser = new FileParser() )
         {
-            using ( Parser parser = new BmsParser( bmsFiles[i] ) )
-            {
-                var song = parser.PreRead();
-                if ( parser.IsComplete ) Songs.Add( song );
-            }
+            parser.TryParseArray( ref Songs );
         }
 
-        if ( Songs.Count > 0 ) { CurrentSound = Songs[0]; }
+        if ( Songs.Count > 0 ) { SelectSong( 0 ); }
         Debug.Log( "Parse Success " );
     }
 
@@ -56,31 +44,8 @@ public class GameManager : SingletonUnity<GameManager>
             return;
         }
 
-        CurrentSound = Songs[_index];
         CurrentSoundIndex = _index;
-    }
-
-    private string[] GetFilesInSubDirectories( string _dirPath, string _extension )
-    {
-        List<string> path = new List<string>();
-
-        string[] subDirectories;
-        try { subDirectories = Directory.GetDirectories( _dirPath ); }
-        catch ( System.Exception e )
-        {
-            // 대부분 폴더가 없는 경우.
-            Debug.Log( e.ToString() );
-            return path.ToArray();
-        }
-
-        foreach ( string subDir in subDirectories )
-        {
-            DirectoryInfo dirInfo = new DirectoryInfo( subDir );
-            FileInfo[] files = dirInfo.GetFiles( _extension );
-            for ( int i = 0; i < files.Length; i++ )
-                path.Add( files[i].FullName );
-        }
-
-        return path.ToArray();
+        CurrentSound      = Songs[_index];
+        MedianBpm         = Songs[_index].medianBpm;
     }
 }
