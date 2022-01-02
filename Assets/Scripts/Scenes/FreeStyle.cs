@@ -49,7 +49,7 @@ public class FreeStyle : Scene
             SoundManager.Inst.LoadBgm( curSong.audioPath, SOUND_LOAD_TYPE.STREAM );
             SoundManager.Inst.PlayBgm();
         }
-        OnSelectSound( curSong );
+        //OnSelectSound( curSong );
 
         Debug.Log( $"Sound Load {Globals.Timer.End()} ms" );
 

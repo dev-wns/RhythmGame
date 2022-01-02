@@ -537,7 +537,6 @@ MonoBehaviour:
   background: {fileID: 1691603171}
   left: {fileID: 216359860}
   right: {fileID: 458271290}
-  bottom: {fileID: 0}
 --- !u!1 &458271290
 GameObject:
   m_ObjectHideFlags: 0
@@ -999,7 +998,7 @@ MonoBehaviour:
   m_SubmitButton: Submit
   m_CancelButton: Cancel
   m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0
+  m_RepeatDelay: 0.5
   m_ForceModuleActive: 0
 --- !u!114 &930784871
 MonoBehaviour:
