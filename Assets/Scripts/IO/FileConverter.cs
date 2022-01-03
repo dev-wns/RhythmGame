@@ -145,6 +145,7 @@ public class FileConverter : FileReader
                 if ( splitDatas.Length != 8 ) continue;
 
                 bool isUninherited;
+                
                 int uninherited = int.Parse( splitDatas[6] );
                 if ( uninherited == 0 ) isUninherited = false;
                 else isUninherited = true;
@@ -157,9 +158,13 @@ public class FileConverter : FileReader
 
                 if ( song.minBpm > BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
                 if ( song.maxBpm < BPM ) song.maxBpm = ( int )BPM;
+
+                float time = float.Parse( splitDatas[0] );
+                if ( song.timingCount == 0 ) time = 0f;
+
                 song.timingCount++;
 
-                chart.timings.Add( new Timing( float.Parse( splitDatas[0] ), ( float )BPM ) );
+                chart.timings.Add( new Timing( time, ( float )BPM ) );
             }
             song.medianBpm = ( int )GetMedianBpm( chart.timings );
 

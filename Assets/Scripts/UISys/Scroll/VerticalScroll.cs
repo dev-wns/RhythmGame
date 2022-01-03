@@ -9,11 +9,23 @@ public class VerticalScroll : ScrollBase
     private Scrollbar scrollBar;
 
     public int maxShowContentsCount;
-    private double valueOffset;
     public float contentHeight;
     public float spancing;
 
-    public int moveIndex = 0;
+    private int moveIndex = 0;
+    private double valueOffset;
+
+    protected override void CreateContents()
+    {
+        if ( contents.Count == 0 )
+        {
+            var viewContent = scrollRect.content;
+            for ( int i = 0; i < viewContent.childCount; i++ )
+            {
+                contents.Add( viewContent.GetChild( i ).gameObject );
+            }
+        }
+    }
 
     protected override void Awake()
     {
@@ -23,6 +35,7 @@ public class VerticalScroll : ScrollBase
         scrollRect.content.sizeDelta = new Vector2( 0, ( ( contentHeight + spancing ) * contents.Count ) - spancing );
         valueOffset = 1d / Mathf.Abs( maxShowContentsCount - contents.Count );
 
+        // position setting 
         var startRT = contents[0].transform as RectTransform;
         startRT.anchorMin = new Vector2( .5f, 1f );
         startRT.anchorMax = new Vector2( .5f, 1f );

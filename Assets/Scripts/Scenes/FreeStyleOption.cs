@@ -5,14 +5,16 @@ using UnityEngine;
 public class FreeStyleOption : VerticalScroll, IKeyBind
 {
     public RectTransform outline;
-    public GameObject optionCanvas;
+    private GameObject optionCanvas;
     private StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
     private Scene currentScene;
+
     protected override void Awake()
     {
         base.Awake();
 
         GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
+        optionCanvas = scrollRect.gameObject;
         currentScene = scene.GetComponent<Scene>();
         KeyBind();
     }
