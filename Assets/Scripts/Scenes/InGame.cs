@@ -65,6 +65,7 @@ public class InGame : Scene
         StartGame();
         SoundManager.Inst.PlayBgm( true );
         StartCoroutine( WaitBeginningTime() );
+        StartCoroutine( BpmChnager() );
     }
 
     private IEnumerator WaitBeginningTime()
@@ -72,6 +73,17 @@ public class InGame : Scene
         yield return YieldCache.WaitForSeconds( 3f );
         SoundManager.Inst.PauseBgm( false );
         isStart = true;
+    }
+
+
+    private int timingIdx;
+    private IEnumerator BpmChnager()
+    {
+        while ( timingIdx < chart.timings.Count )
+        {
+            yield return new WaitUntil( () => Playback > chart.timings[timingIdx].time );
+            bpmText.text = $"{Mathf.RoundToInt(chart.timings[timingIdx++].bpm)} BPM";
+        }
     }
 
     protected override void Update()

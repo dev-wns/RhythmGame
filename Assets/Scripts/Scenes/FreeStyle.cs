@@ -7,7 +7,8 @@ using UnityEngine.Networking;
 public class FreeStyle : Scene
 {
     public VerticalScrollSound scrollSound;
-    
+    public GameObject optionCanvas;
+
     public static ObjectPool<FadeBackground> bgPool;
     public FadeBackground bgPrefab, curBackground;
     private Sprite background;
@@ -84,7 +85,7 @@ public class FreeStyle : Scene
             StartCoroutine( LoadBackground( GameManager.Inst.CurrentSound.imagePath ) );
             yield return new WaitUntil( () => IsBGLoadDone );
             if ( curBackground != null )
-                curBackground.Despawn();
+                 curBackground.Despawn();
 
             curBackground = bgPool.Spawn();
             curBackground.image.sprite = background;
@@ -108,18 +109,11 @@ public class FreeStyle : Scene
 
         scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME ) );
 
+        scene.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( true ) );
         scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( true ) );
         scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.FreeStyleOption ) );
 
-        scene.Bind( KeyCode.LeftArrow, KeyType.Down,  () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch - .1f ) );
-        scene.Bind( KeyCode.RightArrow, KeyType.Down, () => SoundManager.Inst.SetPitch( SoundManager.Inst.Pitch + .1f ) );
-
         scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.LOBBY ) );
         KeyBind( SceneAction.FreeStyle, scene );
-
-        StaticSceneKeyAction setting = new StaticSceneKeyAction();
-        setting.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( false ) );
-        setting.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.FreeStyle ) );
-        KeyBind( SceneAction.FreeStyleOption, setting );
     }
 }

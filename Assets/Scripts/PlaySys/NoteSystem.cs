@@ -31,7 +31,7 @@ public class NoteSystem : MonoBehaviour
 
     private IEnumerator Process()
     {
-        while ( curIdx < notes.Count - 1 )
+        while ( curIdx < notes.Count )
         {
             Note curNote = notes[curIdx];
             yield return new WaitUntil( () => curNote.calcTime <= InGame.PlaybackChanged + InGame.PreLoadTime );

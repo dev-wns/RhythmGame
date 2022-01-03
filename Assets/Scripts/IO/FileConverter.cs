@@ -279,11 +279,11 @@ public class FileConverter : FileReader
         Dispose();
 
         // 원본 파일 삭제
-        //if ( File.Exists( path ) )
-        //{
-        //    Debug.Log( $"File Delete : {path}" );
-        //    File.Delete( path );
-        //}
+        if ( File.Exists( path ) )
+        {
+            Debug.Log( $"File Delete : {path}" );
+            File.Delete( path );
+        }
     }
 
     private float GetMedianBpm( List<Timing> timings )
