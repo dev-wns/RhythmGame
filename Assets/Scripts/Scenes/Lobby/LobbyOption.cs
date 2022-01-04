@@ -6,7 +6,6 @@ public class LobbyOption : ScrollBase, IKeyBind
 {
     public RectTransform outline;
     public GameObject optionCanvas, subOptionCanvas;
-    private StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
     private Scene currentScene;
 
     protected override void Awake()
@@ -16,11 +15,6 @@ public class LobbyOption : ScrollBase, IKeyBind
         GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
         currentScene = scene.GetComponent<Scene>();
         KeyBind();
-    }
-
-    private void Start()
-    {
-        currentScene.KeyBind( SceneAction.LobbyOption, keyAction );
     }
 
     private void SetOutline()
@@ -76,23 +70,23 @@ public class LobbyOption : ScrollBase, IKeyBind
 
     public void KeyBind()
     {
-        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
-        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
-        keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
-        keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
-
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => optionCanvas.SetActive( false ) );
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
-
-        keyAction.Bind( KeyCode.Space, KeyType.Down, () => currentScene.ChangeKeyAction( SceneAction.Lobby ) );
-        keyAction.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( false ) );
-        keyAction.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
-
-        keyAction.Bind( KeyCode.Return, KeyType.Down, () => ButtonProcess() );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.UpArrow,   () => PrevMove() );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.UpArrow,   () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.DownArrow, () => NextMove() );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
         
-        keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => SliderProcess( 10 ) );
-        keyAction.Bind( KeyCode.LeftArrow,  KeyType.Down, () => SliderProcess( -10 ) );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.Lobby ) );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.Escape, () => optionCanvas.SetActive( false ) );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+        
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.Space, () => currentScene.ChangeAction( SceneAction.Lobby ) );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.Space, () => optionCanvas.SetActive( false ) );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+        
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.Return, () => ButtonProcess() );
+        
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.RightArrow, () => SliderProcess( 10 ) );
+        currentScene.Bind( SceneAction.LobbyOption, KeyCode.LeftArrow,  () => SliderProcess( -10 ) );
     }
 
     public void ActiveSubOption( GameObject _obj )
@@ -100,6 +94,6 @@ public class LobbyOption : ScrollBase, IKeyBind
         subOptionCanvas.SetActive( true );
         _obj.SetActive( true );
 
-        currentScene.ChangeKeyAction( SceneAction.LobbySubOption );
+        currentScene.ChangeAction( SceneAction.LobbySubOption );
     }
 }

@@ -9,6 +9,8 @@ public class Lobby : Scene
     public GameObject optionCanvas;
     public GameObject exitCanvas;
 
+    public ScrollText s;
+
     protected override void Awake()
     {
         base.Awake();
@@ -17,22 +19,22 @@ public class Lobby : Scene
                                    SOUND_LOAD_TYPE.DEFAULT, SOUND_PLAY_MODE.LOOP );
         SoundManager.Inst.PlayBgm();
 
-        ChangeKeyAction( SceneAction.Lobby );
+        ChangeAction( SceneAction.Lobby );
     }
     
     public override void KeyBind()
     {
-        StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
+        Bind( SceneAction.Lobby, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
 
-        scene.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( true ) );
-        scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.LobbyOption ) );
-        scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
+        Bind( SceneAction.Lobby, KeyCode.Space, () => optionCanvas.SetActive( true ) );
+        Bind( SceneAction.Lobby, KeyCode.Space, () => ChangeAction( SceneAction.LobbyOption ) );
+        Bind( SceneAction.Lobby, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
 
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => exitCanvas.SetActive( true ) );
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => ChangeKeyAction( SceneAction.Exit ) );
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+        Bind( SceneAction.Lobby, KeyCode.Escape, () => exitCanvas.SetActive( true ) );
+        Bind( SceneAction.Lobby, KeyCode.Escape, () => ChangeAction( SceneAction.Exit ) );
+        Bind( SceneAction.Lobby, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
 
-        KeyBind( SceneAction.Lobby, scene );
+        Bind( SceneAction.Lobby, KeyCode.A, () => s.KeyRemove() );
+        Bind( SceneAction.Lobby, KeyCode.S, () => s.KeyBind() );
     }
 }

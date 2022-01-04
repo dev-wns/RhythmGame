@@ -7,7 +7,6 @@ public class LobbyExit : ScrollBase, IKeyBind
     public RectTransform outline;
     public GameObject exitCanvas;
 
-    private StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
     private Scene currentScene;
 
     protected override void Awake()
@@ -19,11 +18,6 @@ public class LobbyExit : ScrollBase, IKeyBind
         GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
         currentScene = scene.GetComponent<Scene>();
         KeyBind();
-    }
-
-    private void Start()
-    {
-        currentScene.KeyBind( SceneAction.Exit, keyAction );
     }
 
     private void SetOutline()
@@ -63,17 +57,15 @@ public class LobbyExit : ScrollBase, IKeyBind
 
     public void KeyBind()
     {
-        keyAction.Bind( KeyCode.LeftArrow, KeyType.Down, () => PrevMove() );
-        keyAction.Bind( KeyCode.RightArrow, KeyType.Down, () => NextMove() );
-        
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => Cancel() );
-        
-        keyAction.Bind( KeyCode.Return, KeyType.Down, () => ButtonProcess() );
+        currentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow, () => PrevMove() );
+        currentScene.Bind( SceneAction.Exit, KeyCode.RightArrow, () => NextMove() );
+        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => Cancel() );
+        currentScene.Bind( SceneAction.Exit, KeyCode.Return, () => ButtonProcess() );
     }
 
     public void Cancel()
     {
-        currentScene.ChangeKeyAction( SceneAction.Lobby );
+        currentScene.ChangeAction( SceneAction.Lobby );
         exitCanvas.SetActive( false );
         SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN );
     }

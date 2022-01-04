@@ -59,7 +59,7 @@ public class InGame : Scene
 
         SystemInitialized( chart );
 
-        ChangeKeyAction( SceneAction.InGame );
+        ChangeAction( SceneAction.InGame );
         
         SoundManager.Inst.LoadBgm( GameManager.Inst.CurrentSound.audioPath );
         StartGame();
@@ -104,9 +104,6 @@ public class InGame : Scene
 
     public override void KeyBind()
     {
-        StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
-
-        KeyBind( SceneAction.InGame, scene );
+        Bind( SceneAction.InGame, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
     }
 }

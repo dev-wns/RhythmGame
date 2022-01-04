@@ -6,7 +6,6 @@ using TMPro;
 public class LobbySubOption : ScrollBase, IKeyBind
 {
     public SceneAction prevKeyAction;
-    private StaticSceneKeyAction keyAction = new StaticSceneKeyAction();
 
     public GameObject subOptionCanvas;
     public GameObject outline;
@@ -35,11 +34,6 @@ public class LobbySubOption : ScrollBase, IKeyBind
         }
 
         KeyBind();
-    }
-
-    protected virtual void Start()
-    {
-        currentScene.KeyBind( SceneAction.LobbySubOption, keyAction );
     }
 
     public override void PrevMove()
@@ -108,17 +102,17 @@ public class LobbySubOption : ScrollBase, IKeyBind
 
     public void KeyBind()
     {
-        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => PrevMove() );
-        keyAction.Bind( KeyCode.UpArrow,   KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
-        keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => NextMove() );
-        keyAction.Bind( KeyCode.DownArrow, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
-
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => currentScene.ChangeKeyAction( prevKeyAction ) );
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => curSubOption.SetActive( false ) );
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => subOptionCanvas.SetActive( false ) );
-        keyAction.Bind( KeyCode.Escape, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
-
-        keyAction.Bind( KeyCode.Return, KeyType.Down, () => ContentProcess() );
-        keyAction.Bind( KeyCode.Return, KeyType.Down, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.UpArrow,   () => PrevMove() );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.UpArrow,   () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.DownArrow, () => NextMove() );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+                           
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.Escape, () => currentScene.ChangeAction( prevKeyAction ) );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.Escape, () => curSubOption.SetActive( false ) );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.Escape, () => subOptionCanvas.SetActive( false ) );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+                           
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.Return, () => ContentProcess() );
+        currentScene.Bind( SceneAction.LobbySubOption, KeyCode.Return, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
     }
 }

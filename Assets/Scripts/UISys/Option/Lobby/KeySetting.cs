@@ -36,7 +36,7 @@ public class KeySetting : CustomButton
         keySettingPanel.SetActive( true );
         panelText.text = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )key].ToString();
 
-        currentScene.InputLock( true );
+        currentScene?.InputLock( true );
         StartCoroutine( ChangeGameKey() );
     }
 
@@ -69,7 +69,7 @@ public class KeySetting : CustomButton
             }
         }
 
-        currentScene.InputLock( false );
+        currentScene?.InputLock( false );
         keySettingPanel.SetActive( false );
     }
 

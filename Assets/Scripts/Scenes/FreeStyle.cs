@@ -25,7 +25,7 @@ public class FreeStyle : Scene
 
         bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
         //StartCoroutine( FadeBackground() );
-        ChangeKeyAction( SceneAction.FreeStyle );
+        ChangeAction( SceneAction.FreeStyle );
     }
 
     public void Start()
@@ -100,20 +100,18 @@ public class FreeStyle : Scene
 
     public override void KeyBind()
     {
-        StaticSceneKeyAction scene = new StaticSceneKeyAction();
-        scene.Bind( KeyCode.UpArrow, KeyType.Down, () => scrollSound.PrevMove() );
-        scene.Bind( KeyCode.UpArrow, KeyType.Down, () => ChangePreview() );
-
-        scene.Bind( KeyCode.DownArrow, KeyType.Down, () => scrollSound.NextMove() );
-        scene.Bind( KeyCode.DownArrow, KeyType.Down, () => ChangePreview() );
-
-        scene.Bind( KeyCode.Return, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME ) );
-
-        scene.Bind( KeyCode.Space, KeyType.Down, () => optionCanvas.SetActive( true ) );
-        scene.Bind( KeyCode.Space, KeyType.Down, () => SoundManager.Inst.UseLowEqualizer( true ) );
-        scene.Bind( KeyCode.Space, KeyType.Down, () => ChangeKeyAction( SceneAction.FreeStyleOption ) );
-
-        scene.Bind( KeyCode.Escape, KeyType.Down, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.LOBBY ) );
-        KeyBind( SceneAction.FreeStyle, scene );
+        Bind( SceneAction.FreeStyle, KeyCode.UpArrow, () => scrollSound.PrevMove() );
+        Bind( SceneAction.FreeStyle, KeyCode.UpArrow, () => ChangePreview() );
+              
+        Bind( SceneAction.FreeStyle, KeyCode.DownArrow, () => scrollSound.NextMove() );
+        Bind( SceneAction.FreeStyle, KeyCode.DownArrow, () => ChangePreview() );
+              
+        Bind( SceneAction.FreeStyle, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME ) );
+              
+        Bind( SceneAction.FreeStyle, KeyCode.Space, () => optionCanvas.SetActive( true ) );
+        Bind( SceneAction.FreeStyle, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( true ) );
+        Bind( SceneAction.FreeStyle, KeyCode.Space, () => ChangeAction( SceneAction.FreeStyleOption ) );
+              
+        Bind( SceneAction.FreeStyle, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.LOBBY ) );
     }
 }

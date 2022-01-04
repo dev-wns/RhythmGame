@@ -80,4 +80,5 @@ public class NoteRenderer : MonoBehaviour
             transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( CalcTime - InGame.PlaybackChanged ) * InGame.Weight ), 2f );
         }
     }
+
 }
