@@ -7,12 +7,13 @@ public class ScrollOption : ScrollBase
     public List<GameObject> contents;
 
     protected GameObject curOption { get; private set; }
+    protected GameObject prevOption { get; private set; }
 
     protected virtual void Awake()
     {
         //SelectPosition( 0 );
         CreateContents();
-        maxIndex = contents.Count;
+        maxCount = contents.Count;
     }
 
     protected virtual void CreateContents() { }
@@ -49,6 +50,7 @@ public class ScrollOption : ScrollBase
         base.PrevMove();
 
         curOption = contents[curIndex];
+        prevOption = contents[prevIndex];
     }
 
     public override void NextMove()
@@ -56,5 +58,6 @@ public class ScrollOption : ScrollBase
         base.NextMove();
 
         curOption = contents[curIndex];
+        prevOption = contents[prevIndex];
     }
 }

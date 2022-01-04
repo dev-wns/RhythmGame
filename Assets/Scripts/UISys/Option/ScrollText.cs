@@ -13,7 +13,7 @@ public class ScrollText : ScrollBase
     private void Awake()
     {
         IsLoop = true;
-        maxIndex = texts.Length;
+        maxCount = texts.Length;
 
         scene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         keyLeftAction += PrevMove;
