@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScrollText : MonoBehaviour
+public class ScrollText : ScrollBase
 {
     public string[] texts;
-    protected int curIndex;
     public string curText;
 
     private Scene scene;
@@ -13,6 +12,9 @@ public class ScrollText : MonoBehaviour
 
     private void Awake()
     {
+        IsLoop = true;
+        maxIndex = texts.Length;
+
         scene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         keyLeftAction += PrevMove;
         keyRightAction += NextMove;
@@ -21,28 +23,16 @@ public class ScrollText : MonoBehaviour
         scene.AwakeBind( SceneAction.Lobby, KeyCode.RightArrow );
     }
 
-    public void PrevMove()
+    public override void PrevMove()
     {
-        if ( curIndex == 0 )
-        {
-            curIndex = texts.Length - 1;
-            curText = texts[curIndex];
-            return;
-        }
-
-        curText = texts[--curIndex];
+        base.PrevMove();
+        curText = texts[curIndex];
     }
 
-    public void NextMove()
+    public override void NextMove()
     {
-        if ( curIndex == texts.Length - 1 )
-        {
-            curIndex = 0;
-            curText = texts[curIndex];
-            return;
-        }
-
-        curText = texts[++curIndex];
+        base.NextMove();
+        curText = texts[curIndex];
     }
 
     public void KeyBind()

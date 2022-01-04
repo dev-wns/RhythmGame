@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class VerticalScroll : ScrollBase
+public class VerticalScroll : ScrollOption
 {
     public ScrollRect scrollRect;
     private Scrollbar scrollBar;

@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HideScroll : ScrollBase
+public class HideScroll : ScrollOption
 {
-    protected int minIndex { get; private set; }
-    protected int maxIndex { get; private set; }
+    protected int minShowIndex { get; private set; }
+    protected int maxShowIndex { get; private set; }
     
     public int maxShowContentsCount = 3;
     public int numExtraEnable = 2;
@@ -14,8 +14,8 @@ public class HideScroll : ScrollBase
     {
         base.Awake();
 
-        minIndex = Mathf.FloorToInt( maxShowContentsCount * .5f );
-        maxIndex = contents.Count - minIndex - 1;
+        minShowIndex = Mathf.FloorToInt( maxShowContentsCount * .5f );
+        maxShowIndex = contents.Count - minIndex - 1;
     }
 
     private void Start()
@@ -23,7 +23,7 @@ public class HideScroll : ScrollBase
         // 화면에 그려지는 객체만 활성화
         for ( int i = 0; i < contents.Count; i++ )
         {
-            if ( curIndex - minIndex <= i && curIndex + minIndex >= i )
+            if ( curIndex - minShowIndex <= i && curIndex + minShowIndex >= i )
                  contents[i].SetActive( true );
             else contents[i].SetActive( false );
         }
@@ -34,14 +34,14 @@ public class HideScroll : ScrollBase
         base.PrevMove();
         if ( !IsLoop && IsDuplicate ) return;
 
-        if ( minIndex <= curIndex )
+        if ( minShowIndex <= curIndex )
         {
-            contents[curIndex - minIndex].SetActive( true );
+            contents[curIndex - minShowIndex].SetActive( true );
         }
 
-        if ( maxIndex > curIndex + numExtraEnable )
+        if ( maxShowIndex > curIndex + numExtraEnable )
         {
-            contents[minIndex + curIndex + numExtraEnable + 1].SetActive( false );
+            contents[curIndex + minShowIndex + numExtraEnable + 1].SetActive( false );
         }
     }
 
@@ -50,14 +50,14 @@ public class HideScroll : ScrollBase
         base.NextMove();
         if ( !IsLoop && IsDuplicate ) return;
 
-        if ( maxIndex >= curIndex )
+        if ( maxShowIndex >= curIndex )
         {
-            contents[minIndex + curIndex].SetActive( true );
+            contents[minShowIndex + curIndex].SetActive( true );
         }
 
-        if ( minIndex < curIndex - numExtraEnable )
+        if ( minShowIndex < curIndex - numExtraEnable )
         {
-            contents[curIndex - minIndex - numExtraEnable - 1].SetActive( false );
+            contents[curIndex - minShowIndex - numExtraEnable - 1].SetActive( false );
         }
     }
 }

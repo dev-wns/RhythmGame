@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LobbyOption : ScrollBase, IKeyBind
+public class LobbyOption : ScrollOption, IKeyBind
 {
     public RectTransform outline;
     public GameObject optionCanvas, subOptionCanvas;

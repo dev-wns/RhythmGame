@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class LobbySubOption : ScrollBase, IKeyBind
+public class LobbySubOption : ScrollOption, IKeyBind
 {
     public SceneAction prevKeyAction;
 
