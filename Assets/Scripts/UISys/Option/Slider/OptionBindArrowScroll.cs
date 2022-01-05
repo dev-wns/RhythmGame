@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScrollBase : MonoBehaviour, IScroll
+public abstract class OptionBindArrowScroll : OptionBindArrowBase, IScroll
 {
-    public bool IsDuplicate { get; private set; }
-    public bool IsLoop { get; set; } = false;
-
-    public int curIndex  { get; protected set; }
+    public bool IsDuplicate { get; protected set; }
+    public bool IsLoop { get; protected set; }
+    public int curIndex { get; protected set; }
     public int prevIndex { get; protected set; }
-    public int maxCount  { get; protected set; }
+    public int maxCount { get; protected set; }
 
     public virtual void PrevMove()
     {

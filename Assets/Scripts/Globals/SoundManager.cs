@@ -31,7 +31,9 @@ public class SoundManager : SingletonUnity<SoundManager>
         public FMOD.SPEAKERMODE mode;
     }
     public List<SoundDriver> soundDrivers { get; private set; } = new List<SoundDriver>();
-    private int numDriver, currentDriverIndex;
+    public int currentDriverIndex { get { return curDriverIndex; } }
+    private int curDriverIndex;
+    private int numDriver;
     private uint version;
 
     public uint Length { get { return length; } }
@@ -72,7 +74,7 @@ public class SoundManager : SingletonUnity<SoundManager>
                 soundDrivers.Add( driver );
             }
         }
-        ErrorCheck( system.getDriver( out currentDriverIndex ) );
+        ErrorCheck( system.getDriver( out curDriverIndex ) );
         Debug.Log( $"Current Sound Device : {soundDrivers[currentDriverIndex].name}" );
 
         // ChannelGroup
@@ -147,7 +149,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         ErrorCheck( system.setDriver( _index ) );
-        currentDriverIndex = _index;
+        curDriverIndex = _index;
     }
     #endregion
 

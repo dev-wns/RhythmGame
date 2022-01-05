@@ -9,6 +9,7 @@ public enum SceneAction
     InGame, InGamePause,
     Result,
     Exit,
+    KeySetting
 }
 
 public class SceneKeyAction : MonoBehaviour

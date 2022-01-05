@@ -2,65 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LobbyExit : ScrollOption, IKeyBind
+public class LobbyExit : SceneOptionBase
 {
-    public RectTransform outline;
     public GameObject exitCanvas;
-
-    private Scene currentScene;
 
     protected override void Awake()
     {
         base.Awake();
-
         IsLoop = true;
-
-        GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
-        currentScene = scene.GetComponent<Scene>();
-        KeyBind();
     }
 
-    private void SetOutline()
+    public override void KeyBind()
     {
-        outline.transform.SetParent( curOption.transform );
-        outline.anchoredPosition = Vector2.zero;
-    }
+        currentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow,  () => PrevMove() );
+        currentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow,  () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
 
-    private void ButtonProcess()
-    {
-        if ( curOption == null ) return;
-
-        IOption option = curOption.GetComponent<IOption>();
-        if ( option.type != OptionType.Button ) return;
-
-        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN );
-
-        var button = option as IOptionButton;
-        button.Process();
-    }
-
-    public override void PrevMove()
-    {
-        base.PrevMove();
-        SetOutline();
-        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE );
-
-    }
-
-    public override void NextMove()
-    {
-        base.NextMove();
-        SetOutline();
-        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE );
-
-    }
-
-    public void KeyBind()
-    {
-        currentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow, () => PrevMove() );
         currentScene.Bind( SceneAction.Exit, KeyCode.RightArrow, () => NextMove() );
-        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => Cancel() );
-        currentScene.Bind( SceneAction.Exit, KeyCode.Return, () => ButtonProcess() );
+        currentScene.Bind( SceneAction.Exit, KeyCode.RightArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+
+        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.Lobby ) );
+        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => exitCanvas.SetActive( false ) );
+        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
     }
 
     public void Cancel()
