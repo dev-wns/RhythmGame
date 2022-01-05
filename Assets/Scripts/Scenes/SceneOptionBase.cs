@@ -34,7 +34,7 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
 
     private void OptionProcess()
     {
-        IOptionA previous = prevOption.GetComponent<IOptionA>();
+        IOption previous = prevOption.GetComponent<IOption>();
         if ( previous != null )
         {
             var keyControl = previous as IKeyControl;
@@ -44,7 +44,7 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
             outline.ActiveOutline( false );
         }
 
-        IOptionA current = curOption.GetComponent<IOptionA>();
+        IOption current = curOption.GetComponent<IOption>();
         if ( current != null )
         {
             var keyControl = current as IKeyControl;

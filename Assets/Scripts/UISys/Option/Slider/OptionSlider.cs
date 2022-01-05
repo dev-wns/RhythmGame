@@ -34,6 +34,7 @@ public abstract class OptionSlider : OptionBindArrowBase
 
         Process();
         UpdateValue( curValue );
+        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.DECREASE );
     }
 
     public override void RightArrow()
@@ -44,6 +45,7 @@ public abstract class OptionSlider : OptionBindArrowBase
 
         Process();
         UpdateValue( curValue );
+        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.INCREASE );
     }
 
     protected void UpdateValue( float _value )

@@ -6,12 +6,6 @@ public class LobbyExit : SceneOptionBase
 {
     public GameObject exitCanvas;
 
-    protected override void Awake()
-    {
-        base.Awake();
-        IsLoop = true;
-    }
-
     public override void KeyBind()
     {
         currentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow,  () => PrevMove() );
@@ -29,12 +23,10 @@ public class LobbyExit : SceneOptionBase
     {
         currentScene.ChangeAction( SceneAction.Lobby );
         exitCanvas.SetActive( false );
-        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN );
     }
 
     public void Exit()
     {
-        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN );
         Application.Quit();
     }
 }

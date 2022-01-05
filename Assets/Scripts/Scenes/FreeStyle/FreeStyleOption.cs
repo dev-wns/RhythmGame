@@ -36,7 +36,7 @@ public class FreeStyleOption : VerticalScroll, IKeyBind
 
     private void OptionProcess()
     {
-        IOptionA previous = prevOption.GetComponent<IOptionA>();
+        IOption previous = prevOption.GetComponent<IOption>();
         if ( previous != null )
         {
             var keyControl = previous as IKeyControl;
@@ -46,7 +46,7 @@ public class FreeStyleOption : VerticalScroll, IKeyBind
             outline.ActiveOutline( false );
         }
 
-        IOptionA current = curOption.GetComponent<IOptionA>();
+        IOption current = curOption.GetComponent<IOption>();
         if ( current != null )
         {
             var keyControl = current as IKeyControl;

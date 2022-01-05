@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using System.Text;
 
 public class FrameRateOption : OptionText
 {
@@ -9,15 +9,25 @@ public class FrameRateOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )GameSetting.GameFader;
+        curIndex = ( int )SystemSetting.FrameRate;
         ChangeText( texts[curIndex] );
     }
 
     protected override void CreateObject()
     {
+        StringBuilder builder = new StringBuilder();
         for ( int i = 0; i < ( int )FRAME_RATE.Count; i++ )
         {
-            texts.Add( ( ( FRAME_RATE )i ).ToString() );
+            var text = ( ( FRAME_RATE )i ).ToString();
+
+            builder.Clear();
+            builder.Append( text.Replace( "_", " " ).Trim() );
+            if ( i >= 2 )
+            {
+                builder.Append( " FPS" );
+            }
+
+            texts.Add( builder.ToString() );
         }
     }
 

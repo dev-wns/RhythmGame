@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class OptionBase : MonoBehaviour, IOptionA
+public abstract class OptionBase : MonoBehaviour, IOption
 {
     public OptionType type { get; protected set; }
     public SceneAction actionType;

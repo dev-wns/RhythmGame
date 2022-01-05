@@ -1,12 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-
-public interface IOptionCreate
-{
-    public void CreateObjects();
-}
+using System.Text;
 
 public class ScreenModOption : OptionText
 {
@@ -14,15 +9,21 @@ public class ScreenModOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )GameSetting.GameFader;
+        curIndex = ( int )SystemSetting.ScreenMod;
         ChangeText( texts[curIndex] );
     }
 
     protected override void CreateObject()
     {
+        StringBuilder builder = new StringBuilder();
         for ( int i = 0; i < ( int )SCREEN_MOD.Count; i++ )
         {
-            texts.Add( ( ( SCREEN_MOD )i ).ToString() );
+            var text = ( ( SCREEN_MOD )i ).ToString();
+
+            builder.Clear();
+            builder.Append( text.Replace( "_", " " ).Trim() );
+
+            texts.Add( builder.ToString() );
         }
     }
 

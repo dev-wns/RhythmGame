@@ -30,6 +30,6 @@ public class Lobby : Scene
 
         Bind( SceneAction.Lobby, KeyCode.Escape, () => exitCanvas.SetActive( true ) );
         Bind( SceneAction.Lobby, KeyCode.Escape, () => ChangeAction( SceneAction.Exit ) );
-        Bind( SceneAction.Lobby, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+        Bind( SceneAction.Lobby, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
     }
 }

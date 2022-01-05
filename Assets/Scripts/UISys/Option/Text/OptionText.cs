@@ -25,12 +25,13 @@ public abstract class OptionText : OptionBindArrowScroll
     {
         if ( valueText == null ) return;
 
-        valueText.text = _text.Replace( "_", " " ); ;
+        valueText.text = _text;
     }
 
     public override void LeftArrow()
     {
         PrevMove();
+        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.DECREASE );
         ChangeText( texts[curIndex] );
         Process();
     }
@@ -38,6 +39,7 @@ public abstract class OptionText : OptionBindArrowScroll
     public override void RightArrow()
     {
         NextMove();
+        SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.INCREASE );
         ChangeText( texts[curIndex] );
         Process();
     }
