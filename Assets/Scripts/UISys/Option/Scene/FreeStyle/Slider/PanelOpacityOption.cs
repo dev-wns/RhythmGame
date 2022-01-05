@@ -8,12 +8,12 @@ public class PanelOpacityOption : OptionSlider
     {
         base.Awake();
 
-        curValue = GameSetting.PanelOpacity;
+        curValue = GameSetting.PanelOpacity * 100f;
         UpdateValue( curValue );
     }
 
     public override void Process()
     {
-        GameSetting.PanelOpacity = curValue;
+        GameSetting.PanelOpacity = curValue * .01f;
     }
 }

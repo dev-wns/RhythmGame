@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 
 public class FaderOption : OptionText
 {
@@ -14,9 +15,15 @@ public class FaderOption : OptionText
 
     protected override void CreateObject()
     {
+        StringBuilder builder = new StringBuilder();
         for ( int i = 0; i < ( int )FADER.Count; i++ )
         {
-            texts.Add( ( ( FADER )i ).ToString() );
+            var text = ( ( FADER )i ).ToString();
+
+            builder.Clear();
+            builder.Append( text.Replace( "_", " " ).Trim() );
+
+            texts.Add( builder.ToString() );
         }
     }
 

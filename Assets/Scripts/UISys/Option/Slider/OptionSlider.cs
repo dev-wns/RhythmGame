@@ -13,6 +13,8 @@ public abstract class OptionSlider : OptionBindArrowBase
     public float minValue, maxValue;
     public float curValue;
 
+    public string prePos, postPos;
+
     protected override void Awake()
     {
         base.Awake();
@@ -53,9 +55,9 @@ public abstract class OptionSlider : OptionBindArrowBase
         if ( valueText == null ) return;
 
         if ( slider.wholeNumbers )
-            valueText.text = Mathf.RoundToInt( _value ).ToString();
+            valueText.text = string.Format( "{0}{1}{2}", prePos, Mathf.RoundToInt( _value ), postPos );
         else
-            valueText.text = string.Format( "{0:0.#}", curValue );
+            valueText.text = string.Format( "{0}{1:0.#}{2}", prePos, curValue, postPos );
         slider.value = curValue;
     }
 }
