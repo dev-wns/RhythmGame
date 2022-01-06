@@ -7,7 +7,7 @@ public delegate void DelKeyAction();
 public class KeyAction
 {
     private Dictionary<KeyCode, Dictionary<KeyType, DelKeyAction>> keyActions = new Dictionary<KeyCode, Dictionary<KeyType, DelKeyAction>>();
-    
+
     public void ActionCheck()
     {
         foreach ( var code in keyActions.Keys )
@@ -17,8 +17,8 @@ public class KeyAction
                 switch ( type )
                 {
                     case KeyType.Down: { if ( Input.GetKeyDown( code ) ) { keyActions[code][type]?.Invoke(); } } break;
-                    case KeyType.Hold: { if ( Input.GetKey( code ) ) { keyActions[code][type]?.Invoke(); } } break;
-                    case KeyType.Up: { if ( Input.GetKeyUp( code ) ) { keyActions[code][type]?.Invoke(); } } break;
+                    case KeyType.Hold: { if ( Input.GetKey( code ) )     { keyActions[code][type]?.Invoke(); } } break;
+                    case KeyType.Up:   { if ( Input.GetKeyUp( code ) )   { keyActions[code][type]?.Invoke(); } } break;
                 }
             }
         }

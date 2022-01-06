@@ -33,11 +33,6 @@ public class FreeStyle : Scene
         ChangePreview();
     }
 
-    protected override void Update()
-    {
-        base.Update();
-    }
-
     private void ChangePreview()
     {
         if ( scrollSound.IsDuplicate ) return;

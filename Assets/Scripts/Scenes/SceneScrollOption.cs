@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public abstract class SceneOptionBase : ScrollOption, IKeyBind
+public abstract class SceneScrollOption : HideScroll, IKeyBind
 {
     protected Scene currentScene;
 

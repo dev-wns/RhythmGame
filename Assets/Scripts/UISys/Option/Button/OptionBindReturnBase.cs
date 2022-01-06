@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class OptionBindReturnBase : OptionBase, IOptionReturn, IKeyControl
+public abstract class OptionBindReturnBase : OptionBase, IOptionReturn
 {
     private DelKeyAction keyReturnAction;
 
@@ -11,18 +11,24 @@ public abstract class OptionBindReturnBase : OptionBase, IOptionReturn, IKeyCont
         base.Awake();
 
         keyReturnAction += Return;
+    }
+
+    private void Start()
+    {
         currentScene?.AwakeBind( actionType, KeyCode.Return );
     }
 
     public abstract void Return();
 
-    public void KeyBind()
+    public override void KeyBind()
     {
-        currentScene.Bind( actionType, KeyCode.Return, keyReturnAction );
+        base.KeyBind();
+        currentScene?.Bind( actionType, KeyCode.Return, keyReturnAction );
     }
 
-    public void KeyRemove()
+    public override void KeyRemove()
     {
-        currentScene.Remove( actionType, KeyCode.Return, keyReturnAction );
+        base.KeyRemove();
+        currentScene?.Remove( actionType, KeyCode.Return, keyReturnAction );
     }
 }

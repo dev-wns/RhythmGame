@@ -4,45 +4,34 @@ using UnityEngine;
 
 public class ScrollOption : ScrollBase
 {
-    public List<GameObject> contents;
+    [Header( "ScrollOption" )]
+    public List<OptionBase> contents;
 
-    protected GameObject curOption { get; private set; }
-    protected GameObject prevOption { get; private set; }
+    protected OptionBase curOption { get; private set; }
+    protected OptionBase prevOption { get; private set; }
 
     protected virtual void Awake()
     {
-        SelectPosition( 0 );
         CreateContents();
+    }
+
+    protected virtual void Start()
+    {
         maxCount = contents.Count;
+        SelectPosition( 0 );
     }
 
-    protected virtual void CreateContents() { }
-
-    protected GameObject GetContent( int _index )
+    protected virtual void CreateContents() 
     {
-        if ( contents.Count <= _index ) return null;
-
-
-        return contents[_index];
     }
 
-    protected GameObject GetContent( string _name )
+    protected override void SelectPosition( int _pos )
     {
-        for ( int i = 0; i < contents.Count; i++ )
-        {
-            if ( Equals( contents[i].name, _name ) )
-                return contents[i];
-        }
+        base.SelectPosition( _pos );
 
-        return null;
-    }
+        if ( maxCount <= 0 ) return;
 
-    protected void SelectPosition( int _pos )
-    {
-        if ( contents.Count <= 0 ) return;
-
-        curIndex = 0;
-        curOption = contents[0];
+        curOption = contents[_pos];
     }
 
     public override void PrevMove()

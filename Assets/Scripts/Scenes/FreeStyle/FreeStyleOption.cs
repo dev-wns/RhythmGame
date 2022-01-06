@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FreeStyleOption : VerticalScroll, IKeyBind
+public class FreeStyleOption : HideScroll, IKeyBind
 {
-    public RectTransform outline;
     private GameObject optionCanvas;
     private Scene currentScene;
 
@@ -13,13 +12,15 @@ public class FreeStyleOption : VerticalScroll, IKeyBind
         base.Awake();
 
         GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
-        optionCanvas = scrollRect.gameObject;
+        //optionCanvas = scrollRect.gameObject;
         currentScene = scene.GetComponent<Scene>();
         KeyBind();
     }
 
-    private void Start()
+    protected override  void Start()
     {
+        base.Start();
+
         OptionProcess();
     }
 
@@ -41,23 +42,21 @@ public class FreeStyleOption : VerticalScroll, IKeyBind
 
     private void OptionProcess()
     {
-        IOption previous = prevOption?.GetComponent<IOption>();
-        if ( previous != null )
+        if ( prevOption != null )
         {
-            var keyControl = previous as IKeyControl;
+            var keyControl = prevOption as IKeyControl;
             keyControl.KeyRemove();
 
-            var outline = previous as OptionBase;
+            var outline = prevOption as OptionBase;
             outline.ActiveOutline( false );
         }
 
-        IOption current = curOption?.GetComponent<IOption>();
-        if ( current != null )
+        if ( curOption != null )
         {
-            var keyControl = current as IKeyControl;
+            var keyControl = curOption as IKeyControl;
             keyControl.KeyBind();
 
-            var outline = current as OptionBase;
+            var outline = curOption as OptionBase;
             outline.ActiveOutline( true );
         }
     }
@@ -70,12 +69,12 @@ public class FreeStyleOption : VerticalScroll, IKeyBind
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.DownArrow, () => NextMove() );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
 
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => optionCanvas.SetActive( false ) );
+        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => gameObject.SetActive( false ) );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => SoundManager.Inst.UseLowEqualizer( false ) );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.FreeStyle ) );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
 
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => optionCanvas.SetActive( false ) );
+        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => gameObject.SetActive( false ) );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( false ) );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => currentScene.ChangeAction( SceneAction.FreeStyle ) );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );

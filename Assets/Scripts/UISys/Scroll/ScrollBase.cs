@@ -11,6 +11,15 @@ public class ScrollBase : MonoBehaviour, IScroll
     public int prevIndex { get; protected set; }
     public int maxCount  { get; protected set; }
 
+    public int Index;
+
+    protected virtual void SelectPosition( int _pos )
+    {
+        if ( maxCount <= 0 ) return;
+
+        curIndex = _pos;
+    }
+
     public virtual void PrevMove()
     {
         if ( curIndex == 0 )
@@ -27,6 +36,7 @@ public class ScrollBase : MonoBehaviour, IScroll
 
         prevIndex = curIndex--;
         IsDuplicate = false;
+        Index = curIndex;
     }
 
     public virtual void NextMove()
@@ -45,5 +55,6 @@ public class ScrollBase : MonoBehaviour, IScroll
 
         prevIndex = curIndex++;
         IsDuplicate = false;
+        Index = curIndex;
     }
 }

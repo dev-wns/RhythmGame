@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class OptionBase : MonoBehaviour, IOption
+public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
 {
     public OptionType type { get; protected set; }
     public SceneAction actionType;
@@ -21,7 +21,21 @@ public abstract class OptionBase : MonoBehaviour, IOption
         ActiveOutline( false );
     }
 
-    public void ActiveOutline( bool _isActive ) => outline.enabled = _isActive;
+    public void ActiveOutline( bool _isActive )
+    {
+        outline ??= GetComponent<Outline>();
+        outline.enabled = _isActive;
+    }
 
     public abstract void Process();
+
+    public virtual void KeyBind()
+    {
+        currentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+    }
+
+    public virtual void KeyRemove()
+    {
+        currentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+    }
 }
