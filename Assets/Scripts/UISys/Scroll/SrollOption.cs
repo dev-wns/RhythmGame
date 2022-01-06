@@ -6,14 +6,14 @@ using UnityEngine.UI;
 public class ScrollOption : ScrollBase
 {
     [Header( "ScrollOption" )]
-    public List<OptionBase> contents;
+    public List<OptionBase> options;
 
     protected ScrollRect scrollRect;
     protected Scrollbar scrollBar;
     protected RectTransform content;
 
-    protected OptionBase curOption { get; private set; }
-    protected OptionBase prevOption { get; private set; }
+    protected OptionBase currentOption { get; private set; }
+    protected OptionBase previousOption { get; private set; }
 
     protected virtual void Awake()
     {
@@ -24,41 +24,37 @@ public class ScrollOption : ScrollBase
             content = scrollRect.content;
         }
 
-        CreateContents();
+        CreateOptions();
+        Length = options.Count;
+        Select( 0 );
     }
 
-    protected virtual void Start()
-    {
-        maxCount = contents.Count;
-        SelectPosition( 0 );
-    }
-
-    protected virtual void CreateContents() 
+    protected virtual void CreateOptions() 
     {
     }
 
-    protected override void SelectPosition( int _pos )
+    protected override void Select( int _pos )
     {
-        base.SelectPosition( _pos );
+        base.Select( _pos );
 
-        if ( maxCount <= 0 ) return;
+        if ( Length <= 0 ) return;
 
-        curOption = contents[_pos];
+        currentOption = options[_pos];
     }
 
     public override void PrevMove()
     {
         base.PrevMove();
 
-        curOption = contents[curIndex];
-        prevOption = contents[prevIndex];
+        currentOption  = options[currentIndex];
+        previousOption = options[previousIndex];
     }
 
     public override void NextMove()
     {
         base.NextMove();
 
-        curOption = contents[curIndex];
-        prevOption = contents[prevIndex];
+        currentOption  = options[currentIndex];
+        previousOption = options[previousIndex];
     }
 }

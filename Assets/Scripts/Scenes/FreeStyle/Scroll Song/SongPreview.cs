@@ -5,7 +5,7 @@ using TMPro;
 
 public class SongPreview : MonoBehaviour
 {
-    private FreeStyle scene;
+    public FreeStyleScrollSong scroller;
 
     public TextMeshProUGUI time;
     public TextMeshProUGUI noteCount;
@@ -14,8 +14,7 @@ public class SongPreview : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<FreeStyle>();
-        scene.OnSelectSound += SelectChangedSoundInfo;
+        scroller.OnSelectSong += SelectChangedSoundInfo;
     }
 
     private void SelectChangedSoundInfo( Song _song )

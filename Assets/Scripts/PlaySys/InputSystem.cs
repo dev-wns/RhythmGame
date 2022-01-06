@@ -6,7 +6,7 @@ using TMPro;
 public class InputSystem : MonoBehaviour
 {
     public Queue<NoteRenderer> notes = new Queue<NoteRenderer>();
-    private NoteRenderer curNote;
+    private NoteRenderer currentNote;
 
     private float startDiff = 0f, startDiffAbs = 0f;
     private float endDiff = 0f, endDiffAbs = 0f;
@@ -29,25 +29,25 @@ public class InputSystem : MonoBehaviour
     {
         if ( isCheckComplate && notes.Count >= 1 )
         {
-            curNote = notes.Dequeue();
+            currentNote = notes.Dequeue();
             isCheckComplate = false;
         }
 
         if ( isCheckComplate ) return;
 
-        startDiff = curNote.Time - InGame.Playback;
+        startDiff = currentNote.Time - InGame.Playback;
         startDiffAbs = Mathf.Abs( startDiff );
 
-        if ( curNote.IsSlider )
+        if ( currentNote.IsSlider )
         {
-            endDiff    = curNote.SliderTime - InGame.Playback;
+            endDiff    = currentNote.SliderTime - InGame.Playback;
             endDiffAbs = Mathf.Abs( endDiff );
 
             if ( Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
             {
                 if ( startDiff < 150f )
                 {
-                    curNote.isHolding = true;
+                    currentNote.isHolding = true;
                     isHolding = true;
                     //GameManager.Combo++;
                 }
@@ -61,25 +61,25 @@ public class InputSystem : MonoBehaviour
                 if ( endDiff > 150f )
                 {
                     // miss
-                    curNote.GetComponent<SpriteRenderer>().color = Color.gray;
+                    currentNote.GetComponent<SpriteRenderer>().color = Color.gray;
                 }
                 else if ( endDiffAbs < 150f )
                 {
                     //GameManager.Combo++;
                     isHolding = false;
-                    curNote.isHolding = false;
+                    currentNote.isHolding = false;
                     isCheckComplate = true;
-                    curNote.Destroy();
-                    curNote.gameObject.SetActive( false );
+                    currentNote.Destroy();
+                    currentNote.gameObject.SetActive( false );
                 }
             }
 
             if ( endDiff < -150f )
             {
-                curNote.Destroy();
-                curNote.gameObject.SetActive( false );
+                currentNote.Destroy();
+                currentNote.gameObject.SetActive( false );
                 isHolding = false;
-                curNote.isHolding = false;
+                currentNote.isHolding = false;
                 isCheckComplate = true;
             }
         }
@@ -88,8 +88,8 @@ public class InputSystem : MonoBehaviour
             if ( startDiff < -150f )
             {
                 //GameManager.Combo = 0;
-                curNote.Destroy();
-                curNote.gameObject.SetActive( false );
+                currentNote.Destroy();
+                currentNote.gameObject.SetActive( false );
                 //InGame.cPool.Despawn( curColNote );
                 isCheckComplate = true;
             }
@@ -98,8 +98,8 @@ public class InputSystem : MonoBehaviour
                 if ( Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
                 {
                     //GameManager.Combo++;
-                    curNote.Destroy();
-                    curNote.gameObject.SetActive( false );
+                    currentNote.Destroy();
+                    currentNote.gameObject.SetActive( false );
                     //InGame.cPool.Despawn( curColNote );
                     isCheckComplate = true;
                 }

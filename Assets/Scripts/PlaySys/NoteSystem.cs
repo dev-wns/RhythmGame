@@ -11,7 +11,7 @@ public class NoteSystem : MonoBehaviour
     public NoteRenderer nPrefab;
 
     private List<Note> notes = new List<Note>();
-    private int curIdx;
+    private int currentIndex;
     private InputSystem[] ISystem;
 
     private void Awake()
@@ -31,15 +31,15 @@ public class NoteSystem : MonoBehaviour
 
     private IEnumerator Process()
     {
-        while ( curIdx < notes.Count )
+        while ( currentIndex < notes.Count )
         {
-            Note curNote = notes[curIdx];
+            Note curNote = notes[currentIndex];
             yield return new WaitUntil( () => curNote.calcTime <= InGame.PlaybackChanged + InGame.PreLoadTime );
 
             NoteRenderer note = nPool.Spawn();
             note.Initialized( curNote );
             ISystem[curNote.line].notes.Enqueue( note );
-            curIdx++;
+            currentIndex++;
         }
     } 
 }

@@ -5599,9 +5599,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d2c6a6c4f9b00946b81737624557409, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Index: 0
-  contents: []
-  maxActiveNumber: 10
+  options: []
+  numMaxActive: 10
 --- !u!114 &974435357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6026,10 +6025,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 613c14fa10be2744ebe8f989332fe9c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Index: 0
-  contents:
-  - {fileID: 1420408378}
-  - {fileID: 417813604}
+  options: []
 --- !u!1 &1068476985
 GameObject:
   m_ObjectHideFlags: 0
@@ -6585,8 +6581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76359d370600e8945a1d6507866eef09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Index: 0
-  contents:
+  options:
   - {fileID: 1629476535}
   - {fileID: 3679343412585871111}
   - {fileID: 3679343410805282189}

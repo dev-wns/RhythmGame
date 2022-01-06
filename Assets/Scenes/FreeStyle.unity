@@ -641,9 +641,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   optionCanvas: {fileID: 245706500}
-  bgPrefab: {fileID: 1419412381515201341, guid: 7c4fa7096f17bbb4199169bc7de8225f,
-    type: 3}
-  curBackground: {fileID: 0}
 --- !u!4 &103959473
 Transform:
   m_ObjectHideFlags: 0
@@ -1492,9 +1489,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f695f894a6ada24aa37edfdf9f4269d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Index: 0
-  contents: []
-  maxActiveNumber: 10
+  options: []
+  numMaxActive: 10
 --- !u!114 &245706503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4399,9 +4395,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3743920d8b8b59d42b080d601451a042, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Index: 0
-  contents: []
-  maxActiveNumber: 8
+  options: []
+  numMaxActive: 8
   songPrefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779,
     type: 3}
 --- !u!1 &626776296
@@ -7726,6 +7721,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6061661af8ea1794f88a0f8048785183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scroller: {fileID: 620280207}
   time: {fileID: 163994260}
   noteCount: {fileID: 627364140}
   sliderCount: {fileID: 1714604182}

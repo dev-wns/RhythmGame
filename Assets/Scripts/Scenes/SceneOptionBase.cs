@@ -16,12 +16,10 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
         KeyBind();
     }
 
-    protected override void Start()
+    private void Start()
     {
-        base.Start();
-
         OptionProcess();
-        while ( curOption.type == OptionType.Title )
+        while ( currentOption.type == OptionType.Title )
         {
             base.NextMove();
             OptionProcess();
@@ -35,10 +33,10 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
 
         OptionProcess();
 
-        if ( curOption.type == OptionType.Title )
+        if ( currentOption.type == OptionType.Title )
         {
-            if ( curIndex == 0 ) NextMove();
-            else                 PrevMove();
+            if ( currentIndex == 0 ) NextMove();
+            else                     PrevMove();
         }
     }
 
@@ -49,25 +47,25 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
 
         OptionProcess();
 
-        if ( curOption.type == OptionType.Title )
+        if ( currentOption.type == OptionType.Title )
         {
-            if ( curIndex == maxCount ) PrevMove();
-            else                        NextMove();
+            if ( currentIndex == Length ) PrevMove();
+            else                          NextMove();
         }
     }
 
     private void OptionProcess()
     {
-        if ( prevOption != null )
+        if ( previousOption != null )
         {
-            prevOption.KeyRemove();
-            prevOption.ActiveOutline( false );
+            previousOption.KeyRemove();
+            previousOption.ActiveOutline( false );
         }
 
-        if ( curOption != null )
+        if ( currentOption != null )
         {
-            curOption.KeyBind();
-            curOption.ActiveOutline( true );
+            currentOption.KeyBind();
+            currentOption.ActiveOutline( true );
         }
     }
 

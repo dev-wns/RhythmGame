@@ -9,7 +9,7 @@ public class FrequencyBand : MonoBehaviour
     private LineRenderer rdr;
     private Transform[] freqObjects;
 
-    private Vector3[] newPos;
+    private Vector3[] newPosition;
     private float[] freqBands;
 
     public int numBands = 11; // max 11
@@ -22,7 +22,7 @@ public class FrequencyBand : MonoBehaviour
 
         // create object
         freqObjects = new Transform[numBands - 1];
-        newPos      = new Vector3[freqObjects.Length];
+        newPosition = new Vector3[freqObjects.Length];
 
         float angle = angle = ( 360f / freqObjects.Length );
         for ( int i = 0; i < freqObjects.Length; i++ )
@@ -40,7 +40,7 @@ public class FrequencyBand : MonoBehaviour
 
         // renderer setting 
         rdr = GetComponent<LineRenderer>();
-        rdr.positionCount = newPos.Length;
+        rdr.positionCount = newPosition.Length;
         //rdr.loop = true;
 
         if ( numBands % 2 != 0 )
@@ -71,8 +71,8 @@ public class FrequencyBand : MonoBehaviour
         {
             freqObjects[i].position = Vector3.Slerp( freqObjects[i].position,
                                                    ( freqObjects[i].transform.up * defaultPos ) + ( freqObjects[i].transform.up * freqBands[i + 1] * 1000f * bandPower ), .25f );
-            newPos[i] = transform.position + freqObjects[i].position;
-            rdr.SetPositions( newPos ); 
+            newPosition[i] = transform.position + freqObjects[i].position;
+            rdr.SetPositions( newPosition ); 
         }
     }
 }

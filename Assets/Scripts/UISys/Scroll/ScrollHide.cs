@@ -5,38 +5,36 @@ using UnityEngine;
 public class ScrollHide : ScrollOption
 {
     [Header( "ScrollHide" )]
-    public int maxActiveNumber;
+    public int numMaxActive;
     private int activeIndex = 0; // 0 ~ maxActiveNumber
     private double valueOffset;
 
-    protected override void CreateContents()
+    protected override void CreateOptions()
     {
-        if ( contents.Count == 0 )
+        if ( options.Count == 0 )
         {
             for ( int i = 0; i < content.childCount; i++ )
             {
-                contents.Add( content.GetChild( i ).GetComponent<OptionBase>() );
+                options.Add( content.GetChild( i ).GetComponent<OptionBase>() );
             }
         }
     }
 
-    protected override void Start()
+    protected virtual void Start()
     {
-        base.Start();
+        valueOffset = 1d / Mathf.Abs( numMaxActive - options.Count );
 
-        valueOffset = 1d / Mathf.Abs( maxActiveNumber - contents.Count );
-
-        int minIndex = curIndex - activeIndex;
-        int maxIndex = curIndex + Mathf.Abs( activeIndex - maxActiveNumber );
-        for ( int i = 0; i < contents.Count; i++ )
+        int minIndex = currentIndex - activeIndex;
+        int maxIndex = currentIndex + Mathf.Abs( activeIndex - numMaxActive );
+        for ( int i = 0; i < options.Count; i++ )
         {
-            var rt = contents[i].transform as RectTransform;
+            var rt = options[i].transform as RectTransform;
 
             rt.anchorMin = new Vector2( .5f, 1f );
             rt.anchorMax = new Vector2( .5f, 1f );
 
             if ( i < minIndex || i > maxIndex - 1 )
-                contents[i].gameObject.SetActive( false );
+                options[i].gameObject.SetActive( false );
         }
     }
 
@@ -50,10 +48,10 @@ public class ScrollHide : ScrollOption
             scrollBar.value += ( float )valueOffset;
             scrollRect.verticalNormalizedPosition = scrollBar.value;
 
-            if ( curIndex > -1 )
+            if ( currentIndex > -1 )
             {
-                contents[curIndex].gameObject?.SetActive( true );
-                contents[curIndex + maxActiveNumber].gameObject?.SetActive( false );
+                options[currentIndex].gameObject?.SetActive( true );
+                options[currentIndex + numMaxActive].gameObject?.SetActive( false );
             }
         }
         else activeIndex -= 1;
@@ -64,15 +62,15 @@ public class ScrollHide : ScrollOption
         base.NextMove();
         if ( !IsLoop && IsDuplicate ) return;
 
-        if ( activeIndex + 1 >= maxActiveNumber )
+        if ( activeIndex + 1 >= numMaxActive )
         {
             scrollBar.value -= ( float )valueOffset;
             scrollRect.verticalNormalizedPosition = scrollBar.value;
 
-            if ( curIndex > maxActiveNumber - 1 )
+            if ( currentIndex > numMaxActive - 1 )
             {
-                contents[curIndex].gameObject?.SetActive( true );
-                contents[curIndex - maxActiveNumber].gameObject?.SetActive( false );
+                options[currentIndex].gameObject?.SetActive( true );
+                options[currentIndex - numMaxActive].gameObject?.SetActive( false );
             }
         }
         else activeIndex += 1;

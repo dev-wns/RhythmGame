@@ -9,7 +9,7 @@ public class SoundDriverOption : OptionText
     {
         base.Awake();
 
-        curIndex = SoundManager.Inst.currentDriverIndex;
+        curIndex = SoundManager.Inst.CurrentDriverIndex;
         ChangeText( texts[curIndex] );
     }
 

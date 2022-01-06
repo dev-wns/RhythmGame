@@ -15,19 +15,19 @@ public enum SceneAction
 public class SceneKeyAction : MonoBehaviour
 {
     private Dictionary<SceneAction, KeyAction> keyActions = new Dictionary<SceneAction, KeyAction>();
-    public SceneAction curAction { get; private set; }
+    public SceneAction currentAction { get; private set; }
     private bool IsLock = false;
 
     public void InputLock( bool _isLock ) => IsLock = _isLock;
 
     public void ActionCheck()
     {
-        if ( IsLock || !keyActions.ContainsKey( curAction ) )
+        if ( IsLock || !keyActions.ContainsKey( currentAction ) )
         {
             return;
         }
 
-        keyActions[curAction].ActionCheck();
+        keyActions[currentAction].ActionCheck();
     }
 
     public void AwakeBind( SceneAction _type, KeyCode _code )
@@ -82,6 +82,6 @@ public class SceneKeyAction : MonoBehaviour
             return;
         }
 
-        curAction = _type;
+        currentAction = _type;
     }
 }

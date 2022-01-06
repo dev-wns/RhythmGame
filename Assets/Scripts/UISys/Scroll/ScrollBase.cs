@@ -2,31 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScrollBase : MonoBehaviour, IScroll
+public class ScrollBase : MonoBehaviour
 {
     public bool IsDuplicate { get; private set; }
     public bool IsLoop { get; set; } = false;
 
-    public int curIndex  { get; protected set; }
-    public int prevIndex { get; protected set; }
-    public int maxCount  { get; protected set; }
+    public int currentIndex  { get; protected set; }
+    public int previousIndex { get; protected set; }
+    public int Length  { get; protected set; }
 
-    public int Index;
-
-    protected virtual void SelectPosition( int _pos )
+    protected virtual void Select( int _pos )
     {
-        if ( maxCount <= 0 ) return;
+        if ( Length <= 0 ) return;
 
-        curIndex = _pos;
+        currentIndex = _pos;
     }
 
     public virtual void PrevMove()
     {
-        if ( curIndex == 0 )
+        if ( currentIndex == 0 )
         {
             if ( IsLoop )
             {
-                curIndex = maxCount - 1;
+                currentIndex = Length - 1;
                 return;
             }
 
@@ -34,18 +32,17 @@ public class ScrollBase : MonoBehaviour, IScroll
             return;
         }
 
-        prevIndex = curIndex--;
+        previousIndex = currentIndex--;
         IsDuplicate = false;
-        Index = curIndex;
     }
 
     public virtual void NextMove()
     {
-        if ( curIndex == maxCount - 1 )
+        if ( currentIndex == Length - 1 )
         {
             if ( IsLoop )
             {
-                curIndex = 0;
+                currentIndex = 0;
                 return;
             }
 
@@ -53,8 +50,7 @@ public class ScrollBase : MonoBehaviour, IScroll
             return;
         }
 
-        prevIndex = curIndex++;
+        previousIndex = currentIndex++;
         IsDuplicate = false;
-        Index = curIndex;
     }
 }

@@ -9,11 +9,16 @@ public class FreeStyleScrollSong : SceneScrollOption
     public delegate void DelSelectSong( Song _song );
     public event DelSelectSong OnSelectSong;
 
+    private Song currentSong;
+    private float playback;
+    private uint previewTime;
+    private readonly uint waitPreviewTime = 500;
+
     protected override void Awake()
     {
         base.Awake();
 
-        SelectPosition( GameManager.Inst.CurrentSongIndex );
+        Select( GameManager.Inst.CurrentSongIndex );
     }
 
     protected override void Start()
@@ -23,9 +28,22 @@ public class FreeStyleScrollSong : SceneScrollOption
         OptionProcess();
     }
 
-    protected override void CreateContents()
+    private void Update()
     {
-        contents.Capacity = GameManager.Inst.Songs.Count;
+        playback += Time.deltaTime * 1000f;
+
+        if ( SoundManager.Inst.Length + waitPreviewTime < playback &&
+             !SoundManager.Inst.IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
+        {
+            SoundManager.Inst.PlayBgm();
+            SoundManager.Inst.SetPosition( GetPreviewTime() );
+            playback = previewTime;
+        }
+    }
+
+    protected override void CreateOptions()
+    {
+        options.Capacity = GameManager.Inst.Songs.Count;
         for ( int i = 0; i < GameManager.Inst.Songs.Count; i++ )
         {
             // scrollview song contents
@@ -33,7 +51,7 @@ public class FreeStyleScrollSong : SceneScrollOption
             var info = song.GetComponent<SongInfomation>();
             info.SetInfo( GameManager.Inst.Songs[i] );
 
-            contents.Add( song );
+            options.Add( song );
         }
     }
 
@@ -55,8 +73,28 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     private void OptionProcess()
     {
-        GameManager.Inst.SelectSong( curIndex );
-        OnSelectSong( GameManager.Inst.CurrentSong );
+        GameManager.Inst.SelectSong( currentIndex );
+
+        currentSong = GameManager.Inst.CurrentSong;
+        OnSelectSong( currentSong );
+
+        Globals.Timer.Start();
+        {
+            SoundManager.Inst.LoadBgm( currentSong.audioPath, SOUND_LOAD_TYPE.STREAM );
+            SoundManager.Inst.PlayBgm();
+        }
+        Debug.Log( $"Sound Load {Globals.Timer.End()} ms" );
+
+        previewTime = GetPreviewTime();
+        SoundManager.Inst.SetPosition( previewTime );
+        playback = previewTime;
+    }
+
+    private uint GetPreviewTime()
+    {
+        int time = currentSong.previewTime;
+        if ( time <= 0 ) return ( uint )( SoundManager.Inst.Length * 0.3333f );
+        else             return ( uint )currentSong.previewTime;
     }
 
 

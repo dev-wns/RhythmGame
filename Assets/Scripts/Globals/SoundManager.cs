@@ -31,8 +31,8 @@ public class SoundManager : SingletonUnity<SoundManager>
         public FMOD.SPEAKERMODE mode;
     }
     public List<SoundDriver> soundDrivers { get; private set; } = new List<SoundDriver>();
-    public int currentDriverIndex { get { return curDriverIndex; } }
-    private int curDriverIndex;
+    public int CurrentDriverIndex { get { return currentDriverIndex; } }
+    private int currentDriverIndex;
     private int numDriver;
     private uint version;
 
@@ -61,7 +61,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
         Debug.Log( $"SampleRate : {samplerRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
 
-        ErrorCheck( system.setDSPBufferSize( 64, 4 ) );
+        ErrorCheck( system.setDSPBufferSize( 1024, 4 ) );
         uint bufferSize;
         int numbuffers;
         ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
@@ -85,7 +85,7 @@ public class SoundManager : SingletonUnity<SoundManager>
                 soundDrivers.Add( driver );
             }
         }
-        ErrorCheck( system.getDriver( out curDriverIndex ) );
+        ErrorCheck( system.getDriver( out currentDriverIndex ) );
         Debug.Log( $"Current Sound Device : {soundDrivers[currentDriverIndex].name}" );
 
         // ChannelGroup
@@ -164,7 +164,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         ErrorCheck( system.setDriver( _index ) );
-        curDriverIndex = _index;
+        currentDriverIndex = _index;
     }
     #endregion
 
