@@ -5,6 +5,7 @@ using TMPro;
 
 public class LobbyKeySetting : SceneOptionBase
 {
+    public GameObject keySettingCanvas;
 
     private void OnEnable()
     {
@@ -20,7 +21,7 @@ public class LobbyKeySetting : SceneOptionBase
         currentScene.Bind( SceneAction.KeySetting, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
 
         currentScene.Bind( SceneAction.KeySetting, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.LobbyOption ) );
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.Escape, () => gameObject.SetActive( false ) );
+        currentScene.Bind( SceneAction.KeySetting, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
         currentScene.Bind( SceneAction.KeySetting, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
     }
 }

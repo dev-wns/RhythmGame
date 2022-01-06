@@ -1,11 +1,15 @@
 {
     "name": "FMODUnity",
+    "rootNamespace": "",
     "references": [
         "Unity.Timeline",
         "Unity.Addressables",
         "Unity.ResourceManager"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor",
+        "WindowsStandalone64"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

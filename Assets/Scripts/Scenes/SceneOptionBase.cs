@@ -14,6 +14,8 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
         GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
         currentScene = scene.GetComponent<Scene>();
         KeyBind();
+
+        OptionProcess();
     }
 
     public override void PrevMove()
@@ -34,7 +36,7 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
 
     private void OptionProcess()
     {
-        IOption previous = prevOption.GetComponent<IOption>();
+        IOption previous = prevOption?.GetComponent<IOption>();
         if ( previous != null )
         {
             var keyControl = previous as IKeyControl;
@@ -44,7 +46,7 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
             outline.ActiveOutline( false );
         }
 
-        IOption current = curOption.GetComponent<IOption>();
+        IOption current = curOption?.GetComponent<IOption>();
         if ( current != null )
         {
             var keyControl = current as IKeyControl;

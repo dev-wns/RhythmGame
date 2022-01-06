@@ -40,7 +40,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     private uint length;
 
     public float Pitch { get; private set; } = 1f;
-    public float minPitch = .7f, maxPitch = 1.3f;
+    public readonly float minPitch = .7f, maxPitch = 1.3f;
 
     private float volume;
     #endregion
@@ -53,8 +53,19 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
 
         // to do before system initialize
-        //ErrorCheck( system.setSoftwareFormat( 48000, FMOD.SPEAKERMODE.MONO, 4 ) );
-        //ErrorCheck( system.setDSPBufferSize( 1024, 4 ) );
+        int samplerRate, numRawSpeakers;
+        FMOD.SPEAKERMODE mode;
+        ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
+        ErrorCheck( system.setSoftwareFormat( samplerRate, FMOD.SPEAKERMODE.MONO, numRawSpeakers ) );
+
+        ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
+        Debug.Log( $"SampleRate : {samplerRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
+
+        ErrorCheck( system.setDSPBufferSize( 64, 4 ) );
+        uint bufferSize;
+        int numbuffers;
+        ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
+        Debug.Log( $"buffer size : {bufferSize} numbuffers : {numbuffers}" );
 
         System.IntPtr extraDriverData = new System.IntPtr();
         ErrorCheck( system.init( maxChannelSize, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
@@ -113,11 +124,15 @@ public class SoundManager : SingletonUnity<SoundManager>
         foreach ( var sfx in sfxSound.Values )
         {
             if ( sfx.hasHandle() )
-                 ErrorCheck( sfx.release() );
+            {
+                ErrorCheck( sfx.release() );
+            }
         }
 
         if ( bgmSound.hasHandle() )
-             ErrorCheck( bgmSound.release() );
+        {
+            ErrorCheck( bgmSound.release() );
+        }
 
         // DSP
         RemoveFFT();
@@ -126,7 +141,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( lowEffectEQ.release() );
 
         // ChannelGroup
-        for( int i = 1; i < ( int )CHANNEL_GROUP_TYPE.COUNT; i++ )
+        for ( int i = 1; i < ( int )CHANNEL_GROUP_TYPE.COUNT; i++ )
         {
             ErrorCheck( Groups[( CHANNEL_GROUP_TYPE )i].release() );
         }

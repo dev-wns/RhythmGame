@@ -11,7 +11,7 @@ public class ScrollOption : ScrollBase
 
     protected virtual void Awake()
     {
-        //SelectPosition( 0 );
+        SelectPosition( 0 );
         CreateContents();
         maxCount = contents.Count;
     }
