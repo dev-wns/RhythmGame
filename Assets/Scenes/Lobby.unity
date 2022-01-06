@@ -2424,7 +2424,7 @@ GameObject:
   m_Component:
   - component: {fileID: 347906291}
   m_Layer: 5
-  m_Name: SubOptions
+  m_Name: Key Setting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5600,19 +5600,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Index: 0
-  contents:
-  - {fileID: 1595323558}
-  - {fileID: 825422686}
-  - {fileID: 1898836215}
-  - {fileID: 1319754991}
-  - {fileID: 1322333170}
-  - {fileID: 333211619}
-  - {fileID: 604960864}
-  - {fileID: 1539074779}
-  - {fileID: 391921504}
-  - {fileID: 853118918}
-  - {fileID: 540524951}
-  - {fileID: 0}
+  contents: []
   maxActiveNumber: 10
 --- !u!114 &974435357
 MonoBehaviour:
@@ -6528,7 +6516,7 @@ GameObject:
   - component: {fileID: 1133869499}
   - component: {fileID: 1133869500}
   m_Layer: 5
-  m_Name: Key Setting
+  m_Name: Tracks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16466,10 +16454,10 @@ RectTransform:
   m_Father: {fileID: 1305172965}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 940}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2014053778
 MonoBehaviour:

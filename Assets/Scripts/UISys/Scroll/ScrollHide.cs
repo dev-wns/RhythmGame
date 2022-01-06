@@ -1,14 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class HideScroll : ScrollOption
+public class ScrollHide : ScrollOption
 {
-    [Header("HideScroll")]
-    private ScrollRect scrollRect;
-    private Scrollbar scrollBar;
-
+    [Header( "ScrollHide" )]
     public int maxActiveNumber;
     private int activeIndex = 0; // 0 ~ maxActiveNumber
     private double valueOffset;
@@ -17,21 +13,11 @@ public class HideScroll : ScrollOption
     {
         if ( contents.Count == 0 )
         {
-            scrollRect ??= GetComponent<ScrollRect>();
-            var viewContent = scrollRect.content;
-            for ( int i = 0; i < viewContent.childCount; i++ )
+            for ( int i = 0; i < content.childCount; i++ )
             {
-                contents.Add( viewContent.GetChild( i ).GetComponent<OptionBase>() );
+                contents.Add( content.GetChild( i ).GetComponent<OptionBase>() );
             }
         }
-    }
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        scrollRect ??= GetComponent<ScrollRect>();
-        scrollBar  = scrollRect.verticalScrollbar;
     }
 
     protected override void Start()

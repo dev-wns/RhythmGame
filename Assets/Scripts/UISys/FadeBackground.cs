@@ -6,7 +6,10 @@ using DG.Tweening;
 
 public class FadeBackground : MonoBehaviour
 {
-    public Image image;
+    public BackgroundSystem system;
+    public float fadeTime = .5f;
+
+    private Image image;
     private static float depth = 0f;
 
     private void Awake()
@@ -14,11 +17,12 @@ public class FadeBackground : MonoBehaviour
         image = GetComponent<Image>();
     }
 
-    private void OnEnable()
+    public void SetInfo( Sprite _sprite )
     {
         transform.localPosition = new Vector3( 0f, 0f, depth += .00001f );
         image.color = new Color( 1f, 1f, 1f, 0f );
-        image.DOFade( 1f, .5f );
+        image.sprite = _sprite;
+        image.DOFade( 1f, fadeTime );
     }
 
     public void Despawn()
@@ -28,8 +32,8 @@ public class FadeBackground : MonoBehaviour
 
     private IEnumerator FadeAfterDespawn()
     {
-        image.DOFade( 0f, .5f );
-        yield return YieldCache.WaitForSeconds( .5f );
-        FreeStyle.bgPool.Despawn( this );
+        image.DOFade( 0f, fadeTime );
+        yield return YieldCache.WaitForSeconds( fadeTime );
+        system.DeSpawn( this );
     }
 }

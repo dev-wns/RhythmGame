@@ -1,17 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScrollOption : ScrollBase
 {
     [Header( "ScrollOption" )]
     public List<OptionBase> contents;
 
+    protected ScrollRect scrollRect;
+    protected Scrollbar scrollBar;
+    protected RectTransform content;
+
     protected OptionBase curOption { get; private set; }
     protected OptionBase prevOption { get; private set; }
 
     protected virtual void Awake()
     {
+        scrollRect ??= GetComponent<ScrollRect>();
+        if ( scrollRect )
+        {
+            scrollBar = scrollRect.verticalScrollbar;
+            content = scrollRect.content;
+        }
+
         CreateContents();
     }
 

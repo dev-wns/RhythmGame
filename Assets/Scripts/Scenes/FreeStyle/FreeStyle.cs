@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 public class FreeStyle : Scene
 {
-    public VerticalScrollSound scrollSound;
+    //public VerticalScrollSound scrollSound;
     public GameObject optionCanvas;
 
     public static ObjectPool<FadeBackground> bgPool;
@@ -24,7 +24,7 @@ public class FreeStyle : Scene
         base.Awake();
 
         bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
-        //StartCoroutine( FadeBackground() );
+        StartCoroutine( FadeBackground() );
         ChangeAction( SceneAction.FreeStyle );
     }
 
@@ -35,9 +35,9 @@ public class FreeStyle : Scene
 
     private void ChangePreview()
     {
-        if ( scrollSound.IsDuplicate ) return;
-        
-        Song curSong = GameManager.Inst.CurrentSound;
+        //if ( scrollSound.IsDuplicate ) return;
+
+        Song curSong = new Song();//= GameManager.Inst.CurrentSound;
         StartCoroutine( FadeBackground() );
 
         Globals.Timer.Start();
@@ -52,7 +52,7 @@ public class FreeStyle : Scene
         // 중간부터 재생
         int time = curSong.previewTime;
         if ( time <= 0 ) SoundManager.Inst.SetPosition( ( uint )( SoundManager.Inst.Length / 3f ) );
-        else             SoundManager.Inst.SetPosition( ( uint )time );
+        else SoundManager.Inst.SetPosition( ( uint )time );
     }
 
     protected IEnumerator LoadBackground( string _path )
@@ -75,19 +75,19 @@ public class FreeStyle : Scene
 
     public IEnumerator FadeBackground()
     {
-        Globals.Timer.Start();
-        {
-            StartCoroutine( LoadBackground( GameManager.Inst.CurrentSound.imagePath ) );
-            yield return new WaitUntil( () => IsBGLoadDone );
-            if ( curBackground != null )
-                 curBackground.Despawn();
+        //Globals.Timer.Start();
+        //{
+        //    StartCoroutine( LoadBackground( GameManager.Inst.CurrentSound.imagePath ) );
+        yield return new WaitUntil( () => IsBGLoadDone );
+        //    if ( curBackground != null )
+        //         curBackground.Despawn();
 
-            curBackground = bgPool.Spawn();
-            curBackground.image.sprite = background;
+        //    curBackground = bgPool.Spawn();
+        //    curBackground.image.sprite = background;
 
-            IsBGLoadDone = false;
-        }
-        Debug.Log( $"BackgroundLoad {Globals.Timer.elapsedMilliSeconds} ms" );
+        //    IsBGLoadDone = false;
+        //}
+        //Debug.Log( $"BackgroundLoad {Globals.Timer.elapsedMilliSeconds} ms" );
     }
     #endregion
 
@@ -95,14 +95,14 @@ public class FreeStyle : Scene
 
     public override void KeyBind()
     {
-        Bind( SceneAction.FreeStyle, KeyCode.UpArrow, () => scrollSound.PrevMove() );
+        //Bind( SceneAction.FreeStyle, KeyCode.UpArrow, () => scrollSound.PrevMove() );
         Bind( SceneAction.FreeStyle, KeyCode.UpArrow, () => ChangePreview() );
-              
-        Bind( SceneAction.FreeStyle, KeyCode.DownArrow, () => scrollSound.NextMove() );
+
+        //Bind( SceneAction.FreeStyle, KeyCode.DownArrow, () => scrollSound.NextMove() );
         Bind( SceneAction.FreeStyle, KeyCode.DownArrow, () => ChangePreview() );
-              
-        Bind( SceneAction.FreeStyle, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME ) );
-              
+
+        //Bind( SceneAction.FreeStyle, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME ) );
+
         Bind( SceneAction.FreeStyle, KeyCode.Space, () => optionCanvas.SetActive( true ) );
         Bind( SceneAction.FreeStyle, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( true ) );
         Bind( SceneAction.FreeStyle, KeyCode.Space, () => ChangeAction( SceneAction.FreeStyleOption ) );

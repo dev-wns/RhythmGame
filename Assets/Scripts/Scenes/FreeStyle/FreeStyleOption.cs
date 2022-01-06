@@ -2,66 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FreeStyleOption : HideScroll, IKeyBind
+public class FreeStyleOption : SceneScrollOption
 {
-    private GameObject optionCanvas;
-    private Scene currentScene;
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
-        //optionCanvas = scrollRect.gameObject;
-        currentScene = scene.GetComponent<Scene>();
-        KeyBind();
-    }
-
-    protected override  void Start()
-    {
-        base.Start();
-
-        OptionProcess();
-    }
-
-    public override void PrevMove()
-    {
-        base.PrevMove();
-        if ( !IsLoop && IsDuplicate ) return;
-
-        OptionProcess();
-    }
-
-    public override void NextMove()
-    {
-        base.NextMove();
-        if ( !IsLoop && IsDuplicate ) return;
-
-        OptionProcess();
-    }
-
-    private void OptionProcess()
-    {
-        if ( prevOption != null )
-        {
-            var keyControl = prevOption as IKeyControl;
-            keyControl.KeyRemove();
-
-            var outline = prevOption as OptionBase;
-            outline.ActiveOutline( false );
-        }
-
-        if ( curOption != null )
-        {
-            var keyControl = curOption as IKeyControl;
-            keyControl.KeyBind();
-
-            var outline = curOption as OptionBase;
-            outline.ActiveOutline( true );
-        }
-    }
-
-    public void KeyBind()
+    public override void KeyBind()
     {
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.UpArrow, () => PrevMove() );
         currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );

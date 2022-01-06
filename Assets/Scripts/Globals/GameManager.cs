@@ -6,8 +6,8 @@ using UnityEngine;
 public class GameManager : SingletonUnity<GameManager>
 {
     public List<Song> Songs = new List<Song>();
-    public Song CurrentSound { get; private set; }
-    public int CurrentSoundIndex { get; private set; }
+    public Song CurrentSong { get; private set; }
+    public int CurrentSongIndex { get; private set; }
     public float MedianBpm { get; private set; }
 
     private void Awake()
@@ -44,8 +44,8 @@ public class GameManager : SingletonUnity<GameManager>
             return;
         }
 
-        CurrentSoundIndex = _index;
-        CurrentSound      = Songs[_index];
+        CurrentSongIndex = _index;
+        CurrentSong      = Songs[_index];
         MedianBpm         = Songs[_index].medianBpm;
     }
 }

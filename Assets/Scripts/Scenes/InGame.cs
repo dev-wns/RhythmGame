@@ -54,14 +54,14 @@ public class InGame : Scene
 
         using ( FileParser parser = new FileParser() )
         {
-            parser.TryParse( GameManager.Inst.CurrentSound.filePath, out chart );
+            parser.TryParse( GameManager.Inst.CurrentSong.filePath, out chart );
         }
 
         SystemInitialized( chart );
 
         ChangeAction( SceneAction.InGame );
         
-        SoundManager.Inst.LoadBgm( GameManager.Inst.CurrentSound.audioPath );
+        SoundManager.Inst.LoadBgm( GameManager.Inst.CurrentSong.audioPath );
         StartGame();
         SoundManager.Inst.PlayBgm( true );
         StartCoroutine( WaitBeginningTime() );
