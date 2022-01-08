@@ -5,13 +5,15 @@ using UnityEngine;
 
 public class GameManager : SingletonUnity<GameManager>
 {
-    public List<Song> Songs = new List<Song>();
+    private List<Song> Songs = new List<Song>();
+    public int Count { get { return Songs.Count; } }
     public Song CurrentSong { get; private set; }
     public int CurrentSongIndex { get; private set; }
     public float MedianBpm { get; private set; }
-    public static int Combo;
 
+    public static int Combo;
     public static int Kool, Cool, Good;
+    
     private void Awake()
     {
         using ( FileConverter converter = new FileConverter() )
@@ -50,6 +52,17 @@ public class GameManager : SingletonUnity<GameManager>
 
         CurrentSongIndex = _index;
         CurrentSong      = Songs[_index];
-        MedianBpm         = Songs[_index].medianBpm;
+        MedianBpm        = Songs[_index].medianBpm;
+    }
+
+    public Song GetSong( int _index )
+    {
+        if ( _index > Count )
+        {
+            Debug.Log( $"Sound Select Out Of Range. Index : {_index}" );
+            return new Song();
+        }
+
+        return Songs[_index];
     }
 }

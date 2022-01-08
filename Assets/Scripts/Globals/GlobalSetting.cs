@@ -26,7 +26,6 @@ public class GlobalSetting : MonoBehaviour
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static int SoundOffset = -100;
 
     public static float PPU { get; private set; } = 100f; // pixel per unit
 

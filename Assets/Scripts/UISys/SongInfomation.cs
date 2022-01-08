@@ -25,6 +25,7 @@ public class SongInfomation : OptionButton
         base.Process();
 
         //GameManager.Inst.SelectSong( 1 );
+        NowPlaying.Inst.Select( GameManager.Inst.CurrentSong );
         SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME );
     }
 }

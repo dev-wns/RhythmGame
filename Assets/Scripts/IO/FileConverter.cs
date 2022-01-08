@@ -160,7 +160,7 @@ public class FileConverter : FileReader
                 if ( song.maxBpm < BPM ) song.maxBpm = ( int )BPM;
 
                 float time = float.Parse( splitDatas[0] );
-                if ( song.timingCount == 0 ) time = 0f;
+                if ( song.timingCount == 0 ) time = -5000f;
 
                 song.timingCount++;
 

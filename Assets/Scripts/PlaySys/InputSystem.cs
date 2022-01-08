@@ -14,7 +14,6 @@ public class InputSystem : MonoBehaviour
     public GAME_KEY_ACTION key;
     private int keyIndex;
 
-    private bool isComplate = false;
     private bool isHolding = false;
     private float playback;
 
@@ -59,10 +58,9 @@ public class InputSystem : MonoBehaviour
 
     private void CheckNote()
     {
-        float diff = currentNote.Time - InGame.Playback;
+        float diff = ( currentNote.CalcTime - NowPlaying.PlaybackChanged ) * InGame.Weight;
         if ( Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
         {
-            Globals.Timer.Start();
             if ( judgement.IsCalculated( diff ) )
                 SelectNextNote();
         }
@@ -76,8 +74,8 @@ public class InputSystem : MonoBehaviour
 
     private void CheckSlider()
     {
-        float startDiff = currentNote.Time - InGame.Playback;
-        float endDiff   = currentNote.SliderTime - InGame.Playback;
+        float startDiff = currentNote.Time - NowPlaying.Playback;
+        float endDiff   = currentNote.SliderTime - NowPlaying.Playback;
 
         if ( !isHolding && Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
         {
@@ -133,7 +131,7 @@ public class InputSystem : MonoBehaviour
         if ( sliderMissQueue.Count > 0 )
         {
             var slider = sliderMissQueue.Peek();
-            float endDiff = slider.SliderTime - InGame.Playback;
+            float endDiff = slider.SliderTime - NowPlaying.Playback;
             if ( judgement.IsMiss( endDiff ) )
             {
                 noteSystem.Despawn( slider );

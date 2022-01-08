@@ -19,62 +19,18 @@ public class InGame : Scene
     public MeasureSystem measureSystem;
 
     private bool isStart = false;
-    private static Chart chart;
+    private Chart chart;
 
     float delta;
-    float length;
 
     public static float PreLoadTime { get { return ( 1250f / Weight ); } }
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
     public static float Weight { get { return ( 60f / GameManager.Inst.MedianBpm ) * GlobalSetting.ScrollSpeed; } }
 
-    // time ( millisecond )
-    public static float Playback { get; private set; } // 노래 재생 시간
-    public static float PlaybackChanged { get; private set; } // BPM 변화에 따른 노래 재생 시간
-
-    public float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
-    {
-        double newTime = _time;
-        double prevBpm = 0d;
-        for ( int i = 0; i < chart.timings.Count; i++ )
-        {
-            double time = chart.timings[i].time;
-            double bpm = chart.timings[i].bpm;
-
-            if ( time > _time ) break;
-            newTime += ( bpm - prevBpm ) * ( _time - time );
-            prevBpm = bpm;
-        }
-        return ( float )newTime;
-    }
-
-    public static float GetChangedTimed( float _time ) // BPM 변화에 따른 시간 계산
-    {
-        double newTime = _time;
-        double prevBpm = 0d;
-        for ( int i = 0; i < chart.timings.Count; i++ )
-        {
-            double time = chart.timings[i].time;
-            double bpm = chart.timings[i].bpm;
-
-            if ( time > _time ) break;
-            newTime += ( bpm - prevBpm ) * ( _time - time );
-            prevBpm = bpm;
-        }
-        return ( float )newTime;
-    }
-
     protected override void Awake()
     {
         base.Awake();
-        Playback = PlaybackChanged = 0f;
         ChangeAction( SceneAction.InGame );
-
-        // Parse
-        using ( FileParser parser = new FileParser() )
-        {
-            parser.TryParse( GameManager.Inst.CurrentSong.filePath, out chart );
-        }
 
         GameManager.Combo = 0;
         GameManager.Kool  = 0;
@@ -84,21 +40,11 @@ public class InGame : Scene
 
     private void Start()
     {
+        chart = NowPlaying.CurrentChart;
         // Notes
         var notes = chart.notes;
         for ( int i = 0; i < notes.Count; i++ )
         {
-            var time = notes[i].time + GlobalSetting.SoundOffset;
-            var calcTime = GetChangedTime( notes[i].time + GlobalSetting.SoundOffset );
-
-            var note = new Note();
-            note.line = notes[i].line;
-            note.time = time;
-            note.calcTime = calcTime;
-            note.sliderTime = notes[i].sliderTime;
-            note.calcSliderTime = notes[i].calcSliderTime;
-            note.isSlider = notes[i].isSlider;
-
             noteSystems[notes[i].line].AddNote( notes[i] );
         }
 
@@ -119,37 +65,25 @@ public class InGame : Scene
                 time = timings[i + 1].time;
 
             int maxCount = Mathf.FloorToInt( ( time - timing.time ) / bpms );
-            measureSystem.AddTime( GetChangedTime( timing.time ) );
+            measureSystem.AddTime( NowPlaying.GetChangedTime( timing.time ) );
 
             for ( int j = 1; j < maxCount + 1; j++ )
             {
-                measureSystem.AddTime( GetChangedTime( timing.time + (j * bpms) ) );
+                measureSystem.AddTime( NowPlaying.GetChangedTime( timing.time + (j * bpms) ) );
             }
         }
 
-        SoundManager.Inst.LoadBgm( GameManager.Inst.CurrentSong.audioPath );
-        SoundManager.Inst.PlayBgm( true );
         OnGameStart();
-        length = chart.notes[chart.notes.Count - 1].time;
-
-        StartCoroutine( WaitBeginningTime() );
         StartCoroutine( BpmChnager() );
+        NowPlaying.Inst.Play();
     }
-
-    private IEnumerator WaitBeginningTime()
-    {
-        yield return YieldCache.WaitForSeconds( 3f );
-        isStart = true;
-        SoundManager.Inst.PauseBgm( false );
-    }
-
 
     private int timingIdx;
     private IEnumerator BpmChnager()
     {
         while ( timingIdx < chart.timings.Count )
         {
-            yield return new WaitUntil( () => Playback > chart.timings[timingIdx].time );
+            yield return new WaitUntil( () => NowPlaying.Playback > chart.timings[timingIdx].time );
             bpmText.text = $"{Mathf.RoundToInt(chart.timings[timingIdx++].bpm)} BPM";
         }
     }
@@ -159,11 +93,8 @@ public class InGame : Scene
         base.Update();
 
         if ( !isStart ) return;
-        
-        Playback += Time.deltaTime * 1000f;
-        PlaybackChanged = GetChangedTime( Playback );
 
-        timeText.text = string.Format( "{0:F1} 초", Playback * 0.001f );
+        timeText.text = string.Format( "{0:F1} 초", NowPlaying.Playback * 0.001f );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;
         frameText.text = string.Format( "{0:F1}", 1f / delta );
 
@@ -172,11 +103,6 @@ public class InGame : Scene
         coolText.text = $"{ GameManager.Cool}";
         goodText.text = $"{ GameManager.Good}";
         //medianText.text = string.Format( "{0:F1}", MedianBpm ); 
-
-        if ( Playback > length )
-        {
-            Debug.Log( $"Kool {GameManager.Kool}  Cool {GameManager.Cool}  Good {GameManager.Good}" );
-        }
     }
 
     public override void KeyBind()

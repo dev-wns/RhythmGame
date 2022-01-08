@@ -37,11 +37,11 @@ public class Judgement : MonoBehaviour
 
     private void Update()
     {
-        if ( isShowRange )
+        if ( isShowRange && NowPlaying.Inst.IsMusicStart )
         {
-            koolImage.localScale = new Vector2( transform.localScale.x, ( InGame.GetChangedTimed( Mathf.Abs( InGame.Playback - Kool ) ) - InGame.PlaybackChanged ) * InGame.Weight );
-            coolImage.localScale = new Vector2( transform.localScale.x, ( InGame.GetChangedTimed( Mathf.Abs( InGame.Playback - Cool ) ) - InGame.PlaybackChanged ) * InGame.Weight );
-            goodImage.localScale = new Vector2( transform.localScale.x, ( InGame.GetChangedTimed( Mathf.Abs( InGame.Playback - Good ) ) - InGame.PlaybackChanged ) * InGame.Weight );
+            koolImage.localScale = new Vector2( transform.localScale.x, ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) - NowPlaying.PlaybackChanged ) * InGame.Weight );
+            coolImage.localScale = new Vector2( transform.localScale.x, ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Cool ) ) - NowPlaying.PlaybackChanged ) * InGame.Weight );
+            goodImage.localScale = new Vector2( transform.localScale.x, ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Good ) ) - NowPlaying.PlaybackChanged ) * InGame.Weight );
         }
     }
 

@@ -56,8 +56,8 @@ public class NoteRenderer : MonoBehaviour
     {
         if ( isHolding )
         {
-            float startPos = ( ( CalcTime - InGame.PlaybackChanged ) * InGame.Weight );
-            float endPos = ( ( CalcSliderTime - InGame.PlaybackChanged ) * InGame.Weight );
+            float startPos = ( ( CalcTime - NowPlaying.PlaybackChanged ) * InGame.Weight );
+            float endPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * InGame.Weight );
             float currentScale = Mathf.Abs( endPos - startPos ) - Mathf.Abs( startPos );
             if ( endPos > 0 && transform.localScale.y > 0 )
                  transform.localScale = new Vector3( GlobalSetting.NoteWidth, currentScale, 1f );
@@ -65,11 +65,11 @@ public class NoteRenderer : MonoBehaviour
                  transform.localScale = new Vector3( GlobalSetting.NoteWidth, 0f, 1f );
 
             transform.position = new Vector3( column, GlobalSetting.JudgeLine, 2f );
-            newTime = InGame.PlaybackChanged;
+            newTime = NowPlaying.PlaybackChanged;
         }
         else
         {
-            transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - InGame.PlaybackChanged ) * InGame.Weight ), 2f );
+            transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * InGame.Weight ), 2f );
         }
     }
 
