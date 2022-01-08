@@ -96,29 +96,28 @@ public class InputSystem : MonoBehaviour
         }
         else if ( isHolding && Input.GetKeyUp( GlobalKeySetting.Inst.Keys[key] ) )
         {
-            if ( Judge( endDiffAbs ) )
-            {
-                isHolding = false;
-                JudgeEnd();
-            }
-            else
-            {
-                currentNote.SetColor( Color.gray );
-                sliderMissQueue.Enqueue( currentNote );
-                isHolding = false;
-                currentNote.isHolding = false;
+            if ( !Judge( endDiffAbs ) )
+                 currentNote.SetColor( Color.gray );
+         
+            sliderMissQueue.Enqueue( currentNote );
+            isHolding = false;
+            currentNote.isHolding = false;
 
-                currentNote = null;
-                StartCoroutine( NoteSelect() );
-                return;
-            }
+            currentNote = null;
+            StartCoroutine( NoteSelect() );
+            return;
         }
 
         // 마지막 판정까지 안눌렀을 때 ( Miss )
-        if ( endDiff < -( 22 + 35 + 28 ) )
+        if ( !isHolding && startDiff < -( 22 + 35 + 28 ) )
         {
-            JudgeEnd();
+            currentNote.SetColor( Color.gray );
+            sliderMissQueue.Enqueue( currentNote );
             isHolding = false;
+            currentNote.isHolding = false;
+
+            currentNote = null;
+            StartCoroutine( NoteSelect() );
         }
     }
 
