@@ -13,18 +13,18 @@ public class GlobalSetting : MonoBehaviour
     public static float ScrollSpeed 
     {
         get { return OriginScrollSpeed * .0015f; }
-        //set
-        //{
-        //    var speed = OriginScrollSpeed + Mathf.FloorToInt( value );
-        //    if ( speed <= 1 )
-        //    {
-        //        Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
-        //        return;
-        //    }
+        set
+        {
+            var speed = OriginScrollSpeed + Mathf.FloorToInt( value );
+            if ( speed <= 1 )
+            {
+                Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
+                return;
+            }
 
-        //    OriginScrollSpeed = speed;
-        //    Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
-        //}
+            OriginScrollSpeed = speed;
+            Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
+        }
     }
     public static int SoundOffset = -100;
 

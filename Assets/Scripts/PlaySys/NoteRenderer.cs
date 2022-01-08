@@ -48,9 +48,9 @@ public class NoteRenderer : MonoBehaviour
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
     }
 
-    //private void OnEnable()  => scene.OnScrollChanged += ScaleUpdate;
+    private void OnEnable() => scene.OnScrollChanged += ScaleUpdate;
 
-    //private void OnDisable() => scene.OnScrollChanged -= ScaleUpdate;
+    private void OnDisable() => scene.OnScrollChanged -= ScaleUpdate;
 
     private void LateUpdate()
     {

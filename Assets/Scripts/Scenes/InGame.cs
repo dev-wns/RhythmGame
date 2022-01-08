@@ -167,10 +167,10 @@ public class InGame : Scene
     {
         Bind( SceneAction.InGame, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
 
-        //Bind( SceneAction.InGame, KeyCode.Alpha1, () => GlobalSetting.ScrollSpeed -= 1 );
-        //Bind( SceneAction.InGame, KeyCode.Alpha1, () => OnScrollChanged?.Invoke() );
+        Bind( SceneAction.InGame, KeyCode.Alpha1, () => GlobalSetting.ScrollSpeed -= 1 );
+        Bind( SceneAction.InGame, KeyCode.Alpha1, () => OnScrollChanged?.Invoke() );
 
-        //Bind( SceneAction.InGame, KeyCode.Alpha2, () => GlobalSetting.ScrollSpeed += 1 );
-        //Bind( SceneAction.InGame, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
+        Bind( SceneAction.InGame, KeyCode.Alpha2, () => GlobalSetting.ScrollSpeed += 1 );
+        Bind( SceneAction.InGame, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
     }
 }
