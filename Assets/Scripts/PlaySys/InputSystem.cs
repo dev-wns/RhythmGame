@@ -103,7 +103,7 @@ public class InputSystem : MonoBehaviour
             }
             else
             {
-                //currentNote.GetComponent<SpriteRenderer>().color = Color.gray;
+                currentNote.SetColor( Color.gray );
                 sliderMissQueue.Enqueue( currentNote );
                 isHolding = false;
                 //currentNote.isHolding = false;

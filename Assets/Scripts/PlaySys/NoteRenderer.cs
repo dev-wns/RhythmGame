@@ -28,9 +28,12 @@ public class NoteRenderer : MonoBehaviour
         if ( _data.isSlider ) transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * InGame.Weight ), 1f );
         else                  transform.localScale = new Vector3( GlobalSetting.NoteWidth, GlobalSetting.NoteHeight, 1f );
 
-        if ( _data.line == 1 || _data.line == 4 ) rdr.color = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
-        else rdr.color = Color.white;
+        if ( _data.line == 1 || _data.line == 4 ) SetColor( new Color( 0.2078432f, 0.7843138f, 1f, 1f ) );
+        else                                      SetColor( Color.white );
     }
+
+    public void SetColor( Color _color ) => rdr.color = _color;
+
     private void OnScrollSpeedChange()
     {
         if ( IsSlider ) transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * InGame.Weight ), 1f );
