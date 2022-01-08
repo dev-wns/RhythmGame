@@ -23,6 +23,16 @@ public class ScrollHide : ScrollOption
     protected virtual void Start()
     {
         valueOffset = 1d / Mathf.Abs( numMaxActive - options.Count );
+        if ( currentIndex < numMaxActive )
+        {
+            scrollBar.value = 0f;
+            scrollRect.verticalNormalizedPosition = scrollBar.value;
+        }
+        else
+        {
+            scrollBar.value = ( float )valueOffset * currentIndex;
+            scrollRect.verticalNormalizedPosition = scrollBar.value;
+        }
 
         int minIndex = currentIndex - activeIndex;
         int maxIndex = currentIndex + Mathf.Abs( activeIndex - numMaxActive );
@@ -45,13 +55,13 @@ public class ScrollHide : ScrollOption
 
         if ( activeIndex == 0 )
         {
-            scrollBar.value += ( float )valueOffset;
+            scrollBar.value = ( float )valueOffset * currentIndex;
             scrollRect.verticalNormalizedPosition = scrollBar.value;
 
             if ( currentIndex > -1 )
             {
-                options[currentIndex].gameObject?.SetActive( true );
-                options[currentIndex + numMaxActive].gameObject?.SetActive( false );
+                options[currentIndex]?.gameObject.SetActive( true );
+                options[currentIndex + numMaxActive]?.gameObject.SetActive( false );
             }
         }
         else activeIndex -= 1;
@@ -64,13 +74,13 @@ public class ScrollHide : ScrollOption
 
         if ( activeIndex + 1 >= numMaxActive )
         {
-            scrollBar.value -= ( float )valueOffset;
+            scrollBar.value = ( float )valueOffset * currentIndex;
             scrollRect.verticalNormalizedPosition = scrollBar.value;
 
             if ( currentIndex > numMaxActive - 1 )
             {
-                options[currentIndex].gameObject?.SetActive( true );
-                options[currentIndex - numMaxActive].gameObject?.SetActive( false );
+                options[currentIndex]?.gameObject.SetActive( true );
+                options[currentIndex - numMaxActive]?.gameObject.SetActive( false );
             }
         }
         else activeIndex += 1;
