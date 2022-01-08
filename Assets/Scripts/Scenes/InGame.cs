@@ -19,7 +19,7 @@ public class InGame : Scene
     public MeasureSystem measureSystem;
 
     private bool isStart = false;
-    private Chart chart;
+    private static Chart chart;
 
     float delta;
     float length;
@@ -33,6 +33,22 @@ public class InGame : Scene
     public static float PlaybackChanged { get; private set; } // BPM 변화에 따른 노래 재생 시간
 
     public float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
+    {
+        double newTime = _time;
+        double prevBpm = 0d;
+        for ( int i = 0; i < chart.timings.Count; i++ )
+        {
+            double time = chart.timings[i].time;
+            double bpm = chart.timings[i].bpm;
+
+            if ( time > _time ) break;
+            newTime += ( bpm - prevBpm ) * ( _time - time );
+            prevBpm = bpm;
+        }
+        return ( float )newTime;
+    }
+
+    public static float GetChangedTimed( float _time ) // BPM 변화에 따른 시간 계산
     {
         double newTime = _time;
         double prevBpm = 0d;
