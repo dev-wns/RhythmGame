@@ -8,6 +8,7 @@ TagManager:
   - Scene
   - Systems
   - Visualizer
+  - GameTimer
   layers:
   - Default
   - TransparentFX

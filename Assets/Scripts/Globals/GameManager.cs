@@ -9,7 +9,9 @@ public class GameManager : SingletonUnity<GameManager>
     public Song CurrentSong { get; private set; }
     public int CurrentSongIndex { get; private set; }
     public float MedianBpm { get; private set; }
+    public static int Combo;
 
+    public static int Kool, Cool, Good;
     private void Awake()
     {
         using ( FileConverter converter = new FileConverter() )
@@ -24,6 +26,8 @@ public class GameManager : SingletonUnity<GameManager>
 
         if ( Songs.Count > 0 ) { SelectSong( 0 ); }
         Debug.Log( "Parse Success " );
+
+        QualitySettings.vSyncCount = 0;
     }
 
     private void Update()

@@ -61,7 +61,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
         Debug.Log( $"SampleRate : {samplerRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
 
-        ErrorCheck( system.setDSPBufferSize( 1024, 4 ) );
+        ErrorCheck( system.setDSPBufferSize( 64, 4 ) );
         uint bufferSize;
         int numbuffers;
         ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
@@ -112,7 +112,8 @@ public class SoundManager : SingletonUnity<SoundManager>
         CreateLowEffectDsp();
 
         // Details
-        SetVolume( .1f );
+        SetVolume( .1f, CHANNEL_GROUP_TYPE.MASTER );
+        SetVolume( .1f, CHANNEL_GROUP_TYPE.BGM);
         Debug.Log( "SoundManager Initizlize Successful." );
     }
 
@@ -257,6 +258,19 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         ErrorCheck( bgmChannel.setPosition( _pos, FMOD.TIMEUNIT.MS ) );
+    }
+
+    public uint GetPosition()
+    {
+        if ( !IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
+        {
+            Debug.Log( "bgm is not playing" );
+            return 0;
+        }
+
+        uint pos;
+        ErrorCheck( bgmChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
+        return pos;
     }
 
     public void SetPitch( float _value )

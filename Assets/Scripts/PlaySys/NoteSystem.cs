@@ -7,27 +7,26 @@ public class NoteSystem : MonoBehaviour
     private InGame scene;
 
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
-    public ObjectPool<NoteRenderer> nPool;
+    private ObjectPool<NoteRenderer> nPool;
     public NoteRenderer nPrefab;
 
     private List<Note> notes = new List<Note>();
     private int currentIndex;
-    private InputSystem[] ISystem;
+
+    private InputSystem inputSystem;
 
     private void Awake()
     {
         scene   = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         nPool   = new ObjectPool<NoteRenderer>( nPrefab );
-        ISystem = GetComponentsInChildren<InputSystem>();
+        inputSystem = GetComponent<InputSystem>();
 
-        scene.SystemInitialized += Initialized;
-        scene.StartGame += () => StartCoroutine( Process() );
+        scene.OnGameStart += () => StartCoroutine( Process() );
     }
 
-    private void Initialized( Chart _chart )
-    {
-        notes = _chart.notes;
-    }
+    public void AddNote( Note _note ) => notes.Add( _note );
+
+    public void Despawn( NoteRenderer _note ) => nPool.Despawn( _note );
 
     private IEnumerator Process()
     {
@@ -37,8 +36,8 @@ public class NoteSystem : MonoBehaviour
             yield return new WaitUntil( () => curNote.calcTime <= InGame.PlaybackChanged + InGame.PreLoadTime );
 
             NoteRenderer note = nPool.Spawn();
-            note.Initialized( curNote );
-            ISystem[curNote.line].notes.Enqueue( note );
+            note.SetInfo( curNote );
+            inputSystem.Enqueue( note );
             currentIndex++;
         }
     } 

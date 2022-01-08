@@ -287,7 +287,7 @@ public class FileConverter : FileReader
         if ( File.Exists( path ) )
         {
             Debug.Log( $"File Delete : {path}" );
-            File.Delete( path );
+            //File.Delete( path );
         }
     }
 

@@ -15,7 +15,7 @@ public class GlobalKeySetting : SingletonUnity<GlobalKeySetting>
 
     private KeyCode[] defaultKeys = new KeyCode[]
     {
-        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.K, KeyCode.L, KeyCode.Semicolon,
+        KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.K, KeyCode.L, KeyCode.Semicolon,
         KeyCode.Alpha1, KeyCode.Alpha2,
         KeyCode.Escape
     };

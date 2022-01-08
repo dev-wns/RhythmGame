@@ -9,8 +9,9 @@ public static class Globals
 
 public class GlobalSetting : MonoBehaviour
 {
-    private static float OriginScrollSpeed = 30;
+    private static float OriginScrollSpeed = 28;
     public static float ScrollSpeed { get { return OriginScrollSpeed * .0015f; } }
+    public static int SoundOffset = -100;
 
     public delegate void DelScrollChanged();
     public static event DelScrollChanged OnScrollChanged;
@@ -29,7 +30,7 @@ public class GlobalSetting : MonoBehaviour
     public static float MeasureHeight { get; private set; } = 3f;
 
     // Jugdement
-    public static float JudgeLine = -400f; // posY
+    public static float JudgeLine = -500f; // posY
     public static float JudgeHeight { get; private set; } = 100f; // scaleY
 
     // note
