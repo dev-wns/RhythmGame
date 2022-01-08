@@ -82,7 +82,7 @@ public class InputSystem : MonoBehaviour
             if ( Judge( startDiffAbs ) )
             {
                 isHolding = true;
-                //currentNote.isHolding = true;
+                currentNote.isHolding = true;
             }
         }
         else if ( isHolding && Input.GetKey( GlobalKeySetting.Inst.Keys[key] ) )
@@ -106,7 +106,7 @@ public class InputSystem : MonoBehaviour
                 currentNote.SetColor( Color.gray );
                 sliderMissQueue.Enqueue( currentNote );
                 isHolding = false;
-                //currentNote.isHolding = false;
+                currentNote.isHolding = false;
 
                 currentNote = null;
                 StartCoroutine( NoteSelect() );

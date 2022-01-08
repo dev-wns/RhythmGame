@@ -9,12 +9,24 @@ public static class Globals
 
 public class GlobalSetting : MonoBehaviour
 {
-    private static float OriginScrollSpeed = 28;
-    public static float ScrollSpeed { get { return OriginScrollSpeed * .0015f; } }
-    public static int SoundOffset = -100;
+    private static int OriginScrollSpeed = 28;
+    public static float ScrollSpeed 
+    {
+        get { return OriginScrollSpeed * .0015f; }
+        //set
+        //{
+        //    var speed = OriginScrollSpeed + Mathf.FloorToInt( value );
+        //    if ( speed <= 1 )
+        //    {
+        //        Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
+        //        return;
+        //    }
 
-    public delegate void DelScrollChanged();
-    public static event DelScrollChanged OnScrollChanged;
+        //    OriginScrollSpeed = speed;
+        //    Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
+        //}
+    }
+    public static int SoundOffset = -100;
 
     public static float PPU { get; private set; } = 100f; // pixel per unit
 
@@ -42,23 +54,4 @@ public class GlobalSetting : MonoBehaviour
     // Gear
     public static float GearStartPos { get { return ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f ); } }
     public static float GearWidth    { get { return ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
-
-    private void Update()
-    {
-        if ( Input.GetKeyDown( KeyCode.Alpha1 ) )
-        {
-            OriginScrollSpeed -= 1;
-            OnScrollChanged();
-            Debug.Log( string.Format( "Current ScrollSpeed {0}", OriginScrollSpeed ) );
-        }
-
-        if ( Input.GetKeyDown( KeyCode.Alpha2 ) )
-        {
-            OriginScrollSpeed += 1;
-            OnScrollChanged();
-            Debug.Log( string.Format( "Current ScrollSpeed {0}", OriginScrollSpeed ) );
-        }
-
-        if ( OriginScrollSpeed < 1 ) OriginScrollSpeed = 1;
-    }
 }
