@@ -18,7 +18,7 @@ public class FreeStyleScrollSong : SceneScrollOption
     {
         base.Awake();
 
-        Select( GameManager.Inst.CurrentSongIndex );
+        Select( NowPlaying.Inst.CurrentSongIndex );
     }
 
     protected override void Start()
@@ -43,13 +43,13 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     protected override void CreateOptions()
     {
-        options.Capacity = GameManager.Inst.Count;
-        for ( int i = 0; i < GameManager.Inst.Count; i++ )
+        options.Capacity = NowPlaying.Inst.Count;
+        for ( int i = 0; i < NowPlaying.Inst.Count; i++ )
         {
             // scrollview song contents
             var song = Instantiate( songPrefab, content );
             var info = song.GetComponent<SongInfomation>();
-            info.SetInfo( GameManager.Inst.GetSong( i ) );
+            info.SetInfo( NowPlaying.Inst.GetSong( i ) );
 
             options.Add( song );
         }
@@ -73,9 +73,9 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     private void OptionProcess()
     {
-        GameManager.Inst.SelectSong( currentIndex );
+        NowPlaying.Inst.SelectSong( currentIndex );
 
-        currentSong = GameManager.Inst.CurrentSong;
+        currentSong = NowPlaying.Inst.CurrentSong;
         OnSelectSong( currentSong );
 
         Globals.Timer.Start();

@@ -51,9 +51,9 @@ public struct Note
     public float calcTime;
     public float calcSliderTime;
 
-    public Note( int _x, float _time, float _calcTime, float _sliderTime, float _calcSliderTime, bool _isSlider )
+    public Note( int _line, float _time, float _calcTime, float _sliderTime, float _calcSliderTime, bool _isSlider )
     {
-        line = Mathf.FloorToInt( _x * 6f / 512f );
+        line = _line;
         time = _time;
         calcTime = _calcTime;
         sliderTime = _sliderTime;
@@ -194,8 +194,9 @@ public class FileConverter : FileReader
                 else isSlider = false;
 
                 float time = int.Parse( splitDatas[2] );
-                chart.notes.Add( new Note( int.Parse( splitDatas[0] ), time, GetChangedTime( time, chart ),
-                                                      sliderTime, GetChangedTime( sliderTime, chart ), isSlider ) );
+                int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6f / 512f );
+                chart.notes.Add( new Note( lane, time, GetChangedTime( time, chart ),
+                                                 sliderTime, GetChangedTime( sliderTime, chart ), isSlider ) );
             }
 
             Write( song, chart );

@@ -29,6 +29,6 @@ public class MeasureRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( time - NowPlaying.PlaybackChanged ) * InGame.Weight ), 3f );
+        transform.position = new Vector3( 0, GlobalSetting.JudgeLine + ( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 3f );
     }
 }

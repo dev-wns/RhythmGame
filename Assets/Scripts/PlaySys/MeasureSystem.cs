@@ -53,7 +53,7 @@ public class MeasureSystem : MonoBehaviour
         while ( currentIndex < measures.Count - 1 )
         {
             float curTime = measures[currentIndex];
-            yield return new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + InGame.PreLoadTime );
+            yield return new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
 
             MeasureRenderer measure = mPool.Spawn();
             measure.Initialized( curTime );

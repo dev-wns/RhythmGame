@@ -33,7 +33,7 @@ public class NoteSystem : MonoBehaviour
         while ( currentIndex < notes.Count )
         {
             Note curNote = notes[currentIndex];
-            yield return new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + InGame.PreLoadTime );
+            yield return new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
 
             NoteRenderer note = nPool.Spawn();
             note.SetInfo( curNote );

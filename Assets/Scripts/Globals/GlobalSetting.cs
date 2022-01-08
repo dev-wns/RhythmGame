@@ -9,30 +9,9 @@ public static class Globals
 
 public class GlobalSetting : MonoBehaviour
 {
-    private static int OriginScrollSpeed = 28;
-    public static float ScrollSpeed 
-    {
-        get { return OriginScrollSpeed * .0015f; }
-        set
-        {
-            var speed = OriginScrollSpeed + Mathf.FloorToInt( value );
-            if ( speed <= 1 )
-            {
-                Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
-                return;
-            }
-
-            OriginScrollSpeed = speed;
-            Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
-        }
-    }
-
-    public static float PPU { get; private set; } = 100f; // pixel per unit
+    public static int PPU { get; private set; } = 100; // pixel per unit
 
     // IO
-    public static string OsuDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Osu" );
-    public static string BmsDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Bms" );
-
     public static string SoundDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
     public static string FailedPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
     public static string DefaultImagePath { get; private set; } = System.IO.Path.Combine( "Assets", "Textures", "Default", "DefaultImage.jpg" );

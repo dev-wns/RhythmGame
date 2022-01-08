@@ -5,6 +5,7 @@ using UnityEngine;
 public class NoteRenderer : MonoBehaviour
 {
     private InGame scene;
+
     public float Time { get; private set; }
     public float CalcTime { get; private set; }
     public float SliderTime { get; private set; }
@@ -18,14 +19,14 @@ public class NoteRenderer : MonoBehaviour
 
     public void SetInfo( Note _data )
     {
-        newTime = _data.calcTime;
+        newTime   = _data.calcTime;
+        isHolding = false;
+
         Time           = _data.time;
         CalcTime       = _data.calcTime;
         SliderTime     = _data.sliderTime;
         CalcSliderTime = _data.calcSliderTime;
         IsSlider       = _data.isSlider;
-
-        isHolding = false;
 
         column = GlobalSetting.NoteStartPos + ( _data.line * GlobalSetting.NoteWidth ) + ( ( _data.line + 1 ) * GlobalSetting.NoteBlank );
 
@@ -38,14 +39,14 @@ public class NoteRenderer : MonoBehaviour
 
     private void ScaleUpdate()
     {
-        if ( IsSlider ) transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * InGame.Weight ), 1f );
+        if ( IsSlider ) transform.localScale = new Vector3( GlobalSetting.NoteWidth, Mathf.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight ), 1f );
         else            transform.localScale = new Vector3( GlobalSetting.NoteWidth, GlobalSetting.NoteHeight, 1f );
     }
 
     private void Awake()
     {
-        rdr = GetComponent<SpriteRenderer>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        rdr   = GetComponent<SpriteRenderer>();
     }
 
     private void OnEnable() => scene.OnScrollChanged += ScaleUpdate;
@@ -54,12 +55,13 @@ public class NoteRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
+
         if ( isHolding )
         {
-            float startPos = ( ( CalcTime - NowPlaying.PlaybackChanged ) * InGame.Weight );
-            float endPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * InGame.Weight );
-            float currentScale = Mathf.Abs( endPos - startPos ) - Mathf.Abs( startPos );
-            if ( endPos > 0 && transform.localScale.y > 0 )
+            float startDiff = ( CalcTime       - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+            float endDiff   = ( CalcSliderTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+            float currentScale = Mathf.Abs( endDiff - startDiff ) - Mathf.Abs( startDiff );
+            if ( endDiff > 0 && transform.localScale.y > 0 )
                  transform.localScale = new Vector3( GlobalSetting.NoteWidth, currentScale, 1f );
             else
                  transform.localScale = new Vector3( GlobalSetting.NoteWidth, 0f, 1f );
@@ -69,8 +71,7 @@ public class NoteRenderer : MonoBehaviour
         }
         else
         {
-            transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * InGame.Weight ), 2f );
+            transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 2f );
         }
     }
-
 }

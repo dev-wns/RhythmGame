@@ -49,6 +49,8 @@ public class InputSystem : MonoBehaviour
 
     private void SelectNextNote()
     {
+        if ( keyIndex == 1 || keyIndex == 4 ) currentNote.SetColor( new Color( 0.2078432f, 0.7843138f, 1f, 1f ) );
+        else                                  currentNote.SetColor( Color.white );
         currentNote.gameObject.SetActive( false );
         noteSystem.Despawn( currentNote );
         currentNote = null;
@@ -58,25 +60,30 @@ public class InputSystem : MonoBehaviour
 
     private void CheckNote()
     {
-        float diff = ( currentNote.CalcTime - NowPlaying.PlaybackChanged ) * InGame.Weight;
+        //float startDiff = ( currentNote.CalcTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+        float startDiff = currentNote.Time - SoundManager.Inst.GetPosition();
         if ( Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
         {
-            if ( judgement.IsCalculated( diff ) )
+            if ( judgement.IsCalculated( startDiff ) )
                 SelectNextNote();
         }
         else
         {
             // 마지막 판정까지 안눌렀을 때 ( Miss )
-            if ( judgement.IsMiss( diff ) )
+            if ( judgement.IsMiss( startDiff ) )
+            {
+                Debug.Log( startDiff );
                 SelectNextNote();
+            }
         }
     }
 
     private void CheckSlider()
     {
-        float startDiff = currentNote.Time - NowPlaying.Playback;
-        float endDiff   = currentNote.SliderTime - NowPlaying.Playback;
-
+        //float startDiff = ( currentNote.CalcTime       - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+        //float endDiff   = ( currentNote.CalcSliderTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+        float startDiff = ( currentNote.Time - NowPlaying.Playback );
+        float endDiff = ( currentNote.SliderTime - NowPlaying.Playback );
         if ( !isHolding && Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
         {
             if ( judgement.IsCalculated( startDiff ) )
@@ -90,7 +97,7 @@ public class InputSystem : MonoBehaviour
             playback += Time.deltaTime;
             if ( playback > .15f )
             {
-                GameManager.Combo++;
+                //GameManager.Combo++;
                 playback = 0f;
             }
         }
@@ -109,7 +116,7 @@ public class InputSystem : MonoBehaviour
         }
         
         // 마지막 판정까지 안눌렀을 때 ( Miss )
-        if ( !isHolding && judgement.IsMiss( startDiff ) )
+        if ( !isHolding && judgement.IsMiss( endDiff ) )
         {
             currentNote.SetColor( Color.gray );
             sliderMissQueue.Enqueue( currentNote );
@@ -131,7 +138,8 @@ public class InputSystem : MonoBehaviour
         if ( sliderMissQueue.Count > 0 )
         {
             var slider = sliderMissQueue.Peek();
-            float endDiff = slider.SliderTime - NowPlaying.Playback;
+            //float endDiff = ( slider.CalcSliderTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+            float endDiff = ( slider.SliderTime - NowPlaying.Playback );
             if ( judgement.IsMiss( endDiff ) )
             {
                 noteSystem.Despawn( slider );

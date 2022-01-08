@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public enum JUDGE_TYPE { Kool, Cool, Good, Miss }
 public class Judgement : MonoBehaviour
@@ -13,8 +13,9 @@ public class Judgement : MonoBehaviour
     private const int Good = 28 + Cool;
 
     private int koolCount, coolCount, goodCount, missCount;
+    public TextMeshProUGUI koolText, coolText, goodText;
     public bool isShowRange = true;
-    public Transform koolImage, coolImage, goodImage;
+    public RectTransform koolImage, coolImage, goodImage;
 
 
     private void Awake()
@@ -30,19 +31,30 @@ public class Judgement : MonoBehaviour
             goodImage.gameObject.SetActive( false );
         }
 
-        koolImage.transform.position = transform.position;
-        coolImage.transform.position = transform.position;
-        goodImage.transform.position = transform.position;
+        koolImage.anchoredPosition = rt.anchoredPosition;
+        coolImage.anchoredPosition = rt.anchoredPosition;
+        goodImage.anchoredPosition = rt.anchoredPosition;
+
+        Debug.Log( Screen.width / Screen.height );
+        koolImage.sizeDelta = coolImage.sizeDelta = goodImage.sizeDelta = new Vector3( rt.sizeDelta.x, ( float )Screen.width / ( float )Screen.height, 1f );
     }
 
-    private void Update()
+    private void LateUpdate()
     {
+        //koolChanged = ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+        //coolChanged = ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Cool ) ) - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+        //goodChanged = ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Good ) ) - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
+
         if ( isShowRange && NowPlaying.Inst.IsMusicStart )
         {
-            koolImage.localScale = new Vector2( transform.localScale.x, ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) - NowPlaying.PlaybackChanged ) * InGame.Weight );
-            coolImage.localScale = new Vector2( transform.localScale.x, ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Cool ) ) - NowPlaying.PlaybackChanged ) * InGame.Weight );
-            goodImage.localScale = new Vector2( transform.localScale.x, ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Good ) ) - NowPlaying.PlaybackChanged ) * InGame.Weight );
+            koolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) ) * GameSetting.Weight , 1f);
+            coolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Cool ) ) ) * GameSetting.Weight , 1f);
+            goodImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Good ) ) ) * GameSetting.Weight , 1f);
         }
+
+        koolText.text = koolCount.ToString();
+        coolText.text = coolCount.ToString();
+        goodText.text = goodCount.ToString();
     }
 
     public bool IsCalculated( float _diff )
@@ -53,20 +65,14 @@ public class Judgement : MonoBehaviour
         // Kool 22 Cool 35 Good 28
         if ( diffAbs <= Kool )
         {
-            GameManager.Combo++;
-            GameManager.Kool++;
             koolCount++;
         }
         else if ( diffAbs > Kool && diffAbs <= Cool )
         {
-            GameManager.Combo++;
-            GameManager.Cool++;
             coolCount++;
         }
         else if ( diffAbs > Cool && diffAbs <= Good )
         {
-            GameManager.Combo++;
-            GameManager.Good++;
             goodCount++;
         }
         else
@@ -79,6 +85,7 @@ public class Judgement : MonoBehaviour
 
     public bool IsMiss( float _diff )
     {
+        float diffAbs = Mathf.Abs( _diff );
         if ( _diff < -Good )
         {
             missCount++;
