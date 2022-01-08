@@ -56,10 +56,13 @@ public class NoteRenderer : MonoBehaviour
     {
         if ( isHolding )
         {
-            float startPos     = ( ( CalcTime       - InGame.PlaybackChanged ) * InGame.Weight );
-            float endPos       = ( ( CalcSliderTime - InGame.PlaybackChanged ) * InGame.Weight );
+            float startPos = ( ( CalcTime - InGame.PlaybackChanged ) * InGame.Weight );
+            float endPos = ( ( CalcSliderTime - InGame.PlaybackChanged ) * InGame.Weight );
             float currentScale = Mathf.Abs( endPos - startPos ) - Mathf.Abs( startPos );
-            transform.localScale = new Vector3( GlobalSetting.NoteWidth, currentScale, 1f );
+            if ( endPos > 0 && transform.localScale.y > 0 )
+                 transform.localScale = new Vector3( GlobalSetting.NoteWidth, currentScale, 1f );
+            else
+                 transform.localScale = new Vector3( GlobalSetting.NoteWidth, 0f, 1f );
 
             transform.position = new Vector3( column, GlobalSetting.JudgeLine, 2f );
             newTime = InGame.PlaybackChanged;
