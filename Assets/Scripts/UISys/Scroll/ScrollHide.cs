@@ -6,8 +6,7 @@ public class ScrollHide : ScrollOption
 {
     [Header( "ScrollHide" )]
     public int numMaxActive;
-    private int activeIndex = 0; // 0 ~ maxActiveNumber
-    private double valueOffset;
+    private int activeIndex; // 0 ~ maxActiveNumber
 
     protected override void CreateOptions()
     {
@@ -22,18 +21,6 @@ public class ScrollHide : ScrollOption
 
     protected virtual void Start()
     {
-        valueOffset = 1d / Mathf.Abs( numMaxActive - options.Count );
-        if ( currentIndex < numMaxActive )
-        {
-            scrollBar.value = 0f;
-            scrollRect.verticalNormalizedPosition = scrollBar.value;
-        }
-        else
-        {
-            scrollBar.value = ( float )valueOffset * currentIndex;
-            scrollRect.verticalNormalizedPosition = scrollBar.value;
-        }
-
         int minIndex = currentIndex - activeIndex;
         int maxIndex = currentIndex + Mathf.Abs( activeIndex - numMaxActive );
         for ( int i = 0; i < options.Count; i++ )
@@ -48,6 +35,13 @@ public class ScrollHide : ScrollOption
         }
     }
 
+    protected override void Select( int _pos )
+    {
+        base.Select( _pos );
+
+        activeIndex = _pos < numMaxActive ? _pos : numMaxActive - 1;
+    }
+
     public override void PrevMove()
     {
         base.PrevMove();
@@ -55,14 +49,8 @@ public class ScrollHide : ScrollOption
 
         if ( activeIndex == 0 )
         {
-            scrollBar.value = ( float )valueOffset * currentIndex;
-            scrollRect.verticalNormalizedPosition = scrollBar.value;
-
-            if ( currentIndex > -1 )
-            {
-                options[currentIndex]?.gameObject.SetActive( true );
-                options[currentIndex + numMaxActive]?.gameObject.SetActive( false );
-            }
+            options[currentIndex]?.gameObject.SetActive( true );
+            options[currentIndex + numMaxActive]?.gameObject.SetActive( false );
         }
         else activeIndex -= 1;
     }
@@ -74,14 +62,8 @@ public class ScrollHide : ScrollOption
 
         if ( activeIndex + 1 >= numMaxActive )
         {
-            scrollBar.value = ( float )valueOffset * currentIndex;
-            scrollRect.verticalNormalizedPosition = scrollBar.value;
-
-            if ( currentIndex > numMaxActive - 1 )
-            {
-                options[currentIndex]?.gameObject.SetActive( true );
-                options[currentIndex - numMaxActive]?.gameObject.SetActive( false );
-            }
+            options[currentIndex]?.gameObject.SetActive( true );
+            options[currentIndex - numMaxActive]?.gameObject.SetActive( false );
         }
         else activeIndex += 1;
     }

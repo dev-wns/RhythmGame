@@ -8,8 +8,7 @@ public class ScrollOption : ScrollBase
     [Header( "ScrollOption" )]
     public List<OptionBase> options;
 
-    protected ScrollRect scrollRect;
-    protected Scrollbar scrollBar;
+    private ScrollRect scrollRect { get; set; }
     protected RectTransform content;
 
     protected OptionBase currentOption { get; private set; }
@@ -18,20 +17,14 @@ public class ScrollOption : ScrollBase
     protected virtual void Awake()
     {
         scrollRect ??= GetComponent<ScrollRect>();
-        if ( scrollRect )
-        {
-            scrollBar = scrollRect.verticalScrollbar;
-            content = scrollRect.content;
-        }
+        if ( scrollRect ) content = scrollRect.content;
 
         CreateOptions();
         Length = options.Count;
         Select( 0 );
     }
 
-    protected virtual void CreateOptions() 
-    {
-    }
+    protected virtual void CreateOptions() { }
 
     protected override void Select( int _pos )
     {
