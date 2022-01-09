@@ -6,7 +6,6 @@ public class NoteSystem : MonoBehaviour
 {
     private InGame scene;
 
-    // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
     private ObjectPool<NoteRenderer> nPool;
     public NoteRenderer nPrefab;
 

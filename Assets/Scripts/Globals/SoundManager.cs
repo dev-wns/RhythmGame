@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SOUND_LOAD_TYPE { DEFAULT, STREAM }
-public enum SOUND_PLAY_MODE { DEFAULT, LOOP }
-public enum CHANNEL_GROUP_TYPE { MASTER, SFX, KEY, BGM, COUNT };
-public enum SOUND_SFX_TYPE { MOVE, RETURN, ESCAPE, INCREASE, DECREASE }
+public enum SoundLoadType { Default, Stream }
+public enum SoundPlayMode { Default, Loop }
+public enum ChannelGroupType { Master, BGM, KeySound, Sfx, Count };
+public enum SoundSfxType { Move, Return, Escape, Increase, Decrease }
 
 public class SoundManager : SingletonUnity<SoundManager>
 {
@@ -13,11 +13,11 @@ public class SoundManager : SingletonUnity<SoundManager>
     private FMOD.System system;
 
     private readonly int maxChannelSize = 1000;
-    private Dictionary<CHANNEL_GROUP_TYPE, FMOD.ChannelGroup> Groups = new Dictionary<CHANNEL_GROUP_TYPE, FMOD.ChannelGroup>();
+    private Dictionary<ChannelGroupType, FMOD.ChannelGroup> Groups = new Dictionary<ChannelGroupType, FMOD.ChannelGroup>();
     private FMOD.Channel bgmChannel, sfxChannel, keyChannel;
 
     private FMOD.Sound bgmSound;
-    private Dictionary<SOUND_SFX_TYPE, FMOD.Sound> sfxSound = new Dictionary<SOUND_SFX_TYPE, FMOD.Sound>();
+    private Dictionary<SoundSfxType, FMOD.Sound> sfxSound = new Dictionary<SoundSfxType, FMOD.Sound>();
 
     public FMOD.DSP? FFT { get; private set; }
     private FMOD.DSP lowEffectEQ;
@@ -89,31 +89,31 @@ public class SoundManager : SingletonUnity<SoundManager>
         Debug.Log( $"Current Sound Device : {soundDrivers[currentDriverIndex].name}" );
 
         // ChannelGroup
-        for ( int i = 0; i < ( int )CHANNEL_GROUP_TYPE.COUNT; i++ )
+        for ( int i = 0; i < ( int )ChannelGroupType.Count; i++ )
         {
             FMOD.ChannelGroup group;
-            CHANNEL_GROUP_TYPE type = ( CHANNEL_GROUP_TYPE )i;
+            ChannelGroupType type = ( ChannelGroupType )i;
 
             ErrorCheck( system.createChannelGroup( type.ToString(), out group ) );
-            if ( type != CHANNEL_GROUP_TYPE.MASTER )
-                 ErrorCheck( Groups[CHANNEL_GROUP_TYPE.MASTER].addGroup( group ) );
+            if ( type != ChannelGroupType.Master )
+                 ErrorCheck( Groups[ChannelGroupType.Master].addGroup( group ) );
 
             Groups.Add( type, group );
         }
 
         // Sfx Sound
-        LoadSfx( SOUND_SFX_TYPE.MOVE,     "Assets/Sounds/Sfxs/confirm_style_2_001.wav" );
-        LoadSfx( SOUND_SFX_TYPE.RETURN,   "Assets/Sounds/Sfxs/confirm_style_2_003.wav" );
-        LoadSfx( SOUND_SFX_TYPE.ESCAPE,   "Assets/Sounds/Sfxs/confirm_style_2_004.wav" );
-        LoadSfx( SOUND_SFX_TYPE.INCREASE, "Assets/Sounds/Sfxs/confirm_style_2_005.wav" );
-        LoadSfx( SOUND_SFX_TYPE.DECREASE, "Assets/Sounds/Sfxs/confirm_style_2_006.wav" );
+        LoadSfx( SoundSfxType.Move,     "Assets/Sounds/Sfxs/confirm_style_2_001.wav" );
+        LoadSfx( SoundSfxType.Return,   "Assets/Sounds/Sfxs/confirm_style_2_003.wav" );
+        LoadSfx( SoundSfxType.Escape,   "Assets/Sounds/Sfxs/confirm_style_2_004.wav" );
+        LoadSfx( SoundSfxType.Increase, "Assets/Sounds/Sfxs/confirm_style_2_005.wav" );
+        LoadSfx( SoundSfxType.Decrease, "Assets/Sounds/Sfxs/confirm_style_2_006.wav" );
 
         // DSP
         CreateLowEffectDsp();
 
         // Details
-        SetVolume( .1f, CHANNEL_GROUP_TYPE.MASTER );
-        SetVolume( .1f, CHANNEL_GROUP_TYPE.BGM);
+        SetVolume( .1f, ChannelGroupType.Master );
+        SetVolume( .1f, ChannelGroupType.BGM);
         Debug.Log( "SoundManager Initizlize Successful." );
     }
 
@@ -138,15 +138,15 @@ public class SoundManager : SingletonUnity<SoundManager>
         // DSP
         RemoveFFT();
 
-        ErrorCheck( Groups[CHANNEL_GROUP_TYPE.BGM].removeDSP( lowEffectEQ ) );
+        ErrorCheck( Groups[ChannelGroupType.BGM].removeDSP( lowEffectEQ ) );
         ErrorCheck( lowEffectEQ.release() );
 
         // ChannelGroup
-        for ( int i = 1; i < ( int )CHANNEL_GROUP_TYPE.COUNT; i++ )
+        for ( int i = 1; i < ( int )ChannelGroupType.Count; i++ )
         {
-            ErrorCheck( Groups[( CHANNEL_GROUP_TYPE )i].release() );
+            ErrorCheck( Groups[( ChannelGroupType )i].release() );
         }
-        ErrorCheck( Groups[CHANNEL_GROUP_TYPE.MASTER].release() );
+        ErrorCheck( Groups[ChannelGroupType.Master].release() );
 
         // System
         ErrorCheck( system.release() ); // 내부에서 close 함.
@@ -170,22 +170,22 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #region Load
-    public void LoadBgm( string _path, SOUND_LOAD_TYPE _type = SOUND_LOAD_TYPE.DEFAULT, SOUND_PLAY_MODE _mode = SOUND_PLAY_MODE.DEFAULT )
+    public void LoadBgm( string _path, SoundLoadType _type = SoundLoadType.Default, SoundPlayMode _mode = SoundPlayMode.Default )
     {
         FMOD.MODE mode;
         switch ( _mode )
         {
-            case SOUND_PLAY_MODE.DEFAULT: { mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME; } break;
-            case SOUND_PLAY_MODE.LOOP:    { mode = FMOD.MODE.LOOP_NORMAL | FMOD.MODE.ACCURATETIME; }  break;
-            default:                      { mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME; } break;
+            case SoundPlayMode.Default: { mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME; } break;
+            case SoundPlayMode.Loop:    { mode = FMOD.MODE.LOOP_NORMAL | FMOD.MODE.ACCURATETIME; }  break;
+            default:                    { mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME; } break;
         }
 
         FMOD.Sound sound;
         switch ( _type )
         {
-            case SOUND_LOAD_TYPE.DEFAULT: { ErrorCheck( system.createSound( _path, mode, out sound ) ); }  break;
-            case SOUND_LOAD_TYPE.STREAM:  { ErrorCheck( system.createStream( _path, mode, out sound ) ); } break;
-            default:                      { ErrorCheck( system.createSound( _path, mode, out sound ) ); }  break;
+            case SoundLoadType.Default: { ErrorCheck( system.createSound( _path, mode, out sound ) ); }  break;
+            case SoundLoadType.Stream:  { ErrorCheck( system.createStream( _path, mode, out sound ) ); } break;
+            default:                    { ErrorCheck( system.createSound( _path, mode, out sound ) ); }  break;
         }
 
         ErrorCheck( sound.getLength( out length, FMOD.TIMEUNIT.MS ) );
@@ -198,7 +198,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         bgmSound = sound;
     }
 
-    private void LoadSfx( SOUND_SFX_TYPE _type, string _path )
+    private void LoadSfx( SoundSfxType _type, string _path )
     {
         if ( sfxSound.ContainsKey( _type ) )
         {
@@ -213,7 +213,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #region Sound
-    public void PlaySfx( SOUND_SFX_TYPE _type )
+    public void PlaySfx( SoundSfxType _type )
     {
         if ( !sfxSound.ContainsKey( _type ) )
         {
@@ -221,7 +221,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             return;
         }
 
-        ErrorCheck( system.playSound( sfxSound[_type], Groups[CHANNEL_GROUP_TYPE.SFX], false, out sfxChannel ) );
+        ErrorCheck( system.playSound( sfxSound[_type], Groups[ChannelGroupType.Sfx], false, out sfxChannel ) );
         ErrorCheck( sfxChannel.setPriority( 0 ) );
     }
 
@@ -233,14 +233,14 @@ public class SoundManager : SingletonUnity<SoundManager>
             return;
         }
 
-        Stop( CHANNEL_GROUP_TYPE.BGM );
+        Stop( ChannelGroupType.BGM );
 
-        ErrorCheck( system.playSound( bgmSound, Groups[CHANNEL_GROUP_TYPE.BGM], _isPause, out bgmChannel ) );
+        ErrorCheck( system.playSound( bgmSound, Groups[ChannelGroupType.BGM], _isPause, out bgmChannel ) );
     }
 
     public void PauseBgm( bool _isPause )
     {
-        if ( !bgmSound.hasHandle() || !IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
+        if ( !bgmSound.hasHandle() || !IsPlaying( ChannelGroupType.BGM ) )
         {
             Debug.Log( "bgm is not loaded or is not Playing." );
             return;
@@ -251,7 +251,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public void SetPosition( uint _pos )
     {
-        if ( !IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
+        if ( !IsPlaying( ChannelGroupType.BGM ) )
         {
             Debug.Log( "bgm is not playing" );
             return;
@@ -262,7 +262,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public uint GetPosition()
     {
-        if ( !IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
+        if ( !IsPlaying( ChannelGroupType.BGM ) )
         {
             Debug.Log( "bgm is not playing" );
             return 0;
@@ -275,7 +275,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public void SetPitch( float _value )
     {
-        if ( !IsPlaying( CHANNEL_GROUP_TYPE.BGM ) )
+        if ( !IsPlaying( ChannelGroupType.BGM ) )
         {
             Debug.Log( "bgm is not playing" );
             return;
@@ -293,7 +293,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         Pitch = _value;
     }
 
-    public void Stop( CHANNEL_GROUP_TYPE _type )
+    public void Stop( ChannelGroupType _type )
     {
         if ( !Groups.ContainsKey( _type ) )
         {
@@ -315,7 +315,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #region ChannelGroup
-    public bool IsPlaying( CHANNEL_GROUP_TYPE _type = CHANNEL_GROUP_TYPE.MASTER )
+    public bool IsPlaying( ChannelGroupType _type = ChannelGroupType.Master )
     {
         if ( !Groups.ContainsKey( _type ) )
         {
@@ -329,7 +329,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         return isPlay;
     }
 
-    public float GetVolume( CHANNEL_GROUP_TYPE _type = CHANNEL_GROUP_TYPE.MASTER )
+    public float GetVolume( ChannelGroupType _type = ChannelGroupType.Master )
     {
         if ( !Groups.ContainsKey( _type ) )
         {
@@ -343,7 +343,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         return volume;
     }
 
-    public void SetVolume( float _value, CHANNEL_GROUP_TYPE _type = CHANNEL_GROUP_TYPE.MASTER )
+    public void SetVolume( float _value, ChannelGroupType _type = ChannelGroupType.Master )
     {
         if ( !Groups.ContainsKey( _type ) )
         {
@@ -367,7 +367,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out _dsp ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, _size ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )_type ) );
-        ErrorCheck( Groups[CHANNEL_GROUP_TYPE.MASTER].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, _dsp ) );
+        ErrorCheck( Groups[ChannelGroupType.Master].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, _dsp ) );
         FFT = _dsp;
     }
 
@@ -375,7 +375,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( FFT != null )
         {
-            ErrorCheck( Groups[CHANNEL_GROUP_TYPE.MASTER].removeDSP( FFT.Value ) );
+            ErrorCheck( Groups[ChannelGroupType.Master].removeDSP( FFT.Value ) );
             ErrorCheck( FFT.Value.release() );
             FFT = null;
         }
@@ -431,7 +431,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public void UseLowEqualizer( bool _isUse )
     {
-        var bgmGroup = Groups[CHANNEL_GROUP_TYPE.BGM];
+        var bgmGroup = Groups[ChannelGroupType.BGM];
         int numDsp;
         ErrorCheck( bgmGroup.getNumDSPs( out numDsp ) );
         for ( int i = 0; i < numDsp; i++ )

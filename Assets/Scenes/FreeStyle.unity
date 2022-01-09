@@ -216,7 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09e03e558115513498fb47e15c5b0e82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   texts: []
   valueText: {fileID: 1300672410}
   isReturnProcess: 0
@@ -403,7 +403,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ff5df4b42538974a8d5e44fe47d5c0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   texts: []
   valueText: {fileID: 1445339599}
   isReturnProcess: 0
@@ -589,7 +589,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72d5fbbd5ba976445a1367fb36b1611e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   slider: {fileID: 2115645225}
   valueText: {fileID: 772159161}
   increaseValue: 10
@@ -2165,7 +2165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e82f8d9372b75fb478d57dbe25f3074b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   texts: []
   valueText: {fileID: 1202690982}
   isReturnProcess: 0
@@ -2638,7 +2638,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42be40c0644391f41a01f29b2ef71aae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   texts: []
   valueText: {fileID: 782506834}
   isReturnProcess: 0
@@ -4094,7 +4094,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c99fd0263a6f07a418e45a5bd1f62b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   slider: {fileID: 249072653}
   valueText: {fileID: 542599231}
   increaseValue: 10
@@ -4210,7 +4210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8b28e4a3f0362149853e0741f0585df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   slider: {fileID: 901388961}
   valueText: {fileID: 1202854956}
   increaseValue: 0.1
@@ -4926,7 +4926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cc137150299aa0419af36ffdf9b3506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   slider: {fileID: 2131771859}
   valueText: {fileID: 215368336}
   increaseValue: 10
@@ -7093,7 +7093,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8659747a3139e6d4e915b65d2c047766, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   texts: []
   valueText: {fileID: 2040641122}
   isReturnProcess: 0
@@ -11073,7 +11073,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7ab7a34c843d944eb46381ed9c928af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   slider: {fileID: 1087496450}
   valueText: {fileID: 2013895419}
   increaseValue: 1
@@ -12279,7 +12279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6c0da3de8b0e3245b171464ed81b3df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   texts: []
   valueText: {fileID: 1919940877}
   isReturnProcess: 0
@@ -12353,7 +12353,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d0b146372c23d3428a78d4f6066777a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 4
+  actionType: 1
   texts: []
   valueText: {fileID: 1440239376}
   isReturnProcess: 0

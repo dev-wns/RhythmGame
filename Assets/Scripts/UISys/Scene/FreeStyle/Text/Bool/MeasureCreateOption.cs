@@ -14,15 +14,15 @@ public class MeasureCreateOption : OptionText
 
     protected override void CreateObject()
     {
-        for ( int i = 0; i < ( int )OPTION_BOOL.Count; i++ )
+        for ( int i = 0; i < ( int )BooleanOption.Count; i++ )
         {
-            texts.Add( ( ( OPTION_BOOL )i ).ToString() );
+            texts.Add( ( ( BooleanOption )i ).ToString() );
         }
     }
     public override void Process()
     {
         GameSetting.IsCreateMeasure = curIndex == 0 ? false : true;
         Debug.Log( GameSetting.IsCreateMeasure );
-        Debug.Log( ( OPTION_BOOL )curIndex );
+        Debug.Log( ( BooleanOption )curIndex );
     }
 }

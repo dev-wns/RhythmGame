@@ -6,7 +6,7 @@ using DG.Tweening;
 
 
 // Build Index
-public enum SCENE_TYPE : int { LOBBY = 1, FREESTYLE, GAME, RESULT };
+public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
 
 [RequireComponent( typeof( SpriteRenderer ) )]
 public class SceneChanger : SingletonUnity<SceneChanger>
@@ -31,16 +31,16 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         transform.localScale = Vector3.one;
     }
 
-    public void InitSceneChange() => StartCoroutine( InitSceneChange( SCENE_TYPE.LOBBY ) );
+    public void InitSceneChange() => StartCoroutine( InitSceneChange( SceneType.Lobby ) );
 
-    public void LoadScene( SCENE_TYPE _type )
+    public void LoadScene( SceneType _type )
     {
         if ( currentCoroutine != null ) return;
 
         currentCoroutine = StartCoroutine( FadeBackground( _type ) );
     }
 
-    private IEnumerator InitSceneChange( SCENE_TYPE _type )
+    private IEnumerator InitSceneChange( SceneType _type )
     {
         blackSprite.enabled = true;
         blackSprite.color = Color.black;
@@ -52,7 +52,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         StartCoroutine( FadeBackground( _type ) );
     }
 
-    private IEnumerator FadeBackground( SCENE_TYPE _type )
+    private IEnumerator FadeBackground( SceneType _type )
     {
         DOTween.KillAll();
         CurrentScene?.InputLock( true );

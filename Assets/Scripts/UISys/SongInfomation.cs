@@ -26,6 +26,6 @@ public class SongInfomation : OptionButton
 
         //GameManager.Inst.SelectSong( 1 );
         NowPlaying.Inst.ChartUpdate();
-        SceneChanger.Inst.LoadScene( SCENE_TYPE.GAME );
+        SceneChanger.Inst.LoadScene( SceneType.Game );
     }
 }

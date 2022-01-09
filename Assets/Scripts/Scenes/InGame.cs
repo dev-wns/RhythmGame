@@ -19,12 +19,6 @@ public class InGame : Scene
 
     float delta;
 
-    protected override void Awake()
-    {
-        base.Awake();
-        ChangeAction( SceneAction.InGame );
-    }
-
     private void Start()
     {
         var chart = NowPlaying.Inst.CurrentChart;
@@ -92,12 +86,12 @@ public class InGame : Scene
 
     public override void KeyBind()
     {
-        Bind( SceneAction.InGame, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
-        Bind( SceneAction.InGame, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= 1 );
-        Bind( SceneAction.InGame, KeyCode.Alpha1, () => OnScrollChanged?.Invoke() );
+        Bind( SceneAction.Main, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= 1 );
+        Bind( SceneAction.Main, KeyCode.Alpha1, () => OnScrollChanged?.Invoke() );
 
-        Bind( SceneAction.InGame, KeyCode.Alpha2, () => GameSetting.ScrollSpeed += 1 );
-        Bind( SceneAction.InGame, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
+        Bind( SceneAction.Main, KeyCode.Alpha2, () => GameSetting.ScrollSpeed += 1 );
+        Bind( SceneAction.Main, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
     }
 }

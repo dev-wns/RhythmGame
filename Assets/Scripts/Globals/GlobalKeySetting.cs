@@ -5,7 +5,6 @@ using UnityEngine;
 public enum GAME_KEY_ACTION : int
 {
     _0, _1, _2, _3, _4, _5, // InGame Input Keys
-    SCROLL_UP, SCROLL_DOWN,
 };
 
 public class GlobalKeySetting : SingletonUnity<GlobalKeySetting>

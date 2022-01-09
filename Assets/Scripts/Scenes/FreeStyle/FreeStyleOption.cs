@@ -6,20 +6,20 @@ public class FreeStyleOption : SceneScrollOption
 {
     public override void KeyBind()
     {
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.UpArrow, () => PrevMove() );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.UpArrow, () => PrevMove() );
+        currentScene.Bind( SceneAction.Option, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
 
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.DownArrow, () => NextMove() );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.DownArrow, () => NextMove() );
+        currentScene.Bind( SceneAction.Option, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
 
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => gameObject.SetActive( false ) );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => SoundManager.Inst.UseLowEqualizer( false ) );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.FreeStyle ) );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Escape, () => gameObject.SetActive( false ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Escape, () => SoundManager.Inst.UseLowEqualizer( false ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.Main ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Escape ) );
 
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => gameObject.SetActive( false ) );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( false ) );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => currentScene.ChangeAction( SceneAction.FreeStyle ) );
-        currentScene.Bind( SceneAction.FreeStyleOption, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Space, () => gameObject.SetActive( false ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( false ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Space, () => currentScene.ChangeAction( SceneAction.Main ) );
+        currentScene.Bind( SceneAction.Option, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SoundSfxType.Escape ) );
     }
 }

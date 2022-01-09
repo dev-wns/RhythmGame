@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VolumeOption : OptionSlider
 {
-    public CHANNEL_GROUP_TYPE groupType = CHANNEL_GROUP_TYPE.MASTER;
+    public ChannelGroupType groupType = ChannelGroupType.Master;
 
     protected override void Awake()
     {

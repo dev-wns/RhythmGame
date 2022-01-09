@@ -16,9 +16,9 @@ public class FrameRateOption : OptionText
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        for ( int i = 0; i < ( int )FRAME_RATE.Count; i++ )
+        for ( int i = 0; i < ( int )FrameRate.Count; i++ )
         {
-            var text = ( ( FRAME_RATE )i ).ToString();
+            var text = ( ( FrameRate )i ).ToString();
 
             builder.Clear();
             builder.Append( text.Replace( "_", " " ).Trim() );
@@ -33,22 +33,22 @@ public class FrameRateOption : OptionText
 
     public override void Process()
     {
-        var type = ( FRAME_RATE )curIndex;
+        var type = ( FrameRate )curIndex;
         switch ( type )
         {
-            case FRAME_RATE.vSync:
+            case FrameRate.vSync:
                  QualitySettings.vSyncCount = 1;
                  break;
 
-            case FRAME_RATE.No_Limit:
+            case FrameRate.No_Limit:
                  QualitySettings.vSyncCount  = 0;
                  Application.targetFrameRate = 10000;
                  break;
 
-            case FRAME_RATE._60:
-            case FRAME_RATE._144:
-            case FRAME_RATE._300:
-            case FRAME_RATE._960:
+            case FrameRate._60:
+            case FrameRate._144:
+            case FrameRate._300:
+            case FrameRate._960:
             {
                 QualitySettings.vSyncCount = 0;
                 var frame = ( type ).ToString().Replace( "_", " " );

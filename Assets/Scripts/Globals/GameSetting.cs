@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public enum OPTION_BOOL { Off, On, Count }
+public enum BooleanOption { Off, On, Count }
 
-public enum ALIGNMENT
+public enum Alignment
 {
     Left, Center, Right, Count,
 }
 
-public enum MOD
+public enum GameMod
 {
     None,
     Mirror,
@@ -19,7 +19,7 @@ public enum MOD
     Max_Random,
     Count,
 }
-public enum FADER
+public enum GameFader
 {
     None,
     Fade_In,
@@ -29,9 +29,9 @@ public enum FADER
 
 public class GameSetting : MonoBehaviour
 {
-    public static MOD GameMod             = MOD.None;
-    public static FADER GameFader         = FADER.None;
-    public static ALIGNMENT GearAlignment = ALIGNMENT.Center;
+    public static GameMod   Mod           = GameMod.None;
+    public static GameFader Fader         = GameFader.None;
+    public static Alignment GearAlignment = Alignment.Center;
 
     private static int OriginScrollSpeed = 25;
     public static float ScrollSpeed

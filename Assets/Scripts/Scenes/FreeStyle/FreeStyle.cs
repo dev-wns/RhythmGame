@@ -6,22 +6,14 @@ using UnityEngine.Networking;
 
 public class FreeStyle : Scene
 {
-    //public VerticalScrollSound scrollSound;
     public GameObject optionCanvas;
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        ChangeAction( SceneAction.FreeStyle );
-    }
 
     public override void KeyBind()
     {
-        Bind( SceneAction.FreeStyle, KeyCode.Space, () => optionCanvas.SetActive( true ) );
-        Bind( SceneAction.FreeStyle, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( true ) );
-        Bind( SceneAction.FreeStyle, KeyCode.Space, () => ChangeAction( SceneAction.FreeStyleOption ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => optionCanvas.SetActive( true ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( true ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => ChangeAction( SceneAction.Option ) );
               
-        Bind( SceneAction.FreeStyle, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.LOBBY ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SceneType.Lobby ) );
     }
 }

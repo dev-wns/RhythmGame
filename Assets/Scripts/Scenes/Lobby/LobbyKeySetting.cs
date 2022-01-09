@@ -9,19 +9,19 @@ public class LobbyKeySetting : SceneOptionBase
 
     private void OnEnable()
     {
-        currentScene.ChangeAction( SceneAction.KeySetting );
+        currentScene.ChangeAction( SceneAction.SubOption );
     }
 
     public override void KeyBind()
     {
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.UpArrow, () => PrevMove() );
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+        currentScene.Bind( SceneAction.SubOption, KeyCode.UpArrow, () => PrevMove() );
+        currentScene.Bind( SceneAction.SubOption, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
 
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.DownArrow, () => NextMove() );
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.MOVE ) );
+        currentScene.Bind( SceneAction.SubOption, KeyCode.DownArrow, () => NextMove() );
+        currentScene.Bind( SceneAction.SubOption, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
 
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.LobbyOption ) );
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
-        currentScene.Bind( SceneAction.KeySetting, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.ESCAPE ) );
+        currentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.Option ) );
+        currentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
+        currentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Escape ) );
     }
 }

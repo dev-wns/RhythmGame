@@ -16,10 +16,11 @@ public class ScreenModeOption : OptionText
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        for ( int i = 0; i < ( int )SCREEN_MODE.Count; i++ )
+        for ( int i = 0; i < ( int )ScreenMode.Count; i++ )
         {
-            var text = ( ( SCREEN_MODE )i ).ToString();
+            if ( ( ScreenMode )i == ScreenMode.Maximized_Window ) continue;
 
+            var text = ( ( ScreenMode )i ).ToString();
             builder.Clear();
             builder.Append( text.Replace( "_", " " ).Trim() );
 
@@ -29,15 +30,15 @@ public class ScreenModeOption : OptionText
 
     public override void Process()
     {
-        var type = ( SCREEN_MODE )curIndex;
+        var type = ( ScreenMode )curIndex;
         switch ( type )
         {
-            case SCREEN_MODE.Maximized_Window: // mac 전용
+            case ScreenMode.Maximized_Window: // mac 전용
             break;
 
             default:
             {
-                var replace = ( ( RESOLUTION )curIndex ).ToString().Replace( "_", " " );
+                var replace = ( ( Resolution )curIndex ).ToString().Replace( "_", " " );
                 var split = replace.Trim().Split( ' ' );
 
                 var width = int.Parse( split[0] );

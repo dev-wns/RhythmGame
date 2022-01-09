@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public enum RESOLUTION
+public enum Resolution
 {
     _1920_1080,
     _1600_1024,
@@ -11,7 +11,7 @@ public enum RESOLUTION
     Count,
 }
 
-public enum FRAME_RATE
+public enum FrameRate
 {
     vSync,
     No_Limit,
@@ -22,7 +22,7 @@ public enum FRAME_RATE
     Count,
 }
 
-public enum SCREEN_MODE
+public enum ScreenMode
 {
     Exclusive_FullScreen,
     FullScreen_Window,
@@ -33,7 +33,7 @@ public enum SCREEN_MODE
 
 public class SystemSetting : MonoBehaviour
 {
-    public static RESOLUTION Resolution  = RESOLUTION._1920_1080;
-    public static FRAME_RATE FrameRate   = FRAME_RATE.No_Limit;
-    public static SCREEN_MODE ScreenMod  = SCREEN_MODE.Exclusive_FullScreen;
+    public static Resolution Resolution  = Resolution._1920_1080;
+    public static FrameRate FrameRate   = FrameRate.No_Limit;
+    public static ScreenMode ScreenMod  = ScreenMode.Exclusive_FullScreen;
 }

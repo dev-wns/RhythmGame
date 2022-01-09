@@ -361,7 +361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf3275b7e5b697479f151ef19ff9c3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 3
+  actionType: 0
   title: {fileID: 6398163851407190828}
   artist: {fileID: 126389761674496591}
 --- !u!114 &-6036897128450080802

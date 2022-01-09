@@ -16,9 +16,9 @@ public class ResolutionOption : OptionText
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        for ( int i = 0; i < ( int )RESOLUTION.Count; i++ )
+        for ( int i = 0; i < ( int )Resolution.Count; i++ )
         {
-            var replace = ( ( RESOLUTION )i ).ToString().Replace( "_", " " );
+            var replace = ( ( Resolution )i ).ToString().Replace( "_", " " );
             var split = replace.Trim().Split( ' ' );
 
             builder.Clear();
@@ -30,7 +30,7 @@ public class ResolutionOption : OptionText
             }
             else
             {
-                builder.Append( ( ( RESOLUTION )i ).ToString() );
+                builder.Append( ( ( Resolution )i ).ToString() );
             }
 
             texts.Add( builder.ToString() );
@@ -39,13 +39,13 @@ public class ResolutionOption : OptionText
 
     public override void Process()
     {
-        var replace = ( ( RESOLUTION )curIndex ).ToString().Replace( "_", " " );
+        var replace = ( ( Resolution )curIndex ).ToString().Replace( "_", " " );
         var split = replace.Trim().Split( ' ' );
 
         var width  = int.Parse( split[0] );
         var height = int.Parse( split[1] );
 
         Screen.SetResolution( width, height, ( FullScreenMode )SystemSetting.ScreenMod );
-        SystemSetting.Resolution = ( RESOLUTION )curIndex;
+        SystemSetting.Resolution = ( Resolution )curIndex;
     }
 }

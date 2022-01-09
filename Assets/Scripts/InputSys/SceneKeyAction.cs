@@ -4,12 +4,7 @@ using UnityEngine;
 
 public enum SceneAction
 {
-    Lobby, LobbyOption, LobbySubOption,
-    FreeStyle, FreeStyleOption,
-    InGame, InGamePause,
-    Result,
-    Exit,
-    KeySetting
+    Main, Option, SubOption, Pause, Exit,
 }
 
 public class SceneKeyAction : MonoBehaviour

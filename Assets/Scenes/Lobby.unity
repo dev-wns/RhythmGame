@@ -9934,7 +9934,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0a070194a7f024b89ba16ed460f0ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 9
+  actionType: 2
   keySettingPanel: {fileID: 1854923140}
   panelText: {fileID: 1507246446}
   lane: 0
@@ -17329,7 +17329,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0a070194a7f024b89ba16ed460f0ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 9
+  actionType: 2
   keySettingPanel: {fileID: 1854923140}
   panelText: {fileID: 1507246446}
   lane: 4
@@ -17505,7 +17505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0a070194a7f024b89ba16ed460f0ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 9
+  actionType: 2
   keySettingPanel: {fileID: 1854923140}
   panelText: {fileID: 1507246446}
   lane: 3
@@ -17622,7 +17622,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0a070194a7f024b89ba16ed460f0ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 9
+  actionType: 2
   keySettingPanel: {fileID: 1854923140}
   panelText: {fileID: 1507246446}
   lane: 2
@@ -18144,7 +18144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0a070194a7f024b89ba16ed460f0ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 9
+  actionType: 2
   keySettingPanel: {fileID: 1854923140}
   panelText: {fileID: 1507246446}
   lane: 5
@@ -18531,7 +18531,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0a070194a7f024b89ba16ed460f0ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 9
+  actionType: 2
   keySettingPanel: {fileID: 1854923140}
   panelText: {fileID: 1507246446}
   lane: 1

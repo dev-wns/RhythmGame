@@ -14,22 +14,20 @@ public class Lobby : Scene
         base.Awake();
 
         SoundManager.Inst.LoadBgm( System.IO.Path.Combine( "Assets", "Sounds", "Bgms", soundName + ".mp3" ), 
-                                   SOUND_LOAD_TYPE.DEFAULT, SOUND_PLAY_MODE.LOOP );
+                                   SoundLoadType.Default, SoundPlayMode.Loop );
         SoundManager.Inst.PlayBgm();
-
-        ChangeAction( SceneAction.Lobby );
     }
     
     public override void KeyBind()
     {
-        Bind( SceneAction.Lobby, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SCENE_TYPE.FREESTYLE ) );
+        Bind( SceneAction.Main, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
 
-        Bind( SceneAction.Lobby, KeyCode.Space, () => optionCanvas.SetActive( true ) );
-        Bind( SceneAction.Lobby, KeyCode.Space, () => ChangeAction( SceneAction.LobbyOption ) );
-        Bind( SceneAction.Lobby, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => optionCanvas.SetActive( true ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => ChangeAction( SceneAction.Option ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SoundSfxType.Return ) );
 
-        Bind( SceneAction.Lobby, KeyCode.Escape, () => exitCanvas.SetActive( true ) );
-        Bind( SceneAction.Lobby, KeyCode.Escape, () => ChangeAction( SceneAction.Exit ) );
-        Bind( SceneAction.Lobby, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SOUND_SFX_TYPE.RETURN ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => exitCanvas.SetActive( true ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => ChangeAction( SceneAction.Exit ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Return ) );
     }
 }

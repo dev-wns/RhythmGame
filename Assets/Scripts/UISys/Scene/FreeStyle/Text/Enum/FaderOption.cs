@@ -9,16 +9,16 @@ public class FaderOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )GameSetting.GameFader;
+        curIndex = ( int )GameSetting.Fader;
         ChangeText( texts[curIndex] );
     }
 
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        for ( int i = 0; i < ( int )FADER.Count; i++ )
+        for ( int i = 0; i < ( int )GameFader.Count; i++ )
         {
-            var text = ( ( FADER )i ).ToString();
+            var text = ( ( GameFader )i ).ToString();
 
             builder.Clear();
             builder.Append( text.Replace( "_", " " ).Trim() );
@@ -29,7 +29,7 @@ public class FaderOption : OptionText
 
     public override void Process()
     {
-        GameSetting.GameFader = ( FADER )curIndex;
-        Debug.Log( ( FADER )curIndex );
+        GameSetting.Fader = ( GameFader )curIndex;
+        Debug.Log( ( GameFader )curIndex );
     }
 }
