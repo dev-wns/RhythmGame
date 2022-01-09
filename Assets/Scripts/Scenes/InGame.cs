@@ -32,6 +32,9 @@ public class InGame : Scene
         var notes = chart.notes;
         for ( int i = 0; i < notes.Count; i++ )
         {
+            Note newNote = new Note( notes[i].line, notes[i].time, notes[i].calcTime,
+                0, 0, false );
+            
             noteSystems[notes[i].line].AddNote( notes[i] );
         }
 

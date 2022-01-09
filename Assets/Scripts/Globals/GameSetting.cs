@@ -33,7 +33,7 @@ public class GameSetting : MonoBehaviour
     public static FADER GameFader         = FADER.None;
     public static ALIGNMENT GearAlignment = ALIGNMENT.Center;
 
-    private static int OriginScrollSpeed = 28;
+    private static int OriginScrollSpeed = 25;
     public static float ScrollSpeed
     {
         get { return OriginScrollSpeed * .0015f; }
@@ -59,7 +59,7 @@ public class GameSetting : MonoBehaviour
 
     public static float SoundPitch = 1f;
 
-    public static float JudgePos = -400f;
+    public static float JudgePos = -540f;
 
     public static float BGAOpacity = 0f;
     public static float PanelOpacity = 0f;

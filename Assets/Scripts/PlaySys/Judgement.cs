@@ -9,8 +9,8 @@ public class Judgement : MonoBehaviour
     private RectTransform rt;
 
     private const int Kool = 22;
-    private const int Cool = 35 + Kool;
-    private const int Good = 28 + Cool;
+    private const int Cool = 25 + Kool;
+    private const int Good = 13 + Cool;
 
     private int koolCount, coolCount, goodCount, missCount;
     public TextMeshProUGUI koolText, coolText, goodText;
@@ -35,16 +35,11 @@ public class Judgement : MonoBehaviour
         coolImage.anchoredPosition = rt.anchoredPosition;
         goodImage.anchoredPosition = rt.anchoredPosition;
 
-        Debug.Log( Screen.width / Screen.height );
         koolImage.sizeDelta = coolImage.sizeDelta = goodImage.sizeDelta = new Vector3( rt.sizeDelta.x, ( float )Screen.width / ( float )Screen.height, 1f );
     }
 
     private void LateUpdate()
     {
-        //koolChanged = ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
-        //coolChanged = ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Cool ) ) - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
-        //goodChanged = ( NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Good ) ) - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
-
         if ( isShowRange && NowPlaying.Inst.IsMusicStart )
         {
             koolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) ) * GameSetting.Weight , 1f);

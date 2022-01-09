@@ -18,7 +18,7 @@ public class NoteSystem : MonoBehaviour
     private void Awake()
     {
         scene   = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        nPool   = new ObjectPool<NoteRenderer>( nPrefab );
+        nPool   = new ObjectPool<NoteRenderer>( nPrefab, 10 );
         inputSystem = GetComponent<InputSystem>();
 
         scene.OnGameStart += () => StartCoroutine( Process() );

@@ -20,6 +20,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void Awake()
     {
+        QualitySettings.vSyncCount = 0;
         using ( FileConverter converter = new FileConverter() )
         {
             converter.ReLoad();
