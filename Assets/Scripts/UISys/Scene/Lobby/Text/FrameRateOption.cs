@@ -33,7 +33,31 @@ public class FrameRateOption : OptionText
 
     public override void Process()
     {
-        SystemSetting.FrameRate = ( FRAME_RATE )curIndex;
-        Debug.Log( ( FRAME_RATE )curIndex );
+        var type = ( FRAME_RATE )curIndex;
+        switch ( type )
+        {
+            case FRAME_RATE.vSync:
+                 QualitySettings.vSyncCount = 1;
+                 break;
+
+            case FRAME_RATE.No_Limit:
+                 QualitySettings.vSyncCount  = 0;
+                 Application.targetFrameRate = 10000;
+                 break;
+
+            case FRAME_RATE._60:
+            case FRAME_RATE._144:
+            case FRAME_RATE._300:
+            case FRAME_RATE._960:
+            {
+                QualitySettings.vSyncCount = 0;
+                var frame = ( type ).ToString().Replace( "_", " " );
+                Application.targetFrameRate = int.Parse( frame );
+            } break;
+
+            default: break;
+        }
+
+        SystemSetting.FrameRate = type;
     }
 }

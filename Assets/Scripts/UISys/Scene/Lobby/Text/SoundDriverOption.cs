@@ -36,7 +36,6 @@ public class SoundDriverOption : OptionText
 
     public override void Process()
     {
-        // GameSetting.GameFader = ( FADER )curIndex;
-        Debug.Log( SoundManager.Inst.soundDrivers[curIndex].name );
+        SoundManager.Inst.SetDriver( curIndex );
     }
 }

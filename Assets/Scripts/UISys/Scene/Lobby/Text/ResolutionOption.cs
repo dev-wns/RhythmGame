@@ -39,7 +39,13 @@ public class ResolutionOption : OptionText
 
     public override void Process()
     {
+        var replace = ( ( RESOLUTION )curIndex ).ToString().Replace( "_", " " );
+        var split = replace.Trim().Split( ' ' );
+
+        var width  = int.Parse( split[0] );
+        var height = int.Parse( split[1] );
+
+        Screen.SetResolution( width, height, ( FullScreenMode )SystemSetting.ScreenMod );
         SystemSetting.Resolution = ( RESOLUTION )curIndex;
-        Debug.Log( ( RESOLUTION )curIndex );
     }
 }

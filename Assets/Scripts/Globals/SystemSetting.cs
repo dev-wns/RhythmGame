@@ -22,7 +22,7 @@ public enum FRAME_RATE
     Count,
 }
 
-public enum SCREEN_MOD
+public enum SCREEN_MODE
 {
     Exclusive_FullScreen,
     FullScreen_Window,
@@ -33,7 +33,7 @@ public enum SCREEN_MOD
 
 public class SystemSetting : MonoBehaviour
 {
-    public static RESOLUTION Resolution = RESOLUTION._1920_1080;
-    public static FRAME_RATE FrameRate  = FRAME_RATE.No_Limit;
-    public static SCREEN_MOD ScreenMod  = SCREEN_MOD.Exclusive_FullScreen;
+    public static RESOLUTION Resolution  = RESOLUTION._1920_1080;
+    public static FRAME_RATE FrameRate   = FRAME_RATE.No_Limit;
+    public static SCREEN_MODE ScreenMod  = SCREEN_MODE.Exclusive_FullScreen;
 }
