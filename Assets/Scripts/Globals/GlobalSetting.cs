@@ -20,7 +20,7 @@ public class GlobalSetting : MonoBehaviour
     public static float MeasureHeight { get; private set; } = 3f;
 
     // Jugdement
-    public static float JudgeLine = -520f; // posY
+    public static float JudgeLine = -300f; // posY
     public static float JudgeHeight { get; private set; } = 100f; // scaleY
 
     // note

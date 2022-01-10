@@ -7,6 +7,8 @@ public enum SoundPlayMode { Default, Loop }
 public enum ChannelGroupType { Master, BGM, KeySound, Sfx, Count };
 public enum SoundSfxType { Move, Return, Escape, Increase, Decrease }
 
+public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
+
 public class SoundManager : SingletonUnity<SoundManager>
 {
     #region variables
@@ -43,10 +45,13 @@ public class SoundManager : SingletonUnity<SoundManager>
     public readonly float minPitch = .7f, maxPitch = 1.3f;
 
     private float volume;
+
+    public delegate void DelSoundSystemReLoad();
+    public event DelSoundSystemReLoad OnSoundSystemReLoad;
+    public bool IsLoad { get; private set; } = false;
     #endregion
 
-    #region Unity Callback
-    private void Awake()
+    public void Initialize()
     {
         // System
         ErrorCheck( FMOD.Factory.System_Create( out system ) );
@@ -61,8 +66,10 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
         Debug.Log( $"SampleRate : {samplerRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
 
-        ErrorCheck( system.setDSPBufferSize( 64, 4 ) );
-        uint bufferSize;
+        var bufferText  = SystemSetting.CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
+        uint bufferSize = uint.Parse( bufferText );
+        ErrorCheck( system.setDSPBufferSize( bufferSize, 4 ) );
+
         int numbuffers;
         ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
         Debug.Log( $"buffer size : {bufferSize} numbuffers : {numbuffers}" );
@@ -72,7 +79,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         ErrorCheck( system.getVersion( out version ) );
         if ( version < FMOD.VERSION.number )
-             Debug.LogError( "using the old version." );
+            Debug.LogError( "using the old version." );
 
         // Sound Driver
         ErrorCheck( system.getNumDrivers( out numDriver ) );
@@ -96,15 +103,15 @@ public class SoundManager : SingletonUnity<SoundManager>
 
             ErrorCheck( system.createChannelGroup( type.ToString(), out group ) );
             if ( type != ChannelGroupType.Master )
-                 ErrorCheck( Groups[ChannelGroupType.Master].addGroup( group ) );
+                ErrorCheck( Groups[ChannelGroupType.Master].addGroup( group ) );
 
             Groups.Add( type, group );
         }
 
         // Sfx Sound
-        LoadSfx( SoundSfxType.Move,     "Assets/Sounds/Sfxs/confirm_style_2_001.wav" );
-        LoadSfx( SoundSfxType.Return,   "Assets/Sounds/Sfxs/confirm_style_2_003.wav" );
-        LoadSfx( SoundSfxType.Escape,   "Assets/Sounds/Sfxs/confirm_style_2_004.wav" );
+        LoadSfx( SoundSfxType.Move, "Assets/Sounds/Sfxs/confirm_style_2_001.wav" );
+        LoadSfx( SoundSfxType.Return, "Assets/Sounds/Sfxs/confirm_style_2_003.wav" );
+        LoadSfx( SoundSfxType.Escape, "Assets/Sounds/Sfxs/confirm_style_2_004.wav" );
         LoadSfx( SoundSfxType.Increase, "Assets/Sounds/Sfxs/confirm_style_2_005.wav" );
         LoadSfx( SoundSfxType.Decrease, "Assets/Sounds/Sfxs/confirm_style_2_006.wav" );
 
@@ -113,26 +120,29 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         // Details
         SetVolume( .1f, ChannelGroupType.Master );
-        SetVolume( .1f, ChannelGroupType.BGM);
+        SetVolume( .1f, ChannelGroupType.BGM );
         Debug.Log( "SoundManager Initizlize Successful." );
     }
 
-    private void Update() => system.update();
-
-    private void OnApplicationQuit()
+    public void Release()
     {
+        soundDrivers.Clear();
+
         // Sound
         foreach ( var sfx in sfxSound.Values )
         {
             if ( sfx.hasHandle() )
             {
                 ErrorCheck( sfx.release() );
+                sfx.clearHandle();
             }
         }
+        sfxSound.Clear();
 
         if ( bgmSound.hasHandle() )
         {
             ErrorCheck( bgmSound.release() );
+            bgmSound.clearHandle();
         }
 
         // DSP
@@ -147,10 +157,37 @@ public class SoundManager : SingletonUnity<SoundManager>
             ErrorCheck( Groups[( ChannelGroupType )i].release() );
         }
         ErrorCheck( Groups[ChannelGroupType.Master].release() );
+        Groups.Clear();
 
         // System
-        ErrorCheck( system.release() ); // 내부에서 close 함.
+        if ( system.hasHandle() )
+        {
+            ErrorCheck( system.release() ); // 내부에서 close 함.
+            system.clearHandle();
+        }
     }
+
+    public void ReLoad()
+    {
+        AllStop();
+        IsLoad = true;
+        int driverIndex = CurrentDriverIndex;
+
+        Release();
+        Initialize();
+
+        OnSoundSystemReLoad?.Invoke();
+        SetDriver( driverIndex );
+        IsLoad = false;
+    }
+
+    #region Unity Callback
+    private void Awake() => Initialize();
+    private void Update()
+    {
+        if ( !IsLoad ) system.update();
+    }
+    private void OnApplicationQuit() => Release();
     #endregion
 
     #region System

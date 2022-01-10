@@ -9,7 +9,7 @@ public class ScreenModeOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )SystemSetting.ScreenMod;
+        curIndex = ( int )SystemSetting.CurrentScreenMode;
         ChangeText( texts[curIndex] );
     }
 
@@ -49,6 +49,6 @@ public class ScreenModeOption : OptionText
             break;
         }
 
-        SystemSetting.ScreenMod = type;
+        SystemSetting.CurrentScreenMode = type;
     }
 }

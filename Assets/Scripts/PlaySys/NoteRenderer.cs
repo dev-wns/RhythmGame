@@ -30,6 +30,9 @@ public class NoteRenderer : MonoBehaviour
 
         column = GlobalSetting.NoteStartPos + ( _data.line * GlobalSetting.NoteWidth ) + ( ( _data.line + 1 ) * GlobalSetting.NoteBlank );
 
+        if ( IsSlider ) 
+             scene.OnScrollChanged += ScaleUpdate;
+
         ScaleUpdate();
         if ( _data.line == 1 || _data.line == 4 ) SetColor( new Color( 0.2078432f, 0.7843138f, 1f, 1f ) );
         else                                      SetColor( Color.white );
@@ -49,9 +52,10 @@ public class NoteRenderer : MonoBehaviour
         rdr   = GetComponent<SpriteRenderer>();
     }
 
-    private void OnEnable() => scene.OnScrollChanged += ScaleUpdate;
-
-    private void OnDisable() => scene.OnScrollChanged -= ScaleUpdate;
+    private void OnDisable()
+    {
+        if ( IsSlider ) scene.OnScrollChanged -= ScaleUpdate;
+    }
 
     private void LateUpdate()
     {

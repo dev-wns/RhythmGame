@@ -9,7 +9,7 @@ public class ResolutionOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )SystemSetting.Resolution;
+        curIndex = ( int )SystemSetting.CurrentResolution;
         ChangeText( texts[curIndex] );
     }
 
@@ -45,7 +45,7 @@ public class ResolutionOption : OptionText
         var width  = int.Parse( split[0] );
         var height = int.Parse( split[1] );
 
-        Screen.SetResolution( width, height, ( FullScreenMode )SystemSetting.ScreenMod );
-        SystemSetting.Resolution = ( Resolution )curIndex;
+        Screen.SetResolution( width, height, ( FullScreenMode )SystemSetting.CurrentScreenMode );
+        SystemSetting.CurrentResolution = ( Resolution )curIndex;
     }
 }

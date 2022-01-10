@@ -33,7 +33,8 @@ public enum ScreenMode
 
 public class SystemSetting : MonoBehaviour
 {
-    public static Resolution Resolution  = Resolution._1920_1080;
-    public static FrameRate FrameRate   = FrameRate.No_Limit;
-    public static ScreenMode ScreenMod  = ScreenMode.Exclusive_FullScreen;
+    public static Resolution  CurrentResolution  = Resolution._1920_1080;
+    public static FrameRate   CurrentFrameRate   = FrameRate.No_Limit;
+    public static ScreenMode  CurrentScreenMode  = ScreenMode.Exclusive_FullScreen;
+    public static SoundBuffer CurrentSoundBuffer = SoundBuffer._1024;
 }

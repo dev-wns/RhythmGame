@@ -16,6 +16,9 @@ public class AudioVisualizer : MonoBehaviour
     private void Awake()
     {
         SoundManager.Inst.AddFFT( ( int )size, type, out dsp );
+        
+        SoundManager.Inst.OnSoundSystemReLoad += 
+            () => { SoundManager.Inst.AddFFT( ( int )size, type, out dsp ); };
     }
 
     private void OnDestroy()
@@ -25,6 +28,8 @@ public class AudioVisualizer : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if ( SoundManager.Inst.IsLoad ) return;
+
         uint length;
         System.IntPtr data;
         dsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );

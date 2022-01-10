@@ -9,7 +9,7 @@ public class FrameRateOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )SystemSetting.FrameRate;
+        curIndex = ( int )SystemSetting.CurrentFrameRate;
         ChangeText( texts[curIndex] );
     }
 
@@ -58,6 +58,6 @@ public class FrameRateOption : OptionText
             default: break;
         }
 
-        SystemSetting.FrameRate = type;
+        SystemSetting.CurrentFrameRate = type;
     }
 }

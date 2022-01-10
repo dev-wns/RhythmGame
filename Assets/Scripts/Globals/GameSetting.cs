@@ -59,7 +59,7 @@ public class GameSetting : MonoBehaviour
 
     public static float SoundPitch = 1f;
 
-    public static float JudgePos = -540f;
+    public static float JudgePos = -400f;
 
     public static float BGAOpacity = 0f;
     public static float PanelOpacity = 0f;
