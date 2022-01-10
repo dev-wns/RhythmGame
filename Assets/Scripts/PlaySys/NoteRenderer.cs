@@ -5,6 +5,7 @@ using UnityEngine;
 public class NoteRenderer : MonoBehaviour
 {
     private InGame scene;
+    public NoteSystem system;
 
     public float Time { get; private set; }
     public float CalcTime { get; private set; }
@@ -52,9 +53,13 @@ public class NoteRenderer : MonoBehaviour
         rdr   = GetComponent<SpriteRenderer>();
     }
 
-    private void OnDisable()
+
+    public void Despawn()
     {
-        if ( IsSlider ) scene.OnScrollChanged -= ScaleUpdate;
+        if ( IsSlider ) 
+             scene.OnScrollChanged -= ScaleUpdate;
+
+        system?.Despawn( this );
     }
 
     private void LateUpdate()

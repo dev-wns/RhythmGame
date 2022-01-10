@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class InputSystem : MonoBehaviour
 {
-    private NoteSystem noteSystem;
     private Judgement judgement;
     private Queue<NoteRenderer> notes = new Queue<NoteRenderer>();
     private NoteRenderer currentNote;
@@ -23,7 +22,6 @@ public class InputSystem : MonoBehaviour
     {
         keyIndex = ( int )key;
 
-        noteSystem = GetComponent<NoteSystem>();
         judgement  = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
         transform.position = new Vector3( GlobalSetting.NoteStartPos + ( GlobalSetting.NoteWidth * keyIndex ) +
@@ -40,7 +38,6 @@ public class InputSystem : MonoBehaviour
             if ( notes.Count > 0 )
             {
                 currentNote = notes.Dequeue();
-                //currentNote.SetColor( Color.green );
             }
 
             yield return null;
@@ -50,7 +47,7 @@ public class InputSystem : MonoBehaviour
     private void SelectNextNote()
     {
         currentNote.gameObject.SetActive( false );
-        noteSystem.Despawn( currentNote );
+        currentNote.Despawn();
         currentNote = null;
         
         StartCoroutine( NoteSelect() );
@@ -125,7 +122,7 @@ public class InputSystem : MonoBehaviour
             float endDiff = ( slider.SliderTime - NowPlaying.Playback );
             if ( judgement.IsMiss( endDiff ) )
             {
-                noteSystem.Despawn( slider );
+                slider.Despawn();
                 sliderMissQueue.Dequeue();
             }
         }

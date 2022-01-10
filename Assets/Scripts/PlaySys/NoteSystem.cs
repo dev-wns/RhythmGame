@@ -36,6 +36,7 @@ public class NoteSystem : MonoBehaviour
 
             NoteRenderer note = nPool.Spawn();
             note.SetInfo( curNote );
+            note.system = this;
             inputSystem.Enqueue( note );
             currentIndex++;
         }
