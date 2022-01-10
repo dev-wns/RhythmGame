@@ -98,11 +98,18 @@ public class FileConverter : FileReader
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Events]" )
             {
-                if ( Contains( "Title" ) )   song.title   = SplitAndTrim( ':' );
-                if ( Contains( "Artist" ) )  song.artist  = SplitAndTrim( ':' );
+                if ( Contains( "Title" ) && !Contains( "TitleUnicode:" ) )
+                     song.title   = SplitAndTrim( ':' );
+
+                if ( Contains( "Artist" ) && !Contains( "ArtistUnicode" ) )  
+                     song.artist  = SplitAndTrim( ':' );
+
                 if ( Contains( "Creator" ) ) song.creator = SplitAndTrim( ':' );
                 if ( Contains( "Version" ) ) song.version = SplitAndTrim( ':' );
             }
+
+            if ( song.artist.Contains( "DJ" ) )
+                Debug.Log( _path );
 
             // [Events]
 
@@ -287,7 +294,7 @@ public class FileConverter : FileReader
         // 원본 파일 삭제
         if ( File.Exists( path ) )
         {
-            Debug.Log( $"File Delete : {path}" );
+            //Debug.Log( $"File Delete : {path}" );
             //File.Delete( path );
         }
     }
