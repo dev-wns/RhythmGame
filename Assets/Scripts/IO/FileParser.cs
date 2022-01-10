@@ -6,7 +6,7 @@ using System.IO;
 
 public class FileParser : FileReader
 {
-    public void TryParseArray( ref List<Song> _songs )
+    public void ParseFilesInDirectories( ref List<Song> _songs )
     {
         _songs?.Clear();
         _songs ??= new List<Song>();
@@ -15,13 +15,12 @@ public class FileParser : FileReader
         foreach ( var path in files )
         {
             Song newSong = new Song();
-            TryParse( path, out newSong );
-
-            _songs.Add( newSong );
+            if ( TryParse( path, out newSong ) )
+                 _songs.Add( newSong );
         }
     }
 
-    public void TryParse( string _path, out Song _song )
+    public bool TryParse( string _path, out Song _song )
     {
         _song = new Song();
 
@@ -75,10 +74,13 @@ public class FileParser : FileReader
         {
             Debug.Log(e.Message );
             Dispose();
-    }
-}
+            return false;
+        }
 
-    public void TryParse( string _path, out Chart _chart )
+        return true;
+    }
+
+    public bool TryParse( string _path, out Chart _chart )
     {
         _chart = new Chart();
 
@@ -125,6 +127,9 @@ public class FileParser : FileReader
         {
             Debug.Log( e.Message );
             Dispose();
+            return false;
         }
+
+        return true;
     }
 }

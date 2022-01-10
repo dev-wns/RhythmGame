@@ -5,10 +5,7 @@ using System;
 
 public enum BooleanOption { Off, On, Count }
 
-public enum Alignment
-{
-    Left, Center, Right, Count,
-}
+public enum Alignment { Left, Center, Right, Count, }
 
 public enum GameRandom
 {
@@ -39,6 +36,7 @@ public enum GameMod
     All      = int.MaxValue,
 }
 
+[Flags]
 public enum VisualMod
 {
     None        = 0,

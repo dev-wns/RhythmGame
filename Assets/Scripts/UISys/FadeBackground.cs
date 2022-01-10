@@ -18,7 +18,10 @@ public class FadeBackground : MonoBehaviour
         image = GetComponent<Image>();
         rt    = transform as RectTransform;
     }
-    private void OnDestroy()
+
+    private void OnDestroy() => SpriteRelease();
+
+    private void SpriteRelease()
     {
         if ( image.sprite )
         {
@@ -68,16 +71,8 @@ public class FadeBackground : MonoBehaviour
     {
         image.DOFade( 0f, fadeTime );
         yield return YieldCache.WaitForSeconds( fadeTime );
-        
-        if ( image.sprite )
-        {
-            if ( image.sprite.texture )
-            {
-                DestroyImmediate( image.sprite.texture );
-            }
-            Destroy( image.sprite );
-        }
 
+        SpriteRelease();
         system.DeSpawn( this );
     }
 }

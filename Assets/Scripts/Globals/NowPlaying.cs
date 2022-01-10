@@ -4,41 +4,58 @@ using UnityEngine;
 
 public class NowPlaying : SingletonUnity<NowPlaying>
 {
-    private List<Song> Songs = new List<Song>();
-    public Song CurrentSong   { get; private set; }
-    public Chart CurrentChart { get; private set; }
+    private List<Song> songs = new List<Song>();
+    public Song  CurrentSong   
+    {
+        get 
+        {
+            if ( CurrentSongIndex >= Count ) 
+                 throw new System.Exception( "Out of Range. " );
 
-    public int Count { get { return Songs.Count; } }
+            return songs[CurrentSongIndex];
+        } 
+    }
+    public  Chart CurrentChart  { get { return currentChart; } }
+    private Chart currentChart;
+
+    public int Count 
+    {
+        get 
+        {
+            if ( songs is null ) return 0;
+            else                 return songs.Count; 
+        } 
+    }
     public int CurrentSongIndex { get; private set; }
-    public float MedianBpm { get; private set; }
+    public float MedianBpm { get { return CurrentSong.medianBpm; } }
 
     public static float Playback        { get; private set; } // 노래 재생 시간
     public static float PlaybackChanged { get; private set; } // BPM 변화에 따른 노래 재생 시간
 
-    public bool IsPlaying, IsMusicStart;
+    public bool IsPlaying    { get; private set; }
+    public bool IsMusicStart { get; private set; }
     private readonly int waitTime = -3000;
 
     private void Awake()
     {
-        QualitySettings.vSyncCount = 0;
         using ( FileConverter converter = new FileConverter() )
-        {
-            converter.ReLoad();
-        }
+                converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
-        {
-            parser.TryParseArray( ref Songs );
-        }
+                parser.ParseFilesInDirectories( ref songs );
 
-        if ( Songs.Count > 0 ) { SelectSong( 0 ); }
+        currentChart.notes   ??= new List<Note>();
+        currentChart.timings ??= new List<Timing>();
+
+        if ( songs.Count > 0 ) { SelectSong( 0 ); }
     }
 
     private void Update()
     {
         if ( !IsPlaying ) return;
 
-        Playback += Time.deltaTime * 1000f;
+        if ( !IsMusicStart ) Playback += Time.deltaTime * 1000f;
+        else                 Playback  = Globals.Timer.elapsedMilliSeconds;
         PlaybackChanged = GetChangedTime( Playback );
     }
 
@@ -52,15 +69,14 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         yield return new WaitUntil( () => Playback >= 0 );
 
-        Playback = 0;
+        Globals.Timer.Start();
         SoundManager.Inst.PauseBgm( false );
         IsMusicStart = true;
     }
 
     public void Stop()
     {
-        IsPlaying = false;
-        IsMusicStart = false;
+        IsPlaying = IsMusicStart = false;
     }
 
     public void ChartUpdate()
@@ -71,23 +87,25 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         using ( FileParser parser = new FileParser() )
         {
-            Chart chart;
-            parser.TryParse( CurrentSong.filePath, out chart );
-            CurrentChart = chart;
+            currentChart.notes ??= new List<Note>();
+            currentChart.notes?.Clear();
+
+            currentChart.timings ??= new List<Timing>();
+            currentChart.timings?.Clear();
+
+            parser.TryParse( CurrentSong.filePath, out currentChart );
         }
     }
 
     public void SelectSong( int _index )
     {
-        if ( _index < 0 || _index > Songs.Count - 1 )
+        if ( _index < 0 || _index > songs.Count - 1 )
         {
             Debug.Log( $"Sound Select Out Of Range. Index : {_index}" );
             return;
         }
 
         CurrentSongIndex = _index;
-        CurrentSong = Songs[_index];
-        MedianBpm = Songs[_index].medianBpm;
     }
 
     public Song GetSong( int _index )
@@ -98,7 +116,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             return new Song();
         }
 
-        return Songs[_index];
+        return songs[_index];
     }
 
     public static float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산

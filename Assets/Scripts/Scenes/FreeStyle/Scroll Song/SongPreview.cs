@@ -28,6 +28,6 @@ public class SongPreview : MonoBehaviour
         time.text = $"{minute:00}:{second:00}";
 
         if ( _song.minBpm == _song.maxBpm ) bpm.text = _song.medianBpm.ToString();
-        else bpm.text = $"{_song.medianBpm} ({_song.minBpm} ~ {_song.maxBpm})";
+        else                                bpm.text = $"{_song.medianBpm} ({_song.minBpm} ~ {_song.maxBpm})";
     }
 }

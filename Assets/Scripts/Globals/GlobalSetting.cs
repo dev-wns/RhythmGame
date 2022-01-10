@@ -14,7 +14,7 @@ public class GlobalSetting : MonoBehaviour
     // IO
     public static string SoundDirectoryPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
     public static string FailedPath { get; private set; } = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
-    public static string DefaultImagePath { get; private set; } = System.IO.Path.Combine( "Assets", "Textures", "Default", "DefaultImage.jpg" );
+    public static string DefaultImagePath { get; private set; } = System.IO.Path.Combine( Application.dataPath, "Textures", "Default", "DefaultImage.jpg" );
 
     // Measure
     public static float MeasureHeight { get; private set; } = 3f;

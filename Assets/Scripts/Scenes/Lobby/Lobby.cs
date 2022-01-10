@@ -18,9 +18,8 @@ public class Lobby : Scene
 
         SoundManager.Inst.LoadBgm( System.IO.Path.Combine( "Assets", "Sounds", "Bgms", soundName + ".mp3" ), 
                                    SoundLoadType.Default, SoundPlayMode.Loop );
-        SoundManager.Inst.PlayBgm( true );
+        SoundManager.Inst.PlayBgm();
         SoundManager.Inst.OnSoundSystemReLoad += SoundReStart;
-        SoundManager.Inst.PauseBgm( false );
         isStart = true;
     }
 
