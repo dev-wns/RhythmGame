@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
 {
     public OptionType type { get; protected set; }
-    public SceneAction actionType;
+    public SceneAction actionType = SceneAction.Option;
 
     protected Scene currentScene { get; private set; }
     private Outline outline;

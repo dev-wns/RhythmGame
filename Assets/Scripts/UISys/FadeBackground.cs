@@ -18,6 +18,17 @@ public class FadeBackground : MonoBehaviour
         image = GetComponent<Image>();
         rt    = transform as RectTransform;
     }
+    private void OnDestroy()
+    {
+        if ( image.sprite )
+        {
+            if ( image.sprite.texture )
+            {
+                DestroyImmediate( image.sprite.texture );
+            }
+            Destroy( image.sprite );
+        }
+    }
 
     private Vector3 GetFullScreenRatio( Texture2D _tex )
     {
@@ -38,6 +49,7 @@ public class FadeBackground : MonoBehaviour
         return new Vector3( width, height, 1f );
     }
 
+
     public void SetInfo( Sprite _sprite )
     {
         rt.anchoredPosition = new Vector3( 0f, 0f, depth += .00001f );
@@ -56,6 +68,16 @@ public class FadeBackground : MonoBehaviour
     {
         image.DOFade( 0f, fadeTime );
         yield return YieldCache.WaitForSeconds( fadeTime );
+        
+        if ( image.sprite )
+        {
+            if ( image.sprite.texture )
+            {
+                DestroyImmediate( image.sprite.texture );
+            }
+            Destroy( image.sprite );
+        }
+
         system.DeSpawn( this );
     }
 }

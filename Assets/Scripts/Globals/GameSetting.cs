@@ -10,7 +10,7 @@ public enum Alignment
     Left, Center, Right, Count,
 }
 
-public enum GameMod
+public enum GameRandom
 {
     None,
     Mirror,
@@ -19,6 +19,7 @@ public enum GameMod
     Max_Random,
     Count,
 }
+
 public enum GameFader
 {
     None,
@@ -27,15 +28,41 @@ public enum GameFader
     Count,
 }
 
+[Flags]
+public enum GameMod
+{
+    None     = 0,
+    AutoPlay = 1 << 0,
+    NoFail   = 1 << 1,
+    NoSlider = 1 << 2,
+
+    All      = int.MaxValue,
+}
+
+public enum VisualMod
+{
+    None        = 0,
+    BGAPlay     = 1 << 0,
+    TouchEffect = 1 << 1,
+    LineEffect  = 1 << 2,
+    ShowMeasure = 1 << 3,
+    ShowJudge   = 1 << 4,
+
+    All         = int.MaxValue,
+}
+
 public class GameSetting : MonoBehaviour
 {
-    public static GameMod   Mod           = GameMod.None;
-    public static GameFader Fader         = GameFader.None;
-    public static Alignment GearAlignment = Alignment.Center;
+    public static GameMod    CurrentGameMod       = GameMod.None;
+    public static VisualMod  CurrentVisualMod     = VisualMod.All;
+    public static GameRandom CurrentRandom        = GameRandom.None;
+    public static GameFader  CurrentFader         = GameFader.None;
+    public static Alignment  CurrentGearAlignment = Alignment.Center;
 
     private static int OriginScrollSpeed = 25;
     public static float ScrollSpeed
     {
+        
         get { return OriginScrollSpeed * .0015f; }
         set
         {
@@ -63,9 +90,4 @@ public class GameSetting : MonoBehaviour
 
     public static float BGAOpacity = 0f;
     public static float PanelOpacity = 0f;
-
-    public static bool IsBGAPlay       = true;
-    public static bool IsTouchEffect   = true;
-    public static bool IsLineEffect    = true;
-    public static bool IsCreateMeasure = true;
 }

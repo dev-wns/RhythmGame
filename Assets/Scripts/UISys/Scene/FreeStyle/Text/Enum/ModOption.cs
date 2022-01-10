@@ -9,16 +9,16 @@ public class ModOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )GameSetting.Mod;
+        curIndex = ( int )GameSetting.CurrentRandom;
         ChangeText( texts[curIndex] );
     }
 
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        for ( int i = 0; i < ( int )GameMod.Count; i++ )
+        for ( int i = 0; i < ( int )GameRandom.Count; i++ )
         {
-            var text = ( ( GameMod )i ).ToString();
+            var text = ( ( GameRandom )i ).ToString();
             builder.Clear();
             builder.Append( text.Replace( "_", " " ).Trim() );
             texts.Add( builder.ToString() );
@@ -27,7 +27,7 @@ public class ModOption : OptionText
 
     public override void Process()
     {
-        GameSetting.Mod = ( GameMod )curIndex;
-        Debug.Log( ( GameMod )curIndex );
+        GameSetting.CurrentRandom = ( GameRandom )curIndex;
+        Debug.Log( ( GameRandom )curIndex );
     }
 }

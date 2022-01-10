@@ -3,33 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 
-public class FaderOption : OptionText
+public class RandomOption : OptionText
 {
     protected override void Awake()
     {
         base.Awake();
 
-        curIndex = ( int )GameSetting.CurrentFader;
+        curIndex = ( int )GameSetting.CurrentRandom;
         ChangeText( texts[curIndex] );
     }
 
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        for ( int i = 0; i < ( int )GameFader.Count; i++ )
+        for ( int i = 0; i < ( int )GameRandom.Count; i++ )
         {
-            var text = ( ( GameFader )i ).ToString();
-
+            var text = ( ( GameRandom )i ).ToString();
             builder.Clear();
             builder.Append( text.Replace( "_", " " ).Trim() );
-
             texts.Add( builder.ToString() );
         }
     }
 
     public override void Process()
     {
-        GameSetting.CurrentFader = ( GameFader )curIndex;
-        Debug.Log( ( GameFader )curIndex );
+        GameSetting.CurrentRandom = ( GameRandom )curIndex;
+        Debug.Log( ( GameRandom )curIndex );
     }
 }

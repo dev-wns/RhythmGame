@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeasureCreateOption : OptionText
+public class ShowMeasureOption : OptionText
 {
     protected override void Awake()
     {
         base.Awake();
 
-        curIndex = GameSetting.IsCreateMeasure ? 1 : 0;
+        curIndex = GameSetting.CurrentVisualMod.HasFlag( VisualMod.ShowMeasure ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class MeasureCreateOption : OptionText
     }
     public override void Process()
     {
-        GameSetting.IsCreateMeasure = curIndex == 0 ? false : true;
-        Debug.Log( GameSetting.IsCreateMeasure );
-        Debug.Log( ( BooleanOption )curIndex );
+        if ( curIndex == 0 ) GameSetting.CurrentVisualMod &= ~VisualMod.ShowMeasure;
+        else                 GameSetting.CurrentVisualMod |=  VisualMod.ShowMeasure;
+        Debug.Log( GameSetting.CurrentVisualMod.HasFlag( VisualMod.ShowMeasure ) );
     }
 }

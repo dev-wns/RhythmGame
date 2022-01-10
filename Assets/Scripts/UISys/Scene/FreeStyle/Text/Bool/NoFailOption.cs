@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TouchEffectOption : OptionText
+public class NoFailOption : OptionText
 {
     protected override void Awake()
     {
         base.Awake();
 
-        curIndex = GameSetting.CurrentVisualMod.HasFlag( VisualMod.TouchEffect ) ? 1 : 0;
+        curIndex = GameSetting.CurrentGameMod.HasFlag( GameMod.NoFail ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class TouchEffectOption : OptionText
     }
     public override void Process()
     {
-        if ( curIndex == 0 ) GameSetting.CurrentVisualMod &= ~VisualMod.TouchEffect;
-        else                 GameSetting.CurrentVisualMod |=  VisualMod.TouchEffect;
-        Debug.Log( GameSetting.CurrentVisualMod.HasFlag( VisualMod.TouchEffect ) );
+        if ( curIndex == 0 ) GameSetting.CurrentGameMod &= ~GameMod.NoFail;
+        else                 GameSetting.CurrentGameMod |=  GameMod.NoFail;
+        Debug.Log( GameSetting.CurrentGameMod.HasFlag( GameMod.NoFail ) );
     }
 }

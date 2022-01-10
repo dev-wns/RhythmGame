@@ -9,7 +9,7 @@ public class BGAPlayOption : OptionText
     {
         base.Awake();
 
-        curIndex = GameSetting.IsBGAPlay ? 1 : 0;
+        curIndex = GameSetting.CurrentVisualMod.HasFlag( VisualMod.BGAPlay ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -22,7 +22,8 @@ public class BGAPlayOption : OptionText
     }
     public override void Process()
     {
-        GameSetting.IsBGAPlay = curIndex == 0 ? false : true;
-        Debug.Log( ( BooleanOption )curIndex );
+        if ( curIndex == 0 ) GameSetting.CurrentVisualMod &= ~VisualMod.BGAPlay;
+        else                 GameSetting.CurrentVisualMod |=  VisualMod.BGAPlay;
+        Debug.Log( GameSetting.CurrentVisualMod.HasFlag( VisualMod.BGAPlay ) );
     }
 }

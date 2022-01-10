@@ -8,7 +8,7 @@ public class GearAlignmentOption : OptionText
     {
         base.Awake();
 
-        curIndex = ( int )GameSetting.GearAlignment;
+        curIndex = ( int )GameSetting.CurrentGearAlignment;
         ChangeText( texts[curIndex] );
     }
 
@@ -22,7 +22,7 @@ public class GearAlignmentOption : OptionText
 
     public override void Process()
     {
-        GameSetting.GearAlignment = ( Alignment )curIndex;
+        GameSetting.CurrentGearAlignment = ( Alignment )curIndex;
         Debug.Log( ( Alignment )curIndex );
     }
 }
