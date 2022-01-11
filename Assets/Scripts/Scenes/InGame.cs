@@ -14,23 +14,135 @@ public class InGame : Scene
     public delegate void DelSpeedChanged();
     public event DelSpeedChanged OnScrollChanged;
 
-    public NoteSystem[] noteSystems;
+    public List<NoteSystem>  noteSystems  = new List<NoteSystem>();
     public MeasureSystem measureSystem;
 
     float delta;
 
+    private struct CalcNote
+    {
+        public Note? note;
+        public float noteTime;
+        public float sliderTime;
+    }
+
     private void Start()
     {
         var chart = NowPlaying.Inst.CurrentChart;
+
         // Notes
         var notes = chart.notes;
+        CalcNote[] column = new CalcNote[6];
+        Random.InitState( ( int )System.DateTime.Now.Ticks );
         for ( int i = 0; i < notes.Count; i++ )
         {
-            Note newNote = new Note( notes[i].line, notes[i].time, notes[i].calcTime,
-                0, 0, false );
-            
-            noteSystems[notes[i].line].AddNote( notes[i] );
+            // Note newNote = new Note( notes[i].line, notes[i].time, notes[i].calcTime, 0, 0, false );
+            switch ( GameSetting.CurrentRandom )
+            {
+                case GameRandom.None:
+                case GameRandom.Mirror:
+                case GameRandom.Random:
+                case GameRandom.Half_Random:
+                     noteSystems[notes[i].line].AddNote( notes[i] );
+                break;
+
+                case GameRandom.Max_Random:
+                {
+                    int count = -1;
+                    for ( int j = 0; j < 6; j++ )
+                    {
+                        if ( i + j < notes.Count && notes[i].time == notes[i + j].time )
+                        {
+                            column[notes[i + j].line].note     = notes[i + j];
+                            column[notes[i + j].line].noteTime = notes[i + j].time;
+
+                            if ( notes[i + j].isSlider )
+                            {
+                                column[notes[i + j].line].sliderTime = notes[i + j].sliderTime;
+                            }
+
+                            count++;
+                        }
+                        else break;
+                    }
+                    i += count;
+
+                    for ( int j = 0; j < 6; j++ )
+                    {
+                        var rand = Random.Range( 0, 5 );
+
+                        bool isOverlab = false;
+                        for( int k = 0; k < 6; k++ )
+                        {
+                            if ( column[k].sliderTime > column[rand].noteTime )
+                            {
+                                isOverlab = true;
+                                break;
+                            }
+                        }
+
+                        if ( !isOverlab )
+                        {
+                            var tmp = column[j];
+                            column[j] = column[rand];
+                            column[rand] = tmp;
+                        }
+                    }
+
+                    for ( int j = 0; j < 6; j++ )
+                    {
+                        if ( column[j].note.HasValue )
+                             noteSystems[j].AddNote( column[j].note.Value );
+
+                        column[j].note = null;
+                    }
+                }
+                break;
+            }
         }
+        switch ( GameSetting.CurrentRandom )
+        {
+            case GameRandom.Mirror:
+                 noteSystems.Reverse();
+            break;
+
+            case GameRandom.Random:
+            {
+                for ( int i = 0; i < 6; i++ )
+                {
+                    var rand = Random.Range( 0, 5 );
+
+                    var tmp = noteSystems[i];
+                    noteSystems[i]    = noteSystems[rand];
+                    noteSystems[rand] = tmp;
+                }
+            } break;
+
+            case GameRandom.Half_Random:
+            {
+                for ( int i = 0; i < 6; i++ )
+                {
+                    var rand = Random.Range( 0, 2 );
+
+                    var tmp = noteSystems[i];
+                    noteSystems[i] = noteSystems[rand];
+                    noteSystems[rand] = tmp;
+                }
+
+                for ( int i = 2; i < 6; i++ )
+                {
+                    var rand = Random.Range( 2, 5 );
+
+                    var tmp = noteSystems[i];
+                    noteSystems[i] = noteSystems[rand];
+                    noteSystems[rand] = tmp;
+                }
+            } break;
+        }
+
+        for ( int i = 0; i < 6; i++ )
+              noteSystems[i].lane = i;
+
 
         // Measures
         var timings = chart.timings;

@@ -18,7 +18,7 @@ public class NoteRenderer : MonoBehaviour
     private SpriteRenderer rdr;
     private float newTime;
 
-    public void SetInfo( Note _data )
+    public void SetInfo( int _lane, Note _data )
     {
         newTime   = _data.calcTime;
         isHolding = false;
@@ -29,14 +29,14 @@ public class NoteRenderer : MonoBehaviour
         CalcSliderTime = _data.calcSliderTime;
         IsSlider       = _data.isSlider;
 
-        column = GlobalSetting.NoteStartPos + ( _data.line * GlobalSetting.NoteWidth ) + ( ( _data.line + 1 ) * GlobalSetting.NoteBlank );
+        column = GlobalSetting.NoteStartPos + ( _lane * GlobalSetting.NoteWidth ) + ( ( _lane + 1 ) * GlobalSetting.NoteBlank );
 
         if ( IsSlider ) 
              scene.OnScrollChanged += ScaleUpdate;
 
         ScaleUpdate();
-        if ( _data.line == 1 || _data.line == 4 ) SetColor( new Color( 0.2078432f, 0.7843138f, 1f, 1f ) );
-        else                                      SetColor( Color.white );
+        if ( _lane == 1 || _lane == 4 ) SetColor( new Color( 0.2078432f, 0.7843138f, 1f, 1f ) );
+        else                            SetColor( Color.white );
     }
 
     public void SetColor( Color _color ) => rdr.color = _color;

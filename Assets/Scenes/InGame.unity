@@ -1646,6 +1646,13 @@ MonoBehaviour:
   - {fileID: 1524544345}
   - {fileID: 606623207}
   - {fileID: 13102680}
+  inputSystems:
+  - {fileID: 634770570}
+  - {fileID: 1275821258}
+  - {fileID: 613721258}
+  - {fileID: 1524544344}
+  - {fileID: 606623206}
+  - {fileID: 13102679}
   measureSystem: {fileID: 231758588}
 --- !u!4 &1220838188
 Transform:
