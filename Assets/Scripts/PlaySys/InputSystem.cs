@@ -49,7 +49,7 @@ public class InputSystem : MonoBehaviour
 
     private void SelectNextNote()
     {
-        currentNote.gameObject.SetActive( false );
+        //currentNote.gameObject.SetActive( false );
         currentNote.Despawn();
         currentNote = null;
         
@@ -108,7 +108,7 @@ public class InputSystem : MonoBehaviour
         }
         
         // 마지막 판정까지 안눌렀을 때 ( Miss )
-        if ( !isHolding && judgement.IsMiss( endDiff ) )
+        if ( judgement.IsMiss( endDiff ) )
              SelectNextNote();
     }
 

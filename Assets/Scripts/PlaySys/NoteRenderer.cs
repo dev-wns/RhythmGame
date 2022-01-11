@@ -17,7 +17,7 @@ public class NoteRenderer : MonoBehaviour
     public bool isHolding;
     public float column;
     private SpriteRenderer rdr;
-    private float newTime;
+    private float newTime, headTime;
 
     public void SetInfo( int _lane, NoteSystem _system, Note _data )
     {
@@ -33,16 +33,21 @@ public class NoteRenderer : MonoBehaviour
 
         column = GlobalSetting.NoteStartPos + ( _lane * GlobalSetting.NoteWidth ) + ( ( _lane + 1 ) * GlobalSetting.NoteBlank );
 
+        tail.GetComponent<SpriteRenderer>().enabled = false;
         if ( IsSlider )
         {
             system.CurrentScene.OnScrollChanged += ScaleUpdate;
-            body.SetActive( true );
-            tail.SetActive( true );
+            head.GetComponent<SpriteRenderer>().enabled = true;
+            body.GetComponent<SpriteRenderer>().enabled = true;
+            //body.SetActive( true );
+            //tail.SetActive( true );
         }
         else
         {
-            body.SetActive( false );
-            tail.SetActive( false );
+            head.GetComponent<SpriteRenderer>().enabled = true;
+            body.GetComponent<SpriteRenderer>().enabled = false;
+            //body.SetActive( false );
+            //tail.SetActive( false );
         }
 
         ScaleUpdate();
@@ -75,17 +80,40 @@ public class NoteRenderer : MonoBehaviour
         if ( IsSlider )
             system.CurrentScene.OnScrollChanged -= ScaleUpdate;
 
+        head.GetComponent<SpriteRenderer>().enabled = false;
+        body.GetComponent<SpriteRenderer>().enabled = false;
+        tail.GetComponent<SpriteRenderer>().enabled = false;
         system?.Despawn( this );
     }
 
     private void LateUpdate()
     {
-        var moveTime = GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight );
-        head.transform.position = new Vector3( column, moveTime, 2f );
-        if ( IsSlider )
+        if ( isHolding )
         {
-            body.transform.position = new Vector3( column, moveTime, 2f );
-            tail.transform.position = new Vector3( column, Mathf.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight ) + moveTime, 2f );
+            if ( head.transform.position.y <= GlobalSetting.JudgeLine )
+                 newTime = NowPlaying.PlaybackChanged;
+                
+            head.transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 2f );
+            body.transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 2f );
+
+            tail.transform.position = new Vector3( column, Mathf.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight ) +
+                                                   GlobalSetting.JudgeLine + ( ( CalcTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 2f );
+
+            float bodyScale = tail.transform.position.y - head.transform.position.y;
+            if ( bodyScale <= 0f ) bodyScale = 0f;
+
+            body.transform.localScale = new Vector3( GlobalSetting.NoteWidth * .8f, bodyScale, 1f );
+        }
+        else
+        {
+            head.transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 2f );
+
+            if ( IsSlider )
+            {
+                body.transform.position = new Vector3( column, GlobalSetting.JudgeLine + ( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 2f );
+                tail.transform.position = new Vector3( column, Mathf.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight ) +
+                                                               GlobalSetting.JudgeLine + ( ( CalcTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ), 2f );
+            }
         }
 
         //if ( isHolding )
