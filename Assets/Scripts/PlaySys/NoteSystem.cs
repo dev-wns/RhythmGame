@@ -4,42 +4,26 @@ using UnityEngine;
 
 public class NoteSystem : MonoBehaviour
 {
-    private InGame scene;
+    public InGame CurrentScene { get; private set; }
+    public Lane lane;
 
-    public int lane;
     private ObjectPool<NoteRenderer> nPool;
     public NoteRenderer nPrefab;
 
     private List<Note> notes = new List<Note>();
     private int currentIndex;
 
-    private InputSystem inputSystem;
-
     private void Awake()
     {
-        scene   = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        nPool   = new ObjectPool<NoteRenderer>( nPrefab, 10 );
+        CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        nPool = new ObjectPool<NoteRenderer>( nPrefab, 10 );
 
-        scene.OnGameStart += Initialize;
+        CurrentScene.OnGameStart += () => StartCoroutine( Process() );
     }
 
     public void AddNote( Note _note ) => notes.Add( _note );
 
-    public bool HasCompareNote( Note _note )
-    {
-        if ( notes.Count == 0 ) return false;
-
-        return notes[notes.Count - 1].time == _note.time ? true : false;
-    }
-
     public void Despawn( NoteRenderer _note ) => nPool.Despawn( _note );
-
-    private void Initialize()
-    {
-        inputSystem = GameObject.FindGameObjectWithTag( "Systems" ).GetComponentsInChildren<InputSystem>()[lane];
-        StartCoroutine( Process() );
-    }
-
     private IEnumerator Process()
     {
         float slidertime = 0f;
@@ -59,9 +43,9 @@ public class NoteSystem : MonoBehaviour
             }
 
             NoteRenderer note = nPool.Spawn();
-            note.SetInfo( lane, curNote );
-            note.system = this;
-            inputSystem.Enqueue( note );
+            note.SetInfo( lane.Key, this, curNote );
+            
+            lane.InputSys.Enqueue( note );
             currentIndex++;
         }
     } 

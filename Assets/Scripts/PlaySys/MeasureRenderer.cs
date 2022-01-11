@@ -4,17 +4,18 @@ using UnityEngine;
 
 public class MeasureRenderer : MonoBehaviour
 {
-    private MeasureSystem MSystem;
+    public MeasureSystem system;
+    private ObjectPool<MeasureRenderer> mPool;
     private float time;
 
-    public void Initialized( float _time )
+    public void SetInfo( ObjectPool<MeasureRenderer> _pool, float _time )
     {
+        mPool = _pool;
         time = _time;
     }
 
     private void Awake()
     {
-        MSystem = GameObject.FindGameObjectWithTag( "Systems" ).GetComponent<MeasureSystem>();
         transform.localScale = new Vector3( GlobalSetting.GearWidth, GlobalSetting.MeasureHeight, 1f );
     }
 
@@ -23,7 +24,7 @@ public class MeasureRenderer : MonoBehaviour
         if ( transform.position.y <= -Screen.height * .5f )
         {
             gameObject.SetActive( false );
-            MSystem.mPool.Despawn( this );
+            mPool.Despawn( this );
         }
     }
 

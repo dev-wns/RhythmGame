@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class InputSystem : MonoBehaviour
 {
+    public Lane lane;
+    private InGame scene;
     private Judgement judgement;
+
     private Queue<NoteRenderer> notes = new Queue<NoteRenderer>();
     private NoteRenderer currentNote;
 
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
 
-    public GAME_KEY_ACTION key;
-    private int keyIndex;
+    private GameKeyAction key;
 
     private bool isHolding = false;
     private float playback;
@@ -20,14 +22,15 @@ public class InputSystem : MonoBehaviour
 
     private void Awake()
     {
-        keyIndex = ( int )key;
-
+        scene      = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         judgement  = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
-        transform.position = new Vector3( GlobalSetting.NoteStartPos + ( GlobalSetting.NoteWidth * keyIndex ) +
-                                        ( GlobalSetting.NoteBlank * keyIndex ) + GlobalSetting.NoteBlank, 
-                                          transform.parent.transform.position.y, 0f );
+        scene.OnGameStart += Initialize;
+    }
 
+    private void Initialize()
+    {
+        key = ( GameKeyAction )lane.Key;
         StartCoroutine( NoteSelect() );
     }
 

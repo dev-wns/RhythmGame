@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum GAME_KEY_ACTION : int
+public enum GameKeyAction : int
 {
-    _0, _1, _2, _3, _4, _5, // InGame Input Keys
+    _0, _1, _2, _3, _4, _5, Count // InGame Input Keys
 };
 
 public class GlobalKeySetting : SingletonUnity<GlobalKeySetting>
 {
-    public Dictionary<GAME_KEY_ACTION, KeyCode> Keys = new Dictionary<GAME_KEY_ACTION, KeyCode>();
+    public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
 
 
     private KeyCode[] defaultKeys = new KeyCode[]
@@ -23,7 +23,7 @@ public class GlobalKeySetting : SingletonUnity<GlobalKeySetting>
     {
         for ( int i = 0; i < defaultKeys.Length; i++ )
         {
-            Keys.Add( ( GAME_KEY_ACTION )i, defaultKeys[i] );
+            Keys.Add( ( GameKeyAction )i, defaultKeys[i] );
         }
     }
 }

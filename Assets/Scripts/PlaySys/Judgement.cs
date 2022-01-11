@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 
 public enum JUDGE_TYPE { Kool, Cool, Good, Miss }
+
 public class Judgement : MonoBehaviour
 {
     private RectTransform rt;

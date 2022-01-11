@@ -15,13 +15,13 @@ public class KeySettingOption : OptionButton
     protected override void Awake()
     {
         base.Awake();
-        trackText[lane].text = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )lane].ToString();
+        trackText[lane].text = GlobalKeySetting.Inst.Keys[( GameKeyAction )lane].ToString();
     }
 
     public override void Process()
     {
         keySettingPanel.SetActive( true );
-        panelText.text = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )lane].ToString();
+        panelText.text = GlobalKeySetting.Inst.Keys[( GameKeyAction )lane].ToString();
 
         currentScene?.InputLock( true );
         StartCoroutine( ChangeGameKey() );
@@ -29,7 +29,7 @@ public class KeySettingOption : OptionButton
 
     public IEnumerator ChangeGameKey()
     {
-        currentKeyCode = GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )lane];
+        currentKeyCode = GlobalKeySetting.Inst.Keys[( GameKeyAction )lane];
         while ( true )
         {
             yield return null;
@@ -41,14 +41,14 @@ public class KeySettingOption : OptionButton
             {
                 for ( int i = 0; i < 6; i++ )
                 {
-                    if ( currentKeyCode == GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i] )
+                    if ( currentKeyCode == GlobalKeySetting.Inst.Keys[( GameKeyAction )i] )
                     {
-                        GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )i] = KeyCode.None;
+                        GlobalKeySetting.Inst.Keys[( GameKeyAction )i] = KeyCode.None;
                         trackText[i].text = KeyCode.None.ToString();
                     }
                 }
 
-                GlobalKeySetting.Inst.Keys[( GAME_KEY_ACTION )lane] = currentKeyCode;
+                GlobalKeySetting.Inst.Keys[( GameKeyAction )lane] = currentKeyCode;
                 trackText[lane].text = currentKeyCode.ToString();
                 SoundManager.Inst.PlaySfx( SoundSfxType.Return );
                 Debug.Log( $"Key : {currentKeyCode}" );

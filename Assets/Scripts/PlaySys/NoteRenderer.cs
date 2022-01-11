@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class NoteRenderer : MonoBehaviour
 {
-    private InGame scene;
-    public NoteSystem system;
+    private NoteSystem system;
 
     public float Time { get; private set; }
     public float CalcTime { get; private set; }
@@ -18,8 +17,9 @@ public class NoteRenderer : MonoBehaviour
     private SpriteRenderer rdr;
     private float newTime;
 
-    public void SetInfo( int _lane, Note _data )
+    public void SetInfo( int _lane, NoteSystem _system, Note _data )
     {
+        system    = _system;
         newTime   = _data.calcTime;
         isHolding = false;
 
@@ -31,8 +31,8 @@ public class NoteRenderer : MonoBehaviour
 
         column = GlobalSetting.NoteStartPos + ( _lane * GlobalSetting.NoteWidth ) + ( ( _lane + 1 ) * GlobalSetting.NoteBlank );
 
-        if ( IsSlider ) 
-             scene.OnScrollChanged += ScaleUpdate;
+        if ( IsSlider )
+            system.CurrentScene.OnScrollChanged += ScaleUpdate;
 
         ScaleUpdate();
         if ( _lane == 1 || _lane == 4 ) SetColor( new Color( 0.2078432f, 0.7843138f, 1f, 1f ) );
@@ -49,22 +49,20 @@ public class NoteRenderer : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         rdr   = GetComponent<SpriteRenderer>();
     }
 
 
     public void Despawn()
     {
-        if ( IsSlider ) 
-             scene.OnScrollChanged -= ScaleUpdate;
+        if ( IsSlider )
+            system.CurrentScene.OnScrollChanged -= ScaleUpdate;
 
         system?.Despawn( this );
     }
 
     private void LateUpdate()
     {
-
         if ( isHolding )
         {
             float startDiff = ( CalcTime       - NowPlaying.PlaybackChanged ) * GameSetting.Weight;
