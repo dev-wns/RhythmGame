@@ -95,8 +95,8 @@ public class InputSystem : MonoBehaviour
         }
         else if ( isHolding && Input.GetKeyUp( GlobalKeySetting.Inst.Keys[key] ) )
         {
-            if ( !judgement.IsCalculated( endDiff ) )
-                 currentNote.SetColor( Color.gray );
+            //if ( !judgement.IsCalculated( endDiff ) )
+            //     currentNote.SetColor( Color.gray );
          
             sliderMissQueue.Enqueue( currentNote );
             isHolding = false;

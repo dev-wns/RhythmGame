@@ -17,11 +17,13 @@ public class MeasureSystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
 
-        mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
+        mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5, false );
 
         scene.OnSystemInitialize += Initialize;
         scene.OnGameStart += () => StartCoroutine( Process() );
     }
+
+    public void Despawn( MeasureRenderer _obj ) => mPool.Despawn( _obj );
 
     private void Initialize( Chart _chart )
     {
@@ -55,7 +57,7 @@ public class MeasureSystem : MonoBehaviour
             yield return new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
 
             MeasureRenderer measure = mPool.Spawn();
-            measure.SetInfo( mPool, curTime );
+            measure.SetInfo( this, curTime );
 
             currentIndex++;
         }

@@ -9,9 +9,11 @@ public class ObjectPool<T> where T : MonoBehaviour
     private Stack<T> pool = new Stack<T>();
     
     private int allocateCount;
+    private bool isAutoActive;
 
-    public ObjectPool( T _poolableObject, int _allocate = 100 )
+    public ObjectPool( T _poolableObject, int _allocate = 100, bool _isAutoActive = true )
     {
+        isAutoActive  = _isAutoActive;
         allocateCount = _allocate;
 
         if ( ReferenceEquals( _poolableObject, null ) )
@@ -41,7 +43,8 @@ public class ObjectPool<T> where T : MonoBehaviour
         for( int i = 0; i < allocateCount; i++ )
         {
             T obj = UnityEngine.GameObject.Instantiate( poolableObject, parent );
-            obj.gameObject.SetActive( false );
+            if ( isAutoActive )
+                 obj.gameObject.SetActive( false );
             pool.Push( obj );
         }
     }
@@ -54,14 +57,17 @@ public class ObjectPool<T> where T : MonoBehaviour
         }
 
         T obj = pool.Pop();
-        obj.gameObject.SetActive( true );
+        if ( isAutoActive )
+            obj.gameObject.SetActive( true );
 
         return obj;
     }
 
     public void Despawn( T _obj )
     {
-        _obj.gameObject.SetActive( false );
+        if ( isAutoActive )
+            _obj.gameObject.SetActive( false );
+
         pool.Push( _obj );
     }
 }
