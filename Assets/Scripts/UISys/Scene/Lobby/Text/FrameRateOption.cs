@@ -5,10 +5,8 @@ using System.Text;
 
 public class FrameRateOption : OptionText
 {
-    protected override void Awake()
-    {
-        base.Awake();
-
+    private void OnEnable()
+    { 
         curIndex = ( int )SystemSetting.CurrentFrameRate;
         ChangeText( texts[curIndex] );
     }

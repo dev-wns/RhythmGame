@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class GearAlignmentOption : OptionText
 {
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = ( int )GameSetting.CurrentGearAlignment;
         ChangeText( texts[curIndex] );
     }

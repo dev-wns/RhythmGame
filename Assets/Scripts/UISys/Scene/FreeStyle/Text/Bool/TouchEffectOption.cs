@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class TouchEffectOption : OptionText
 {
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.TouchEffect ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
@@ -19,6 +17,7 @@ public class TouchEffectOption : OptionText
             texts.Add( ( ( BooleanOption )i ).ToString() );
         }
     }
+
     public override void Process()
     {
         if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.TouchEffect;

@@ -5,10 +5,8 @@ using System.Text;
 
 public class FaderOption : OptionText
 {
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = ( int )GameSetting.CurrentFader;
         ChangeText( texts[curIndex] );
     }

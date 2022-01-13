@@ -5,10 +5,8 @@ using System.Text;
 
 public class RandomOption : OptionText
 {
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = ( int )GameSetting.CurrentRandom;
         ChangeText( texts[curIndex] );
     }

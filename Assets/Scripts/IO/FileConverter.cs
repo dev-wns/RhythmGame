@@ -283,7 +283,7 @@ public class FileConverter : FileReader
         catch ( Exception _error )
         {
             Dispose();
-            Debug.Log( _error.Message );
+            Debug.LogError( _error.Message );
         }
 
         Dispose();

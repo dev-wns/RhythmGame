@@ -4,11 +4,9 @@ using UnityEngine;
 using System.Text;
 
 public class ResolutionOption : OptionText
-{ 
-    protected override void Awake()
+{
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = ( int )SystemSetting.CurrentResolution;
         ChangeText( texts[curIndex] );
     }

@@ -90,14 +90,14 @@ public abstract class FileReader : IDisposable
                 {
                     var path = files[j].FullName;
                     if ( File.Exists( path ) ) paths.Add( path );
-                    else                       Debug.Log( $"has not file {path}" );
+                    else                       Debug.LogWarning( $"has not file {path}" );
                 }
             }
         }
         catch ( Exception e )
         {
             // 대부분 폴더가 없는 경우.
-            Debug.Log( $"{e}, {_dirPath}" );
+            Debug.LogWarning( $"{e}, {_dirPath}" );
         }
 
         return paths.ToArray();

@@ -12,9 +12,8 @@ public class KeySettingOption : OptionButton
     public int lane;
     public List<TextMeshProUGUI> trackText;
 
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
         trackText[lane].text = GameSetting.Inst.Keys[( GameKeyAction )lane].ToString();
     }
 

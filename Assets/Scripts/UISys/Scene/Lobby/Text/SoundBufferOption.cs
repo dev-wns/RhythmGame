@@ -5,10 +5,8 @@ using System.Text;
 
 public class SoundBufferOption : OptionText
 {
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = ( int )SystemSetting.CurrentSoundBuffer;
         ChangeText( texts[curIndex] );
     }

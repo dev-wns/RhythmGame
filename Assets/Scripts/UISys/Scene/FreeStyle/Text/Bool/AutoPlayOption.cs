@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class AutoPlayOption : OptionText
 {
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
@@ -19,6 +17,7 @@ public class AutoPlayOption : OptionText
             texts.Add( ( ( BooleanOption )i ).ToString() );
         }
     }
+
     public override void Process()
     {
         if ( curIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.AutoPlay;

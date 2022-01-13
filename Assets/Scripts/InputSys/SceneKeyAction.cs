@@ -73,7 +73,7 @@ public class SceneKeyAction : MonoBehaviour
     {
         if ( !keyActions.ContainsKey( _type ) )
         {
-            Debug.Log( "The bound key does not exist." );
+            Debug.LogError( $"The bound key does not exist. {_type}" );
             return;
         }
 

@@ -35,11 +35,10 @@ public class NoteSystem : MonoBehaviour
 
             if ( curNote.isSlider ) slidertime = curNote.sliderTime;
 
-            if ( currentIndex + 1 < notes.Count &&
-                 ( slidertime > notes[currentIndex + 1].time ||
-                   notetime == notes[currentIndex + 1].time ) )
+            if ( currentIndex + 1 < notes.Count && ( slidertime > notes[currentIndex + 1].time ||
+                                                     notetime == notes[currentIndex + 1].time ) )
             { 
-                Debug.Log( "overlab " );
+                Debug.LogError( "overlab " );
             }
 
             NoteRenderer note = nPool.Spawn();

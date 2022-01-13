@@ -5,10 +5,8 @@ using System.Text;
 
 public class ScreenModeOption : OptionText
 {
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = ( int )SystemSetting.CurrentScreenMode;
         ChangeText( texts[curIndex] );
     }

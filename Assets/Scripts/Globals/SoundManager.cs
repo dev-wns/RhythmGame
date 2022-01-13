@@ -239,7 +239,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( sfxSound.ContainsKey( _type ) )
         {
-            Debug.Log( $"sfxSound[{_type}] is duplicate loaded." );
+            Debug.LogError( $"sfxSound[{_type}] is duplicate loaded." );
             return;
         }
 
@@ -254,7 +254,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !sfxSound.ContainsKey( _type ) )
         {
-            Debug.Log( $"sfxSound[{_type}] is not loaded." );
+            Debug.LogError( $"sfxSound[{_type}] is not loaded." );
             return;
         }
 
@@ -266,7 +266,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !bgmSound.hasHandle() )
         {
-            Debug.Log( "Bgm is not loaded." );
+            Debug.LogError( "Bgm is not loaded." );
             return;
         }
 
@@ -279,7 +279,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !bgmSound.hasHandle() || !IsPlaying( ChannelGroupType.BGM ) )
         {
-            Debug.Log( "bgm is not loaded or is not Playing." );
+            Debug.LogError( "bgm is not loaded or is not Playing." );
             return;
         }
 
@@ -290,7 +290,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !IsPlaying( ChannelGroupType.BGM ) )
         {
-            Debug.Log( "bgm is not playing" );
+            Debug.LogError( "bgm is not playing" );
             return;
         }
 
@@ -301,7 +301,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !IsPlaying( ChannelGroupType.BGM ) )
         {
-            Debug.Log( "bgm is not playing" );
+            Debug.LogError( "bgm is not playing" );
             return 0;
         }
 
@@ -314,7 +314,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !IsPlaying( ChannelGroupType.BGM ) )
         {
-            Debug.Log( "bgm is not playing" );
+            Debug.LogError( "bgm is not playing" );
             return;
         }
 
@@ -322,7 +322,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         if ( value < ( minPitch * 10 ) || 
              value > ( maxPitch * 10 ) )
         {
-            Debug.Log( $"pitch range {minPitch} ~ {maxPitch}, param : {_value}" );
+            Debug.LogWarning( $"pitch range {minPitch} ~ {maxPitch}, param : {_value}" );
             return;
         }
 
@@ -334,7 +334,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !Groups.ContainsKey( _type ) )
         {
-            Debug.Log( $"The channel group key could not be found. : {_type}" );
+            Debug.LogError( $"The channel group key could not be found. : {_type}" );
             return;
         }
 
@@ -356,7 +356,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !Groups.ContainsKey( _type ) )
         {
-            Debug.Log( $"The channel group key could not be found. : {_type}" );
+            Debug.LogError( $"The channel group key could not be found. : {_type}" );
             return false;
         }
 
@@ -370,7 +370,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !Groups.ContainsKey( _type ) )
         {
-            Debug.Log( $"The channel group key could not be found. : {_type}" );
+            Debug.LogError( $"The channel group key could not be found. : {_type}" );
             return -1f;
         }
 
@@ -384,7 +384,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( !Groups.ContainsKey( _type ) )
         {
-            Debug.Log( $"The channel group key could not be found. : {_type}" );
+            Debug.LogError( $"The channel group key could not be found. : {_type}" );
             return;
         }
 
@@ -404,7 +404,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out _dsp ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, _size ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )_type ) );
-        ErrorCheck( Groups[ChannelGroupType.Master].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.HEAD, _dsp ) );
+        ErrorCheck( Groups[ChannelGroupType.Master].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, _dsp ) );
         FFT = _dsp;
     }
 

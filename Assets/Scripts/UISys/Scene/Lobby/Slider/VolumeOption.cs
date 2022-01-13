@@ -6,10 +6,8 @@ public class VolumeOption : OptionSlider
 {
     public ChannelGroupType groupType = ChannelGroupType.Master;
 
-    protected override void Awake()
+    private void OnEnable()
     {
-        base.Awake();
-
         curValue = SoundManager.Inst.GetVolume( groupType ) * 100f;
         UpdateValue( curValue );
     }

@@ -102,7 +102,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( _index < 0 || _index > songs.Count - 1 )
         {
-            Debug.Log( $"Sound Select Out Of Range. Index : {_index}" );
+            Debug.LogError( $"Sound Select Out Of Range. Index : {_index}" );
             return;
         }
 
@@ -113,7 +113,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( _index > Count )
         {
-            Debug.Log( $"Sound Select Out Of Range. Index : {_index}" );
+            Debug.LogError( $"Sound Select Out Of Range. Index : {_index}" );
             return new Song();
         }
 

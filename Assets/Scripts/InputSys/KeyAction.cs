@@ -108,7 +108,7 @@ public class KeyAction
         {
             if ( Equals( action, _action ) )
             {
-                Debug.Log( "Key Bind 중복 입니다. " );
+                Debug.LogWarning( "Key Bind Duplicate. " );
                 return true; // 중복
             }
         }

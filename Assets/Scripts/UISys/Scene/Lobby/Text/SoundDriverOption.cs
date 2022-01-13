@@ -4,11 +4,9 @@ using UnityEngine;
 using System.Text;
 
 public class SoundDriverOption : OptionText
-{ 
-    protected override void Awake()
+{
+    private void OnEnable()
     {
-        base.Awake();
-
         curIndex = SoundManager.Inst.CurrentDriverIndex;
         ChangeText( texts[curIndex] );
     }

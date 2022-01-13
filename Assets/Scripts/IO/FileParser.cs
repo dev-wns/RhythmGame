@@ -72,7 +72,7 @@ public class FileParser : FileReader
     }
         catch ( Exception e )
         {
-            Debug.Log( $"{e}, {_path}" );
+            Debug.LogError( $"{e}, {_path}" );
             Dispose();
             return false;
         }
@@ -125,7 +125,7 @@ public class FileParser : FileReader
         }
         catch ( Exception e )
         {
-            Debug.Log( e.Message );
+            Debug.LogError( e.Message );
             Dispose();
             return false;
         }
