@@ -48,15 +48,11 @@ public enum GameVisualFlag
 
     All         = int.MaxValue,
 }
+
 public enum GameKeyAction : int
 {
     _0, _1, _2, _3, _4, _5, Count // InGame Input Keys
 };
-
-public static class Globals
-{
-    public static Timer Timer = new Timer();
-}
 
 public class GameSetting : SingletonUnity<GameSetting>
 {

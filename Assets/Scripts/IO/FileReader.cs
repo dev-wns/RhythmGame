@@ -86,15 +86,11 @@ public abstract class FileReader : IDisposable
                 DirectoryInfo dirInfo = new DirectoryInfo( subDirectories[i] );
                 FileInfo[] files      = dirInfo.GetFiles( _extension );
 
-                var a = files[0].FullName.Split( '?' );
-
                 for ( int j = 0; j < files.Length; j++ )
                 {
-                    var newPath = files[j].FullName;
-                    if( files[j].FullName.Contains( "\\?" ) )
-                        newPath.Replace( "\\?", string.Empty );
-
-                    paths.Add( newPath );
+                    var path = files[j].FullName;
+                    if ( File.Exists( path ) ) paths.Add( path );
+                    else                       Debug.Log( $"has not file {path}" );
                 }
             }
         }
