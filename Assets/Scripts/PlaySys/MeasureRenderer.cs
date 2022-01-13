@@ -8,32 +8,35 @@ public class MeasureRenderer : MonoBehaviour
     private float time;
 
     private SpriteRenderer rdr;
-    private bool isActive = false;
+    private float weight;
 
     public void SetInfo( MeasureSystem _system, float _time )
     {
         rdr.enabled = true;
         system = _system;
         time = _time;
-        isActive = true;
+
+        system.scene.OnScrollChanged += ScrollChange;
     }
 
     private void Awake()
     {
         rdr = GetComponent<SpriteRenderer>();
-        transform.localScale = new Vector3( GlobalSetting.GearWidth, GlobalSetting.MeasureHeight, 1f );
+        transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
+
+        weight = GameSetting.Weight;
     }
+
+    private void ScrollChange() => weight = GameSetting.Weight;
 
     private void LateUpdate()
     {
-        if ( !isActive ) return;
-
-        var pos = GlobalSetting.JudgeLine + ( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight );
+        var pos = GameSetting.JudgePos + ( ( time - NowPlaying.PlaybackChanged ) * weight );
         transform.position = new Vector3( 0, pos, 3f );
 
-        if ( pos <= GlobalSetting.JudgeLine )
+        if ( pos <= GameSetting.JudgePos )
         {
-            isActive = false;
+            system.scene.OnScrollChanged -= ScrollChange;
             rdr.enabled = false;
             system.Despawn( this );
         }

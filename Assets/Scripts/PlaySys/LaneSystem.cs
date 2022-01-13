@@ -24,7 +24,7 @@ public class LaneSystem : MonoBehaviour
         Random.InitState( ( int )System.DateTime.Now.Ticks );
     }
 
-    private void Initialize( Chart _chart )
+    private void Initialize( in Chart _chart )
     {
         CreateNotes( _chart );
 
@@ -32,14 +32,14 @@ public class LaneSystem : MonoBehaviour
             lanes[i].SetLane( i );
     }
 
-    private void CreateNotes( Chart _chart )
+    private void CreateNotes( in Chart _chart )
     {
         var notes = _chart.notes;
         CalcNote[] column = new CalcNote[6];
 
         for ( int i = 0; i < notes.Count; i++ )
         {
-            bool hasNoSliderMod = GameSetting.CurrentGameMod.HasFlag( GameMod.NoSlider );
+            bool hasNoSliderMod = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
 
             switch ( GameSetting.CurrentRandom )
             {

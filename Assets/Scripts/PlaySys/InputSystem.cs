@@ -36,30 +36,44 @@ public class InputSystem : MonoBehaviour
 
     private IEnumerator NoteSelect()
     {
-        while ( currentNote == null )
-        {
-            if ( notes.Count > 0 )
-            {
-                currentNote = notes.Dequeue();
-            }
+        yield return new WaitUntil( () => currentNote == null && notes.Count > 0 );
+        currentNote ??= notes.Dequeue();
+        //currentNote?.SetColor( Color.green );
 
-            yield return null;
-        }
+        //while ( currentNote == null )
+        //{
+        //    if ( notes.Count > 0 )
+        //    {
+        //        currentNote = notes.Dequeue();
+        //    }
+        //
+        //    yield return null;
+        //}
     }
 
-    private void SelectNextNote()
+    private void SelectNextNote( bool _isDespawn = true )
     {
-        //currentNote.gameObject.SetActive( false );
-        currentNote.Despawn();
-        currentNote = null;
-        
-        StartCoroutine( NoteSelect() );
+        isHolding = false;
+        currentNote.isHolding = false;
+
+        if ( _isDespawn )
+            currentNote.Despawn();
+
+        if ( notes.Count > 0 )
+             currentNote = notes.Dequeue();
+        else
+        {
+            currentNote = null;
+            StartCoroutine( NoteSelect() );
+        }
+
+        //currentNote?.SetColor( Color.green );
     }
 
     private void CheckNote()
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
-        if ( Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
+        if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
         {
             if ( judgement.IsCalculated( startDiff ) )
                  SelectNextNote();
@@ -76,7 +90,7 @@ public class InputSystem : MonoBehaviour
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
         float endDiff   = currentNote.SliderTime - NowPlaying.Playback;
-        if ( !isHolding && Input.GetKeyDown( GlobalKeySetting.Inst.Keys[key] ) )
+        if ( !isHolding && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
         {
             if ( judgement.IsCalculated( startDiff ) )
             {
@@ -84,7 +98,7 @@ public class InputSystem : MonoBehaviour
                 currentNote.isHolding = true;
             }
         }
-        else if ( isHolding && Input.GetKey( GlobalKeySetting.Inst.Keys[key] ) )
+        else if ( isHolding && Input.GetKey( GameSetting.Inst.Keys[key] ) )
         {
             playback += Time.deltaTime;
             if ( playback > .15f )
@@ -93,26 +107,30 @@ public class InputSystem : MonoBehaviour
                 playback = 0f;
             }
         }
-        else if ( isHolding && Input.GetKeyUp( GlobalKeySetting.Inst.Keys[key] ) )
+        else if ( isHolding && Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
         {
-            //if ( !judgement.IsCalculated( endDiff ) )
-            //     currentNote.SetColor( Color.gray );
-         
-            sliderMissQueue.Enqueue( currentNote );
-            isHolding = false;
-            currentNote.isHolding = false;
-
-            currentNote = null;
-            StartCoroutine( NoteSelect() );
+            if ( judgement.IsCalculated( endDiff ) )
+            {
+                SelectNextNote();
+            }
+            else
+            {
+                sliderMissQueue.Enqueue( currentNote );
+                SelectNextNote( false );
+            }
             return;
         }
-        
+
         // 마지막 판정까지 안눌렀을 때 ( Miss )
         if ( judgement.IsMiss( endDiff ) )
-             SelectNextNote();
+        {
+            isHolding = false;
+            currentNote.isHolding = false;
+            SelectNextNote();
+        }
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if ( currentNote == null ) return;
 

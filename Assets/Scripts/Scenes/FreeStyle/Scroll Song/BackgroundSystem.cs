@@ -35,7 +35,7 @@ public class BackgroundSystem : MonoBehaviour
         yield return www.SendWebRequest();
 
         Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
-        var sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GlobalSetting.PPU, 0, SpriteMeshType.FullRect );
+        var sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
 
         currentBackground?.Despawn();
 
@@ -48,7 +48,7 @@ public class BackgroundSystem : MonoBehaviour
         //byte[] binaryData = File.ReadAllBytes( _path );
 
         //while ( !tex.LoadImage( binaryData ) ) yield return null;
-        //background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GlobalSetting.PPU, 0, SpriteMeshType.FullRect );
+        //background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
     }
 
     public void DeSpawn( FadeBackground _bg )

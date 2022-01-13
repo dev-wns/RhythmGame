@@ -8,7 +8,7 @@ public class ShowJudgeOption : OptionText
     {
         base.Awake();
 
-        curIndex = GameSetting.CurrentVisualMod.HasFlag( VisualMod.ShowJudge ) ? 1 : 0;
+        curIndex = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowJudge ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class ShowJudgeOption : OptionText
     }
     public override void Process()
     {
-        if ( curIndex == 0 ) GameSetting.CurrentVisualMod &= ~VisualMod.ShowJudge;
-        else                 GameSetting.CurrentVisualMod |=  VisualMod.ShowJudge;
-        Debug.Log( GameSetting.CurrentVisualMod.HasFlag( VisualMod.ShowJudge ) );
+        if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.ShowJudge;
+        else                 GameSetting.CurrentVisualFlag |=  GameVisualFlag.ShowJudge;
+        Debug.Log( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowJudge ) );
     }
 }

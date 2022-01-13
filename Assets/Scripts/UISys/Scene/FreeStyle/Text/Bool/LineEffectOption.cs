@@ -8,7 +8,7 @@ public class LineEffectOption : OptionText
     {
         base.Awake();
 
-        curIndex = GameSetting.CurrentVisualMod.HasFlag( VisualMod.LineEffect ) ? 1 : 0;
+        curIndex = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LineEffect ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class LineEffectOption : OptionText
     }
     public override void Process()
     {
-        if ( curIndex == 0 ) GameSetting.CurrentVisualMod &= ~VisualMod.LineEffect;
-        else                 GameSetting.CurrentVisualMod |=  VisualMod.LineEffect;
-        Debug.Log( GameSetting.CurrentVisualMod.HasFlag( VisualMod.LineEffect ) );
+        if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.LineEffect;
+        else                 GameSetting.CurrentVisualFlag |=  GameVisualFlag.LineEffect;
+        Debug.Log( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LineEffect ) );
     }
 }

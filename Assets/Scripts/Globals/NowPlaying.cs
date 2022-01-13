@@ -54,9 +54,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( !IsPlaying ) return;
 
-        Playback += Time.deltaTime * 1000f;
-        //if ( !IsMusicStart ) Playback += Time.deltaTime * 1000f;
-        //else                 Playback  = Globals.Timer.elapsedMilliSeconds;
+        //Playback += Time.deltaTime * 1000f;
+        if ( !IsMusicStart ) Playback += Time.deltaTime * 1000f;
+        else                 Playback  = Globals.Timer.elapsedMilliSeconds;
         PlaybackChanged = GetChangedTime( Playback );
     }
 
@@ -70,7 +70,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         yield return new WaitUntil( () => Playback >= 0 );
 
-        //Globals.Timer.Start();
+        Globals.Timer.Start();
         SoundManager.Inst.PauseBgm( false );
         IsMusicStart = true;
     }

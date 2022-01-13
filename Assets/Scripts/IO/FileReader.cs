@@ -7,7 +7,6 @@ public abstract class FileReader : IDisposable
 {
     private StreamReader streamReader;
     protected string path { get; private set; }
-    protected string directory { get; private set; }
     protected string line { get; private set; }
 
     protected bool ReadLineEndOfStream()
@@ -28,28 +27,26 @@ public abstract class FileReader : IDisposable
         try 
         {
             streamReader = new StreamReader( _path );
-            directory    = Path.GetDirectoryName( _path );
         }
-        catch ( Exception error ) { UnityEngine.Debug.Log( $"The file could not be read : { error.Message }" ); }
+        catch ( FileNotFoundException error ) { UnityEngine.Debug.LogError( $"The file could not be read : { error.Message }" ); }
     }
 
     public void OpenFile( string _path )
     {
-        streamReader?.Dispose();
-
         path = _path;
         try
         {
-            streamReader = new StreamReader( _path );
-            directory = Path.GetDirectoryName( _path );
+            Dispose();
+
+            streamReader = new StreamReader( @$"\\?\{_path}" );
         }
-        catch ( Exception error ) { UnityEngine.Debug.Log( $"The file could not be read : { error.Message }" ); }
+        catch ( FileNotFoundException error ) { UnityEngine.Debug.LogError( $"The file could not be read : { error.Message }" ); }
     }
 
     // 한줄 읽기
     protected string ReadLine()
     {
-        return line = streamReader.ReadLine();
+        return streamReader.EndOfStream ? string.Empty : line = streamReader.ReadLine();
     }
 
     // 현재 라인에서 단어 찾기
@@ -70,29 +67,43 @@ public abstract class FileReader : IDisposable
         return line.Split( _separator )[1].Trim();
     }
 
-    public void Dispose() => streamReader?.Dispose();
+    public void Dispose()
+    {
+        streamReader?.Dispose();
+    }
 
     protected string[] GetFilesInSubDirectories( string _dirPath, string _extension )
     {
-        List<string> path = new List<string>();
+        List<string> paths = new List<string>();
 
-        string[] subDirectories;
-        try { subDirectories = Directory.GetDirectories( _dirPath ); }
+        try 
+        {
+            string[] subDirectories = Directory.GetDirectories( _dirPath );
+
+            paths.Capacity = subDirectories.Length;
+            for ( int i = 0; i < subDirectories.Length; i++ )
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo( subDirectories[i] );
+                FileInfo[] files      = dirInfo.GetFiles( _extension );
+
+                var a = files[0].FullName.Split( '?' );
+
+                for ( int j = 0; j < files.Length; j++ )
+                {
+                    var newPath = files[j].FullName;
+                    if( files[j].FullName.Contains( "\\?" ) )
+                        newPath.Replace( "\\?", string.Empty );
+
+                    paths.Add( newPath );
+                }
+            }
+        }
         catch ( Exception e )
         {
             // 대부분 폴더가 없는 경우.
-            Debug.Log( e.ToString() );
-            return path.ToArray();
+            Debug.Log( $"{e}, {_dirPath}" );
         }
 
-        foreach ( string subDir in subDirectories )
-        {
-            DirectoryInfo dirInfo = new DirectoryInfo( subDir );
-            FileInfo[] files = dirInfo.GetFiles( _extension );
-            for ( int i = 0; i < files.Length; i++ )
-                path.Add( files[i].FullName );
-        }
-
-        return path.ToArray();
+        return paths.ToArray();
     }
 }

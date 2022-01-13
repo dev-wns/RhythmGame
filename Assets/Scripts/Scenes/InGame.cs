@@ -8,7 +8,7 @@ public class InGame : Scene
     // ui
     public TextMeshProUGUI timeText, bpmText, comboText, frameText;
 
-    public delegate void DelSystemInitialize( Chart _chart );
+    public delegate void DelSystemInitialize( in Chart _chart );
     public event DelSystemInitialize OnSystemInitialize;
 
     public delegate void DelGameStart();
@@ -43,7 +43,7 @@ public class InGame : Scene
     {
         base.Update();
 
-        timeText.text = string.Format( "{0:F1} √ ", NowPlaying.Playback * 0.001f );
+        //timeText.text = string.Format( "{0:F1} √ ", NowPlaying.Playback * 0.001f );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;
         frameText.text = string.Format( "{0:F1}", 1f / delta );
 

@@ -26,9 +26,9 @@ public class KeyAction
 
     public void Remove( KeyCode _code, KeyType _keyType, DelKeyAction _action )
     {
-        if ( !keyActions.ContainsKey( _code ) ) return;
+        if ( !keyActions.ContainsKey( _code ) )           return;
         if ( !keyActions[_code].ContainsKey( _keyType ) ) return;
-        if ( keyActions[_code][_keyType] == null ) return;
+        if ( keyActions[_code][_keyType] == null )        return;
 
         foreach ( var action in keyActions[_code][_keyType].GetInvocationList() )
         {
@@ -39,6 +39,7 @@ public class KeyAction
             }
         }
     }
+
     public void AwakeBind( KeyCode _code, KeyType _keyType )
     {
         if ( keyActions.ContainsKey( _code ) )

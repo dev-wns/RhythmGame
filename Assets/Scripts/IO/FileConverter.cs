@@ -72,7 +72,7 @@ public class FileConverter : FileReader
 {
     public void ReLoad()
     {
-        string[] osuFiles = GetFilesInSubDirectories( GlobalSetting.SoundDirectoryPath, "*.osu" );
+        string[] osuFiles = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
         for ( int i = 0; i < osuFiles.Length; i++ )
         {
             Convert( osuFiles[i] );
@@ -108,9 +108,6 @@ public class FileConverter : FileReader
                 if ( Contains( "Version" ) ) song.version = SplitAndTrim( ':' );
             }
 
-            if ( song.artist.Contains( "DJ" ) )
-                Debug.Log( _path );
-
             // [Events]
 
             var directory = Path.GetDirectoryName( _path );
@@ -131,7 +128,7 @@ public class FileConverter : FileReader
                     song.imagePath = SplitAndTrim( '"' );
 
                     if ( !File.Exists( Path.Combine( directory, song.imagePath ) ) ) 
-                         song.imagePath = GlobalSetting.DefaultImagePath;
+                         song.imagePath = GameSetting.DefaultImagePath;
                 }
             }
 
@@ -210,17 +207,17 @@ public class FileConverter : FileReader
         }
         catch ( Exception _error )
         {
-            if ( !Directory.Exists( GlobalSetting.FailedPath ) )
-                Directory.CreateDirectory( GlobalSetting.FailedPath );
+            if ( !Directory.Exists( GameSetting.FailedPath ) )
+                 Directory.CreateDirectory( GameSetting.FailedPath );
 
             if ( File.Exists( path ) )
             {
-                File.Move( path, GlobalSetting.FailedPath );
+                File.Move( path, GameSetting.FailedPath );
                 Debug.LogWarning( $"File Move Failed Directory : {path}" );
             }
 
-            Debug.LogError( _error.Message );
             Dispose();
+            Debug.LogError( $"{_error}, {path}" );
         }
     }
 
@@ -285,8 +282,8 @@ public class FileConverter : FileReader
         }
         catch ( Exception _error )
         {
-            Debug.Log( _error.Message );
             Dispose();
+            Debug.Log( _error.Message );
         }
 
         Dispose();

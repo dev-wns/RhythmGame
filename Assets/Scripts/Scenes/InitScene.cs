@@ -6,6 +6,7 @@ public class InitScene : MonoBehaviour
 {
     private void Start()
     {
+        QualitySettings.vSyncCount = 0;
         SceneChanger.Inst.InitSceneChange();
     }
 }

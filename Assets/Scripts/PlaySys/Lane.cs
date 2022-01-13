@@ -19,8 +19,8 @@ public class Lane : MonoBehaviour
         Key = _key;
         NoteSys.lane = InputSys.lane = this;
 
-        transform.position = new Vector3( GlobalSetting.NoteStartPos + ( GlobalSetting.NoteWidth * Key ) +
-                                        ( GlobalSetting.NoteBlank * Key ) + GlobalSetting.NoteBlank,
-                                          GlobalSetting.JudgeLine, 0f );
+        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) +
+                                        ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank,
+                                          GameSetting.JudgePos, 0f );
     }
 }

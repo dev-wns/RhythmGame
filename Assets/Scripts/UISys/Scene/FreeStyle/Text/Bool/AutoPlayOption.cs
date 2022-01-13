@@ -8,7 +8,7 @@ public class AutoPlayOption : OptionText
     {
         base.Awake();
 
-        curIndex = GameSetting.CurrentGameMod.HasFlag( GameMod.AutoPlay ) ? 1 : 0;
+        curIndex = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class AutoPlayOption : OptionText
     }
     public override void Process()
     {
-        if ( curIndex == 0 ) GameSetting.CurrentGameMod &= ~GameMod.AutoPlay;
-        else                 GameSetting.CurrentGameMod |=  GameMod.AutoPlay;
-        Debug.Log( GameSetting.CurrentGameMod.HasFlag( GameMod.AutoPlay ) );
+        if ( curIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.AutoPlay;
+        else                 GameSetting.CurrentGameMode |=  GameMode.AutoPlay;
+        Debug.Log( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) );
     }
 }

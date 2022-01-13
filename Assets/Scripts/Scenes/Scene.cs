@@ -7,7 +7,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
 {
     protected virtual void Awake()
     {
-        Camera.main.orthographicSize = ( Screen.height / ( GlobalSetting.PPU * 2f ) ) * GlobalSetting.PPU;
+        Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
         
         KeyBind();
         ChangeAction( SceneAction.Main );

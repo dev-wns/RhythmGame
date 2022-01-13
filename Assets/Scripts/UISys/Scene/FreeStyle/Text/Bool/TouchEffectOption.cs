@@ -8,7 +8,7 @@ public class TouchEffectOption : OptionText
     {
         base.Awake();
 
-        curIndex = GameSetting.CurrentVisualMod.HasFlag( VisualMod.TouchEffect ) ? 1 : 0;
+        curIndex = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.TouchEffect ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class TouchEffectOption : OptionText
     }
     public override void Process()
     {
-        if ( curIndex == 0 ) GameSetting.CurrentVisualMod &= ~VisualMod.TouchEffect;
-        else                 GameSetting.CurrentVisualMod |=  VisualMod.TouchEffect;
-        Debug.Log( GameSetting.CurrentVisualMod.HasFlag( VisualMod.TouchEffect ) );
+        if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.TouchEffect;
+        else                 GameSetting.CurrentVisualFlag |=  GameVisualFlag.TouchEffect;
+        Debug.Log( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.TouchEffect ) );
     }
 }

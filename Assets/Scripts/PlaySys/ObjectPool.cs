@@ -9,11 +9,9 @@ public class ObjectPool<T> where T : MonoBehaviour
     private Stack<T> pool = new Stack<T>();
     
     private int allocateCount;
-    private bool isAutoActive;
 
-    public ObjectPool( T _poolableObject, int _allocate = 100, bool _isAutoActive = true )
+    public ObjectPool( T _poolableObject, int _allocate = 100 )
     {
-        isAutoActive  = _isAutoActive;
         allocateCount = _allocate;
 
         if ( ReferenceEquals( _poolableObject, null ) )
@@ -25,7 +23,7 @@ public class ObjectPool<T> where T : MonoBehaviour
         GameObject canvas = GameObject.FindGameObjectWithTag( "Pools" );
         if ( ReferenceEquals( canvas, null ) )
         {
-            Debug.LogError( "not find ingame canvas" );
+            Debug.LogError( "not find pool canvas" );
         }
 
         GameObject parentObj = new GameObject();
@@ -43,30 +41,33 @@ public class ObjectPool<T> where T : MonoBehaviour
         for( int i = 0; i < allocateCount; i++ )
         {
             T obj = UnityEngine.GameObject.Instantiate( poolableObject, parent );
-            if ( isAutoActive )
+
+            if ( obj.isActiveAndEnabled )
                  obj.gameObject.SetActive( false );
+
             pool.Push( obj );
         }
     }
 
     public T Spawn()
     {
-        if ( pool.Count <= 0 )
+        if ( pool.Count == 0 )
         {
             Allocate();
         }
 
         T obj = pool.Pop();
-        if ( isAutoActive )
-            obj.gameObject.SetActive( true );
+
+        if ( !obj.isActiveAndEnabled )
+             obj.gameObject.SetActive( true );
 
         return obj;
     }
 
     public void Despawn( T _obj )
     {
-        if ( isAutoActive )
-            _obj.gameObject.SetActive( false );
+        if ( _obj.isActiveAndEnabled )
+             _obj.gameObject.SetActive( false );
 
         pool.Push( _obj );
     }

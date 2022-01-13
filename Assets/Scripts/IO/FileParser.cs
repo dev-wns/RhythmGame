@@ -11,11 +11,11 @@ public class FileParser : FileReader
         _songs?.Clear();
         _songs ??= new List<Song>();
 
-        var files = GetFilesInSubDirectories( GlobalSetting.SoundDirectoryPath, "*.wns" );
-        foreach ( var path in files )
+        var files = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
+        for ( int i = 0; i < files.Length; i++ )
         {
             Song newSong = new Song();
-            if ( TryParse( path, out newSong ) )
+            if ( TryParse( files[i], out newSong ) )
                  _songs.Add( newSong );
         }
     }
@@ -38,7 +38,7 @@ public class FileParser : FileReader
                 {
                     string imageName = SplitAndTrim( ':' );
 
-                    if ( imageName == string.Empty ) _song.imagePath = GlobalSetting.DefaultImagePath;
+                    if ( imageName == string.Empty ) _song.imagePath = GameSetting.DefaultImagePath;
                     else                             _song.imagePath = Path.Combine( directory, imageName );
                 }
                 if ( Contains( "VideoPath:" ) )
@@ -72,7 +72,7 @@ public class FileParser : FileReader
     }
         catch ( Exception e )
         {
-            Debug.Log(e.Message );
+            Debug.Log( $"{e}, {_path}" );
             Dispose();
             return false;
         }

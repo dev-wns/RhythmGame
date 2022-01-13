@@ -8,7 +8,7 @@ public class ShowMeasureOption : OptionText
     {
         base.Awake();
 
-        curIndex = GameSetting.CurrentVisualMod.HasFlag( VisualMod.ShowMeasure ) ? 1 : 0;
+        curIndex = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowMeasure ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class ShowMeasureOption : OptionText
     }
     public override void Process()
     {
-        if ( curIndex == 0 ) GameSetting.CurrentVisualMod &= ~VisualMod.ShowMeasure;
-        else                 GameSetting.CurrentVisualMod |=  VisualMod.ShowMeasure;
-        Debug.Log( GameSetting.CurrentVisualMod.HasFlag( VisualMod.ShowMeasure ) );
+        if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.ShowMeasure;
+        else                 GameSetting.CurrentVisualFlag |=  GameVisualFlag.ShowMeasure;
+        Debug.Log( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowMeasure ) );
     }
 }

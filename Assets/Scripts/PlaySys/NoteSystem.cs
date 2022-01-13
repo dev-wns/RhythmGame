@@ -16,7 +16,7 @@ public class NoteSystem : MonoBehaviour
     private void Awake()
     {
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        nPool = new ObjectPool<NoteRenderer>( nPrefab, 10, false );
+        nPool = new ObjectPool<NoteRenderer>( nPrefab, 5 );
 
         CurrentScene.OnGameStart += () => StartCoroutine( Process() );
     }
@@ -43,7 +43,7 @@ public class NoteSystem : MonoBehaviour
             }
 
             NoteRenderer note = nPool.Spawn();
-            note.SetInfo( lane.Key, this, curNote );
+            note.SetInfo( lane.Key, this, in curNote );
             
             lane.InputSys.Enqueue( note );
             currentIndex++;

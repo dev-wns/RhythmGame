@@ -8,7 +8,7 @@ public class NoSliderOption : OptionText
     {
         base.Awake();
 
-        curIndex = GameSetting.CurrentGameMod.HasFlag( GameMod.NoSlider ) ? 1 : 0;
+        curIndex = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? 1 : 0;
         ChangeText( texts[curIndex] );
     }
 
@@ -21,8 +21,8 @@ public class NoSliderOption : OptionText
     }
     public override void Process()
     {
-        if ( curIndex == 0 ) GameSetting.CurrentGameMod &= ~GameMod.NoSlider;
-        else                 GameSetting.CurrentGameMod |=  GameMod.NoSlider;
-        Debug.Log( GameSetting.CurrentGameMod.HasFlag( GameMod.NoSlider ) );
+        if ( curIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.NoSlider;
+        else                 GameSetting.CurrentGameMode |=  GameMode.NoSlider;
+        Debug.Log( GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) );
     }
 }
