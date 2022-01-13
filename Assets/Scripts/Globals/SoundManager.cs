@@ -404,7 +404,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out _dsp ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, _size ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )_type ) );
-        ErrorCheck( Groups[ChannelGroupType.Master].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, _dsp ) );
+        ErrorCheck( Groups[ChannelGroupType.BGM].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, _dsp ) );
         FFT = _dsp;
     }
 
@@ -412,7 +412,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         if ( FFT != null )
         {
-            ErrorCheck( Groups[ChannelGroupType.Master].removeDSP( FFT.Value ) );
+            ErrorCheck( Groups[ChannelGroupType.BGM].removeDSP( FFT.Value ) );
             ErrorCheck( FFT.Value.release() );
             FFT = null;
         }

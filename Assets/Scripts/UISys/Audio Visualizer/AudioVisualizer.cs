@@ -10,7 +10,7 @@ public class AudioVisualizer : MonoBehaviour
     public FMOD.DSP_FFT_WINDOW type = FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS;
     public SpectrumSize size        = SpectrumSize._4096;
 
-    public delegate void DelUpdateSpectrums( float[] _values );
+    public delegate void DelUpdateSpectrums( float[] _values, float _offset );
     public event DelUpdateSpectrums UpdateSpectrums;
 
     private void Awake()
@@ -35,16 +35,15 @@ public class AudioVisualizer : MonoBehaviour
         dsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
         FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
 
+        float masterVolume, bgmVolume, volume;
+        
         if ( fftData.numchannels > 0 )
         {
-            UpdateSpectrums( fftData.spectrum[0] );
-        }
-    }
+            masterVolume = SoundManager.Inst.GetVolume( ChannelGroupType.Master );
+            bgmVolume    = SoundManager.Inst.GetVolume( ChannelGroupType.BGM );
+            volume       = masterVolume * bgmVolume;
 
-    private float CurrentVolume()
-    {
-        float volume = SoundManager.Inst.GetVolume();
-        if ( volume >= 1f ) return 1f;
-        else                return ( 1f - volume ) * 10f;
+            UpdateSpectrums( fftData.spectrum[0], volume >= 1f ? 1f : 1f - volume );
+        }
     }
 }
