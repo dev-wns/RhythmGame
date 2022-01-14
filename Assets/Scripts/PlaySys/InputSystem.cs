@@ -12,6 +12,8 @@ public class InputSystem : MonoBehaviour
     private NoteRenderer currentNote;
 
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
+    public delegate void DelInputEvent( bool _isKeyDown );
+    public event DelInputEvent OnInputEvent;
 
     private GameKeyAction key;
 
@@ -70,10 +72,10 @@ public class InputSystem : MonoBehaviour
         //currentNote?.SetColor( Color.green );
     }
 
-    private void CheckNote()
+    private void CheckNote( bool _isInputDown )
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
-        if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
+        if ( _isInputDown )
         {
             if ( judgement.IsCalculated( startDiff ) )
                  SelectNextNote();
@@ -86,11 +88,11 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    private void CheckSlider()
+    private void CheckSlider( bool _isInputDown, bool _isInputHold, bool _isInputUp )
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
         float endDiff   = currentNote.SliderTime - NowPlaying.Playback;
-        if ( !isHolding && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
+        if ( !isHolding && _isInputDown )
         {
             if ( judgement.IsCalculated( startDiff ) )
             {
@@ -98,7 +100,7 @@ public class InputSystem : MonoBehaviour
                 currentNote.isHolding = true;
             }
         }
-        else if ( isHolding && Input.GetKey( GameSetting.Inst.Keys[key] ) )
+        else if ( isHolding && _isInputHold )
         {
             playback += Time.deltaTime;
             if ( playback > .15f )
@@ -107,7 +109,7 @@ public class InputSystem : MonoBehaviour
                 playback = 0f;
             }
         }
-        else if ( isHolding && Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
+        else if ( isHolding && _isInputUp )
         {
             if ( judgement.IsCalculated( endDiff ) )
             {
@@ -132,10 +134,18 @@ public class InputSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( currentNote == null ) return;
+        bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
+        bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
+        bool isInputUp   = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
 
-        if ( currentNote.IsSlider ) CheckSlider();
-        else                        CheckNote();
+        if      ( isInputDown ) OnInputEvent?.Invoke( true );
+        else if ( isInputUp )   OnInputEvent?.Invoke( false );
+
+        if ( currentNote == null ) 
+             return;
+
+        if ( currentNote.IsSlider ) CheckSlider( isInputDown, isInputHold, isInputUp );
+        else                        CheckNote( isInputDown );
 
         if ( sliderMissQueue.Count > 0 )
         {

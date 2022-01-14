@@ -61,7 +61,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         int samplerRate, numRawSpeakers;
         FMOD.SPEAKERMODE mode;
         ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
-        ErrorCheck( system.setSoftwareFormat( samplerRate, FMOD.SPEAKERMODE.MONO, numRawSpeakers ) );
+        ErrorCheck( system.setSoftwareFormat( samplerRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
 
         ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
         Debug.Log( $"SampleRate : {samplerRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
