@@ -87,17 +87,13 @@ public abstract class FileReader : IDisposable
                 FileInfo[] files      = dirInfo.GetFiles( _extension );
 
                 for ( int j = 0; j < files.Length; j++ )
-                {
-                    var path = files[j].FullName;
-                    if ( File.Exists( path ) ) paths.Add( path );
-                    else                       Debug.LogWarning( $"has not file {path}" );
-                }
+                      paths.Add( files[j].FullName );
             }
         }
-        catch ( Exception e )
+        catch ( Exception _error )
         {
             // 대부분 폴더가 없는 경우.
-            Debug.LogWarning( $"{e}, {_dirPath}" );
+            Debug.LogWarning( $"{_error}, {_dirPath}" );
         }
 
         return paths.ToArray();

@@ -84,10 +84,16 @@ public class FileConverter : FileReader
         Song song   = new Song();
         Chart chart = new Chart();
 
+        try { OpenFile( _path ); }
+        catch ( Exception _error )
+        {
+            Debug.LogError( _error.Message );
+            Dispose();
+            return;
+        }
+
         try
         {
-            OpenFile( _path );
-
             // [General] ~ [Editor]
             while ( ReadLine() != "[Metadata]" )
             {
@@ -208,7 +214,7 @@ public class FileConverter : FileReader
         catch ( Exception _error )
         {
             if ( !Directory.Exists( GameSetting.FailedPath ) )
-                 Directory.CreateDirectory( GameSetting.FailedPath );
+                  Directory.CreateDirectory( GameSetting.FailedPath );
 
             if ( File.Exists( path ) )
             {
@@ -285,8 +291,6 @@ public class FileConverter : FileReader
             Dispose();
             Debug.LogError( _error.Message );
         }
-
-        Dispose();
 
         // 원본 파일 삭제
         if ( File.Exists( path ) )
