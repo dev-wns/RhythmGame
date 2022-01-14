@@ -21,7 +21,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
 
         Texture2D tex = Texture2D.whiteTexture;
         blackSprite = GetComponent<SpriteRenderer>();
-        blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
+        blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
 
         blackSprite.drawMode = SpriteDrawMode.Sliced;
         blackSprite.size = new Vector2( 1920, 1080 );
@@ -56,19 +56,24 @@ public class SceneChanger : SingletonUnity<SceneChanger>
     {
         DOTween.KillAll();
         CurrentScene?.InputLock( true );
+        CurrentScene = null;
 
         blackSprite.enabled = true;
         blackSprite.color = Color.clear;
-        blackSprite.DOFade( 1f, 1f );
+        blackSprite.DOFade( 1f, .7f );
         yield return YieldCache.WaitForSeconds( 1f );
 
         SoundManager.Inst.AllStop();
 
-        AsyncOperation oper = SceneManager.LoadSceneAsync( ( int )_type );
-        if ( !oper.isDone ) yield return null;
-        
+        //AsyncOperation oper = SceneManager.LoadSceneAsync( ( int )_type );
+        //if ( !oper.isDone ) yield return null;
 
-        blackSprite.DOFade( 0f, 1f );
+        SceneManager.LoadScene( ( int )_type );
+        Globals.Timer.Start();
+        System.GC.Collect();
+        Debug.Log( $"GC Collect : {Globals.Timer.End} ms" );
+
+        blackSprite.DOFade( 0f, .7f );
         yield return YieldCache.WaitForSeconds( 1f );
         
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();

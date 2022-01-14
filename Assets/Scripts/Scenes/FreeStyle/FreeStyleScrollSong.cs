@@ -83,7 +83,7 @@ public class FreeStyleScrollSong : SceneScrollOption
             SoundManager.Inst.LoadBgm( currentSong.audioPath, SoundLoadType.Stream );
             SoundManager.Inst.PlayBgm();
         }
-        Debug.Log( $"Sound Load {Globals.Timer.End()} ms" );
+        Debug.Log( $"Sound Load {Globals.Timer.End} ms" );
 
         previewTime = GetPreviewTime();
         SoundManager.Inst.SetPosition( previewTime );
