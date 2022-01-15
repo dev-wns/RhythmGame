@@ -231,8 +231,8 @@ public class FileConverter : FileReader
     {
         try
         {
-            string fileName = Path.GetFileNameWithoutExtension( path ) + ".wns";
-            string filePath = Path.Combine( Path.GetDirectoryName( path ), fileName );
+            string fileName = $"{Path.GetFileNameWithoutExtension( path )}.wns";
+            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( path ), fileName )}";
 
             using ( var stream = new FileStream( filePath, FileMode.Create ) )
             {

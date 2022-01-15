@@ -109,11 +109,11 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         // Sfx Sound
-        LoadSfx( SoundSfxType.Move, "Assets/Sounds/Sfxs/confirm_style_2_001.wav" );
-        LoadSfx( SoundSfxType.Return, "Assets/Sounds/Sfxs/confirm_style_2_003.wav" );
-        LoadSfx( SoundSfxType.Escape, "Assets/Sounds/Sfxs/confirm_style_2_004.wav" );
-        LoadSfx( SoundSfxType.Increase, "Assets/Sounds/Sfxs/confirm_style_2_005.wav" );
-        LoadSfx( SoundSfxType.Decrease, "Assets/Sounds/Sfxs/confirm_style_2_006.wav" );
+        LoadSfx( SoundSfxType.Move,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_001.wav" );
+        LoadSfx( SoundSfxType.Return,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_003.wav" );
+        LoadSfx( SoundSfxType.Escape,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_004.wav" );
+        LoadSfx( SoundSfxType.Increase, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_005.wav" );
+        LoadSfx( SoundSfxType.Decrease, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_006.wav" );
 
         // DSP
         CreateLowEffectDsp();
@@ -121,7 +121,6 @@ public class SoundManager : SingletonUnity<SoundManager>
         // Details
         SetVolume( .1f, ChannelGroupType.Master );
         SetVolume( .1f, ChannelGroupType.BGM );
-        Debug.Log( "SoundManager Initizlize Successful." );
     }
 
     public void Release()

@@ -15,17 +15,14 @@ public class Lobby : Scene
     protected override void Awake()
     {
         base.Awake();
-
-        SoundManager.Inst.LoadBgm( System.IO.Path.Combine( "Assets", "Sounds", "Bgms", soundName + ".mp3" ), 
-                                   SoundLoadType.Default, SoundPlayMode.Loop );
-        SoundManager.Inst.PlayBgm();
         SoundManager.Inst.OnSoundSystemReLoad += SoundReStart;
+        SoundReStart();
         isStart = true;
     }
 
     private void SoundReStart()
     {
-        SoundManager.Inst.LoadBgm( System.IO.Path.Combine( "Assets", "Sounds", "Bgms", soundName + ".mp3" ),
+        SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName + ".mp3"}",
                                    SoundLoadType.Default, SoundPlayMode.Loop );
         SoundManager.Inst.PlayBgm( true );
         SoundManager.Inst.SetPosition( ( uint )playback );
