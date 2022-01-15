@@ -97,7 +97,6 @@ public class GameSetting : SingletonUnity<GameSetting>
 
     // IO
     public static readonly string SoundDirectoryPath = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
-    public static readonly string DefaultImagePath   = System.IO.Path.Combine( Application.dataPath, "Textures", "Default", "DefaultImage.jpg" );
     public static readonly string FailedPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
 
     // Measure

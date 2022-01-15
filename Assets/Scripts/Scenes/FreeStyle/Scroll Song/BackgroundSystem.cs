@@ -8,7 +8,7 @@ public class BackgroundSystem : MonoBehaviour
     public FreeStyleScrollSong songScroller;
     public FadeBackground bgPrefab;
     private ObjectPool<FadeBackground> bgPool;
-
+    public  Sprite defaultSprite;
     private Coroutine currentCoroutine;
     private FadeBackground currentBackground;
 
@@ -31,16 +31,22 @@ public class BackgroundSystem : MonoBehaviour
 
     private IEnumerator LoadBackground( string _path )
     {
-        UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path );
-        yield return www.SendWebRequest();
+        Sprite sprite;
+        bool isExist = System.IO.File.Exists( _path );
+        if ( isExist )
+        {
+            UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path );
+            yield return www.SendWebRequest();
 
-        Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
-        var sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+            Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
+            sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+        }
+        else sprite = defaultSprite;
 
         currentBackground?.Despawn();
 
         currentBackground = bgPool.Spawn();
-        currentBackground.SetInfo( sprite );
+        currentBackground.SetInfo( sprite, !isExist );
         currentBackground.system = this;
 
         // 원시 버젼 메모리 재할당이 큼

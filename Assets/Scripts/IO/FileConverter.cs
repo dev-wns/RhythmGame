@@ -133,8 +133,8 @@ public class FileConverter : FileReader
                 {
                     song.imagePath = SplitAndTrim( '"' );
 
-                    if ( !File.Exists( Path.Combine( directory, song.imagePath ) ) ) 
-                         song.imagePath = GameSetting.DefaultImagePath;
+                    //if ( !File.Exists( Path.Combine( directory, song.imagePath ) ) ) 
+                    //     song.imagePath = GameSetting.DefaultImagePath;
                 }
             }
 

@@ -44,8 +44,9 @@ public class FileParser : FileReader
                 {
                     string imageName = SplitAndTrim( ':' );
 
-                    if ( imageName == string.Empty ) _song.imagePath = GameSetting.DefaultImagePath;
-                    else                             _song.imagePath = Path.Combine( directory, imageName );
+                    _song.imagePath = Path.Combine( directory, imageName );
+                    //if ( imageName == string.Empty ) _song.imagePath = GameSetting.DefaultImagePath;
+                    //else                             ;
                 }
                 if ( Contains( "VideoPath:" ) )
                 {

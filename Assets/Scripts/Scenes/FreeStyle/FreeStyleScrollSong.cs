@@ -76,14 +76,14 @@ public class FreeStyleScrollSong : SceneScrollOption
         NowPlaying.Inst.SelectSong( currentIndex );
 
         currentSong = NowPlaying.Inst.CurrentSong;
-        OnSelectSong( currentSong );
-
         Globals.Timer.Start();
         {
+            OnSelectSong( currentSong );
+
             SoundManager.Inst.LoadBgm( currentSong.audioPath, SoundLoadType.Stream );
             SoundManager.Inst.PlayBgm();
         }
-        Debug.Log( $"Sound Load {Globals.Timer.End} ms" );
+        Debug.Log( $"Select Song {Globals.Timer.End} ms" );
 
         previewTime = GetPreviewTime();
         SoundManager.Inst.SetPosition( previewTime );
@@ -93,7 +93,7 @@ public class FreeStyleScrollSong : SceneScrollOption
     private uint GetPreviewTime()
     {
         int time = currentSong.previewTime;
-        if ( time <= 0 ) return ( uint )( SoundManager.Inst.Length * 0.3333f );
+        if ( time <= 0 ) return ( uint )( SoundManager.Inst.Length * 0.3141592f );
         else             return ( uint )currentSong.previewTime;
     }
 

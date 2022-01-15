@@ -11,6 +11,7 @@ public class FadeBackground : MonoBehaviour
 
     private RectTransform rt;
     private Image image;
+    private bool isDefault;
     private static float depth = 0f;
 
     private void Awake()
@@ -23,7 +24,7 @@ public class FadeBackground : MonoBehaviour
 
     private void SpriteRelease()
     {
-        if ( image.sprite )
+        if ( !isDefault && image.sprite )
         {
             if ( image.sprite.texture )
             {
@@ -52,9 +53,9 @@ public class FadeBackground : MonoBehaviour
         return new Vector3( width, height, 1f );
     }
 
-
-    public void SetInfo( Sprite _sprite )
+    public void SetInfo( Sprite _sprite, bool _isDefault = true )
     {
+        isDefault = _isDefault;
         rt.anchoredPosition = new Vector3( 0f, 0f, depth += .00001f );
         rt.sizeDelta        = GetFullScreenRatio( _sprite.texture );
         image.color         = new Color( 1f, 1f, 1f, 0f );
