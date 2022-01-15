@@ -19,6 +19,8 @@ public class Judgement : MonoBehaviour
     public bool isShowRange = true;
     public RectTransform koolImage, coolImage, goodImage, badImage;
 
+    public delegate void DelJudge( bool _hasJudge );
+    public event DelJudge OnJudge;
 
     private void Awake()
     {
@@ -62,7 +64,7 @@ public class Judgement : MonoBehaviour
 
     public bool IsCalculated( float _diff )
     {
-        bool isDone = true;
+        bool hasJudge = true;
         float diffAbs = _diff >= 0 ? _diff : -_diff;
 
         if ( diffAbs <= Kool )
@@ -83,10 +85,11 @@ public class Judgement : MonoBehaviour
         }
         else
         {
-            isDone = false;
+            hasJudge = false;
         }
 
-        return isDone;
+        OnJudge?.Invoke( hasJudge );
+        return hasJudge;
     }
 
     public bool IsMiss( float _diff )
