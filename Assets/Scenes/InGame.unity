@@ -214,7 +214,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 2
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a7e416ecc6ccd8f4f9ec8633d5c27a42, type: 2}
@@ -273,7 +273,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 123423029}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1246656463}
@@ -514,6 +514,7 @@ GameObject:
   - component: {fileID: 231758587}
   - component: {fileID: 231758589}
   - component: {fileID: 231758588}
+  - component: {fileID: 231758590}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -553,6 +554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d72af7490b2eeda40b451021686bf666, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bpmChanger: {fileID: 0}
   mPrefab: {fileID: 3470382606213834254, guid: d68dd1704bffac94383d938af59c4aa7, type: 3}
 --- !u!114 &231758589
 MonoBehaviour:
@@ -566,6 +568,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 557342cc2af9f6541b51160f5a348188, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &231758590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 231758586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b37af939c9e3fb9428644f605cd78341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bpmText: {fileID: 1685894200}
 --- !u!1 &256972340
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,7 +1009,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 2
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a7e416ecc6ccd8f4f9ec8633d5c27a42, type: 2}
@@ -1120,7 +1135,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 2
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a7e416ecc6ccd8f4f9ec8633d5c27a42, type: 2}
@@ -1246,7 +1261,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 2
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a7e416ecc6ccd8f4f9ec8633d5c27a42, type: 2}
@@ -2300,7 +2315,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 2
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a7e416ecc6ccd8f4f9ec8633d5c27a42, type: 2}
@@ -2683,7 +2698,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 2
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a7e416ecc6ccd8f4f9ec8633d5c27a42, type: 2}

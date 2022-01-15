@@ -10,6 +10,8 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
         
         KeyBind();
+
+        SceneChanger.CurrentScene = this;
         ChangeAction( SceneAction.Main );
     }
 

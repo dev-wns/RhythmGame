@@ -11,7 +11,7 @@ public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
 [RequireComponent( typeof( SpriteRenderer ) )]
 public class SceneChanger : SingletonUnity<SceneChanger>
 {
-    private Scene CurrentScene;
+    public static Scene CurrentScene;
     private SpriteRenderer blackSprite;
     private Coroutine currentCoroutine;
 
@@ -76,8 +76,8 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         blackSprite.DOFade( 0f, .7f );
         yield return YieldCache.WaitForSeconds( 1f );
         
-        CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-        CurrentScene?.InputLock( false );
+        //CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        //CurrentScene?.InputLock( false );
         blackSprite.enabled = false;
         currentCoroutine = null;
     }

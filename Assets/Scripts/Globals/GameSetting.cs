@@ -67,17 +67,17 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static int PPU { get; private set; } = 100; // pixel per unit
 
     // Speed
-    private static int OriginScrollSpeed = 25;
+    private static int OriginScrollSpeed = 45;
     public static float ScrollSpeed
     {
         
-        get { return OriginScrollSpeed * .0015f; }
+        get { return OriginScrollSpeed * .001f; }
         set
         {
             var speed = OriginScrollSpeed + Mathf.FloorToInt( value );
-            if ( speed <= 1 )
+            if ( speed < 1 )
             {
-                Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
+                Debug.LogWarning( $"ScrollSpeed : {OriginScrollSpeed}" );
                 return;
             }
 
@@ -86,13 +86,13 @@ public class GameSetting : SingletonUnity<GameSetting>
         }
     }
     public static float Weight { get { return ( 60f / NowPlaying.Inst.CurrentSong.medianBpm ) * ScrollSpeed; } }
-    public static float PreLoadTime { get { return ( 1250f / Weight ); } }
+    public static float PreLoadTime { get { return ( 1500f / Weight ); } }
 
     // Sound
     public static float SoundPitch = 1f;
 
     // Opacity
-    public static float BGAOpacity = 0f;
+    public static float BGAOpacity   = 0f;
     public static float PanelOpacity = 0f;
 
     // IO
@@ -118,11 +118,9 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float GearWidth { get { return ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
 
     public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
-    private KeyCode[] defaultKeys = new KeyCode[]
+    private readonly KeyCode[] defaultKeys = new KeyCode[]
     {
-        KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.K, KeyCode.L, KeyCode.Semicolon,
-        KeyCode.Alpha1, KeyCode.Alpha2,
-        KeyCode.Escape
+        KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.K, KeyCode.L, KeyCode.Semicolon
     };
 
     private void Awake()

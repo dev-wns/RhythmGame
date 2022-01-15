@@ -6,7 +6,7 @@ using TMPro;
 public class InGame : Scene
 {
     // ui
-    public TextMeshProUGUI timeText, bpmText, comboText, frameText;
+    public TextMeshProUGUI timeText, comboText, frameText;
 
     public delegate void DelSystemInitialize( in Chart _chart );
     public event DelSystemInitialize OnSystemInitialize;
@@ -24,26 +24,14 @@ public class InGame : Scene
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
         OnGameStart();
 
-        StartCoroutine( BpmChnager() );
         NowPlaying.Inst.Play();
-    }
-
-    private int timingIdx;
-    private IEnumerator BpmChnager()
-    {
-        var chart = NowPlaying.Inst.CurrentChart;
-        while ( timingIdx < chart.timings.Count )
-        {
-            yield return new WaitUntil( () => NowPlaying.Playback > chart.timings[timingIdx].time );
-            bpmText.text = $"{Mathf.RoundToInt(chart.timings[timingIdx++].bpm)} BPM";
-        }
     }
 
     protected override void Update()
     {
         base.Update();
 
-        //timeText.text = string.Format( "{0:F1} √ ", NowPlaying.Playback * 0.001f );
+        timeText.text = string.Format( "{0:F1} √ ", NowPlaying.Playback * 0.001f );
         delta += ( Time.unscaledDeltaTime - delta ) * .1f;
         frameText.text = string.Format( "{0:F1}", 1f / delta );
 
