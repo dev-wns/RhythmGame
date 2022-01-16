@@ -40,14 +40,7 @@ public class FileParser : FileReader
             while ( ReadLine() != "[Timings]" )
             {
                 if ( Contains( "AudioPath:" ) ) _song.audioPath = Path.Combine( directory, SplitAndTrim( ':' ) );
-                if ( Contains( "ImagePath:" ) )
-                {
-                    string imageName = SplitAndTrim( ':' );
-
-                    _song.imagePath = Path.Combine( directory, imageName );
-                    //if ( imageName == string.Empty ) _song.imagePath = GameSetting.DefaultImagePath;
-                    //else                             ;
-                }
+                if ( Contains( "ImagePath:" ) ) _song.imagePath = Path.Combine( directory, SplitAndTrim( ':' ) );
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = SplitAndTrim( ':' );
@@ -77,9 +70,9 @@ public class FileParser : FileReader
                 if ( Contains( "MedianBPM:" ) ) _song.medianBpm = int.Parse( SplitAndTrim( ':' ) );
             }
     }
-        catch ( Exception e )
+        catch ( Exception _error )
         {
-            Debug.LogError( $"{e}, {_path}" );
+            Debug.LogError( $"{_error}, {_path}" );
             Dispose();
             return false;
         }

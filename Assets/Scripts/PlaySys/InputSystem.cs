@@ -40,17 +40,6 @@ public class InputSystem : MonoBehaviour
     {
         yield return new WaitUntil( () => currentNote == null && notes.Count > 0 );
         currentNote ??= notes.Dequeue();
-        //currentNote?.SetColor( Color.green );
-
-        //while ( currentNote == null )
-        //{
-        //    if ( notes.Count > 0 )
-        //    {
-        //        currentNote = notes.Dequeue();
-        //    }
-        //
-        //    yield return null;
-        //}
     }
 
     private void SelectNextNote( bool _isDespawn = true )
@@ -68,8 +57,6 @@ public class InputSystem : MonoBehaviour
             currentNote = null;
             StartCoroutine( NoteSelect() );
         }
-
-        //currentNote?.SetColor( Color.green );
     }
 
     private void CheckNote( bool _isInputDown )
@@ -102,8 +89,14 @@ public class InputSystem : MonoBehaviour
         }
         else if ( isHolding && _isInputHold )
         {
+            if ( judgement.IsMiss( endDiff ) )
+            {
+                SelectNextNote();
+                return;
+            }
+
             playback += Time.deltaTime;
-            if ( playback > .15f )
+            if ( playback > .25f )
             {
                 //GameManager.Combo++;
                 playback = 0f;
@@ -113,9 +106,11 @@ public class InputSystem : MonoBehaviour
         {
             if ( judgement.IsCalculated( endDiff ) )
             {
+                isHolding = false;
+                currentNote.isHolding = false;
                 SelectNextNote();
             }
-            else
+            else if ( judgement.IsMiss( endDiff ) )
             {
                 sliderMissQueue.Enqueue( currentNote );
                 SelectNextNote( false );
@@ -132,14 +127,14 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
         bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
         bool isInputUp   = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
 
-        if      ( isInputDown ) OnInputEvent?.Invoke( true );
-        else if ( isInputUp )   OnInputEvent?.Invoke( false );
+        if ( isInputDown )    OnInputEvent?.Invoke( true );
+        else if ( isInputUp ) OnInputEvent?.Invoke( false );
 
         if ( currentNote == null ) 
              return;

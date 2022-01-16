@@ -3,23 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public enum JUDGE_TYPE { Kool, Cool, Good, Miss }
+public enum JudgeType { Kool, Cool, Good, Bad, Miss }
 
 public class Judgement : MonoBehaviour
 {
+    public BpmChanger bpmChanger;
     private RectTransform rt;
 
-    private const int Kool = 22;
-    private const int Cool = 18 + Kool;
-    private const int Good = 12 + Cool;
-    private const int Bad  = 8 + Good;
+    private const float Kool = 28f;
+    private const float Cool = 26f + Kool;
+    private const float Good = 24f + Cool;
+    private const float Bad  = 22f + Good;
 
+    private int slowCount, fastCount;
     private int koolCount, coolCount, goodCount, badCount, missCount;
+    public TextMeshProUGUI slowText, fastText;
     public TextMeshProUGUI koolText, coolText, goodText, badText, missText;
-    public bool isShowRange = true;
     public RectTransform koolImage, coolImage, goodImage, badImage;
+    public bool isShowRange = true;
 
-    public delegate void DelJudge( bool _hasJudge );
+    public delegate void DelJudge( JudgeType _type );
     public event DelJudge OnJudge;
 
     private void Awake()
@@ -28,7 +31,9 @@ public class Judgement : MonoBehaviour
         rt.anchoredPosition = new Vector3( 0f, GameSetting.JudgePos, -1f );
         rt.sizeDelta = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
 
-        if ( !isShowRange )
+        //bpmChanger.OnBpmChange += OnBpmChanged;
+
+        if ( !GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowJudge ) )
         {
             koolImage.gameObject.SetActive( false );
             coolImage.gameObject.SetActive( false );
@@ -47,48 +52,61 @@ public class Judgement : MonoBehaviour
 
     private void LateUpdate()
     {
-        //if ( isShowRange && NowPlaying.Inst.IsMusicStart )
-        //{
-        //    koolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) ) * GameSetting.Weight , 1f);
-        //    coolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Cool ) ) ) * GameSetting.Weight , 1f);
-        //    goodImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Good ) ) ) * GameSetting.Weight, 1f );
-        //    badImage.localScale  = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Bad ) ) ) * GameSetting.Weight, 1f );
-        //}
-
-        koolText.text = koolCount.ToString();
-        coolText.text = coolCount.ToString();
-        goodText.text = goodCount.ToString();
-        badText.text = badCount.ToString();
-        missText.text = missCount.ToString();
+        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowJudge ) && NowPlaying.Inst.IsMusicStart )
+        {
+            koolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Kool ) ) ) * GameSetting.Weight, 1f );
+            coolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Cool ) ) ) * GameSetting.Weight, 1f );
+            goodImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Good ) ) ) * GameSetting.Weight, 1f );
+            badImage.localScale  = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Bad  ) ) ) * GameSetting.Weight, 1f );
+        }
     }
 
     public bool IsCalculated( float _diff )
     {
+        //Globals.Timer.Start();
         bool hasJudge = true;
         float diffAbs = _diff >= 0 ? _diff : -_diff;
 
-        if ( diffAbs <= Kool )
+        if ( diffAbs >= 0f && diffAbs <= Kool )
         {
+            OnJudge?.Invoke( JudgeType.Kool );
             koolCount++;
+            koolText.text = koolCount.ToString();
         }
         else if ( diffAbs > Kool && diffAbs <= Cool )
         {
+            OnJudge?.Invoke( JudgeType.Cool );
             coolCount++;
+            coolText.text = coolCount.ToString();
+
+            if ( _diff >= 0 ) fastText.text = ( ++fastCount ).ToString();
+            else              slowText.text = ( ++slowCount ).ToString();
         }
         else if ( diffAbs > Cool && diffAbs <= Good )
         {
+            OnJudge?.Invoke( JudgeType.Good );
             goodCount++;
+            goodText.text = goodCount.ToString();
+
+            if ( _diff >= 0 ) fastText.text = ( ++fastCount ).ToString();
+            else slowText.text = ( ++slowCount ).ToString();
+
         }
         else if ( diffAbs > Good && diffAbs <= Bad )
         {
+            OnJudge?.Invoke( JudgeType.Bad );
             badCount++;
+            badText.text = badCount.ToString();
+
+            if ( _diff >= 0 ) fastText.text = ( ++fastCount ).ToString();
+            else slowText.text = ( ++slowCount ).ToString();
         }
         else
         {
             hasJudge = false;
         }
 
-        OnJudge?.Invoke( hasJudge );
+        //Debug.Log( Globals.Timer.End );
         return hasJudge;
     }
 
@@ -97,6 +115,9 @@ public class Judgement : MonoBehaviour
         if ( _diff < -Bad )
         {
             missCount++;
+            missText.text = missCount.ToString();
+            OnJudge?.Invoke( JudgeType.Miss );
+
             return true;
         }
         else

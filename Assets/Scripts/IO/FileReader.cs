@@ -40,7 +40,7 @@ public abstract class FileReader : IDisposable
 
             streamReader = new StreamReader( @$"\\?\{_path}" );
         }
-        catch ( FileNotFoundException error ) { UnityEngine.Debug.LogError( $"The file could not be read : { error.Message }" ); }
+        catch ( FileNotFoundException _error ) { Debug.LogError( $"The file could not be read : { _error.Message }" ); }
     }
 
     // 한줄 읽기

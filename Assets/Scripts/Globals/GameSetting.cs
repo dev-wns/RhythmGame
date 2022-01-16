@@ -64,14 +64,14 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static Alignment      CurrentGearAlignment = Alignment.Center;
 
     // PPU
-    public static int PPU { get; private set; } = 100; // pixel per unit
+    public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static int OriginScrollSpeed = 45;
+    private static int OriginScrollSpeed = 15;
     public static float ScrollSpeed
     {
         
-        get { return OriginScrollSpeed * .001f; }
+        get { return OriginScrollSpeed * .0027f; }
         set
         {
             var speed = OriginScrollSpeed + Mathf.FloorToInt( value );
@@ -85,11 +85,12 @@ public class GameSetting : SingletonUnity<GameSetting>
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static float Weight { get { return ( 60f / NowPlaying.Inst.CurrentSong.medianBpm ) * ScrollSpeed; } }
+    public static float Weight      { get { return ( 60f / NowPlaying.Inst.CurrentSong.medianBpm ) * ScrollSpeed; } }
     public static float PreLoadTime { get { return ( 1500f / Weight ); } }
 
     // Sound
     public static float SoundPitch = 1f;
+    public static int   SoundOffset = 0;
 
     // Opacity
     public static float BGAOpacity   = 0f;
@@ -100,21 +101,21 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static readonly string FailedPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
 
     // Measure
-    public static float MeasureHeight { get; private set; } = 3f;
+    public static float MeasureHeight = 3f;
 
     // Jugdement
-    public static float JudgePos    { get; set; }         = -470f;
-    public static float JudgeHeight { get; private set; } = 100f; // scaleY
+    public static float JudgePos    = -530f;
+    public static float JudgeHeight = 100f; // scaleY
 
     // note
-    public static float NoteWidth { get; private set; }  = 80f;
-    public static float NoteHeight { get; private set; } = 30f;
-    public static float NoteBlank { get; private set; }  = 2f;
+    public static float NoteWidth  = 80f;
+    public static float NoteHeight = 30f;
+    public static float NoteBlank  = 2f;
     public static float NoteStartPos { get { return -( ( NoteWidth * 5f ) + ( NoteBlank * 7f ) ) * .5f; } }
 
     // Gear
     public static float GearStartPos { get { return ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f ); } }
-    public static float GearWidth { get { return ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
+    public static float GearWidth    { get { return (  ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
 
     public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
     private readonly KeyCode[] defaultKeys = new KeyCode[]

@@ -26,14 +26,13 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             else                 return songs.Count; 
         } 
     }
-    public int CurrentSongIndex { get; private set; }
-    public float MedianBpm { get { return CurrentSong.medianBpm; } }
+    public int CurrentSongIndex;
 
-    public static float Playback        { get; private set; } // 노래 재생 시간
-    public static float PlaybackChanged { get; private set; } // BPM 변화에 따른 노래 재생 시간
+    public static float Playback; // 노래 재생 시간
+    public static float PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
 
-    public bool IsPlaying    { get; private set; }
-    public bool IsMusicStart { get; private set; }
+    public bool IsPlaying;
+    public bool IsMusicStart;
     private readonly int waitTime = -3000;
 
     private void Awake()
@@ -54,9 +53,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( !IsPlaying ) return;
 
-        //Playback += Time.deltaTime * 1000f;
-        if ( !IsMusicStart ) Playback += Time.deltaTime * 1000f;
-        else                 Playback  = Globals.Timer.elapsedMilliSeconds;
+        Playback += Time.deltaTime * 1000f;
+        // if ( !IsMusicStart ) Playback += Time.deltaTime * 1000f;
+        // else Playback = Globals.Timer.elapsedMilliSeconds;
         PlaybackChanged = GetChangedTime( Playback );
     }
 
@@ -68,11 +67,11 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         SoundManager.Inst.PlayBgm( true );
         IsPlaying = true;
 
-        yield return new WaitUntil( () => Playback >= 0 );
+        yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset );
 
-        Globals.Timer.Start();
         SoundManager.Inst.PauseBgm( false );
         IsMusicStart = true;
+        //Playback = SoundManager.Inst.GetPosition();
     }
 
     public void Stop()
