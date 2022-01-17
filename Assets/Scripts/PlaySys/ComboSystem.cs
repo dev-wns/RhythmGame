@@ -5,12 +5,10 @@ using UnityEngine.UI;
 using UnityEngine.U2D;
 using DG.Tweening;
 
-public class ComboSystem : MonoBehaviour
+public class ComboSystem : NumberAtlasBase
 {
-    public SpriteAtlas atlas;
-    public Judgement judge;
-    private List<Image> images   = new List<Image>();
-    private List<Sprite> sprites = new List<Sprite>();
+    [Header( "System" )]
+    private Judgement judge;
     private int combo;
 
     private Tween comboTween, missComboTween;
@@ -18,19 +16,13 @@ public class ComboSystem : MonoBehaviour
     private readonly Color comboColor = new Color( 1f, 1f, 1f, .75f );
     private readonly Color missColor  = new Color( 1f, 0f, 0f, .75f );
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboImageUpdate;
 
-        images.AddRange( GetComponentsInChildren<Image>() );
-        images.Reverse();
         ComboImageUpdate( JudgeType.Miss );
-
-        Sprite[] spriteArray = new Sprite[atlas.spriteCount];
-        atlas.GetSprites( spriteArray );
-        sprites.AddRange( spriteArray );
-
-        sprites.Sort( ( Sprite A, Sprite B ) => A.name.CompareTo( B.name ) );
     }
 
     private void OnDestroy()
@@ -39,11 +31,6 @@ public class ComboSystem : MonoBehaviour
         missComboTween?.Kill();
     }
 
-    /// <summary>
-    /// GetSprite    : 2068 ms
-    /// CachedSprite : 14 ms
-    /// </summary>
-    /// <param name="_type"></param>
     private void ComboImageUpdate( JudgeType _type )
     {
         float calcCombo;
@@ -68,7 +55,6 @@ public class ComboSystem : MonoBehaviour
                          images[i].gameObject.SetActive( true );
 
                     images[i].sprite = sprites[( int )calcCombo % 10];
-                    //images[i].sprite = atlas.GetSprite( $"combo-{( int )calcCombo % 10}" );
                     calcCombo *= .1f;
                 }
 

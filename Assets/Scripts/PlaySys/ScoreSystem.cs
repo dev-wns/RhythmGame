@@ -4,32 +4,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.U2D;
 
-public class ScoreSystem : MonoBehaviour
+public class ScoreSystem : NumberAtlasBase
 {
+    [Header( "System" )]
     private InGame scene;
-    public SpriteAtlas atlas;
-    public Judgement judge;
+    private Judgement judge;
 
-    private List<Image> images = new List<Image>();
-    private List<Sprite> sprites = new List<Sprite>();
     private float currentScore;
-
     private float maxScore;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
+        
+        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreImageUpdate;
-
-        images.AddRange( GetComponentsInChildren<Image>() );
-        images.Reverse();
-
-        Sprite[] spriteArray = new Sprite[atlas.spriteCount];
-        atlas.GetSprites( spriteArray );
-        sprites.AddRange( spriteArray );
-
-        sprites.Sort( ( Sprite A, Sprite B ) => A.name.CompareTo( B.name ) );
     }
 
     private void Initialize( in Chart _chart )
@@ -73,7 +64,6 @@ public class ScoreSystem : MonoBehaviour
             if ( i == num ) break;
 
             images[i].sprite = sprites[( int )calcScore % 10];
-            //images[i].sprite = atlas.GetSprite( $"score-{( int )calcScore % 10}" );
             calcScore *= .1f;
         }
     }

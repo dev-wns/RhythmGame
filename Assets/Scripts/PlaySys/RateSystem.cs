@@ -5,26 +5,19 @@ using UnityEngine.UI;
 using UnityEngine.U2D;
 using TMPro;
 
-public class RateSystem : MonoBehaviour
+public class RateSystem : NumberAtlasBase
 {
-    public SpriteAtlas atlas;
-    public Judgement judge;
+    [Header( "System" )]
+    private Judgement judge;
 
-    public List<Image> images = new List<Image>();
-    private List<Sprite> sprites = new List<Sprite>();
     private int maxCount = 1;
     private int currentRate = 10000;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateImageUpdate;
-        images.Reverse();
-
-        Sprite[] spriteArray = new Sprite[atlas.spriteCount];
-        atlas.GetSprites( spriteArray );
-        sprites.AddRange( spriteArray );
-
-        sprites.Sort( ( Sprite A, Sprite B ) => A.name.CompareTo( B.name ) );
     }
 
     private void RateImageUpdate( JudgeType _type )
@@ -60,7 +53,6 @@ public class RateSystem : MonoBehaviour
                      images[i].gameObject.SetActive( true );
 
                 images[i].sprite = sprites[( int )calcRate % 10];
-                //images[i].sprite = atlas.GetSprite( $"rate-{( int )calcRate % 10}" );
                 calcRate *= .1f;
             }
         }

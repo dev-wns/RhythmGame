@@ -6,7 +6,7 @@ public class InputSystem : MonoBehaviour
 {
     public Lane lane;
     private InGame scene;
-    private Judgement judgement;
+    private Judgement judge;
 
     private Queue<NoteRenderer> notes = new Queue<NoteRenderer>();
     private NoteRenderer currentNote;
@@ -24,8 +24,8 @@ public class InputSystem : MonoBehaviour
 
     private void Awake()
     {
-        scene      = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        judgement  = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
         scene.OnGameStart += Initialize;
     }
@@ -63,13 +63,13 @@ public class InputSystem : MonoBehaviour
     private void CheckNote( bool _isInputDown )
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
-        var startType = judgement.GetJudgeType( startDiff );
+        var startType = judge.GetJudgeType( startDiff );
 
         if ( _isInputDown )
         {
             if ( startType != JudgeType.None && startType != JudgeType.Miss )
             {
-                judgement.OnJudgement( startType );
+                judge.OnJudgement( startType );
                 SelectNextNote();
             }
         }
@@ -77,7 +77,7 @@ public class InputSystem : MonoBehaviour
         // 마지막 판정까지 안눌렀을 때 ( Miss )
         if ( startType == JudgeType.Miss )
         {
-            judgement.OnJudgement( JudgeType.Miss );
+            judge.OnJudgement( JudgeType.Miss );
             SelectNextNote();
         }        
     }
@@ -87,8 +87,8 @@ public class InputSystem : MonoBehaviour
         float startDiff = currentNote.Time       - NowPlaying.Playback;
         float endDiff   = currentNote.SliderTime - NowPlaying.Playback;
 
-        var startType = judgement.GetJudgeType( startDiff );
-        var endType   = judgement.GetJudgeType( endDiff );
+        var startType = judge.GetJudgeType( startDiff );
+        var endType   = judge.GetJudgeType( endDiff );
 
 
         if ( !isHolding && _isInputDown )
@@ -97,14 +97,14 @@ public class InputSystem : MonoBehaviour
             {
                 isHolding = true;
                 currentNote.isHolding = true;
-                judgement.OnJudgement( startType );
+                judge.OnJudgement( startType );
             }
         }
         else if ( isHolding && _isInputHold )
         {
             if ( endType == JudgeType.Miss ) 
             {
-                judgement.OnJudgement( JudgeType.Miss );
+                judge.OnJudgement( JudgeType.Miss );
 
                 SelectNextNote();
                 return;
@@ -113,7 +113,7 @@ public class InputSystem : MonoBehaviour
             playback += Time.deltaTime;
             if ( playback > .1f )
             {
-                judgement.OnJudgement( JudgeType.None );
+                judge.OnJudgement( JudgeType.None );
                 playback = 0f;
             }
         }
@@ -122,14 +122,14 @@ public class InputSystem : MonoBehaviour
             if ( endType != JudgeType.None && endType != JudgeType.Miss )
             {
                 // 판정 범위 안에서 키 뗏을 때
-                judgement.OnJudgement( endType );
+                judge.OnJudgement( endType );
 
                 SelectNextNote();
             }
             else if ( endType == JudgeType.None )
             {
                 // 판정 범위 밖에서 키 뗏을 때
-                judgement.OnJudgement( JudgeType.Miss );
+                judge.OnJudgement( JudgeType.Miss );
 
                 currentNote.SetBodyFail();
                 sliderMissQueue.Enqueue( currentNote );
@@ -141,7 +141,7 @@ public class InputSystem : MonoBehaviour
         // 롱노트 시작부분 처리 못했을 때
         if ( !isHolding && startType == JudgeType.Miss ) 
         {
-            judgement.OnJudgement( JudgeType.Miss );
+            judge.OnJudgement( JudgeType.Miss );
 
             currentNote.SetBodyFail();
             sliderMissQueue.Enqueue( currentNote );
@@ -171,7 +171,7 @@ public class InputSystem : MonoBehaviour
         {
             var slider = sliderMissQueue.Peek();
             float endDiff = slider.SliderTime - NowPlaying.Playback;
-            if ( judgement.GetJudgeType( endDiff ) == JudgeType.Miss )
+            if ( judge.GetJudgeType( endDiff ) == JudgeType.Miss )
             {
                 slider.Despawn();
                 sliderMissQueue.Dequeue();
