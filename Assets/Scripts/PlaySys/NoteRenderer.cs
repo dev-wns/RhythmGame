@@ -17,9 +17,9 @@ public class NoteRenderer : MonoBehaviour
     private float column { get; set; }
     private float newTime;
 
-    private static readonly Color MiddleColor = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
-    private static readonly Color BodyColor   = new Color( .4f, .4f, .4f, 1f );
-    private Color currentColor;
+    private static readonly Color MiddleColor   = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
+    private static readonly Color BodyColor     = new Color( .4f, .4f, .4f, 1f );
+    private static readonly Color BodyFailColor = new Color( .15f, .15f, .15f, 1f );
 
     private void Awake()
     {
@@ -59,20 +59,10 @@ public class NoteRenderer : MonoBehaviour
         if ( _lane == 1 || _lane == 4 ) head.color = MiddleColor;
         else                            head.color = Color.white;
 
-        body.color   = BodyColor;
-        currentColor = head.color;
+        body.color = BodyColor;
     }
-    
-    public void SetAlpha( float _alpha )
-    {
-        Color headColor = currentColor;
-        headColor.a = _alpha;
-        head.color = headColor;
 
-        Color bodyColor = BodyColor;
-        bodyColor.a = _alpha;
-        body.color = bodyColor;
-    }
+    public void SetBodyFail() => body.color = BodyFailColor;
 
     private void ScaleUpdate()
     {

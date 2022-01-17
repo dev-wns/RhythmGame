@@ -26,6 +26,12 @@ public class ComboSystem : MonoBehaviour
         ComboImageUpdate( JudgeType.Miss );
     }
 
+    private void OnDestroy()
+    {
+        comboTween?.Kill();
+        missComboTween?.Kill();
+    }
+
     private void ComboImageUpdate( JudgeType _type )
     {
         float calcCombo;
@@ -49,7 +55,7 @@ public class ComboSystem : MonoBehaviour
                     if ( !images[i].gameObject.activeInHierarchy )
                          images[i].gameObject.SetActive( true );
 
-                    images[i].sprite = atlas.GetSprite( $"score-{( int )calcCombo % 10}" );
+                    images[i].sprite = atlas.GetSprite( $"combo-{( int )calcCombo % 10}" );
                     calcCombo *= .1f;
                 }
 
@@ -63,17 +69,17 @@ public class ComboSystem : MonoBehaviour
                 combo = 0;
 
                 images[0].gameObject.SetActive( true );
-                images[0].sprite = atlas.GetSprite( $"score-0" );
+                images[0].sprite = atlas.GetSprite( $"combo-0" );
                 for ( int i = 1; i < images.Count; i++ )
                 {
                     if ( images[i].gameObject.activeInHierarchy )
                          images[i].gameObject.SetActive( false );
                 }
 
-                images[0].color      = missColor;
+                //images[0].color      = missColor;
                 transform.localScale = Vector3.one;
-                missComboTween?.Kill();
-                missComboTween = images[0].DOColor( comboColor, .085f );
+                //missComboTween?.Kill();
+                //missComboTween = images[0].DOColor( comboColor, .085f );
             } break;
         }
     }

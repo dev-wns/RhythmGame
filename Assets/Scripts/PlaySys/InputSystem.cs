@@ -131,7 +131,7 @@ public class InputSystem : MonoBehaviour
                 // 판정 범위 밖에서 키 뗏을 때
                 judgement.OnJudgement( JudgeType.Miss );
 
-                currentNote.SetAlpha( .5f );
+                currentNote.SetBodyFail();
                 sliderMissQueue.Enqueue( currentNote );
                 SelectNextNote( false );
             }
@@ -143,7 +143,7 @@ public class InputSystem : MonoBehaviour
         {
             judgement.OnJudgement( JudgeType.Miss );
 
-            currentNote.SetAlpha( .5f );
+            currentNote.SetBodyFail();
             sliderMissQueue.Enqueue( currentNote );
             SelectNextNote( false );
         }
@@ -163,10 +163,13 @@ public class InputSystem : MonoBehaviour
 
         if ( currentNote.IsSlider ) CheckSlider( isInputDown, isInputHold, isInputUp );
         else                        CheckNote( isInputDown );
+    }
 
+    private void LateUpdate()
+    {
         if ( sliderMissQueue.Count > 0 )
         {
-            var slider    = sliderMissQueue.Peek();
+            var slider = sliderMissQueue.Peek();
             float endDiff = slider.SliderTime - NowPlaying.Playback;
             if ( judgement.GetJudgeType( endDiff ) == JudgeType.Miss )
             {

@@ -11,11 +11,6 @@ public class SongInfomation : OptionButton
     public void SetInfo( Song _song )
     {
         song = _song;
-
-        System.Text.StringBuilder builder = new System.Text.StringBuilder();
-        builder.Capacity = _song.artist.Length + 8 + _song.creator.Length;
-        builder.Append( _song.artist ).Append( " // " ).Append( _song.creator );
-
         title.text = _song.title;
         artist.text = _song.artist;
     }
