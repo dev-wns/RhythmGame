@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class NoteRenderer : MonoBehaviour
 {
     private NoteSystem system;
@@ -17,6 +16,10 @@ public class NoteRenderer : MonoBehaviour
 
     private float column { get; set; }
     private float newTime;
+
+    private static readonly Color MiddleColor = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
+    private static readonly Color BodyColor   = new Color( .4f, .4f, .4f, 1f );
+    private Color currentColor;
 
     private void Awake()
     {
@@ -53,8 +56,22 @@ public class NoteRenderer : MonoBehaviour
         }
 
         ScaleUpdate();
-        if ( _lane == 1 || _lane == 4 ) head.color = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
+        if ( _lane == 1 || _lane == 4 ) head.color = MiddleColor;
         else                            head.color = Color.white;
+
+        body.color   = BodyColor;
+        currentColor = head.color;
+    }
+    
+    public void SetAlpha( float _alpha )
+    {
+        Color headColor = currentColor;
+        headColor.a = _alpha;
+        head.color = headColor;
+
+        Color bodyColor = BodyColor;
+        bodyColor.a = _alpha;
+        body.color = bodyColor;
     }
 
     private void ScaleUpdate()

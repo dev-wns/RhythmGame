@@ -131,6 +131,7 @@ public class InputSystem : MonoBehaviour
                 // 판정 범위 밖에서 키 뗏을 때
                 judgement.OnJudgement( JudgeType.Miss );
 
+                currentNote.SetAlpha( .5f );
                 sliderMissQueue.Enqueue( currentNote );
                 SelectNextNote( false );
             }
@@ -142,6 +143,7 @@ public class InputSystem : MonoBehaviour
         {
             judgement.OnJudgement( JudgeType.Miss );
 
+            currentNote.SetAlpha( .5f );
             sliderMissQueue.Enqueue( currentNote );
             SelectNextNote( false );
         }

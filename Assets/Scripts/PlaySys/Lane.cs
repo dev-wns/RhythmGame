@@ -9,8 +9,8 @@ public class Lane : MonoBehaviour
     public InputSystem InputSys { get; private set; }
 
     private SpriteRenderer laneEffect;
-    private static Color LaneColorRed  = new Color( 1f, 0f, 0f, .15f );
-    private static Color LaneColorBlue = new Color( 0f, 0f, 1f, .15f );
+    private static readonly Color LaneColorRed  = new Color( 1f, 0f, 0f, .25f );
+    private static readonly Color LaneColorBlue = new Color( 0f, 0f, 1f, .25f );
 
     private Color color;
 
