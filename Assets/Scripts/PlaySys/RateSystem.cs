@@ -9,7 +9,6 @@ public class RateSystem : MonoBehaviour
 {
     public SpriteAtlas atlas;
     public Judgement judge;
-    public TextMeshProUGUI text;
 
     public List<Image> images = new List<Image>();
     private int maxCount = 1;
@@ -18,26 +17,23 @@ public class RateSystem : MonoBehaviour
     private void Awake()
     {
         judge.OnJudge += RateImageUpdate;
-
-        //images.AddRange( GetComponentsInChildren<Image>() );
         images.Reverse();
     }
 
     private void RateImageUpdate( JudgeType _type )
     {
+        if ( _type == JudgeType.None ) return;
+
         int addRate = 0;
         switch ( _type )
         {
-            case JudgeType.None:                  break;
             case JudgeType.Kool: addRate = 10000; break; // 100%
-            case JudgeType.Cool: addRate = 9000;  break; // 70%
-            case JudgeType.Good: addRate = 8000;  break; // 50%
-            case JudgeType.Bad:  addRate = 7000;  break; // 20%
+            case JudgeType.Cool: addRate = 9000;  break; // 90%
+            case JudgeType.Good: addRate = 8000;  break; // 80%
+            case JudgeType.Bad:  addRate = 7000;  break; // 70%
             case JudgeType.Miss: addRate = 0;     break; // 0%
         }
-
-        if ( _type != JudgeType.None )
-             ++maxCount;
+        ++maxCount;
 
         currentRate += addRate;
 
