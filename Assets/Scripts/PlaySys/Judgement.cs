@@ -11,9 +11,9 @@ public class Judgement : MonoBehaviour
     private RectTransform rt;
 
     private const float Kool = 22f;
-    private const float Cool = 20f + Kool;
-    private const float Good = 18f + Cool;
-    private const float Bad  = 16f + Good;
+    private const float Cool = 24f + Kool;
+    private const float Good = 26f + Cool;
+    private const float Bad  = 28f + Good;
 
     private int koolCount, coolCount, goodCount, badCount, missCount;
     public TextMeshProUGUI koolText, coolText, goodText, badText, missText;
@@ -73,6 +73,7 @@ public class Judgement : MonoBehaviour
     {
         switch ( _type )
         {
+            case JudgeType.None: break;
             case JudgeType.Kool:
             {
                 koolCount++;

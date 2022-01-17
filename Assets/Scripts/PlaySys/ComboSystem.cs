@@ -14,6 +14,9 @@ public class ComboSystem : MonoBehaviour
 
     private Tween comboTween, missComboTween;
 
+    private readonly Color comboColor = new Color( 1f, 1f, 1f, .75f );
+    private readonly Color missColor  = new Color( 1f, 0f, 0f, .75f );
+
     private void Awake()
     {
         judge.OnJudge += ComboImageUpdate;
@@ -28,6 +31,7 @@ public class ComboSystem : MonoBehaviour
         float calcCombo;
         switch ( _type )
         {
+            case JudgeType.None:
             case JudgeType.Kool:
             case JudgeType.Cool:
             case JudgeType.Good:
@@ -66,10 +70,10 @@ public class ComboSystem : MonoBehaviour
                          images[i].gameObject.SetActive( false );
                 }
 
-                images[0].color      = Color.red;
+                images[0].color      = missColor;
                 transform.localScale = Vector3.one;
                 missComboTween?.Kill();
-                missComboTween = images[0].DOColor( Color.white, .085f );
+                missComboTween = images[0].DOColor( comboColor, .085f );
             } break;
         }
     }

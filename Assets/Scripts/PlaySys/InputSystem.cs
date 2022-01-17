@@ -44,11 +44,12 @@ public class InputSystem : MonoBehaviour
 
     private void SelectNextNote( bool _isDespawn = true )
     {
+        playback = 0f;
         isHolding = false;
         currentNote.isHolding = false;
 
         if ( _isDespawn )
-            currentNote.Despawn();
+             currentNote.Despawn();
 
         if ( notes.Count > 0 )
              currentNote = notes.Dequeue();
@@ -78,8 +79,7 @@ public class InputSystem : MonoBehaviour
         {
             judgement.OnJudgement( JudgeType.Miss );
             SelectNextNote();
-        }
-        
+        }        
     }
 
     private void CheckSlider( bool _isInputDown, bool _isInputHold, bool _isInputUp )
@@ -104,8 +104,6 @@ public class InputSystem : MonoBehaviour
         {
             if ( endType == JudgeType.Miss ) 
             {
-                isHolding = false;
-                currentNote.isHolding = false;
                 judgement.OnJudgement( JudgeType.Miss );
 
                 SelectNextNote();
@@ -113,9 +111,9 @@ public class InputSystem : MonoBehaviour
             }
 
             playback += Time.deltaTime;
-            if ( playback > .25f )
+            if ( playback > .1f )
             {
-                //GameManager.Combo++;
+                judgement.OnJudgement( JudgeType.None );
                 playback = 0f;
             }
         }
@@ -124,8 +122,6 @@ public class InputSystem : MonoBehaviour
             if ( endType != JudgeType.None && endType != JudgeType.Miss )
             {
                 // 판정 범위 안에서 키 뗏을 때
-                isHolding = false;
-                currentNote.isHolding = false;
                 judgement.OnJudgement( endType );
 
                 SelectNextNote();
@@ -133,8 +129,6 @@ public class InputSystem : MonoBehaviour
             else if ( endType == JudgeType.None )
             {
                 // 판정 범위 밖에서 키 뗏을 때
-                isHolding = false;
-                currentNote.isHolding = false;
                 judgement.OnJudgement( JudgeType.Miss );
 
                 sliderMissQueue.Enqueue( currentNote );
@@ -146,20 +140,11 @@ public class InputSystem : MonoBehaviour
         // 롱노트 시작부분 처리 못했을 때
         if ( !isHolding && startType == JudgeType.Miss ) 
         {
-            isHolding = false;
-            currentNote.isHolding = false;
             judgement.OnJudgement( JudgeType.Miss );
 
             sliderMissQueue.Enqueue( currentNote );
             SelectNextNote( false );
         }
-
-        //if ( judgement.IsMiss( endDiff ) )
-        //{
-        //    isHolding = false;
-        //    currentNote.isHolding = false;
-        //    SelectNextNote();
-        //}
     }
 
     private void Update()
