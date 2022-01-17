@@ -11,6 +11,7 @@ public class RateSystem : MonoBehaviour
     public Judgement judge;
 
     public List<Image> images = new List<Image>();
+    private List<Sprite> sprites = new List<Sprite>();
     private int maxCount = 1;
     private int currentRate = 10000;
 
@@ -18,6 +19,12 @@ public class RateSystem : MonoBehaviour
     {
         judge.OnJudge += RateImageUpdate;
         images.Reverse();
+
+        Sprite[] spriteArray = new Sprite[atlas.spriteCount];
+        atlas.GetSprites( spriteArray );
+        sprites.AddRange( spriteArray );
+
+        sprites.Sort( ( Sprite A, Sprite B ) => A.name.CompareTo( B.name ) );
     }
 
     private void RateImageUpdate( JudgeType _type )
@@ -45,14 +52,15 @@ public class RateSystem : MonoBehaviour
             if ( i >= num )
             {
                 if ( images[i].gameObject.activeInHierarchy )
-                    images[i].gameObject.SetActive( false );
+                     images[i].gameObject.SetActive( false );
             }
             else
             {
                 if ( !images[i].gameObject.activeInHierarchy )
-                    images[i].gameObject.SetActive( true );
+                     images[i].gameObject.SetActive( true );
 
-                images[i].sprite = atlas.GetSprite( $"rate-{( int )calcRate % 10}" );
+                images[i].sprite = sprites[( int )calcRate % 10];
+                //images[i].sprite = atlas.GetSprite( $"rate-{( int )calcRate % 10}" );
                 calcRate *= .1f;
             }
         }

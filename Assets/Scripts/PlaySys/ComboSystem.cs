@@ -9,7 +9,8 @@ public class ComboSystem : MonoBehaviour
 {
     public SpriteAtlas atlas;
     public Judgement judge;
-    private List<Image> images = new List<Image>();
+    private List<Image> images   = new List<Image>();
+    private List<Sprite> sprites = new List<Sprite>();
     private int combo;
 
     private Tween comboTween, missComboTween;
@@ -24,6 +25,12 @@ public class ComboSystem : MonoBehaviour
         images.AddRange( GetComponentsInChildren<Image>() );
         images.Reverse();
         ComboImageUpdate( JudgeType.Miss );
+
+        Sprite[] spriteArray = new Sprite[atlas.spriteCount];
+        atlas.GetSprites( spriteArray );
+        sprites.AddRange( spriteArray );
+
+        sprites.Sort( ( Sprite A, Sprite B ) => A.name.CompareTo( B.name ) );
     }
 
     private void OnDestroy()
@@ -32,6 +39,11 @@ public class ComboSystem : MonoBehaviour
         missComboTween?.Kill();
     }
 
+    /// <summary>
+    /// GetSprite    : 2068 ms
+    /// CachedSprite : 14 ms
+    /// </summary>
+    /// <param name="_type"></param>
     private void ComboImageUpdate( JudgeType _type )
     {
         float calcCombo;
@@ -55,7 +67,8 @@ public class ComboSystem : MonoBehaviour
                     if ( !images[i].gameObject.activeInHierarchy )
                          images[i].gameObject.SetActive( true );
 
-                    images[i].sprite = atlas.GetSprite( $"combo-{( int )calcCombo % 10}" );
+                    images[i].sprite = sprites[( int )calcCombo % 10];
+                    //images[i].sprite = atlas.GetSprite( $"combo-{( int )calcCombo % 10}" );
                     calcCombo *= .1f;
                 }
 
