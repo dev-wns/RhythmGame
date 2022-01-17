@@ -62,35 +62,52 @@ public class InputSystem : MonoBehaviour
     private void CheckNote( bool _isInputDown )
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
+        var startType = judgement.GetJudgeType( startDiff );
+
         if ( _isInputDown )
         {
-            if ( judgement.IsCalculated( startDiff ) )
-                 SelectNextNote();
+            if ( startType != JudgeType.None && startType != JudgeType.Miss )
+            {
+                judgement.OnJudgement( startType );
+                SelectNextNote();
+            }
         }
-        else
+
+        // 마지막 판정까지 안눌렀을 때 ( Miss )
+        if ( startType == JudgeType.Miss )
         {
-            // 마지막 판정까지 안눌렀을 때 ( Miss )
-            if ( judgement.IsMiss( startDiff ) )
-                 SelectNextNote();
+            judgement.OnJudgement( JudgeType.Miss );
+            SelectNextNote();
         }
+        
     }
 
     private void CheckSlider( bool _isInputDown, bool _isInputHold, bool _isInputUp )
     {
-        float startDiff = currentNote.Time - NowPlaying.Playback;
+        float startDiff = currentNote.Time       - NowPlaying.Playback;
         float endDiff   = currentNote.SliderTime - NowPlaying.Playback;
+
+        var startType = judgement.GetJudgeType( startDiff );
+        var endType   = judgement.GetJudgeType( endDiff );
+
+
         if ( !isHolding && _isInputDown )
         {
-            if ( judgement.IsCalculated( startDiff ) )
+            if ( startType != JudgeType.None && startType != JudgeType.Miss )
             {
                 isHolding = true;
                 currentNote.isHolding = true;
+                judgement.OnJudgement( startType );
             }
         }
         else if ( isHolding && _isInputHold )
         {
-            if ( judgement.IsMiss( endDiff ) )
+            if ( endType == JudgeType.Miss ) 
             {
+                isHolding = false;
+                currentNote.isHolding = false;
+                judgement.OnJudgement( JudgeType.Miss );
+
                 SelectNextNote();
                 return;
             }
@@ -104,27 +121,45 @@ public class InputSystem : MonoBehaviour
         }
         else if ( isHolding && _isInputUp )
         {
-            if ( judgement.IsCalculated( endDiff ) )
+            if ( endType != JudgeType.None && endType != JudgeType.Miss )
             {
+                // 판정 범위 안에서 키 뗏을 때
                 isHolding = false;
                 currentNote.isHolding = false;
+                judgement.OnJudgement( endType );
+
                 SelectNextNote();
             }
-            else if ( judgement.IsMiss( endDiff ) )
+            else if ( endType == JudgeType.None )
             {
+                // 판정 범위 밖에서 키 뗏을 때
+                isHolding = false;
+                currentNote.isHolding = false;
+                judgement.OnJudgement( JudgeType.Miss );
+
                 sliderMissQueue.Enqueue( currentNote );
                 SelectNextNote( false );
             }
             return;
         }
 
-        // 마지막 판정까지 안눌렀을 때 ( Miss )
-        if ( judgement.IsMiss( endDiff ) )
+        // 롱노트 시작부분 처리 못했을 때
+        if ( !isHolding && startType == JudgeType.Miss ) 
         {
             isHolding = false;
             currentNote.isHolding = false;
-            SelectNextNote();
+            judgement.OnJudgement( JudgeType.Miss );
+
+            sliderMissQueue.Enqueue( currentNote );
+            SelectNextNote( false );
         }
+
+        //if ( judgement.IsMiss( endDiff ) )
+        //{
+        //    isHolding = false;
+        //    currentNote.isHolding = false;
+        //    SelectNextNote();
+        //}
     }
 
     private void Update()
@@ -144,9 +179,9 @@ public class InputSystem : MonoBehaviour
 
         if ( sliderMissQueue.Count > 0 )
         {
-            var slider = sliderMissQueue.Peek();
-            float endDiff = ( slider.SliderTime - NowPlaying.Playback );
-            if ( judgement.IsMiss( endDiff ) )
+            var slider    = sliderMissQueue.Peek();
+            float endDiff = slider.SliderTime - NowPlaying.Playback;
+            if ( judgement.GetJudgeType( endDiff ) == JudgeType.Miss )
             {
                 slider.Despawn();
                 sliderMissQueue.Dequeue();

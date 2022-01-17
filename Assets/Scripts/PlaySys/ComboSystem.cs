@@ -50,7 +50,7 @@ public class ComboSystem : MonoBehaviour
 
                 DOTween.Kill( transform );
                 transform.localScale = new Vector3( .75f, .75f, 1f );
-                transform.DOScale( Vector3.one, .1f );
+                transform.DOScale( Vector3.one, .085f );
             } break;
 
             case JudgeType.Miss:
@@ -64,6 +64,11 @@ public class ComboSystem : MonoBehaviour
                     if ( images[i].gameObject.activeInHierarchy )
                          images[i].gameObject.SetActive( false );
                 }
+
+                //DOTween.Kill( images[0] );
+                transform.localScale = Vector3.one;
+                //images[0].color = Color.red;
+                //images[0].DOColor( Color.white, .085f );
             } break;
         }
     }

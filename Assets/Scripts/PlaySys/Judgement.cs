@@ -3,21 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public enum JudgeType { Kool, Cool, Good, Bad, Miss }
+public enum JudgeType { None, Kool, Cool, Good, Bad, Miss }
 
 public class Judgement : MonoBehaviour
 {
     public BpmChanger bpmChanger;
     private RectTransform rt;
 
-    private const float Kool = 28f;
-    private const float Cool = 26f + Kool;
-    private const float Good = 24f + Cool;
-    private const float Bad  = 22f + Good;
+    private const float Kool = 22f;
+    private const float Cool = 20f + Kool;
+    private const float Good = 18f + Cool;
+    private const float Bad  = 16f + Good;
 
-    private int slowCount, fastCount;
     private int koolCount, coolCount, goodCount, badCount, missCount;
-    public TextMeshProUGUI slowText, fastText;
     public TextMeshProUGUI koolText, coolText, goodText, badText, missText;
     public RectTransform koolImage, coolImage, goodImage, badImage;
     public bool isShowRange = true;
@@ -31,8 +29,6 @@ public class Judgement : MonoBehaviour
         rt.anchoredPosition = new Vector3( 0f, GameSetting.JudgePos, -1f );
         rt.sizeDelta = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
 
-        //bpmChanger.OnBpmChange += OnBpmChanged;
-
         if ( !GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowJudge ) )
         {
             koolImage.gameObject.SetActive( false );
@@ -44,7 +40,7 @@ public class Judgement : MonoBehaviour
         koolImage.anchoredPosition = rt.anchoredPosition;
         coolImage.anchoredPosition = rt.anchoredPosition;
         goodImage.anchoredPosition = rt.anchoredPosition;
-        badImage.anchoredPosition = rt.anchoredPosition;
+        badImage.anchoredPosition  = rt.anchoredPosition;
 
         koolImage.sizeDelta = coolImage.sizeDelta = goodImage.sizeDelta = badImage.sizeDelta = 
             new Vector3( rt.sizeDelta.x, ( float )Screen.width / ( float )Screen.height, 1f );
@@ -61,68 +57,54 @@ public class Judgement : MonoBehaviour
         }
     }
 
-    public bool IsCalculated( float _diff )
+    public JudgeType GetJudgeType( float _diff )
     {
-        //Globals.Timer.Start();
-        bool hasJudge = true;
         float diffAbs = _diff >= 0 ? _diff : -_diff;
 
-        if ( diffAbs >= 0f && diffAbs <= Kool )
-        {
-            OnJudge?.Invoke( JudgeType.Kool );
-            koolCount++;
-            koolText.text = koolCount.ToString();
-        }
-        else if ( diffAbs > Kool && diffAbs <= Cool )
-        {
-            OnJudge?.Invoke( JudgeType.Cool );
-            coolCount++;
-            coolText.text = coolCount.ToString();
-
-            if ( _diff >= 0 ) fastText.text = ( ++fastCount ).ToString();
-            else              slowText.text = ( ++slowCount ).ToString();
-        }
-        else if ( diffAbs > Cool && diffAbs <= Good )
-        {
-            OnJudge?.Invoke( JudgeType.Good );
-            goodCount++;
-            goodText.text = goodCount.ToString();
-
-            if ( _diff >= 0 ) fastText.text = ( ++fastCount ).ToString();
-            else slowText.text = ( ++slowCount ).ToString();
-
-        }
-        else if ( diffAbs > Good && diffAbs <= Bad )
-        {
-            OnJudge?.Invoke( JudgeType.Bad );
-            badCount++;
-            badText.text = badCount.ToString();
-
-            if ( _diff >= 0 ) fastText.text = ( ++fastCount ).ToString();
-            else slowText.text = ( ++slowCount ).ToString();
-        }
-        else
-        {
-            hasJudge = false;
-        }
-
-        //Debug.Log( Globals.Timer.End );
-        return hasJudge;
+        if ( diffAbs <= Kool )                        return JudgeType.Kool;
+        else if ( diffAbs > Kool && diffAbs <= Cool ) return JudgeType.Cool;
+        else if ( diffAbs > Cool && diffAbs <= Good ) return JudgeType.Good;
+        else if ( diffAbs > Good && diffAbs <= Bad  ) return JudgeType.Bad;
+        else if ( _diff < -Bad )                      return JudgeType.Miss;
+        else                                          return JudgeType.None;
     }
 
-    public bool IsMiss( float _diff )
+    public void OnJudgement( JudgeType _type )
     {
-        if ( _diff < -Bad )
+        switch ( _type )
         {
-            missCount++;
-            missText.text = missCount.ToString();
-            OnJudge?.Invoke( JudgeType.Miss );
+            case JudgeType.Kool:
+            {
+                koolCount++;
+                koolText.text = koolCount.ToString();
+            }
+            break;
 
-            return true;
+            case JudgeType.Cool:
+            {
+                coolCount++;
+                coolText.text = coolCount.ToString();
+            } break;
+
+            case JudgeType.Good:
+            {
+                goodCount++;
+                goodText.text = goodCount.ToString();
+            } break;
+
+            case JudgeType.Bad:
+            {
+                badCount++;
+                badText.text = badCount.ToString();
+            } break;
+
+            case JudgeType.Miss:
+            {
+                missCount++;
+                missText.text = missCount.ToString();
+            } break;
         }
-        else
-        {
-            return false;
-        }
+
+        OnJudge?.Invoke( _type );
     }
 }
