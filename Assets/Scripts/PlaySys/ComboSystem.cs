@@ -12,13 +12,14 @@ public class ComboSystem : MonoBehaviour
     private List<Image> images = new List<Image>();
     private int combo;
 
+    private Tween comboTween, missComboTween;
+
     private void Awake()
     {
         judge.OnJudge += ComboImageUpdate;
 
         images.AddRange( GetComponentsInChildren<Image>() );
         images.Reverse();
-
         ComboImageUpdate( JudgeType.Miss );
     }
 
@@ -48,9 +49,9 @@ public class ComboSystem : MonoBehaviour
                     calcCombo *= .1f;
                 }
 
-                DOTween.Kill( transform );
                 transform.localScale = new Vector3( .75f, .75f, 1f );
-                transform.DOScale( Vector3.one, .085f );
+                comboTween?.Kill();
+                comboTween = transform.DOScale( Vector3.one, .085f );
             } break;
 
             case JudgeType.Miss:
@@ -65,10 +66,10 @@ public class ComboSystem : MonoBehaviour
                          images[i].gameObject.SetActive( false );
                 }
 
-                //DOTween.Kill( images[0] );
+                images[0].color      = Color.red;
                 transform.localScale = Vector3.one;
-                //images[0].color = Color.red;
-                //images[0].DOColor( Color.white, .085f );
+                missComboTween?.Kill();
+                missComboTween = images[0].DOColor( Color.white, .085f );
             } break;
         }
     }
