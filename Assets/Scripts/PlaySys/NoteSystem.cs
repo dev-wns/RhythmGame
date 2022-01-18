@@ -12,6 +12,7 @@ public class NoteSystem : MonoBehaviour
     public NoteRenderer nPrefab;
 
     private List<Note> notes = new List<Note>();
+    private Note currentNote;
     private int currentIndex;
 
     private void Awake()
@@ -19,7 +20,7 @@ public class NoteSystem : MonoBehaviour
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         CurrentScene.OnGameStart += () => StartCoroutine( Process() );
 
-        nPool        = new ObjectPool<NoteRenderer>( nPrefab, 10 );
+        nPool = new ObjectPool<NoteRenderer>( nPrefab, 10 );
     }
 
     public void AddNote( Note _note ) => notes.Add( _note );
@@ -30,24 +31,32 @@ public class NoteSystem : MonoBehaviour
     {
         float slidertime = 0f;
         float notetime = 0f;
+
+        if( notes.Count > 0 )
+            currentNote = notes[currentIndex];
+
         while ( currentIndex < notes.Count )
         {
-            Note curNote = notes[currentIndex];
-            yield return new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+            if ( currentNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime )
+            {
+                if ( currentNote.isSlider ) slidertime = currentNote.sliderTime;
 
-            if ( curNote.isSlider ) slidertime = curNote.sliderTime;
+                if ( currentIndex + 1 < notes.Count && ( slidertime > notes[currentIndex + 1].time ||
+                                                         notetime == notes[currentIndex + 1].time ) )
+                {
+                    Debug.LogError( "overlab " );
+                }
 
-            if ( currentIndex + 1 < notes.Count && ( slidertime > notes[currentIndex + 1].time ||
-                                                     notetime == notes[currentIndex + 1].time ) )
-            { 
-                Debug.LogError( "overlab " );
+                NoteRenderer note = nPool.Spawn();
+                note.SetInfo( lane.Key, this, in currentNote );
+
+                lane.InputSys.Enqueue( note );
+
+                if ( ++currentIndex < notes.Count )
+                     currentNote = notes[currentIndex];
             }
 
-            NoteRenderer note = nPool.Spawn();
-            note.SetInfo( lane.Key, this, in curNote );
-            
-            lane.InputSys.Enqueue( note );
-            currentIndex++;
+            yield return null;
         }
     } 
 }

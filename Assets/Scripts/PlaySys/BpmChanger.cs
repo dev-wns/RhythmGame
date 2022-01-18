@@ -8,7 +8,8 @@ public class BpmChanger : MonoBehaviour
 {
     private InGame scene;
     private List<Timing> timings = new List<Timing>();
-    private int timingIndex;
+    private int currentIndex;
+    private float changeTime;
     private float currentBpm;
 
     public delegate void DelBpmChange( float _bpm );
@@ -30,15 +31,21 @@ public class BpmChanger : MonoBehaviour
 
     private IEnumerator Process()
     {
-        while ( timingIndex < timings.Count )
+        if ( timings.Count > 0 )
+             changeTime = timings[currentIndex].time;
+
+        while ( currentIndex < timings.Count )
         {
-            float changeTime = timings[timingIndex].time;
-            yield return new WaitUntil( () => NowPlaying.Playback >= changeTime );
+            if ( changeTime <= NowPlaying.Playback )
+            {
+                currentBpm = timings[currentIndex].bpm;
+                OnBpmChange?.Invoke( currentBpm );
 
-            currentBpm = timings[timingIndex++].bpm;
-            OnBpmChange?.Invoke( currentBpm );
+                if ( ++currentIndex < timings.Count )
+                    changeTime = timings[currentIndex].time;
+            }
+
+            yield return null;
         }
-
-        yield return null;
     }
 }

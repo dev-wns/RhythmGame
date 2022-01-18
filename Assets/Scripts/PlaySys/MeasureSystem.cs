@@ -13,6 +13,7 @@ public class MeasureSystem : MonoBehaviour
     // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
     private List<float> measures = new List<float>();
     private int currentIndex;
+    private float currentTime;
 
     private float playback, bpms;
 
@@ -92,15 +93,21 @@ public class MeasureSystem : MonoBehaviour
 
     private IEnumerator Process()
     {
-        while ( currentIndex < measures.Count - 1 )
+        if ( measures.Count > 0 )
+             currentTime = measures[currentIndex];
+
+        while ( currentIndex < measures.Count )
         {
-            float curTime = measures[currentIndex];
-            yield return new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+            if ( currentTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime )
+            {
+                MeasureRenderer measure = mPool.Spawn();
+                measure.SetInfo( this, currentTime );
 
-            MeasureRenderer measure = mPool.Spawn();
-            measure.SetInfo( this, curTime );
+                if ( ++currentIndex < measures.Count )
+                     currentTime = measures[currentIndex];
+            }
 
-            currentIndex++;
+            yield return null;
         }
     }
 }
