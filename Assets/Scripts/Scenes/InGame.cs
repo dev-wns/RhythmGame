@@ -15,7 +15,6 @@ public class InGame : Scene
     {
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
         OnGameStart();
-
         NowPlaying.Inst.Play();
     }
 

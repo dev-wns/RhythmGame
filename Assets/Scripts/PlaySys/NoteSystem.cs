@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class NoteSystem : MonoBehaviour
 {
-    [HideInInspector]
-    public Lane lane;
     public InGame CurrentScene { get; private set; }
+    private Lane lane;
 
     private ObjectPool<NoteRenderer> nPool;
     public NoteRenderer nPrefab;
@@ -17,6 +16,7 @@ public class NoteSystem : MonoBehaviour
 
     private void Awake()
     {
+        lane = GetComponent<Lane>();
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         CurrentScene.OnGameStart += () => StartCoroutine( Process() );
 

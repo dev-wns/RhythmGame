@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class InputSystem : MonoBehaviour
 {
-    [HideInInspector]
-    public Lane lane;
+    private Lane lane;
     private InGame scene;
     private Judgement judge;
 
@@ -27,15 +26,21 @@ public class InputSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        scene.OnGameStart += Initialize;
+
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
-        scene.OnGameStart += Initialize;
+        lane  = GetComponent<Lane>(); 
+        lane.OnLaneInitialize += LaneInitialize;
+    }
+
+    private void LaneInitialize( int _key ) 
+    {
+        key = ( GameKeyAction )_key; 
     }
 
     private void Initialize()
     {
-        key = ( GameKeyAction )lane.Key;
-
         StartCoroutine( NoteSelect() );
     }
 
@@ -163,7 +168,8 @@ public class InputSystem : MonoBehaviour
         bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
         bool isInputUp   = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
 
-        if ( isInputDown )    OnInputEvent?.Invoke( true );
+        if ( isInputDown )    
+            OnInputEvent?.Invoke( true );
         else if ( isInputUp ) OnInputEvent?.Invoke( false );
 
         if ( sliderMissQueue.Count > 0 )

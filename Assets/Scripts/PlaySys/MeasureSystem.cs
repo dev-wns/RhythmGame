@@ -20,11 +20,9 @@ public class MeasureSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-
-        mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
-
         scene.OnSystemInitialize += Initialize;
         scene.OnGameStart += () => StartCoroutine( Process() );
+        mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
     }
 
     public void Despawn( MeasureRenderer _obj ) => mPool.Despawn( _obj );

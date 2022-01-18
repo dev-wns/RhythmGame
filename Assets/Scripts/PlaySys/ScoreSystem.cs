@@ -16,7 +16,7 @@ public class ScoreSystem : NumberAtlasBase
         base.Awake();
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
-        
+
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreImageUpdate;
     }

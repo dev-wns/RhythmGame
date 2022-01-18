@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,14 +13,13 @@ public class BpmChanger : MonoBehaviour
     private float changeTime;
     private float currentBpm;
 
-    public delegate void DelBpmChange( float _bpm );
-    public event DelBpmChange OnBpmChange;
+    public event Action<float/* bpm */> OnBpmChange;
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>(); 
         scene.OnSystemInitialize += Initialize;
-        scene.OnGameStart        += StartProcess;
+        scene.OnGameStart += StartProcess;
     }
 
     private void Initialize( in Chart _chart )
