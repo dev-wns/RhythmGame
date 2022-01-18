@@ -13,7 +13,6 @@ public class Judgement : MonoBehaviour
     public const float Bad  = 28f + Good;
 
     private int koolCount, coolCount, goodCount, badCount, missCount;
-    public TextMeshProUGUI koolText, coolText, goodText, badText, missText;
 
     public delegate void DelJudge( JudgeType _type );
     public event DelJudge OnJudge;
@@ -47,32 +46,27 @@ public class Judgement : MonoBehaviour
             case JudgeType.Kool:
             {
                 koolCount++;
-                koolText.text = koolCount.ToString();
             }
             break;
 
             case JudgeType.Cool:
             {
                 coolCount++;
-                coolText.text = coolCount.ToString();
             } break;
 
             case JudgeType.Good:
             {
                 goodCount++;
-                goodText.text = goodCount.ToString();
             } break;
 
             case JudgeType.Bad:
             {
                 badCount++;
-                badText.text = badCount.ToString();
             } break;
 
             case JudgeType.Miss:
             {
                 missCount++;
-                missText.text = missCount.ToString();
             } break;
         }
 

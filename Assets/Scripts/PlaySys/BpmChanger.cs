@@ -7,7 +7,6 @@ using TMPro;
 public class BpmChanger : MonoBehaviour
 {
     private InGame scene;
-    public TextMeshProUGUI bpmText;
     private List<Timing> timings = new List<Timing>();
     private int timingIndex;
     private float currentBpm;
@@ -37,7 +36,6 @@ public class BpmChanger : MonoBehaviour
             yield return new WaitUntil( () => NowPlaying.Playback >= changeTime );
 
             currentBpm = timings[timingIndex++].bpm;
-            bpmText.text = $"{Mathf.RoundToInt( currentBpm )} BPM";
             OnBpmChange?.Invoke( currentBpm );
         }
 
