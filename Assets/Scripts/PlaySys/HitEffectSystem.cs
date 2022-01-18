@@ -4,15 +4,23 @@ using UnityEngine;
 
 public class HitEffectSystem : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private InputSystem inputSystem;
+    private ObjectPool<HitEffect> ePool;
+    public HitEffect ePrefab;
+
+    private void Awake()
     {
-        
+        inputSystem = GetComponent<InputSystem>();
+        inputSystem.OnHitNote += HitEffectSpawn;
+
+        ePool = new ObjectPool<HitEffect>( ePrefab, 10 );
     }
 
-    // Update is called once per frame
-    void Update()
+    private void HitEffectSpawn()
     {
-        
+        var hitEffect = ePool.Spawn();
+        hitEffect.SetInfo( this );
     }
+
+    public void Despawn( HitEffect _hitEffect ) => ePool.Despawn( _hitEffect );
 }

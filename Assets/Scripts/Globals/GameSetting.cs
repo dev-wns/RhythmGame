@@ -67,7 +67,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static int OriginScrollSpeed = 15;
+    private static int OriginScrollSpeed = 14;
     public static float ScrollSpeed
     {
         
@@ -104,7 +104,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 3f;
 
     // Jugdement
-    public static float JudgePos    = -530f;
+    public static float JudgePos    = -520f;
     public static float JudgeHeight = 100f; // scaleY
 
     // note

@@ -71,7 +71,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         SoundManager.Inst.PauseBgm( false );
         IsMusicStart = true;
-        //Playback = SoundManager.Inst.GetPosition();
+        Playback = SoundManager.Inst.GetPosition();
     }
 
     public void Stop()

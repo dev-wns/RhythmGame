@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class NoteSystem : MonoBehaviour
 {
-    public InGame CurrentScene { get; private set; }
+    [HideInInspector]
     public Lane lane;
+    public InGame CurrentScene { get; private set; }
 
     private ObjectPool<NoteRenderer> nPool;
     public NoteRenderer nPrefab;
@@ -16,14 +17,15 @@ public class NoteSystem : MonoBehaviour
     private void Awake()
     {
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        nPool = new ObjectPool<NoteRenderer>( nPrefab, 5 );
-
         CurrentScene.OnGameStart += () => StartCoroutine( Process() );
+
+        nPool        = new ObjectPool<NoteRenderer>( nPrefab, 10 );
     }
 
     public void AddNote( Note _note ) => notes.Add( _note );
 
     public void Despawn( NoteRenderer _note ) => nPool.Despawn( _note );
+
     private IEnumerator Process()
     {
         float slidertime = 0f;

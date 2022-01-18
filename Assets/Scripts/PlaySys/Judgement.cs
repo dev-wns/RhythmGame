@@ -29,12 +29,14 @@ public class Judgement : MonoBehaviour
     {
         float diffAbs = _diff >= 0 ? _diff : -_diff;
 
+
         if ( diffAbs <= Kool )                        return JudgeType.Kool;
         else if ( diffAbs > Kool && diffAbs <= Cool ) return JudgeType.Cool;
         else if ( diffAbs > Cool && diffAbs <= Good ) return JudgeType.Good;
         else if ( diffAbs > Good && diffAbs <= Bad  ) return JudgeType.Bad;
         else if ( _diff < -Bad )                      return JudgeType.Miss;
         else                                          return JudgeType.None;
+        
     }
 
     public void OnJudgement( JudgeType _type )

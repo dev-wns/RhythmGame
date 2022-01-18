@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MeasureRenderer : MonoBehaviour
 {
-    public MeasureSystem system;
+    private MeasureSystem system;
     private float time;
 
     private SpriteRenderer rdr;
@@ -19,13 +19,13 @@ public class MeasureRenderer : MonoBehaviour
     private void Awake()
     {
         rdr = GetComponent<SpriteRenderer>();
-        transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
+        transform.localScale = new Vector2( GameSetting.GearWidth, GameSetting.MeasureHeight );
     }
 
     private void LateUpdate()
     {
         var pos = GameSetting.JudgePos + ( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight );
-        transform.position = new Vector3( 0, pos, 3f );
+        transform.position = new Vector2( 0, pos );
 
         if ( pos <= GameSetting.JudgePos )
         {
