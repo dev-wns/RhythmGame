@@ -12,23 +12,29 @@ public class HitEffectSystem : NumberAtlasBase
     private float playback;
     private int currentIndex = 0;
     private bool isStop;
+    private static float depth;
+    private static Color halfAlpha = new Color( 1f, 1f, 1f, .75f );
 
     protected override void Awake()
     {
         base.Awake();
         rdr         = GetComponent<SpriteRenderer>();
         inputSystem = GetComponentInParent<InputSystem>();
-        inputSystem.OnInputEvent += HitEffect;
+        inputSystem.OnHitNote += HitEffect;
 
         changeTime = lifeTime / sprites.Count;
+        rdr.color = Color.clear;
     }
 
-    private void HitEffect( bool a )
+    private void HitEffect()
     {
         playback = 0f;
         currentIndex = 0;
         rdr.sprite = sprites[currentIndex];
         isStop = false;
+
+        transform.localPosition = new Vector3( 0f, 0f, depth -= .00001f );
+        rdr.color = halfAlpha;
     }
 
     private void Update()
@@ -44,7 +50,10 @@ public class HitEffectSystem : NumberAtlasBase
                 playback = 0;
             }
             else
+            {
                 isStop = true;
+                rdr.color = Color.clear;
+            }
         }
     }
 }
