@@ -33,9 +33,9 @@ public class HitEffect : MonoBehaviour
 
     private void Update()
     {
-        time += Time.deltaTime;
+        //time += Time.deltaTime;
 
-        if ( time > lifeTime )
-            system.Despawn( this );
+        //if ( time > lifeTime )
+            //system.Despawn( this );
     }
 }

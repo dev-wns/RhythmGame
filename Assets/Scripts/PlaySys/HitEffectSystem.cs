@@ -2,25 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HitEffectSystem : MonoBehaviour
+public class HitEffectSystem : NumberAtlasBase
 {
     private InputSystem inputSystem;
-    private ObjectPool<HitEffect> ePool;
-    public HitEffect ePrefab;
+    private SpriteRenderer rdr;
+    private readonly float lifeTime = .5f;
+    
+    private float changeTime;
+    private float playback;
+    private int currentIndex = 0;
+    private bool isStop;
 
-    private void Awake()
+    protected override void Awake()
     {
-        inputSystem = GetComponent<InputSystem>();
-        inputSystem.OnHitNote += HitEffectSpawn;
+        base.Awake();
+        rdr         = GetComponent<SpriteRenderer>();
+        inputSystem = GetComponentInParent<InputSystem>();
+        inputSystem.OnInputEvent += HitEffect;
 
-        ePool = new ObjectPool<HitEffect>( ePrefab, 10 );
+        changeTime = lifeTime / sprites.Count;
     }
 
-    private void HitEffectSpawn()
+    private void HitEffect( bool a )
     {
-        var hitEffect = ePool.Spawn();
-        hitEffect.SetInfo( this );
+        playback = 0f;
+        currentIndex = 0;
+        rdr.sprite = sprites[currentIndex];
+        isStop = false;
     }
 
-    public void Despawn( HitEffect _hitEffect ) => ePool.Despawn( _hitEffect );
+    private void Update()
+    {
+        if ( isStop ) return;
+
+        playback += Time.deltaTime;
+        if ( playback >= changeTime )
+        {
+            if ( currentIndex + 1 < sprites.Count )
+            {
+                rdr.sprite = sprites[++currentIndex];
+                playback = 0;
+            }
+            else
+                isStop = true;
+        }
+    }
 }
