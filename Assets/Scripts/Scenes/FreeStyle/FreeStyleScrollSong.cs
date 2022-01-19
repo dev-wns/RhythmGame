@@ -11,6 +11,7 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     private Song currentSong;
     private float playback;
+    private float soundLength;
     private uint previewTime;
     private readonly uint waitPreviewTime = 500;
 
@@ -32,11 +33,11 @@ public class FreeStyleScrollSong : SceneScrollOption
     {
         playback += Time.deltaTime * 1000f;
 
-        if ( SoundManager.Inst.Length + waitPreviewTime < playback &&
+        if ( soundLength + waitPreviewTime < playback &&
              !SoundManager.Inst.IsPlaying( ChannelGroupType.BGM ) )
         {
             SoundManager.Inst.PlayBgm();
-            SoundManager.Inst.SetPosition( GetPreviewTime() );
+            SoundManager.Inst.Position = GetPreviewTime();
             playback = previewTime;
         }
     }
@@ -74,26 +75,23 @@ public class FreeStyleScrollSong : SceneScrollOption
     private void OptionProcess()
     {
         NowPlaying.Inst.SelectSong( currentIndex );
-
         currentSong = NowPlaying.Inst.CurrentSong;
-        Globals.Timer.Start();
-        {
-            OnSelectSong( currentSong );
+        soundLength = currentSong.totalTime;
 
-            SoundManager.Inst.LoadBgm( currentSong.audioPath, SoundLoadType.Stream );
-            SoundManager.Inst.PlayBgm();
-        }
-        Debug.Log( $"Select Song {Globals.Timer.End} ms" );
+        OnSelectSong( currentSong );
+
+        SoundManager.Inst.LoadBgm( currentSong.audioPath, false, true, false );
+        SoundManager.Inst.PlayBgm();
 
         previewTime = GetPreviewTime();
-        SoundManager.Inst.SetPosition( previewTime );
+        SoundManager.Inst.Position = previewTime;
         playback = previewTime;
     }
 
     private uint GetPreviewTime()
     {
         int time = currentSong.previewTime;
-        if ( time <= 0 ) return ( uint )( SoundManager.Inst.Length * 0.3141592f );
+        if ( time <= 0 ) return ( uint )( soundLength * 0.3141592f );
         else             return ( uint )currentSong.previewTime;
     }
 

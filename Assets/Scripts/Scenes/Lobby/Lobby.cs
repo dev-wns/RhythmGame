@@ -9,7 +9,7 @@ public class Lobby : Scene
     public GameObject optionCanvas;
     public GameObject exitCanvas;
 
-    private float playback;
+    private float playback, soundLength;
     private bool isStart = false;
 
     protected override void Awake()
@@ -22,11 +22,11 @@ public class Lobby : Scene
 
     private void SoundReStart()
     {
-        SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName + ".mp3"}",
-                                   SoundLoadType.Default, SoundPlayMode.Loop );
+        SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName + ".mp3"}", true, false, true );
         SoundManager.Inst.PlayBgm( true );
-        SoundManager.Inst.SetPosition( ( uint )playback );
-        SoundManager.Inst.PauseBgm( false );
+        SoundManager.Inst.Position = ( uint )playback;
+        soundLength = SoundManager.Inst.Length;
+        SoundManager.Inst.Pause = false;
     }
 
     protected override void Update()
@@ -35,7 +35,7 @@ public class Lobby : Scene
         if ( !isStart ) return;
 
         playback += Time.deltaTime * 1000f;
-        if( playback >= SoundManager.Inst.Length )
+        if( playback >= soundLength )
             playback = 0;
     }
 

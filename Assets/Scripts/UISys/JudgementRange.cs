@@ -29,7 +29,7 @@ public class JudgementRange : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( isShow && NowPlaying.Inst.IsMusicStart )
+        if ( isShow && NowPlaying.Playback > 0 )
         {
             float weight = GameSetting.Weight;
             koolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Mathf.Abs( NowPlaying.Playback - Judgement.Kool ) ) ) * weight, 1f );

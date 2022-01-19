@@ -9,9 +9,7 @@ public class AudioVisualizer : MonoBehaviour
     private FMOD.DSP dsp;
     public FMOD.DSP_FFT_WINDOW type = FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS;
     public SpectrumSize size        = SpectrumSize._4096;
-
-    public delegate void DelUpdateSpectrums( float[] _values, float _offset );
-    public event DelUpdateSpectrums UpdateSpectrums;
+    public event System.Action<float[] /* values */, float /* offset */> UpdateSpectrums;
 
     private void Awake()
     {

@@ -1,9 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public enum SoundLoadType { Default, Stream }
-public enum SoundPlayMode { Default, Loop }
 public enum ChannelGroupType { Master, BGM, KeySound, Sfx, Count };
 public enum SoundSfxType { Move, Return, Escape, Increase, Decrease }
 
@@ -35,19 +32,111 @@ public class SoundManager : SingletonUnity<SoundManager>
     public List<SoundDriver> soundDrivers { get; private set; } = new List<SoundDriver>();
     public int CurrentDriverIndex { get { return currentDriverIndex; } }
     private int currentDriverIndex;
-    private int numDriver;
-    private uint version;
 
-    public uint Length { get { return length; } }
-    private uint length;
+    public uint Position
+    {
+        get
+        {
+            if ( !IsPlaying( ChannelGroupType.BGM ) )
+            {
+                Debug.LogError( "bgm is not playing" );
+                throw new System.Exception( "bgm is not playing" );
+            }
 
-    public float Pitch { get; private set; } = 1f;
+            uint pos;
+            ErrorCheck( bgmChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
+            return pos;
+        }
+
+        set
+        {
+            if ( !IsPlaying( ChannelGroupType.BGM ) )
+            {
+                Debug.LogError( "bgm is not playing" );
+                throw new System.Exception( "bgm is not playing" );
+            }
+            
+            ErrorCheck( bgmChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
+        }
+    }
+    public float Pitch
+    {
+        get
+        {
+            if ( !IsPlaying( ChannelGroupType.BGM ) )
+            {
+                Debug.LogError( "bgm is not playing" );
+                throw new System.Exception( "bgm is not playing" );
+            }
+
+            float pitch;
+            ErrorCheck( bgmChannel.getPitch( out pitch ) );
+            return pitch;
+        }
+
+        set
+        {
+            if ( !IsPlaying( ChannelGroupType.BGM ) )
+            {
+                Debug.LogError( "bgm is not playing" );
+                throw new System.Exception( "bgm is not playing" );
+            }
+
+            float pitch = value;
+            if ( pitch < minPitch ) pitch = minPitch;
+            if ( pitch > maxPitch ) pitch = maxPitch;
+
+            ErrorCheck( bgmChannel.setPitch( pitch ) );
+        }
+    }
+    public bool Pause
+    {
+        get
+        {
+            if ( !bgmSound.hasHandle() || !IsPlaying( ChannelGroupType.BGM ) )
+            {
+                Debug.LogError( "bgm is not loaded or is not Playing." );
+                throw new System.Exception( "bgm is not loaded or is not Playing." );
+            }
+
+            bool isPause;
+            ErrorCheck( bgmChannel.getPaused( out isPause ) );
+            return isPause;
+        }
+
+        set
+        {
+            if ( !bgmSound.hasHandle() || !IsPlaying( ChannelGroupType.BGM ) )
+            {
+                Debug.LogError( "bgm is not loaded or is not Playing." );
+                throw new System.Exception( "bgm is not loaded or is not Playing." );
+            }
+        
+            ErrorCheck( bgmChannel.setPaused( value ) );
+        }
+    }
+    public uint Length
+    {
+        get
+        {
+            if ( !hasAccurateTime && !bgmSound.hasHandle() )
+            {
+                Debug.LogError( $"Doesn't have AccurateTime Flag. or BGM is not playing" );
+                return 0;
+            }
+
+            uint length;
+            ErrorCheck( bgmSound.getLength( out length, FMOD.TIMEUNIT.MS ) );
+            return length;
+        }
+    }
+    private bool hasAccurateTime = false;
+
     public readonly float minPitch = .7f, maxPitch = 1.3f;
 
     private float volume;
 
-    public delegate void DelSoundSystemReLoad();
-    public event DelSoundSystemReLoad OnSoundSystemReLoad;
+    public event System.Action OnSoundSystemReLoad;
     public bool IsLoad { get; private set; } = false;
     #endregion
 
@@ -76,12 +165,13 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         System.IntPtr extraDriverData = new System.IntPtr();
         ErrorCheck( system.init( maxChannelSize, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
-
+        uint version;
         ErrorCheck( system.getVersion( out version ) );
         if ( version < FMOD.VERSION.number )
             Debug.LogError( "using the old version." );
 
         // Sound Driver
+        int numDriver;
         ErrorCheck( system.getNumDrivers( out numDriver ) );
         for ( int i = 0; i < numDriver; i++ )
         {
@@ -189,7 +279,6 @@ public class SoundManager : SingletonUnity<SoundManager>
     private void OnApplicationQuit() => Release();
     #endregion
 
-    #region System
     public void SetDriver( int _index )
     {
         int curIndex;
@@ -203,28 +292,20 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.setDriver( _index ) );
         currentDriverIndex = _index;
     }
-    #endregion
 
     #region Load
-    public void LoadBgm( string _path, SoundLoadType _type = SoundLoadType.Default, SoundPlayMode _mode = SoundPlayMode.Default )
+    public void LoadBgm( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
     {
-        FMOD.MODE mode;
-        switch ( _mode )
-        {
-            case SoundPlayMode.Default: { mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME; } break;
-            case SoundPlayMode.Loop:    { mode = FMOD.MODE.LOOP_NORMAL | FMOD.MODE.ACCURATETIME; }  break;
-            default:                    { mode = FMOD.MODE.CREATESAMPLE | FMOD.MODE.ACCURATETIME; } break;
-        }
+        Globals.Timer.Start();
+        hasAccurateTime = _hasAccurateTime;
+
+        FMOD.MODE mode = FMOD.MODE.CREATESAMPLE;
+        mode = _hasAccurateTime ? mode |= FMOD.MODE.ACCURATETIME : mode;
+        mode = _isLoop          ? mode |= FMOD.MODE.LOOP_NORMAL  : mode |= FMOD.MODE.LOOP_OFF;
+        mode = _isStream        ? mode |= ( mode &= ~FMOD.MODE.CREATESAMPLE ) | FMOD.MODE.CREATESTREAM | FMOD.MODE.LOWMEM : mode;
 
         FMOD.Sound sound;
-        switch ( _type )
-        {
-            case SoundLoadType.Default: { ErrorCheck( system.createSound( _path, mode, out sound ) ); }  break;
-            case SoundLoadType.Stream:  { ErrorCheck( system.createStream( _path, mode, out sound ) ); } break;
-            default:                    { ErrorCheck( system.createSound( _path, mode, out sound ) ); }  break;
-        }
-
-        ErrorCheck( sound.getLength( out length, FMOD.TIMEUNIT.MS ) );
+        ErrorCheck( system.createSound( _path, mode, out sound ) ); 
 
         if ( bgmSound.hasHandle() )
         {
@@ -232,6 +313,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             bgmSound.clearHandle();
         }
         bgmSound = sound;
+        Debug.Log( $"Sound Load {Globals.Timer.End} ms" );
     }
 
     private void LoadSfx( SoundSfxType _type, string _path )
@@ -258,7 +340,6 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         ErrorCheck( system.playSound( sfxSound[_type], Groups[ChannelGroupType.Sfx], false, out sfxChannel ) );
-        ErrorCheck( sfxChannel.setPriority( 0 ) );
     }
 
     public void PlayBgm( bool _isPause = false )
@@ -272,81 +353,6 @@ public class SoundManager : SingletonUnity<SoundManager>
         Stop( ChannelGroupType.BGM );
 
         ErrorCheck( system.playSound( bgmSound, Groups[ChannelGroupType.BGM], _isPause, out bgmChannel ) );
-    }
-
-    public void PauseBgm( bool _isPause )
-    {
-        if ( !bgmSound.hasHandle() || !IsPlaying( ChannelGroupType.BGM ) )
-        {
-            Debug.LogError( "bgm is not loaded or is not Playing." );
-            return;
-        }
-
-        ErrorCheck( bgmChannel.setPaused( _isPause ) );
-    }
-
-    public void SetPosition( uint _pos )
-    {
-        if ( !IsPlaying( ChannelGroupType.BGM ) )
-        {
-            Debug.LogError( "bgm is not playing" );
-            return;
-        }
-
-        ErrorCheck( bgmChannel.setPosition( _pos, FMOD.TIMEUNIT.MS ) );
-    }
-
-    public uint GetPosition()
-    {
-        if ( !IsPlaying( ChannelGroupType.BGM ) )
-        {
-            Debug.LogError( "bgm is not playing" );
-            return 0;
-        }
-
-        uint pos;
-        ErrorCheck( bgmChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
-        return pos;
-    }
-
-    public void SetPitch( float _value )
-    {
-        if ( !IsPlaying( ChannelGroupType.BGM ) )
-        {
-            Debug.LogError( "bgm is not playing" );
-            return;
-        }
-
-        int value = Mathf.RoundToInt( _value * 10f );
-        if ( value < ( minPitch * 10 ) || 
-             value > ( maxPitch * 10 ) )
-        {
-            Debug.LogWarning( $"pitch range {minPitch} ~ {maxPitch}, param : {_value}" );
-            return;
-        }
-
-        ErrorCheck( bgmChannel.setPitch( _value ) );
-        Pitch = _value;
-    }
-
-    public void Stop( ChannelGroupType _type )
-    {
-        if ( !Groups.ContainsKey( _type ) )
-        {
-            Debug.LogError( $"The channel group key could not be found. : {_type}" );
-            return;
-        }
-
-        ErrorCheck( Groups[_type].stop() );
-    }
-
-    public void AllStop()
-    {
-        foreach( var group in Groups )
-        {
-            if ( IsPlaying( group.Key ) ) 
-                 Stop( group.Key );
-        }
     }
     #endregion
 
@@ -392,6 +398,25 @@ public class SoundManager : SingletonUnity<SoundManager>
         if ( _value > 1f ) volume = 1f;
 
         ErrorCheck( Groups[_type].setVolume( volume ) );
+    }
+    public void Stop( ChannelGroupType _type )
+    {
+        if ( !Groups.ContainsKey( _type ) )
+        {
+            Debug.LogError( $"The channel group key could not be found. : {_type}" );
+            return;
+        }
+
+        ErrorCheck( Groups[_type].stop() );
+    }
+
+    public void AllStop()
+    {
+        foreach ( var group in Groups )
+        {
+            if ( IsPlaying( group.Key ) )
+                ErrorCheck( group.Value.stop() );
+        }
     }
     #endregion
 

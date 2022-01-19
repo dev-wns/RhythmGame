@@ -32,7 +32,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public static float PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
 
     public bool IsPlaying;
-    public bool IsMusicStart;
     private readonly int waitTime = -3000;
 
     private void Awake()
@@ -54,8 +53,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         if ( !IsPlaying ) return;
 
         Playback += Time.deltaTime * 1000f;
-        // if ( !IsMusicStart ) Playback += Time.deltaTime * 1000f;
-        // else Playback = Globals.Timer.elapsedMilliSeconds;
         PlaybackChanged = GetChangedTime( Playback );
     }
 
@@ -63,25 +60,19 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator MusicStart()
     {
-        SoundManager.Inst.LoadBgm( CurrentSong.audioPath );
+        SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
         SoundManager.Inst.PlayBgm( true );
         IsPlaying = true;
 
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset );
 
-        SoundManager.Inst.PauseBgm( false );
-        IsMusicStart = true;
-        Playback = SoundManager.Inst.GetPosition();
-    }
-
-    public void Stop()
-    {
-        IsPlaying = IsMusicStart = false;
+        SoundManager.Inst.Pause = false;
+        Playback = SoundManager.Inst.Position;
     }
 
     public void ChartUpdate()
     {
-        IsPlaying = IsMusicStart = false;
+        IsPlaying = false;
         Playback = waitTime; 
         PlaybackChanged = 0;
 
