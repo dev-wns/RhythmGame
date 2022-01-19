@@ -16,6 +16,7 @@ public class InGame : Scene
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
         OnGameStart();
         NowPlaying.Inst.Play();
+        Debug.Log( NowPlaying.Inst.CurrentSong.medianBpm );
     }
 
     public override void KeyBind()

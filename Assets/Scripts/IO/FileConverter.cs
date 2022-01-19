@@ -148,6 +148,7 @@ public class FileConverter : FileReader
 
             // [TimingPoints]
             double prevBPM = 0d;
+            float prevTime = 0f;
             song.timingCount = 0;
             while ( ReadLine() != "[HitObjects]" )
             {
@@ -164,19 +165,22 @@ public class FileConverter : FileReader
                 double BPM = 1d / beatLength * 60000d;
 
                 if ( isUninherited ) prevBPM = BPM;
-                else BPM = ( prevBPM * 100d ) / beatLength; // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
+                else                 BPM = ( prevBPM * 100d ) / beatLength; // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
 
                 if ( song.minBpm > BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
-                if ( song.maxBpm < BPM ) song.maxBpm = ( int )BPM;
+                if ( song.maxBpm < BPM )                     song.maxBpm = ( int )BPM;
 
                 float time = float.Parse( splitDatas[0] );
-                if ( song.timingCount == 0 ) time = -5000f;
 
                 song.timingCount++;
 
-                chart.timings.Add( new Timing( time, ( float )BPM ) );
+                if ( chart.timings.Count > 0 && prevTime == time ) 
+                     chart.timings[chart.timings.Count - 1].bpm = ( float )BPM;
+                else                    
+                    chart.timings.Add( new Timing( time, ( float )BPM ) );
+
+                prevTime = time;
             }
-            song.medianBpm = ( int )GetMedianBpm( chart.timings );
 
             // [HitObjects]
             song.noteCount = 0;
@@ -188,7 +192,7 @@ public class FileConverter : FileReader
 
                 song.totalTime = int.Parse( splitDatas[2] );
                 
-                int note       = int.Parse( splitDatas[3] );
+                int note = int.Parse( splitDatas[3] );
                 if ( note == 128 ) song.sliderCount++;
                 else song.noteCount++;
 
@@ -208,6 +212,11 @@ public class FileConverter : FileReader
                 chart.notes.Add( new Note( lane, time, GetChangedTime( time, chart ),
                                                  sliderTime, GetChangedTime( sliderTime, chart ), isSlider ) );
             }
+
+            song.medianBpm = ( int )GetMedianBpm( chart );
+
+            if ( song.timingCount > 0 )
+                chart.timings[0].time = -5000f;
 
             Write( song, chart );
         }
@@ -300,14 +309,24 @@ public class FileConverter : FileReader
         }
     }
 
-    private float GetMedianBpm( List<Timing> timings )
+    private float GetMedianBpm( Chart _chart )
     {
+        if ( path.Contains( "oriens" ) )
+            Debug.Log( " " );
+
+        List<Timing> timings = _chart.timings;
+        timings[0].time = _chart.notes[0].time;
+        timings.Add( new Timing( _chart.notes[_chart.notes.Count - 1].time, _chart.timings[_chart.timings.Count - 1].bpm ) );
+
         List<Timing> medianCalc = new List<Timing>();
-        medianCalc.Add( new Timing( 0f, timings[0].bpm ) );
+        medianCalc.Add( timings[0] );
         for ( int i = 1; i < timings.Count; i++ )
         {
             float prevTime = timings[i - 1].time;
             float prevBpm = timings[i - 1].bpm;
+
+            if ( prevTime == timings[i].time )
+                Debug.Log( $"{prevBpm} {path}" );
 
             bool isFind = false;
             for ( int j = 0; j < medianCalc.Count; j++ )
@@ -324,9 +343,9 @@ public class FileConverter : FileReader
 
         medianCalc.Sort( delegate ( Timing A, Timing B )
         {
-            if ( A.time < B.time ) return 1;
+            if ( A.time < B.time )      return 1;
             else if ( A.time > B.time ) return -1;
-            else return 0;
+            else                        return 0;
         } );
 
         //return 1f / medianCalc[0].bpm * 60000f;

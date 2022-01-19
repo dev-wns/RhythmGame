@@ -39,6 +39,7 @@ public class BpmChanger : MonoBehaviour
             if ( changeTime <= NowPlaying.Playback )
             {
                 currentBpm = timings[currentIndex].bpm;
+                Debug.Log( $"Current Bpm : {currentBpm}" );
                 OnBpmChange?.Invoke( currentBpm );
 
                 if ( ++currentIndex < timings.Count )

@@ -35,11 +35,25 @@ public class BackgroundSystem : MonoBehaviour
         bool isExist = System.IO.File.Exists( _path );
         if ( isExist )
         {
-            UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path );
-            yield return www.SendWebRequest();
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path ) )
+            {
+                www.method = UnityWebRequest.kHttpVerbGET;
+                using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
+                {
+                    www.downloadHandler = handler;
+                    yield return www.SendWebRequest();
 
-            Texture2D tex = ( ( DownloadHandlerTexture )www.downloadHandler ).texture;
-            sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+                    if ( www.result == UnityWebRequest.Result.ConnectionError ||
+                         www.result == UnityWebRequest.Result.ProtocolError )
+                    {
+                        Debug.LogError( $"UnityWebRequest Error : {www.error}" );
+                        throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
+                    }
+
+                    Texture2D tex = handler.texture;
+                    sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+                }
+            }
         }
         else sprite = defaultSprite;
 
