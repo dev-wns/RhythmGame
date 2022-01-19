@@ -123,8 +123,6 @@ public class FileParser : FileReader
                 note.time           = float.Parse( split[1] );
                 note.sliderTime     = float.Parse( split[2] );
                 note.isSlider       = bool.Parse( split[3] );
-                note.calcTime       = float.Parse( split[4] );
-                note.calcSliderTime = float.Parse( split[5] );
 
                 _chart.notes.Add( note );
             }

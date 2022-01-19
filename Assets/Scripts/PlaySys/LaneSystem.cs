@@ -51,7 +51,10 @@ public class LaneSystem : MonoBehaviour
                     Note newNote = notes[i];
                     if ( hasNoSliderMod ) 
                          newNote.isSlider = false;
-                    
+
+                    newNote.calcTime       = NowPlaying.GetChangedTime( newNote.time );
+                    newNote.calcSliderTime = NowPlaying.GetChangedTime( newNote.sliderTime );
+
                     lanes[notes[i].line].NoteSys.AddNote( newNote );
                 }
                 break;
@@ -108,9 +111,12 @@ public class LaneSystem : MonoBehaviour
                         {
                             Note newNote = column[j].note.Value;
 
+                            newNote.calcTime       = NowPlaying.GetChangedTime( newNote.time );
+                            newNote.calcSliderTime = NowPlaying.GetChangedTime( newNote.sliderTime );
+
                             if ( hasNoSliderMod ) 
                                  newNote.isSlider = false;
-                            
+
                             lanes[j].NoteSys.AddNote( newNote );
                         }
 

@@ -209,8 +209,7 @@ public class FileConverter : FileReader
 
                 float time = int.Parse( splitDatas[2] );
                 int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6f / 512f );
-                chart.notes.Add( new Note( lane, time, GetChangedTime( time, chart ),
-                                                 sliderTime, GetChangedTime( sliderTime, chart ), isSlider ) );
+                chart.notes.Add( new Note( lane, time, 0f, sliderTime, 0f, isSlider ) );
             }
 
             song.medianBpm = ( int )GetMedianBpm( chart );
@@ -286,9 +285,7 @@ public class FileConverter : FileReader
                         text.Append( _chart.notes[i].line ).Append( "," );
                         text.Append( _chart.notes[i].time ).Append( "," );
                         text.Append( _chart.notes[i].sliderTime ).Append( "," );
-                        text.Append( _chart.notes[i].isSlider ).Append( "," );
-                        text.Append( _chart.notes[i].calcTime ).Append( "," );
-                        text.Append( _chart.notes[i].calcSliderTime );
+                        text.Append( _chart.notes[i].isSlider );
 
                         writer.WriteLine( text );
                     }
@@ -311,9 +308,6 @@ public class FileConverter : FileReader
 
     private float GetMedianBpm( Chart _chart )
     {
-        if ( path.Contains( "oriens" ) )
-            Debug.Log( " " );
-
         List<Timing> timings = _chart.timings;
         timings[0].time = _chart.notes[0].time;
         timings.Add( new Timing( _chart.notes[_chart.notes.Count - 1].time, _chart.timings[_chart.timings.Count - 1].bpm ) );
@@ -324,9 +318,6 @@ public class FileConverter : FileReader
         {
             float prevTime = timings[i - 1].time;
             float prevBpm = timings[i - 1].bpm;
-
-            if ( prevTime == timings[i].time )
-                Debug.Log( $"{prevBpm} {path}" );
 
             bool isFind = false;
             for ( int j = 0; j < medianCalc.Count; j++ )
@@ -350,22 +341,5 @@ public class FileConverter : FileReader
 
         //return 1f / medianCalc[0].bpm * 60000f;
         return medianCalc[0].bpm;
-    }
-
-    private float GetChangedTime( float _time, Chart chart ) // BPM 변화에 따른 시간 계산
-    {
-        double newTime = _time;
-        double prevBpm = 0d;
-        for ( int i = 0; i < chart.timings.Count; i++ )
-        {
-            double time = chart.timings[i].time;
-            double bpm = chart.timings[i].bpm;
-
-            if ( time > _time ) break;
-            //bpm = bpm / chart.medianBpm;
-            newTime += ( bpm - prevBpm ) * ( _time - time );
-            prevBpm = bpm;
-        }
-        return ( float )newTime;
     }
 }

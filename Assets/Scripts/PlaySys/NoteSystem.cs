@@ -29,9 +29,6 @@ public class NoteSystem : MonoBehaviour
 
     private IEnumerator Process()
     {
-        float slidertime = 0f;
-        float notetime = 0f;
-
         if( notes.Count > 0 )
             currentNote = notes[currentIndex];
 
@@ -39,14 +36,6 @@ public class NoteSystem : MonoBehaviour
         {
             if ( currentNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime )
             {
-                if ( currentNote.isSlider ) slidertime = currentNote.sliderTime;
-
-                if ( currentIndex + 1 < notes.Count && ( slidertime > notes[currentIndex + 1].time ||
-                                                         notetime == notes[currentIndex + 1].time ) )
-                {
-                    Debug.LogError( "overlab " );
-                }
-
                 NoteRenderer note = nPool.Spawn();
                 note.SetInfo( lane.Key, this, in currentNote );
 
