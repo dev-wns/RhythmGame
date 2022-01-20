@@ -26,8 +26,7 @@ public class Judgement : MonoBehaviour
 
     public JudgeType GetJudgeType( float _diff )
     {
-        float diffAbs = _diff >= 0 ? _diff : -_diff;
-
+        float diffAbs = Globals.Abs( _diff );
 
         if ( diffAbs <= Kool )                        return JudgeType.Kool;
         else if ( diffAbs > Kool && diffAbs <= Cool ) return JudgeType.Cool;

@@ -71,9 +71,7 @@ public class NoteRenderer : MonoBehaviour
         head.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
         if ( IsSlider )
         {
-            float sliderLength    = ( CalcSliderTime - CalcTime ) * GameSetting.Weight;
-            float sliderLengthAbs = sliderLength >= 0 ? sliderLength : -sliderLength;
-
+            float sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
             body.transform.localScale = new Vector2( GameSetting.NoteWidth * .8f, sliderLengthAbs );
             //tail.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
         }
@@ -98,13 +96,10 @@ public class NoteRenderer : MonoBehaviour
 
             Vector2 startPos = new Vector2( column, GameSetting.JudgePos + ( ( newTime  - NowPlaying.PlaybackChanged ) * weight ) );
             headTf.position = bodyTf.position = startPos;
+            tailTf.position = new Vector2( column, GameSetting.JudgePos + ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );;
 
-            //float sliderLength    = ( CalcSliderTime - CalcTime ) * weight;
-            //float sliderLengthAbs = sliderLength >= 0 ? sliderLength : -sliderLength;
-            tailTf.position = new Vector2( column, GameSetting.JudgePos + ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );// + sliderLengthAbs);
-
-            float bodyScale = tailTf.position.y - headTf.position.y;
-            if ( bodyScale <= 0f ) bodyScale = 0f;
+            float bodyDiff = tailTf.position.y - headTf.position.y;
+            float bodyScale = bodyDiff <= 0f ? 0f : bodyDiff;
             bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, bodyScale );
         }
         else
@@ -115,10 +110,7 @@ public class NoteRenderer : MonoBehaviour
             if ( IsSlider )
             {
                 bodyTf.position = startPos;
-
-                //float sliderLength = ( CalcSliderTime - CalcTime ) * weight;
-                //float sliderLengthAbs = sliderLength >= 0 ? sliderLength : -sliderLength;
-                tailTf.position = new Vector2( column, GameSetting.JudgePos + ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );// + sliderLengthAbs );
+                tailTf.position = new Vector2( column, GameSetting.JudgePos + ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
             }
         }
     }

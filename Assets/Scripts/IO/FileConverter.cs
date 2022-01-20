@@ -166,20 +166,19 @@ public class FileConverter : FileReader
             chart.notes.Capacity = song.timingCount;
 
             // [TimingPoints]
-            float prevBPM = 0f;
-            song.timingCount = 0;
+            float uninheritedBpm = 0f;
             while ( ReadLine() != "[HitObjects]" )
             {
                 string[] splitDatas = line.Split( ',' );
                 if ( splitDatas.Length != 8 ) continue;
-                
+
                 float beatLength = Globals.Abs( float.Parse( splitDatas[1] ) );
                 float BPM = 1f / beatLength * 60000f;
 
                 // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
                 bool isUninherited = int.Parse( splitDatas[6] ) == 0 ? false : true;
-                if ( isUninherited ) prevBPM = BPM;
-                else                 BPM = ( prevBPM * 100f ) / beatLength;
+                if ( isUninherited ) uninheritedBpm = BPM;
+                else                 BPM = ( uninheritedBpm * 100f ) / beatLength;
 
                 if ( song.minBpm >= BPM ) song.minBpm = ( int )BPM;
                 if ( song.maxBpm <= BPM ) song.maxBpm = ( int )BPM;
@@ -191,8 +190,6 @@ public class FileConverter : FileReader
             }
 
             // [HitObjects]
-            song.noteCount = 0;
-            song.sliderCount = 0;
             while ( ReadLineEndOfStream() )
             {
                 string[] splitDatas = line.Split( ',' );
