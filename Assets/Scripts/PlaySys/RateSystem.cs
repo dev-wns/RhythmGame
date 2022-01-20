@@ -39,7 +39,7 @@ public class RateSystem : NumberAtlasBase
 
         for ( int i = 0; i < images.Count; i++ )
         {
-            if ( i >= num )
+            if ( i > 2 && i >= num )
             {
                 if ( images[i].gameObject.activeInHierarchy )
                      images[i].gameObject.SetActive( false );
