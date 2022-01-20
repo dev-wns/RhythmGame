@@ -1,21 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
-public enum JudgeType { None, Kool, Cool, Good, Bad, Miss }
+public enum JudgeType { None, Perfect, LazyPerfect, Great, Good, Bad, Miss }
 
 public class Judgement : MonoBehaviour
 {
-    public const float Kool = 22f;
-    public const float Cool = 24f + Kool;
-    public const float Good = 26f + Cool;
-    public const float Bad  = 28f + Good;
+    public const float Perfect     = 22f;
+    public const float LazyPerfect = 20f + Perfect;
+    public const float Great       = 18f + LazyPerfect;
+    public const float Good        = 16f + Great;
+    public const float Bad         = 14f + Good;
 
-    private int koolCount, coolCount, goodCount, badCount, missCount;
+    private int perfectCount, lazyPerfectCount, greatCount, goodCount, badCount, missCount;
 
-    public delegate void DelJudge( JudgeType _type );
-    public event DelJudge OnJudge;
+    public event Action<JudgeType> OnJudge;
 
     private void Awake()
     {
@@ -28,12 +28,13 @@ public class Judgement : MonoBehaviour
     {
         float diffAbs = Globals.Abs( _diff );
 
-        if ( diffAbs <= Kool )                        return JudgeType.Kool;
-        else if ( diffAbs > Kool && diffAbs <= Cool ) return JudgeType.Cool;
-        else if ( diffAbs > Cool && diffAbs <= Good ) return JudgeType.Good;
-        else if ( diffAbs > Good && diffAbs <= Bad  ) return JudgeType.Bad;
-        else if ( _diff < -Bad )                      return JudgeType.Miss;
-        else                                          return JudgeType.None;
+        if ( diffAbs <= Perfect )                                   return JudgeType.Perfect;
+        else if ( diffAbs > Perfect     && diffAbs <= LazyPerfect ) return JudgeType.LazyPerfect;
+        else if ( diffAbs > LazyPerfect && diffAbs <= Great )       return JudgeType.Great;
+        else if ( diffAbs > Great       && diffAbs <= Good )        return JudgeType.Good;
+        else if ( diffAbs > Good        && diffAbs <= Bad )         return JudgeType.Bad;
+        else if ( _diff < -Bad )                                    return JudgeType.Miss;
+        else                                                        return JudgeType.None;
         
     }
 
@@ -41,32 +42,13 @@ public class Judgement : MonoBehaviour
     {
         switch ( _type )
         {
-            case JudgeType.None: break;
-            case JudgeType.Kool:
-            {
-                koolCount++;
-            }
-            break;
-
-            case JudgeType.Cool:
-            {
-                coolCount++;
-            } break;
-
-            case JudgeType.Good:
-            {
-                goodCount++;
-            } break;
-
-            case JudgeType.Bad:
-            {
-                badCount++;
-            } break;
-
-            case JudgeType.Miss:
-            {
-                missCount++;
-            } break;
+            case JudgeType.None:                            break;
+            case JudgeType.Perfect:     perfectCount++;     break;
+            case JudgeType.LazyPerfect: lazyPerfectCount++; break;
+            case JudgeType.Great:       greatCount++;       break;
+            case JudgeType.Good:        goodCount++;        break;
+            case JudgeType.Bad:         badCount++;         break;
+            case JudgeType.Miss:        missCount++;        break;
         }
 
         OnJudge?.Invoke( _type );

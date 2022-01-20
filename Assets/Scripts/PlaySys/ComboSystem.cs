@@ -35,8 +35,9 @@ public class ComboSystem : NumberAtlasBase
         switch ( _type )
         {
             case JudgeType.None:
-            case JudgeType.Kool:
-            case JudgeType.Cool:
+            case JudgeType.Perfect:
+            case JudgeType.LazyPerfect:
+            case JudgeType.Great:
             case JudgeType.Good:
             case JudgeType.Bad:
             {

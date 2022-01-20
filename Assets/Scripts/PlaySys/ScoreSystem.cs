@@ -44,11 +44,12 @@ public class ScoreSystem : NumberAtlasBase
         float addScore = 0;
         switch ( _type )
         {
-            case JudgeType.Kool: addScore = maxScore;       break; // 100%
-            case JudgeType.Cool: addScore = maxScore * .85f; break; // 90%
-            case JudgeType.Good: addScore = maxScore * .63f; break; // 80%
-            case JudgeType.Bad:  addScore = maxScore * .41f; break; // 70%
-            case JudgeType.Miss: addScore = 0;              break; // 0%
+            case JudgeType.Perfect:     addScore = maxScore;         break; 
+            case JudgeType.LazyPerfect: addScore = maxScore * .83f;  break; 
+            case JudgeType.Great:       addScore = maxScore * .61f;  break; 
+            case JudgeType.Good:        addScore = maxScore * .47f;  break; 
+            case JudgeType.Bad:         addScore = maxScore * .25f;  break; 
+            case JudgeType.Miss:        addScore = 0;                break; 
         }
         currentScore += addScore;
 

@@ -24,11 +24,12 @@ public class RateSystem : NumberAtlasBase
         int addRate = 0;
         switch ( _type )
         {
-            case JudgeType.Kool: addRate = 10000; break; // 100%
-            case JudgeType.Cool: addRate = 9000;  break; // 90%
-            case JudgeType.Good: addRate = 8000;  break; // 80%
-            case JudgeType.Bad:  addRate = 7000;  break; // 70%
-            case JudgeType.Miss: addRate = 0;     break; // 0%
+            case JudgeType.Perfect: 
+            case JudgeType.LazyPerfect: addRate = 10000; break; 
+            case JudgeType.Great:       addRate = 7500;  break; 
+            case JudgeType.Good:        addRate = 5000;  break; 
+            case JudgeType.Bad:         addRate = 2500;  break; 
+            case JudgeType.Miss:        addRate = 0;     break; 
         }
         ++maxCount;
 
