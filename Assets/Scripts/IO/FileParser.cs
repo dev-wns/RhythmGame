@@ -24,16 +24,10 @@ public class FileParser : FileReader
     {
         _song = new Song();
 
-        try { OpenFile( _path ); }
-        catch ( Exception _error )
-        {
-            Debug.LogError( _error.Message );
-            Dispose();
-            return false;
-        }
-
         try
         {
+            OpenFile( _path );
+
             string directory = Path.GetDirectoryName( _path );
             _song.filePath   = _path;
 
@@ -84,16 +78,10 @@ public class FileParser : FileReader
     {
         _chart = new Chart();
 
-        try { OpenFile( _path ); }
-        catch ( Exception _error )
-        {
-            Debug.LogError( _error.Message );
-            Dispose();
-            return false;
-        }
-
         try
         {
+            OpenFile( _path );
+
             _chart.notes?.Clear();
             _chart.notes ??= new List<Note>();
 

@@ -74,6 +74,9 @@ public struct Chart
 
 public class FileConverter : FileReader
 {
+    private List<Timing> timings = new List<Timing>();
+    private List<Note>   notes   = new List<Note>();
+
     private class CalcMedianTiming
     {
         public float time, bpm;
@@ -101,19 +104,13 @@ public class FileConverter : FileReader
 
     private void Convert( string _path )
     {
-        Song song   = new Song();
-        Chart chart = new Chart();
-
-        try { OpenFile( _path ); }
-        catch ( Exception _error )
-        {
-            Debug.LogError( _error.Message );
-            Dispose();
-            return;
-        }
-
         try
         {
+            Song song = new Song();
+
+            OpenFile( _path );
+
+            #region General Data Parsing
             // [General] ~ [Editor]
             while ( ReadLine() != "[Metadata]" )
             {
@@ -124,16 +121,11 @@ public class FileConverter : FileReader
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Events]" )
             {
-                if ( Contains( "Title" ) && !Contains( "TitleUnicode:" ) )
-                     song.title   = SplitAndTrim( ':' );
-
-                if ( Contains( "Artist" ) && !Contains( "ArtistUnicode" ) )  
-                     song.artist  = SplitAndTrim( ':' );
-
-                if ( Contains( "Creator" ) ) song.creator = SplitAndTrim( ':' );
-                if ( Contains( "Version" ) ) song.version = SplitAndTrim( ':' );
+                if ( Contains( "Title" )  && !Contains( "TitleUnicode:" ) ) song.title   = SplitAndTrim( ':' );
+                if ( Contains( "Artist" ) && !Contains( "ArtistUnicode" ) ) song.artist  = SplitAndTrim( ':' );
+                if ( Contains( "Creator" ) )                                song.creator = SplitAndTrim( ':' );
+                if ( Contains( "Version" ) )                                song.version = SplitAndTrim( ':' );
             }
-
 
             // [Events]
             var directory = Path.GetDirectoryName( _path );
@@ -142,28 +134,20 @@ public class FileConverter : FileReader
                 if ( Contains( ".avi" ) || Contains( ".mp4" ) || Contains( ".mpg" ) )
                 {
                     song.videoPath = SplitAndTrim( '"' );
-                    song.hasVideo  = true;
-
-                    if ( File.Exists( Path.Combine( directory, song.videoPath ) ) ) song.hasVideo = true;
-                    else                                                            song.hasVideo = false;
+                    song.hasVideo = File.Exists( Path.Combine( directory, song.videoPath ) ) ? true : false;
                 }
 
                 if ( Contains( ".jpg" ) || Contains( ".png" ) )
                 {
                     song.imagePath = SplitAndTrim( '"' );
-
-                    //if ( !File.Exists( Path.Combine( directory, song.imagePath ) ) ) 
-                    //     song.imagePath = GameSetting.DefaultImagePath;
                 }
             }
 
-            chart.timings?.Clear();
-            chart.timings ??= new List<Timing>();
-            chart.timings.Capacity = song.noteCount + song.sliderCount;
+            #endregion
 
-            chart.notes?.Clear();
-            chart.notes ??= new List<Note>();
-            chart.notes.Capacity = song.timingCount;
+            #region Timings Parsing
+            timings?.Clear();
+            timings ??= new List<Timing>();
 
             // [TimingPoints]
             float uninheritedBpm = 0f;
@@ -180,14 +164,23 @@ public class FileConverter : FileReader
                 if ( isUninherited ) uninheritedBpm = BPM;
                 else                 BPM = ( uninheritedBpm * 100f ) / beatLength;
 
-                if ( song.minBpm >= BPM ) song.minBpm = ( int )BPM;
-                if ( song.maxBpm <= BPM ) song.maxBpm = ( int )BPM;
+                if ( song.minBpm >= BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
+                if ( song.maxBpm <= BPM )                     song.maxBpm = ( int )BPM;
 
                 float time = float.Parse( splitDatas[0] );
-                chart.timings.Add( new Timing( time, BPM ) );
+                timings.Add( new Timing( time, BPM ) );
 
                 song.timingCount++;
             }
+
+            if ( timings.Count == 0 )
+                throw new Exception( "Timing Convert Error" );
+
+            #endregion
+
+            #region Notes Parsing
+            notes?.Clear();
+            notes ??= new List<Note>();
 
             // [HitObjects]
             while ( ReadLineEndOfStream() )
@@ -213,17 +206,21 @@ public class FileConverter : FileReader
                     song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                 }
 
-
                 int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6f / 512f );
-                chart.notes.Add( new Note( lane, noteTime, 0f, sliderTime, 0f, isSlider ) );
+                notes.Add( new Note( lane, noteTime, 0f, sliderTime, 0f, isSlider ) );
             }
 
-            song.medianBpm = ( int )GetMedianBpm( chart );
+            if ( notes.Count == 0 )
+                 throw new Exception( "Note Convert Error" );
+
+            #endregion
+
+            song.medianBpm = ( int )GetMedianBpm();
 
             if ( song.timingCount > 0 )
-                 chart.timings[0] = new Timing( -5000f, chart.timings[0].bpm );
+                 timings[0] = new Timing( -5000f, timings[0].bpm );
 
-            Write( song, chart );
+            Write( in song );
         }
         catch ( Exception _error )
         {
@@ -241,7 +238,7 @@ public class FileConverter : FileReader
         }
     }
 
-    private void Write( Song _song, Chart _chart )
+    private void Write( in Song _song )
     {
         try
         {
@@ -253,45 +250,45 @@ public class FileConverter : FileReader
                 using ( var writer = new StreamWriter( stream ) )
                 {
                     writer.WriteLine( "[General]" );
-                    writer.WriteLine( "AudioPath: " + _song.audioPath );
-                    writer.WriteLine( "ImagePath: " + _song.imagePath );
-                    writer.WriteLine( "VideoPath: " + _song.videoPath );
+                    writer.WriteLine( $"AudioPath: {_song.audioPath}" );
+                    writer.WriteLine( $"ImagePath: {_song.imagePath}" );
+                    writer.WriteLine( $"VideoPath: {_song.videoPath}" );
 
-                    writer.WriteLine( "Title: "   + _song.title );
-                    writer.WriteLine( "Artist: "  + _song.artist );
-                    writer.WriteLine( "Creator: " + _song.creator );
-                    writer.WriteLine( "Version: " + _song.version );
+                    writer.WriteLine( $"Title: {_song.title}" );
+                    writer.WriteLine( $"Artist: {_song.artist}" );
+                    writer.WriteLine( $"Creator: {_song.creator}" );
+                    writer.WriteLine( $"Version: {_song.version}" );
 
-                    writer.WriteLine( "PreviewTime: " + _song.previewTime );
-                    writer.WriteLine( "TotalTime: "   + _song.totalTime );
+                    writer.WriteLine( $"PreviewTime: {_song.previewTime}" );
+                    writer.WriteLine( $"TotalTime: {_song.totalTime}" );
 
-                    writer.WriteLine( "NumNote: "   + _song.noteCount );
-                    writer.WriteLine( "NumSlider: " + _song.sliderCount );
-                    writer.WriteLine( "NumTiming: " + _song.timingCount );
+                    writer.WriteLine( $"NumNote: {_song.noteCount}" );
+                    writer.WriteLine( $"NumSlider: {_song.sliderCount}" );
+                    writer.WriteLine( $"NumTiming: {_song.timingCount}" );
 
-                    writer.WriteLine( "MinBPM: "    + _song.minBpm );
-                    writer.WriteLine( "MaxBPM: "    + _song.maxBpm );
-                    writer.WriteLine( "MedianBPM: " + _song.medianBpm );
+                    writer.WriteLine( $"MinBPM: {_song.minBpm}" );
+                    writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
+                    writer.WriteLine( $"MedianBPM: {_song.medianBpm}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );
-                    for ( int i = 0; i < _chart.timings.Count; i++ )
+                    for ( int i = 0; i < timings.Count; i++ )
                     {
                         text.Clear();
-                        text.Append( _chart.timings[i].time ).Append( "," );
-                        text.Append( _chart.timings[i].bpm );
+                        text.Append( timings[i].time ).Append( "," );
+                        text.Append( timings[i].bpm );
 
                         writer.WriteLine( text );
                     }
 
                     writer.WriteLine( "[Notes]" );
-                    for ( int i = 0; i < _chart.notes.Count; i++ )
+                    for ( int i = 0; i < notes.Count; i++ )
                     {
                         text.Clear();
-                        text.Append( _chart.notes[i].line ).Append( "," );
-                        text.Append( _chart.notes[i].time ).Append( "," );
-                        text.Append( _chart.notes[i].sliderTime ).Append( "," );
-                        text.Append( _chart.notes[i].isSlider );
+                        text.Append( notes[i].line ).Append( "," );
+                        text.Append( notes[i].time ).Append( "," );
+                        text.Append( notes[i].sliderTime ).Append( "," );
+                        text.Append( notes[i].isSlider );
 
                         writer.WriteLine( text );
                     }
@@ -312,18 +309,16 @@ public class FileConverter : FileReader
         }
     }
 
-    private float GetMedianBpm( Chart _chart )
-    {
+    private float GetMedianBpm()
+    {        
         // 값 전부 복사해서 계산해도 되지만 타이밍도 몇천개 있을 수도 있다.
-        // 참조값만 복사해서 첫번째, 마지막 타이밍만 수정한 후 계산 끝나면 돌려놓자.
-        var firstTimingCached = new Timing( _chart.timings[0] );
+        // 첫번째, 마지막 타이밍만 수정한 후 계산 끝나면 돌려놓자.
+        var firstTimingCached = new Timing( timings[0] );
 
-        // 노트 기준으로 길이 측정 하기위해 첫번째, 마지막 인자 변경
-        // 노트나 타이밍이 없을때 Throw 하기..
-        List<Timing> timings = _chart.timings;
-        timings[0] = new Timing( _chart.notes[0].time, _chart.timings[0].bpm );
+        // 노트 기준으로 길이 측정 하기위해 첫번째, 마지막 타이밍 수정
         // 마지막 Timing Bpm은 마지막 노트 시간까지의 길이로 계산한다.
-        timings.Add( new Timing( _chart.notes[_chart.notes.Count - 1].time, _chart.timings[_chart.timings.Count - 1].bpm ) );
+        timings[0] = new Timing( notes[0].time, timings[0].bpm );
+        timings.Add( new Timing( notes[notes.Count - 1].time, timings[timings.Count - 1].bpm ) );
         
         List<CalcMedianTiming> medianCalc = new List<CalcMedianTiming>();
         medianCalc.Add( new CalcMedianTiming( timings[0] ) );
@@ -345,6 +340,7 @@ public class FileConverter : FileReader
             if ( !isFind ) medianCalc.Add( new CalcMedianTiming( timings[i].time - prevTime, prevBpm ) );
         }
 
+        // 내림차순 정렬
         medianCalc.Sort( delegate ( CalcMedianTiming A, CalcMedianTiming B )
         {
             if ( A.time < B.time )      return 1;

@@ -9,27 +9,7 @@ public abstract class FileReader : IDisposable
     protected string path { get; private set; }
     protected string line { get; private set; }
 
-    protected bool ReadLineEndOfStream()
-    {
-        if ( streamReader.EndOfStream ) return false;
-        else
-        {
-            line = streamReader.ReadLine();
-            return true;
-        }
-    }
-
-    public FileReader() { }
-
-    protected FileReader( string _path )
-    {
-        path = _path;
-        try 
-        {
-            streamReader = new StreamReader( _path );
-        }
-        catch ( FileNotFoundException error ) { UnityEngine.Debug.LogError( $"The file could not be read : { error.Message }" ); }
-    }
+    public void Dispose() => streamReader?.Dispose();
 
     public void OpenFile( string _path )
     {
@@ -40,7 +20,20 @@ public abstract class FileReader : IDisposable
 
             streamReader = new StreamReader( @$"\\?\{_path}" );
         }
-        catch ( FileNotFoundException _error ) { Debug.LogError( $"The file could not be read : { _error.Message }" ); }
+        catch ( Exception _error )
+        {
+            throw _error;
+        }
+    }
+
+    protected bool ReadLineEndOfStream()
+    {
+        if ( streamReader.EndOfStream ) return false;
+        else
+        {
+            line = streamReader.ReadLine();
+            return true;
+        }
     }
 
     // 한줄 읽기
@@ -65,11 +58,6 @@ public abstract class FileReader : IDisposable
             return string.Empty;
 
         return line.Split( _separator )[1].Trim();
-    }
-
-    public void Dispose()
-    {
-        streamReader?.Dispose();
     }
 
     protected string[] GetFilesInSubDirectories( string _dirPath, string _extension )
