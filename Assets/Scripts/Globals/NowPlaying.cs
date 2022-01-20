@@ -1,37 +1,37 @@
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class NowPlaying : SingletonUnity<NowPlaying>
 {
-    private List<Song> songs = new List<Song>();
-    public Song  CurrentSong   
-    {
-        get 
-        {
-            if ( CurrentSongIndex >= Count ) 
-                 throw new System.Exception( "Out of Range. " );
+    public ReadOnlyCollection<Song> Songs { get; private set; }
 
-            return songs[CurrentSongIndex];
-        } 
-    }
-    public  Chart CurrentChart  { get { return currentChart; } }
+    public  Song CurrentSong => currentSong;
+    private Song currentSong;
+
+    public  Chart CurrentChart => currentChart;
     private Chart currentChart;
 
-    public int Count 
+    public  int CurrentSongIndex 
     {
-        get 
+        get => currentSongIndex;
+        set
         {
-            if ( songs is null ) return 0;
-            else                 return songs.Count; 
-        } 
+            if ( value >= Songs.Count )
+                throw new System.Exception( "Out of Range. " );
+
+            currentSongIndex = value;
+            currentSong      = Songs[value];
+        }
     }
-    public int CurrentSongIndex;
+    private int currentSongIndex;
 
     public static float Playback; // 노래 재생 시간
     public static float PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
 
-    public bool IsPlaying;
+    public bool IsPlaying { get; set; }
+    public bool IsLoad { get; private set; }
     private readonly int waitTime = -3000;
 
     private void Awake()
@@ -40,12 +40,13 @@ public class NowPlaying : SingletonUnity<NowPlaying>
                 converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
-                parser.ParseFilesInDirectories( ref songs );
+        {
+            ReadOnlyCollection<Song> songs;
+            parser.ParseFilesInDirectories( out songs );
+            Songs = songs;
+        }
 
-        currentChart.notes   ??= new List<Note>();
-        currentChart.timings ??= new List<Timing>();
-
-        if ( songs.Count > 0 ) { SelectSong( 0 ); }
+        CurrentSongIndex = 0; 
     }
 
     private void Update()
@@ -54,6 +55,18 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         Playback += Time.deltaTime * 1000f;
         PlaybackChanged = GetChangedTime( Playback );
+    }
+
+    public void Initialize()
+    {
+        IsPlaying = false;
+        Playback = waitTime;
+        PlaybackChanged = 0;
+
+        using ( FileParser parser = new FileParser() )
+        {
+            IsLoad = parser.TryParse( currentSong.filePath, out currentChart );
+        }
     }
 
     public void Play() => StartCoroutine( MusicStart() );
@@ -70,49 +83,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         Playback = SoundManager.Inst.Position;
     }
 
-    public void ChartUpdate()
+    public float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
     {
-        IsPlaying = false;
-        Playback = waitTime; 
-        PlaybackChanged = 0;
-
-        using ( FileParser parser = new FileParser() )
-        {
-            currentChart.notes ??= new List<Note>();
-            currentChart.notes?.Clear();
-
-            currentChart.timings ??= new List<Timing>();
-            currentChart.timings?.Clear();
-
-            parser.TryParse( CurrentSong.filePath, out currentChart );
-        }
-    }
-
-    public void SelectSong( int _index )
-    {
-        if ( _index < 0 || _index > songs.Count - 1 )
-        {
-            Debug.LogError( $"Sound Select Out Of Range. Index : {_index}" );
-            return;
-        }
-
-        CurrentSongIndex = _index;
-    }
-
-    public Song GetSong( int _index )
-    {
-        if ( _index > Count )
-        {
-            Debug.LogError( $"Sound Select Out Of Range. Index : {_index}" );
-            return new Song();
-        }
-
-        return songs[_index];
-    }
-
-    public static float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
-    {
-        var timings = Inst.CurrentChart.timings;
+        var timings = CurrentChart.timings;
         double newTime = _time;
         double prevBpm = 0d;
         for ( int i = 0; i < timings.Count; i++ )

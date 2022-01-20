@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using System;
 using System.IO;
@@ -68,8 +69,8 @@ public struct Note
 
 public struct Chart
 {
-    public List<Timing> timings;
-    public List<Note> notes;
+    public ReadOnlyCollection<Timing> timings;
+    public ReadOnlyCollection<Note>   notes;
 }
 
 public class FileConverter : FileReader

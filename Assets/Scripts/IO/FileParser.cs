@@ -1,23 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using System;
 using System.IO;
 
 public class FileParser : FileReader
 {
-    public void ParseFilesInDirectories( ref List<Song> _songs )
+    public void ParseFilesInDirectories( out ReadOnlyCollection<Song> _songs )
     {
-        _songs?.Clear();
-        _songs ??= new List<Song>();
+        List<Song> songs = new List<Song>();
 
         var files = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
         for ( int i = 0; i < files.Length; i++ )
         {
             Song newSong = new Song();
             if ( TryParse( files[i], out newSong ) )
-                 _songs.Add( newSong );
+                 songs.Add( newSong );
         }
+
+        _songs = new ReadOnlyCollection<Song>( songs );
     }
 
     public bool TryParse( string _path, out Song _song )
@@ -81,15 +83,10 @@ public class FileParser : FileReader
         try
         {
             OpenFile( _path );
-
-            _chart.notes?.Clear();
-            _chart.notes ??= new List<Note>();
-
-            _chart.timings?.Clear();
-            _chart.timings ??= new List<Timing>();
-
-
             while ( ReadLine() != "[Timings]" ) { }
+
+            #region Timings Parsing
+            List<Timing> timings = new List<Timing>();
 
             while ( ReadLine() != "[Notes]" )
             {
@@ -99,8 +96,17 @@ public class FileParser : FileReader
                 timing.time = float.Parse( split[0] );
                 timing.bpm  = float.Parse( split[1] );
 
-                _chart.timings.Add( timing );
+                timings.Add( timing );
             }
+
+            if ( timings.Count == 0 )
+                 throw new Exception( "Timing Parsing Error" );
+
+            _chart.timings = new ReadOnlyCollection<Timing>( timings );
+            #endregion
+
+            #region Notes Parsing
+            List<Note> notes = new List<Note>();
 
             while ( ReadLineEndOfStream() )
             {
@@ -112,8 +118,14 @@ public class FileParser : FileReader
                 note.sliderTime     = float.Parse( split[2] );
                 note.isSlider       = bool.Parse( split[3] );
 
-                _chart.notes.Add( note );
+                notes.Add( note );
             }
+
+            if ( timings.Count == 0 )
+                throw new Exception( "Note Parsing Error" );
+
+            _chart.notes = new ReadOnlyCollection<Note>( notes );
+            #endregion
         }
         catch ( Exception _error )
         {

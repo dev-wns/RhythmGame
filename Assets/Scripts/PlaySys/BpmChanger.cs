@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Collections.ObjectModel;
 using TMPro;
 
 public class BpmChanger : MonoBehaviour
 {
     private InGame scene;
-    private List<Timing> timings = new List<Timing>();
+    private ReadOnlyCollection<Timing> timings;
     private int currentIndex;
     // private float changeTime;
     // private float currentBpm;
@@ -25,7 +26,7 @@ public class BpmChanger : MonoBehaviour
 
     private void Initialize( in Chart _chart )
     {
-        timings = _chart.timings.ToList();
+        timings = _chart.timings;
     }
 
     private void StartProcess() => StartCoroutine( Process() );

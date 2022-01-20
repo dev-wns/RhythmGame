@@ -44,13 +44,13 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     protected override void CreateOptions()
     {
-        options.Capacity = NowPlaying.Inst.Count;
-        for ( int i = 0; i < NowPlaying.Inst.Count; i++ )
+        options.Capacity = NowPlaying.Inst.Songs.Count;
+        for ( int i = 0; i < NowPlaying.Inst.Songs.Count; i++ )
         {
             // scrollview song contents
             var song = Instantiate( songPrefab, content );
             var info = song.GetComponent<SongInfomation>();
-            info.SetInfo( NowPlaying.Inst.GetSong( i ) );
+            info.SetInfo( NowPlaying.Inst.Songs[i] );
 
             options.Add( song );
         }
@@ -74,7 +74,8 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     private void OptionProcess()
     {
-        NowPlaying.Inst.SelectSong( currentIndex );
+        NowPlaying.Inst.CurrentSongIndex = currentIndex;
+
         currentSong = NowPlaying.Inst.CurrentSong;
         soundLength = currentSong.totalTime;
 

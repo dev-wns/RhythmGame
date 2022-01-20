@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
+
 public enum ChannelGroupType { Master, BGM, KeySound, Sfx, Count };
 public enum SoundSfxType { Move, Return, Escape, Increase, Decrease }
 
@@ -29,8 +31,25 @@ public class SoundManager : SingletonUnity<SoundManager>
         public int systemRate, speakModeChannels;
         public FMOD.SPEAKERMODE mode;
     }
-    public List<SoundDriver> soundDrivers { get; private set; } = new List<SoundDriver>();
-    public int CurrentDriverIndex { get { return currentDriverIndex; } }
+    public ReadOnlyCollection<SoundDriver> SoundDrivers { get; private set; }
+    public int CurrentDriverIndex 
+    {
+        get => currentDriverIndex;
+        set
+        {
+            int curIndex;
+            ErrorCheck( system.getDriver( out curIndex ) );
+
+            if ( SoundDrivers.Count <= value || curIndex == value )
+            {
+                Debug.LogWarning( "SoundDriver Index is Out of Range or Duplicated Value" );
+                return;
+            }
+
+            ErrorCheck( system.setDriver( value ) );
+            currentDriverIndex = value;
+        }
+    }
     private int currentDriverIndex;
 
     public uint Position
@@ -131,10 +150,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
     }
     private bool hasAccurateTime = false;
-
-    public readonly float minPitch = .7f, maxPitch = 1.3f;
-
-    private float volume;
+    private readonly float minPitch = .7f, maxPitch = 1.3f;
 
     public event System.Action OnSoundSystemReLoad;
     public bool IsLoad { get; private set; } = false;
@@ -173,17 +189,19 @@ public class SoundManager : SingletonUnity<SoundManager>
         // Sound Driver
         int numDriver;
         ErrorCheck( system.getNumDrivers( out numDriver ) );
+        List<SoundDriver> drivers = new List<SoundDriver>();
         for ( int i = 0; i < numDriver; i++ )
         {
             SoundDriver driver;
             if ( ErrorCheck( system.getDriverInfo( i, out driver.name, 256, out driver.guid, out driver.systemRate, out driver.mode, out driver.speakModeChannels ) ) )
             {
                 driver.index = i;
-                soundDrivers.Add( driver );
+                drivers.Add( driver );
             }
+            SoundDrivers = new ReadOnlyCollection<SoundDriver>( drivers );
         }
         ErrorCheck( system.getDriver( out currentDriverIndex ) );
-        Debug.Log( $"Current Sound Device : {soundDrivers[currentDriverIndex].name}" );
+        Debug.Log( $"Current Sound Device : {SoundDrivers[currentDriverIndex].name}" );
 
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelGroupType.Count; i++ )
@@ -215,8 +233,6 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public void Release()
     {
-        soundDrivers.Clear();
-
         // Sound
         foreach ( var sfx in sfxSound.Values )
         {
@@ -260,13 +276,17 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         AllStop();
         IsLoad = true;
-        int driverIndex = CurrentDriverIndex;
+
+        int previousDriverIndex;
+        ErrorCheck( system.getDriver( out previousDriverIndex ) );
 
         Release();
         Initialize();
 
         OnSoundSystemReLoad?.Invoke();
-        SetDriver( driverIndex );
+        ErrorCheck( system.setDriver( previousDriverIndex ) );
+        currentDriverIndex = previousDriverIndex;
+
         IsLoad = false;
     }
 
@@ -278,20 +298,6 @@ public class SoundManager : SingletonUnity<SoundManager>
     }
     private void OnApplicationQuit() => Release();
     #endregion
-
-    public void SetDriver( int _index )
-    {
-        int curIndex;
-        ErrorCheck( system.getDriver( out curIndex ) );
-
-        if ( soundDrivers.Count <= _index || curIndex == _index )
-        {
-            return;
-        }
-
-        ErrorCheck( system.setDriver( _index ) );
-        currentDriverIndex = _index;
-    }
 
     #region Load
     public void LoadBgm( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
@@ -393,7 +399,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             return;
         }
 
-        volume = _value;
+        float volume = _value;
         if ( _value < 0f ) volume = 0f;
         if ( _value > 1f ) volume = 1f;
 

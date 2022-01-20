@@ -32,10 +32,10 @@ public class JudgementRange : MonoBehaviour
         if ( isShow && NowPlaying.Playback > 0 )
         {
             float weight = GameSetting.Weight;
-            koolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Kool ) ) ) * weight, 1f );
-            coolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Cool ) ) ) * weight, 1f );
-            goodImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Good ) ) ) * weight, 1f );
-            badImage.localScale  = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Bad  ) ) ) * weight, 1f );
+            koolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Kool ) ) ) * weight, 1f );
+            coolImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Cool ) ) ) * weight, 1f );
+            goodImage.localScale = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Good ) ) ) * weight, 1f );
+            badImage.localScale  = new Vector3( transform.localScale.x, ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Bad  ) ) ) * weight, 1f );
         }
     }
 }

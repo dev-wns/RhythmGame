@@ -11,6 +11,13 @@ public class InGame : Scene
     public event Action OnGameStart;
     public event Action OnScrollChanged;
 
+    protected override void Awake()
+    {
+        base.Awake();
+
+        NowPlaying.Inst.Initialize();
+    }
+
     private void Start()
     {
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );

@@ -48,37 +48,21 @@ public class MeasureSystem : MonoBehaviour
                 {
                     if ( timings[i].time < _chart.notes[j].time )
                     {
-                        //float cur = timings[i].time - _chart.notes[j].time;
-                        //float prev = j - 1 >= 0 ?
-                        //              timings[i].time - _chart.notes[j - 1].time :
-                        //              timings[i].time - _chart.notes[j].time;
-
-                        //float curAbs = cur >= 0 ? cur : -cur;
-                        //float prevAbs = prev >= 0 ? prev : -prev;
-
-                        //if ( curAbs != prevAbs )
-                        //    Debug.Log( $"{curAbs} {prevAbs}" );
-
-                        //time = curAbs > prevAbs ? _chart.notes[j - 1].time : _chart.notes[j].time;
-
                         time = _chart.notes[j].time;
                         break;
                     }
                 }
             }
-
-            float nextTime = 0f;
-            if ( i + 1 == timings.Count ) nextTime = _chart.notes[_chart.notes.Count - 1].time + 3000f;
-            else                          nextTime = timings[i + 1].time;
-
-            float calcTime = NowPlaying.GetChangedTime( time );
+            
+            float nextTime = ( i + 1 == timings.Count ) ? _chart.notes[_chart.notes.Count - 1].time + 3000f : timings[i + 1].time;
+            float calcTime = NowPlaying.Inst.GetChangedTime( time );
             if ( measures.Count == 0 || measures[measures.Count - 1] < calcTime )
                  measures.Add( calcTime );
 
             int maxCount = Mathf.FloorToInt( ( nextTime - time ) / bpms );
             for ( int j = 1; j < maxCount + 1; j++ )
             {
-                measures.Add( NowPlaying.GetChangedTime( ( time + ( j * bpms ) ) ) );
+                measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * bpms ) ) ) );
             }
         }
 

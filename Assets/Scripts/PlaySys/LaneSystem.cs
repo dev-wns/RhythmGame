@@ -32,6 +32,19 @@ public class LaneSystem : MonoBehaviour
             lanes[i].SetLane( i );
     }
 
+    private void LaneSwap( int _min, int _max, int _swapCount = 6 )
+    {
+        for ( int i = 0; i < _swapCount; i++ )
+        {
+            var randA = Random.Range( _min, _max );
+            var randB = Random.Range( _min, _max );
+
+            var tmp = lanes[randA];
+            lanes[randA] = lanes[randB];
+            lanes[randB] = tmp;
+        }
+    }
+
     private void CreateNotes( in Chart _chart )
     {
         var notes = _chart.notes;
@@ -52,8 +65,8 @@ public class LaneSystem : MonoBehaviour
                     if ( hasNoSliderMod ) 
                          newNote.isSlider = false;
 
-                    newNote.calcTime       = NowPlaying.GetChangedTime( newNote.time );
-                    newNote.calcSliderTime = NowPlaying.GetChangedTime( newNote.sliderTime );
+                    newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
+                    newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                     lanes[notes[i].line].NoteSys.AddNote( newNote );
                 }
@@ -98,8 +111,8 @@ public class LaneSystem : MonoBehaviour
 
                         if ( !isOverlab )
                         {
-                            var tmp = column[j];
-                            column[j] = column[rand];
+                            var tmp      = column[j];
+                            column[j]    = column[rand];
                             column[rand] = tmp;
                         }
                     }
@@ -111,8 +124,8 @@ public class LaneSystem : MonoBehaviour
                         {
                             Note newNote = column[j].note.Value;
 
-                            newNote.calcTime       = NowPlaying.GetChangedTime( newNote.time );
-                            newNote.calcSliderTime = NowPlaying.GetChangedTime( newNote.sliderTime );
+                            newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
+                            newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                             if ( hasNoSliderMod ) 
                                  newNote.isSlider = false;
@@ -135,38 +148,12 @@ public class LaneSystem : MonoBehaviour
             break;
 
             case GameRandom.Random:
-            {
-                for ( int i = 0; i < 6; i++ )
-                {
-                    var rand = Random.Range( 0, 5 );
-
-                    var tmp = lanes[i];
-                    lanes[i] = lanes[rand];
-                    lanes[rand] = tmp;
-                }
-            }
+            LaneSwap( 0, 5 );
             break;
 
             case GameRandom.Half_Random:
-            {
-                for ( int i = 0; i < 6; i++ )
-                {
-                    var rand = Random.Range( 0, 2 );
-
-                    var tmp = lanes[i];
-                    lanes[i] = lanes[rand];
-                    lanes[rand] = tmp;
-                }
-
-                for ( int i = 2; i < 6; i++ )
-                {
-                    var rand = Random.Range( 2, 5 );
-
-                    var tmp = lanes[i];
-                    lanes[i] = lanes[rand];
-                    lanes[rand] = tmp;
-                }
-            }
+            LaneSwap( 0, 2 );
+            LaneSwap( 3, 5 );
             break;
         }
     }
