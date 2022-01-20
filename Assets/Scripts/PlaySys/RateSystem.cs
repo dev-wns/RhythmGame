@@ -7,8 +7,8 @@ public class RateSystem : NumberAtlasBase
     [Header( "System" )]
     private Judgement judge;
 
-    private int maxCount = 1;
-    private int currentRate = 10000;
+    private int maxCount;
+    private float currentRate;
 
     protected override void Awake()
     {
