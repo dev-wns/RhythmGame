@@ -4,6 +4,10 @@ using System.Diagnostics;
 public static class Globals
 {
     public static Timer Timer { get; } = new Timer();
+
+
+    public static float Abs( float _value ) => _value >= 0f ? _value : -_value;
+    public static int Abs( int _value )     => _value >= 0  ? _value : -_value;
 }
 
 //public static class Debug

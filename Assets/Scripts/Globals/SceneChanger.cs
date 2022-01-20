@@ -27,7 +27,6 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         blackSprite.size = new Vector2( 1920, 1080 );
         blackSprite.sortingOrder = 100;
 
-        transform.position   = new Vector3( 0f, 0f, -9f );
         transform.localScale = Vector3.one;
     }
 

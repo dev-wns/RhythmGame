@@ -10,8 +10,9 @@ public class BpmChanger : MonoBehaviour
     private InGame scene;
     private List<Timing> timings = new List<Timing>();
     private int currentIndex;
-    private float changeTime;
-    private float currentBpm;
+    // private float changeTime;
+    // private float currentBpm;
+    private Timing curTiming;
 
     public event Action<float/* bpm */> OnBpmChange;
 
@@ -31,22 +32,15 @@ public class BpmChanger : MonoBehaviour
 
     private IEnumerator Process()
     {
-        if ( timings.Count > 0 )
-             changeTime = timings[currentIndex].time;
-
+        WaitUntil waitChangedTimeUntil = new WaitUntil( () => curTiming.time <= NowPlaying.Playback );
         while ( currentIndex < timings.Count )
         {
-            if ( changeTime <= NowPlaying.Playback )
-            {
-                currentBpm = timings[currentIndex].bpm;
-                Debug.Log( $"Current Bpm : {currentBpm}" );
-                OnBpmChange?.Invoke( currentBpm );
-
-                if ( ++currentIndex < timings.Count )
-                    changeTime = timings[currentIndex].time;
-            }
-
-            yield return null;
+            curTiming = timings[currentIndex];
+            yield return waitChangedTimeUntil;
+            
+            Debug.Log( $"Current Bpm : {curTiming.bpm}" );
+            OnBpmChange?.Invoke( curTiming.bpm );
+            currentIndex++;
         }
     }
 }

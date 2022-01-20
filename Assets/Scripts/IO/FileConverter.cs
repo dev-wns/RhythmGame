@@ -29,12 +29,16 @@ public struct Song
     public int medianBpm;
 }
 
-public class Timing
+public struct Timing
 {
     public float time;
     public float bpm;
 
-    public Timing() { }
+    public Timing( Timing _timing )
+    {
+        time = _timing.time;
+        bpm = _timing.bpm;
+    }
     public Timing( float _time, float _bpm )
     {
         time = _time;
@@ -70,6 +74,22 @@ public struct Chart
 
 public class FileConverter : FileReader
 {
+    private class CalcMedianTiming
+    {
+        public float time, bpm;
+
+        public CalcMedianTiming( Timing _timing )
+        {
+            time = _timing.time;
+            bpm = _timing.bpm;
+        }
+        public CalcMedianTiming( float _time, float _bpm )
+        {
+            time = _time;
+            bpm = _bpm;
+        }
+    }
+
     public void ReLoad()
     {
         string[] osuFiles = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
@@ -114,10 +134,9 @@ public class FileConverter : FileReader
                 if ( Contains( "Version" ) ) song.version = SplitAndTrim( ':' );
             }
 
+
             // [Events]
-
             var directory = Path.GetDirectoryName( _path );
-
             while ( ReadLine() != "[TimingPoints]" )
             {
                 if ( Contains( ".avi" ) || Contains( ".mp4" ) || Contains( ".mpg" ) )
@@ -147,39 +166,28 @@ public class FileConverter : FileReader
             chart.notes.Capacity = song.timingCount;
 
             // [TimingPoints]
-            double prevBPM = 0d;
-            float prevTime = 0f;
+            float prevBPM = 0f;
             song.timingCount = 0;
             while ( ReadLine() != "[HitObjects]" )
             {
                 string[] splitDatas = line.Split( ',' );
                 if ( splitDatas.Length != 8 ) continue;
-
-                bool isUninherited;
                 
-                int uninherited = int.Parse( splitDatas[6] );
-                if ( uninherited == 0 ) isUninherited = false;
-                else isUninherited = true;
+                float beatLength = Globals.Abs( float.Parse( splitDatas[1] ) );
+                float BPM = 1f / beatLength * 60000f;
 
-                double beatLength = Math.Abs( float.Parse( splitDatas[1] ) );
-                double BPM = 1d / beatLength * 60000d;
-
+                // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
+                bool isUninherited = int.Parse( splitDatas[6] ) == 0 ? false : true;
                 if ( isUninherited ) prevBPM = BPM;
-                else                 BPM = ( prevBPM * 100d ) / beatLength; // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
+                else                 BPM = ( prevBPM * 100f ) / beatLength;
 
-                if ( song.minBpm > BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
-                if ( song.maxBpm < BPM )                     song.maxBpm = ( int )BPM;
+                if ( song.minBpm >= BPM ) song.minBpm = ( int )BPM;
+                if ( song.maxBpm <= BPM ) song.maxBpm = ( int )BPM;
 
                 float time = float.Parse( splitDatas[0] );
+                chart.timings.Add( new Timing( time, BPM ) );
 
                 song.timingCount++;
-
-                if ( chart.timings.Count > 0 && prevTime == time ) 
-                     chart.timings[chart.timings.Count - 1].bpm = ( float )BPM;
-                else                    
-                    chart.timings.Add( new Timing( time, ( float )BPM ) );
-
-                prevTime = time;
             }
 
             // [HitObjects]
@@ -190,32 +198,33 @@ public class FileConverter : FileReader
                 string[] splitDatas = line.Split( ',' );
                 if ( splitDatas.Length != 6 ) continue;
 
-                song.totalTime = int.Parse( splitDatas[2] );
-                
-                int note = int.Parse( splitDatas[3] );
-                if ( note == 128 ) song.sliderCount++;
-                else song.noteCount++;
+                float noteTime = int.Parse( splitDatas[2] );
+                float sliderTime = 0f;
 
-                bool isSlider;
-                float sliderTime = 0;
-                int type = int.Parse( splitDatas[3] );
-                if ( type == 128 )
+                bool isSlider = int.Parse( splitDatas[3] ) == 128 ? true : false;
+                if ( isSlider )
                 {
-                    isSlider = true;
                     string[] splitSliderData = splitDatas[5].Split( ':' );
                     sliderTime = int.Parse( splitSliderData[0] );
+                    
+                    song.sliderCount++;
+                    song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                 }
-                else isSlider = false;
+                else
+                {
+                    song.noteCount++;
+                    song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
+                }
 
-                float time = int.Parse( splitDatas[2] );
+
                 int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6f / 512f );
-                chart.notes.Add( new Note( lane, time, 0f, sliderTime, 0f, isSlider ) );
+                chart.notes.Add( new Note( lane, noteTime, 0f, sliderTime, 0f, isSlider ) );
             }
 
             song.medianBpm = ( int )GetMedianBpm( chart );
 
             if ( song.timingCount > 0 )
-                chart.timings[0].time = -5000f;
+                 chart.timings[0] = new Timing( -5000f, chart.timings[0].bpm );
 
             Write( song, chart );
         }
@@ -308,38 +317,48 @@ public class FileConverter : FileReader
 
     private float GetMedianBpm( Chart _chart )
     {
-        List<Timing> timings = _chart.timings;
-        timings[0].time = _chart.notes[0].time;
-        timings.Add( new Timing( _chart.notes[_chart.notes.Count - 1].time, _chart.timings[_chart.timings.Count - 1].bpm ) );
+        // 값 전부 복사해서 계산해도 되지만 타이밍도 몇천개 있을 수도 있다.
+        // 참조값만 복사해서 첫번째, 마지막 타이밍만 수정한 후 계산 끝나면 돌려놓자.
+        var firstTimingCached = new Timing( _chart.timings[0] );
 
-        List<Timing> medianCalc = new List<Timing>();
-        medianCalc.Add( timings[0] );
+        // 노트 기준으로 길이 측정 하기위해 첫번째, 마지막 인자 변경
+        // 노트나 타이밍이 없을때 Throw 하기..
+        List<Timing> timings = _chart.timings;
+        timings[0] = new Timing( _chart.notes[0].time, _chart.timings[0].bpm );
+        // 마지막 Timing Bpm은 마지막 노트 시간까지의 길이로 계산한다.
+        timings.Add( new Timing( _chart.notes[_chart.notes.Count - 1].time, _chart.timings[_chart.timings.Count - 1].bpm ) );
+        
+        List<CalcMedianTiming> medianCalc = new List<CalcMedianTiming>();
+        medianCalc.Add( new CalcMedianTiming( timings[0] ) );
         for ( int i = 1; i < timings.Count; i++ )
         {
             float prevTime = timings[i - 1].time;
-            float prevBpm = timings[i - 1].bpm;
+            float prevBpm  = timings[i - 1].bpm;
 
             bool isFind = false;
             for ( int j = 0; j < medianCalc.Count; j++ )
             {
-                if ( Mathf.Abs( medianCalc[j].bpm - prevBpm ) < .1f )
+                if ( Globals.Abs( medianCalc[j].bpm - prevBpm ) < .1f )
                 {
                     isFind = true;
                     medianCalc[j].time += timings[i].time - prevTime;
                 }
             }
 
-            if ( !isFind ) medianCalc.Add( new Timing( timings[i].time - prevTime, prevBpm ) );
+            if ( !isFind ) medianCalc.Add( new CalcMedianTiming( timings[i].time - prevTime, prevBpm ) );
         }
 
-        medianCalc.Sort( delegate ( Timing A, Timing B )
+        medianCalc.Sort( delegate ( CalcMedianTiming A, CalcMedianTiming B )
         {
             if ( A.time < B.time )      return 1;
             else if ( A.time > B.time ) return -1;
             else                        return 0;
         } );
 
-        //return 1f / medianCalc[0].bpm * 60000f;
+        // 계산 끝난 후 값 돌려놓기.
+        timings[0] = firstTimingCached;
+        timings.RemoveAt( timings.Count - 1 );
+
         return medianCalc[0].bpm;
     }
 }
