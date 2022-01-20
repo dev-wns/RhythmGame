@@ -36,8 +36,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void Awake()
     {
-        using ( FileConverter converter = new FileConverter() )
-                converter.ReLoad();
+        //using ( FileConverter converter = new FileConverter() )
+        //        converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {
@@ -85,6 +85,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
     {
+        //var offset = 1f / CurrentSong.medianBpm * 60000f;
         var timings = CurrentChart.timings;
         double newTime = _time;
         double prevBpm = 0d;
@@ -94,6 +95,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             double bpm  = timings[i].bpm;
 
             if ( time > _time ) break;
+            //bpm = ( bpm / CurrentSong.medianBpm );
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }

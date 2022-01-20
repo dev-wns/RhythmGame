@@ -67,25 +67,24 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static int OriginScrollSpeed = 14;
+    private static float OriginScrollSpeed = 8.2f;
     public static float ScrollSpeed
     {
-        
-        get { return OriginScrollSpeed * .0027f; }
+
+        get => OriginScrollSpeed;
         set
         {
-            var speed = OriginScrollSpeed + Mathf.FloorToInt( value );
-            if ( speed < 1 )
+            if ( value < 1 )
             {
                 Debug.LogWarning( $"ScrollSpeed : {OriginScrollSpeed}" );
                 return;
             }
 
-            OriginScrollSpeed = speed;
+            OriginScrollSpeed = value;
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static float Weight      { get { return ( 60f / NowPlaying.Inst.CurrentSong.medianBpm ) * ScrollSpeed; } }
+    public static float Weight { get { return ( 60f / NowPlaying.Inst.CurrentSong.medianBpm ) * .0045f * ScrollSpeed; } }
     public static float PreLoadTime { get { return ( 1500f / Weight ); } }
 
     // Sound
