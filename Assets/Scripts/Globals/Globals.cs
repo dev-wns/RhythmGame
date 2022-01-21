@@ -5,9 +5,9 @@ public static class Globals
 {
     public static Timer Timer { get; } = new Timer();
 
-
-    public static float Abs( float _value ) => _value >= 0f ? _value : -_value;
-    public static int Abs( int _value )     => _value >= 0  ? _value : -_value;
+    public static double Abs( double _value ) => _value >= 0d ? _value : -_value;
+    public static float Abs( float _value )   => _value >= 0f ? _value : -_value;
+    public static int Abs( int _value )       => _value >= 0  ? _value : -_value;
     public static int Log10( float _value )
     {
         // 현재 6자리까지 사용함.

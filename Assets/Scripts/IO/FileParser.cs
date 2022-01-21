@@ -61,9 +61,9 @@ public class FileParser : FileReader
                 if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( SplitAndTrim( ':' ) );
                 if ( Contains( "NumTiming:" ) ) _song.timingCount = int.Parse( SplitAndTrim( ':' ) );
 
-                if ( Contains( "MinBPM:" ) )    _song.minBpm    = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "MaxBPM:" ) )    _song.maxBpm    = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "MedianBPM:" ) ) _song.medianBpm = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "MinBPM:" ) ) _song.minBpm    = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "MaxBPM:" ) ) _song.maxBpm    = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "Median:" ) ) _song.medianBpm = int.Parse( SplitAndTrim( ':' ) );
             }
     }
         catch ( Exception _error )
@@ -93,8 +93,9 @@ public class FileParser : FileReader
                 Timing timing = new Timing();
                 var split = line.Split( ',' );
 
-                timing.time = float.Parse( split[0] );
-                timing.bpm  = float.Parse( split[1] );
+                timing.time        = float.Parse( split[0] );
+                timing.beatLength  = double.Parse( split[1] );
+                timing.bpm         = ( float )( 1d / timing.beatLength * 60000d );
 
                 timings.Add( timing );
             }
@@ -116,7 +117,7 @@ public class FileParser : FileReader
                 note.line           = int.Parse( split[0] );
                 note.time           = float.Parse( split[1] );
                 note.sliderTime     = float.Parse( split[2] );
-                note.isSlider       = bool.Parse( split[3] );
+                note.isSlider       = note.sliderTime > 0 ? true : false;
 
                 notes.Add( note );
             }

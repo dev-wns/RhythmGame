@@ -34,15 +34,24 @@ public struct Timing
 {
     public float time;
     public float bpm;
+    public double beatLength;
 
     public Timing( Timing _timing )
     {
         time = _timing.time;
+        beatLength = _timing.beatLength;
         bpm = _timing.bpm;
     }
     public Timing( float _time, float _bpm )
     {
         time = _time;
+        bpm = _bpm;
+        beatLength = 0d;
+    }
+    public Timing( float _time, float _bpm, double _beatLength )
+    {
+        time = _time;
+        beatLength = _beatLength;
         bpm = _bpm;
     }
 }
@@ -56,14 +65,14 @@ public struct Note
     public float calcTime;
     public float calcSliderTime;
 
-    public Note( int _line, float _time, float _calcTime, float _sliderTime, float _calcSliderTime, bool _isSlider )
+    public Note( int _line, float _time, float _sliderTime )
     {
         line = _line;
         time = _time;
-        calcTime = _calcTime;
         sliderTime = _sliderTime;
-        calcSliderTime = _calcSliderTime;
-        isSlider = _isSlider;
+        calcTime = 0f;
+        calcSliderTime = 0f;
+        isSlider = false;
     }
 }
 
@@ -151,25 +160,25 @@ public class FileConverter : FileReader
             timings ??= new List<Timing>();
 
             // [TimingPoints]
-            float uninheritedBpm = 0f;
+            double uninheritedBpm = 0d;
             while ( ReadLine() != "[HitObjects]" )
             {
                 string[] splitDatas = line.Split( ',' );
                 if ( splitDatas.Length != 8 ) continue;
 
-                float beatLength = Globals.Abs( float.Parse( splitDatas[1] ) );
-                float BPM = 1f / beatLength * 60000f;
+                double beatLength = Globals.Abs( double.Parse( splitDatas[1] ) );
+                double BPM = 1d / beatLength * 60000d;
 
                 // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
                 bool isUninherited = int.Parse( splitDatas[6] ) == 0 ? false : true;
                 if ( isUninherited ) uninheritedBpm = BPM;
-                else                 BPM = ( uninheritedBpm * 100f ) / beatLength;
+                else                 BPM = ( uninheritedBpm * 100d ) / beatLength;
 
                 if ( song.minBpm >= BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
                 if ( song.maxBpm <= BPM )                     song.maxBpm = ( int )BPM;
 
                 float time = float.Parse( splitDatas[0] );
-                timings.Add( new Timing( time, BPM ) );
+                timings.Add( new Timing( time, ( float )BPM, 60000d / BPM ) );
 
                 song.timingCount++;
             }
@@ -208,7 +217,7 @@ public class FileConverter : FileReader
                 }
 
                 int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6f / 512f );
-                notes.Add( new Note( lane, noteTime, 0f, sliderTime, 0f, isSlider ) );
+                notes.Add( new Note( lane, noteTime, sliderTime ) );
             }
 
             if ( notes.Count == 0 )
@@ -219,7 +228,7 @@ public class FileConverter : FileReader
             song.medianBpm = ( int )GetMedianBpm();
 
             if ( song.timingCount > 0 )
-                 timings[0] = new Timing( -5000f, timings[0].bpm );
+                 timings[0] = new Timing( -5000f, timings[0].bpm, timings[0].beatLength );
 
             Write( in song );
         }
@@ -269,7 +278,7 @@ public class FileConverter : FileReader
 
                     writer.WriteLine( $"MinBPM: {_song.minBpm}" );
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
-                    writer.WriteLine( $"MedianBPM: {_song.medianBpm}" );
+                    writer.WriteLine( $"Median: {_song.medianBpm}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );
@@ -277,7 +286,7 @@ public class FileConverter : FileReader
                     {
                         text.Clear();
                         text.Append( timings[i].time ).Append( "," );
-                        text.Append( timings[i].bpm );
+                        text.Append( timings[i].beatLength );
 
                         writer.WriteLine( text );
                     }
@@ -288,8 +297,7 @@ public class FileConverter : FileReader
                         text.Clear();
                         text.Append( notes[i].line ).Append( "," );
                         text.Append( notes[i].time ).Append( "," );
-                        text.Append( notes[i].sliderTime ).Append( "," );
-                        text.Append( notes[i].isSlider );
+                        text.Append( notes[i].sliderTime );
 
                         writer.WriteLine( text );
                     }
