@@ -154,8 +154,8 @@ Transform:
   m_LocalPosition: {x: 255, y: -400, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1372792618}
   - {fileID: 968774759}
+  - {fileID: 1372792618}
   m_Father: {fileID: 231758587}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -337,7 +337,7 @@ Transform:
   m_LocalScale: {x: 100, y: 1000, z: 1}
   m_Children: []
   m_Father: {fileID: 1275821257}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &91975044
 SpriteRenderer:
@@ -1033,7 +1033,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 1275821257}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &293959244
 MonoBehaviour:
@@ -1047,7 +1047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2edae7e8bb5cd244ad5b4f4537a956c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas: {fileID: 100100200, guid: 73fc65e2dabd8664999e63133a9cd2f6, type: 3}
+  atlas: {fileID: 100100200, guid: 953aca60a2580674aa7ad1e2779d3ec2, type: 3}
   images: []
   sprites: []
 --- !u!212 &293959245
@@ -1132,7 +1132,7 @@ Transform:
   m_LocalScale: {x: 100, y: 1000, z: 1}
   m_Children: []
   m_Father: {fileID: 1524544343}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &347489871
 SpriteRenderer:
@@ -1228,7 +1228,7 @@ Transform:
   m_LocalScale: {x: 100, y: 1000, z: 1}
   m_Children: []
   m_Father: {fileID: 606623205}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &380621295
 SpriteRenderer:
@@ -1698,8 +1698,8 @@ Transform:
   m_LocalPosition: {x: 153, y: -400, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1293869921}
   - {fileID: 380621294}
+  - {fileID: 1293869921}
   m_Father: {fileID: 231758587}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1899,8 +1899,8 @@ Transform:
   m_LocalPosition: {x: -51, y: -400, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1302519433}
   - {fileID: 2101486910}
+  - {fileID: 1302519433}
   m_Father: {fileID: 231758587}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2025,8 +2025,8 @@ Transform:
   m_LocalPosition: {x: -255, y: -400, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1421668757}
   - {fileID: 700498388}
+  - {fileID: 1421668757}
   m_Father: {fileID: 231758587}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2150,7 +2150,7 @@ Transform:
   m_LocalScale: {x: 100, y: 1000, z: 1}
   m_Children: []
   m_Father: {fileID: 634770569}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &700498389
 SpriteRenderer:
@@ -2562,7 +2562,7 @@ Transform:
   m_LocalScale: {x: 100, y: 1000, z: 1}
   m_Children: []
   m_Father: {fileID: 13102678}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &968774760
 SpriteRenderer:
@@ -2733,7 +2733,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 1524544343}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1004293222
 MonoBehaviour:
@@ -2747,7 +2747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2edae7e8bb5cd244ad5b4f4537a956c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas: {fileID: 100100200, guid: 73fc65e2dabd8664999e63133a9cd2f6, type: 3}
+  atlas: {fileID: 100100200, guid: 953aca60a2580674aa7ad1e2779d3ec2, type: 3}
   images: []
   sprites: []
 --- !u!212 &1004293223
@@ -3628,8 +3628,8 @@ Transform:
   m_LocalPosition: {x: -153, y: -400, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 293959243}
   - {fileID: 91975043}
+  - {fileID: 293959243}
   m_Father: {fileID: 231758587}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3753,7 +3753,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 606623205}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1293869922
 MonoBehaviour:
@@ -3767,7 +3767,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2edae7e8bb5cd244ad5b4f4537a956c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas: {fileID: 100100200, guid: 73fc65e2dabd8664999e63133a9cd2f6, type: 3}
+  atlas: {fileID: 100100200, guid: 953aca60a2580674aa7ad1e2779d3ec2, type: 3}
   images: []
   sprites: []
 --- !u!212 &1293869923
@@ -3852,7 +3852,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 613721257}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1302519434
 MonoBehaviour:
@@ -3866,7 +3866,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2edae7e8bb5cd244ad5b4f4537a956c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas: {fileID: 100100200, guid: 73fc65e2dabd8664999e63133a9cd2f6, type: 3}
+  atlas: {fileID: 100100200, guid: 953aca60a2580674aa7ad1e2779d3ec2, type: 3}
   images: []
   sprites: []
 --- !u!212 &1302519435
@@ -4073,7 +4073,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 13102678}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1372792619
 MonoBehaviour:
@@ -4087,7 +4087,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2edae7e8bb5cd244ad5b4f4537a956c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas: {fileID: 100100200, guid: 73fc65e2dabd8664999e63133a9cd2f6, type: 3}
+  atlas: {fileID: 100100200, guid: 953aca60a2580674aa7ad1e2779d3ec2, type: 3}
   images: []
   sprites: []
 --- !u!212 &1372792620
@@ -4172,7 +4172,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 634770569}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1421668758
 MonoBehaviour:
@@ -4186,7 +4186,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2edae7e8bb5cd244ad5b4f4537a956c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atlas: {fileID: 100100200, guid: 73fc65e2dabd8664999e63133a9cd2f6, type: 3}
+  atlas: {fileID: 100100200, guid: 953aca60a2580674aa7ad1e2779d3ec2, type: 3}
   images: []
   sprites: []
 --- !u!212 &1421668759
@@ -4390,8 +4390,8 @@ Transform:
   m_LocalPosition: {x: 51, y: -400, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1004293221}
   - {fileID: 347489870}
+  - {fileID: 1004293221}
   m_Father: {fileID: 231758587}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5291,7 +5291,7 @@ Transform:
   m_LocalScale: {x: 100, y: 1000, z: 1}
   m_Children: []
   m_Father: {fileID: 613721257}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2101486911
 SpriteRenderer:
