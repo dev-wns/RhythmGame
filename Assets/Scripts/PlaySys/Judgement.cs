@@ -27,7 +27,7 @@ public class Judgement : MonoBehaviour
     public JudgeType GetJudgeType( float _diff )
     {
         float diffAbs = Globals.Abs( _diff );
-
+    
         if ( diffAbs <= Perfect )                                   return JudgeType.Perfect;
         else if ( diffAbs > Perfect     && diffAbs <= LazyPerfect ) return JudgeType.LazyPerfect;
         else if ( diffAbs > LazyPerfect && diffAbs <= Great )       return JudgeType.Great;
@@ -35,7 +35,6 @@ public class Judgement : MonoBehaviour
         else if ( diffAbs > Good        && diffAbs <= Bad )         return JudgeType.Bad;
         else if ( _diff < -Bad )                                    return JudgeType.Miss;
         else                                                        return JudgeType.None;
-        
     }
 
     public void OnJudgement( JudgeType _type )

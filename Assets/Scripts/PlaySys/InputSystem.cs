@@ -21,6 +21,8 @@ public class InputSystem : MonoBehaviour
     private bool isHolding = false;
     private float playback;
 
+    private Coroutine waitNoteCoroutine;
+
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
 
     private void Awake()
@@ -41,13 +43,23 @@ public class InputSystem : MonoBehaviour
 
     private void Initialize()
     {
-        StartCoroutine( NoteSelect() );
+        waitNoteCoroutine = StartCoroutine( NoteSelect() );
+    }
+
+    private void OnDestroy()
+    {
+        if ( waitNoteCoroutine != null )
+            StopCoroutine( waitNoteCoroutine );
     }
 
     private IEnumerator NoteSelect()
     {
-        yield return new WaitUntil( () => currentNote == null && notes.Count > 0 );
-        currentNote ??= notes.Dequeue();
+        var WaitNote = new WaitUntil( () => currentNote == null && notes.Count > 0 );
+        while ( true )
+        {
+            yield return WaitNote;
+            currentNote = notes.Dequeue();
+        }
     }
 
     private void SelectNextNote( bool _isDespawn = true )
@@ -56,22 +68,20 @@ public class InputSystem : MonoBehaviour
         isHolding = false;
         currentNote.isHolding = false;
 
-        if ( _isDespawn )
-             currentNote.Despawn();
-
-        if ( notes.Count > 0 )
-             currentNote = notes.Dequeue();
-        else
-        {
-            currentNote = null;
-            StartCoroutine( NoteSelect() );
-        }
+        if ( _isDespawn ) currentNote.Despawn();
+        currentNote = null;
     }
 
     private void CheckNote( bool _isInputDown )
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
         var startType = judge.GetJudgeType( startDiff );
+
+        //if ( startType != JudgeType.None && startType == JudgeType.Bad )
+        //{
+        //    SelectNextNote();
+        //    return;
+        //}
 
         if ( _isInputDown )
         {
@@ -117,8 +127,6 @@ public class InputSystem : MonoBehaviour
                 SelectNextNote( false );
             }
         }
-
-
         if ( isHolding )
         {
             float endDiff = currentNote.SliderTime - NowPlaying.Playback;
@@ -157,7 +165,6 @@ public class InputSystem : MonoBehaviour
                     sliderMissQueue.Enqueue( currentNote );
                     SelectNextNote( false );
                 }
-                else { Debug.Log( endType ); }
             }
         }
     }
@@ -168,8 +175,7 @@ public class InputSystem : MonoBehaviour
         bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
         bool isInputUp   = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
 
-        if ( isInputDown )    
-            OnInputEvent?.Invoke( true );
+        if ( isInputDown )    OnInputEvent?.Invoke( true );
         else if ( isInputUp ) OnInputEvent?.Invoke( false );
 
         if ( sliderMissQueue.Count > 0 )

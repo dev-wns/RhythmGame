@@ -36,7 +36,7 @@ public class RateSystem : NumberAtlasBase
         currentRate += addRate;
 
         float calcRate = currentRate / maxCount;
-        int num = ( int )Mathf.Log10( calcRate ) + 1;
+        int num = ( int )Globals.Log10( ( uint )calcRate ) + 1;
 
         for ( int i = 0; i < images.Count; i++ )
         {

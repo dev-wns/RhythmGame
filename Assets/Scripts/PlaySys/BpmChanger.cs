@@ -11,8 +11,6 @@ public class BpmChanger : MonoBehaviour
     private InGame scene;
     private ReadOnlyCollection<Timing> timings;
     private int currentIndex;
-    // private float changeTime;
-    // private float currentBpm;
     private Timing curTiming;
 
     public event Action<float/* bpm */> OnBpmChange;
@@ -39,7 +37,6 @@ public class BpmChanger : MonoBehaviour
             curTiming = timings[currentIndex];
             yield return waitChangedTimeUntil;
             
-            Debug.Log( $"Current Bpm : {curTiming.bpm}" );
             OnBpmChange?.Invoke( curTiming.bpm );
             currentIndex++;
         }

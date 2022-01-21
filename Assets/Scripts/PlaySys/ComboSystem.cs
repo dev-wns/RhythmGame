@@ -9,10 +9,7 @@ public class ComboSystem : NumberAtlasBase
     private Judgement judge;
     private int combo;
 
-    private Tween comboTween, missComboTween;
-
-    private readonly Color comboColor = new Color( 1f, 1f, 1f, .75f );
-    private readonly Color missColor  = new Color( 1f, 0f, 0f, .75f );
+    private Sequence comboSequence;
 
     protected override void Awake()
     {
@@ -23,10 +20,17 @@ public class ComboSystem : NumberAtlasBase
         ComboImageUpdate( JudgeType.Miss );
     }
 
+    private void Start()
+    {
+        comboSequence = DOTween.Sequence();
+
+        comboSequence.Pause().SetAutoKill( false );
+        comboSequence.Append( transform.DOScale( Vector3.one, .085f ) );
+    }
+
     private void OnDestroy()
     {
-        comboTween?.Kill();
-        missComboTween?.Kill();
+        comboSequence?.Kill();
     }
 
     private void ComboImageUpdate( JudgeType _type )
@@ -43,7 +47,7 @@ public class ComboSystem : NumberAtlasBase
             {
                 int num;
                 calcCombo = ++combo;
-                if ( combo > 0 ) num = ( int )Mathf.Log10( calcCombo ) + 1;
+                if ( combo > 0 ) num = Globals.Log10( calcCombo ) + 1;
                 else             num = 1;
 
                 for ( int i = 0; i < images.Count; i++ )
@@ -58,8 +62,7 @@ public class ComboSystem : NumberAtlasBase
                 }
 
                 transform.localScale = new Vector3( .75f, .75f, 1f );
-                comboTween?.Kill();
-                comboTween = transform.DOScale( Vector3.one, .085f );
+                comboSequence.Restart();
             } break;
 
             case JudgeType.Miss:
@@ -67,17 +70,14 @@ public class ComboSystem : NumberAtlasBase
                 combo = 0;
 
                 images[0].gameObject.SetActive( true );
-                images[0].sprite = atlas.GetSprite( $"combo-0" );
+                images[0].sprite = sprites[0];
                 for ( int i = 1; i < images.Count; i++ )
                 {
                     if ( images[i].gameObject.activeInHierarchy )
                          images[i].gameObject.SetActive( false );
                 }
 
-                //images[0].color      = missColor;
                 transform.localScale = Vector3.one;
-                //missComboTween?.Kill();
-                //missComboTween = images[0].DOColor( comboColor, .085f );
             } break;
         }
     }

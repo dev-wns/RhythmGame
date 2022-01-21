@@ -55,7 +55,7 @@ public class ScoreSystem : NumberAtlasBase
 
         int num;
         float calcScore = currentScore;
-        if ( currentScore > 0 ) num = ( int )Mathf.Log10( calcScore ) + 1;
+        if ( currentScore > 0 ) num = ( int )Globals.Log10( ( uint )calcScore ) + 1;
         else                    num = 1;
 
         for ( int i = 0; i < images.Count; i++ )
