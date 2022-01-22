@@ -23,27 +23,36 @@ public class InputSystem : MonoBehaviour
 
     private Coroutine waitNoteCoroutine;
 
+    private Action NoteProcessAction;
+
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnGameStart += Initialize;
+        scene.OnGameStart += () => waitNoteCoroutine = StartCoroutine( NoteSelect() );
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
         lane  = GetComponent<Lane>(); 
-        lane.OnLaneInitialize += LaneInitialize;
-    }
+        lane.OnLaneInitialize += _key => key = ( GameKeyAction )_key;
 
-    private void LaneInitialize( int _key ) 
-    {
-        key = ( GameKeyAction )_key; 
-    }
-
-    private void Initialize()
-    {
-        waitNoteCoroutine = StartCoroutine( NoteSelect() );
+        if ( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) )
+        {
+            NoteProcessAction = () =>
+            {
+                if ( currentNote.IsSlider ) AutoCheckSlider();
+                else                        AutoCheckNote();
+            };
+        }
+        else
+        {
+            NoteProcessAction = () =>
+            {
+                if ( currentNote.IsSlider ) CheckSlider();
+                else                        CheckNote();
+            };
+        }
     }
 
     private void OnDestroy()
@@ -72,7 +81,7 @@ public class InputSystem : MonoBehaviour
         currentNote = null;
     }
 
-    private void AutoCheckNote( bool _isInputDown)
+    private void AutoCheckNote()
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
 
@@ -85,7 +94,7 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    private void AutoCheckSlider( bool _isInputDown, bool _isInputHold, bool _isInputUp )
+    private void AutoCheckSlider()
     {
         if ( !isHolding )
         {
@@ -122,12 +131,13 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    private void CheckNote( bool _isInputDown )
+    private void CheckNote()
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
-        var startType = judge.GetJudgeType( startDiff );
+        var startType   = judge.GetJudgeType( startDiff );
 
-        if ( _isInputDown )
+        bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
+        if ( isInputDown )
         {
             if ( startType != JudgeType.None && startType != JudgeType.Miss )
             {
@@ -145,14 +155,15 @@ public class InputSystem : MonoBehaviour
         }        
     }
 
-    private void CheckSlider( bool _isInputDown, bool _isInputHold, bool _isInputUp )
+    private void CheckSlider()
     {
         if ( !isHolding )
         {
             float startDiff = currentNote.Time - NowPlaying.Playback;
             var startType   = judge.GetJudgeType( startDiff );
 
-            if ( _isInputDown )
+            bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
+            if ( isInputDown )
             {
                 if ( startType != JudgeType.None && startType != JudgeType.Miss )
                 {
@@ -173,10 +184,12 @@ public class InputSystem : MonoBehaviour
         }
         if ( isHolding )
         {
+            bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
+
             float endDiff = currentNote.SliderTime - NowPlaying.Playback;
             var endType   = judge.GetJudgeType( endDiff );
 
-            if ( _isInputHold )
+            if ( isInputHold )
             {
                 if ( endType != JudgeType.None && endType == JudgeType.Miss )
                 {
@@ -194,7 +207,8 @@ public class InputSystem : MonoBehaviour
                 }
             }
 
-            if ( _isInputUp )
+            bool isInputUp = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
+            if ( isInputUp )
             {
                 if ( endType != JudgeType.None && endType != JudgeType.Miss )
                 {
@@ -216,7 +230,6 @@ public class InputSystem : MonoBehaviour
     private void LateUpdate()
     {
         bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
-        bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
         bool isInputUp   = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
 
         if ( isInputDown )    OnInputEvent?.Invoke( true );
@@ -234,17 +247,6 @@ public class InputSystem : MonoBehaviour
         }
 
         if ( currentNote != null )
-        {
-            if ( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) )
-            {
-                if ( currentNote.IsSlider ) AutoCheckSlider( isInputDown, isInputHold, isInputUp );
-                else AutoCheckNote( isInputDown );
-            }
-            else
-            {
-                if ( currentNote.IsSlider ) CheckSlider( isInputDown, isInputHold, isInputUp );
-                else CheckNote( isInputDown );
-            }
-        }
+             NoteProcessAction();
     }
 }
