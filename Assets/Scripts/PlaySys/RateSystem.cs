@@ -8,7 +8,7 @@ public class RateSystem : NumberAtlasBase
     private Judgement judge;
 
     private int maxCount;
-    private float currentRate;
+    private double currentRate;
 
     protected override void Awake()
     {
@@ -35,8 +35,8 @@ public class RateSystem : NumberAtlasBase
 
         currentRate += addRate;
 
-        float calcRate = currentRate / maxCount;
-        int num = ( int )Globals.Log10( ( uint )calcRate ) + 1;
+        double calcRate = currentRate / maxCount;
+        int num = Globals.Log10( ( int )calcRate ) + 1;
 
         for ( int i = 0; i < images.Count; i++ )
         {
@@ -50,8 +50,8 @@ public class RateSystem : NumberAtlasBase
                 if ( !images[i].gameObject.activeInHierarchy )
                      images[i].gameObject.SetActive( true );
 
-                images[i].sprite = sprites[( int )calcRate % 10];
-                calcRate *= .1f;
+                images[i].sprite = sprites[Mathf.FloorToInt( ( float )calcRate ) % 10];
+                calcRate *= .1d;
             }
         }
     }
