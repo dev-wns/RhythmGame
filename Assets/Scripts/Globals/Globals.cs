@@ -10,7 +10,7 @@ public static class Globals
     public static int Abs( int _value )       => _value >= 0  ? _value : -_value;
     public static int Log10( float _value )
     {
-        // 현재 6자리까지 사용함.
+        // 현재 7자리까지 사용함.
         return ( _value >= 10000000u )   ? 7 : ( _value >= 1000000u )   ? 6 :
                ( _value >= 100000u )     ? 5 : ( _value >= 10000u )     ? 4 :
                ( _value >= 1000u )       ? 3 : ( _value >= 100u )       ? 2 : 

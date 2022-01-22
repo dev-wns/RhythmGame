@@ -72,16 +72,60 @@ public class InputSystem : MonoBehaviour
         currentNote = null;
     }
 
+    private void AutoCheckNote( bool _isInputDown)
+    {
+        float startDiff = currentNote.Time - NowPlaying.Playback;
+
+        if ( startDiff <= 0f )
+        {
+            var startType = judge.GetJudgeType( startDiff );
+            OnHitNote();
+            judge.OnJudgement( startType );
+            SelectNextNote();
+        }
+    }
+
+    private void AutoCheckSlider( bool _isInputDown, bool _isInputHold, bool _isInputUp )
+    {
+        if ( !isHolding )
+        {
+            float startDiff = currentNote.Time - NowPlaying.Playback;
+
+            if ( startDiff <= 0f )
+            {
+                var startType   = judge.GetJudgeType( startDiff );
+                isHolding = true;
+                currentNote.isHolding = true;
+                OnHitNote();
+                judge.OnJudgement( startType );
+            }
+        }
+        else
+        {
+            float endDiff = currentNote.SliderTime - NowPlaying.Playback;
+
+            playback += Time.deltaTime;
+            if ( playback > .1f )
+            {
+                OnHitNote();
+                judge.OnJudgement( JudgeType.None );
+                playback = 0f;
+            }
+
+            if ( endDiff <= 0f )
+            {
+                var endType = judge.GetJudgeType( endDiff );
+                OnHitNote();
+                judge.OnJudgement( endType );
+                SelectNextNote();
+            }
+        }
+    }
+
     private void CheckNote( bool _isInputDown )
     {
         float startDiff = currentNote.Time - NowPlaying.Playback;
         var startType = judge.GetJudgeType( startDiff );
-
-        //if ( startType != JudgeType.None && startType == JudgeType.Bad )
-        //{
-        //    SelectNextNote();
-        //    return;
-        //}
 
         if ( _isInputDown )
         {
@@ -191,8 +235,16 @@ public class InputSystem : MonoBehaviour
 
         if ( currentNote != null )
         {
-            if ( currentNote.IsSlider ) CheckSlider( isInputDown, isInputHold, isInputUp );
-            else                        CheckNote( isInputDown );
+            if ( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) )
+            {
+                if ( currentNote.IsSlider ) AutoCheckSlider( isInputDown, isInputHold, isInputUp );
+                else AutoCheckNote( isInputDown );
+            }
+            else
+            {
+                if ( currentNote.IsSlider ) CheckSlider( isInputDown, isInputHold, isInputUp );
+                else CheckNote( isInputDown );
+            }
         }
     }
 }

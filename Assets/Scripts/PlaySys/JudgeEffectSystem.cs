@@ -35,6 +35,7 @@ public class JudgeEffectSystem : NumberAtlasBase
     {
         moveHideSequence.Kill();
     }
+
     private void HitEffect( JudgeType _type )
     {
         switch ( _type )
