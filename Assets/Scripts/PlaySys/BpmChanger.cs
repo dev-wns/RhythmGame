@@ -13,7 +13,7 @@ public class BpmChanger : MonoBehaviour
     private int currentIndex;
     private Timing curTiming;
 
-    public event Action<float/* bpm */> OnBpmChange;
+    public event Action<double/* bpm */> OnBpmChange;
 
     private void Awake()
     {

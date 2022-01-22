@@ -32,8 +32,8 @@ public struct Song
 
 public struct Timing
 {
-    public float time;
-    public float bpm;
+    public double time;
+    public double bpm;
     public double beatLength;
 
     public Timing( Timing _timing )
@@ -42,13 +42,13 @@ public struct Timing
         beatLength = _timing.beatLength;
         bpm = _timing.bpm;
     }
-    public Timing( float _time, float _bpm )
+    public Timing( double _time, double _bpm )
     {
         time = _time;
         bpm = _bpm;
         beatLength = 0d;
     }
-    public Timing( float _time, float _bpm, double _beatLength )
+    public Timing( double _time, double _bpm, double _beatLength )
     {
         time = _time;
         beatLength = _beatLength;
@@ -59,13 +59,13 @@ public struct Timing
 public struct Note
 {
     public int line;
-    public float time;
-    public float sliderTime;
+    public double time;
+    public double sliderTime;
     public bool isSlider;
-    public float calcTime;
-    public float calcSliderTime;
+    public double calcTime;
+    public double calcSliderTime;
 
-    public Note( int _line, float _time, float _sliderTime )
+    public Note( int _line, double _time, double _sliderTime )
     {
         line = _line;
         time = _time;
@@ -89,14 +89,14 @@ public class FileConverter : FileReader
 
     private class CalcMedianTiming
     {
-        public float time, bpm;
+        public double time, bpm;
 
         public CalcMedianTiming( Timing _timing )
         {
             time = _timing.time;
             bpm = _timing.bpm;
         }
-        public CalcMedianTiming( float _time, float _bpm )
+        public CalcMedianTiming( double _time, double _bpm )
         {
             time = _time;
             bpm = _bpm;
@@ -174,11 +174,11 @@ public class FileConverter : FileReader
                 if ( isUninherited ) uninheritedBpm = BPM;
                 else                 BPM = ( uninheritedBpm * 100d ) / beatLength;
 
-                if ( song.minBpm >= BPM || song.minBpm == 0 ) song.minBpm = ( int )BPM;
-                if ( song.maxBpm <= BPM )                     song.maxBpm = ( int )BPM;
+                if ( song.minBpm >= BPM || song.minBpm == 0 ) song.minBpm = Mathf.RoundToInt( ( float )BPM );
+                if ( song.maxBpm <= BPM )                     song.maxBpm = Mathf.RoundToInt( ( float )BPM );
 
-                float time = float.Parse( splitDatas[0] );
-                timings.Add( new Timing( time, ( float )BPM, 60000d / BPM ) );
+                double time = double.Parse( splitDatas[0] );
+                timings.Add( new Timing( time, BPM, 60000d / BPM ) );
 
                 song.timingCount++;
             }
@@ -198,14 +198,14 @@ public class FileConverter : FileReader
                 string[] splitDatas = line.Split( ',' );
                 if ( splitDatas.Length != 6 ) continue;
 
-                float noteTime = int.Parse( splitDatas[2] );
-                float sliderTime = 0f;
+                double noteTime = double.Parse( splitDatas[2] );
+                double sliderTime = 0d;
 
                 bool isSlider = int.Parse( splitDatas[3] ) == 128 ? true : false;
                 if ( isSlider )
                 {
                     string[] splitSliderData = splitDatas[5].Split( ':' );
-                    sliderTime = int.Parse( splitSliderData[0] );
+                    sliderTime = double.Parse( splitSliderData[0] );
                     
                     song.sliderCount++;
                     song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
@@ -216,7 +216,7 @@ public class FileConverter : FileReader
                     song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                 }
 
-                int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6f / 512f );
+                int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6 / 512 );
                 notes.Add( new Note( lane, noteTime, sliderTime ) );
             }
 
@@ -225,23 +225,23 @@ public class FileConverter : FileReader
 
             #endregion
 
-            song.medianBpm = ( int )GetMedianBpm();
+            song.medianBpm = Mathf.RoundToInt( ( float )GetMedianBpm() );
 
             if ( song.timingCount > 0 )
-                 timings[0] = new Timing( -5000f, timings[0].bpm, timings[0].beatLength );
+                 timings[0] = new Timing( -5000d, timings[0].bpm, timings[0].beatLength );
 
             Write( in song );
         }
         catch ( Exception _error )
         {
-            if ( !Directory.Exists( GameSetting.FailedPath ) )
-                  Directory.CreateDirectory( GameSetting.FailedPath );
+            //if ( !Directory.Exists( GameSetting.FailedPath ) )
+            //      Directory.CreateDirectory( GameSetting.FailedPath );
 
-            if ( File.Exists( path ) )
-            {
-                File.Move( path, GameSetting.FailedPath );
-                Debug.LogWarning( $"File Move Failed Directory : {path}" );
-            }
+            //if ( File.Exists( path ) )
+            //{
+            //    File.Move( path, GameSetting.FailedPath );
+            //    Debug.LogWarning( $"File Move Failed Directory : {path}" );
+            //}
 
             Dispose();
             Debug.LogError( $"{_error}, {path}" );
@@ -318,7 +318,7 @@ public class FileConverter : FileReader
         }
     }
 
-    private float GetMedianBpm()
+    private double GetMedianBpm()
     {        
         // 값 전부 복사해서 계산해도 되지만 타이밍도 몇천개 있을 수도 있다.
         // 첫번째, 마지막 타이밍만 수정한 후 계산 끝나면 돌려놓자.
@@ -333,8 +333,8 @@ public class FileConverter : FileReader
         medianCalc.Add( new CalcMedianTiming( timings[0] ) );
         for ( int i = 1; i < timings.Count; i++ )
         {
-            float prevTime = timings[i - 1].time;
-            float prevBpm  = timings[i - 1].bpm;
+            double prevTime = timings[i - 1].time;
+            double prevBpm  = timings[i - 1].bpm;
 
             bool isFind = false;
             for ( int j = 0; j < medianCalc.Count; j++ )

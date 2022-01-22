@@ -8,7 +8,7 @@ public class ScrollSpeedOption : OptionSlider
     {
         base.Awake();
 
-        curValue = GameSetting.ScrollSpeed;
+        curValue = ( float )GameSetting.ScrollSpeed;
         UpdateValue( curValue );
     }
 

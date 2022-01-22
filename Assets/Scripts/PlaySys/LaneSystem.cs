@@ -10,8 +10,8 @@ public class LaneSystem : MonoBehaviour
     private struct CalcNote
     {
         public Note? note;
-        public float noteTime;
-        public float sliderTime;
+        public double noteTime;
+        public double sliderTime;
     }
 
     private void Awake()

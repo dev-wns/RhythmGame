@@ -5,11 +5,11 @@ using UnityEngine;
 public class MeasureRenderer : MonoBehaviour
 {
     private MeasureSystem system;
-    private float time;
+    private double time;
 
     private SpriteRenderer rdr;
 
-    public void SetInfo( MeasureSystem _system, float _time )
+    public void SetInfo( MeasureSystem _system, double _time )
     {
         rdr.enabled = true;
         system = _system;
@@ -25,7 +25,7 @@ public class MeasureRenderer : MonoBehaviour
     private void LateUpdate()
     {
         var pos = GameSetting.JudgePos + ( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight );
-        transform.position = new Vector2( 0, pos );
+        transform.position = new Vector2( 0, ( float )pos );
 
         if ( pos <= GameSetting.JudgePos )
         {

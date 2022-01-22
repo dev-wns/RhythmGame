@@ -21,22 +21,21 @@ public class RateSystem : NumberAtlasBase
     {
         if ( _type == JudgeType.None ) return;
 
-        int addRate = 0;
+        double addRate = 0d;
         switch ( _type )
         {
             case JudgeType.Perfect: 
-            case JudgeType.LazyPerfect: addRate = 10000; break; 
-            case JudgeType.Great:       addRate = 7500;  break; 
-            case JudgeType.Good:        addRate = 5000;  break; 
-            case JudgeType.Bad:         addRate = 2500;  break; 
-            case JudgeType.Miss:        addRate = 0;     break; 
+            case JudgeType.LazyPerfect: addRate = 10000d; break; 
+            case JudgeType.Great:       addRate = 7500d;  break; 
+            case JudgeType.Good:        addRate = 5000d;  break; 
+            case JudgeType.Bad:         addRate = 2500d;  break; 
+            case JudgeType.Miss:        addRate = 0d;     break; 
         }
         ++maxCount;
-
         currentRate += addRate;
 
-        double calcRate = currentRate / maxCount;
-        int num = Globals.Log10( ( int )calcRate ) + 1;
+        double calcRate = Mathf.RoundToInt( ( float )( currentRate / maxCount ) );
+        int num = Globals.Log10( calcRate ) + 1;
 
         for ( int i = 0; i < images.Count; i++ )
         {
@@ -50,7 +49,7 @@ public class RateSystem : NumberAtlasBase
                 if ( !images[i].gameObject.activeInHierarchy )
                      images[i].gameObject.SetActive( true );
 
-                images[i].sprite = sprites[Mathf.FloorToInt( ( float )calcRate ) % 10];
+                images[i].sprite = sprites[( int )calcRate % 10];
                 calcRate *= .1d;
             }
         }

@@ -7,11 +7,11 @@ public enum JudgeType { None, Perfect, LazyPerfect, Great, Good, Bad, Miss }
 
 public class Judgement : MonoBehaviour
 {
-    public const float Perfect     = 22f;
-    public const float LazyPerfect = 20f + Perfect;
-    public const float Great       = 18f + LazyPerfect;
-    public const float Good        = 16f + Great;
-    public const float Bad         = 14f + Good;
+    public const double Perfect     = 22d;
+    public const double LazyPerfect = 20d + Perfect;
+    public const double Great       = 18d + LazyPerfect;
+    public const double Good        = 16d + Great;
+    public const double Bad         = 14d + Good;
 
     private int perfectCount, lazyPerfectCount, greatCount, goodCount, badCount, missCount;
 
@@ -24,9 +24,9 @@ public class Judgement : MonoBehaviour
         rt.sizeDelta        = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
     }
 
-    public JudgeType GetJudgeType( float _diff )
+    public JudgeType GetJudgeType( double _diff )
     {
-        float diffAbs = Globals.Abs( _diff );
+        double diffAbs = Globals.Abs( _diff );
     
         if ( diffAbs <= Perfect )                                   return JudgeType.Perfect;
         else if ( diffAbs > Perfect     && diffAbs <= LazyPerfect ) return JudgeType.LazyPerfect;

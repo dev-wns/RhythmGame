@@ -8,7 +8,7 @@ public static class Globals
     public static double Abs( double _value ) => _value >= 0d ? _value : -_value;
     public static float Abs( float _value )   => _value >= 0f ? _value : -_value;
     public static int Abs( int _value )       => _value >= 0  ? _value : -_value;
-    public static int Log10( float _value )
+    public static int Log10( double _value )
     {
         // 현재 7자리까지 사용함.
         return ( _value >= 10000000u )   ? 7 : ( _value >= 1000000u )   ? 6 :

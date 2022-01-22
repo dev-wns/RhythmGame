@@ -6,15 +6,15 @@ public class NoteRenderer : MonoBehaviour
     private NoteSystem system;
     public SpriteRenderer head, body, tail;
     private Transform headTf, bodyTf, tailTf;
-    public float Time { get; private set; }
-    public float CalcTime { get; private set; }
-    public float SliderTime { get; private set; }
-    public float CalcSliderTime { get; private set; }
+    public double Time { get; private set; }
+    public double CalcTime { get; private set; }
+    public double SliderTime { get; private set; }
+    public double CalcSliderTime { get; private set; }
     public bool IsSlider { get; private set; }
     public bool isHolding { get; set; }
 
-    private float column { get; set; }
-    private float newTime;
+    private float column;
+    private double newTime;
 
     private static readonly Color MiddleColor   = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
     private static readonly Color BodyColor     = new Color( .4f, .4f, .4f, 1f );
@@ -70,8 +70,8 @@ public class NoteRenderer : MonoBehaviour
         headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
         if ( IsSlider )
         {
-            float sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
-            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, sliderLengthAbs );
+            double sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
+            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )sliderLengthAbs );
             //tail.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
         }
     }
@@ -88,29 +88,29 @@ public class NoteRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        float weight = GameSetting.Weight;
+        double weight = GameSetting.Weight;
         if ( isHolding )
         {
             if ( head.transform.position.y <= GameSetting.JudgePos )
                  newTime = NowPlaying.PlaybackChanged;
 
-            Vector2 startPos = new Vector2( column, GameSetting.JudgePos + ( ( newTime  - NowPlaying.PlaybackChanged ) * weight ) );
+            Vector2 startPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime  - NowPlaying.PlaybackChanged ) * weight ) ) );
             headTf.position = bodyTf.position = startPos;
-            tailTf.position = new Vector2( column, GameSetting.JudgePos + ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
+            tailTf.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) ) );
 
-            float bodyDiff = tailTf.position.y - headTf.position.y;
-            float bodyScale = bodyDiff <= 0f ? 0f : bodyDiff;
-            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, bodyScale );
+            double bodyDiff = tailTf.position.y - headTf.position.y;
+            double bodyScale = bodyDiff <= 0d ? 0d : bodyDiff;
+            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )bodyScale );
         }
         else
         {
-            Vector2 startPos = new Vector2( column, GameSetting.JudgePos + ( ( newTime  - NowPlaying.PlaybackChanged ) * weight ) );
+            Vector2 startPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime  - NowPlaying.PlaybackChanged ) * weight ) ) );
             headTf.position  = startPos;
 
             if ( IsSlider )
             {
                 bodyTf.position = startPos;
-                tailTf.position = new Vector2( column, GameSetting.JudgePos + ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
+                tailTf.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) ) );
             }
         }
     }

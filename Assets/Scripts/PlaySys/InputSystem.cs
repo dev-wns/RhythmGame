@@ -83,7 +83,7 @@ public class InputSystem : MonoBehaviour
 
     private void AutoCheckNote()
     {
-        float startDiff = currentNote.Time - NowPlaying.Playback;
+        double startDiff = currentNote.Time - NowPlaying.Playback;
 
         if ( startDiff <= 0f )
         {
@@ -98,7 +98,7 @@ public class InputSystem : MonoBehaviour
     {
         if ( !isHolding )
         {
-            float startDiff = currentNote.Time - NowPlaying.Playback;
+            double startDiff = currentNote.Time - NowPlaying.Playback;
 
             if ( startDiff <= 0f )
             {
@@ -111,7 +111,7 @@ public class InputSystem : MonoBehaviour
         }
         else
         {
-            float endDiff = currentNote.SliderTime - NowPlaying.Playback;
+            double endDiff = currentNote.SliderTime - NowPlaying.Playback;
 
             playback += Time.deltaTime;
             if ( playback > .1f )
@@ -133,7 +133,7 @@ public class InputSystem : MonoBehaviour
 
     private void CheckNote()
     {
-        float startDiff = currentNote.Time - NowPlaying.Playback;
+        double startDiff = currentNote.Time - NowPlaying.Playback;
         var startType   = judge.GetJudgeType( startDiff );
 
         bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
@@ -159,7 +159,7 @@ public class InputSystem : MonoBehaviour
     {
         if ( !isHolding )
         {
-            float startDiff = currentNote.Time - NowPlaying.Playback;
+            double startDiff = currentNote.Time - NowPlaying.Playback;
             var startType   = judge.GetJudgeType( startDiff );
 
             bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
@@ -186,7 +186,7 @@ public class InputSystem : MonoBehaviour
         {
             bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
 
-            float endDiff = currentNote.SliderTime - NowPlaying.Playback;
+            double endDiff = currentNote.SliderTime - NowPlaying.Playback;
             var endType   = judge.GetJudgeType( endDiff );
 
             if ( isInputHold )
@@ -238,7 +238,7 @@ public class InputSystem : MonoBehaviour
         if ( sliderMissQueue.Count > 0 )
         {
             var slider = sliderMissQueue.Peek();
-            float endDiff = slider.SliderTime - NowPlaying.Playback;
+            double endDiff = slider.SliderTime - NowPlaying.Playback;
             if ( judge.GetJudgeType( endDiff ) == JudgeType.Miss )
             {
                 slider.Despawn();

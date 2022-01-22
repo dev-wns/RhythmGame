@@ -10,12 +10,9 @@ public class MeasureSystem : MonoBehaviour
 
     public ObjectPool<MeasureRenderer> mPool;
     public MeasureRenderer mPrefab;
-    // 60bpm은 분당 1/4박자 60개, 스크롤 속도가 1일때 한박자(1/4) 시간은 1초
-    private List<float> measures = new List<float>();
+    private List<double /* JudgeLine hit time */> measures = new List<double>();
     private int currentIndex;
-    private float currentTime;
-
-    private float playback, bpms;
+    private double currentTime;
 
     private void Awake()
     {
@@ -34,13 +31,13 @@ public class MeasureSystem : MonoBehaviour
         for ( int i = 0; i < timings.Count; i++ )
         {
             if ( timings[i].bpm < 10 ) continue;
-            float bpms = ( 60f / timings[i].bpm ) * 1000f; // beat per milliseconds
+            double bpms = ( 60d / timings[i].bpm ) * 1000d; // beat per milliseconds
 
-            float time = timings[i].time;
+            double time = timings[i].time;
             if ( i == 0 )
             {
-                int maxBeat = Mathf.FloorToInt( ( _chart.notes[0].time + 3000f ) / bpms );
-                time = _chart.notes[0].time - ( maxBeat * bpms );
+                int maxBeat = Mathf.FloorToInt( ( float )( ( _chart.notes[0].time + 3000d ) / bpms ) );
+                time = _chart.notes[0].time - ( bpms * maxBeat );
             }
             else
             {
@@ -53,23 +50,17 @@ public class MeasureSystem : MonoBehaviour
                     }
                 }
             }
-            
-            float nextTime = ( i + 1 == timings.Count ) ? _chart.notes[_chart.notes.Count - 1].time + 3000f : timings[i + 1].time;
-            float calcTime = NowPlaying.Inst.GetChangedTime( time );
+
+            double nextTime = ( i + 1 == timings.Count ) ? _chart.notes[_chart.notes.Count - 1].time + 3000d : timings[i + 1].time;
+            double calcTime = NowPlaying.Inst.GetChangedTime( time );
             if ( measures.Count == 0 || measures[measures.Count - 1] < calcTime )
                  measures.Add( calcTime );
 
-            int maxCount = Mathf.FloorToInt( ( nextTime - time ) / bpms );
+            int maxCount = Mathf.FloorToInt( ( float )( ( nextTime - time ) / bpms ) );
             for ( int j = 1; j < maxCount + 1; j++ )
             {
                 measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * bpms ) ) ) );
             }
-        }
-
-        for ( int k = 1; k < measures.Count; k++ )
-        {
-            if ( measures[k - 1] == measures[k] )
-                Debug.Log( "duplicate" );
         }
     }
 
@@ -78,18 +69,18 @@ public class MeasureSystem : MonoBehaviour
         if ( measures.Count > 0 )
              currentTime = measures[currentIndex];
 
+        WaitUntil waitNextMeasure = new WaitUntil( () => currentTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+
         while ( currentIndex < measures.Count )
         {
-            if ( currentTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime )
-            {
-                MeasureRenderer measure = mPool.Spawn();
-                measure.SetInfo( this, currentTime );
+            yield return waitNextMeasure;
 
-                if ( ++currentIndex < measures.Count )
-                     currentTime = measures[currentIndex];
-            }
+            MeasureRenderer measure = mPool.Spawn();
+            measure.SetInfo( this, currentTime );
 
-            yield return null;
+            if ( ++currentIndex < measures.Count )
+                 currentTime = measures[currentIndex];
+            
         }
     }
 }

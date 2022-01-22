@@ -32,20 +32,18 @@ public class NoteSystem : MonoBehaviour
         if( notes.Count > 0 )
             currentNote = notes[currentIndex];
 
+        WaitUntil waitNextNote = new WaitUntil( () => currentNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
         while ( currentIndex < notes.Count )
         {
-            if ( currentNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime )
-            {
-                NoteRenderer note = nPool.Spawn();
-                note.SetInfo( lane.Key, this, in currentNote );
+            yield return waitNextNote;
+         
+            NoteRenderer note = nPool.Spawn();
+            note.SetInfo( lane.Key, this, in currentNote );
 
-                lane.InputSys.Enqueue( note );
+            lane.InputSys.Enqueue( note );
 
-                if ( ++currentIndex < notes.Count )
-                     currentNote = notes[currentIndex];
-            }
-
-            yield return null;
+            if ( ++currentIndex < notes.Count )
+                 currentNote = notes[currentIndex];
         }
     } 
 }

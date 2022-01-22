@@ -93,9 +93,9 @@ public class FileParser : FileReader
                 Timing timing = new Timing();
                 var split = line.Split( ',' );
 
-                timing.time        = float.Parse( split[0] );
+                timing.time        = double.Parse( split[0] );
                 timing.beatLength  = double.Parse( split[1] );
-                timing.bpm         = ( float )( 1d / timing.beatLength * 60000d );
+                timing.bpm         = 1d / timing.beatLength * 60000d;
 
                 timings.Add( timing );
             }
@@ -115,8 +115,8 @@ public class FileParser : FileReader
                 var split = line.Split( ',' );
 
                 note.line           = int.Parse( split[0] );
-                note.time           = float.Parse( split[1] );
-                note.sliderTime     = float.Parse( split[2] );
+                note.time           = double.Parse( split[1] );
+                note.sliderTime     = double.Parse( split[2] );
                 note.isSlider       = note.sliderTime > 0 ? true : false;
 
                 notes.Add( note );

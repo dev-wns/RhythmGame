@@ -27,8 +27,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     }
     private int currentSongIndex;
 
-    public static float Playback; // 노래 재생 시간
-    public static float PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
+    public static double Playback; // 노래 재생 시간
+    public static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
 
     public bool IsPlaying { get; set; }
     public bool IsLoad { get; private set; } = false;
@@ -36,8 +36,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void Awake()
     {
-        using ( FileConverter converter = new FileConverter() )
-            converter.ReLoad();
+        //using ( FileConverter converter = new FileConverter() )
+        //    converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {
@@ -53,7 +53,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( !IsPlaying ) return;
 
-        Playback += Time.deltaTime * 1000f;
+        Playback += Time.deltaTime * 1000d;
         PlaybackChanged = GetChangedTime( Playback );
 
         if ( IsLoad )
@@ -89,7 +89,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         IsLoad = true;
     }
 
-    public float GetChangedTime( float _time ) // BPM 변화에 따른 시간 계산
+    public double GetChangedTime( double _time ) // BPM 변화에 따른 시간 계산
     {
         var timings = CurrentChart.timings;
         double newTime = _time;
@@ -103,6 +103,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }
-        return ( float )newTime;
+        return newTime;
     }
 }

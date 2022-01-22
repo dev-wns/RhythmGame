@@ -54,15 +54,16 @@ public class ScoreSystem : NumberAtlasBase
         currentScore += addScore;
 
         int num;
-        double calcScore = currentScore;
-        if ( currentScore > 0 ) num = Globals.Log10( ( float )calcScore ) + 1;
+        double calcScore = Mathf.RoundToInt( ( float )currentScore );
+        if ( currentScore > 0 ) num = Globals.Log10( calcScore ) + 1;
         else                    num = 1;
 
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( i == num ) break;
 
-            images[i].sprite = sprites[Mathf.FloorToInt( ( float )calcScore ) % 10];
+            images[i].sprite = sprites[( int )calcScore % 10];
+            Debug.Log( $"자리 : {i}  CalcScore : {calcScore}  형변환 : {( int )calcScore}  결과 : {( int )calcScore % 10}" );
             calcScore *= .1d;
         }
     }
