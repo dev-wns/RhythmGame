@@ -10,6 +10,8 @@ public class JudgeEffectSystem : NumberAtlasBase
     private Sequence moveHideSequence;
     private Vector3 initPosCache;
 
+    private JudgeType prevType = JudgeType.None;
+
     protected override void Awake()
     {
         base.Awake();
@@ -38,15 +40,19 @@ public class JudgeEffectSystem : NumberAtlasBase
 
     private void HitEffect( JudgeType _type )
     {
-        switch ( _type )
+        if ( prevType != _type )
         {
-            case JudgeType.None:                                 return;
-            case JudgeType.Perfect:     rdr.sprite = sprites[5]; break;
-            case JudgeType.LazyPerfect: rdr.sprite = sprites[4]; break;
-            case JudgeType.Great:       rdr.sprite = sprites[3]; break;
-            case JudgeType.Good:        rdr.sprite = sprites[2]; break;
-            case JudgeType.Bad:         rdr.sprite = sprites[1]; break;
-            case JudgeType.Miss:        rdr.sprite = sprites[0]; break;
+            switch ( _type )
+            {
+                case JudgeType.None:                                 return;
+                case JudgeType.Perfect:     rdr.sprite = sprites[5]; break;
+                case JudgeType.LazyPerfect: rdr.sprite = sprites[4]; break;
+                case JudgeType.Great:       rdr.sprite = sprites[3]; break;
+                case JudgeType.Good:        rdr.sprite = sprites[2]; break;
+                case JudgeType.Bad:         rdr.sprite = sprites[1]; break;
+                case JudgeType.Miss:        rdr.sprite = sprites[0]; break;
+            }
+            prevType = _type;
         }
 
         rdr.color = Color.white;
