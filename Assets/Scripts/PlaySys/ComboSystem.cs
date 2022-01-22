@@ -7,7 +7,7 @@ public class ComboSystem : NumberAtlasBase
 {
     [Header( "System" )]
     private Judgement judge;
-    private int combo;
+    private int previousCombo = -1, currentCombo;
 
     private Sequence comboSequence;
 
@@ -15,9 +15,9 @@ public class ComboSystem : NumberAtlasBase
     {
         base.Awake();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += ComboImageUpdate;
+        judge.OnJudge += ComboUpdate;
 
-        ComboImageUpdate( JudgeType.Miss );
+        StartCoroutine( ComboProcess() );
     }
 
     private void Start()
@@ -31,24 +31,39 @@ public class ComboSystem : NumberAtlasBase
     private void OnDestroy()
     {
         comboSequence?.Kill();
+        StopAllCoroutines();
     }
 
-    private void ComboImageUpdate( JudgeType _type )
+    private IEnumerator ComboProcess()
     {
-        float calcCombo;
-        switch ( _type )
+        while( true )
         {
-            case JudgeType.None:
-            case JudgeType.Perfect:
-            case JudgeType.LazyPerfect:
-            case JudgeType.Great:
-            case JudgeType.Good:
-            case JudgeType.Bad:
+            yield return YieldCache.WaitForSeconds( .025f );
+
+            if ( previousCombo == currentCombo ) 
+                 continue;
+
+            previousCombo = currentCombo;
+            if ( currentCombo == 0 )
+            {
+                if ( !images[0].gameObject.activeInHierarchy )
+                     images[0].gameObject.SetActive( true );
+                images[0].sprite = sprites[0];
+
+                for ( int i = 1; i < images.Count; i++ )
+                {
+                    if ( images[i].gameObject.activeInHierarchy )
+                         images[i].gameObject.SetActive( false );
+                }
+
+                transform.localScale = Vector3.one;
+            }
+            else
             {
                 int num;
-                calcCombo = ++combo;
-                if ( combo > 0 ) num = Globals.Log10( calcCombo ) + 1;
-                else             num = 1;
+                float calcCombo = currentCombo;
+                if ( currentCombo > 0 ) num = Globals.Log10( calcCombo ) + 1;
+                else                    num = 1;
 
                 for ( int i = 0; i < images.Count; i++ )
                 {
@@ -63,22 +78,26 @@ public class ComboSystem : NumberAtlasBase
 
                 transform.localScale = new Vector3( .75f, .75f, 1f );
                 comboSequence.Restart();
-            } break;
+            }
+        }
+    }
+
+    private void ComboUpdate( JudgeType _type )
+    {
+        switch ( _type )
+        {
+            case JudgeType.None:
+            case JudgeType.Perfect:
+            case JudgeType.LazyPerfect:
+            case JudgeType.Great:
+            case JudgeType.Good:
+            case JudgeType.Bad:
+            currentCombo++;
+            break;
 
             case JudgeType.Miss:
-            {
-                combo = 0;
-
-                images[0].gameObject.SetActive( true );
-                images[0].sprite = sprites[0];
-                for ( int i = 1; i < images.Count; i++ )
-                {
-                    if ( images[i].gameObject.activeInHierarchy )
-                         images[i].gameObject.SetActive( false );
-                }
-
-                transform.localScale = Vector3.one;
-            } break;
+            currentCombo = 0;
+            break;
         }
     }
 }

@@ -8,16 +8,56 @@ public class RateSystem : NumberAtlasBase
     private Judgement judge;
 
     private int maxCount;
-    private double currentRate;
+    private double previousRate, currentRate;
 
     protected override void Awake()
     {
         base.Awake();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += RateImageUpdate;
+        judge.OnJudge += RateUpdate;
+
+        StartCoroutine( RateProcess() );
     }
 
-    private void RateImageUpdate( JudgeType _type )
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
+
+    private IEnumerator RateProcess()
+    {
+        while ( true )
+        {
+            yield return YieldCache.WaitForSeconds( .025f );
+
+            if ( previousRate == currentRate ) 
+                 continue;
+
+            previousRate = currentRate;
+
+            double calcRate = Mathf.RoundToInt( ( float )( currentRate / maxCount ) );
+            int num = Globals.Log10( calcRate ) + 1;
+
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( i > 2 && i >= num )
+                {
+                    if ( images[i].gameObject.activeInHierarchy )
+                         images[i].gameObject.SetActive( false );
+                }
+                else
+                {
+                    if ( !images[i].gameObject.activeInHierarchy )
+                         images[i].gameObject.SetActive( true );
+
+                    images[i].sprite = sprites[( int )calcRate % 10];
+                    calcRate *= .1d;
+                }
+            }
+        }
+    }
+
+    private void RateUpdate( JudgeType _type )
     {
         if ( _type == JudgeType.None ) return;
 
@@ -33,25 +73,5 @@ public class RateSystem : NumberAtlasBase
         }
         ++maxCount;
         currentRate += addRate;
-
-        double calcRate = Mathf.RoundToInt( ( float )( currentRate / maxCount ) );
-        int num = Globals.Log10( calcRate ) + 1;
-
-        for ( int i = 0; i < images.Count; i++ )
-        {
-            if ( i > 2 && i >= num )
-            {
-                if ( images[i].gameObject.activeInHierarchy )
-                     images[i].gameObject.SetActive( false );
-            }
-            else
-            {
-                if ( !images[i].gameObject.activeInHierarchy )
-                     images[i].gameObject.SetActive( true );
-
-                images[i].sprite = sprites[( int )calcRate % 10];
-                calcRate *= .1d;
-            }
-        }
     }
 }

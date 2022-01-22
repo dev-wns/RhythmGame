@@ -21,8 +21,6 @@ public class InputSystem : MonoBehaviour
     private bool isHolding = false;
     private float playback;
 
-    private Coroutine waitNoteCoroutine;
-
     private Action NoteProcessAction;
 
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
@@ -30,7 +28,7 @@ public class InputSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnGameStart += () => waitNoteCoroutine = StartCoroutine( NoteSelect() );
+        scene.OnGameStart += () => StartCoroutine( NoteSelect() );
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
@@ -57,8 +55,7 @@ public class InputSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        if ( waitNoteCoroutine != null )
-            StopCoroutine( waitNoteCoroutine );
+        StopAllCoroutines();
     }
 
     private IEnumerator NoteSelect()

@@ -36,8 +36,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void Awake()
     {
-        //using ( FileConverter converter = new FileConverter() )
-        //    converter.ReLoad();
+        using ( FileConverter converter = new FileConverter() )
+            converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {

@@ -8,7 +8,7 @@ public class ScoreSystem : NumberAtlasBase
     private InGame scene;
     private Judgement judge;
 
-    private double currentScore;
+    private double previousScore, currentScore;
     private double maxScore;
 
     protected override void Awake()
@@ -19,6 +19,13 @@ public class ScoreSystem : NumberAtlasBase
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreImageUpdate;
+
+        StartCoroutine( ScoreProcess() );
+    }
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 
     private void Initialize( in Chart _chart )
@@ -37,11 +44,37 @@ public class ScoreSystem : NumberAtlasBase
         maxScore = 1000000d / maxJudgeCount;
     }
 
+    private IEnumerator ScoreProcess()
+    {
+        while ( true )
+        {
+            yield return YieldCache.WaitForSeconds( .025f );
+
+            if ( previousScore == currentScore )
+                 continue;
+
+            previousScore = currentScore;
+
+            int num;
+            double calcScore = Mathf.RoundToInt( ( float )currentScore );
+            if ( currentScore > 0 ) num = Globals.Log10( calcScore ) + 1;
+            else                    num = 1;
+
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( i == num ) break;
+
+                images[i].sprite = sprites[( int )calcScore % 10];
+                calcScore *= .1d;
+            }
+        }
+    }
+
     private void ScoreImageUpdate( JudgeType _type )
     {
         if ( _type == JudgeType.None ) return;
 
-        double addScore = 0;
+        double addScore = 0d;
         switch ( _type )
         {
             case JudgeType.Perfect:     addScore = maxScore;         break; 
@@ -49,21 +82,8 @@ public class ScoreSystem : NumberAtlasBase
             case JudgeType.Great:       addScore = maxScore * .61d;  break; 
             case JudgeType.Good:        addScore = maxScore * .47d;  break; 
             case JudgeType.Bad:         addScore = maxScore * .25d;  break; 
-            case JudgeType.Miss:        addScore = 0;                break; 
+            case JudgeType.Miss:        addScore = 0d;               break; 
         }
         currentScore += addScore;
-
-        int num;
-        double calcScore = Mathf.RoundToInt( ( float )currentScore );
-        if ( currentScore > 0 ) num = Globals.Log10( calcScore ) + 1;
-        else                    num = 1;
-
-        for ( int i = 0; i < images.Count; i++ )
-        {
-            if ( i == num ) break;
-
-            images[i].sprite = sprites[( int )calcScore % 10];
-            calcScore *= .1d;
-        }
     }
 }
