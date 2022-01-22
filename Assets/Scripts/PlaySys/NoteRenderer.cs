@@ -4,11 +4,13 @@ using UnityEngine;
 public class NoteRenderer : MonoBehaviour
 {
     private NoteSystem system;
-    public SpriteRenderer head, body, tail;
-    private Transform headTf, bodyTf, tailTf;
+    
+    public SpriteRenderer head,    body;
+    private Transform     headTf,  bodyTf;
+
     public double Time { get; private set; }
-    public double CalcTime { get; private set; }
     public double SliderTime { get; private set; }
+    public double CalcTime { get; private set; }
     public double CalcSliderTime { get; private set; }
     public bool IsSlider { get; private set; }
     public bool isHolding { get; set; }
@@ -24,8 +26,6 @@ public class NoteRenderer : MonoBehaviour
     {
         headTf = head.transform;
         bodyTf = body.transform;
-        tailTf = tail.transform;
-        tail.enabled = false;
     }
 
     public void SetInfo( int _lane, NoteSystem _system, in Note _data )
@@ -44,21 +44,17 @@ public class NoteRenderer : MonoBehaviour
 
         if ( IsSlider )
         {
-            //system.CurrentScene.OnScrollChanged += ScaleUpdate;
-            head.enabled = true;
+            system.CurrentScene.OnScrollChanged += ScaleUpdate;
             body.enabled = true;
-            //tail.enabled = true;
         }
         else
         {
-            head.enabled = true;
             body.enabled = false;
-            //tail.enabled = false;
         }
 
         ScaleUpdate();
-        if ( _lane == 1 || _lane == 4 ) head.color = tail.color = MiddleColor;
-        else                            head.color = tail.color = Color.white;
+        if ( _lane == 1 || _lane == 4 ) head.color = MiddleColor;
+        else                            head.color = Color.white;
 
         body.color = BodyColor;
     }
@@ -72,46 +68,39 @@ public class NoteRenderer : MonoBehaviour
         {
             double sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
             bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )sliderLengthAbs );
-            //tail.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
         }
     }
 
     public void Despawn()
     {
-        //if ( IsSlider )
-        //    system.CurrentScene.OnScrollChanged -= ScaleUpdate;
-
-        this.gameObject.SetActive( false );
-        //head.enabled = body.enabled = false;
+        if ( IsSlider )
+             system.CurrentScene.OnScrollChanged -= ScaleUpdate;
+        
+        gameObject.SetActive( false );
         system.Despawn( this );
     }
 
     private void LateUpdate()
     {
         double weight = GameSetting.Weight;
+        Vector2 headPos;
         if ( isHolding )
         {
-            if ( head.transform.position.y <= GameSetting.JudgePos )
+            if ( transform.position.y <= GameSetting.JudgePos )
                  newTime = NowPlaying.PlaybackChanged;
 
-            Vector2 startPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime  - NowPlaying.PlaybackChanged ) * weight ) ) );
-            headTf.position = bodyTf.position = startPos;
-            tailTf.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) ) );
+            headPos         = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime        - NowPlaying.PlaybackChanged ) * weight ) ) );
+            Vector2 tailPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) ) );
 
-            double bodyDiff = tailTf.position.y - headTf.position.y;
-            double bodyScale = bodyDiff <= 0d ? 0d : bodyDiff;
+            double bodyDiff   = tailPos.y - headPos.y;
+            double bodyScale  = bodyDiff <= 0d ? 0d : bodyDiff;
             bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )bodyScale );
         }
         else
         {
-            Vector2 startPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime  - NowPlaying.PlaybackChanged ) * weight ) ) );
-            headTf.position  = startPos;
-
-            if ( IsSlider )
-            {
-                bodyTf.position = startPos;
-                tailTf.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) ) );
-            }
+            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
         }
+
+        transform.position = headPos;
     }
 }

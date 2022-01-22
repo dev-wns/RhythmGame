@@ -63,7 +63,6 @@ public class ScoreSystem : NumberAtlasBase
             if ( i == num ) break;
 
             images[i].sprite = sprites[( int )calcScore % 10];
-            Debug.Log( $"자리 : {i}  CalcScore : {calcScore}  형변환 : {( int )calcScore}  결과 : {( int )calcScore % 10}" );
             calcScore *= .1d;
         }
     }
