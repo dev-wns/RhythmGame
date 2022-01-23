@@ -29,7 +29,7 @@ public class LaneEffect : MonoBehaviour
     private void Initialize( int _key )
     {
         if ( _key == 1 || _key == 4 ) color = LaneColorBlue;
-        else                          color = LaneColorRed;
+        else color = LaneColorRed;
     }
 
     private void LaneEffectEnabled( bool _isEnable )

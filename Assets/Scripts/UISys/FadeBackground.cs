@@ -58,7 +58,7 @@ public class FadeBackground : MonoBehaviour
         isDefault = _isDefault;
         rt.anchoredPosition = new Vector3( 0f, 0f, depth += .00001f );
         rt.sizeDelta        = GetFullScreenRatio( _sprite.texture );
-        image.color         = new Color( 1f, 1f, 1f, 0f );
+        image.color = new Color( 1f, 1f, 1f, 0f );
         image.sprite        = _sprite;
         image.DOFade( 1f, fadeTime );
     }

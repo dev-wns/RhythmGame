@@ -8,7 +8,7 @@ public class RateSystem : NumberAtlasBase
     private Judgement judge;
 
     private int maxCount;
-    private double previousRate, currentRate;
+    private double currentRate, previousRate;
 
     protected override void Awake()
     {
@@ -69,7 +69,7 @@ public class RateSystem : NumberAtlasBase
             case JudgeType.Great:       addRate = 7500d;  break; 
             case JudgeType.Good:        addRate = 5000d;  break; 
             case JudgeType.Bad:         addRate = 2500d;  break; 
-            case JudgeType.Miss:        addRate = 0d;     break; 
+            case JudgeType.Miss:        addRate = .0001d; break; 
         }
         ++maxCount;
         currentRate += addRate;

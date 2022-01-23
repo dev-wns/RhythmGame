@@ -54,7 +54,7 @@ public class NoteRenderer : MonoBehaviour
 
         ScaleUpdate();
         if ( _lane == 1 || _lane == 4 ) head.color = MiddleColor;
-        else                            head.color = Color.white;
+        else head.color = Color.white;
 
         body.color = BodyColor;
     }
