@@ -1,28 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class HitEffectSystem : NumberAtlasBase
+public class HitEffectSystem : MonoBehaviour
 {
+    public List<Sprite> sprites = new List<Sprite>();
     private InputSystem inputSystem;
     private SpriteRenderer rdr;
     private readonly float lifeTime = .1f;
-    
+
     private float changeTime;
     private float playback;
     private int currentIndex = 0;
-    private bool isStop;
+    private bool isStop = true;
     private static float depth;
 
-    protected override void Awake()
+    protected void Awake()
     {
-        base.Awake();
         rdr         = GetComponent<SpriteRenderer>();
         inputSystem = GetComponentInParent<InputSystem>();
         inputSystem.OnHitNote += HitEffect;
 
+        transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteWidth );
+
         changeTime = lifeTime / sprites.Count;
-        rdr.color = Color.clear;
     }
 
     private void HitEffect()

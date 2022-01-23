@@ -1,19 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class ScoreSystem : NumberAtlasBase
+public class ScoreSystem : MonoBehaviour
 {
     [Header( "System" )]
     private InGame scene;
     private Judgement judge;
 
+    public List<Sprite> sprites = new List<Sprite>();
+    private List<Image> images = new List<Image>();
     private double previousScore, currentScore;
     private double maxScore;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
+        images.AddRange( GetComponentsInChildren<Image>() );
+        images.Reverse();
+
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
 

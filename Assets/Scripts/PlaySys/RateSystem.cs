@@ -1,18 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class RateSystem : NumberAtlasBase
+public class RateSystem : MonoBehaviour
 {
-    [Header( "System" )]
     private Judgement judge;
+    public List<Image> images = new List<Image>();
+    public List<Sprite> sprites = new List<Sprite>();
 
     private int maxCount;
     private double currentRate, previousRate;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
+        images.Reverse();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateUpdate;
 
@@ -66,9 +68,9 @@ public class RateSystem : NumberAtlasBase
         {
             case JudgeType.Perfect: 
             case JudgeType.LazyPerfect: addRate = 10000d; break; 
-            case JudgeType.Great:       addRate = 7500d;  break; 
-            case JudgeType.Good:        addRate = 5000d;  break; 
-            case JudgeType.Bad:         addRate = 2500d;  break; 
+            case JudgeType.Great:       addRate = 9000d;  break; 
+            case JudgeType.Good:        addRate = 8000d;  break; 
+            case JudgeType.Bad:         addRate = 7000d;  break; 
             case JudgeType.Miss:        addRate = .0001d; break; 
         }
         ++maxCount;

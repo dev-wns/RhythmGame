@@ -24,6 +24,7 @@ public class LaneEffect : MonoBehaviour
         inputSystem.OnInputEvent += LaneEffectEnabled;
 
         transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .5f ) - GameSetting.JudgePos, 1f );
+        rdr.color = Color.clear;
     }
 
     private void Initialize( int _key )

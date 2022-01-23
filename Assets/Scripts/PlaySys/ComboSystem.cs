@@ -1,19 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 
-public class ComboSystem : NumberAtlasBase
+public class ComboSystem : MonoBehaviour
 {
     [Header( "System" )]
+    public List<Sprite> sprites = new List<Sprite>();
+    private List<Image> images = new List<Image>();
     private Judgement judge;
     private int previousCombo = -1, currentCombo;
 
     private Sequence comboSequence;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
+        images.AddRange( GetComponentsInChildren<Image>() );
+        images.Reverse();
+
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
 
