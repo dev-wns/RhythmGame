@@ -5,37 +5,41 @@ using UnityEngine.UI;
 
 public class HitEffectSystem : MonoBehaviour
 {
+    public Lane lane;
     public List<Sprite> sprites = new List<Sprite>();
-    private InputSystem inputSystem;
-    private SpriteRenderer rdr;
+    private Image image;
     private readonly float lifeTime = .1f;
 
     private float changeTime;
     private float playback;
     private int currentIndex = 0;
     private bool isStop = true;
-    private static float depth;
+
+    private RectTransform rt;
 
     protected void Awake()
     {
-        rdr         = GetComponent<SpriteRenderer>();
-        inputSystem = GetComponentInParent<InputSystem>();
-        inputSystem.OnHitNote += HitEffect;
-
-        transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteWidth );
-
+        rt = transform as RectTransform;
+        image = GetComponent<Image>();
+        lane.OnLaneInitialize += Initialize;
         changeTime = lifeTime / sprites.Count;
+    }
+
+    private void Initialize( int _key )
+    {
+        lane.InputSys.OnHitNote += HitEffect;
+
+        rt.position = lane.transform.position;
+        rt.sizeDelta = new Vector2( GameSetting.NoteWidth * 2f, GameSetting.NoteWidth * 2f );
     }
 
     private void HitEffect()
     {
         playback = 0f;
         currentIndex = 0;
-        rdr.sprite = sprites[currentIndex];
+        image.sprite = sprites[currentIndex];
         isStop = false;
-
-        //transform.localPosition = new Vector3( 0f, 0f, depth -= .00001f );
-        rdr.color = Color.white;
+        image.color = Color.white;
     }
 
     private void Update()
@@ -47,13 +51,13 @@ public class HitEffectSystem : MonoBehaviour
         {
             if ( currentIndex + 1 < sprites.Count )
             {
-                rdr.sprite = sprites[++currentIndex];
+                image.sprite = sprites[++currentIndex];
                 playback = 0;
             }
             else
             {
                 isStop = true;
-                rdr.color = Color.clear;
+                image.color = Color.clear;
             }
         }
     }
