@@ -34,7 +34,7 @@ public class HitEffectSystem : MonoBehaviour
         rdr.sprite = sprites[currentIndex];
         isStop = false;
 
-        transform.localPosition = new Vector3( 0f, 0f, depth -= .00001f );
+        //transform.localPosition = new Vector3( 0f, 0f, depth -= .00001f );
         rdr.color = Color.white;
     }
 

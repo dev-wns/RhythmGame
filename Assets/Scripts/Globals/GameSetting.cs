@@ -103,7 +103,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 3f;
 
     // Jugdement
-    public static float JudgePos    = -520f;
+    public static float JudgePos    = -450f;
     public static float JudgeHeight = 100f; // scaleY
 
     // note

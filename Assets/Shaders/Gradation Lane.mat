@@ -40,7 +40,7 @@ Material:
     m_Floats:
     - Time: 1.15
     m_Colors:
-    - ColorDown: {r: 1, g: 1, b: 1, a: 1}
+    - ColorDown: {r: 0.9433962, g: 0.29814878, b: 0.29814878, a: 1}
     - ColorUp: {r: 1, g: 1, b: 1, a: 0}
     - LerpTime: {r: 0.5, g: 0.5, b: 0, a: 0}
   m_BuildTextureStacks: []

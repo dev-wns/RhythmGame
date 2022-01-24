@@ -8,7 +8,7 @@ public class ComboSystem : MonoBehaviour
 {
     [Header( "System" )]
     public List<Sprite> sprites = new List<Sprite>();
-    private List<Image> images = new List<Image>();
+    public List<Image> images = new List<Image>();
     private Judgement judge;
     private int previousCombo = -1, currentCombo;
 
@@ -16,7 +16,6 @@ public class ComboSystem : MonoBehaviour
 
     private void Awake()
     {
-        images.AddRange( GetComponentsInChildren<Image>() );
         images.Reverse();
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
