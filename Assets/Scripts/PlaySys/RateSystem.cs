@@ -6,14 +6,19 @@ using UnityEngine.UI;
 public class RateSystem : MonoBehaviour
 {
     private Judgement judge;
+    private CustomHorizontalLayoutGroup layoutGroup;
     public List<Image> images = new List<Image>();
     public List<Sprite> sprites = new List<Sprite>();
 
+
     private int maxCount;
     private double currentRate, previousRate;
+    private NumberBit previousBit, currentBit;
 
     private void Awake()
     {
+        layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
+
         images.Reverse();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateUpdate;
@@ -36,7 +41,7 @@ public class RateSystem : MonoBehaviour
                  continue;
 
             previousRate = currentRate;
-
+            previousBit  = currentBit;
             double calcRate = Mathf.RoundToInt( ( float )( currentRate / maxCount ) );
             int num = Globals.Log10( calcRate ) + 1;
 
@@ -54,7 +59,14 @@ public class RateSystem : MonoBehaviour
 
                     images[i].sprite = sprites[( int )calcRate % 10];
                     calcRate *= .1d;
+
+                    currentBit = ( NumberBit )( 1 << i );
                 }
+            }
+            if ( previousBit != currentBit )
+            {
+                layoutGroup.SetLayoutHorizontal();
+                Debug.Log( currentBit );
             }
         }
     }

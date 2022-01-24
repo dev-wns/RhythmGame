@@ -9,6 +9,17 @@ public class CustomVerticalLayoutGroup : CustomLayoutGroup
         if ( rectChildren.Count < 1 )
              return;
 
+        float childrenMaxWidth  = 0f;
+        float childrenMaxHeight = 0f;
+        for ( int i = 0; i < rectChildren.Count; i++ )
+        {
+            if ( !rectChildren[i].gameObject.activeInHierarchy )
+                 continue;
+
+            childrenMaxWidth  += rectChildren[i].sizeDelta.x;
+            childrenMaxHeight += rectChildren[i].sizeDelta.y;
+        }
+
         float childrenHeightOffset = childrenMaxHeight * anchor.y;
         float firstArgHalf         = rectChildren[0].sizeDelta.y * .5f;
         float maxSpacing           = spacing * ( rectChildren.Count - 1 ) * anchor.y;

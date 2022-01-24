@@ -4,18 +4,37 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
+[System.Flags]
+public enum NumberBit : byte
+{
+    None      = 0,
+    _1        = 1 << 0,
+    _10       = 1 << 1,
+    _100      = 1 << 2,
+    _1000     = 1 << 3,
+    _10000    = 1 << 4,
+    _100000   = 1 << 5,
+    _1000000  = 1 << 6,
+    _10000000 = 1 << 7,
+    All       = byte.MaxValue,
+}
+
 public class ComboSystem : MonoBehaviour
 {
-    [Header( "System" )]
     public List<Sprite> sprites = new List<Sprite>();
-    public List<Image> images = new List<Image>();
+    private List<Image> images = new List<Image>();
+    private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
     private int previousCombo = -1, currentCombo;
 
     private Sequence comboSequence;
+    private NumberBit previousBit, currentBit;
 
     private void Awake()
     {
+        layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
+
+        images.AddRange( GetComponentsInChildren<Image>( true ) );
         images.Reverse();
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
@@ -48,8 +67,12 @@ public class ComboSystem : MonoBehaviour
                  continue;
 
             previousCombo = currentCombo;
+            previousBit   = currentBit;
+
             if ( currentCombo == 0 )
             {
+                currentBit = NumberBit._1;
+
                 if ( !images[0].gameObject.activeInHierarchy )
                      images[0].gameObject.SetActive( true );
                 images[0].sprite = sprites[0];
@@ -72,6 +95,7 @@ public class ComboSystem : MonoBehaviour
                 for ( int i = 0; i < images.Count; i++ )
                 {
                     if ( i == num ) break;
+                    currentBit |= ( NumberBit )( 1 << i );
 
                     if ( !images[i].gameObject.activeInHierarchy )
                          images[i].gameObject.SetActive( true );
@@ -83,6 +107,9 @@ public class ComboSystem : MonoBehaviour
                 transform.localScale = new Vector3( .75f, .75f, 1f );
                 comboSequence.Restart();
             }
+
+            if ( previousBit != currentBit )
+                 layoutGroup.SetLayoutHorizontal();
         }
     }
 

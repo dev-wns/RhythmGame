@@ -30,9 +30,6 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
     protected Vector2 anchor;
 
     protected List<RectTransform> rectChildren = new List<RectTransform>();
-    protected float childrenMaxWidth;
-    protected float childrenMaxHeight;
-
     public void Initialize()
     {
         SetAlignment();
@@ -45,9 +42,6 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
                 children[i].anchorMin = anchor;
                 children[i].anchorMax = anchor;
 
-                childrenMaxWidth  += children[i].sizeDelta.x;
-                childrenMaxHeight += children[i].sizeDelta.y;
-             
                 rectChildren.Add( children[i] );
             }
 
@@ -67,7 +61,6 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
         // Editor Update
         if ( !Application.isPlaying )
         {
-            childrenMaxWidth = childrenMaxHeight = 0f;
             rectChildren?.Clear();
 
             SetAlignment();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public class NoteRenderer : MonoBehaviour
 {
+    private InGame game;
     private NoteSystem system;
     
     public SpriteRenderer head,    body;
@@ -24,9 +25,20 @@ public class NoteRenderer : MonoBehaviour
 
     private void Awake()
     {
+        game = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        game.OnScrollChanged += BodyScaleUpdate;
+
         headTf = head.transform;
+        headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
+
         bodyTf = body.transform;
     }
+
+    private void OnDestroy()
+    {
+        game.OnScrollChanged -= BodyScaleUpdate;
+    }
+
 
     public void SetInfo( int _lane, NoteSystem _system, in Note _data )
     {
@@ -42,41 +54,26 @@ public class NoteRenderer : MonoBehaviour
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
 
-        if ( IsSlider )
-        {
-            system.CurrentScene.OnScrollChanged += ScaleUpdate;
-            body.enabled = true;
-        }
-        else
-        {
-            body.enabled = false;
-        }
+        body.enabled = IsSlider ? true : false;
+        BodyScaleUpdate();
 
-        ScaleUpdate();
-        if ( _lane == 1 || _lane == 4 ) head.color = MiddleColor;
-        else head.color = Color.white;
-
+        head.color = _lane == 1 || _lane == 4 ? MiddleColor : Color.white;
         body.color = BodyColor;
     }
 
     public void SetBodyFail() => body.color = BodyFailColor;
 
-    private void ScaleUpdate()
+    private void BodyScaleUpdate()
     {
-        headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
-        if ( IsSlider )
-        {
-            double sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
-            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )sliderLengthAbs );
-        }
+        if ( !IsSlider ) return;
+
+        double sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
+        bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )sliderLengthAbs );
     }
 
     public void Despawn()
     {
-        if ( IsSlider )
-             system.CurrentScene.OnScrollChanged -= ScaleUpdate;
-        
-        gameObject.SetActive( false );
+        //gameObject.SetActive( false );
         system.Despawn( this );
     }
 
@@ -89,12 +86,11 @@ public class NoteRenderer : MonoBehaviour
             if ( transform.position.y <= GameSetting.JudgePos )
                  newTime = NowPlaying.PlaybackChanged;
 
-            headPos         = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime        - NowPlaying.PlaybackChanged ) * weight ) ) );
-            Vector2 tailPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) ) );
+            headPos         = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime        - NowPlaying.PlaybackChanged ) * weight ) );
+            Vector2 tailPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
 
             double bodyDiff   = tailPos.y - headPos.y;
-            double bodyScale  = bodyDiff <= 0d ? 0d : bodyDiff;
-            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )bodyScale );
+            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, bodyDiff <= 0d ? 0f : ( float )bodyDiff );
         }
         else
         {
