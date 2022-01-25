@@ -8,11 +8,15 @@ TagManager:
   - Scene
   - Visualizer
   - Judgement
+  - Red
+  - Green
+  - Blue
+  - Fire
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Post Processing
+  - 
   - Water
   - UI
   - 3D
