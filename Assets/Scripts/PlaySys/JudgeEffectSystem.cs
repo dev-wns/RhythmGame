@@ -9,34 +9,35 @@ public class JudgeEffectSystem : MonoBehaviour
     public List<Sprite> sprites = new List<Sprite>();
     private Judgement judge;
     private Image image;
-    private Sequence moveHideSequence;
-    private Vector3 initPosCache;
+    private Sequence sequence;
+    private RectTransform rt;
+    private Vector2 sizeDeltaCache;
 
     private JudgeType prevType = JudgeType.None;
 
     private void Awake()
     {
+        rt = transform as RectTransform;
         image = GetComponent<Image>();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += HitEffect;
 
-        initPosCache = transform.position;
+        sizeDeltaCache = rt.sizeDelta;
     }
 
     private void Start()
     {
-        moveHideSequence = DOTween.Sequence();
+        sequence = DOTween.Sequence();
 
-        moveHideSequence.Pause().SetAutoKill( false );
-        moveHideSequence.AppendCallback( () => transform.position = initPosCache );
-        moveHideSequence.Append( transform.DOMoveY( initPosCache.y + 30f, .15f ) );
-        moveHideSequence.AppendInterval( .5f );
-        moveHideSequence.Append( image.DOFade( 0f, .5f ) );
+        sequence.Pause().SetAutoKill( false );
+        sequence.Append( rt.DOSizeDelta( sizeDeltaCache, .15f, true ) );
+        sequence.AppendInterval( .5f );
+        sequence.Append( image.DOFade( 0f, .5f ) );
     }
 
     private void OnDestroy()
     {
-        moveHideSequence.Kill();
+        sequence.Kill();
     }
 
     private void HitEffect( JudgeType _type )
@@ -57,6 +58,7 @@ public class JudgeEffectSystem : MonoBehaviour
         }
 
         image.color = Color.white;
-        moveHideSequence.Restart();
+        rt.sizeDelta = sizeDeltaCache * .75f;
+        sequence.Restart();
     }
 }

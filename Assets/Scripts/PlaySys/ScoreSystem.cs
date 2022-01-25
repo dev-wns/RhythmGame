@@ -53,18 +53,15 @@ public class ScoreSystem : MonoBehaviour
     {
         while ( true )
         {
-            yield return YieldCache.WaitForSeconds( .025f );
+            yield return YieldCache.WaitForSeconds( .1f );
 
             if ( previousScore == currentScore )
                  continue;
 
             previousScore = currentScore;
 
-            int num;
             double calcScore = Mathf.RoundToInt( ( float )currentScore );
-            if ( currentScore > 0 ) num = Globals.Log10( calcScore ) + 1;
-            else                    num = 1;
-
+            int num = currentScore > 0 ? Globals.Log10( calcScore ) + 1 : 1;
             for ( int i = 0; i < images.Count; i++ )
             {
                 if ( i == num ) break;

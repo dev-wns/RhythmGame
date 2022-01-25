@@ -27,11 +27,14 @@ public class ComboSystem : MonoBehaviour
     private Judgement judge;
     private int previousCombo = -1, currentCombo;
 
-    private Sequence comboSequence;
+    private Sequence sequence;
     private NumberBit previousBit, currentBit;
+    private RectTransform rt;
+    private Vector2 positionCache;
 
     private void Awake()
     {
+        rt = transform as RectTransform;
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
         images.AddRange( GetComponentsInChildren<Image>( true ) );
@@ -40,20 +43,21 @@ public class ComboSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
 
+        positionCache = rt.anchoredPosition;
         StartCoroutine( ComboProcess() );
     }
 
     private void Start()
     {
-        comboSequence = DOTween.Sequence();
+        sequence = DOTween.Sequence();
 
-        comboSequence.Pause().SetAutoKill( false );
-        comboSequence.Append( transform.DOScale( Vector3.one, .085f ) );
+        sequence.Pause().SetAutoKill( false );
+        sequence.Append( rt.DOMoveY( positionCache.y + 50f, .15f ) );
     }
 
     private void OnDestroy()
     {
-        comboSequence?.Kill();
+        sequence?.Kill();
         StopAllCoroutines();
     }
 
@@ -61,7 +65,7 @@ public class ComboSystem : MonoBehaviour
     {
         while( true )
         {
-            yield return YieldCache.WaitForSeconds( .025f );
+            yield return YieldCache.WaitForSeconds( .05f );
 
             if ( previousCombo == currentCombo ) 
                  continue;
@@ -82,15 +86,11 @@ public class ComboSystem : MonoBehaviour
                     if ( images[i].gameObject.activeInHierarchy )
                          images[i].gameObject.SetActive( false );
                 }
-
-                transform.localScale = Vector3.one;
             }
             else
             {
-                int num;
                 float calcCombo = currentCombo;
-                if ( currentCombo > 0 ) num = Globals.Log10( calcCombo ) + 1;
-                else                    num = 1;
+                int num = currentCombo > 0 ? Globals.Log10( calcCombo ) + 1 : 1;
 
                 for ( int i = 0; i < images.Count; i++ )
                 {
@@ -104,8 +104,8 @@ public class ComboSystem : MonoBehaviour
                     calcCombo *= .1f;
                 }
 
-                transform.localScale = new Vector3( .75f, .75f, 1f );
-                comboSequence.Restart();
+                rt.anchoredPosition = positionCache;
+                sequence.Restart();
             }
 
             if ( previousBit != currentBit )

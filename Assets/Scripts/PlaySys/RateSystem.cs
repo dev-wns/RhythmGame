@@ -35,7 +35,7 @@ public class RateSystem : MonoBehaviour
     {
         while ( true )
         {
-            yield return YieldCache.WaitForSeconds( .025f );
+            yield return YieldCache.WaitForSeconds( .1f );
 
             if ( previousRate == currentRate ) 
                  continue;
@@ -63,11 +63,9 @@ public class RateSystem : MonoBehaviour
                     currentBit = ( NumberBit )( 1 << i );
                 }
             }
+
             if ( previousBit != currentBit )
-            {
-                layoutGroup.SetLayoutHorizontal();
-                Debug.Log( currentBit );
-            }
+                 layoutGroup.SetLayoutHorizontal();
         }
     }
 
