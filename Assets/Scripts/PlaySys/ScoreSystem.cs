@@ -5,18 +5,17 @@ using UnityEngine.UI;
 
 public class ScoreSystem : MonoBehaviour
 {
-    [Header( "System" )]
     private InGame scene;
     private Judgement judge;
 
     public List<Sprite> sprites = new List<Sprite>();
-    private List<Image> images = new List<Image>();
+    private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private double previousScore, currentScore;
     private double maxScore;
 
     private void Awake()
     {
-        images.AddRange( GetComponentsInChildren<Image>() );
+        images.AddRange( GetComponentsInChildren<SpriteRenderer>() );
         images.Reverse();
 
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();

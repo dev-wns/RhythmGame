@@ -7,7 +7,7 @@ public class HitEffectSystem : MonoBehaviour
 {
     public Lane lane;
     public List<Sprite> sprites = new List<Sprite>();
-    private Image image;
+    private SpriteRenderer rdr;
     private readonly float lifeTime = .1f;
 
     private float changeTime;
@@ -15,12 +15,12 @@ public class HitEffectSystem : MonoBehaviour
     private int currentIndex = 0;
     private bool isStop = true;
 
-    private RectTransform rt;
+    private Transform tf;
 
     protected void Awake()
     {
-        rt = transform as RectTransform;
-        image = GetComponent<Image>();
+        tf = transform;
+        rdr = GetComponent<SpriteRenderer>();
         lane.OnLaneInitialize += Initialize;
         changeTime = lifeTime / sprites.Count;
     }
@@ -29,17 +29,17 @@ public class HitEffectSystem : MonoBehaviour
     {
         lane.InputSys.OnHitNote += HitEffect;
 
-        rt.position = lane.transform.position;
-        rt.sizeDelta = new Vector2( GameSetting.NoteWidth * 2f, GameSetting.NoteWidth * 2f );
+        tf.position = lane.transform.position;
+        tf.localScale = new Vector2( GameSetting.NoteWidth * .75f, GameSetting.NoteWidth * .75f );
     }
 
     private void HitEffect()
     {
         playback = 0f;
         currentIndex = 0;
-        image.sprite = sprites[currentIndex];
+        rdr.sprite = sprites[currentIndex];
         isStop = false;
-        image.color = Color.white;
+        rdr.color = Color.white;
     }
 
     private void Update()
@@ -51,13 +51,13 @@ public class HitEffectSystem : MonoBehaviour
         {
             if ( currentIndex + 1 < sprites.Count )
             {
-                image.sprite = sprites[++currentIndex];
+                rdr.sprite = sprites[++currentIndex];
                 playback = 0;
             }
             else
             {
                 isStop = true;
-                image.color = Color.clear;
+                rdr.color = Color.clear;
             }
         }
     }

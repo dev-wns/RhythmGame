@@ -22,28 +22,28 @@ public enum NumberBit : byte
 public class ComboSystem : MonoBehaviour
 {
     public List<Sprite> sprites = new List<Sprite>();
-    private List<Image> images = new List<Image>();
+    private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
     private int previousCombo = -1, currentCombo;
 
     private Sequence sequence;
     private NumberBit previousBit, currentBit;
-    private RectTransform rt;
+    private Transform tf;
     private Vector2 positionCache;
 
     private void Awake()
     {
-        rt = transform as RectTransform;
+        tf = transform;
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
-        images.AddRange( GetComponentsInChildren<Image>( true ) );
+        images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
         images.Reverse();
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
 
-        positionCache = rt.anchoredPosition;
+        positionCache = tf.position;
         StartCoroutine( ComboProcess() );
     }
 
@@ -52,7 +52,7 @@ public class ComboSystem : MonoBehaviour
         sequence = DOTween.Sequence();
 
         sequence.Pause().SetAutoKill( false );
-        sequence.Append( rt.DOMoveY( positionCache.y + 50f, .15f ) );
+        sequence.Append( tf.DOMoveY( positionCache.y + 50f, .15f ) );
     }
 
     private void OnDestroy()
@@ -104,7 +104,7 @@ public class ComboSystem : MonoBehaviour
                     calcCombo *= .1f;
                 }
 
-                rt.anchoredPosition = positionCache;
+                tf.position = positionCache;
                 sequence.Restart();
             }
 

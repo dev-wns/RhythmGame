@@ -8,21 +8,21 @@ public class JudgeEffectSystem : MonoBehaviour
 {
     public List<Sprite> sprites = new List<Sprite>();
     private Judgement judge;
-    private Image image;
+    private SpriteRenderer rdr;
     private Sequence sequence;
-    private RectTransform rt;
-    private Vector2 sizeDeltaCache;
+    private Transform tf;
+    private Vector2 sclCache;
 
     private JudgeType prevType = JudgeType.None;
 
     private void Awake()
     {
-        rt = transform as RectTransform;
-        image = GetComponent<Image>();
+        tf = transform as RectTransform;
+        rdr = GetComponent<SpriteRenderer>();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += HitEffect;
 
-        sizeDeltaCache = rt.sizeDelta;
+        sclCache = tf.localScale;
     }
 
     private void Start()
@@ -30,9 +30,9 @@ public class JudgeEffectSystem : MonoBehaviour
         sequence = DOTween.Sequence();
 
         sequence.Pause().SetAutoKill( false );
-        sequence.Append( rt.DOSizeDelta( sizeDeltaCache, .15f, true ) );
+        sequence.Append( tf.DOScale( sclCache, .15f ) );
         sequence.AppendInterval( .5f );
-        sequence.Append( image.DOFade( 0f, .5f ) );
+        sequence.Append( rdr.DOFade( 0f, .5f ) );
     }
 
     private void OnDestroy()
@@ -46,19 +46,19 @@ public class JudgeEffectSystem : MonoBehaviour
         {
             switch ( _type )
             {
-                case JudgeType.None:                                   return;
-                case JudgeType.Perfect:     image.sprite = sprites[5]; break;
-                case JudgeType.LazyPerfect: image.sprite = sprites[4]; break;
-                case JudgeType.Great:       image.sprite = sprites[3]; break;
-                case JudgeType.Good:        image.sprite = sprites[2]; break;
-                case JudgeType.Bad:         image.sprite = sprites[1]; break;
-                case JudgeType.Miss:        image.sprite = sprites[0]; break;
+                case JudgeType.None:                                 return;
+                case JudgeType.Perfect:     rdr.sprite = sprites[5]; break;
+                case JudgeType.LazyPerfect: rdr.sprite = sprites[4]; break;
+                case JudgeType.Great:       rdr.sprite = sprites[3]; break;
+                case JudgeType.Good:        rdr.sprite = sprites[2]; break;
+                case JudgeType.Bad:         rdr.sprite = sprites[1]; break;
+                case JudgeType.Miss:        rdr.sprite = sprites[0]; break;
             }
             prevType = _type;
         }
 
-        image.color = Color.white;
-        rt.sizeDelta = sizeDeltaCache * .75f;
+        rdr.color = Color.white;
+        tf.localScale = sclCache * .75f;
         sequence.Restart();
     }
 }

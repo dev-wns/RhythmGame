@@ -7,9 +7,8 @@ public class RateSystem : MonoBehaviour
 {
     private Judgement judge;
     private CustomHorizontalLayoutGroup layoutGroup;
-    public List<Image> images = new List<Image>();
     public List<Sprite> sprites = new List<Sprite>();
-
+    public List<SpriteRenderer> images = new List<SpriteRenderer>();
 
     private int maxCount;
     private double currentRate, previousRate;
