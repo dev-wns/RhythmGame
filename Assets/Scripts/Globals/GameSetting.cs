@@ -84,7 +84,7 @@ public class GameSetting : SingletonUnity<GameSetting>
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static double Weight { get { return 60d / NowPlaying.Inst.CurrentSong.medianBpm * ScrollSpeed * .003d; } }
+    public static double Weight { get { return 60d / NowPlaying.Inst.CurrentSong.medianBpm * ScrollSpeed * 3d; } }
     public static double PreLoadTime { get { return ( 1500d / Weight ); } }
 
     // Sound

@@ -7,13 +7,11 @@ public enum JudgeType { None, Perfect, LatePerfect, Great, Good, Bad, Miss }
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect     = 22d;
-    public const double LatePerfect = 20d + Perfect;
-    public const double Great       = 18d + LatePerfect;
-    public const double Good        = 16d + Great;
-    public const double Bad         = 14d + Good;
-
-    private int perfectCount, latePerfectCount, greatCount, goodCount, badCount, missCount;
+    public const double Perfect     = .022d;
+    public const double LatePerfect = .020d + Perfect;
+    public const double Great       = .018d + LatePerfect;
+    public const double Good        = .016d + Great;
+    public const double Bad         = .014d + Good;
 
     public event Action<JudgeType> OnJudge;
 
@@ -39,16 +37,16 @@ public class Judgement : MonoBehaviour
 
     public void OnJudgement( JudgeType _type )
     {
-        switch ( _type )
-        {
-            case JudgeType.None:                            break;
-            case JudgeType.Perfect:     perfectCount++;     break;
-            case JudgeType.LatePerfect: latePerfectCount++; break;
-            case JudgeType.Great:       greatCount++;       break;
-            case JudgeType.Good:        goodCount++;        break;
-            case JudgeType.Bad:         badCount++;         break;
-            case JudgeType.Miss:        missCount++;        break;
-        }
+        //switch ( _type )
+        //{
+        //    case JudgeType.None:                            break;
+        //    case JudgeType.Perfect:     perfectCount++;     break;
+        //    case JudgeType.LatePerfect: latePerfectCount++; break;
+        //    case JudgeType.Great:       greatCount++;       break;
+        //    case JudgeType.Good:        goodCount++;        break;
+        //    case JudgeType.Bad:         badCount++;         break;
+        //    case JudgeType.Miss:        missCount++;        break;
+        //}
 
         OnJudge?.Invoke( _type );
     }

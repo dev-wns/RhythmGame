@@ -13,14 +13,22 @@ public class MeasureSystem : MonoBehaviour
     private List<double /* JudgeLine hit time */> measures = new List<double>();
     private int curIndex;
     private double curTime;
+    private double loadTime;
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
         scene.OnGameStart += () => StartCoroutine( Process() );
+        scene.OnScrollChanged += ScrollUpdate;
         mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
+
+        ScrollUpdate();
     }
+
+    private void OnDestroy() => scene.OnScrollChanged -= ScrollUpdate;
+
+    private void ScrollUpdate() => loadTime = GameSetting.PreLoadTime;
 
     public void Despawn( MeasureRenderer _obj ) => mPool.Despawn( _obj );
 
@@ -31,12 +39,12 @@ public class MeasureSystem : MonoBehaviour
         for ( int i = 0; i < timings.Count; i++ )
         {
             if ( timings[i].bpm < 10 ) continue;
-            double bpms = ( 60d / timings[i].bpm ) * 1000d; // beat per milliseconds
+            double bpms = ( 60d / timings[i].bpm ) * 4; // beat per seconds
 
             double time = timings[i].time;
             if ( i == 0 )
             {
-                int maxBeat = Mathf.FloorToInt( ( float )( ( _chart.notes[0].time + 3000d ) / bpms ) );
+                int maxBeat = Mathf.FloorToInt( ( float )( ( _chart.notes[0].time + 3d ) / bpms ) );
                 time = _chart.notes[0].time - ( bpms * maxBeat );
             }
             else
@@ -51,7 +59,7 @@ public class MeasureSystem : MonoBehaviour
                 }
             }
 
-            double nextTime = ( i + 1 == timings.Count ) ? _chart.notes[_chart.notes.Count - 1].time + 3000d : timings[i + 1].time;
+            double nextTime = ( i + 1 == timings.Count ) ? _chart.notes[_chart.notes.Count - 1].time + 3d : timings[i + 1].time;
             double calcTime = NowPlaying.Inst.GetChangedTime( time );
             if ( measures.Count == 0 || measures[measures.Count - 1] < calcTime )
                  measures.Add( calcTime );
@@ -68,8 +76,8 @@ public class MeasureSystem : MonoBehaviour
     {
         if ( measures.Count > 0 )
              curTime = measures[curIndex];
-
-        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+        
+        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + loadTime );
 
         while ( curIndex < measures.Count )
         {

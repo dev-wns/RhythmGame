@@ -23,10 +23,12 @@ public class NoteRenderer : MonoBehaviour
     private static readonly Color BodyColor     = new Color( .4f, .4f, .4f, 1f );
     private static readonly Color BodyFailColor = new Color( .15f, .15f, .15f, 1f );
 
+    private double weight;
+
     private void Awake()
     {
         game = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        game.OnScrollChanged += BodyScaleUpdate;
+        game.OnScrollChanged += ScrollUpdate;
 
         headTf = head.transform;
         headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
@@ -36,7 +38,7 @@ public class NoteRenderer : MonoBehaviour
 
     private void OnDestroy()
     {
-        game.OnScrollChanged -= BodyScaleUpdate;
+        game.OnScrollChanged -= ScrollUpdate;
     }
 
 
@@ -55,7 +57,7 @@ public class NoteRenderer : MonoBehaviour
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
 
         body.enabled = IsSlider ? true : false;
-        BodyScaleUpdate();
+        ScrollUpdate();
 
         head.color = _lane == 1 || _lane == 4 ? MiddleColor : Color.white;
         body.color = BodyColor;
@@ -63,8 +65,9 @@ public class NoteRenderer : MonoBehaviour
 
     public void SetBodyFail() => body.color = BodyFailColor;
 
-    private void BodyScaleUpdate()
+    private void ScrollUpdate()
     {
+        weight = GameSetting.Weight;
         if ( !IsSlider ) return;
 
         double sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
@@ -79,7 +82,7 @@ public class NoteRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        double weight = GameSetting.Weight;
+        //double weight = GameSetting.Weight;
         Vector2 headPos;
         if ( isHolding )
         {

@@ -37,57 +37,68 @@ public class ComboSystem : MonoBehaviour
 
         sequence.Pause().SetAutoKill( false );
         sequence.Append( tf.DOMoveY( posCache.y + 50f, .15f ) );
-    }
 
-    private void FixedUpdate()
-    {
-        if ( prevCombo == curCombo )
-             return;
-
-        prevCombo = curCombo;
-        prevNum   = curNum;
-
-        if ( curCombo == 0 )
-        {
-            curNum = 1;
-
-            if ( !images[0].gameObject.activeInHierarchy )
-                 images[0].gameObject.SetActive( true );
-            images[0].sprite = sprites[0];
-
-            for ( int i = 1; i < images.Count; i++ )
-            {
-                if ( images[i].gameObject.activeInHierarchy )
-                     images[i].gameObject.SetActive( false );
-            }
-        }
-        else
-        {
-            float calcCombo = curCombo;
-            curNum = curCombo > 0 ? Globals.Log10( calcCombo ) + 1 : 1;
-
-            for ( int i = 0; i < images.Count; i++ )
-            {
-                if ( i == curNum ) break;
-
-                if ( !images[i].gameObject.activeInHierarchy )
-                     images[i].gameObject.SetActive( true );
-
-                images[i].sprite = sprites[( int )calcCombo % 10];
-                calcCombo *= .1f;
-            }
-
-            tf.position = posCache;
-            sequence.Restart();
-        }
-
-        if ( prevNum != curNum )
-             layoutGroup.SetLayoutHorizontal();
+        StartCoroutine( UpdateImage() );
     }
 
     private void OnDestroy()
     {
+        StopAllCoroutines();
         sequence?.Kill();
+    }
+
+    private IEnumerator UpdateImage()
+    {
+        WaitUntil waitAddCombo = new WaitUntil( () => prevCombo != curCombo );
+        while ( true )
+        {
+            yield return YieldCache.WaitForSeconds( .05f );
+
+            prevNum = curNum;
+            if ( curCombo == 0 )
+            {
+                curNum = 1;
+
+                if ( !images[0].gameObject.activeInHierarchy )
+                     images[0].gameObject.SetActive( true );
+                images[0].sprite = sprites[0];
+
+                for ( int i = 1; i < images.Count; i++ )
+                {
+                    if ( images[i].gameObject.activeInHierarchy )
+                         images[i].gameObject.SetActive( false );
+                }
+            }
+            else
+            {
+                float calcPrevCombo = prevCombo;
+                float calcCurCombo  = curCombo;
+
+                //curNum = curCombo > 0 ? Globals.Log10( calcCurCombo ) + 1 : 1;
+                for ( int i = 0; i < images.Count; i++ )
+                {
+                    // if ( i == curNum ) break;
+                    if ( ( int )calcPrevCombo % 10 == ( int )calcCurCombo % 10 ) 
+                         break;
+
+                    if ( !images[i].gameObject.activeInHierarchy )
+                         images[i].gameObject.SetActive( true );
+
+                    images[i].sprite = sprites[( int )calcCurCombo % 10];
+
+                    calcCurCombo *= .1f;
+                    calcPrevCombo *= .1f;
+                }
+
+                tf.position = posCache;
+                sequence.Restart();
+            }
+
+            prevCombo = curCombo;
+
+            if ( prevNum != curNum )
+                layoutGroup.SetLayoutHorizontal();
+        }
     }
 
     private void ComboUpdate( JudgeType _type )

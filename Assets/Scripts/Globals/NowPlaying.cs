@@ -27,12 +27,12 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     }
     private int curSongIndex;
 
-    public static double Playback; // 노래 재생 시간
+    public static double Playback;        // 노래 재생 시간
     public static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
 
     public bool IsPlaying { get; set; }
     public bool IsLoad { get; private set; } = false;
-    private readonly int waitTime = -3000;
+    private readonly int waitTime = -3;
 
     private void Awake()
     {
@@ -53,19 +53,13 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( !IsPlaying ) return;
 
-        Playback += Time.deltaTime * 1000d;
+        Playback += Time.deltaTime;
         PlaybackChanged = GetChangedTime( Playback );
-
-        if ( IsLoad )
-        {
-            Playback = SoundManager.Inst.Position;
-            IsLoad = false;
-        }
     }
 
     public void Initialize()
     {
-        IsPlaying = false;
+        IsLoad = IsPlaying = false;
         Playback = waitTime;
         PlaybackChanged = 0;
 
@@ -86,6 +80,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset );
 
         SoundManager.Inst.Pause = false;
+        Playback = SoundManager.Inst.Position * .001d;
         IsLoad = true;
     }
 

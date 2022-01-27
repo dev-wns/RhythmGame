@@ -13,15 +13,23 @@ public class NoteSystem : MonoBehaviour
     private List<Note> notes = new List<Note>();
     private Note curNote;
     private int curIndex;
+    private double loadTime;
 
     private void Awake()
     {
         lane = GetComponent<Lane>();
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         CurrentScene.OnGameStart += () => StartCoroutine( Process() );
+        CurrentScene.OnScrollChanged += ScrollUpdate;
 
         nPool = new ObjectPool<NoteRenderer>( nPrefab, 10 );
+
+        ScrollUpdate();
     }
+
+    private void OnDestroy() => CurrentScene.OnScrollChanged -= ScrollUpdate;
+
+    public void ScrollUpdate() => loadTime = GameSetting.PreLoadTime;
 
     public void AddNote( Note _note ) => notes.Add( _note );
 
@@ -32,7 +40,7 @@ public class NoteSystem : MonoBehaviour
         if( notes.Count > 0 )
             curNote = notes[curIndex];
 
-        WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+        WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + loadTime );
         while ( curIndex < notes.Count )
         {
             yield return waitNextNote;

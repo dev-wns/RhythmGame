@@ -4,23 +4,27 @@ using UnityEngine;
 
 public class MeasureRenderer : MonoBehaviour
 {
+    private InGame game;
     private MeasureSystem system;
     private double time;
 
     private SpriteRenderer rdr;
-
-    public void SetInfo( MeasureSystem _system, double _time )
-    {
-        rdr.enabled = true;
-        system = _system;
-        time = _time;
-    }
+    private double weight;
 
     private void Awake()
     {
+        game = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        game.OnScrollChanged += ScrollUpdate;
+
         rdr = GetComponent<SpriteRenderer>();
         transform.localScale = new Vector2( GameSetting.GearWidth, GameSetting.MeasureHeight );
+
+        ScrollUpdate();
     }
+
+    private void OnDestroy() => game.OnScrollChanged -= ScrollUpdate;
+
+    private void ScrollUpdate() => weight = GameSetting.Weight;
 
     private void LateUpdate()
     {
@@ -32,5 +36,12 @@ public class MeasureRenderer : MonoBehaviour
             rdr.enabled = false;
             system.Despawn( this );
         }
+    }
+
+    public void SetInfo( MeasureSystem _system, double _time )
+    {
+        rdr.enabled = true;
+        system = _system;
+        time = _time;
     }
 }
