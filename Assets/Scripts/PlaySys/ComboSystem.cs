@@ -49,10 +49,11 @@ public class ComboSystem : MonoBehaviour
 
     private IEnumerator UpdateImage()
     {
-        WaitUntil waitAddCombo = new WaitUntil( () => prevCombo != curCombo );
         while ( true )
         {
             yield return YieldCache.WaitForSeconds( .05f );
+            if ( prevCombo == curCombo ) 
+                 continue;
 
             prevNum = curNum;
             if ( curCombo == 0 )
@@ -73,8 +74,7 @@ public class ComboSystem : MonoBehaviour
             {
                 float calcPrevCombo = prevCombo;
                 float calcCurCombo  = curCombo;
-
-                //curNum = curCombo > 0 ? Globals.Log10( calcCurCombo ) + 1 : 1;
+                curNum = curCombo > 0 ? Globals.Log10( calcCurCombo ) + 1 : 1;
                 for ( int i = 0; i < images.Count; i++ )
                 {
                     // if ( i == curNum ) break;

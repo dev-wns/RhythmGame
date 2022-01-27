@@ -10,7 +10,7 @@ public class RateSystem : MonoBehaviour
     public List<Sprite> sprites = new List<Sprite>();
     public List<SpriteRenderer> images = new List<SpriteRenderer>();
 
-    private int maxCount;
+    private int prevMaxCount = 1, curMaxCount;
     private double curRate, prevRate;
     private int prevNum, curNum;
 
@@ -23,41 +23,61 @@ public class RateSystem : MonoBehaviour
         judge.OnJudge += RateUpdate;
     }
 
-    private void FixedUpdate()
+    private void Start()
     {
-        if ( prevRate == curRate )
-             return;
-
-        prevRate = curRate;
-        prevNum  = curNum;
-
-        double calcRate = Mathf.RoundToInt( ( float )( curRate / maxCount ) );
-        curNum = Globals.Log10( calcRate ) + 1;
-
-        for ( int i = 0; i < images.Count; i++ )
-        {
-            if ( i > 2 && i >= curNum )
-            {
-                if ( images[i].gameObject.activeInHierarchy )
-                     images[i].gameObject.SetActive( false );
-            }
-            else
-            {
-                if ( !images[i].gameObject.activeInHierarchy )
-                     images[i].gameObject.SetActive( true );
-
-                images[i].sprite = sprites[( int )calcRate % 10];
-                calcRate *= .1d;
-            }
-        }
-
-        if ( prevNum != curNum )
-            layoutGroup.SetLayoutHorizontal();
+        StartCoroutine( UpdateImage() );
     }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
+    }
+
+    private IEnumerator UpdateImage()
+    {
+        while ( true )
+        {
+            yield return YieldCache.WaitForSeconds( .05f );
+            if ( prevRate == curRate )
+                 continue;
+
+            prevNum = curNum;
+
+            double calcCurRate  = Mathf.RoundToInt( ( float )( curRate / curMaxCount ) );
+            double calcPrevRate = Mathf.RoundToInt( ( float )( prevRate / prevMaxCount ) );
+
+            curNum = Globals.Log10( calcCurRate ) + 1;
+
+            for ( int i = 3; i < images.Count; i++ )
+            {
+                if ( i >= curNum )
+                {
+                    if ( images[i].gameObject.activeInHierarchy )
+                         images[i].gameObject.SetActive( false );
+                }
+                else
+                {
+                    if ( !images[i].gameObject.activeInHierarchy )
+                         images[i].gameObject.SetActive( true );
+                }
+            }
+
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( ( int )calcPrevRate % 10 == ( int )calcCurRate % 10 )
+                     break;
+
+                images[i].sprite = sprites[( int )calcCurRate % 10];
+                calcCurRate *= .1d;
+                calcPrevRate *= .1d;
+            }
+
+            prevRate     = curRate;
+            prevMaxCount = curMaxCount;
+
+            if ( prevNum != curNum )
+                 layoutGroup.SetLayoutHorizontal();
+        }
     }
 
     private void RateUpdate( JudgeType _type )
@@ -74,7 +94,7 @@ public class RateSystem : MonoBehaviour
             case JudgeType.Bad:         addRate = 7000d;  break; 
             case JudgeType.Miss:        addRate = .0001d; break; 
         }
-        ++maxCount;
+        ++curMaxCount;
         curRate += addRate;
     }
 }

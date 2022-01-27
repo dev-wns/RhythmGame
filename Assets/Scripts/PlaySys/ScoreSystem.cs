@@ -25,27 +25,38 @@ public class ScoreSystem : MonoBehaviour
         judge.OnJudge += ScoreImageUpdate;
     }
 
-    private void FixedUpdate()
+    private void Start()
     {
-        if ( prevScore == curScore )
-             return;
-
-        prevScore = curScore;
-
-        double calcScore = Mathf.RoundToInt( ( float )curScore );
-        int num = curScore > 0 ? Globals.Log10( calcScore ) + 1 : 1;
-        for ( int i = 0; i < images.Count; i++ )
-        {
-            if ( i == num ) break;
-
-            images[i].sprite = sprites[( int )calcScore % 10];
-            calcScore *= .1d;
-        }
+        StartCoroutine( UpdateImage() );
     }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
+    }
+
+    private IEnumerator UpdateImage()
+    {
+        while ( true )
+        {
+            yield return YieldCache.WaitForSeconds( .05f );
+            if ( prevScore == curScore )
+                 continue;
+
+            double calcCurScore  = Mathf.RoundToInt( ( float )curScore );
+            double calcPrevScore = Mathf.RoundToInt( ( float )prevScore );
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( ( int )calcPrevScore % 10 == ( int )calcCurScore % 10 ) 
+                     break;
+
+                images[i].sprite = sprites[( int )calcCurScore % 10];
+                calcCurScore  *= .1d;
+                calcPrevScore *= .1d;
+            }
+
+            prevScore = curScore;
+        }
     }
 
     private void Initialize( in Chart _chart )

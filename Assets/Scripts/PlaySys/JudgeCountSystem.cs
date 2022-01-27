@@ -24,31 +24,47 @@ public class JudgeCountSystem : MonoBehaviour
         judge.OnJudge += AddCount;
     }
 
-    private void FixedUpdate()
+    private void Start()
     {
-        if ( prevCount == curCount )
-             return;
+        StartCoroutine( UpdateImage() );
+    }
 
-        prevCount = curCount;
-        prevNum   = curNum;
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
 
-       float calcCombo = curCount;
-       curNum = curCount > 0 ? Globals.Log10( calcCombo ) + 1 : 1;
+    private IEnumerator UpdateImage()
+    {
+        while ( true )
+        {
+            yield return YieldCache.WaitForSeconds( .05f );
+            if ( prevCount == curCount )
+                 continue;
 
-       for ( int i = 0; i < images.Count; i++ )
-       {
-           if ( i == curNum ) break;
+            prevNum = curNum;
 
-           if ( !images[i].gameObject.activeInHierarchy )
-               images[i].gameObject.SetActive( true );
+            float calcPrevCount = prevCount;
+            float calcCurCount  = curCount;
+            curNum = curCount > 0 ? Globals.Log10( calcCurCount ) + 1 : 1;
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( ( int )calcPrevCount % 10 == ( int )calcCurCount % 10 )
+                     break;
 
-           images[i].sprite = sprites[( int )calcCombo % 10];
-           calcCombo *= .1f;
-       }
+                if ( !images[i].gameObject.activeInHierarchy )
+                     images[i].gameObject.SetActive( true );
 
+                images[i].sprite = sprites[( int )calcCurCount % 10];
+                calcCurCount  *= .1f;
+                calcPrevCount *= .1f;
+            }
 
-        if ( prevNum != curNum )
-             layoutGroup.SetLayoutHorizontal();
+            prevCount = curCount;
+
+            if ( prevNum != curNum )
+                 layoutGroup.SetLayoutHorizontal();
+        }
     }
 
     private void AddCount( JudgeType _type )
