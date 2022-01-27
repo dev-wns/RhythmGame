@@ -7,25 +7,25 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 {
     public ReadOnlyCollection<Song> Songs { get; private set; }
 
-    public  Song CurrentSong => currentSong;
-    private Song currentSong;
+    public  Song CurrentSong => curSong;
+    private Song curSong;
 
-    public  Chart CurrentChart => currentChart;
-    private Chart currentChart;
+    public  Chart CurrentChart => curChart;
+    private Chart curChart;
 
     public  int CurrentSongIndex 
     {
-        get => currentSongIndex;
+        get => curSongIndex;
         set
         {
             if ( value >= Songs.Count )
                 throw new System.Exception( "Out of Range. " );
 
-            currentSongIndex = value;
-            currentSong      = Songs[value];
+            curSongIndex = value;
+            curSong      = Songs[value];
         }
     }
-    private int currentSongIndex;
+    private int curSongIndex;
 
     public static double Playback; // 노래 재생 시간
     public static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
@@ -71,7 +71,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         using ( FileParser parser = new FileParser() )
         {
-            parser.TryParse( currentSong.filePath, out currentChart );
+            parser.TryParse( curSong.filePath, out curChart );
         }
     }
 

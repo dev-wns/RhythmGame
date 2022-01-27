@@ -16,8 +16,8 @@ public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
 
     private void Start()
     {
-        currentScene?.AwakeBind( actionType, KeyCode.LeftArrow );
-        currentScene?.AwakeBind( actionType, KeyCode.RightArrow );
+        CurrentScene?.AwakeBind( actionType, KeyCode.LeftArrow );
+        CurrentScene?.AwakeBind( actionType, KeyCode.RightArrow );
     }
 
     public abstract void LeftArrow();
@@ -26,14 +26,14 @@ public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
     public override void KeyBind()
     {
         base.KeyBind();
-        currentScene?.Bind( actionType, KeyCode.LeftArrow, keyLeftAction );
-        currentScene?.Bind( actionType, KeyCode.RightArrow, keyRightAction );
+        CurrentScene?.Bind( actionType, KeyCode.LeftArrow, keyLeftAction );
+        CurrentScene?.Bind( actionType, KeyCode.RightArrow, keyRightAction );
     }
 
     public override void KeyRemove()
     {
         base.KeyRemove();
-        currentScene.Remove( actionType, KeyCode.LeftArrow, keyLeftAction );
-        currentScene.Remove( actionType, KeyCode.RightArrow, keyRightAction );
+        CurrentScene.Remove( actionType, KeyCode.LeftArrow, keyLeftAction );
+        CurrentScene.Remove( actionType, KeyCode.RightArrow, keyRightAction );
     }
 }

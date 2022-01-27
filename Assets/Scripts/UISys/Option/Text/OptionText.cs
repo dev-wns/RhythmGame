@@ -24,7 +24,7 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
 
     private void Start()
     {
-        currentScene?.AwakeBind( actionType, KeyCode.Return );
+        CurrentScene?.AwakeBind( actionType, KeyCode.Return );
     }
 
     protected abstract void CreateObject();
@@ -38,13 +38,13 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
     public override void KeyBind()
     {
         base.KeyBind();
-        currentScene?.Bind( actionType, KeyCode.Return, keyReturnAction );
+        CurrentScene?.Bind( actionType, KeyCode.Return, keyReturnAction );
     }
 
     public override void KeyRemove()
     {
         base.KeyRemove();
-        currentScene?.Remove( actionType, KeyCode.Return, keyReturnAction );
+        CurrentScene?.Remove( actionType, KeyCode.Return, keyReturnAction );
     }
 
     protected void ChangeText( string _text )

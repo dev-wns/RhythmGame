@@ -11,8 +11,8 @@ public class RateSystem : MonoBehaviour
     public List<SpriteRenderer> images = new List<SpriteRenderer>();
 
     private int maxCount;
-    private double currentRate, previousRate;
-    private NumberBit previousBit, currentBit;
+    private double curRate, prevRate;
+    private int prevNum, curNum;
 
     private void Awake()
     {
@@ -21,51 +21,43 @@ public class RateSystem : MonoBehaviour
         images.Reverse();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateUpdate;
+    }
 
-        StartCoroutine( RateProcess() );
+    private void FixedUpdate()
+    {
+        if ( prevRate == curRate )
+             return;
+
+        prevRate = curRate;
+        prevNum  = curNum;
+
+        double calcRate = Mathf.RoundToInt( ( float )( curRate / maxCount ) );
+        curNum = Globals.Log10( calcRate ) + 1;
+
+        for ( int i = 0; i < images.Count; i++ )
+        {
+            if ( i > 2 && i >= curNum )
+            {
+                if ( images[i].gameObject.activeInHierarchy )
+                     images[i].gameObject.SetActive( false );
+            }
+            else
+            {
+                if ( !images[i].gameObject.activeInHierarchy )
+                     images[i].gameObject.SetActive( true );
+
+                images[i].sprite = sprites[( int )calcRate % 10];
+                calcRate *= .1d;
+            }
+        }
+
+        if ( prevNum != curNum )
+            layoutGroup.SetLayoutHorizontal();
     }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
-    }
-
-    private IEnumerator RateProcess()
-    {
-        while ( true )
-        {
-            yield return YieldCache.WaitForSeconds( .1f );
-
-            if ( previousRate == currentRate ) 
-                 continue;
-
-            previousRate = currentRate;
-            previousBit  = currentBit;
-            double calcRate = Mathf.RoundToInt( ( float )( currentRate / maxCount ) );
-            int num = Globals.Log10( calcRate ) + 1;
-
-            for ( int i = 0; i < images.Count; i++ )
-            {
-                if ( i > 2 && i >= num )
-                {
-                    if ( images[i].gameObject.activeInHierarchy )
-                         images[i].gameObject.SetActive( false );
-                }
-                else
-                {
-                    if ( !images[i].gameObject.activeInHierarchy )
-                         images[i].gameObject.SetActive( true );
-
-                    images[i].sprite = sprites[( int )calcRate % 10];
-                    calcRate *= .1d;
-
-                    currentBit = ( NumberBit )( 1 << i );
-                }
-            }
-
-            if ( previousBit != currentBit )
-                 layoutGroup.SetLayoutHorizontal();
-        }
     }
 
     private void RateUpdate( JudgeType _type )
@@ -83,6 +75,6 @@ public class RateSystem : MonoBehaviour
             case JudgeType.Miss:        addRate = .0001d; break; 
         }
         ++maxCount;
-        currentRate += addRate;
+        curRate += addRate;
     }
 }

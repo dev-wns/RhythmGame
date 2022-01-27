@@ -12,7 +12,7 @@ public class HitEffectSystem : MonoBehaviour
 
     private float changeTime;
     private float playback;
-    private int currentIndex = 0;
+    private int curIndex = 0;
     private bool isStop = true;
 
     private Transform tf;
@@ -36,8 +36,8 @@ public class HitEffectSystem : MonoBehaviour
     private void HitEffect()
     {
         playback = 0f;
-        currentIndex = 0;
-        rdr.sprite = sprites[currentIndex];
+        curIndex = 0;
+        rdr.sprite = sprites[curIndex];
         isStop = false;
         rdr.color = Color.white;
     }
@@ -49,9 +49,9 @@ public class HitEffectSystem : MonoBehaviour
         playback += Time.deltaTime;
         if ( playback >= changeTime )
         {
-            if ( currentIndex + 1 < sprites.Count )
+            if ( curIndex + 1 < sprites.Count )
             {
-                rdr.sprite = sprites[++currentIndex];
+                rdr.sprite = sprites[++curIndex];
                 playback = 0;
             }
             else

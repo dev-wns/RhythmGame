@@ -7,7 +7,7 @@ public class HealthSystem : MonoBehaviour
 {
     public Transform left, right;
     private Judgement judge;
-    private float currentHealth;
+    private float curHealth;
     public static readonly float MaxHealth = 100f;
     public  event Action<float/* Health */> OnChangedHealth;
     private event Action OnFailed;
@@ -17,7 +17,7 @@ public class HealthSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += HealthUpdate;
 
-        currentHealth = MaxHealth;
+        curHealth = MaxHealth;
     }
 
     private void HealthUpdate( JudgeType _type )
@@ -33,10 +33,10 @@ public class HealthSystem : MonoBehaviour
             case JudgeType.Miss:        offset = -10f; break;
         }
 
-        currentHealth = Globals.Clamp( currentHealth + offset, 0f, MaxHealth );
-        OnChangedHealth?.Invoke( currentHealth );
+        curHealth = Globals.Clamp( curHealth + offset, 0f, MaxHealth );
+        OnChangedHealth?.Invoke( curHealth );
 
-        if ( currentHealth < 0f ) 
+        if ( curHealth < 0f ) 
              OnFailed?.Invoke();
     }
 }

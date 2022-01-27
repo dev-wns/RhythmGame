@@ -6,20 +6,20 @@ public class LobbyExit : SceneOptionBase
 {
     public override void KeyBind()
     {
-        currentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow,  () => PrevMove() );
-        currentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow,  () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow,  () => PrevMove() );
+        CurrentScene.Bind( SceneAction.Exit, KeyCode.LeftArrow,  () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
 
-        currentScene.Bind( SceneAction.Exit, KeyCode.RightArrow, () => NextMove() );
-        currentScene.Bind( SceneAction.Exit, KeyCode.RightArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.Exit, KeyCode.RightArrow, () => NextMove() );
+        CurrentScene.Bind( SceneAction.Exit, KeyCode.RightArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
 
-        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => currentScene.ChangeAction( SceneAction.Main ) );
-        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => gameObject.SetActive( false ) );
-        currentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Escape ) );
+        CurrentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => CurrentScene.ChangeAction( SceneAction.Main ) );
+        CurrentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => gameObject.SetActive( false ) );
+        CurrentScene.Bind( SceneAction.Exit, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Escape ) );
     }
 
     public void Cancel()
     {
-        currentScene.ChangeAction( SceneAction.Main );
+        CurrentScene.ChangeAction( SceneAction.Main );
         gameObject.SetActive( false );
     }
 

@@ -9,8 +9,8 @@ public class BackgroundSystem : MonoBehaviour
     public FadeBackground bgPrefab;
     private ObjectPool<FadeBackground> bgPool;
     public  Sprite defaultSprite;
-    private Coroutine currentCoroutine;
-    private FadeBackground currentBackground;
+    private Coroutine loadCorutine;
+    private FadeBackground curBg;
 
     private void Awake()
     {
@@ -20,13 +20,13 @@ public class BackgroundSystem : MonoBehaviour
 
     private void ChangeImage( Song _song )
     {
-        if ( !ReferenceEquals( currentCoroutine, null ) )
+        if ( !ReferenceEquals( loadCorutine, null ) )
         {
-            StopCoroutine( currentCoroutine );
-            currentCoroutine = null;
+            StopCoroutine( loadCorutine );
+            loadCorutine = null;
         }
 
-        currentCoroutine = StartCoroutine( LoadBackground( _song.imagePath ) );
+        loadCorutine = StartCoroutine( LoadBackground( _song.imagePath ) );
     }
 
     private IEnumerator LoadBackground( string _path )
@@ -57,11 +57,11 @@ public class BackgroundSystem : MonoBehaviour
         }
         else sprite = defaultSprite;
 
-        currentBackground?.Despawn();
+        curBg?.Despawn();
 
-        currentBackground = bgPool.Spawn();
-        currentBackground.SetInfo( sprite, !isExist );
-        currentBackground.system = this;
+        curBg = bgPool.Spawn();
+        curBg.SetInfo( sprite, !isExist );
+        curBg.system = this;
 
         // 원시 버젼 메모리 재할당이 큼
         //Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );

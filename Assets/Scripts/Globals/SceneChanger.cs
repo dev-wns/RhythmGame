@@ -13,7 +13,7 @@ public class SceneChanger : SingletonUnity<SceneChanger>
 {
     public static Scene CurrentScene;
     private SpriteRenderer blackSprite;
-    private Coroutine currentCoroutine;
+    private Coroutine loadCoroutine;
 
     private void Awake()
     {
@@ -34,9 +34,9 @@ public class SceneChanger : SingletonUnity<SceneChanger>
 
     public void LoadScene( SceneType _type )
     {
-        if ( currentCoroutine != null ) return;
+        if ( loadCoroutine != null ) return;
 
-        currentCoroutine = StartCoroutine( FadeBackground( _type ) );
+        loadCoroutine = StartCoroutine( FadeBackground( _type ) );
     }
 
     private IEnumerator InitSceneChange( SceneType _type )
@@ -78,6 +78,6 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         //CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         //CurrentScene?.InputLock( false );
         blackSprite.enabled = false;
-        currentCoroutine = null;
+        loadCoroutine = null;
     }
 }

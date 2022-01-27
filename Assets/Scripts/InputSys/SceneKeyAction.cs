@@ -10,19 +10,19 @@ public enum SceneAction
 public class SceneKeyAction : MonoBehaviour
 {
     private Dictionary<SceneAction, KeyAction> keyActions = new Dictionary<SceneAction, KeyAction>();
-    public SceneAction currentAction { get; private set; }
+    public SceneAction CurrentAction { get; private set; }
     private bool IsLock = false;
 
     public void InputLock( bool _isLock ) => IsLock = _isLock;
 
     public void ActionCheck()
     {
-        if ( IsLock || !keyActions.ContainsKey( currentAction ) )
+        if ( IsLock || !keyActions.ContainsKey( CurrentAction ) )
         {
             return;
         }
 
-        keyActions[currentAction].ActionCheck();
+        keyActions[CurrentAction].ActionCheck();
     }
 
     public void AwakeBind( SceneAction _type, KeyCode _code )
@@ -77,6 +77,6 @@ public class SceneKeyAction : MonoBehaviour
             return;
         }
 
-        currentAction = _type;
+        CurrentAction = _type;
     }
 }

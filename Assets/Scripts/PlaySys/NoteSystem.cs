@@ -11,8 +11,8 @@ public class NoteSystem : MonoBehaviour
     public NoteRenderer nPrefab;
 
     private List<Note> notes = new List<Note>();
-    private Note currentNote;
-    private int currentIndex;
+    private Note curNote;
+    private int curIndex;
 
     private void Awake()
     {
@@ -30,20 +30,20 @@ public class NoteSystem : MonoBehaviour
     private IEnumerator Process()
     {
         if( notes.Count > 0 )
-            currentNote = notes[currentIndex];
+            curNote = notes[curIndex];
 
-        WaitUntil waitNextNote = new WaitUntil( () => currentNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
-        while ( currentIndex < notes.Count )
+        WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+        while ( curIndex < notes.Count )
         {
             yield return waitNextNote;
          
             NoteRenderer note = nPool.Spawn();
-            note.SetInfo( lane.Key, this, in currentNote );
+            note.SetInfo( lane.Key, this, in curNote );
 
             lane.InputSys.Enqueue( note );
 
-            if ( ++currentIndex < notes.Count )
-                 currentNote = notes[currentIndex];
+            if ( ++curIndex < notes.Count )
+                 curNote = notes[curIndex];
         }
     } 
 }

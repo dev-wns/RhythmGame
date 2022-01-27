@@ -10,7 +10,7 @@ public class InputSystem : MonoBehaviour
     private Judgement judge;
 
     private Queue<NoteRenderer> notes = new Queue<NoteRenderer>();
-    private NoteRenderer currentNote;
+    private NoteRenderer curNote;
 
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
     public event Action<bool> OnInputEvent;
@@ -39,16 +39,16 @@ public class InputSystem : MonoBehaviour
         {
             NoteProcessAction = () =>
             {
-                if ( currentNote.IsSlider ) AutoCheckSlider();
-                else                        AutoCheckNote();
+                if ( curNote.IsSlider ) AutoCheckSlider();
+                else                    AutoCheckNote();
             };
         }
         else
         {
             NoteProcessAction = () =>
             {
-                if ( currentNote.IsSlider ) CheckSlider();
-                else                        CheckNote();
+                if ( curNote.IsSlider ) CheckSlider();
+                else                    CheckNote();
             };
         }
     }
@@ -60,11 +60,11 @@ public class InputSystem : MonoBehaviour
 
     private IEnumerator NoteSelect()
     {
-        var WaitNote = new WaitUntil( () => currentNote == null && notes.Count > 0 );
+        var WaitNote = new WaitUntil( () => curNote == null && notes.Count > 0 );
         while ( true )
         {
             yield return WaitNote;
-            currentNote = notes.Dequeue();
+            curNote = notes.Dequeue();
         }
     }
 
@@ -72,15 +72,15 @@ public class InputSystem : MonoBehaviour
     {
         playback = 0f;
         isHolding = false;
-        currentNote.isHolding = false;
+        curNote.isHolding = false;
 
-        if ( _isDespawn ) currentNote.Despawn();
-        currentNote = null;
+        if ( _isDespawn ) curNote.Despawn();
+        curNote = null;
     }
 
     private void AutoCheckNote()
     {
-        double startDiff = currentNote.Time - NowPlaying.Playback;
+        double startDiff = curNote.Time - NowPlaying.Playback;
 
         if ( startDiff <= 0f )
         {
@@ -95,20 +95,20 @@ public class InputSystem : MonoBehaviour
     {
         if ( !isHolding )
         {
-            double startDiff = currentNote.Time - NowPlaying.Playback;
+            double startDiff = curNote.Time - NowPlaying.Playback;
 
             if ( startDiff <= 0f )
             {
                 var startType   = judge.GetJudgeType( startDiff );
                 isHolding = true;
-                currentNote.isHolding = true;
+                curNote.isHolding = true;
                 OnHitNote();
                 judge.OnJudgement( startType );
             }
         }
         else
         {
-            double endDiff = currentNote.SliderTime - NowPlaying.Playback;
+            double endDiff = curNote.SliderTime - NowPlaying.Playback;
 
             playback += Time.deltaTime;
             if ( playback > .1f )
@@ -130,7 +130,7 @@ public class InputSystem : MonoBehaviour
 
     private void CheckNote()
     {
-        double startDiff = currentNote.Time - NowPlaying.Playback;
+        double startDiff = curNote.Time - NowPlaying.Playback;
         var startType   = judge.GetJudgeType( startDiff );
 
         bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
@@ -156,7 +156,7 @@ public class InputSystem : MonoBehaviour
     {
         if ( !isHolding )
         {
-            double startDiff = currentNote.Time - NowPlaying.Playback;
+            double startDiff = curNote.Time - NowPlaying.Playback;
             var startType   = judge.GetJudgeType( startDiff );
 
             bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
@@ -165,7 +165,7 @@ public class InputSystem : MonoBehaviour
                 if ( startType != JudgeType.None && startType != JudgeType.Miss )
                 {
                     isHolding = true;
-                    currentNote.isHolding = true;
+                    curNote.isHolding = true;
                     OnHitNote();
                     judge.OnJudgement( startType );
                 }
@@ -173,9 +173,9 @@ public class InputSystem : MonoBehaviour
 
             if ( startType != JudgeType.None && startType == JudgeType.Miss )
             {
-                currentNote.SetBodyFail();
+                curNote.SetBodyFail();
                 judge.OnJudgement( JudgeType.Miss );
-                sliderMissQueue.Enqueue( currentNote );
+                sliderMissQueue.Enqueue( curNote );
                 SelectNextNote( false );
             }
         }
@@ -183,7 +183,7 @@ public class InputSystem : MonoBehaviour
         {
             bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
 
-            double endDiff = currentNote.SliderTime - NowPlaying.Playback;
+            double endDiff = curNote.SliderTime - NowPlaying.Playback;
             var endType   = judge.GetJudgeType( endDiff );
 
             if ( isInputHold )
@@ -215,9 +215,9 @@ public class InputSystem : MonoBehaviour
                 }
                 else if ( endType == JudgeType.None || endType == JudgeType.Miss )
                 {
-                    currentNote.SetBodyFail();
+                    curNote.SetBodyFail();
                     judge.OnJudgement( JudgeType.Miss );
-                    sliderMissQueue.Enqueue( currentNote );
+                    sliderMissQueue.Enqueue( curNote );
                     SelectNextNote( false );
                 }
             }
@@ -243,7 +243,7 @@ public class InputSystem : MonoBehaviour
             }
         }
 
-        if ( currentNote != null )
+        if ( curNote != null )
              NoteProcessAction();
     }
 }

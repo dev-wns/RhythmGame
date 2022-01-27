@@ -11,8 +11,8 @@ public class MeasureSystem : MonoBehaviour
     public ObjectPool<MeasureRenderer> mPool;
     public MeasureRenderer mPrefab;
     private List<double /* JudgeLine hit time */> measures = new List<double>();
-    private int currentIndex;
-    private double currentTime;
+    private int curIndex;
+    private double curTime;
 
     private void Awake()
     {
@@ -67,19 +67,19 @@ public class MeasureSystem : MonoBehaviour
     private IEnumerator Process()
     {
         if ( measures.Count > 0 )
-             currentTime = measures[currentIndex];
+             curTime = measures[curIndex];
 
-        WaitUntil waitNextMeasure = new WaitUntil( () => currentTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
 
-        while ( currentIndex < measures.Count )
+        while ( curIndex < measures.Count )
         {
             yield return waitNextMeasure;
 
             MeasureRenderer measure = mPool.Spawn();
-            measure.SetInfo( this, currentTime );
+            measure.SetInfo( this, curTime );
 
-            if ( ++currentIndex < measures.Count )
-                 currentTime = measures[currentIndex];
+            if ( ++curIndex < measures.Count )
+                 curTime = measures[curIndex];
             
         }
     }

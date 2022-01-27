@@ -67,7 +67,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static double OriginScrollSpeed = 15f;
+    private static double OriginScrollSpeed = 14f;
     public static double ScrollSpeed
     {
 
@@ -84,7 +84,7 @@ public class GameSetting : SingletonUnity<GameSetting>
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static double Weight { get { return 60d / NowPlaying.Inst.CurrentSong.medianBpm * ScrollSpeed * .0027d; } }
+    public static double Weight { get { return 60d / NowPlaying.Inst.CurrentSong.medianBpm * ScrollSpeed * .003d; } }
     public static double PreLoadTime { get { return ( 1500d / Weight ); } }
 
     // Sound

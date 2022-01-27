@@ -6,7 +6,7 @@ using DG.Tweening;
 public class HealthScaler : MonoBehaviour
 {
     public HealthSystem system;
-    public float speed = 1f;
+    public float speed = 10f;
     private Transform tf;
     private float health, curHealth;
     private Vector2 initScl;

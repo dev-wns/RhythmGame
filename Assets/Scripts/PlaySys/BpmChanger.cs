@@ -10,7 +10,7 @@ public class BpmChanger : MonoBehaviour
 {
     private InGame scene;
     private ReadOnlyCollection<Timing> timings;
-    private int currentIndex;
+    private int curIndex;
     private Timing curTiming;
 
     public event Action<double/* bpm */> OnBpmChange;
@@ -32,13 +32,13 @@ public class BpmChanger : MonoBehaviour
     private IEnumerator Process()
     {
         WaitUntil waitChangedTimeUntil = new WaitUntil( () => curTiming.time <= NowPlaying.Playback );
-        while ( currentIndex < timings.Count )
+        while ( curIndex < timings.Count )
         {
-            curTiming = timings[currentIndex];
+            curTiming = timings[curIndex];
             yield return waitChangedTimeUntil;
             
             OnBpmChange?.Invoke( curTiming.bpm );
-            currentIndex++;
+            curIndex++;
         }
     }
 }

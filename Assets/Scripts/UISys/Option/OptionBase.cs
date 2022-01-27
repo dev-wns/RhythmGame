@@ -8,12 +8,12 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
     public OptionType type { get; protected set; }
     public SceneAction actionType = SceneAction.Option;
 
-    protected Scene currentScene { get; private set; }
+    protected Scene CurrentScene { get; private set; }
     private Outline outline;
 
     protected virtual void Awake()
     {
-        currentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         outline = GetComponent<Outline>();
 
         outline.effectDistance = new Vector2( 5f, -5f );
@@ -31,11 +31,11 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
 
     public virtual void KeyBind()
     {
-        currentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        CurrentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
     }
 
     public virtual void KeyRemove()
     {
-        currentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        CurrentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
     }
 }

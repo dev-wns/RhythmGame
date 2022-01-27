@@ -21,8 +21,8 @@ public class ScrollHide : ScrollOption
 
     protected virtual void Start()
     {
-        int minIndex = currentIndex - activeIndex;
-        int maxIndex = currentIndex + Globals.Abs( activeIndex - numMaxActive );
+        int minIndex = CurrentIndex - activeIndex;
+        int maxIndex = CurrentIndex + Globals.Abs( activeIndex - numMaxActive );
         for ( int i = 0; i < options.Count; i++ )
         {
             var rt = options[i].transform as RectTransform;
@@ -49,8 +49,8 @@ public class ScrollHide : ScrollOption
 
         if ( activeIndex == 0 )
         {
-            options[currentIndex]?.gameObject.SetActive( true );
-            options[currentIndex + numMaxActive]?.gameObject.SetActive( false );
+            options[CurrentIndex]?.gameObject.SetActive( true );
+            options[CurrentIndex + numMaxActive]?.gameObject.SetActive( false );
         }
         else activeIndex -= 1;
     }
@@ -62,8 +62,8 @@ public class ScrollHide : ScrollOption
 
         if ( activeIndex + 1 >= numMaxActive )
         {
-            options[currentIndex]?.gameObject.SetActive( true );
-            options[currentIndex - numMaxActive]?.gameObject.SetActive( false );
+            options[CurrentIndex]?.gameObject.SetActive( true );
+            options[CurrentIndex - numMaxActive]?.gameObject.SetActive( false );
         }
         else activeIndex += 1;
     }

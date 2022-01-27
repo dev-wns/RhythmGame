@@ -7,24 +7,24 @@ public class ScrollBase : MonoBehaviour
     public bool IsDuplicate { get; private set; }
     public bool IsLoop { get; set; } = false;
 
-    public int currentIndex  { get; protected set; }
-    public int previousIndex { get; protected set; }
+    public int CurrentIndex  { get; protected set; }
+    public int PreviousIndex { get; protected set; }
     public int Length  { get; protected set; }
 
     protected virtual void Select( int _pos )
     {
         if ( Length <= 0 ) return;
 
-        currentIndex = _pos;
+        CurrentIndex = _pos;
     }
 
     public virtual void PrevMove()
     {
-        if ( currentIndex == 0 )
+        if ( CurrentIndex == 0 )
         {
             if ( IsLoop )
             {
-                currentIndex = Length - 1;
+                CurrentIndex = Length - 1;
                 return;
             }
 
@@ -32,17 +32,17 @@ public class ScrollBase : MonoBehaviour
             return;
         }
 
-        previousIndex = currentIndex--;
+        PreviousIndex = CurrentIndex--;
         IsDuplicate = false;
     }
 
     public virtual void NextMove()
     {
-        if ( currentIndex == Length - 1 )
+        if ( CurrentIndex == Length - 1 )
         {
             if ( IsLoop )
             {
-                currentIndex = 0;
+                CurrentIndex = 0;
                 return;
             }
 
@@ -50,7 +50,7 @@ public class ScrollBase : MonoBehaviour
             return;
         }
 
-        previousIndex = currentIndex++;
+        PreviousIndex = CurrentIndex++;
         IsDuplicate = false;
     }
 }

@@ -34,7 +34,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     public ReadOnlyCollection<SoundDriver> SoundDrivers { get; private set; }
     public int CurrentDriverIndex 
     {
-        get => currentDriverIndex;
+        get => curDriverIndex;
         set
         {
             int curIndex;
@@ -47,10 +47,10 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
 
             ErrorCheck( system.setDriver( value ) );
-            currentDriverIndex = value;
+            curDriverIndex = value;
         }
     }
-    private int currentDriverIndex;
+    private int curDriverIndex;
 
     public uint Position
     {
@@ -200,8 +200,8 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
             SoundDrivers = new ReadOnlyCollection<SoundDriver>( drivers );
         }
-        ErrorCheck( system.getDriver( out currentDriverIndex ) );
-        Debug.Log( $"Current Sound Device : {SoundDrivers[currentDriverIndex].name}" );
+        ErrorCheck( system.getDriver( out curDriverIndex ) );
+        Debug.Log( $"Current Sound Device : {SoundDrivers[curDriverIndex].name}" );
 
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelGroupType.Count; i++ )
@@ -277,15 +277,15 @@ public class SoundManager : SingletonUnity<SoundManager>
         AllStop();
         IsLoad = true;
 
-        int previousDriverIndex;
-        ErrorCheck( system.getDriver( out previousDriverIndex ) );
+        int prevDriverIndex;
+        ErrorCheck( system.getDriver( out prevDriverIndex ) );
 
         Release();
         Initialize();
 
         OnSoundSystemReLoad?.Invoke();
-        ErrorCheck( system.setDriver( previousDriverIndex ) );
-        currentDriverIndex = previousDriverIndex;
+        ErrorCheck( system.setDriver( prevDriverIndex ) );
+        curDriverIndex = prevDriverIndex;
 
         IsLoad = false;
     }

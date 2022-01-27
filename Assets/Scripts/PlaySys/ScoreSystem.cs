@@ -10,7 +10,7 @@ public class ScoreSystem : MonoBehaviour
 
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
-    private double previousScore, currentScore;
+    private double prevScore, curScore;
     private double maxScore;
 
     private void Awake()
@@ -23,8 +23,24 @@ public class ScoreSystem : MonoBehaviour
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreImageUpdate;
+    }
 
-        StartCoroutine( ScoreProcess() );
+    private void FixedUpdate()
+    {
+        if ( prevScore == curScore )
+             return;
+
+        prevScore = curScore;
+
+        double calcScore = Mathf.RoundToInt( ( float )curScore );
+        int num = curScore > 0 ? Globals.Log10( calcScore ) + 1 : 1;
+        for ( int i = 0; i < images.Count; i++ )
+        {
+            if ( i == num ) break;
+
+            images[i].sprite = sprites[( int )calcScore % 10];
+            calcScore *= .1d;
+        }
     }
 
     private void OnDestroy()
@@ -48,29 +64,6 @@ public class ScoreSystem : MonoBehaviour
         maxScore = 1000000d / maxJudgeCount;
     }
 
-    private IEnumerator ScoreProcess()
-    {
-        while ( true )
-        {
-            yield return YieldCache.WaitForSeconds( .1f );
-
-            if ( previousScore == currentScore )
-                 continue;
-
-            previousScore = currentScore;
-
-            double calcScore = Mathf.RoundToInt( ( float )currentScore );
-            int num = currentScore > 0 ? Globals.Log10( calcScore ) + 1 : 1;
-            for ( int i = 0; i < images.Count; i++ )
-            {
-                if ( i == num ) break;
-
-                images[i].sprite = sprites[( int )calcScore % 10];
-                calcScore *= .1d;
-            }
-        }
-    }
-
     private void ScoreImageUpdate( JudgeType _type )
     {
         if ( _type == JudgeType.None ) return;
@@ -85,6 +78,6 @@ public class ScoreSystem : MonoBehaviour
             case JudgeType.Bad:         addScore = maxScore * .25d;  break; 
             case JudgeType.Miss:        addScore = 0d;               break; 
         }
-        currentScore += addScore;
+        curScore += addScore;
     }
 }

@@ -5,21 +5,21 @@ using UnityEngine;
 
 public abstract class SceneOptionBase : ScrollOption, IKeyBind
 {
-    protected Scene currentScene;
+    protected Scene CurrentScene { get; private set; }
 
     protected override void Awake()
     {
         base.Awake();
 
         GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
-        currentScene = scene.GetComponent<Scene>();
+        CurrentScene = scene.GetComponent<Scene>();
         KeyBind();
     }
 
     private void Start()
     {
         OptionProcess();
-        while ( currentOption.type == OptionType.Title )
+        while ( CurrentOption.type == OptionType.Title )
         {
             base.NextMove();
             OptionProcess();
@@ -33,9 +33,9 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
 
         OptionProcess();
 
-        if ( currentOption.type == OptionType.Title )
+        if ( CurrentOption.type == OptionType.Title )
         {
-            if ( currentIndex == 0 ) NextMove();
+            if ( CurrentIndex == 0 ) NextMove();
             else                     PrevMove();
         }
     }
@@ -47,25 +47,25 @@ public abstract class SceneOptionBase : ScrollOption, IKeyBind
 
         OptionProcess();
 
-        if ( currentOption.type == OptionType.Title )
+        if ( CurrentOption.type == OptionType.Title )
         {
-            if ( currentIndex == Length ) PrevMove();
+            if ( CurrentIndex == Length ) PrevMove();
             else                          NextMove();
         }
     }
 
     private void OptionProcess()
     {
-        if ( previousOption != null )
+        if ( PreviousOption != null )
         {
-            previousOption.KeyRemove();
-            previousOption.ActiveOutline( false );
+            PreviousOption.KeyRemove();
+            PreviousOption.ActiveOutline( false );
         }
 
-        if ( currentOption != null )
+        if ( CurrentOption != null )
         {
-            currentOption.KeyBind();
-            currentOption.ActiveOutline( true );
+            CurrentOption.KeyBind();
+            CurrentOption.ActiveOutline( true );
         }
     }
 

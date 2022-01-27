@@ -11,8 +11,8 @@ public class ScrollOption : ScrollBase
     private ScrollRect scrollRect { get; set; }
     protected RectTransform content;
 
-    protected OptionBase currentOption { get; private set; }
-    protected OptionBase previousOption { get; private set; }
+    protected OptionBase CurrentOption { get; private set; }
+    protected OptionBase PreviousOption { get; private set; }
 
     protected virtual void Awake()
     {
@@ -32,22 +32,22 @@ public class ScrollOption : ScrollBase
 
         if ( Length <= 0 ) return;
 
-        currentOption = options[_pos];
+        CurrentOption = options[_pos];
     }
 
     public override void PrevMove()
     {
         base.PrevMove();
 
-        currentOption  = options[currentIndex];
-        previousOption = options[previousIndex];
+        CurrentOption = options[CurrentIndex];
+        PreviousOption = options[PreviousIndex];
     }
 
     public override void NextMove()
     {
         base.NextMove();
 
-        currentOption  = options[currentIndex];
-        previousOption = options[previousIndex];
+        CurrentOption = options[CurrentIndex];
+        PreviousOption = options[PreviousIndex];
     }
 }

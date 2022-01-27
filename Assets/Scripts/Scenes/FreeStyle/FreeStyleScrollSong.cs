@@ -9,7 +9,7 @@ public class FreeStyleScrollSong : SceneScrollOption
     public delegate void DelSelectSong( Song _song );
     public event DelSelectSong OnSelectSong;
 
-    private Song currentSong;
+    private Song curSong;
     private float playback;
     private float soundLength;
     private uint previewTime;
@@ -74,14 +74,14 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     private void OptionProcess()
     {
-        NowPlaying.Inst.CurrentSongIndex = currentIndex;
+        NowPlaying.Inst.CurrentSongIndex = CurrentIndex;
 
-        currentSong = NowPlaying.Inst.CurrentSong;
-        soundLength = currentSong.totalTime;
+        curSong = NowPlaying.Inst.CurrentSong;
+        soundLength = curSong.totalTime;
 
-        OnSelectSong( currentSong );
+        OnSelectSong( curSong );
 
-        SoundManager.Inst.LoadBgm( currentSong.audioPath, false, true, false );
+        SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
         SoundManager.Inst.PlayBgm();
 
         previewTime = GetPreviewTime();
@@ -91,18 +91,18 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     private uint GetPreviewTime()
     {
-        int time = currentSong.previewTime;
+        int time = curSong.previewTime;
         if ( time <= 0 ) return ( uint )( soundLength * 0.3141592f );
-        else             return ( uint )currentSong.previewTime;
+        else             return ( uint )curSong.previewTime;
     }
 
 
     public override void KeyBind()
     {
-        currentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => PrevMove() );
-        currentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => PrevMove() );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
 
-        currentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => NextMove() );
-        currentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => NextMove() );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
     }
 }
