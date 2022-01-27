@@ -22,6 +22,5 @@ public class AutoPlayOption : OptionText
     {
         if ( curIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.AutoPlay;
         else                 GameSetting.CurrentGameMode |=  GameMode.AutoPlay;
-        Debug.Log( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) );
     }
 }

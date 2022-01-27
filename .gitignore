@@ -74,3 +74,6 @@ crashlytics-build.properties
 /Assets/StreamingAssets/Songs
 /Assets/StreamingAssets/Osu
 /Assets/StreamingAssets/Temp
+/Game Build Files IL2CPP
+/Game Build Files Mono
+/Profiler Data

@@ -103,7 +103,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 3f;
 
     // Jugdement
-    public static float JudgePos    = -520f;
+    public static float JudgePos    = -510f;
     public static float JudgeHeight = 100f; // scaleY
 
     // note
@@ -119,7 +119,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
     private readonly KeyCode[] defaultKeys = new KeyCode[]
     {
-        KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.K, KeyCode.L, KeyCode.Semicolon
+        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.K, KeyCode.L, KeyCode.Semicolon
     };
 
     private void Awake()

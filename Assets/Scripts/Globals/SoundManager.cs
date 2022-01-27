@@ -302,7 +302,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     #region Load
     public void LoadBgm( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
     {
-        Globals.Timer.Start();
+        //Globals.Timer.Start();
         hasAccurateTime = _hasAccurateTime;
 
         FMOD.MODE mode = FMOD.MODE.CREATESAMPLE;
@@ -319,7 +319,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             bgmSound.clearHandle();
         }
         bgmSound = sound;
-        Debug.Log( $"Sound Load {Globals.Timer.End} ms" );
+        //Debug.Log( $"Sound Load {Globals.Timer.End} ms" );
     }
 
     private void LoadSfx( SoundSfxType _type, string _path )

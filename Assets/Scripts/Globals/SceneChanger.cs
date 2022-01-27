@@ -68,9 +68,9 @@ public class SceneChanger : SingletonUnity<SceneChanger>
         //if ( !oper.isDone ) yield return null;
 
         SceneManager.LoadScene( ( int )_type );
-        Globals.Timer.Start();
+        //Globals.Timer.Start();
         System.GC.Collect();
-        Debug.Log( $"GC Collect : {Globals.Timer.End} ms" );
+        //Debug.Log( $"GC Collect : {Globals.Timer.End} ms" );
 
         blackSprite.DOFade( 0f, .7f );
         yield return YieldCache.WaitForSeconds( 1f );

@@ -3,11 +3,21 @@ using System.Diagnostics;
 
 public static class Globals
 {
-    public static Timer Timer { get; } = new Timer();
+    //public static Timer Timer { get; } = new Timer();
 
+    // 부동 소수점끼리의 비교는 두 값을 뺸 결과를 절대값으로 나타낸 후
+    // 오차범위값과 비교하는게 정확하지만 아래 함수들은 성능을 중요시 함.
+    public static float Lerp( float _start, float _end, float _t ) => _start + ( _end - _start ) * _t;
     public static double Abs( double _value ) => _value >= 0d ? _value : -_value;
     public static float Abs( float _value )   => _value >= 0f ? _value : -_value;
     public static int Abs( int _value )       => _value >= 0  ? _value : -_value;
+    public static float Clamp( float _value, float _min, float _max )
+    {
+        return _value < _min ? _min : 
+               _value > _max ? _max : 
+               _value;
+    }
+
     public static int Log10( double _value )
     {
         // 현재 7자리까지 사용함.
