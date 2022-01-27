@@ -26,7 +26,7 @@ public class HealthSystem : MonoBehaviour
         switch ( _type )
         {
             case JudgeType.Perfect:     offset = 10f;  break;
-            case JudgeType.LazyPerfect: offset = 7f;   break;
+            case JudgeType.LatePerfect: offset = 7f;   break;
             case JudgeType.Great:       offset = 5f;   break;
             case JudgeType.Good:        offset = 3f;   break;
             case JudgeType.Bad:         offset = -5f;  break;

@@ -96,7 +96,7 @@ public class ComboSystem : MonoBehaviour
         {
             case JudgeType.None:
             case JudgeType.Perfect:
-            case JudgeType.LazyPerfect:
+            case JudgeType.LatePerfect:
             case JudgeType.Great:
             case JudgeType.Good:
             case JudgeType.Bad:

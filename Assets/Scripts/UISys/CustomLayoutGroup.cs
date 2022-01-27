@@ -29,25 +29,24 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
     protected TextAnchor childAlignment = TextAnchor.MiddleCenter;
     protected Vector2 anchor;
 
+    [SerializeField]
     protected List<RectTransform> rectChildren = new List<RectTransform>();
     public void Initialize()
     {
         SetAlignment();
 
-        var children = GetComponentsInChildren<RectTransform>( true );
-        if ( children.Length > 1 )
+        var rt = transform as RectTransform;
+        for ( int i = 0; i < rt.childCount; i++ )
         {
-            for ( int i = 1; i < children.Length; i++ )
-            {
-                children[i].anchorMin = anchor;
-                children[i].anchorMax = anchor;
+            var child = rt.GetChild( i ).transform as RectTransform;
+            child.anchorMin = anchor;
+            child.anchorMax = anchor;
 
-                rectChildren.Add( children[i] );
-            }
-
-            SetLayoutHorizontal();
-            SetLayoutVertical();
+            rectChildren.Add( child );
         }
+
+        SetLayoutHorizontal();
+        SetLayoutVertical();
     }
 
     protected virtual void Start()

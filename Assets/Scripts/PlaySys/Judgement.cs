@@ -3,17 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum JudgeType { None, Perfect, LazyPerfect, Great, Good, Bad, Miss }
+public enum JudgeType { None, Perfect, LatePerfect, Great, Good, Bad, Miss }
 
 public class Judgement : MonoBehaviour
 {
     public const double Perfect     = 22d;
-    public const double LazyPerfect = 20d + Perfect;
-    public const double Great       = 18d + LazyPerfect;
+    public const double LatePerfect = 20d + Perfect;
+    public const double Great       = 18d + LatePerfect;
     public const double Good        = 16d + Great;
     public const double Bad         = 14d + Good;
 
-    private int perfectCount, lazyPerfectCount, greatCount, goodCount, badCount, missCount;
+    private int perfectCount, latePerfectCount, greatCount, goodCount, badCount, missCount;
 
     public event Action<JudgeType> OnJudge;
 
@@ -29,8 +29,8 @@ public class Judgement : MonoBehaviour
         double diffAbs = Globals.Abs( _diff );
     
         if ( diffAbs <= Perfect )                                   return JudgeType.Perfect;
-        else if ( diffAbs > Perfect     && diffAbs <= LazyPerfect ) return JudgeType.LazyPerfect;
-        else if ( diffAbs > LazyPerfect && diffAbs <= Great )       return JudgeType.Great;
+        else if ( diffAbs > Perfect     && diffAbs <= LatePerfect ) return JudgeType.LatePerfect;
+        else if ( diffAbs > LatePerfect && diffAbs <= Great )       return JudgeType.Great;
         else if ( diffAbs > Great       && diffAbs <= Good )        return JudgeType.Good;
         else if ( diffAbs > Good        && diffAbs <= Bad )         return JudgeType.Bad;
         else if ( _diff < -Bad )                                    return JudgeType.Miss;
@@ -43,7 +43,7 @@ public class Judgement : MonoBehaviour
         {
             case JudgeType.None:                            break;
             case JudgeType.Perfect:     perfectCount++;     break;
-            case JudgeType.LazyPerfect: lazyPerfectCount++; break;
+            case JudgeType.LatePerfect: latePerfectCount++; break;
             case JudgeType.Great:       greatCount++;       break;
             case JudgeType.Good:        goodCount++;        break;
             case JudgeType.Bad:         badCount++;         break;

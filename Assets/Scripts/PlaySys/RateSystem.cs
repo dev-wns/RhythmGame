@@ -68,7 +68,7 @@ public class RateSystem : MonoBehaviour
         switch ( _type )
         {
             case JudgeType.Perfect: 
-            case JudgeType.LazyPerfect: addRate = 10000d; break; 
+            case JudgeType.LatePerfect: addRate = 10000d; break; 
             case JudgeType.Great:       addRate = 9000d;  break; 
             case JudgeType.Good:        addRate = 8000d;  break; 
             case JudgeType.Bad:         addRate = 7000d;  break; 

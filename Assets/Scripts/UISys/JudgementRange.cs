@@ -34,7 +34,7 @@ public class JudgementRange : MonoBehaviour
         {
             double weight = GameSetting.Weight;
             perfectImage.localScale     = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Perfect ) ) )     * weight ) );
-            lazyPerfectImage.localScale = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.LazyPerfect ) ) ) * weight ) );
+            lazyPerfectImage.localScale = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.LatePerfect ) ) ) * weight ) );
             greatImage.localScale       = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Great ) ) )       * weight ) );
             goodImage.localScale        = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Good ) ) )        * weight ) );
             badImage.localScale         = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Bad  ) ) )        * weight ) );

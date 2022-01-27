@@ -72,7 +72,7 @@ public class ScoreSystem : MonoBehaviour
         switch ( _type )
         {
             case JudgeType.Perfect:     addScore = maxScore;         break; 
-            case JudgeType.LazyPerfect: addScore = maxScore * .83d;  break; 
+            case JudgeType.LatePerfect: addScore = maxScore * .83d;  break; 
             case JudgeType.Great:       addScore = maxScore * .61d;  break; 
             case JudgeType.Good:        addScore = maxScore * .47d;  break; 
             case JudgeType.Bad:         addScore = maxScore * .25d;  break; 

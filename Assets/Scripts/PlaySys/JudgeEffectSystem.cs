@@ -48,7 +48,7 @@ public class JudgeEffectSystem : MonoBehaviour
             {
                 case JudgeType.None:                                 return;
                 case JudgeType.Perfect:     rdr.sprite = sprites[5]; break;
-                case JudgeType.LazyPerfect: rdr.sprite = sprites[4]; break;
+                case JudgeType.LatePerfect: rdr.sprite = sprites[4]; break;
                 case JudgeType.Great:       rdr.sprite = sprites[3]; break;
                 case JudgeType.Good:        rdr.sprite = sprites[2]; break;
                 case JudgeType.Bad:         rdr.sprite = sprites[1]; break;
