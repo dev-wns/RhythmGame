@@ -31,10 +31,11 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
 
     [SerializeField]
     protected List<RectTransform> rectChildren = new List<RectTransform>();
+    
     public void Initialize()
     {
         SetAlignment();
-
+        rectChildren?.Clear();
         var rt = transform as RectTransform;
         for ( int i = 0; i < rt.childCount; i++ )
         {
