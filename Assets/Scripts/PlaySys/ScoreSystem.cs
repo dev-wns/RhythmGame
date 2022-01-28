@@ -10,7 +10,7 @@ public class ScoreSystem : MonoBehaviour
 
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
-    private double prevScore, curScore;
+    private double curScore;
     private double maxScore;
 
     private void Awake()
@@ -57,18 +57,15 @@ public class ScoreSystem : MonoBehaviour
             case HitResult.Miss:        curScore += 0d;               break; 
         }
 
-        double calcCurScore  = Globals.Round( curScore );
-        double calcPrevScore = Globals.Round( prevScore );
+        double calcCurScore = Globals.Round( curScore );
+        int num = Globals.Log10( calcCurScore ) + 1;
         for ( int i = 0; i < images.Count; i++ )
         {
-            if ( ( int )calcPrevScore % 10 == ( int )calcCurScore % 10 )
-                 break;
+            if ( i == num ) break;
 
             images[i].sprite = sprites[( int )calcCurScore % 10];
             calcCurScore  *= .1d;
-            calcPrevScore *= .1d;
         }
 
-        prevScore = curScore;
     }
 }
