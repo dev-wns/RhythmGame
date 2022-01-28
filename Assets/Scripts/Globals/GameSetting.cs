@@ -67,7 +67,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static double OriginScrollSpeed = 14f;
+    private static double OriginScrollSpeed = 13.5f;
     public static double ScrollSpeed
     {
 

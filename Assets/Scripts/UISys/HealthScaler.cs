@@ -30,7 +30,7 @@ public class HealthScaler : MonoBehaviour
 
     private void FixedUpdate()
     {
-        float deltaTime = speed * Time.deltaTime;
+        float deltaTime = speed * Time.fixedDeltaTime;
         loop0_1 += isReverse ? deltaTime : -deltaTime;
         isReverse = loop0_1 <= 0f || loop0_1 >= 1f ? !isReverse : isReverse;
 

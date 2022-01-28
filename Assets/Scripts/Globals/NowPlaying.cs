@@ -32,7 +32,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public bool IsPlaying { get; set; }
     public bool IsLoad { get; private set; } = false;
-    private readonly int waitTime = -3;
+    private readonly double waitTime = -3d;
+    private double startTime;
+    private double savedTime;
 
     private void Awake()
     {
@@ -53,7 +55,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( !IsPlaying ) return;
 
-        Playback += Time.smoothDeltaTime;
+        Playback = waitTime + savedTime + ( System.DateTime.Now.TimeOfDay.TotalSeconds - startTime );
         PlaybackChanged = GetChangedTime( Playback );
     }
 
@@ -76,11 +78,12 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
         SoundManager.Inst.PlayBgm( true );
         IsPlaying = true;
+        startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
 
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset );
 
         SoundManager.Inst.Pause = false;
-        Playback = SoundManager.Inst.Position * .001d;
+        savedTime = SoundManager.Inst.Position * .001d;
         IsLoad = true;
     }
 

@@ -24,52 +24,31 @@ public class JudgeCountSystem : MonoBehaviour
         judge.OnJudge += AddCount;
     }
 
-    private void Start()
-    {
-        StartCoroutine( UpdateImage() );
-    }
-
-    private void OnDestroy()
-    {
-        StopAllCoroutines();
-    }
-
-    private IEnumerator UpdateImage()
-    {
-        while ( true )
-        {
-            yield return YieldCache.WaitForSeconds( .05f );
-            if ( prevCount == curCount )
-                 continue;
-
-            prevNum = curNum;
-
-            float calcPrevCount = prevCount;
-            float calcCurCount  = curCount;
-            curNum = curCount > 0 ? Globals.Log10( calcCurCount ) + 1 : 1;
-            for ( int i = 0; i < images.Count; i++ )
-            {
-                if ( ( int )calcPrevCount % 10 == ( int )calcCurCount % 10 )
-                     break;
-
-                if ( !images[i].gameObject.activeInHierarchy )
-                     images[i].gameObject.SetActive( true );
-
-                images[i].sprite = sprites[( int )calcCurCount % 10];
-                calcCurCount  *= .1f;
-                calcPrevCount *= .1f;
-            }
-
-            prevCount = curCount;
-
-            if ( prevNum != curNum )
-                 layoutGroup.SetLayoutHorizontal();
-        }
-    }
-
     private void AddCount( JudgeType _type )
     {
         if ( type != _type ) return;
         curCount++;
+
+        curNum = curCount == 0 ? 1 : Globals.Log10( curCount ) + 1;
+        float calcPrevCount = prevCount;
+        float calcCurCount  = curCount;
+        for ( int i = 0; i < images.Count; i++ )
+        {
+            if ( ( int )calcPrevCount % 10 == ( int )calcCurCount % 10 )
+                 break;
+
+            if ( !images[i].gameObject.activeSelf )
+                 images[i].gameObject.SetActive( true );
+
+            images[i].sprite = sprites[( int )calcCurCount % 10];
+            calcCurCount *= .1f;
+            calcPrevCount *= .1f;
+        }
+
+        if ( prevNum != curNum )
+             layoutGroup.SetLayoutHorizontal();
+
+        prevCount = curCount;
+        prevNum = curNum;
     }
 }

@@ -28,7 +28,7 @@ public class MeasureRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        var pos = GameSetting.JudgePos + ( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight );
+        var pos = GameSetting.JudgePos + ( ( time - NowPlaying.PlaybackChanged ) * weight );
         transform.position = new Vector2( 0, ( float )pos );
 
         if ( pos <= GameSetting.JudgePos )

@@ -39,7 +39,7 @@ public class LaneSystem : MonoBehaviour
             var randA = Random.Range( _min, _max );
             var randB = Random.Range( _min, _max );
 
-            var tmp = lanes[randA];
+            var tmp      = lanes[randA];
             lanes[randA] = lanes[randB];
             lanes[randB] = tmp;
         }

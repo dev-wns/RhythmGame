@@ -11,9 +11,9 @@ public class ComboSystem : MonoBehaviour
     private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
     private int prevCombo = -1, curCombo;
-
-    private Sequence sequence;
     private int prevNum, curNum;
+    private Sequence sequence;
+
     private Transform tf;
     private Vector2 posCache;
 
@@ -37,68 +37,11 @@ public class ComboSystem : MonoBehaviour
 
         sequence.Pause().SetAutoKill( false );
         sequence.Append( tf.DOMoveY( posCache.y + 50f, .15f ) );
-
-        StartCoroutine( UpdateImage() );
     }
 
     private void OnDestroy()
     {
-        StopAllCoroutines();
         sequence?.Kill();
-    }
-
-    private IEnumerator UpdateImage()
-    {
-        while ( true )
-        {
-            yield return YieldCache.WaitForSeconds( .05f );
-            if ( prevCombo == curCombo ) 
-                 continue;
-
-            prevNum = curNum;
-            if ( curCombo == 0 )
-            {
-                curNum = 1;
-
-                if ( !images[0].gameObject.activeInHierarchy )
-                     images[0].gameObject.SetActive( true );
-                images[0].sprite = sprites[0];
-
-                for ( int i = 1; i < images.Count; i++ )
-                {
-                    if ( images[i].gameObject.activeInHierarchy )
-                         images[i].gameObject.SetActive( false );
-                }
-            }
-            else
-            {
-                float calcPrevCombo = prevCombo;
-                float calcCurCombo  = curCombo;
-                curNum = curCombo > 0 ? Globals.Log10( calcCurCombo ) + 1 : 1;
-                for ( int i = 0; i < images.Count; i++ )
-                {
-                    // if ( i == curNum ) break;
-                    if ( ( int )calcPrevCombo % 10 == ( int )calcCurCombo % 10 ) 
-                         break;
-
-                    if ( !images[i].gameObject.activeInHierarchy )
-                         images[i].gameObject.SetActive( true );
-
-                    images[i].sprite = sprites[( int )calcCurCombo % 10];
-
-                    calcCurCombo *= .1f;
-                    calcPrevCombo *= .1f;
-                }
-
-                tf.position = posCache;
-                sequence.Restart();
-            }
-
-            prevCombo = curCombo;
-
-            if ( prevNum != curNum )
-                layoutGroup.SetLayoutHorizontal();
-        }
     }
 
     private void ComboUpdate( JudgeType _type )
@@ -118,5 +61,46 @@ public class ComboSystem : MonoBehaviour
             curCombo = 0;
             break;
         }
+
+        if ( curCombo == 0 )
+        {
+            curNum = 1;
+            if ( !images[0].gameObject.activeSelf )
+                 images[0].gameObject.SetActive( true );
+            images[0].sprite = sprites[0];
+
+            for ( int i = 1; i < images.Count; i++ )
+            {
+                if ( images[i].gameObject.activeSelf )
+                     images[i].gameObject.SetActive( false );
+            }
+        }
+        else
+        {
+            curNum = curCombo == 0 ? 1 : Globals.Log10( curCombo ) + 1;
+            float calcPrevCombo = prevCombo;
+            float calcCurCombo = curCombo;
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( ( int )calcPrevCombo % 10 == ( int )calcCurCombo % 10 )
+                    break;
+
+                if ( !images[i].gameObject.activeSelf )
+                     images[i].gameObject.SetActive( true );
+
+                images[i].sprite = sprites[( int )calcCurCombo % 10];
+                calcCurCombo  *= .1f;
+                calcPrevCombo *= .1f;
+            }
+
+            tf.position = posCache;
+            sequence.Restart();
+        }
+
+        if ( prevNum != curNum )
+             layoutGroup.SetLayoutHorizontal();
+
+        prevCombo = curCombo;
+        prevNum = curNum;
     }
 }

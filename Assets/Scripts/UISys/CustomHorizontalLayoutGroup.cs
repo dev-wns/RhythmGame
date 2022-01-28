@@ -13,7 +13,7 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
         float childrenMaxHeight = 0f;
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
-            if ( !rectChildren[i].gameObject.activeInHierarchy )
+            if ( !rectChildren[i].gameObject.activeSelf )
                  continue;
 
             childrenMaxWidth  += rectChildren[i].sizeDelta.x;
@@ -32,12 +32,12 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
             if ( !child.gameObject.activeInHierarchy )
                  continue;
 
-            child.anchoredPosition = new Vector2( widthOffset + padding.left - padding.right,
+            child.anchoredPosition = new Vector2( widthOffset  + padding.left   - padding.right,
                                                   heightOffset + padding.bottom - padding.top );
 
             widthOffset += ( rectChildren[i].sizeDelta.x * .5f ) + spacing;
             if ( i + 1 < rectChildren.Count )
-                widthOffset += ( rectChildren[i + 1].sizeDelta.x * .5f );
+                 widthOffset += ( rectChildren[i + 1].sizeDelta.x * .5f );
         }
     }
 

@@ -25,40 +25,6 @@ public class ScoreSystem : MonoBehaviour
         judge.OnJudge += ScoreImageUpdate;
     }
 
-    private void Start()
-    {
-        StartCoroutine( UpdateImage() );
-    }
-
-    private void OnDestroy()
-    {
-        StopAllCoroutines();
-    }
-
-    private IEnumerator UpdateImage()
-    {
-        while ( true )
-        {
-            yield return YieldCache.WaitForSeconds( .05f );
-            if ( prevScore == curScore )
-                 continue;
-
-            double calcCurScore  = Mathf.RoundToInt( ( float )curScore );
-            double calcPrevScore = Mathf.RoundToInt( ( float )prevScore );
-            for ( int i = 0; i < images.Count; i++ )
-            {
-                if ( ( int )calcPrevScore % 10 == ( int )calcCurScore % 10 ) 
-                     break;
-
-                images[i].sprite = sprites[( int )calcCurScore % 10];
-                calcCurScore  *= .1d;
-                calcPrevScore *= .1d;
-            }
-
-            prevScore = curScore;
-        }
-    }
-
     private void Initialize( in Chart _chart )
     {
         int maxJudgeCount;
@@ -79,16 +45,28 @@ public class ScoreSystem : MonoBehaviour
     {
         if ( _type == JudgeType.None ) return;
 
-        double addScore = 0d;
         switch ( _type )
         {
-            case JudgeType.Perfect:     addScore = maxScore;         break; 
-            case JudgeType.LatePerfect: addScore = maxScore * .83d;  break; 
-            case JudgeType.Great:       addScore = maxScore * .61d;  break; 
-            case JudgeType.Good:        addScore = maxScore * .47d;  break; 
-            case JudgeType.Bad:         addScore = maxScore * .25d;  break; 
-            case JudgeType.Miss:        addScore = 0d;               break; 
+            case JudgeType.Perfect:     curScore += maxScore;         break; 
+            case JudgeType.LatePerfect: curScore += maxScore * .83d;  break; 
+            case JudgeType.Great:       curScore += maxScore * .61d;  break; 
+            case JudgeType.Good:        curScore += maxScore * .47d;  break; 
+            case JudgeType.Bad:         curScore += maxScore * .25d;  break; 
+            case JudgeType.Miss:        curScore += 0d;               break; 
         }
-        curScore += addScore;
+
+        double calcCurScore  = Globals.Round( curScore );
+        double calcPrevScore = Globals.Round( prevScore );
+        for ( int i = 0; i < images.Count; i++ )
+        {
+            if ( ( int )calcPrevScore % 10 == ( int )calcCurScore % 10 )
+                 break;
+
+            images[i].sprite = sprites[( int )calcCurScore % 10];
+            calcCurScore  *= .1d;
+            calcPrevScore *= .1d;
+        }
+
+        prevScore = curScore;
     }
 }
