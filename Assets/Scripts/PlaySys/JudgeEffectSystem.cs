@@ -37,7 +37,7 @@ public class JudgeEffectSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        sequence.Kill();
+        sequence?.Kill();
     }
 
     private void HitEffect( HitResult _type )

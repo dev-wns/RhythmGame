@@ -13,7 +13,7 @@ public class Judgement : MonoBehaviour
     public const double Bad         = .127d;
     public const double Miss        = .151d;
 
-    public event Action<HitResult> OnJudge, OnFastSlow;
+    public event Action<HitResult> OnJudge;
 
     private void Awake()
     {
@@ -61,6 +61,12 @@ public class Judgement : MonoBehaviour
         else if ( diffAbs > Perfect && diffAbs <= Great )   OnJudge?.Invoke( HitResult.Great );
         else if ( diffAbs >= 0d     && diffAbs <= Perfect ) OnJudge?.Invoke( HitResult.Perfect );
         else                                                OnJudge?.Invoke( HitResult.None );
+
+        if ( diffAbs > Perfect && diffAbs <= Bad )
+        {
+            if ( _timeOffset >= 0d ) OnJudge?.Invoke( HitResult.Fast );
+            else                     OnJudge?.Invoke( HitResult.Slow );
+        }
     }
 
     public void ResultUpdate( HitResult _type )

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FastSlowCountSystem : MonoBehaviour
+public class HitCountSystem : MonoBehaviour
 {
     public HitResult type;
     public List<Sprite> sprites = new List<Sprite>();
@@ -35,10 +35,10 @@ public class FastSlowCountSystem : MonoBehaviour
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( ( int )calcPrevCount % 10 == ( int )calcCurCount % 10 )
-                break;
+                 break;
 
             if ( !images[i].gameObject.activeSelf )
-                images[i].gameObject.SetActive( true );
+                 images[i].gameObject.SetActive( true );
 
             images[i].sprite = sprites[( int )calcCurCount % 10];
             calcCurCount *= .1f;
@@ -46,7 +46,7 @@ public class FastSlowCountSystem : MonoBehaviour
         }
 
         if ( prevNum != curNum )
-            layoutGroup.SetLayoutHorizontal();
+             layoutGroup.SetLayoutHorizontal();
 
         prevCount = curCount;
         prevNum = curNum;
