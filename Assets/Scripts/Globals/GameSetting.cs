@@ -89,7 +89,7 @@ public class GameSetting : SingletonUnity<GameSetting>
 
     // Sound
     public static float SoundPitch = 1f;
-    public static int   SoundOffset = 0;
+    public static double SoundOffset = -.05d;
 
     // Opacity
     public static float BGAOpacity   = 0f;

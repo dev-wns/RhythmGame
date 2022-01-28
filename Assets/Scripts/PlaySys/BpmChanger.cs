@@ -15,11 +15,21 @@ public class BpmChanger : MonoBehaviour
 
     public event Action<double/* bpm */> OnBpmChange;
 
+    public List<Sprite> sprites = new List<Sprite>();
+    private List<SpriteRenderer> images = new List<SpriteRenderer>();
+    private CustomHorizontalLayoutGroup layoutGroup;
+    private int prevNum, curNum;
+
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>(); 
         scene.OnSystemInitialize += Initialize;
         scene.OnGameStart += StartProcess;
+
+        layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
+
+        images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
+        images.Reverse();
     }
 
     private void Initialize( in Chart _chart )
@@ -38,6 +48,29 @@ public class BpmChanger : MonoBehaviour
             yield return waitChangedTimeUntil;
             
             OnBpmChange?.Invoke( curTiming.bpm );
+
+            double calcCurBpm = curTiming.bpm;
+            curNum = Globals.Log10( curTiming.bpm ) + 1;
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( i < curNum )
+                {
+                    if ( !images[i].gameObject.activeSelf )
+                         images[i].gameObject.SetActive( true );
+
+                    images[i].sprite = sprites[( int )calcCurBpm % 10];
+                    calcCurBpm *= .1f;
+                }
+                else
+                {
+                    if ( images[i].gameObject.activeSelf )
+                         images[i].gameObject.SetActive( false );
+                }
+            }
+
+            if ( prevNum != curNum )
+                layoutGroup.SetLayoutHorizontal();
+
             curIndex++;
         }
     }
