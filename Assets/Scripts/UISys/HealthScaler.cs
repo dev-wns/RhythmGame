@@ -6,6 +6,7 @@ using DG.Tweening;
 public class HealthScaler : MonoBehaviour
 {
     public HealthSystem system;
+    public RectTransform Pos;
     public float speed = 10f;
     private Transform tf;
     private float health, curHealth;
@@ -20,6 +21,11 @@ public class HealthScaler : MonoBehaviour
         initScl = tf.localScale;
         health = curHealth = HealthSystem.MaxHealth;
         system.OnChangedHealth += _health => health = _health;
+    }
+
+    private void Start()
+    {
+        transform.position = Pos.position;
     }
 
     private void FixedUpdate()
