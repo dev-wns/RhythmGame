@@ -3,17 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum JudgeType { None, Perfect, LatePerfect, Great, Good, Bad, Miss }
+public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow }
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect     = .022d;
-    public const double LatePerfect = .020d + Perfect;
-    public const double Great       = .018d + LatePerfect;
-    public const double Good        = .016d + Great;
-    public const double Bad         = .014d + Good;
+    public const double Perfect     = .0224d;
+    public const double Great       = .064d;
+    public const double Good        = .097d;
+    public const double Bad         = .127d;
+    public const double Miss        = .151d;
 
-    public event Action<JudgeType> OnJudge;
+    public event Action<HitResult> OnJudge, OnFastSlow;
 
     private void Awake()
     {
@@ -22,32 +22,49 @@ public class Judgement : MonoBehaviour
         rt.sizeDelta        = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
     }
 
-    public JudgeType GetJudgeType( double _diff )
+    //private static readonly DifficultyRange[] base_ranges =
+    //{
+    //        new DifficultyRange(HitResult.Perfect, 22.4D, 19.4D, 13.9D),
+    //        new DifficultyRange(HitResult.Great, 64, 49, 34),
+    //        new DifficultyRange(HitResult.Good, 97, 82, 67),
+    //        new DifficultyRange(HitResult.Bad, 127, 112, 97),
+    //        new DifficultyRange(HitResult.Miss, 151, 136, 121),
+    //};
+
+    static double DifficultyRange( double difficulty, double min, double mid, double max )
     {
-        double diffAbs = Globals.Abs( _diff );
-    
-        if ( diffAbs <= Perfect )                                   return JudgeType.Perfect;
-        else if ( diffAbs > Perfect     && diffAbs <= LatePerfect ) return JudgeType.LatePerfect;
-        else if ( diffAbs > LatePerfect && diffAbs <= Great )       return JudgeType.Great;
-        else if ( diffAbs > Great       && diffAbs <= Good )        return JudgeType.Good;
-        else if ( diffAbs > Good        && diffAbs <= Bad )         return JudgeType.Bad;
-        else if ( _diff < -Bad )                                    return JudgeType.Miss;
-        else                                                        return JudgeType.None;
+        if ( difficulty > 5 )
+            return mid + ( max - mid ) * ( difficulty - 5 ) / 5;
+        if ( difficulty < 5 )
+            return mid - ( mid - min ) * ( 5 - difficulty ) / 5;
+
+        return mid;
     }
 
-    public void OnJudgement( JudgeType _type )
+    public bool CanBeHit( double _timeOffset )
     {
-        //switch ( _type )
-        //{
-        //    case JudgeType.None:                            break;
-        //    case JudgeType.Perfect:     perfectCount++;     break;
-        //    case JudgeType.LatePerfect: latePerfectCount++; break;
-        //    case JudgeType.Great:       greatCount++;       break;
-        //    case JudgeType.Good:        goodCount++;        break;
-        //    case JudgeType.Bad:         badCount++;         break;
-        //    case JudgeType.Miss:        missCount++;        break;
-        //}
+        return Globals.Abs( _timeOffset ) <= Bad ? true : false;
+    }
+    
+    public bool IsMiss( double _timeOffset )
+    {
+        return _timeOffset < -Bad ? true : false;
+    }
 
+    public void ResultUpdate( double _timeOffset )
+    {
+        double diffAbs = Globals.Abs( _timeOffset );
+
+        if ( _timeOffset < -Bad )                           OnJudge?.Invoke( HitResult.Miss );
+        else if ( diffAbs > Good    && diffAbs <= Bad )     OnJudge?.Invoke( HitResult.Bad );
+        else if ( diffAbs > Great   && diffAbs <= Good )    OnJudge?.Invoke( HitResult.Good );
+        else if ( diffAbs > Perfect && diffAbs <= Great )   OnJudge?.Invoke( HitResult.Great );
+        else if ( diffAbs >= 0d     && diffAbs <= Perfect ) OnJudge?.Invoke( HitResult.Perfect );
+        else                                                OnJudge?.Invoke( HitResult.None );
+    }
+
+    public void ResultUpdate( HitResult _type )
+    {
         OnJudge?.Invoke( _type );
     }
 }

@@ -73,6 +73,13 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public void Play() => StartCoroutine( MusicStart() );
 
+    public void Stop()
+    {
+        IsLoad = IsPlaying = false;
+        Playback = waitTime;
+        PlaybackChanged = 0;
+    }
+
     private IEnumerator MusicStart()
     {
         SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );

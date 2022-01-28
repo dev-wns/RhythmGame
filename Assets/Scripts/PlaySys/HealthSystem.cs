@@ -20,17 +20,16 @@ public class HealthSystem : MonoBehaviour
         curHealth = MaxHealth;
     }
 
-    private void HealthUpdate( JudgeType _type )
+    private void HealthUpdate( HitResult _type )
     {
         float offset = 0f;
         switch ( _type )
         {
-            case JudgeType.Perfect:     offset = 10f;  break;
-            case JudgeType.LatePerfect: offset = 7f;   break;
-            case JudgeType.Great:       offset = 5f;   break;
-            case JudgeType.Good:        offset = 3f;   break;
-            case JudgeType.Bad:         offset = -5f;  break;
-            case JudgeType.Miss:        offset = -10f; break;
+            case HitResult.Perfect:     offset = 5f;  break;
+            case HitResult.Great:       offset = 3f;   break;
+            case HitResult.Good:        offset = 1f;   break;
+            case HitResult.Bad:         offset = -3f;  break;
+            case HitResult.Miss:        offset = -5f; break;
         }
 
         curHealth = Globals.Clamp( curHealth + offset, 0f, MaxHealth );

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class JudgeCountSystem : MonoBehaviour
+public class FastSlowCountSystem : MonoBehaviour
 {
     public HitResult type;
     public List<Sprite> sprites = new List<Sprite>();
@@ -31,14 +31,14 @@ public class JudgeCountSystem : MonoBehaviour
 
         curNum = curCount == 0 ? 1 : Globals.Log10( curCount ) + 1;
         float calcPrevCount = prevCount;
-        float calcCurCount  = curCount;
+        float calcCurCount = curCount;
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( ( int )calcPrevCount % 10 == ( int )calcCurCount % 10 )
-                 break;
+                break;
 
             if ( !images[i].gameObject.activeSelf )
-                 images[i].gameObject.SetActive( true );
+                images[i].gameObject.SetActive( true );
 
             images[i].sprite = sprites[( int )calcCurCount % 10];
             calcCurCount *= .1f;
@@ -46,7 +46,7 @@ public class JudgeCountSystem : MonoBehaviour
         }
 
         if ( prevNum != curNum )
-             layoutGroup.SetLayoutHorizontal();
+            layoutGroup.SetLayoutHorizontal();
 
         prevCount = curCount;
         prevNum = curNum;

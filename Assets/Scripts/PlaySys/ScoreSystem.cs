@@ -41,18 +41,17 @@ public class ScoreSystem : MonoBehaviour
         maxScore = 1000000d / maxJudgeCount;
     }
 
-    private void ScoreImageUpdate( JudgeType _type )
+    private void ScoreImageUpdate( HitResult _type )
     {
-        if ( _type == JudgeType.None ) return;
+        if ( _type == HitResult.None ) return;
 
         switch ( _type )
         {
-            case JudgeType.Perfect:     curScore += maxScore;         break; 
-            case JudgeType.LatePerfect: curScore += maxScore * .83d;  break; 
-            case JudgeType.Great:       curScore += maxScore * .61d;  break; 
-            case JudgeType.Good:        curScore += maxScore * .47d;  break; 
-            case JudgeType.Bad:         curScore += maxScore * .25d;  break; 
-            case JudgeType.Miss:        curScore += 0d;               break; 
+            case HitResult.Perfect:     curScore += maxScore;         break; 
+            case HitResult.Great:       curScore += maxScore * .87d;  break; 
+            case HitResult.Good:        curScore += maxScore * .63d;  break; 
+            case HitResult.Bad:         curScore += maxScore * .41d;  break; 
+            case HitResult.Miss:        curScore += 0d;               break; 
         }
 
         double calcCurScore  = Globals.Round( curScore );

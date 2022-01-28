@@ -44,20 +44,19 @@ public class ComboSystem : MonoBehaviour
         sequence?.Kill();
     }
 
-    private void ComboUpdate( JudgeType _type )
+    private void ComboUpdate( HitResult _type )
     {
         switch ( _type )
         {
-            case JudgeType.None:
-            case JudgeType.Perfect:
-            case JudgeType.LatePerfect:
-            case JudgeType.Great:
-            case JudgeType.Good:
-            case JudgeType.Bad:
+            case HitResult.None:
+            case HitResult.Perfect:
+            case HitResult.Great:
+            case HitResult.Good:
+            case HitResult.Bad:
             curCombo++;
             break;
 
-            case JudgeType.Miss:
+            case HitResult.Miss:
             curCombo = 0;
             break;
         }

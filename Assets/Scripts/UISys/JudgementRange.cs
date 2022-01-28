@@ -6,7 +6,7 @@ using TMPro;
 public class JudgementRange : MonoBehaviour
 {
     private bool isShow;
-    public RectTransform perfectImage, lazyPerfectImage, greatImage, goodImage, badImage;
+    public RectTransform perfectImage, greatImage, goodImage, badImage;
 
     private void Awake()
     {
@@ -18,13 +18,12 @@ public class JudgementRange : MonoBehaviour
         if ( !isShow )
         {
             perfectImage.gameObject.SetActive( false );
-            lazyPerfectImage.gameObject.SetActive( false );
             greatImage.gameObject.SetActive( false );
             goodImage.gameObject.SetActive( false );
             badImage.gameObject.SetActive( false );
         }
 
-        perfectImage.sizeDelta = lazyPerfectImage.sizeDelta = greatImage.sizeDelta = goodImage.sizeDelta = badImage.sizeDelta =
+        perfectImage.sizeDelta = greatImage.sizeDelta = goodImage.sizeDelta = badImage.sizeDelta =
                               new Vector3( rt.sizeDelta.x, ( float )Screen.width / ( float )Screen.height, 1f );
     }
 
@@ -34,7 +33,6 @@ public class JudgementRange : MonoBehaviour
         {
             double weight = GameSetting.Weight;
             perfectImage.localScale     = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Perfect ) ) )     * weight ) );
-            lazyPerfectImage.localScale = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.LatePerfect ) ) ) * weight ) );
             greatImage.localScale       = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Great ) ) )       * weight ) );
             goodImage.localScale        = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Good ) ) )        * weight ) );
             badImage.localScale         = new Vector2( transform.localScale.x, ( float )( ( NowPlaying.PlaybackChanged - NowPlaying.Inst.GetChangedTime( Globals.Abs( NowPlaying.Playback - Judgement.Bad  ) ) )        * weight ) );

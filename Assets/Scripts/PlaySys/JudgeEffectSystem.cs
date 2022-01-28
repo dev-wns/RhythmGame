@@ -13,7 +13,7 @@ public class JudgeEffectSystem : MonoBehaviour
     private Transform tf;
     private Vector2 sclCache;
 
-    private JudgeType prevType = JudgeType.None;
+    private HitResult prevType = HitResult.None;
 
     private void Awake()
     {
@@ -40,19 +40,18 @@ public class JudgeEffectSystem : MonoBehaviour
         sequence.Kill();
     }
 
-    private void HitEffect( JudgeType _type )
+    private void HitEffect( HitResult _type )
     {
         if ( prevType != _type )
         {
             switch ( _type )
             {
-                case JudgeType.None:                                 return;
-                case JudgeType.Perfect:     rdr.sprite = sprites[5]; break;
-                case JudgeType.LatePerfect: rdr.sprite = sprites[4]; break;
-                case JudgeType.Great:       rdr.sprite = sprites[3]; break;
-                case JudgeType.Good:        rdr.sprite = sprites[2]; break;
-                case JudgeType.Bad:         rdr.sprite = sprites[1]; break;
-                case JudgeType.Miss:        rdr.sprite = sprites[0]; break;
+                case HitResult.None:                                 return;
+                case HitResult.Perfect:     rdr.sprite = sprites[4]; break;
+                case HitResult.Great:       rdr.sprite = sprites[3]; break;
+                case HitResult.Good:        rdr.sprite = sprites[2]; break;
+                case HitResult.Bad:         rdr.sprite = sprites[1]; break;
+                case HitResult.Miss:        rdr.sprite = sprites[0]; break;
             }
             prevType = _type;
         }

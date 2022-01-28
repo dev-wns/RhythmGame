@@ -17,8 +17,6 @@ public class InputSystem : MonoBehaviour
     public event Action OnHitNote;
 
     private GameKeyAction key;
-
-    private bool isHolding = false;
     private float playback;
 
     private Action NoteProcessAction;
@@ -71,8 +69,6 @@ public class InputSystem : MonoBehaviour
     private void SelectNextNote( bool _isDespawn = true )
     {
         playback = 0f;
-        isHolding = false;
-        curNote.isHolding = false;
 
         if ( _isDespawn ) curNote.Despawn();
         curNote = null;
@@ -84,46 +80,40 @@ public class InputSystem : MonoBehaviour
 
         if ( startDiff <= 0f )
         {
-            var startType = judge.GetJudgeType( startDiff );
             OnHitNote();
-            judge.OnJudgement( startType );
+            judge.ResultUpdate( startDiff );
             SelectNextNote();
         }
     }
 
     private void AutoCheckSlider()
     {
-        if ( !isHolding )
+        if ( !curNote.isHolding )
         {
             double startDiff = curNote.Time - NowPlaying.Playback;
-
             if ( startDiff <= 0f )
             {
-                var startType   = judge.GetJudgeType( startDiff );
-                isHolding = true;
                 curNote.isHolding = true;
                 OnHitNote();
-                judge.OnJudgement( startType );
+                judge.ResultUpdate( startDiff );
             }
         }
         else
         {
             double endDiff = curNote.SliderTime - NowPlaying.Playback;
+            if ( endDiff <= 0f )
+            {
+                OnHitNote();
+                judge.ResultUpdate( endDiff );
+                SelectNextNote();
+            }
 
             playback += Time.deltaTime;
             if ( playback > .1f )
             {
                 OnHitNote();
-                judge.OnJudgement( JudgeType.None );
+                judge.ResultUpdate( HitResult.None );
                 playback = 0f;
-            }
-
-            if ( endDiff <= 0f )
-            {
-                var endType = judge.GetJudgeType( endDiff );
-                OnHitNote();
-                judge.OnJudgement( endType );
-                SelectNextNote();
             }
         }
     }
@@ -131,66 +121,53 @@ public class InputSystem : MonoBehaviour
     private void CheckNote()
     {
         double startDiff = curNote.Time - NowPlaying.Playback;
-        var startType   = judge.GetJudgeType( startDiff );
-
-        bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
-        if ( isInputDown )
+        if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
         {
-            if ( startType != JudgeType.None && startType != JudgeType.Miss )
-            {
-                OnHitNote();
-                judge.OnJudgement( startType );
-                SelectNextNote();
-            }
+            OnHitNote();
+            judge.ResultUpdate( startDiff );
+            SelectNextNote();
+            return;
         }
 
-        // 마지막 판정까지 안눌렀을 때 ( Miss )
-        if ( startType != JudgeType.None && startType == JudgeType.Miss )
+        if( judge.IsMiss( startDiff ) )
         {
-            judge.OnJudgement( JudgeType.Miss );
+            judge.ResultUpdate( HitResult.Miss );
             SelectNextNote();
         }        
     }
 
     private void CheckSlider()
     {
-        if ( !isHolding )
+        if ( !curNote.isHolding )
         {
             double startDiff = curNote.Time - NowPlaying.Playback;
-            var startType   = judge.GetJudgeType( startDiff );
 
-            bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
-            if ( isInputDown )
+            if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
             {
-                if ( startType != JudgeType.None && startType != JudgeType.Miss )
-                {
-                    isHolding = true;
-                    curNote.isHolding = true;
-                    OnHitNote();
-                    judge.OnJudgement( startType );
-                }
+                curNote.isHolding = true;
+                OnHitNote();
+                judge.ResultUpdate( startDiff );
+                return;
             }
 
-            if ( startType != JudgeType.None && startType == JudgeType.Miss )
+            if ( judge.IsMiss( startDiff ) )
             {
                 curNote.SetBodyFail();
-                judge.OnJudgement( JudgeType.Miss );
+                judge.ResultUpdate( HitResult.Miss );
                 sliderMissQueue.Enqueue( curNote );
                 SelectNextNote( false );
+                return;
             }
         }
-        if ( isHolding )
+
+        if ( curNote.isHolding )
         {
-            bool isInputHold = Input.GetKey( GameSetting.Inst.Keys[key] );
-
             double endDiff = curNote.SliderTime - NowPlaying.Playback;
-            var endType   = judge.GetJudgeType( endDiff );
-
-            if ( isInputHold )
-            {
-                if ( endType != JudgeType.None && endType == JudgeType.Miss )
-                {
-                    judge.OnJudgement( JudgeType.Miss );
+            if ( Input.GetKey( GameSetting.Inst.Keys[key] ) )
+            { 
+                if ( endDiff <= 0f )
+                { 
+                    judge.ResultUpdate( endDiff );
                     SelectNextNote();
                     return;
                 }
@@ -199,24 +176,23 @@ public class InputSystem : MonoBehaviour
                 if ( playback > .1f )
                 {
                     OnHitNote();
-                    judge.OnJudgement( JudgeType.None );
+                    judge.ResultUpdate( HitResult.None );
                     playback = 0f;
                 }
             }
 
-            bool isInputUp = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
-            if ( isInputUp )
+            if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
             {
-                if ( endType != JudgeType.None && endType != JudgeType.Miss )
+                if ( judge.CanBeHit( endDiff ) )
                 {
                     OnHitNote();
-                    judge.OnJudgement( endType );
+                    judge.ResultUpdate( endDiff );
                     SelectNextNote();
                 }
-                else if ( endType == JudgeType.None || endType == JudgeType.Miss )
+                else
                 {
                     curNote.SetBodyFail();
-                    judge.OnJudgement( JudgeType.Miss );
+                    judge.ResultUpdate( HitResult.Miss );
                     sliderMissQueue.Enqueue( curNote );
                     SelectNextNote( false );
                 }
@@ -226,17 +202,13 @@ public class InputSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        bool isInputDown = Input.GetKeyDown( GameSetting.Inst.Keys[key] );
-        bool isInputUp   = Input.GetKeyUp( GameSetting.Inst.Keys[key] );
-
-        if ( isInputDown )    OnInputEvent?.Invoke( true );
-        else if ( isInputUp ) OnInputEvent?.Invoke( false );
+        if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )    OnInputEvent?.Invoke( true );
+        else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) ) OnInputEvent?.Invoke( false );
 
         if ( sliderMissQueue.Count > 0 )
         {
             var slider = sliderMissQueue.Peek();
-            double endDiff = slider.SliderTime - NowPlaying.Playback;
-            if ( judge.GetJudgeType( endDiff ) == JudgeType.Miss )
+            if ( judge.IsMiss( slider.SliderTime - NowPlaying.Playback ) )
             {
                 slider.Despawn();
                 sliderMissQueue.Dequeue();

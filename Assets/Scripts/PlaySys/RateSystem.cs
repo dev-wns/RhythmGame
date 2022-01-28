@@ -23,19 +23,18 @@ public class RateSystem : MonoBehaviour
         judge.OnJudge += RateUpdate;
     }
 
-    private void RateUpdate( JudgeType _type )
+    private void RateUpdate( HitResult _type )
     {
-        if ( _type == JudgeType.None ) return;
+        if ( _type == HitResult.None ) return;
 
         ++curMaxCount;
         switch ( _type )
         {
-            case JudgeType.Perfect: 
-            case JudgeType.LatePerfect: curRate += 10000d; break; 
-            case JudgeType.Great:       curRate += 9000d;  break; 
-            case JudgeType.Good:        curRate += 8000d;  break; 
-            case JudgeType.Bad:         curRate += 7000d;  break; 
-            case JudgeType.Miss:        curRate += .0001d; break; 
+            case HitResult.Perfect: curRate += 10000d; break; 
+            case HitResult.Great:   curRate += 9000d;  break; 
+            case HitResult.Good:    curRate += 8000d;  break; 
+            case HitResult.Bad:     curRate += 7000d;  break; 
+            case HitResult.Miss:    curRate += .0001d; break; 
         }
 
         double calcCurRate  = curRate / curMaxCount;
