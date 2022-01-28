@@ -48,6 +48,10 @@ public class ComboSystem : MonoBehaviour
     {
         switch ( _type )
         {
+            case HitResult.Fast:
+            case HitResult.Slow:
+            return;
+
             case HitResult.None:
             case HitResult.Perfect:
             case HitResult.Great:

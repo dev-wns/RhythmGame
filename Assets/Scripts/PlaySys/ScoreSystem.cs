@@ -43,10 +43,13 @@ public class ScoreSystem : MonoBehaviour
 
     private void ScoreImageUpdate( HitResult _type )
     {
-        if ( _type == HitResult.None ) return;
-
         switch ( _type )
         {
+            case HitResult.None:
+            case HitResult.Fast:
+            case HitResult.Slow:
+            return;
+
             case HitResult.Perfect:     curScore += maxScore;         break; 
             case HitResult.Great:       curScore += maxScore * .87d;  break; 
             case HitResult.Good:        curScore += maxScore * .63d;  break; 

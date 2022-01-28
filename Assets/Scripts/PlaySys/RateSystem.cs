@@ -27,19 +27,23 @@ public class RateSystem : MonoBehaviour
     {
         if ( _type == HitResult.None ) return;
 
-        ++curMaxCount;
         switch ( _type )
         {
+            case HitResult.None:
+            case HitResult.Fast:
+            case HitResult.Slow: 
+            return;
+
             case HitResult.Perfect: curRate += 10000d; break; 
             case HitResult.Great:   curRate += 9000d;  break; 
             case HitResult.Good:    curRate += 8000d;  break; 
             case HitResult.Bad:     curRate += 7000d;  break; 
             case HitResult.Miss:    curRate += .0001d; break; 
         }
+        ++curMaxCount;
 
         double calcCurRate  = curRate / curMaxCount;
-        curNum = calcCurRate == 0 ? 1 : Globals.Log10( calcCurRate ) + 1;
-
+        curNum = Globals.Log10( calcCurRate ) + 1;
         for ( int i = 3; i < images.Count; i++ )
         {
             if ( i >= curNum )
@@ -57,7 +61,7 @@ public class RateSystem : MonoBehaviour
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( i == curNum ) break;
-
+            
             images[i].sprite = sprites[( int )calcCurRate % 10];
             calcCurRate  *= .1d;
         }
