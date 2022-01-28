@@ -53,7 +53,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         if ( !IsPlaying ) return;
 
-        Playback += Time.deltaTime;
+        Playback += Time.smoothDeltaTime;
         PlaybackChanged = GetChangedTime( Playback );
     }
 
