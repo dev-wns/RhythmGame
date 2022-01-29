@@ -37,7 +37,7 @@ public class InGame : Scene
         Bind( SceneAction.Main, KeyCode.Escape, () => pauseCanvas.SetActive( true ) );
         Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Return ) );
         Bind( SceneAction.Main, KeyCode.Escape, () => ChangeAction( SceneAction.Option ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => NowPlaying.Inst.Stop() );
+        Bind( SceneAction.Main, KeyCode.Escape, () => NowPlaying.Inst.Pause( true ) );
 
         Bind( SceneAction.Main, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= 1f );
         Bind( SceneAction.Main, KeyCode.Alpha1, () => SoundManager.Inst.PlaySfx( SoundSfxType.Decrease ) );
