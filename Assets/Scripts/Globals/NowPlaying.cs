@@ -30,9 +30,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public static double Playback;        // 노래 재생 시간
     public static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
 
-    public bool IsPlaying { get; set; }
-    private bool IsPause;
-    public bool IsLoad { get; private set; } = false;
+    public bool IsPlaying { get; private set; }
     private readonly double waitTime = -3d;
     private double startTime;
     private double savedTime;
@@ -62,10 +60,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public void Initialize()
     {
-        IsLoad = IsPlaying = false;
+        IsPlaying = false;
         Playback = waitTime;
-        PlaybackChanged = 0;
-
+        PlaybackChanged = 0d;
         using ( FileParser parser = new FileParser() )
         {
             parser.TryParse( curSong.filePath, out curChart );
@@ -74,42 +71,65 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public void Play() => StartCoroutine( MusicStart() );
 
-    public void Stop()
+    /// <summary>
+    /// False : Playback is higher than the Last Note Time.
+    /// </summary>
+    /// <param name="_isPause"></param>
+    /// <returns></returns>
+    public bool Pause( bool _isPause )
     {
-        IsLoad = IsPlaying = false;
-        Playback = waitTime;
-        PlaybackChanged = 0;
-    }
+        if ( Playback >= CurrentSong.totalTime * .001d )
+             return false;
 
-    public void Pause( bool _isPause )
-    {
+
         if ( _isPause )
         {
             IsPlaying = false;
             SoundManager.Inst.Pause = true;
+
+            if ( waitTime + ( SoundManager.Inst.Position * .001d ) > 0d )
+            {
+                savedTime = waitTime + ( SoundManager.Inst.Position * .001d );
+                Playback = savedTime;
+                SoundManager.Inst.Position = ( uint )( savedTime * 1000d );
+            }
+            else
+            {
+                SoundManager.Inst.Position = 0;
+                Playback = savedTime = waitTime;
+            }
+
+            PlaybackChanged = GetChangedTime( Playback );
         }
         else
         {
-            startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
-            savedTime = ( SoundManager.Inst.Position * .001d );
-            SoundManager.Inst.Pause = false;
-            IsPlaying = true;
+            StartCoroutine( PauseMusicStart() );
         }
+
+        return true;
+    }
+
+    private IEnumerator PauseMusicStart()
+    {
+        startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
+        IsPlaying = true;
+
+        yield return new WaitUntil( () => Playback >= 0 );// GameSetting.SoundOffset );
+
+        SoundManager.Inst.Pause = false;
     }
 
     private IEnumerator MusicStart()
     {
         SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
         SoundManager.Inst.PlayBgm( true );
+        startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         IsPlaying = true;
         savedTime = waitTime;
-        startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
 
-        yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset );
+        yield return new WaitUntil( () => Playback >= 0 );// GameSetting.SoundOffset );
 
         SoundManager.Inst.Pause = false;
-        //savedTime = ( SoundManager.Inst.Position * .001d );
-        IsLoad = true;
     }
 
     public double GetChangedTime( double _time ) // BPM 변화에 따른 시간 계산

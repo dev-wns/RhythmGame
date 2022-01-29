@@ -32,12 +32,23 @@ public class InGame : Scene
         SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
     }
 
+    public void Pause( bool _isPuase )
+    {
+        if ( !NowPlaying.Inst.Pause( _isPuase ) )
+        {
+            SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
+        }
+        else
+        {
+            pauseCanvas.SetActive( true );
+            SoundManager.Inst.PlaySfx( SoundSfxType.Return );
+            ChangeAction( SceneAction.Option );
+        }
+    }
+
     public override void KeyBind()
     {
-        Bind( SceneAction.Main, KeyCode.Escape, () => pauseCanvas.SetActive( true ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Return ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => ChangeAction( SceneAction.Option ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => NowPlaying.Inst.Pause( true ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => Pause( true ) );
 
         Bind( SceneAction.Main, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= 1f );
         Bind( SceneAction.Main, KeyCode.Alpha1, () => SoundManager.Inst.PlaySfx( SoundSfxType.Decrease ) );
