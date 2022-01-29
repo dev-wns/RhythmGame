@@ -32,7 +32,7 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
     [SerializeField]
     protected List<RectTransform> rectChildren = new List<RectTransform>();
     
-    public void Initialize()
+    public virtual void Initialize()
     {
         SetAlignment();
         rectChildren?.Clear();
@@ -45,15 +45,16 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
 
             rectChildren.Add( child );
         }
-
-        SetLayoutHorizontal();
-        SetLayoutVertical();
     }
 
     protected virtual void Start()
     {
         if ( Application.isPlaying )
-             Initialize();
+        {
+            Initialize();
+            SetLayoutHorizontal();
+            SetLayoutVertical();
+        }
     }
 
     protected virtual void Update()
@@ -65,6 +66,8 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
 
             SetAlignment();
             Initialize();
+            SetLayoutHorizontal();
+            SetLayoutVertical();
         }
     }
 

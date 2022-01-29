@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class CustomVerticalLayoutGroup : CustomLayoutGroup
 {
+    public override void Initialize()
+    {
+        base.Initialize();
+        rectChildren.Reverse();
+    }
+
     public override void SetLayoutVertical()
     {
         if ( rectChildren.Count < 1 )

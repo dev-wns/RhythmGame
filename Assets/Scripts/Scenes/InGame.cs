@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class InGame : Scene
 {
+    public GameObject pauseCanvas;
+
     public delegate void DelSystemInitialize( in Chart _chart );
     public event DelSystemInitialize OnSystemInitialize;
 
@@ -25,10 +27,16 @@ public class InGame : Scene
         NowPlaying.Inst.Play();
     }
 
+    public void BackToLobby()
+    {
+        SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
+    }
+
     public override void KeyBind()
     {
-        Bind( SceneAction.Main, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Escape ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => pauseCanvas.SetActive( true ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Return ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => ChangeAction( SceneAction.Option ) );
         Bind( SceneAction.Main, KeyCode.Escape, () => NowPlaying.Inst.Stop() );
 
         Bind( SceneAction.Main, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= 1f );
