@@ -21,7 +21,7 @@ public class FilledTime : MonoBehaviour
         length = NowPlaying.Inst.CurrentSong.totalTime * .001d;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         image.fillAmount = ( float )( NowPlaying.Playback / length );
     }

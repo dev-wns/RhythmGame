@@ -11,7 +11,7 @@ public enum GameRandom
 {
     None,
     Mirror,
-    Random,
+    Basic_Random,
     Half_Random,
     Max_Random,
     Count,

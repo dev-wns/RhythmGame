@@ -58,7 +58,7 @@ public class LaneSystem : MonoBehaviour
             {
                 case GameRandom.None:
                 case GameRandom.Mirror:
-                case GameRandom.Random:
+                case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
                     Note newNote = notes[i];
@@ -147,7 +147,7 @@ public class LaneSystem : MonoBehaviour
             lanes.Reverse();
             break;
 
-            case GameRandom.Random:
+            case GameRandom.Basic_Random:
             LaneSwap( 0, 5 );
             break;
 
