@@ -42,7 +42,7 @@ public class InGame : Scene
     {
         if ( !NowPlaying.Inst.Pause( _isPuase ) )
         {
-            SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
+            NowPlaying.Inst.Stop();
         }
         else
         {

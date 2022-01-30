@@ -35,6 +35,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     private double startTime;
     private double savedTime;
 
+    private double totalTime;
+
     private WaitUntil waitPlayback;
 
     private void Awake()
@@ -60,6 +62,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         Playback = savedTime + ( System.DateTime.Now.TimeOfDay.TotalSeconds - startTime );
         PlaybackChanged = GetChangedTime( Playback );
+
+        if ( Playback >= totalTime + 1.5d )
+             Stop();
     }
 
     public void Initialize()
@@ -67,10 +72,21 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         IsPlaying = false;
         Playback = waitTime;
         PlaybackChanged = 0d;
+
+        totalTime = curSong.totalTime * .001d;
         using ( FileParser parser = new FileParser() )
         {
             parser.TryParse( curSong.filePath, out curChart );
         }
+    }
+
+    public void Stop()
+    {
+        StopAllCoroutines();
+        IsPlaying = false;
+        Playback = waitTime;
+        PlaybackChanged = 0d;
+        SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
     }
 
     public void Play() => StartCoroutine( MusicStart() );
@@ -82,7 +98,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     /// <returns></returns>
     public bool Pause( bool _isPause )
     {
-        if ( Playback >= CurrentSong.totalTime * .001d )
+        if ( Playback >= totalTime )
              return false;
 
 
@@ -125,7 +141,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         IsPlaying = true;
 
         yield return waitPlayback;
-
         SoundManager.Inst.Pause = false;
 
         yield return YieldCache.WaitForSeconds( 3f );
