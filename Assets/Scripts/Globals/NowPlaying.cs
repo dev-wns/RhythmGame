@@ -63,8 +63,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         Playback = savedTime + ( System.DateTime.Now.TimeOfDay.TotalSeconds - startTime );
         PlaybackChanged = GetChangedTime( Playback );
 
-        if ( Playback >= totalTime + 1.5d )
-             Stop();
+        //if ( Playback >= totalTime + 1.5d )
+        //     Stop();
     }
 
     public void Initialize()
@@ -151,12 +151,12 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
         SoundManager.Inst.PlayBgm( true );
+        SoundManager.Inst.Position = 0;
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         IsPlaying = true;
         savedTime = waitTime;
 
         yield return waitPlayback;
-
         SoundManager.Inst.Pause = false;
     }
 

@@ -32,11 +32,9 @@ public enum GameMode
 public enum GameVisualFlag
 {
     None        = 0,
-    BGAPlay     = 1 << 0,
-    TouchEffect = 1 << 1,
-    LineEffect  = 1 << 2,
-    ShowMeasure = 1 << 3,
-    ShowJudge   = 1 << 4,
+    TouchEffect = 1 << 0,
+    LineEffect  = 1 << 1,
+    ShowMeasure = 1 << 2,
 
     All         = int.MaxValue,
 }
@@ -75,7 +73,7 @@ public class GameSetting : SingletonUnity<GameSetting>
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static double Weight { get { return 60d / NowPlaying.Inst.CurrentSong.medianBpm * ScrollSpeed * 3d; } }
+    public static double Weight { get { return 60d / NowPlaying.Inst.CurrentSong.medianBpm * ScrollSpeed * 3d ; } }
     public static double PreLoadTime { get { return ( 1500d / Weight ); } }
 
     // Sound

@@ -5,7 +5,7 @@ using TMPro;
 
 public class JudgementRange : MonoBehaviour
 {
-    private bool isShow;
+    private bool isShow = false;
     public RectTransform perfectImage, greatImage, goodImage, badImage;
 
     private void Awake()
@@ -14,7 +14,7 @@ public class JudgementRange : MonoBehaviour
         rt.anchoredPosition = new Vector3( 0f, GameSetting.JudgePos, -1f );
         rt.sizeDelta        = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
 
-        isShow = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowJudge );
+        //isShow = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowJudge );
         if ( !isShow )
         {
             perfectImage.gameObject.SetActive( false );

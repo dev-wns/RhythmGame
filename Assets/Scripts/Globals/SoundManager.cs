@@ -89,7 +89,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
 
             float pitch;
-            ErrorCheck( bgmChannel.getPitch( out pitch ) );
+            ErrorCheck( Groups[ChannelGroupType.BGM].getPitch( out pitch ) );
             return pitch;
         }
 
@@ -104,8 +104,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             float pitch = value;
             if ( pitch < minPitch ) pitch = minPitch;
             if ( pitch > maxPitch ) pitch = maxPitch;
-
-            ErrorCheck( bgmChannel.setPitch( pitch ) );
+            ErrorCheck( Groups[ChannelGroupType.BGM].setPitch( pitch ) );
         }
     }
     public bool Pause

@@ -63,7 +63,7 @@ public class FileParser : FileReader
 
                 if ( Contains( "MinBPM:" ) ) _song.minBpm    = int.Parse( SplitAndTrim( ':' ) );
                 if ( Contains( "MaxBPM:" ) ) _song.maxBpm    = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "Median:" ) ) _song.medianBpm = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "Median:" ) ) _song.medianBpm = double.Parse( SplitAndTrim( ':' ) );
             }
     }
         catch ( Exception _error )

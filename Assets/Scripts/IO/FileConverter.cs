@@ -27,7 +27,7 @@ public struct Song
     public int timingCount;
     public int minBpm;
     public int maxBpm;
-    public int medianBpm;
+    public double medianBpm;
 }
 
 public struct Timing
@@ -225,7 +225,7 @@ public class FileConverter : FileReader
 
             #endregion
 
-            song.medianBpm = Mathf.RoundToInt( ( float )GetMedianBpm() );
+            song.medianBpm = GetMedianBpm();
 
             if ( song.timingCount > 0 )
                  timings[0] = new Timing( -5000d, timings[0].bpm, timings[0].beatLength );
