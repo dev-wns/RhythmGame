@@ -33,7 +33,7 @@ public enum GameVisualFlag
 {
     None        = 0,
     TouchEffect = 1 << 0,
-    LineEffect  = 1 << 1,
+    LaneEffect  = 1 << 1,
     ShowMeasure = 1 << 2,
 
     All         = int.MaxValue,

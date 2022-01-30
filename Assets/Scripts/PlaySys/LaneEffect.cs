@@ -12,7 +12,11 @@ public class LaneEffect : MonoBehaviour
     {
         rdr = GetComponent<SpriteRenderer>();
         inputSystem = GetComponent<InputSystem>();
-        inputSystem.OnInputEvent += LaneEffectEnabled;
+
+        if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.LaneEffect ) != 0 )
+        {
+            inputSystem.OnInputEvent += LaneEffectEnabled;
+        }
 
         transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .5f ) - GameSetting.JudgePos, 1f );
         color     = rdr.color;

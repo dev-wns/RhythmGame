@@ -21,8 +21,15 @@ public class HitEffectSystem : MonoBehaviour
     {
         tf = transform;
         rdr = GetComponent<SpriteRenderer>();
-        lane.OnLaneInitialize += Initialize;
-        changeTime = lifeTime / sprites.Count;
+        if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
+        {
+            lane.OnLaneInitialize += Initialize;
+            changeTime = lifeTime / sprites.Count;
+        }
+        else
+        {
+            enabled = false;
+        }
     }
 
     private void Initialize( int _key )

@@ -18,9 +18,13 @@ public class MeasureSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnSystemInitialize += Initialize;
-        scene.OnGameStart += () => StartCoroutine( Process() );
-        scene.OnScrollChanged += ScrollUpdate;
+        if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowMeasure ) != 0 )
+        {
+            scene.OnSystemInitialize += Initialize;
+            scene.OnGameStart += () => StartCoroutine( Process() );
+            scene.OnScrollChanged += ScrollUpdate;
+        }
+
         mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
 
         ScrollUpdate();
