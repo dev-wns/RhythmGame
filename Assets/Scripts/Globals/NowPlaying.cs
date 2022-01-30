@@ -35,6 +35,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     private double startTime;
     private double savedTime;
 
+    private Coroutine pauseCoroutine;
+
     private void Awake()
     {
         //using ( FileConverter converter = new FileConverter() )
@@ -100,14 +102,21 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
         else
         {
-            StartCoroutine( PauseReverseTime() );
+            if ( pauseCoroutine != null )
+            {
+                StopCoroutine( pauseCoroutine );
+                pauseCoroutine = null;
+            }
+
+            pauseCoroutine = StartCoroutine( PauseStart() );
         }
 
         return true;
     }
 
-    private IEnumerator PauseReverseTime()
+    private IEnumerator PauseStart()
     {
+        //SceneChanger.CurrentScene?.InputLock( true );
         while( Playback >= savedTime )
         {
             Playback -= Time.deltaTime * 3f;
@@ -115,17 +124,15 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             yield return null;
         }
 
-        yield return StartCoroutine( PauseMusicStart() );
-    }
-
-    private IEnumerator PauseMusicStart()
-    {
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         IsPlaying = true;
-        
+
         yield return new WaitUntil( () => Playback >= 0 );// GameSetting.SoundOffset );
 
         SoundManager.Inst.Pause = false;
+
+        //yield return new WaitUntil( () => Playback - waitTime >= savedTime );// GameSetting.SoundOffset );
+        //SceneChanger.CurrentScene?.InputLock( false );
     }
 
     private IEnumerator MusicStart()
