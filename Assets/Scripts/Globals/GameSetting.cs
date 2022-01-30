@@ -17,14 +17,6 @@ public enum GameRandom
     Count,
 }
 
-public enum GameFader
-{
-    None,
-    Fade_In,
-    Fade_Out,
-    Count,
-}
-
 [Flags]
 public enum GameMode
 {
@@ -60,7 +52,6 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All;
     public static GameMode       CurrentGameMode      = GameMode.AutoPlay;
     public static GameRandom     CurrentRandom        = GameRandom.None;
-    public static GameFader      CurrentFader         = GameFader.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
 
     // PPU

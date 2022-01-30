@@ -1888,9 +1888,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6a0d613b91d6ce40b37a46ee8c3494b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  background: {fileID: 1691603172}
-  left: {fileID: 216359861}
-  right: {fileID: 458271291}
+  bgRT: {fileID: 1691603172}
+  leftRT: {fileID: 216359861}
+  rightRT: {fileID: 458271291}
 --- !u!114 &256972343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1903,8 +1903,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d137ddcbcf69531479345dcdb90d71dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  left: {fileID: 0}
-  right: {fileID: 0}
 --- !u!1 &296915839
 GameObject:
   m_ObjectHideFlags: 0
