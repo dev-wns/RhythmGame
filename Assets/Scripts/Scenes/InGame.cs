@@ -33,6 +33,11 @@ public class InGame : Scene
         SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
     }
 
+    public void Restart()
+    {
+        SceneChanger.Inst.LoadScene( SceneType.Game );
+    }
+
     public void Pause( bool _isPuase )
     {
         if ( !NowPlaying.Inst.Pause( _isPuase ) )
