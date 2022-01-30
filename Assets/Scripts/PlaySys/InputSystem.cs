@@ -20,20 +20,22 @@ public class InputSystem : MonoBehaviour
     private float playback;
 
     private Action NoteProcessAction;
-
+    private bool isAuto;
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnGameStart += () => StartCoroutine( NoteSelect() );
+        scene.OnPause += DuringPauseProcess;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
         lane  = GetComponent<Lane>(); 
         lane.OnLaneInitialize += _key => key = ( GameKeyAction )_key;
 
-        if ( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) )
+        isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
+        if ( isAuto )
         {
             NoteProcessAction = () =>
             {
@@ -51,11 +53,37 @@ public class InputSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// process the slider when pausing, it will be judged immediately.
+    /// </summary>
+    private void DuringPauseProcess()
+    {
+        if ( curNote == null || !curNote.IsSlider || !curNote.isHolding ) 
+             return;
+
+        if ( isAuto )
+        {
+            OnHitNote();
+            judge.ResultUpdate( HitResult.Perfect );
+            SelectNextNote();
+        }
+        else
+        {
+            OnHitNote();
+            judge.ResultUpdate( curNote.SliderTime - NowPlaying.Playback );
+            SelectNextNote();
+        }
+    }
+
     private void OnDestroy()
     {
         StopAllCoroutines();
     }
 
+    /// <summary>
+    /// Find the next note in the current lane.
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator NoteSelect()
     {
         var WaitNote = new WaitUntil( () => curNote == null && notes.Count > 0 );

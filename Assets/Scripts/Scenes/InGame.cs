@@ -12,6 +12,7 @@ public class InGame : Scene
 
     public event Action OnGameStart;
     public event Action OnScrollChanged;
+    public event Action OnPause;
 
     protected override void Awake()
     {
@@ -43,6 +44,7 @@ public class InGame : Scene
             pauseCanvas.SetActive( true );
             SoundManager.Inst.PlaySfx( SoundSfxType.Return );
             ChangeAction( SceneAction.Option );
+            OnPause?.Invoke();
         }
     }
 
