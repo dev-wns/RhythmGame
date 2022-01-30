@@ -35,10 +35,12 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     private double startTime;
     private double savedTime;
 
-    private Coroutine pauseCoroutine;
+    private WaitUntil waitPlayback;
 
     private void Awake()
     {
+        waitPlayback = new WaitUntil( () => Playback >= 0 );
+
         //using ( FileConverter converter = new FileConverter() )
         //    converter.ReLoad();
 
@@ -89,9 +91,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             IsPlaying = false;
             SoundManager.Inst.Pause = true;
 
-            if ( waitTime + ( SoundManager.Inst.Position * .001d ) > 0d )
+            double prevPos = waitTime + ( SoundManager.Inst.Position * .001d );
+            if ( prevPos > 0d )
             {
-                savedTime = waitTime + ( SoundManager.Inst.Position * .001d );
+                savedTime = prevPos;
                 SoundManager.Inst.Position = ( uint )( savedTime * 1000d );
             }
             else
@@ -102,13 +105,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
         else
         {
-            if ( pauseCoroutine != null )
-            {
-                StopCoroutine( pauseCoroutine );
-                pauseCoroutine = null;
-            }
-
-            pauseCoroutine = StartCoroutine( PauseStart() );
+            StartCoroutine( PauseStart() );
         }
 
         return true;
@@ -116,8 +113,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator PauseStart()
     {
-        //SceneChanger.CurrentScene?.InputLock( true );
-        while( Playback >= savedTime )
+        SceneChanger.CurrentScene.InputLock( true );
+        while ( Playback >= savedTime )
         {
             Playback -= Time.deltaTime * 3f;
             PlaybackChanged = GetChangedTime( Playback );
@@ -127,12 +124,12 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         IsPlaying = true;
 
-        yield return new WaitUntil( () => Playback >= 0 );// GameSetting.SoundOffset );
+        yield return waitPlayback;
 
         SoundManager.Inst.Pause = false;
 
-        //yield return new WaitUntil( () => Playback - waitTime >= savedTime );// GameSetting.SoundOffset );
-        //SceneChanger.CurrentScene?.InputLock( false );
+        yield return YieldCache.WaitForSeconds( 3f );
+        SceneChanger.CurrentScene.InputLock( false );
     }
 
     private IEnumerator MusicStart()
@@ -143,7 +140,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         IsPlaying = true;
         savedTime = waitTime;
 
-        yield return new WaitUntil( () => Playback >= 0 );// GameSetting.SoundOffset );
+        yield return waitPlayback;
 
         SoundManager.Inst.Pause = false;
     }
