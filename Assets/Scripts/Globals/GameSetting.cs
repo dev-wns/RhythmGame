@@ -91,9 +91,9 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float SoundPitch = 1f;
     public static double SoundOffset = -.05d;
 
-    // Opacity
-    public static float BGAOpacity   = 0f;
-    public static float PanelOpacity = 0f;
+    // Opacity Percentage ( 0 ~ 100 )
+    public static float BGAOpacity   = 50f;
+    public static float PanelOpacity = 100f;
 
     // IO
     public static readonly string SoundDirectoryPath = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );

@@ -8,12 +8,12 @@ public class BGAOpacityOption : OptionSlider
     {
         base.Awake();
 
-        curValue = GameSetting.BGAOpacity * 100f;
+        curValue = GameSetting.BGAOpacity;
         UpdateValue( curValue );
     }
 
     public override void Process()
     {
-        GameSetting.BGAOpacity = curValue * .01f;
+        GameSetting.BGAOpacity = curValue;
     }
 }

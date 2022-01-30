@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class HealthSystem : MonoBehaviour
 {
-    public Transform left, right;
     private Judgement judge;
     private float curHealth;
     public static readonly float MaxHealth = 100f;

@@ -7,26 +7,40 @@ using UnityEngine.U2D;
 [ExecuteAlways]
 public class Gear : MonoBehaviour
 {
-    public RectTransform background, left, right;
+    public RectTransform bgRT, leftRT, rightRT;
+    private Image background;
 
     private void Awake()
     {
-        left.anchoredPosition  = new Vector3(  GameSetting.GearStartPos, -Screen.height * .5f, 0f );
-        right.anchoredPosition = new Vector3( -GameSetting.GearStartPos, -Screen.height * .5f, 0f );
+        background = bgRT.GetComponent<Image>();
 
-        background.anchoredPosition = Vector3.zero;
-        background.sizeDelta        = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
+        leftRT.anchoredPosition  = new Vector3(  GameSetting.GearStartPos, -Screen.height * .5f, 0f );
+        rightRT.anchoredPosition = new Vector3( -GameSetting.GearStartPos, -Screen.height * .5f, 0f );
+
+        bgRT = background.rectTransform;
+        bgRT.anchoredPosition = Vector3.zero;
+        bgRT.sizeDelta        = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
+
+        bool isEnabled = GameSetting.PanelOpacity <= .1f ? false : true;
+        if ( isEnabled )
+        {
+            background.color = new Color( 0f, 0f, 0f, GameSetting.PanelOpacity * .01f );
+        }
+        else
+        {
+            background.gameObject.SetActive( false );
+        }
     }
 
     private void Update()
     {
         if ( !Application.isPlaying )
         {
-            left.anchoredPosition = new Vector3( GameSetting.GearStartPos, -Screen.height * .5f, 0f );
-            right.anchoredPosition = new Vector3( -GameSetting.GearStartPos, -Screen.height * .5f, 0f );
+            leftRT.anchoredPosition = new Vector3( GameSetting.GearStartPos, -Screen.height * .5f, 0f );
+            rightRT.anchoredPosition = new Vector3( -GameSetting.GearStartPos, -Screen.height * .5f, 0f );
 
-            background.anchoredPosition = Vector3.zero;
-            background.sizeDelta = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
+            bgRT.anchoredPosition = Vector3.zero;
+            bgRT.sizeDelta = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
         }
     }
 }

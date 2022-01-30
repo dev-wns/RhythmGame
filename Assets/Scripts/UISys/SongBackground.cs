@@ -11,7 +11,18 @@ public class SongBackground : MonoBehaviour
     private void Awake()
     {
         image = GetComponent<Image>();
-        StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+        bool isEnabled = GameSetting.BGAOpacity <= .1f ? false : true;
+
+        if ( isEnabled )
+        {
+            StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+
+            image.color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
+        }
+        else
+        {
+            gameObject.SetActive( false );
+        }
     }
 
     private void OnDestroy()
