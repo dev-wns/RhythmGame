@@ -88,7 +88,7 @@ public class FileParser : FileReader
             #region Timings Parsing
             List<Timing> timings = new List<Timing>();
 
-            while ( ReadLine() != "[Notes]" )
+            while ( ReadLine() != "[HitSounds]" )
             {
                 Timing timing = new Timing();
                 var split = line.Split( ',' );
@@ -106,6 +106,24 @@ public class FileParser : FileReader
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
             #endregion
 
+            #region HitSounds Parsing
+            List<HitSound> hitSounds = new List<HitSound>();
+            while ( ReadLine() != "[Notes]" )
+            {
+                HitSound hitSound = new HitSound();
+                var split = line.Split( ',' );
+
+                hitSound.lane = int.Parse( split[0] );
+                hitSound.time = double.Parse( split[1] ) * .001d;
+                hitSound.volume = float.Parse( split[2] ) * .01f;
+                hitSound.name = split[3];
+
+                hitSounds.Add( hitSound );
+            }
+
+            _chart.hitSounds = new ReadOnlyCollection<HitSound>( hitSounds );
+            #endregion
+
             #region Notes Parsing
             List<Note> notes = new List<Note>();
 
@@ -114,7 +132,7 @@ public class FileParser : FileReader
                 Note note = new Note();
                 var split = line.Split( ',' );
 
-                note.line           = int.Parse( split[0] );
+                note.lane           = int.Parse( split[0] );
                 note.time           = double.Parse( split[1] ) * .001d;
                 note.sliderTime     = double.Parse( split[2] ) * .001d;
                 note.isSlider       = note.sliderTime > 0d ? true : false;

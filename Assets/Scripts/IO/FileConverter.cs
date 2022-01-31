@@ -58,16 +58,16 @@ public struct Timing
 
 public struct Note
 {
-    public int line;
+    public int lane;
     public double time;
     public double sliderTime;
     public bool isSlider;
     public double calcTime;
     public double calcSliderTime;
 
-    public Note( int _line, double _time, double _sliderTime )
+    public Note( int _lane, double _time, double _sliderTime )
     {
-        line = _line;
+        lane = _lane;
         time = _time;
         sliderTime = _sliderTime;
         calcTime = 0f;
@@ -76,16 +76,34 @@ public struct Note
     }
 }
 
+public struct HitSound
+{
+    public int lane;
+    public double time;
+    public float volume;
+    public string name;
+
+    public HitSound( int _lane, double _time, float _volume, string _name )
+    {
+        lane = _lane;
+        time = _time;
+        volume = _volume;
+        name = _name;
+    }
+}
+
 public struct Chart
 {
-    public ReadOnlyCollection<Timing> timings;
-    public ReadOnlyCollection<Note>   notes;
+    public ReadOnlyCollection<Timing>   timings;
+    public ReadOnlyCollection<Note>     notes;
+    public ReadOnlyCollection<HitSound> hitSounds;
 }
 
 public class FileConverter : FileReader
 {
-    private List<Timing> timings = new List<Timing>();
-    private List<Note>   notes   = new List<Note>();
+    private List<Timing> timings    = new List<Timing>();
+    private List<Note>   notes      = new List<Note>();
+    private List<HitSound> hitSounds = new List<HitSound>();
 
     private class CalcMedianTiming
     {
@@ -192,6 +210,9 @@ public class FileConverter : FileReader
             notes?.Clear();
             notes ??= new List<Note>();
 
+            hitSounds?.Clear();
+            hitSounds ??= new List<HitSound>();
+
             // [HitObjects]
             while ( ReadLineEndOfStream() )
             {
@@ -201,11 +222,11 @@ public class FileConverter : FileReader
                 double noteTime = double.Parse( splitDatas[2] );
                 double sliderTime = 0d;
 
+                string[] objParams = splitDatas[5].Split( ':' );
                 bool isSlider = int.Parse( splitDatas[3] ) == 128 ? true : false;
                 if ( isSlider )
                 {
-                    string[] splitSliderData = splitDatas[5].Split( ':' );
-                    sliderTime = double.Parse( splitSliderData[0] );
+                    sliderTime = double.Parse( objParams[0] );
                     
                     song.sliderCount++;
                     song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
@@ -218,6 +239,12 @@ public class FileConverter : FileReader
 
                 int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6 / 512 );
                 notes.Add( new Note( lane, noteTime, sliderTime ) );
+
+                string hitSoundName = objParams[objParams.Length - 1];
+                if ( hitSoundName != string.Empty )
+                {
+                    hitSounds.Add( new HitSound( lane, noteTime, float.Parse( objParams[objParams.Length - 2] ), hitSoundName ) );
+                }
             }
 
             if ( notes.Count == 0 )
@@ -291,11 +318,23 @@ public class FileConverter : FileReader
                         writer.WriteLine( text );
                     }
 
+                    writer.WriteLine( "[HitSounds]" );
+                    for ( int i = 0; i < hitSounds.Count; i++ )
+                    {
+                        text.Clear();
+                        text.Append( hitSounds[i].lane ).Append( "," );
+                        text.Append( hitSounds[i].time ).Append( "," );
+                        text.Append( hitSounds[i].volume ).Append( "," );
+                        text.Append( hitSounds[i].name );
+
+                        writer.WriteLine( text );
+                    }
+
                     writer.WriteLine( "[Notes]" );
                     for ( int i = 0; i < notes.Count; i++ )
                     {
                         text.Clear();
-                        text.Append( notes[i].line ).Append( "," );
+                        text.Append( notes[i].lane ).Append( "," );
                         text.Append( notes[i].time ).Append( "," );
                         text.Append( notes[i].sliderTime );
 
