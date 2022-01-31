@@ -78,7 +78,7 @@ public class GameSetting : SingletonUnity<GameSetting>
 
     // Sound
     public static float SoundPitch = 1f;
-    public static double SoundOffset = -.05d;
+    public static double SoundOffset = -50d;
 
     // Opacity Percentage ( 0 ~ 100 )
     public static float BGAOpacity   = 50f;
@@ -92,7 +92,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 3f;
 
     // Jugdement
-    public static float JudgePos    = -510f;
+    public static float JudgePos    = -450f;
     public static float JudgeHeight = 100f; // scaleY
 
     // note

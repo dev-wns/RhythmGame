@@ -41,7 +41,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void Awake()
     {
-        waitPlayback = new WaitUntil( () => Playback >= 0 );
+        waitPlayback = new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d );
 
         //using ( FileConverter converter = new FileConverter() )
         //    converter.ReLoad();

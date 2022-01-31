@@ -34,13 +34,13 @@ public class Gear : MonoBehaviour
 
     private void Update()
     {
-        if ( !Application.isPlaying )
-        {
-            leftRT.anchoredPosition = new Vector3( GameSetting.GearStartPos, -Screen.height * .5f, 0f );
-            rightRT.anchoredPosition = new Vector3( -GameSetting.GearStartPos, -Screen.height * .5f, 0f );
+        //if ( !Application.isPlaying )
+        //{
+        //    leftRT.anchoredPosition = new Vector3( GameSetting.GearStartPos, -Screen.height * .5f, 0f );
+        //    rightRT.anchoredPosition = new Vector3( -GameSetting.GearStartPos, -Screen.height * .5f, 0f );
 
-            bgRT.anchoredPosition = Vector3.zero;
-            bgRT.sizeDelta = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
-        }
+        //    bgRT.anchoredPosition = Vector3.zero;
+        //    bgRT.sizeDelta = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
+        //}
     }
 }
