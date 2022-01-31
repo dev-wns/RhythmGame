@@ -15,10 +15,14 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     private readonly int maxChannelSize = 1000;
     private Dictionary<ChannelGroupType, FMOD.ChannelGroup> Groups = new Dictionary<ChannelGroupType, FMOD.ChannelGroup>();
-    private FMOD.Channel bgmChannel, sfxChannel, keyChannel;
-
+    private FMOD.Channel bgmChannel;
     private FMOD.Sound bgmSound;
-    private Dictionary<SoundSfxType, FMOD.Sound> sfxSound = new Dictionary<SoundSfxType, FMOD.Sound>();
+
+    private FMOD.Channel sfxChannel;
+    private Dictionary<SoundSfxType, FMOD.Sound> sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
+
+    private FMOD.Channel keyChannel;
+    private Dictionary<string, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
 
     public FMOD.DSP? FFT { get; private set; }
     private FMOD.DSP lowEffectEQ;
@@ -228,12 +232,13 @@ public class SoundManager : SingletonUnity<SoundManager>
         // Details
         SetVolume( .1f, ChannelGroupType.Master );
         SetVolume( .1f, ChannelGroupType.BGM );
+        SetVolume( .1f, ChannelGroupType.KeySound );
     }
 
     public void Release()
     {
-        // Sound
-        foreach ( var sfx in sfxSound.Values )
+        // Sounds
+        foreach ( var sfx in sfxSounds.Values )
         {
             if ( sfx.hasHandle() )
             {
@@ -241,7 +246,17 @@ public class SoundManager : SingletonUnity<SoundManager>
                 sfx.clearHandle();
             }
         }
-        sfxSound.Clear();
+        sfxSounds.Clear();
+
+        foreach ( var keySound in keySounds.Values )
+        {
+            if ( keySound.hasHandle() )
+            {
+                ErrorCheck( keySound.release() );
+                keySound.clearHandle();
+            }
+        }
+        keySounds.Clear();
 
         if ( bgmSound.hasHandle() )
         {
@@ -323,7 +338,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     private void LoadSfx( SoundSfxType _type, string _path )
     {
-        if ( sfxSound.ContainsKey( _type ) )
+        if ( sfxSounds.ContainsKey( _type ) )
         {
             Debug.LogError( $"sfxSound[{_type}] is duplicate loaded." );
             return;
@@ -331,20 +346,38 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         FMOD.Sound sound;
         ErrorCheck( system.createSound( _path, FMOD.MODE.CREATESAMPLE, out sound ) );
-        sfxSound.Add( _type, sound );
+        sfxSounds.Add( _type, sound );
+    }
+
+    /// <summary>
+    /// Initialize the current dictionary and produce a new KeySound dictionary.
+    /// </summary>
+    /// <returns>The key in the dictionary about keySound.</returns> 
+    public void LoadKeySound( string _path )
+    {
+        string name = System.IO.Path.GetFileName( _path );
+        if ( keySounds.ContainsKey( name ) )
+             return;
+
+        if ( !System.IO.File.Exists( _path ) )
+             throw new System.Exception( $"File Exists  {_path}" );
+
+        FMOD.Sound sound;
+        ErrorCheck( system.createSound( _path, FMOD.MODE.CREATESAMPLE, out sound ) );
+        keySounds.Add( name, sound );
     }
     #endregion
 
     #region Sound
     public void PlaySfx( SoundSfxType _type )
     {
-        if ( !sfxSound.ContainsKey( _type ) )
+        if ( !sfxSounds.ContainsKey( _type ) )
         {
             Debug.LogError( $"sfxSound[{_type}] is not loaded." );
             return;
         }
 
-        ErrorCheck( system.playSound( sfxSound[_type], Groups[ChannelGroupType.Sfx], false, out sfxChannel ) );
+        ErrorCheck( system.playSound( sfxSounds[_type], Groups[ChannelGroupType.Sfx], false, out sfxChannel ) );
     }
 
     public void PlayBgm( bool _isPause = false )
@@ -358,6 +391,19 @@ public class SoundManager : SingletonUnity<SoundManager>
         Stop( ChannelGroupType.BGM );
 
         ErrorCheck( system.playSound( bgmSound, Groups[ChannelGroupType.BGM], _isPause, out bgmChannel ) );
+    }
+
+    public void PlayKeySound( string _name )
+    {
+        if ( !keySounds.ContainsKey( _name ) )
+        {
+            Debug.LogError( $"sfxSound[{_name}] is not loaded." );
+            return;
+        }
+
+        Stop( ChannelGroupType.KeySound );
+
+        ErrorCheck( system.playSound( keySounds[_name], Groups[ChannelGroupType.KeySound], false, out keyChannel ) );
     }
     #endregion
 

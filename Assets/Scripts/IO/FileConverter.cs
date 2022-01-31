@@ -76,14 +76,14 @@ public struct Note
     }
 }
 
-public struct HitSound
+public struct KeySound
 {
     public int lane;
     public double time;
     public float volume;
     public string name;
 
-    public HitSound( int _lane, double _time, float _volume, string _name )
+    public KeySound( int _lane, double _time, float _volume, string _name )
     {
         lane = _lane;
         time = _time;
@@ -96,14 +96,14 @@ public struct Chart
 {
     public ReadOnlyCollection<Timing>   timings;
     public ReadOnlyCollection<Note>     notes;
-    public ReadOnlyCollection<HitSound> hitSounds;
+    public ReadOnlyCollection<KeySound> keySounds;
 }
 
 public class FileConverter : FileReader
 {
     private List<Timing> timings    = new List<Timing>();
     private List<Note>   notes      = new List<Note>();
-    private List<HitSound> hitSounds = new List<HitSound>();
+    private List<KeySound> keySounds = new List<KeySound>();
 
     private class CalcMedianTiming
     {
@@ -210,8 +210,8 @@ public class FileConverter : FileReader
             notes?.Clear();
             notes ??= new List<Note>();
 
-            hitSounds?.Clear();
-            hitSounds ??= new List<HitSound>();
+            keySounds?.Clear();
+            keySounds ??= new List<KeySound>();
 
             // [HitObjects]
             while ( ReadLineEndOfStream() )
@@ -243,7 +243,7 @@ public class FileConverter : FileReader
                 string hitSoundName = objParams[objParams.Length - 1];
                 if ( hitSoundName != string.Empty )
                 {
-                    hitSounds.Add( new HitSound( lane, noteTime, float.Parse( objParams[objParams.Length - 2] ), hitSoundName ) );
+                    keySounds.Add( new KeySound( lane, noteTime, float.Parse( objParams[objParams.Length - 2] ), hitSoundName ) );
                 }
             }
 
@@ -319,13 +319,13 @@ public class FileConverter : FileReader
                     }
 
                     writer.WriteLine( "[HitSounds]" );
-                    for ( int i = 0; i < hitSounds.Count; i++ )
+                    for ( int i = 0; i < keySounds.Count; i++ )
                     {
                         text.Clear();
-                        text.Append( hitSounds[i].lane ).Append( "," );
-                        text.Append( hitSounds[i].time ).Append( "," );
-                        text.Append( hitSounds[i].volume ).Append( "," );
-                        text.Append( hitSounds[i].name );
+                        text.Append( keySounds[i].lane ).Append( "," );
+                        text.Append( keySounds[i].time ).Append( "," );
+                        text.Append( keySounds[i].volume ).Append( "," );
+                        text.Append( keySounds[i].name );
 
                         writer.WriteLine( text );
                     }

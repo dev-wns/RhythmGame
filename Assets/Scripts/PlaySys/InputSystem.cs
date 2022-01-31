@@ -21,6 +21,8 @@ public class InputSystem : MonoBehaviour
 
     private Action NoteProcessAction;
     private bool isAuto;
+    public string hitSound;
+
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
 
     private void Awake()
@@ -58,7 +60,7 @@ public class InputSystem : MonoBehaviour
     /// </summary>
     private void DuringPauseProcess()
     {
-        if ( curNote == null || !curNote.IsSlider || !curNote.isHolding ) 
+        if ( curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
              return;
 
         if ( isAuto )
@@ -116,12 +118,12 @@ public class InputSystem : MonoBehaviour
 
     private void AutoCheckSlider()
     {
-        if ( !curNote.isHolding )
+        if ( !curNote.IsPressed )
         {
             double startDiff = curNote.Time - NowPlaying.Playback;
             if ( startDiff <= 0f )
             {
-                curNote.isHolding = true;
+                curNote.IsPressed = true;
                 OnHitNote?.Invoke();
                 judge.ResultUpdate( startDiff );
             }
@@ -166,13 +168,13 @@ public class InputSystem : MonoBehaviour
 
     private void CheckSlider()
     {
-        if ( !curNote.isHolding )
+        if ( !curNote.IsPressed )
         {
             double startDiff = curNote.Time - NowPlaying.Playback;
 
             if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
             {
-                curNote.isHolding = true;
+                curNote.IsPressed = true;
                 OnHitNote?.Invoke();
                 judge.ResultUpdate( startDiff );
                 return;
@@ -184,11 +186,9 @@ public class InputSystem : MonoBehaviour
                 judge.ResultUpdate( HitResult.Miss );
                 sliderMissQueue.Enqueue( curNote );
                 SelectNextNote( false );
-                return;
             }
         }
-
-        if ( curNote.isHolding )
+        else
         {
             double endDiff = curNote.SliderTime - NowPlaying.Playback;
             if ( Input.GetKey( GameSetting.Inst.Keys[key] ) )
@@ -230,7 +230,11 @@ public class InputSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )    OnInputEvent?.Invoke( true );
+        if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
+        {
+            OnInputEvent?.Invoke( true );
+            SoundManager.Inst.PlayKeySound( hitSound );
+        }
         else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) ) OnInputEvent?.Invoke( false );
 
         if ( sliderMissQueue.Count > 0 )

@@ -107,21 +107,21 @@ public class FileParser : FileReader
             #endregion
 
             #region HitSounds Parsing
-            List<HitSound> hitSounds = new List<HitSound>();
+            List<KeySound> keySounds = new List<KeySound>();
             while ( ReadLine() != "[Notes]" )
             {
-                HitSound hitSound = new HitSound();
+                KeySound keySound = new KeySound();
                 var split = line.Split( ',' );
 
-                hitSound.lane = int.Parse( split[0] );
-                hitSound.time = double.Parse( split[1] ) * .001d;
-                hitSound.volume = float.Parse( split[2] ) * .01f;
-                hitSound.name = split[3];
+                keySound.lane = int.Parse( split[0] );
+                keySound.time = double.Parse( split[1] ) * .001d;
+                keySound.volume = float.Parse( split[2] ) * .01f;
+                keySound.name = split[3];
 
-                hitSounds.Add( hitSound );
+                keySounds.Add( keySound );
             }
 
-            _chart.hitSounds = new ReadOnlyCollection<HitSound>( hitSounds );
+            _chart.keySounds = new ReadOnlyCollection<KeySound>( keySounds );
             #endregion
 
             #region Notes Parsing

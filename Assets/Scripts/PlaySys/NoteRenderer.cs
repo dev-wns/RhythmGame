@@ -14,7 +14,7 @@ public class NoteRenderer : MonoBehaviour
     public double CalcTime { get; private set; }
     public double CalcSliderTime { get; private set; }
     public bool IsSlider { get; private set; }
-    public bool isHolding { get; set; }
+    public bool IsPressed { get; set; }
 
     private float column;
     private double newTime;
@@ -46,7 +46,7 @@ public class NoteRenderer : MonoBehaviour
     {
         system    = _system;
         newTime   = _data.calcTime;
-        isHolding = false;
+        IsPressed = false;
 
         Time           = _data.time;
         CalcTime       = _data.calcTime;
@@ -84,7 +84,7 @@ public class NoteRenderer : MonoBehaviour
     {
         //double weight = GameSetting.Weight;
         Vector2 headPos;
-        if ( isHolding )
+        if ( IsPressed )
         {
             if ( transform.position.y <= GameSetting.JudgePos )
                  newTime = NowPlaying.PlaybackChanged;

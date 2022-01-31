@@ -43,8 +43,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         waitPlayback = new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d );
 
-        using ( FileConverter converter = new FileConverter() )
-            converter.ReLoad();
+        //using ( FileConverter converter = new FileConverter() )
+        //    converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {
@@ -77,6 +77,14 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         using ( FileParser parser = new FileParser() )
         {
             parser.TryParse( curSong.filePath, out curChart );
+        }
+
+        var hitSounds = curChart.keySounds;
+        string dir = System.IO.Path.GetDirectoryName( curSong.filePath );
+        for ( int i = 0; i < curChart.keySounds.Count; i++ )
+        {
+            string path = System.IO.Path.Combine( dir, hitSounds[i].name );
+            SoundManager.Inst.LoadKeySound( path );
         }
     }
 

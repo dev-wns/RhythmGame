@@ -47,9 +47,15 @@ public class LaneSystem : MonoBehaviour
 
     private void CreateNotes( in Chart _chart )
     {
+        var keySounds = _chart.keySounds;
+        for ( int i = 0; i < keySounds.Count; i++ )
+        {
+            lanes[keySounds[i].lane].KeySoundSys.AddKeySound( keySounds[i] );
+        }
+                    
+
         var notes = _chart.notes;
         CalcNote[] column = new CalcNote[6];
-
         for ( int i = 0; i < notes.Count; i++ )
         {
             bool hasNoSliderMod = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
@@ -62,13 +68,15 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Half_Random:
                 {
                     Note newNote = notes[i];
+                    int lane = newNote.lane;
+
                     if ( hasNoSliderMod ) 
                          newNote.isSlider = false;
 
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
-                    lanes[notes[i].lane].NoteSys.AddNote( newNote );
+                    lanes[lane].NoteSys.AddNote( newNote );
                 }
                 break;
 
