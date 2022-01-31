@@ -43,8 +43,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         waitPlayback = new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d );
 
-        //using ( FileConverter converter = new FileConverter() )
-        //    converter.ReLoad();
+        using ( FileConverter converter = new FileConverter() )
+            converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {

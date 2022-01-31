@@ -19,7 +19,7 @@ public class SongPreview : MonoBehaviour
 
     private void SelectChangedSoundInfo( Song _song )
     {
-        noteCount.text = _song.noteCount.ToString();
+        noteCount.text   = _song.noteCount.ToString();
         sliderCount.text = _song.sliderCount.ToString();
 
         int second = ( int )( _song.totalTime * .001f );
@@ -27,7 +27,8 @@ public class SongPreview : MonoBehaviour
         second = second % 60;
         time.text = $"{minute:00}:{second:00}";
 
-        if ( _song.minBpm == _song.maxBpm ) bpm.text = _song.medianBpm.ToString();
-        else                                bpm.text = $"{_song.medianBpm} ({_song.minBpm} ~ {_song.maxBpm})";
+        int medianBpm = ( int )_song.medianBpm;
+        if ( _song.minBpm == _song.maxBpm ) bpm.text = medianBpm.ToString();
+        else                                bpm.text = $"{medianBpm} ({_song.minBpm} ~ {_song.maxBpm})";
     }
 }
