@@ -64,8 +64,9 @@ public struct Note
     public bool isSlider;
     public double calcTime;
     public double calcSliderTime;
+    public KeySound keySound;
 
-    public Note( int _lane, double _time, double _sliderTime )
+    public Note( int _lane, double _time, double _sliderTime, KeySound _keySound )
     {
         lane = _lane;
         time = _time;
@@ -73,37 +74,48 @@ public struct Note
         calcTime = 0f;
         calcSliderTime = 0f;
         isSlider = false;
+        keySound = _keySound;
     }
 }
 
 public struct KeySound
 {
-    public int lane;
-    public double time;
     public float volume;
     public string name;
 
-    public KeySound( int _lane, double _time, float _volume, string _name )
+    public KeySound( float _volume, string _name )
     {
-        lane = _lane;
-        time = _time;
         volume = _volume;
         name = _name;
     }
 }
 
+public struct KeySample
+{
+    public double time;
+    public KeySound sound;
+    public KeySample( double _time, string _name, float _volume )
+    {
+        time = _time;
+        sound.name = _name;
+        sound.volume = _volume;
+    }
+}
+
 public struct Chart
 {
-    public ReadOnlyCollection<Timing>   timings;
-    public ReadOnlyCollection<Note>     notes;
-    public ReadOnlyCollection<KeySound> keySounds;
+    public ReadOnlyCollection<Timing> timings;
+    public ReadOnlyCollection<Note> notes;
+    public ReadOnlyCollection<KeySample> samples;
+    public ReadOnlyCollection<string> keySoundNames;
 }
 
 public class FileConverter : FileReader
 {
-    private List<Timing> timings    = new List<Timing>();
-    private List<Note>   notes      = new List<Note>();
-    private List<KeySound> keySounds = new List<KeySound>();
+    private List<Timing> timings = new List<Timing>();
+    private List<Note> notes = new List<Note>();
+    private List<KeySample> samples = new List<KeySample>();
+    private List<string> keySoundNames = new List<string>();
 
     private class CalcMedianTiming
     {
@@ -156,6 +168,10 @@ public class FileConverter : FileReader
             }
 
             // [Events]
+
+            samples?.Clear();
+            samples ??= new List<KeySample>();
+
             var directory = Path.GetDirectoryName( _path );
             while ( ReadLine() != "[TimingPoints]" )
             {
@@ -169,8 +185,17 @@ public class FileConverter : FileReader
                 {
                     song.imagePath = SplitAndTrim( '"' );
                 }
-            }
 
+                if ( Contains( "Storyboard Sound Samples" ) )
+                {
+                    while ( ReadLine().Contains( "Sample" ) )
+                    {
+                        string[] split = line.Split( ',' );
+                        string name    = SplitAndTrim( '"' );
+                        samples.Add( new KeySample( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
+                    }
+                }
+            }
             #endregion
 
             #region Timings Parsing
@@ -210,8 +235,8 @@ public class FileConverter : FileReader
             notes?.Clear();
             notes ??= new List<Note>();
 
-            keySounds?.Clear();
-            keySounds ??= new List<KeySound>();
+            keySoundNames.Clear();
+            keySoundNames ??= new List<string>();
 
             // [HitObjects]
             while ( ReadLineEndOfStream() )
@@ -237,13 +262,14 @@ public class FileConverter : FileReader
                     song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                 }
 
+                KeySound keySound = new KeySound( float.Parse( objParams[objParams.Length - 2] ), objParams[objParams.Length - 1] );
                 int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6 / 512 );
-                notes.Add( new Note( lane, noteTime, sliderTime ) );
+                notes.Add( new Note( lane, noteTime, sliderTime, keySound ) );
 
-                string hitSoundName = objParams[objParams.Length - 1];
-                if ( hitSoundName != string.Empty )
+                if ( keySound.name != string.Empty )
                 {
-                    keySounds.Add( new KeySound( lane, noteTime, float.Parse( objParams[objParams.Length - 2] ), hitSoundName ) );
+                    if ( !keySoundNames.Contains( keySound.name ) )
+                         keySoundNames.Add( keySound.name );
                 }
             }
 
@@ -253,9 +279,7 @@ public class FileConverter : FileReader
             #endregion
 
             song.medianBpm = GetMedianBpm();
-
-            if ( song.timingCount > 0 )
-                 timings[0] = new Timing( -5000d, timings[0].bpm, timings[0].beatLength );
+            timings[0] = new Timing( -5000d, timings[0].bpm, timings[0].beatLength );
 
             Write( in song );
         }
@@ -318,14 +342,22 @@ public class FileConverter : FileReader
                         writer.WriteLine( text );
                     }
 
-                    writer.WriteLine( "[HitSounds]" );
-                    for ( int i = 0; i < keySounds.Count; i++ )
+                    writer.WriteLine( "[Samples]" );
+                    for ( int i = 0; i < samples.Count; i++ )
                     {
                         text.Clear();
-                        text.Append( keySounds[i].lane ).Append( "," );
-                        text.Append( keySounds[i].time ).Append( "," );
-                        text.Append( keySounds[i].volume ).Append( "," );
-                        text.Append( keySounds[i].name );
+                        text.Append( samples[i].time ).Append( "," );
+                        text.Append( samples[i].sound.volume ).Append( "," );
+                        text.Append( samples[i].sound.name );
+
+                        writer.WriteLine( text );
+                    }
+
+                    writer.WriteLine( "[KeySounds]" );
+                    for ( int i = 0; i < keySoundNames.Count; i++ )
+                    {
+                        text.Clear();
+                        text.Append( keySoundNames[i] );
 
                         writer.WriteLine( text );
                     }
@@ -336,7 +368,10 @@ public class FileConverter : FileReader
                         text.Clear();
                         text.Append( notes[i].lane ).Append( "," );
                         text.Append( notes[i].time ).Append( "," );
-                        text.Append( notes[i].sliderTime );
+                        text.Append( notes[i].sliderTime ).Append( "," );
+
+                        text.Append( notes[i].keySound.volume ).Append( ":" );
+                        text.Append( notes[i].keySound.name );
 
                         writer.WriteLine( text );
                     }

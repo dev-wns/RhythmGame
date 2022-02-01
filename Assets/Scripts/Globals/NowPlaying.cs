@@ -43,8 +43,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         waitPlayback = new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d );
 
-        //using ( FileConverter converter = new FileConverter() )
-        //    converter.ReLoad();
+        using ( FileConverter converter = new FileConverter() )
+            converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {
@@ -79,12 +79,11 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             parser.TryParse( curSong.filePath, out curChart );
         }
 
-        var hitSounds = curChart.keySounds;
+        SoundManager.Inst.KeyRelease();
         string dir = System.IO.Path.GetDirectoryName( curSong.filePath );
-        for ( int i = 0; i < curChart.keySounds.Count; i++ )
+        for ( int i = 0; i < curChart.keySoundNames.Count; i++ )
         {
-            string path = System.IO.Path.Combine( dir, hitSounds[i].name );
-            SoundManager.Inst.LoadKeySound( path );
+            SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, curChart.keySoundNames[i] ) );
         }
     }
 
@@ -99,11 +98,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public void Play() => StartCoroutine( MusicStart() );
 
-    /// <summary>
-    /// False : Playback is higher than the Last Note Time.
-    /// </summary>
-    /// <param name="_isPause"></param>
-    /// <returns></returns>
+    /// <returns>False : Playback is higher than the Last Note Time.</returns>
     public bool Pause( bool _isPause )
     {
         if ( Playback >= totalTime )

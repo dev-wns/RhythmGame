@@ -39,7 +39,7 @@ public abstract class FileReader : IDisposable
     // 한줄 읽기
     protected string ReadLine()
     {
-        return streamReader.EndOfStream ? string.Empty : line = streamReader.ReadLine();
+        return line = streamReader.ReadLine();
     }
 
     // 현재 라인에서 단어 찾기

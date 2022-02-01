@@ -2518,7 +2518,7 @@ GameObject:
   - component: {fileID: 391921505}
   - component: {fileID: 391921504}
   m_Layer: 5
-  m_Name: Interface Volume
+  m_Name: Sfx Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9328,7 +9328,7 @@ GameObject:
   - component: {fileID: 1539074780}
   - component: {fileID: 1539074779}
   m_Layer: 5
-  m_Name: Sfx Volume
+  m_Name: KeySound Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9377,7 +9377,7 @@ MonoBehaviour:
   curValue: 0
   prePos: 
   postPos: 
-  groupType: 3
+  groupType: 2
 --- !u!114 &1539074780
 MonoBehaviour:
   m_ObjectHideFlags: 0

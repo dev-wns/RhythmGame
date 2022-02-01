@@ -6,15 +6,19 @@ public class NoteRenderer : MonoBehaviour
     private InGame game;
     private NoteSystem system;
     
-    public SpriteRenderer head,    body;
-    private Transform     headTf,  bodyTf;
+    public SpriteRenderer head, body;
+    private Transform headTf, bodyTf;
 
-    public double Time { get; private set; }
-    public double SliderTime { get; private set; }
-    public double CalcTime { get; private set; }
-    public double CalcSliderTime { get; private set; }
-    public bool IsSlider { get; private set; }
+    private Note note;
+
+    public double Time => note.time;
+    public double CalcTime => note.calcTime;
+    public double SliderTime => note.sliderTime;
+    public double CalcSliderTime => note.calcSliderTime;
+    public bool IsSlider => note.isSlider;
     public bool IsPressed { get; set; }
+    public bool HasKeySound => note.keySound.name != string.Empty;
+    public KeySound Sound => note.keySound;
 
     private float column;
     private double newTime;
@@ -41,18 +45,12 @@ public class NoteRenderer : MonoBehaviour
         game.OnScrollChanged -= ScrollUpdate;
     }
 
-
     public void SetInfo( int _lane, NoteSystem _system, in Note _data )
     {
         system    = _system;
+        note      = _data;
         newTime   = _data.calcTime;
         IsPressed = false;
-
-        Time           = _data.time;
-        CalcTime       = _data.calcTime;
-        SliderTime     = _data.sliderTime;
-        CalcSliderTime = _data.calcSliderTime;
-        IsSlider       = _data.isSlider;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
 
@@ -76,13 +74,11 @@ public class NoteRenderer : MonoBehaviour
 
     public void Despawn()
     {
-        //gameObject.SetActive( false );
         system.Despawn( this );
     }
 
     private void LateUpdate()
     {
-        //double weight = GameSetting.Weight;
         Vector2 headPos;
         if ( IsPressed )
         {

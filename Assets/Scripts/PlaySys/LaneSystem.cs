@@ -47,13 +47,6 @@ public class LaneSystem : MonoBehaviour
 
     private void CreateNotes( in Chart _chart )
     {
-        var keySounds = _chart.keySounds;
-        for ( int i = 0; i < keySounds.Count; i++ )
-        {
-            lanes[keySounds[i].lane].KeySoundSys.AddKeySound( keySounds[i] );
-        }
-                    
-
         var notes = _chart.notes;
         CalcNote[] column = new CalcNote[6];
         for ( int i = 0; i < notes.Count; i++ )

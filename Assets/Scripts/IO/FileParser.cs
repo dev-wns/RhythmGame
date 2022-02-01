@@ -35,6 +35,8 @@ public class FileParser : FileReader
 
             while ( ReadLine() != "[Timings]" )
             {
+                if ( line == string.Empty ) break;
+
                 if ( Contains( "AudioPath:" ) ) _song.audioPath = Path.Combine( directory, SplitAndTrim( ':' ) );
                 if ( Contains( "ImagePath:" ) ) _song.imagePath = Path.Combine( directory, SplitAndTrim( ':' ) );
                 if ( Contains( "VideoPath:" ) )
@@ -88,7 +90,7 @@ public class FileParser : FileReader
             #region Timings Parsing
             List<Timing> timings = new List<Timing>();
 
-            while ( ReadLine() != "[HitSounds]" )
+            while ( ReadLine() != "[Samples]" )
             {
                 Timing timing = new Timing();
                 var split = line.Split( ',' );
@@ -106,22 +108,29 @@ public class FileParser : FileReader
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
             #endregion
 
-            #region HitSounds Parsing
-            List<KeySound> keySounds = new List<KeySound>();
-            while ( ReadLine() != "[Notes]" )
+            #region Samples Parsing
+            List<KeySample> samples = new List<KeySample>();
+            while ( ReadLine() != "[KeySounds]" )
             {
-                KeySound keySound = new KeySound();
+                KeySample sample;
                 var split = line.Split( ',' );
 
-                keySound.lane = int.Parse( split[0] );
-                keySound.time = double.Parse( split[1] ) * .001d;
-                keySound.volume = float.Parse( split[2] ) * .01f;
-                keySound.name = split[3];
+                sample.time = double.Parse( split[0] ) * .001d;
+                sample.sound.volume = float.Parse( split[1] ) * .01f;
+                sample.sound.name = split[2];
 
-                keySounds.Add( keySound );
+                samples.Add( sample );
             }
+            _chart.samples = new ReadOnlyCollection<KeySample>( samples );
+            #endregion
 
-            _chart.keySounds = new ReadOnlyCollection<KeySound>( keySounds );
+            #region HitSounds Parsing
+            List<string> keySounds = new List<string>();
+            while ( ReadLine() != "[Notes]" )
+            {
+                keySounds.Add( line );
+            }
+            _chart.keySoundNames = new ReadOnlyCollection<string>( keySounds );
             #endregion
 
             #region Notes Parsing
@@ -136,6 +145,10 @@ public class FileParser : FileReader
                 note.time           = double.Parse( split[1] ) * .001d;
                 note.sliderTime     = double.Parse( split[2] ) * .001d;
                 note.isSlider       = note.sliderTime > 0d ? true : false;
+
+                var keySoundSplit = split[3].Split( ':' );
+                note.keySound.volume = float.Parse( keySoundSplit[0] ) * .01f;
+                note.keySound.name   = keySoundSplit[1];
 
                 notes.Add( note );
             }

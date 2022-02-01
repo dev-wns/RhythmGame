@@ -21,7 +21,6 @@ public class InputSystem : MonoBehaviour
 
     private Action NoteProcessAction;
     private bool isAuto;
-    public string hitSound;
 
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
 
@@ -112,6 +111,7 @@ public class InputSystem : MonoBehaviour
         {
             OnHitNote?.Invoke();
             judge.ResultUpdate( startDiff );
+            SoundManager.Inst.PlayKeySound( lane.Key, curNote.Sound );
             SelectNextNote();
         }
     }
@@ -125,6 +125,7 @@ public class InputSystem : MonoBehaviour
             {
                 curNote.IsPressed = true;
                 OnHitNote?.Invoke();
+                SoundManager.Inst.PlayKeySound( lane.Key, curNote.Sound );
                 judge.ResultUpdate( startDiff );
             }
         }
@@ -233,7 +234,8 @@ public class InputSystem : MonoBehaviour
         if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
         {
             OnInputEvent?.Invoke( true );
-            SoundManager.Inst.PlayKeySound( hitSound );
+            if ( curNote != null )
+                 SoundManager.Inst.PlayKeySound( lane.Key, curNote.Sound );
         }
         else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) ) OnInputEvent?.Invoke( false );
 

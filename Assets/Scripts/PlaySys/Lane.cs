@@ -8,15 +8,13 @@ public class Lane : MonoBehaviour
     public int Key { get; private set; }
     public NoteSystem  NoteSys  { get; private set; }
     public InputSystem InputSys { get; private set; }
-    public KeySoundSystem KeySoundSys { get; private set; }
 
-    public event Action<int /*Lane Key*/> OnLaneInitialize;
+    public event Action<int/*Lane Key*/> OnLaneInitialize;
 
     private void Awake()
     {
         NoteSys     = GetComponent<NoteSystem>();
         InputSys    = GetComponent<InputSystem>();
-        KeySoundSys = GetComponent<KeySoundSystem>();
     }
 
     public void SetLane( int _key )

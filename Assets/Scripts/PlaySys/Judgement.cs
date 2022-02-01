@@ -22,25 +22,6 @@ public class Judgement : MonoBehaviour
         rt.sizeDelta        = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
     }
 
-    //private static readonly DifficultyRange[] base_ranges =
-    //{
-    //        new DifficultyRange(HitResult.Perfect, 22.4D, 19.4D, 13.9D),
-    //        new DifficultyRange(HitResult.Great, 64, 49, 34),
-    //        new DifficultyRange(HitResult.Good, 97, 82, 67),
-    //        new DifficultyRange(HitResult.Bad, 127, 112, 97),
-    //        new DifficultyRange(HitResult.Miss, 151, 136, 121),
-    //};
-
-    static double DifficultyRange( double difficulty, double min, double mid, double max )
-    {
-        if ( difficulty > 5 )
-            return mid + ( max - mid ) * ( difficulty - 5 ) / 5;
-        if ( difficulty < 5 )
-            return mid - ( mid - min ) * ( 5 - difficulty ) / 5;
-
-        return mid;
-    }
-
     public bool CanBeHit( double _timeOffset )
     {
         return Globals.Abs( _timeOffset ) <= Bad ? true : false;
