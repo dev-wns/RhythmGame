@@ -30,11 +30,36 @@ public struct Song
     public double medianBpm;
 }
 
-public struct Timing
+public struct Timing : IEquatable<Timing>
 {
     public double time;
     public double bpm;
     public double beatLength;
+
+    public override bool Equals( object _obj )
+    {
+        Debug.Log( "boxing" );
+        return base.Equals( _obj );
+    }
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
+
+    public bool Equals( Timing _other )
+    {
+        return ( time == _other.time ) && ( bpm == _other.bpm );
+    }
+
+    public static bool operator == ( in Timing _left, in Timing _right )
+    {
+        return _left.Equals( _right );
+    }
+
+    public static bool operator != ( in Timing _left, in Timing _right )
+    {
+        return !( _left == _right );
+    }
 
     public Timing( Timing _timing )
     {
@@ -94,6 +119,7 @@ public struct KeySample
 {
     public double time;
     public KeySound sound;
+  
     public KeySample( double _time, string _name, float _volume )
     {
         time = _time;
@@ -116,6 +142,8 @@ public class FileConverter : FileReader
     private List<Note> notes = new List<Note>();
     private List<KeySample> samples = new List<KeySample>();
     private List<string> keySoundNames = new List<string>();
+
+    private readonly string virtualAudioName = "preview.wav";
 
     private class CalcMedianTiming
     {
@@ -167,8 +195,17 @@ public class FileConverter : FileReader
                 if ( Contains( "Version" ) )                                song.version = SplitAndTrim( ':' );
             }
 
-            // [Events]
+            // 키음만으로 재생되는 노래는 프리뷰 음악이 대부분 없다.
+            // preview.wav는 따로 프로그램을 통해 만들어놓은 파일이다.
+            if ( song.audioPath == null || song.audioPath == string.Empty )
+            {
+                if ( File.Exists( Path.Combine( dir, virtualAudioName ) ) )
+                {
+                    song.audioPath = virtualAudioName;
+                }
+            }
 
+            // [Events]
             samples?.Clear();
             samples ??= new List<KeySample>();
 
@@ -186,16 +223,23 @@ public class FileConverter : FileReader
                     song.imagePath = SplitAndTrim( '"' );
                 }
 
-                if ( Contains( "Storyboard Sound Samples" ) )
+                if ( Contains( "Sample," ) )
                 {
-                    while ( ReadLine().Contains( "Sample" ) )
-                    {
-                        string[] split = line.Split( ',' );
-                        string name    = SplitAndTrim( '"' );
-                        samples.Add( new KeySample( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
-                    }
+                    string[] split = line.Split( ',' );
+                    string name    = SplitAndTrim( '"' );
+                    samples.Add( new KeySample( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
                 }
             }
+
+            //
+
+            samples.Sort( delegate ( KeySample _A, KeySample _B )
+            {
+                if ( _A.time > _B.time ) return 1;
+                else if ( _A.time < _B.time ) return -1;
+                else return 0;
+            });
+
             #endregion
 
             #region Timings Parsing
@@ -204,6 +248,7 @@ public class FileConverter : FileReader
 
             // [TimingPoints]
             double uninheritedBpm = 0d;
+            Timing prevTiming = new Timing();
             while ( ReadLine() != "[HitObjects]" )
             {
                 string[] splitDatas = line.Split( ',' );
@@ -221,7 +266,12 @@ public class FileConverter : FileReader
                 if ( song.maxBpm <= BPM )                     song.maxBpm = Mathf.RoundToInt( ( float )BPM );
 
                 double time = double.Parse( splitDatas[0] );
-                timings.Add( new Timing( time, BPM, 60000d / BPM ) );
+                Timing timing = new Timing( time, BPM, 60000d / BPM );
+                if ( prevTiming.bpm != timing.bpm )
+                {
+                    timings.Add( timing );
+                    prevTiming = timing;
+                }
 
                 song.timingCount++;
             }
