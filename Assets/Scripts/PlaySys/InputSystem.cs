@@ -111,7 +111,7 @@ public class InputSystem : MonoBehaviour
         {
             OnHitNote?.Invoke();
             judge.ResultUpdate( startDiff );
-            SoundManager.Inst.PlayKeySound( lane.Key, curNote.Sound );
+            SoundManager.Inst.PlayKeySound( curNote.Sound );
             SelectNextNote();
         }
     }
@@ -125,7 +125,7 @@ public class InputSystem : MonoBehaviour
             {
                 curNote.IsPressed = true;
                 OnHitNote?.Invoke();
-                SoundManager.Inst.PlayKeySound( lane.Key, curNote.Sound );
+                SoundManager.Inst.PlayKeySound( curNote.Sound );
                 judge.ResultUpdate( startDiff );
             }
         }
@@ -235,7 +235,7 @@ public class InputSystem : MonoBehaviour
         {
             OnInputEvent?.Invoke( true );
             if ( curNote != null )
-                 SoundManager.Inst.PlayKeySound( lane.Key, curNote.Sound );
+                 SoundManager.Inst.PlayKeySound( curNote.Sound );
         }
         else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) ) OnInputEvent?.Invoke( false );
 

@@ -475,6 +475,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"MinBPM: {_song.minBpm}" );
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
                     writer.WriteLine( $"Median: {_song.medianBpm}" );
+                    writer.WriteLine( $"Virtual: {( _song.isVirtual ? 1 : 0 )}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );

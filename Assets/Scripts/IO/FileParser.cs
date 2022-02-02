@@ -66,8 +66,9 @@ public class FileParser : FileReader
                 if ( Contains( "MinBPM:" ) ) _song.minBpm    = int.Parse( SplitAndTrim( ':' ) );
                 if ( Contains( "MaxBPM:" ) ) _song.maxBpm    = int.Parse( SplitAndTrim( ':' ) );
                 if ( Contains( "Median:" ) ) _song.medianBpm = double.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "Virtual:" ) ) _song.isVirtual = int.Parse( SplitAndTrim( ':' ) ) == 1 ? true : false;
             }
-    }
+        }
         catch ( Exception _error )
         {
             Debug.LogError( $"{_error}, {_path}" );

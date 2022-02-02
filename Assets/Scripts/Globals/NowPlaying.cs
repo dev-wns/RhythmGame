@@ -152,15 +152,21 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator MusicStart()
     {
-        SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
-        SoundManager.Inst.PlayBgm( true );
-        SoundManager.Inst.Position = 0;
+        if ( !curSong.isVirtual )
+        {
+            SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
+            SoundManager.Inst.PlayBgm( true );
+            SoundManager.Inst.Position = 0;
+        }
+
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         IsPlaying = true;
         savedTime = waitTime;
 
         yield return waitPlayback;
-        SoundManager.Inst.Pause = false;
+
+        if ( !curSong.isVirtual )
+             SoundManager.Inst.Pause = false;
     }
 
     public double GetChangedTime( double _time ) // BPM 변화에 따른 시간 계산

@@ -32,7 +32,7 @@ public class KeySampleSystem : MonoBehaviour
         {
             yield return waitNextSample;
 
-            SoundManager.Inst.PlayKeySound( 6, samples[curIndex].sound );
+            SoundManager.Inst.PlayKeySound( samples[curIndex].sound );
 
             if ( ++curIndex < samples.Count )
                  curTime = samples[curIndex].time;
