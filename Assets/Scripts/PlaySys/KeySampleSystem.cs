@@ -33,7 +33,6 @@ public class KeySampleSystem : MonoBehaviour
             yield return waitNextSample;
 
             SoundManager.Inst.PlayKeySound( 6, samples[curIndex].sound );
-            Debug.Log( $"Sample Play {samples[curIndex].sound.name}" );
 
             if ( ++curIndex < samples.Count )
                  curTime = samples[curIndex].time;

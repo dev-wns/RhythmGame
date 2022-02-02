@@ -21,6 +21,7 @@ public struct Song
 
     public int previewTime;
     public int totalTime;
+    public bool isVirtual;
 
     public int noteCount;
     public int sliderCount;
@@ -110,7 +111,7 @@ public struct KeySound
 
     public KeySound( float _volume, string _name )
     {
-        volume = _volume;
+        volume = _volume < .1f ? 100f : _volume;
         name = _name;
     }
 }
@@ -136,6 +137,7 @@ public struct Chart
     public ReadOnlyCollection<string> keySoundNames;
 }
 
+
 public class FileConverter : FileReader
 {
     private List<Timing> timings = new List<Timing>();
@@ -145,6 +147,41 @@ public class FileConverter : FileReader
 
     private readonly string virtualAudioName = "preview.wav";
 
+    private class IntegerComparer : IComparer<int>
+    {
+        int IComparer<int>.Compare( int _left, int _right )
+        {
+            if ( _left > _right )      return 1;
+            else if ( _left < _right ) return -1;
+            else                       return 0;
+        }
+    }
+
+    private class LaneData : IEquatable<LaneData>
+    {
+        public int px;
+        public int lane;
+
+        public override bool Equals( object obj )
+        {
+            return base.Equals( obj );
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public bool Equals( LaneData _data )
+        {
+            return px == _data.px;
+        }
+
+        public LaneData( int _px )
+        {
+            px = _px;
+            lane = -1;
+        }
+    }
     private class CalcMedianTiming
     {
         public double time, bpm;
@@ -180,11 +217,15 @@ public class FileConverter : FileReader
 
             #region General Data Parsing
             // [General] ~ [Editor]
+            int mode = 0;
             while ( ReadLine() != "[Metadata]" )
             {
                 if ( Contains( "AudioFilename" ) ) song.audioPath   = SplitAndTrim( ':' );
                 if ( Contains( "PreviewTime" ) )   song.previewTime = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "Mode" ) )          mode             = int.Parse( SplitAndTrim( ':' ) );
             }
+            // 건반형 모드가 아니면 읽지 않음.
+            if ( mode != 3 ) return;
 
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Events]" )
@@ -202,12 +243,16 @@ public class FileConverter : FileReader
                 if ( File.Exists( Path.Combine( dir, virtualAudioName ) ) )
                 {
                     song.audioPath = virtualAudioName;
+                    song.isVirtual = true;
                 }
             }
 
             // [Events]
             samples?.Clear();
             samples ??= new List<KeySample>();
+
+            keySoundNames.Clear();
+            keySoundNames ??= new List<string>();
 
             var directory = Path.GetDirectoryName( _path );
             while ( ReadLine() != "[TimingPoints]" )
@@ -228,18 +273,10 @@ public class FileConverter : FileReader
                     string[] split = line.Split( ',' );
                     string name    = SplitAndTrim( '"' );
                     samples.Add( new KeySample( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
+                    if ( !keySoundNames.Contains( name ) )
+                          keySoundNames.Add( name );
                 }
             }
-
-            //
-
-            samples.Sort( delegate ( KeySample _A, KeySample _B )
-            {
-                if ( _A.time > _B.time ) return 1;
-                else if ( _A.time < _B.time ) return -1;
-                else return 0;
-            });
-
             #endregion
 
             #region Timings Parsing
@@ -275,19 +312,14 @@ public class FileConverter : FileReader
 
                 song.timingCount++;
             }
-
-            if ( timings.Count == 0 )
-                throw new Exception( "Timing Convert Error" );
-
             #endregion
 
             #region Notes Parsing
             notes?.Clear();
             notes ??= new List<Note>();
 
-            keySoundNames.Clear();
-            keySoundNames ??= new List<string>();
-
+            SortedDictionary<int/*column px*/, List<Note>> lanes = new SortedDictionary<int, List<Note>>( new IntegerComparer() );
+            List<int> keys = new List<int>();
             // [HitObjects]
             while ( ReadLineEndOfStream() )
             {
@@ -312,9 +344,16 @@ public class FileConverter : FileReader
                     song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                 }
 
+                //int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6 / 512 );
+                int px = int.Parse( splitDatas[0] );
+                if ( !lanes.ContainsKey( px ) )
+                {
+                    lanes.Add( px, new List<Note>() );
+                    keys.Add( px );
+                }
+
                 KeySound keySound = new KeySound( float.Parse( objParams[objParams.Length - 2] ), objParams[objParams.Length - 1] );
-                int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6 / 512 );
-                notes.Add( new Note( lane, noteTime, sliderTime, keySound ) );
+                lanes[px].Add( new Note( px, noteTime, sliderTime, keySound ) );
 
                 if ( keySound.name != string.Empty )
                 {
@@ -322,11 +361,67 @@ public class FileConverter : FileReader
                          keySoundNames.Add( keySound.name );
                 }
             }
+            keys.Sort();
 
-            if ( notes.Count == 0 )
-                 throw new Exception( "Note Convert Error" );
+            int columnCount = lanes.Count;
+            List<int> removeKeys = new List<int>();
+            switch ( lanes.Count )
+            {
+                default:
+                return;
 
+                case 6:
+                break;
+
+                case 7:
+                    removeKeys.AddRange( new int[] { keys[6] } );
+                break;
+                case 8:
+                    removeKeys.AddRange( new int[] { keys[0], keys[7] } );
+                break;
+            }
+
+            // 잘려진 값의 키음들은 항상 재생되는 Sample로 만들어준다.
+            int laneCount = 0;
+            foreach ( var key in lanes.Keys )
+            {
+                if ( removeKeys.Contains( key ) )
+                {
+                    foreach ( var note in lanes[key] )
+                    {
+                        var sound = note.keySound;
+                        if ( sound.name != string.Empty && sound.name != null )
+                            samples.Add( new KeySample( note.time, sound.name, sound.volume ) );
+                    }
+                }
+                else
+                {
+                    foreach ( var note in lanes[key] )
+                    {
+                        var newNote = note;
+                        newNote.lane = laneCount;
+                        notes.Add( newNote );
+                    }
+                    laneCount++;
+                }
+            }
+
+            // BMS2Osu로 뽑은 파일은 Lane값 기준으로 정렬되어 있어서 시간 순으로 다시 정렬해준다.
+            samples.Sort( delegate ( KeySample _A, KeySample _B )
+            {
+                if ( _A.time > _B.time ) return 1;
+                else if ( _A.time < _B.time ) return -1;
+                else return 0;
+            } );
+
+            notes.Sort( delegate ( Note _A, Note _B )
+            {
+                if ( _A.time > _B.time ) return 1;
+                else if ( _A.time < _B.time ) return -1;
+                else return 0;
+            } );
             #endregion
+
 
             song.medianBpm = GetMedianBpm();
             timings[0] = new Timing( -5000d, timings[0].bpm, timings[0].beatLength );

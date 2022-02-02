@@ -239,7 +239,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         // Details
         SetVolume( .1f, ChannelGroupType.Master );
-        SetVolume( .05f, ChannelGroupType.BGM );
+        SetVolume( 0f, ChannelGroupType.BGM );
         SetVolume( .2f, ChannelGroupType.KeySound );
     }
 
