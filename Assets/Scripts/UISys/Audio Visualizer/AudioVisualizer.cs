@@ -37,8 +37,8 @@ public class AudioVisualizer : MonoBehaviour
         
         if ( fftData.numchannels > 0 )
         {
-            masterVolume = SoundManager.Inst.GetVolume( ChannelGroupType.Master );
-            bgmVolume    = SoundManager.Inst.GetVolume( ChannelGroupType.BGM );
+            masterVolume = SoundManager.Inst.GetVolume( ChannelType.Master );
+            bgmVolume    = SoundManager.Inst.GetVolume( ChannelType.BGM );
             volume       = masterVolume * bgmVolume;
 
             UpdateSpectrums( fftData.spectrum[0], volume >= 1f ? 1f : 1f - volume );

@@ -49,7 +49,7 @@ public class InGame : Scene
         else
         {
             pauseCanvas.SetActive( true );
-            SoundManager.Inst.PlaySfx( SoundSfxType.Return );
+            SoundManager.Inst.Play( SoundSfxType.Return );
             ChangeAction( SceneAction.Option );
             OnPause?.Invoke();
         }
@@ -60,11 +60,11 @@ public class InGame : Scene
         Bind( SceneAction.Main, KeyCode.Escape, () => Pause( true ) );
 
         Bind( SceneAction.Main, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= 1f );
-        Bind( SceneAction.Main, KeyCode.Alpha1, () => SoundManager.Inst.PlaySfx( SoundSfxType.Decrease ) );
+        Bind( SceneAction.Main, KeyCode.Alpha1, () => SoundManager.Inst.Play( SoundSfxType.Decrease ) );
         Bind( SceneAction.Main, KeyCode.Alpha1, () => OnScrollChanged?.Invoke() );
 
         Bind( SceneAction.Main, KeyCode.Alpha2, () => GameSetting.ScrollSpeed += 1f );
-        Bind( SceneAction.Main, KeyCode.Alpha2, () => SoundManager.Inst.PlaySfx( SoundSfxType.Increase ) );
+        Bind( SceneAction.Main, KeyCode.Alpha2, () => SoundManager.Inst.Play( SoundSfxType.Increase ) );
         Bind( SceneAction.Main, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
     }
 }

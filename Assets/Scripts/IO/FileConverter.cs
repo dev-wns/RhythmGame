@@ -21,7 +21,7 @@ public struct Song
 
     public int previewTime;
     public int totalTime;
-    public bool isVirtual;
+    public bool isOnlyKeySound;
 
     public int noteCount;
     public int sliderCount;
@@ -258,7 +258,7 @@ public class FileConverter : FileReader
                 if ( File.Exists( Path.Combine( dir, virtualAudioName ) ) )
                 {
                     song.audioPath = virtualAudioName;
-                    song.isVirtual = true;
+                    song.isOnlyKeySound = true;
                 }
             }
 
@@ -486,7 +486,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"MinBPM: {_song.minBpm}" );
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
                     writer.WriteLine( $"Median: {_song.medianBpm}" );
-                    writer.WriteLine( $"Virtual: {( _song.isVirtual ? 1 : 0 )}" );
+                    writer.WriteLine( $"Virtual: {( _song.isOnlyKeySound ? 1 : 0 )}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );

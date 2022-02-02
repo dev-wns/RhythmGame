@@ -34,7 +34,7 @@ public class KeySettingOption : OptionButton
             yield return null;
 
             if ( Input.anyKeyDown && !Input.GetKeyDown( KeyCode.Return ) && !Input.GetKeyDown( KeyCode.Escape ) )
-                SoundManager.Inst.PlaySfx( SoundSfxType.Increase );
+                SoundManager.Inst.Play( SoundSfxType.Increase );
 
             if ( Input.GetKeyDown( KeyCode.Return ) )
             {
@@ -49,7 +49,7 @@ public class KeySettingOption : OptionButton
 
                 GameSetting.Inst.Keys[( GameKeyAction )lane] = curKeyCode;
                 trackText[lane].text = curKeyCode.ToString();
-                SoundManager.Inst.PlaySfx( SoundSfxType.Return );
+                SoundManager.Inst.Play( SoundSfxType.Return );
                 Debug.Log( $"Key : {curKeyCode}" );
                 break;
             }

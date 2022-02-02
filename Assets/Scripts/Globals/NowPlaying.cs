@@ -37,12 +37,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private double totalTime;
 
-    private WaitUntil waitPlayback;
-
     private void Awake()
     {
-        waitPlayback = new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d );
-
         //using ( FileConverter converter = new FileConverter() )
         //    converter.ReLoad();
 
@@ -108,19 +104,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         if ( _isPause )
         {
             IsPlaying = false;
-            SoundManager.Inst.Pause = true;
-
-            double prevPos = waitTime + ( SoundManager.Inst.Position * .001d );
-            if ( prevPos > 0d )
-            {
-                savedTime = prevPos;
-                SoundManager.Inst.Position = ( uint )( savedTime * 1000d );
-            }
-            else
-            {
-                SoundManager.Inst.Position = 0;
-                savedTime = waitTime;
-            }
+            SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
+            SoundManager.Inst.SetPaused( true, ChannelType.BGM );
+            savedTime = waitTime + Playback;
         }
         else
         {
@@ -143,8 +129,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         IsPlaying = true;
 
-        yield return waitPlayback;
-        SoundManager.Inst.Pause = false;
+        yield return new WaitUntil( () => Playback >= savedTime - waitTime );// GameSetting.SoundOffset * .001d );
+        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+        SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
 
         yield return YieldCache.WaitForSeconds( 3f );
         SceneChanger.CurrentScene.InputLock( false );
@@ -152,10 +139,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator MusicStart()
     {
-        if ( !curSong.isVirtual )
+        if ( !curSong.isOnlyKeySound )
         {
             SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
-            SoundManager.Inst.PlayBgm( true );
+            SoundManager.Inst.Play( true );
             SoundManager.Inst.Position = 0;
         }
 
@@ -163,10 +150,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         IsPlaying = true;
         savedTime = waitTime;
 
-        yield return waitPlayback;
+        yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d ); ;
 
-        if ( !curSong.isVirtual )
-             SoundManager.Inst.Pause = false;
+        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+        SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
     }
 
     public double GetChangedTime( double _time ) // BPM 변화에 따른 시간 계산

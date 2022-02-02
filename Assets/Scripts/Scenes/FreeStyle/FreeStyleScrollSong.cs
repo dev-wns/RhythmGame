@@ -34,9 +34,9 @@ public class FreeStyleScrollSong : SceneScrollOption
         playback += Time.deltaTime * 1000f;
 
         if ( soundLength + waitPreviewTime < playback &&
-             !SoundManager.Inst.IsPlaying( ChannelGroupType.BGM ) )
+             !SoundManager.Inst.IsPlaying( ChannelType.BGM ) )
         {
-            SoundManager.Inst.PlayBgm();
+            SoundManager.Inst.Play();
             SoundManager.Inst.Position = GetPreviewTime();
             playback = previewTime;
         }
@@ -82,7 +82,7 @@ public class FreeStyleScrollSong : SceneScrollOption
         OnSelectSong( curSong );
 
         SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
-        SoundManager.Inst.PlayBgm();
+        SoundManager.Inst.Play();
 
         previewTime = GetPreviewTime();
         SoundManager.Inst.Position = previewTime;
@@ -100,9 +100,9 @@ public class FreeStyleScrollSong : SceneScrollOption
     public override void KeyBind()
     {
         CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => PrevMove() );
-        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.Play( SoundSfxType.Move ) );
 
         CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => NextMove() );
-        CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => SoundManager.Inst.PlaySfx( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.Move ) );
     }
 }

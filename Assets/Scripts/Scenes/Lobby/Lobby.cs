@@ -23,10 +23,10 @@ public class Lobby : Scene
     private void SoundReStart()
     {
         SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName + ".mp3"}", true, false, true );
-        SoundManager.Inst.PlayBgm( true );
+        SoundManager.Inst.Play( true );
         SoundManager.Inst.Position = ( uint )playback;
         soundLength = SoundManager.Inst.Length;
-        SoundManager.Inst.Pause = false;
+        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
     }
 
     protected override void Update()
@@ -45,10 +45,10 @@ public class Lobby : Scene
 
         Bind( SceneAction.Main, KeyCode.Space, () => optionCanvas.SetActive( true ) );
         Bind( SceneAction.Main, KeyCode.Space, () => ChangeAction( SceneAction.Option ) );
-        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.PlaySfx( SoundSfxType.Return ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.Play( SoundSfxType.Return ) );
 
         Bind( SceneAction.Main, KeyCode.Escape, () => exitCanvas.SetActive( true ) );
         Bind( SceneAction.Main, KeyCode.Escape, () => ChangeAction( SceneAction.Exit ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.PlaySfx( SoundSfxType.Return ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.Return ) );
     }
 }

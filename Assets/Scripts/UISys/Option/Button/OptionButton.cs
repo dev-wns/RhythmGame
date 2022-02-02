@@ -14,7 +14,7 @@ public class OptionButton : OptionBindReturnBase
 
 	public override void Return()
 	{
-		SoundManager.Inst.PlaySfx( SoundSfxType.Return );
+		SoundManager.Inst.Play( SoundSfxType.Return );
 		Process();
 	}
 
