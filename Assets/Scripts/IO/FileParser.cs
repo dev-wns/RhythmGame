@@ -61,7 +61,6 @@ public class FileParser : FileReader
 
                 if ( Contains( "NumNote:" ) )   _song.noteCount   = int.Parse( SplitAndTrim( ':' ) );
                 if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "NumTiming:" ) ) _song.timingCount = int.Parse( SplitAndTrim( ':' ) );
 
                 if ( Contains( "MinBPM:" ) ) _song.minBpm    = int.Parse( SplitAndTrim( ':' ) );
                 if ( Contains( "MaxBPM:" ) ) _song.maxBpm    = int.Parse( SplitAndTrim( ':' ) );
@@ -119,6 +118,7 @@ public class FileParser : FileReader
                 sample.time = double.Parse( split[0] ) * .001d;
                 sample.sound.volume = float.Parse( split[1] ) * .01f;
                 sample.sound.name = split[2];
+                sample.sound.key = -1;
 
                 samples.Add( sample );
             }

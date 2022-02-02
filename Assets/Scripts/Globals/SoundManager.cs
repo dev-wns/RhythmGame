@@ -5,7 +5,6 @@ using UnityEngine;
 
 public enum ChannelGroupType { Master, BGM, KeySound, Sfx, Count };
 public enum SoundSfxType { Move, Return, Escape, Increase, Decrease }
-
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 
 public class SoundManager : SingletonUnity<SoundManager>
@@ -23,8 +22,8 @@ public class SoundManager : SingletonUnity<SoundManager>
     //private FMOD.Channel sfxChannel;
 
     private FMOD.Channel keyChannel;
-    private Dictionary<string, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
-
+    private Dictionary<int, FMOD.Sound> keySounds = new Dictionary<int, FMOD.Sound>();
+    private Dictionary<string, int> keySoundTemps = new Dictionary<string, int>();
     public FMOD.DSP? FFT { get; private set; }
     private FMOD.DSP lowEffectEQ;
 
@@ -255,7 +254,9 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
         }
         keySounds.Clear();
+        keySoundTemps.Clear();
     }
+    public void ReleaseTemps() => keySoundTemps.Clear();
 
     public void Release()
     {
@@ -269,6 +270,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
         }
         sfxSounds.Clear();
+        keySoundTemps.Clear();
 
         foreach ( var keySound in keySounds )
         {
@@ -375,7 +377,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     public void LoadKeySound( string _path )
     {
         string name = System.IO.Path.GetFileName( _path );
-        if ( keySounds.ContainsKey( name ) )
+        if ( keySoundTemps.ContainsKey( name ) )
              return;
 
         if ( !System.IO.File.Exists( _path ) )
@@ -383,8 +385,10 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         FMOD.Sound sound;
         ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out sound ) );
-        keySounds.Add( name, sound );
+        keySounds.Add( keySoundTemps.Count, sound );
+        keySoundTemps.Add( name, keySoundTemps.Count );
     }
+
     #endregion
 
     #region Sound
@@ -415,15 +419,23 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public void PlayKeySound( KeySound _key )
     {
-        if ( _key.name == string.Empty || !keySounds.ContainsKey( _key.name ) )
+        if ( _key.name == string.Empty || !keySounds.ContainsKey( _key.key ) )
         {
             //Debug.LogError( $"sfxSound[{_key.name}] is not loaded." );
             return;
         }
 
         FMOD.Channel channel;
-        ErrorCheck( system.playSound( keySounds[_key.name], Groups[ChannelGroupType.KeySound], false, out channel ) );
+        ErrorCheck( system.playSound( keySounds[_key.key], Groups[ChannelGroupType.KeySound], false, out channel ) );
         ErrorCheck( channel.setVolume( _key.volume) );
+    }
+
+    public int GetSampleKey( string _name )
+    {
+        if ( keySoundTemps.ContainsKey( _name ) )
+            return keySoundTemps[_name];
+
+        return -1;
     }
     #endregion
 

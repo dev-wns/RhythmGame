@@ -7,7 +7,7 @@ public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow }
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect     = .0224d;
+    public const double Perfect     = .0284d;
     public const double Great       = .064d;
     public const double Good        = .097d;
     public const double Bad         = .127d;

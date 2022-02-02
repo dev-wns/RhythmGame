@@ -66,6 +66,8 @@ public class LaneSystem : MonoBehaviour
                     if ( hasNoSliderMod ) 
                          newNote.isSlider = false;
 
+                    newNote.keySound.key = SoundManager.Inst.GetSampleKey( newNote.keySound.name );
+
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
@@ -127,6 +129,8 @@ public class LaneSystem : MonoBehaviour
 
                             newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                             newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
+
+                            newNote.keySound.key = SoundManager.Inst.GetSampleKey( newNote.keySound.name );
 
                             if ( hasNoSliderMod ) 
                                  newNote.isSlider = false;

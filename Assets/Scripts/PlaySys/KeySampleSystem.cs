@@ -6,7 +6,7 @@ using UnityEngine;
 public class KeySampleSystem : MonoBehaviour
 {
     private InGame scene;
-    private ReadOnlyCollection<KeySample> samples;
+    private List<KeySample> samples = new List<KeySample>();
     private int curIndex;
     private double curTime;
 
@@ -19,7 +19,12 @@ public class KeySampleSystem : MonoBehaviour
 
     private void Initialize( in Chart _chart )
     {
-        samples = _chart.samples;
+        for( int i = 0; i < _chart.samples.Count; i++ )
+        {
+            var newSample = _chart.samples[i];
+            newSample.sound.key = SoundManager.Inst.GetSampleKey( newSample.sound.name );
+            samples.Add( newSample );
+        }
     }
 
     private IEnumerator Process()

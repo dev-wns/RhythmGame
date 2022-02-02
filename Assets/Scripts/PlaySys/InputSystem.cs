@@ -22,7 +22,10 @@ public class InputSystem : MonoBehaviour
     private Action NoteProcessAction;
     private bool isAuto;
 
+    private KeySound curSound;
+
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
+    public void SetSound( in KeySound _sound ) => curSound = _sound;
 
     private void Awake()
     {
@@ -92,6 +95,7 @@ public class InputSystem : MonoBehaviour
         {
             yield return WaitNote;
             curNote = notes.Dequeue();
+            curSound = curNote.Sound;
         }
     }
 
@@ -111,7 +115,7 @@ public class InputSystem : MonoBehaviour
         {
             OnHitNote?.Invoke();
             judge.ResultUpdate( startDiff );
-            SoundManager.Inst.PlayKeySound( curNote.Sound );
+            SoundManager.Inst.PlayKeySound( curSound );
             SelectNextNote();
         }
     }
@@ -125,7 +129,7 @@ public class InputSystem : MonoBehaviour
             {
                 curNote.IsPressed = true;
                 OnHitNote?.Invoke();
-                SoundManager.Inst.PlayKeySound( curNote.Sound );
+                SoundManager.Inst.PlayKeySound( curSound );
                 judge.ResultUpdate( startDiff );
             }
         }
@@ -234,8 +238,7 @@ public class InputSystem : MonoBehaviour
         if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
         {
             OnInputEvent?.Invoke( true );
-            if ( curNote != null )
-                 SoundManager.Inst.PlayKeySound( curNote.Sound );
+            SoundManager.Inst.PlayKeySound( curSound );
         }
         else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) ) OnInputEvent?.Invoke( false );
 

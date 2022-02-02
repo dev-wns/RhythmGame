@@ -37,8 +37,11 @@ public class NoteSystem : MonoBehaviour
 
     private IEnumerator Process()
     {
-        if( notes.Count > 0 )
+        if ( notes.Count > 0 )
+        {
             curNote = notes[curIndex];
+            lane.InputSys.SetSound( curNote.keySound );
+        }
 
         WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + loadTime );
         while ( curIndex < notes.Count )

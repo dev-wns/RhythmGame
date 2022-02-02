@@ -25,7 +25,6 @@ public struct Song
 
     public int noteCount;
     public int sliderCount;
-    public int timingCount;
     public int minBpm;
     public int maxBpm;
     public double medianBpm;
@@ -99,13 +98,14 @@ public struct Note
         sliderTime = _sliderTime;
         calcTime = 0f;
         calcSliderTime = 0f;
-        isSlider = false;
+        isSlider = sliderTime > 0d ? true : false;
         keySound = _keySound;
     }
 }
 
 public struct KeySound
 {
+    public int key;
     public float volume;
     public string name;
 
@@ -113,6 +113,13 @@ public struct KeySound
     {
         volume = _volume < .1f ? 100f : _volume;
         name = _name;
+        key = -1;
+    }
+    public KeySound( KeySound _sound )
+    {
+        key = _sound.key;
+        volume = _sound.volume;
+        name = _sound.name;
     }
 }
 
@@ -124,8 +131,13 @@ public struct KeySample
     public KeySample( double _time, string _name, float _volume )
     {
         time = _time;
-        sound.name = _name;
-        sound.volume = _volume;
+        sound = new KeySound( _volume, _name );
+    }
+
+    public KeySample( double _time, KeySound _sound )
+    {
+        time = _time;
+        sound = new KeySound( _sound );
     }
 }
 
@@ -144,6 +156,9 @@ public class FileConverter : FileReader
     private List<Note> notes = new List<Note>();
     private List<KeySample> samples = new List<KeySample>();
     private List<string> keySoundNames = new List<string>();
+    private List<int> removeKeys = new List<int>();
+    private SortedDictionary<int/*column px*/, List<Note>> lanes = new SortedDictionary<int, List<Note>>( new IntegerComparer() );
+    private List<int> keys = new List<int>();
 
     private readonly string virtualAudioName = "preview.wav";
 
@@ -249,10 +264,7 @@ public class FileConverter : FileReader
 
             // [Events]
             samples?.Clear();
-            samples ??= new List<KeySample>();
-
             keySoundNames.Clear();
-            keySoundNames ??= new List<string>();
 
             var directory = Path.GetDirectoryName( _path );
             while ( ReadLine() != "[TimingPoints]" )
@@ -281,7 +293,6 @@ public class FileConverter : FileReader
 
             #region Timings Parsing
             timings?.Clear();
-            timings ??= new List<Timing>();
 
             // [TimingPoints]
             double uninheritedBpm = 0d;
@@ -309,17 +320,13 @@ public class FileConverter : FileReader
                     timings.Add( timing );
                     prevTiming = timing;
                 }
-
-                song.timingCount++;
             }
             #endregion
 
             #region Notes Parsing
             notes?.Clear();
-            notes ??= new List<Note>();
-
-            SortedDictionary<int/*column px*/, List<Note>> lanes = new SortedDictionary<int, List<Note>>( new IntegerComparer() );
-            List<int> keys = new List<int>();
+            lanes?.Clear();
+            keys?.Clear();
             // [HitObjects]
             while ( ReadLineEndOfStream() )
             {
@@ -330,18 +337,9 @@ public class FileConverter : FileReader
                 double sliderTime = 0d;
 
                 string[] objParams = splitDatas[5].Split( ':' );
-                bool isSlider = int.Parse( splitDatas[3] ) == 128 ? true : false;
-                if ( isSlider )
+                if ( int.Parse( splitDatas[3] ) == 128 )
                 {
                     sliderTime = double.Parse( objParams[0] );
-                    
-                    song.sliderCount++;
-                    song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
-                }
-                else
-                {
-                    song.noteCount++;
-                    song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                 }
 
                 //int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * 6 / 512 );
@@ -363,8 +361,9 @@ public class FileConverter : FileReader
             }
             keys.Sort();
 
+
+            removeKeys?.Clear();
             int columnCount = lanes.Count;
-            List<int> removeKeys = new List<int>();
             switch ( lanes.Count )
             {
                 default:
@@ -383,23 +382,36 @@ public class FileConverter : FileReader
 
             // 잘려진 값의 키음들은 항상 재생되는 Sample로 만들어준다.
             int laneCount = 0;
-            foreach ( var key in lanes.Keys )
+            for ( int i = 0; i < keys.Count; i++ )
             {
+                var key = keys[i];
                 if ( removeKeys.Contains( key ) )
                 {
-                    foreach ( var note in lanes[key] )
+                    for ( int j = 0; j < lanes[key].Count; j++ )
                     {
-                        var sound = note.keySound;
-                        if ( sound.name != string.Empty && sound.name != null )
-                            samples.Add( new KeySample( note.time, sound.name, sound.volume ) );
+                        var note = lanes[key][j];
+                        if ( note.keySound.name != string.Empty && note.keySound.name != null )
+                             samples.Add( new KeySample( note.time, note.keySound ) );
                     }
                 }
                 else
                 {
-                    foreach ( var note in lanes[key] )
+                    for ( int j = 0; j < lanes[key].Count; j++ )
                     {
-                        var newNote = note;
+                        var newNote = lanes[key][j];
                         newNote.lane = laneCount;
+
+                        if ( newNote.isSlider )
+                        {
+                            song.sliderCount++;
+                            song.totalTime = song.totalTime >= newNote.sliderTime ? song.totalTime : ( int )newNote.sliderTime;
+                        }
+                        else
+                        {
+                            song.noteCount++;
+                            song.totalTime = song.totalTime >= newNote.time ? song.totalTime : ( int )newNote.time;
+                        }
+
                         notes.Add( newNote );
                     }
                     laneCount++;
@@ -470,7 +482,6 @@ public class FileConverter : FileReader
 
                     writer.WriteLine( $"NumNote: {_song.noteCount}" );
                     writer.WriteLine( $"NumSlider: {_song.sliderCount}" );
-                    writer.WriteLine( $"NumTiming: {_song.timingCount}" );
 
                     writer.WriteLine( $"MinBPM: {_song.minBpm}" );
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
