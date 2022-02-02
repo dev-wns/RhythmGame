@@ -24,7 +24,13 @@ public class SoundManager : SingletonUnity<SoundManager>
     //private FMOD.Channel sfxChannel;
 
     private FMOD.Channel keyChannel;
-    private Dictionary<string, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
+
+    struct KeySfx
+    {
+        public FMOD.Sound sound;
+        public FMOD.Channel channel;
+    }
+    private Dictionary<string, KeySfx> keySounds = new Dictionary<string, KeySfx>();
 
     public FMOD.DSP? FFT { get; private set; }
     private FMOD.DSP lowEffectEQ;
@@ -176,6 +182,13 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
         Debug.Log( $"SampleRate : {samplerRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
 
+        int numChannel = 0;
+        ErrorCheck( system.getSoftwareChannels( out numChannel ) );
+        Debug.Log( $"SoftwareChannel {numChannel}" );
+        ErrorCheck( system.setSoftwareChannels( 128 ) );
+        ErrorCheck( system.getSoftwareChannels( out numChannel ) );
+        Debug.Log( $"SoftwareChannel {numChannel}" );
+
         var bufferText  = SystemSetting.CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
         uint bufferSize = uint.Parse( bufferText );
         ErrorCheck( system.setDSPBufferSize( bufferSize, 4 ) );
@@ -247,10 +260,11 @@ public class SoundManager : SingletonUnity<SoundManager>
     {
         foreach ( var keySound in keySounds.Values )
         {
-            if ( keySound.hasHandle() )
+            var sound = keySound.sound;
+            if ( sound.hasHandle() )
             {
-                ErrorCheck( keySound.release() );
-                keySound.clearHandle();
+                ErrorCheck( sound.release() );
+                sound.clearHandle();
             }
         }
         keySounds.Clear();
@@ -271,10 +285,11 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         foreach ( var keySound in keySounds.Values )
         {
-            if ( keySound.hasHandle() )
+            var sound = keySound.sound;
+            if ( sound.hasHandle() )
             {
-                ErrorCheck( keySound.release() );
-                keySound.clearHandle();
+                ErrorCheck( sound.release() );
+                sound.clearHandle();
             }
         }
         keySounds.Clear();
@@ -379,9 +394,10 @@ public class SoundManager : SingletonUnity<SoundManager>
         if ( !System.IO.File.Exists( _path ) )
              throw new System.Exception( $"File Exists  {_path}" );
 
-        FMOD.Sound sound;
-        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out sound ) );
-        keySounds.Add( name, sound );
+        KeySfx keySound;
+        keySound.channel = new FMOD.Channel();
+        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out keySound.sound ) );
+        keySounds.Add( name, keySound );
     }
     #endregion
 
@@ -419,11 +435,14 @@ public class SoundManager : SingletonUnity<SoundManager>
             return;
         }
 
-        FMOD.Channel channel;
-        ErrorCheck( keySoundGroups[_lane].setVolume( _key.volume) );
-        ErrorCheck( system.playSound( keySounds[_key.name], keySoundGroups[_lane], false, out channel ) );
+        var keySound = keySounds[_key.name];
+        ErrorCheck( system.playSound( keySound.sound, keySoundGroups[_lane], false, out keySound.channel ) );
+        ErrorCheck( keySound.channel.setVolume( _key.volume) );
+        
+        int curChannel = 0;
+        ErrorCheck( system.getChannelsPlaying( out curChannel ) );
+        Debug.Log( curChannel );
     }
-
     #endregion
 
     #region ChannelGroup

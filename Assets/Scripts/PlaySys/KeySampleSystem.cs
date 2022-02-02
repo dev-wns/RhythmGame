@@ -36,7 +36,6 @@ public class KeySampleSystem : MonoBehaviour
 
             if ( ++curIndex < samples.Count )
                  curTime = samples[curIndex].time;
-
         }
     }
 }
