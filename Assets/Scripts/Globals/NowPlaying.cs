@@ -108,7 +108,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             IsPlaying = false;
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
-            savedTime = waitTime + Playback;
+            savedTime = Playback >= 0d ? waitTime + Playback : 0d;
         }
         else
         {
@@ -131,7 +131,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         IsPlaying = true;
 
-        yield return new WaitUntil( () => Playback >= savedTime - waitTime );// GameSetting.SoundOffset * .001d );
+        yield return new WaitUntil( () => Playback >= savedTime - waitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
 
@@ -158,6 +158,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
     }
 
+    /// <returns> Time including BPM. </returns>
     public double GetChangedTime( double _time ) // BPM 변화에 따른 시간 계산
     {
         var timings = CurrentChart.timings;
