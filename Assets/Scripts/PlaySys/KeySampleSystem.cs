@@ -38,17 +38,26 @@ public class KeySampleSystem : MonoBehaviour
     private IEnumerator Process()
     {
         if ( samples.Count > 0 )
-            curTime = samples[curIndex].time;
+             curTime = samples[curIndex].time;
 
         WaitUntil waitNextSample = new WaitUntil( () => curTime <= NowPlaying.Playback );
+        
         while ( curIndex < samples.Count )
         {
             yield return waitNextSample;
 
-            SoundManager.Inst.Play( samples[curIndex].sound );
-
-            if ( ++curIndex < samples.Count )
-                 curTime = samples[curIndex].time;
+            while ( curIndex < samples.Count )
+            {
+                if ( curTime == samples[curIndex].time )
+                {
+                    SoundManager.Inst.Play( samples[curIndex++].sound );
+                }
+                else
+                {
+                    curTime = samples[curIndex].time;
+                    break;
+                }
+            }
         }
     }
 }
