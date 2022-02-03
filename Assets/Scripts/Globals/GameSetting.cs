@@ -56,7 +56,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static double OriginScrollSpeed = 13.5f;
+    private static double OriginScrollSpeed = 7.0d;
     public static double ScrollSpeed
     {
 
@@ -73,11 +73,10 @@ public class GameSetting : SingletonUnity<GameSetting>
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static double Weight { get { return 60d / NowPlaying.Inst.CurrentSong.medianBpm * ScrollSpeed * 3d ; } }
-    public static double PreLoadTime { get { return ( 1500d / Weight ); } }
+    public static double Weight => ( 320d * ScrollSpeed ) / NowPlaying.Inst.CurrentSong.medianBpm;
+    public static double PreLoadTime => ( 1500d / Weight );
 
     // Sound
-    public static float SoundPitch = 1f;
     public static double SoundOffset = -50d;
 
     // Opacity Percentage ( 0 ~ 100 )
@@ -99,11 +98,11 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float NoteWidth  = 80f;
     public static float NoteHeight = 30f;
     public static float NoteBlank  = 2f;
-    public static float NoteStartPos { get { return -( ( NoteWidth * 5f ) + ( NoteBlank * 7f ) ) * .5f; } }
+    public static float NoteStartPos => -( ( NoteWidth * 5f ) + ( NoteBlank * 7f ) ) * .5f;
 
     // Gear
-    public static float GearStartPos { get { return ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f ); } }
-    public static float GearWidth    { get { return (  ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ); } }
+    public static float GearStartPos => ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f );
+    public static float GearWidth    => ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) );
 
     public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
     private readonly KeyCode[] defaultKeys = new KeyCode[]

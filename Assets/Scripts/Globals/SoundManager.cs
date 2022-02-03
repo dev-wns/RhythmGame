@@ -378,10 +378,10 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public int GetSampleKey( string _name )
     {
-        if ( !keySoundTemps.ContainsKey( _name ) )
-             throw new Exception( $"There is no corresponding KeySoundSample. {_name}" );
-        
-        return keySoundTemps[_name];
+        if ( keySoundTemps.ContainsKey( _name ) )
+             return keySoundTemps[_name];
+
+        return -1;
     }
     #endregion
 
