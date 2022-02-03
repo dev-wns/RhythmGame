@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -79,35 +80,6 @@ public class SoundManager : SingletonUnity<SoundManager>
             ErrorCheck( bgmChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
         }
     }
-    public float Pitch
-    {
-        get
-        {
-            if ( !IsPlaying( ChannelType.BGM ) )
-            {
-                Debug.LogError( "bgm is not playing" );
-                throw new System.Exception( "bgm is not playing" );
-            }
-
-            float pitch;
-            ErrorCheck( groups[ChannelType.BGM].getPitch( out pitch ) );
-            return pitch;
-        }
-
-        set
-        {
-            if ( !IsPlaying( ChannelType.BGM ) )
-            {
-                Debug.LogError( "bgm is not playing" );
-                throw new System.Exception( "bgm is not playing" );
-            }
-
-            float pitch = value;
-            if ( pitch < minPitch ) pitch = minPitch;
-            if ( pitch > maxPitch ) pitch = maxPitch;
-            ErrorCheck( groups[ChannelType.BGM].setPitch( pitch ) );
-        }
-    }
     public uint Length
     {
         get
@@ -124,9 +96,8 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
     }
     private bool hasAccurateTime = false;
-    private readonly float minPitch = .7f, maxPitch = 1.3f;
 
-    public event System.Action OnSoundSystemReLoad;
+    public event Action OnSoundSystemReLoad;
     public bool IsLoad { get; private set; } = false;
     #endregion
 
@@ -159,7 +130,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
         Debug.Log( $"buffer size : {bufferSize} numbuffers : {numbuffers}" );
 
-        System.IntPtr extraDriverData = new System.IntPtr();
+        IntPtr extraDriverData = new IntPtr();
         ErrorCheck( system.init( MaxVirtualChannels, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
         uint version;
         ErrorCheck( system.getVersion( out version ) );
@@ -305,7 +276,8 @@ public class SoundManager : SingletonUnity<SoundManager>
     private void Awake() => Initialize();
     private void Update()
     {
-        if ( !IsLoad ) system.update();
+        if ( !IsLoad ) 
+             system.update();
     }
     private void OnApplicationQuit() => Release();
     #endregion
@@ -313,7 +285,6 @@ public class SoundManager : SingletonUnity<SoundManager>
     #region Load
     public void LoadBgm( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
     {
-        //Globals.Timer.Start();
         hasAccurateTime = _hasAccurateTime;
 
         FMOD.MODE mode = FMOD.MODE.CREATESAMPLE;
@@ -330,7 +301,6 @@ public class SoundManager : SingletonUnity<SoundManager>
             bgmSound.clearHandle();
         }
         bgmSound = sound;
-        //Debug.Log( $"Sound Load {Globals.Timer.End} ms" );
     }
 
     private void LoadSfx( SoundSfxType _type, string _path )
@@ -353,7 +323,7 @@ public class SoundManager : SingletonUnity<SoundManager>
              return;
 
         if ( !System.IO.File.Exists( _path ) )
-             throw new System.Exception( $"File Exists  {_path}" );
+             throw new Exception( $"File Exists  {_path}" );
 
         FMOD.Sound sound;
         ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out sound ) );
@@ -364,10 +334,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #region Play
-    /// <summary>
-    /// Play Background Music
-    /// </summary>
-    /// <param name="_isPause"></param>
+    /// <summary> Play Background Music </summary>
     public void Play( bool _isPause = false )
     {
         if ( !bgmSound.hasHandle() )
@@ -382,10 +349,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.playSound( bgmSound, groups[ChannelType.BGM], false, out bgmChannel ) );
     }
 
-    /// <summary>
-    /// Play Sound Special Effects
-    /// </summary>
-    /// <param name="_type"></param>
+    /// <summary> Play Sound Special Effects </summary>
     public void Play( SoundSfxType _type )
     {
         if ( !sfxSounds.ContainsKey( _type ) )
@@ -398,11 +362,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Sfx], false, out channel ) );
     }
 
-    /// <summary>
-    /// Play Key Sound Effects
-    /// </summary>
-    /// <param name="_key"></param>
-    /// <param name="_type"></param>
+    /// <summary> Play Key Sound Effects </summary>
     public void Play( KeySound _key )
     {
         if ( _key.name == string.Empty || !keySounds.ContainsKey( _key.key ) )
@@ -418,10 +378,10 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public int GetSampleKey( string _name )
     {
-        if ( keySoundTemps.ContainsKey( _name ) )
-             return keySoundTemps[_name];
-
-        return -1;
+        if ( !keySoundTemps.ContainsKey( _name ) )
+             throw new Exception( $"There is no corresponding KeySoundSample. {_name}" );
+        
+        return keySoundTemps[_name];
     }
     #endregion
 
@@ -487,7 +447,6 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
     }
 
-    /// <summary>
     /// A ~ E  5 bands 
     /// 1. filter( int ) Default = FMOD_DSP_MULTIBAND_EQ_FILTER.LOWPASS_12DB
     /// 2. frequency( float ) Default = 8000, Range = 20 ~ 22000
@@ -498,7 +457,6 @@ public class SoundManager : SingletonUnity<SoundManager>
     /// 4. gain( float ) Default = 0, Range = -30 ~ 30, Unit = Decibels( dB )
     ///    선택한 대역의 증폭, 감소
     ///    Boost or attenuation [high/low shelf and peaking only]
-    /// </summary>
     private void CreateLowEffectDsp()
     {
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out lowEffectEQ ) );
