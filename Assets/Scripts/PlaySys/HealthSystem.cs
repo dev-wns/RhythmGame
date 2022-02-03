@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class HealthSystem : MonoBehaviour
 {
+    private InGame scene;
     private Judgement judge;
     private float curHealth;
     public static readonly float MaxHealth = 100f;
@@ -13,9 +14,17 @@ public class HealthSystem : MonoBehaviour
 
     private void Awake()
     {
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        scene.OnReLoad += ReLoad;
+
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += HealthUpdate;
 
+        curHealth = MaxHealth;
+    }
+
+    private void ReLoad()
+    {
         curHealth = MaxHealth;
     }
 

@@ -20,9 +20,20 @@ public class ScoreSystem : MonoBehaviour
 
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
+        scene.OnReLoad += ReLoad;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreImageUpdate;
+    }
+
+    private void ReLoad()
+    {
+        curScore = 0d;
+
+        for ( int i = 0; i < images.Count; i++ )
+        {
+            images[i].sprite = sprites[0];
+        }
     }
 
     private void Initialize( in Chart _chart )
@@ -66,6 +77,5 @@ public class ScoreSystem : MonoBehaviour
             images[i].sprite = sprites[( int )calcCurScore % 10];
             calcCurScore  *= .1d;
         }
-
     }
 }

@@ -18,7 +18,7 @@ public class YieldCache : MonoBehaviour
     }
 
     private static readonly Dictionary<float/*time*/, WaitForSeconds> times = new Dictionary<float, WaitForSeconds>( new FloatComparer() );
-
+    public static readonly WaitForEndOfFrame WaitForEndOfFrame = new WaitForEndOfFrame();
     public static WaitForSeconds WaitForSeconds( float _time )
     {
         WaitForSeconds wfs;

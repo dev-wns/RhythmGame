@@ -63,11 +63,18 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         //     Stop();
     }
 
-    public void Initialize()
+    public void Stop()
     {
+        StopAllCoroutines();
         IsPlaying = false;
         Playback = waitTime;
+        savedTime = 0d;
         PlaybackChanged = 0d;
+    }
+
+    public void Initialize()
+    {
+        Stop();
 
         totalTime = curSong.totalTime * .001d;
         using ( FileParser parser = new FileParser() )
@@ -83,16 +90,11 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
     }
 
-    public void Stop()
+    public void Play()
     {
-        StopAllCoroutines();
-        IsPlaying = false;
-        Playback = waitTime;
-        PlaybackChanged = 0d;
-        SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
+        SoundManager.Inst.ReleaseTemps();
+        StartCoroutine( MusicStart() );
     }
-
-    public void Play() => StartCoroutine( MusicStart() );
 
     /// <returns>False : Playback is higher than the Last Note Time.</returns>
     public bool Pause( bool _isPause )

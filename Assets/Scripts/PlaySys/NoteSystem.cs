@@ -20,11 +20,19 @@ public class NoteSystem : MonoBehaviour
         lane = GetComponent<Lane>();
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         CurrentScene.OnGameStart += () => StartCoroutine( Process() );
+        CurrentScene.OnReLoad += ReLoad;
         CurrentScene.OnScrollChanged += ScrollUpdate;
 
         nPool = new ObjectPool<NoteRenderer>( nPrefab, 10 );
 
         ScrollUpdate();
+    }
+
+    private void ReLoad()
+    {
+        StopAllCoroutines();
+        curIndex = 0;
+        curNote = new Note();
     }
 
     private void OnDestroy() => CurrentScene.OnScrollChanged -= ScrollUpdate;

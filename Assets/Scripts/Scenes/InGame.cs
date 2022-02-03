@@ -13,6 +13,7 @@ public class InGame : Scene
     public event Action OnGameStart;
     public event Action OnScrollChanged;
     public event Action OnPause;
+    public event Action OnReLoad;
 
     protected override void Awake()
     {
@@ -26,7 +27,6 @@ public class InGame : Scene
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
         OnGameStart();
 
-        SoundManager.Inst.ReleaseTemps();
         NowPlaying.Inst.Play();
     }
 
@@ -37,7 +37,15 @@ public class InGame : Scene
 
     public void Restart()
     {
-        SceneChanger.Inst.LoadScene( SceneType.Game );
+        ChangeAction( SceneAction.Main );
+        pauseCanvas.SetActive( false );
+        NowPlaying.Inst.Stop();
+        SoundManager.Inst.AllStop();
+
+        OnReLoad?.Invoke();
+
+        OnGameStart?.Invoke();
+        NowPlaying.Inst.Play();
     }
 
     public void Pause( bool _isPuase )
@@ -45,6 +53,7 @@ public class InGame : Scene
         if ( !NowPlaying.Inst.Pause( _isPuase ) )
         {
             NowPlaying.Inst.Stop();
+            SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
         }
         else
         {

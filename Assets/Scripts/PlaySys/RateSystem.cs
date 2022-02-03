@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class RateSystem : MonoBehaviour
 {
+    private InGame scene;
     private Judgement judge;
     private CustomHorizontalLayoutGroup layoutGroup;
     public List<Sprite> sprites = new List<Sprite>();
@@ -16,11 +17,29 @@ public class RateSystem : MonoBehaviour
 
     private void Awake()
     {
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        scene.OnReLoad += ReLoad;
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
         images.Reverse();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateUpdate;
+    }
+
+    private void ReLoad()
+    {
+        curMaxCount = 0;
+        curRate = 0d;
+        curNum = prevNum = 0;
+
+        images[images.Count - 1].gameObject.SetActive( true );
+        images[images.Count - 1].sprite = sprites[1];
+        for ( int i = 0; i < images.Count - 1; i++ )
+        {
+            images[i].gameObject.SetActive( true );
+            images[i].sprite = sprites[0];
+        }
+        layoutGroup.SetLayoutHorizontal();
     }
 
     private void RateUpdate( HitResult _type )

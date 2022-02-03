@@ -25,11 +25,28 @@ public class BpmChanger : MonoBehaviour
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>(); 
         scene.OnSystemInitialize += Initialize;
         scene.OnGameStart += StartProcess;
+        scene.OnReLoad += ReLoad;
 
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
         images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
         images.Reverse();
+    }
+
+    private void ReLoad()
+    {
+        StopAllCoroutines();
+        prevNum = curNum = 0;
+        curIndex = 0;
+        curTiming = new Timing();
+
+        images[0].gameObject.SetActive( true );
+        images[0].sprite = sprites[0];
+        for ( int i = 1; i < images.Count; i++ )
+        {
+            images[i].gameObject.SetActive( false );
+        }
+        layoutGroup.SetLayoutHorizontal();
     }
 
     private void Initialize( in Chart _chart )
@@ -71,6 +88,7 @@ public class BpmChanger : MonoBehaviour
             if ( prevNum != curNum )
                 layoutGroup.SetLayoutHorizontal();
 
+            prevNum = curNum;
             curIndex++;
         }
     }

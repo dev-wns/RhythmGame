@@ -7,6 +7,7 @@ using DG.Tweening;
 public class ComboSystem : MonoBehaviour
 {
     public List<Sprite> sprites = new List<Sprite>();
+    private InGame scene;
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
@@ -25,10 +26,28 @@ public class ComboSystem : MonoBehaviour
         images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
         images.Reverse();
 
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        scene.OnReLoad += ReLoad;
+
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
 
         posCache = tf.position;
+    }
+    
+    private void ReLoad()
+    {
+        prevNum = curNum = 0;
+        prevCombo = -1; 
+        curCombo = 0;
+
+        images[0].gameObject.SetActive( true );
+        images[0].sprite = sprites[0];
+        for ( int i = 1; i < images.Count; i++ )
+        {
+            images[i].gameObject.SetActive( false );
+        }
+        layoutGroup.SetLayoutHorizontal();
     }
 
     private void Start()

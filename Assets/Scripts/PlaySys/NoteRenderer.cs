@@ -50,7 +50,6 @@ public class NoteRenderer : MonoBehaviour
         system    = _system;
         note      = _data;
         newTime   = _data.calcTime;
-        IsPressed = false;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
 
@@ -74,6 +73,7 @@ public class NoteRenderer : MonoBehaviour
 
     public void Despawn()
     {
+        IsPressed = false;
         system.Despawn( this );
     }
 

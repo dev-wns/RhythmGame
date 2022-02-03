@@ -15,6 +15,14 @@ public class KeySampleSystem : MonoBehaviour
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
         scene.OnGameStart += () => StartCoroutine( Process() );
+        scene.OnReLoad += ReLoad;
+    }
+
+    private void ReLoad()
+    {
+        StopAllCoroutines();
+        curIndex = 0;
+        curTime = 0d;
     }
 
     private void Initialize( in Chart _chart )

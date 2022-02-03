@@ -31,6 +31,7 @@ public class InputSystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnGameStart += () => StartCoroutine( NoteSelect() );
+        scene.OnReLoad += ReLoad;
         scene.OnPause += DuringPauseProcess;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
@@ -55,6 +56,26 @@ public class InputSystem : MonoBehaviour
                 else                    CheckNote();
             };
         }
+    }
+    private void ReLoad()
+    {
+        StopAllCoroutines();
+        curSound = new KeySound();
+        playback = 0f;
+        while ( sliderMissQueue.Count > 0 )
+        {
+            var note = sliderMissQueue.Dequeue();
+            note.Despawn();
+        }
+
+        while ( notes.Count > 0 )
+        {
+            var note = notes.Dequeue();
+            note.Despawn();
+        }
+
+        curNote?.Despawn();
+        curNote = null;
     }
 
     /// <summary>

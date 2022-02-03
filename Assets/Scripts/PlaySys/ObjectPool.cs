@@ -42,9 +42,7 @@ public class ObjectPool<T> where T : MonoBehaviour
         {
             T obj = UnityEngine.GameObject.Instantiate( poolableObject, parent );
 
-            if ( obj.isActiveAndEnabled )
-                 obj.gameObject.SetActive( false );
-
+            obj.gameObject.SetActive( false );
             pool.Push( obj );
         }
     }
@@ -57,18 +55,14 @@ public class ObjectPool<T> where T : MonoBehaviour
         }
 
         T obj = pool.Pop();
-
-        if ( !obj.isActiveAndEnabled )
-             obj.gameObject.SetActive( true );
+        obj.gameObject.SetActive( true );
 
         return obj;
     }
 
     public void Despawn( T _obj )
     {
-        if ( _obj.isActiveAndEnabled )
-             _obj.gameObject.SetActive( false );
-
+        _obj.gameObject.SetActive( false );
         pool.Push( _obj );
     }
 }

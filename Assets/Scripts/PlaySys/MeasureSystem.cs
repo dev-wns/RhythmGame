@@ -21,6 +21,7 @@ public class MeasureSystem : MonoBehaviour
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowMeasure ) != 0 )
         {
             scene.OnSystemInitialize += Initialize;
+            scene.OnReLoad += ReLoad;
             scene.OnGameStart += () => StartCoroutine( Process() );
             scene.OnScrollChanged += ScrollUpdate;
         }
@@ -28,6 +29,13 @@ public class MeasureSystem : MonoBehaviour
         mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
 
         ScrollUpdate();
+    }
+
+    private void ReLoad()
+    {
+        StopAllCoroutines();
+        curIndex = 0;
+        curTime = 0d;
     }
 
     private void OnDestroy() => scene.OnScrollChanged -= ScrollUpdate;
