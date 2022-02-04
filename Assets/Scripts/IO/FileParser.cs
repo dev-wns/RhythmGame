@@ -43,7 +43,8 @@ public class FileParser : FileReader
                 {
                     string videoName = SplitAndTrim( ':' );
 
-                    if ( videoName == string.Empty ) _song.hasVideo = false;
+                    if ( videoName == string.Empty ) 
+                         _song.hasVideo = false;
                     else
                     {
                         _song.videoPath = Path.Combine( directory, videoName );

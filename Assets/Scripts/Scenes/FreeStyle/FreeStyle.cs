@@ -8,6 +8,14 @@ public class FreeStyle : Scene
 {
     public GameObject optionCanvas;
 
+    protected override void Awake()
+    {
+        base.Awake();
+
+        var judge = GameObject.FindGameObjectWithTag( "Judgement" );
+        if ( judge ) Destroy( judge );
+    }
+
     public override void KeyBind()
     {
         Bind( SceneAction.Main, KeyCode.Space, () => optionCanvas.SetActive( true ) );

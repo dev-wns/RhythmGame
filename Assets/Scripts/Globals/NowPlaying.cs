@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
@@ -37,6 +38,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private double totalTime;
 
+    public event Action OnResult;
+
     private void Awake()
     {
         //using ( FileConverter converter = new FileConverter() )
@@ -59,8 +62,11 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         Playback = savedTime + ( System.DateTime.Now.TimeOfDay.TotalSeconds - startTime );
         PlaybackChanged = GetChangedTime( Playback );
 
-        //if ( Playback >= totalTime + 1.5d )
-        //     Stop();
+        if ( Playback >= totalTime + 3d )
+        {
+            Stop();
+            OnResult?.Invoke();
+        }
     }
 
     public void Stop()
@@ -100,7 +106,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public bool Pause( bool _isPause )
     {
         if ( Playback >= totalTime )
-             return false;
+        {
+            OnResult?.Invoke();
+            return false;
+        }
 
 
         if ( _isPause )

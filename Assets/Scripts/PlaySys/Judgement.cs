@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow }
+public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Count }
 
 public class Judgement : MonoBehaviour
 {
@@ -15,11 +15,32 @@ public class Judgement : MonoBehaviour
 
     public event Action<HitResult> OnJudge;
 
+    private Dictionary<HitResult, int /* count */> results = new Dictionary<HitResult, int>();
+
     private void Awake()
     {
-        var rt = transform as RectTransform;
-        rt.anchoredPosition = new Vector3( 0f, GameSetting.JudgePos, -1f );
-        rt.sizeDelta        = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
+        DontDestroyOnLoad( gameObject );
+    }
+
+    public int GetResult( HitResult _type )
+    {
+        if ( results.ContainsKey( _type ) )
+        {
+            Debug.LogError( $"type is not found key {_type}" );
+            return -1;
+        }
+
+        return results[_type];
+    }
+
+    public void SetResult( HitResult _type, int _count )
+    {
+        if ( results.ContainsKey( _type ) )
+            results[_type] = _count;
+        else
+            results.Add( _type, _count );
+
+        Debug.Log( $"{_type}  {results[_type]}" );
     }
 
     public bool CanBeHit( double _timeOffset )

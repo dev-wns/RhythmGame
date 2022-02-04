@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Gear : MonoBehaviour
 {
-    public RectTransform bgRT, leftRT, rightRT;
+    public RectTransform bgRT, leftRT, rightRT, judge;
     private Image background;
 
     private void Awake()
@@ -18,6 +18,9 @@ public class Gear : MonoBehaviour
         bgRT = background.rectTransform;
         bgRT.anchoredPosition = Vector3.zero;
         bgRT.sizeDelta        = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
+
+        judge.anchoredPosition = new Vector3( 0f, GameSetting.JudgePos, -1f );
+        judge.sizeDelta = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
 
         bool isEnabled = GameSetting.PanelOpacity <= .1f ? false : true;
         if ( isEnabled )

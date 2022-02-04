@@ -55,7 +55,7 @@ public class ComboSystem : MonoBehaviour
         sequence = DOTween.Sequence();
 
         sequence.Pause().SetAutoKill( false );
-        sequence.Append( tf.DOMoveY( posCache.y + 50f, .15f ) );
+        sequence.Append( tf.DOMoveY( posCache.y + 25f, .15f ) );
     }
 
     private void OnDestroy()

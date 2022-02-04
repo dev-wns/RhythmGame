@@ -46,6 +46,12 @@ public class KeySampleSystem : MonoBehaviour
         {
             yield return waitNextSample;
 
+            // 한 프레임 한 샘플 재생
+            //SoundManager.Inst.Play( samples[curIndex].sound );
+            //if ( ++curIndex < samples.Count )
+            //     curTime = samples[curIndex].time;
+
+            // 같은 시간 동시 재생
             while ( curIndex < samples.Count )
             {
                 if ( curTime == samples[curIndex].time )

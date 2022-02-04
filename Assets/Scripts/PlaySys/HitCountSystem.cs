@@ -26,7 +26,16 @@ public class HitCountSystem : MonoBehaviour
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += AddCount;
+
+        NowPlaying.Inst.OnResult += Result;
     }
+
+    private void OnDestroy()
+    {
+        NowPlaying.Inst.OnResult -= Result;
+    }
+
+    private void Result() => judge.SetResult( type, curCount );
 
     private void ReLoad()
     {

@@ -124,7 +124,11 @@ public class InputSystem : MonoBehaviour
     {
         playback = 0f;
 
-        if ( _isDespawn ) curNote.Despawn();
+        if ( _isDespawn )
+        {
+            curNote.gameObject.SetActive( false );
+            curNote.Despawn();
+        }
         curNote = null;
     }
 

@@ -96,8 +96,8 @@ public struct Note
         lane = _lane;
         time = _time;
         sliderTime = _sliderTime;
-        calcTime = 0f;
-        calcSliderTime = 0f;
+        calcTime = 0d;
+        calcSliderTime = 0d;
         isSlider = sliderTime > 0d ? true : false;
         keySound = _keySound;
     }
@@ -302,10 +302,11 @@ public class FileConverter : FileReader
                 string[] splitDatas = line.Split( ',' );
                 if ( splitDatas.Length != 8 ) continue;
 
+                // 상속된 BeatLength는 음수이기 때문에 절대값 변환 후 계산한다.
                 double beatLength = Globals.Abs( double.Parse( splitDatas[1] ) );
                 double BPM = 1d / beatLength * 60000d;
 
-                // 상속된 bpm은 부모 bpm의 백분율 값을 가진다.
+                // 상속된 bpm은 부모 bpm의 역백분율 값을 가진다. ( 100 = 1배, 50 = 2배 ... )
                 bool isUninherited = int.Parse( splitDatas[6] ) == 0 ? false : true;
                 if ( isUninherited ) uninheritedBpm = BPM;
                 else                 BPM = ( uninheritedBpm * 100d ) / beatLength;
@@ -331,7 +332,6 @@ public class FileConverter : FileReader
             while ( ReadLineEndOfStream() )
             {
                 string[] splitDatas = line.Split( ',' );
-                if ( splitDatas.Length != 6 ) continue;
 
                 double noteTime = double.Parse( splitDatas[2] );
                 double sliderTime = 0d;
@@ -361,9 +361,7 @@ public class FileConverter : FileReader
             }
             keys.Sort();
 
-
             removeKeys?.Clear();
-            int columnCount = lanes.Count;
             switch ( lanes.Count )
             {
                 default:
@@ -380,7 +378,7 @@ public class FileConverter : FileReader
                 break;
             }
 
-            // 잘려진 값의 키음들은 항상 재생되는 Sample로 만들어준다.
+            // 잘려진 값의 키음들은 자동으로 재생되는 Sample로 만들어준다.
             int laneCount = 0;
             for ( int i = 0; i < keys.Count; i++ )
             {
@@ -580,7 +578,7 @@ public class FileConverter : FileReader
             if ( !isFind ) medianCalc.Add( new CalcMedianTiming( timings[i].time - prevTime, prevBpm ) );
         }
 
-        // 내림차순 정렬
+        // 오름차순 정렬 ( 가장 긴 BPM시간이 첫번째요소가 되도록 )
         medianCalc.Sort( delegate ( CalcMedianTiming A, CalcMedianTiming B )
         {
             if ( A.time < B.time )      return 1;
