@@ -77,7 +77,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static double PreLoadTime => ( 1500d / Weight );
 
     // Sound
-    public static double SoundOffset = -50d;
+    public static double SoundOffset = 0d;
 
     // Opacity Percentage ( 0 ~ 100 )
     public static float BGAOpacity   = 50f;
