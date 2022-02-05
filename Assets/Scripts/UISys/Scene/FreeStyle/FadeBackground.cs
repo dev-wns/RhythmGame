@@ -34,30 +34,11 @@ public class FadeBackground : MonoBehaviour
         }
     }
 
-    private Vector3 GetFullScreenRatio( Texture2D _tex )
-    {
-        float width  = _tex.width;
-        float height = _tex.height;
-
-        float offsetX = ( float )Screen.width / _tex.width;
-        width  *= offsetX;
-        height *= offsetX;
-
-        float offsetY = ( float )Screen.height / height;
-        if ( offsetY > 1f )
-        {
-            width  *= offsetY;
-            height *= offsetY;
-        }
-
-        return new Vector3( width, height, 1f );
-    }
-
     public void SetInfo( Sprite _sprite, bool _isDefault = true )
     {
         isDefault = _isDefault;
         rt.anchoredPosition = new Vector3( 0f, 0f, depth += .00001f );
-        rt.sizeDelta        = GetFullScreenRatio( _sprite.texture );
+        rt.sizeDelta        = Globals.GetScreenRatio( _sprite.texture, new Vector2( Screen.width, Screen.height ) );
         image.color = new Color( 1f, 1f, 1f, 0f );
         image.sprite        = _sprite;
         image.DOFade( 1f, fadeTime );

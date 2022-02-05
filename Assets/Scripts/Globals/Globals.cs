@@ -27,6 +27,29 @@ public static class Globals
                ( _value >= 1000u )       ? 3 : ( _value >= 100u )       ? 2 : 
                ( _value >= 10u )         ? 1 : 0;
     }
+
+    /// <summary>
+    /// Returns the calculated value of the ratio to the screen.
+    /// </summary>
+    /// <param name="_screen"> The value is adjusted based on this value. </param>
+    public static Vector3 GetScreenRatio( Texture2D _tex, Vector2 _screen )
+    {
+        float width = _tex.width;
+        float height = _tex.height;
+
+        float offsetX = _screen.x / _tex.width;
+        width *= offsetX;
+        height *= offsetX;
+
+        float offsetY = _screen.y / height;
+        if ( offsetY > 1f )
+        {
+            width  *= offsetY;
+            height *= offsetY;
+        }
+
+        return new Vector3( width, height, 1f );
+    }
 }
 
 public static class Debug

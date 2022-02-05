@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 using TMPro;
 
 public class ResultInfomation : MonoBehaviour
@@ -21,6 +22,14 @@ public class ResultInfomation : MonoBehaviour
 
     [Header( "Rank" )]
     public Image rank;
+
+    [Header( "Background" )]
+    public Sprite defaultOrigin;
+    public Sprite defaultCircle;
+    public Image originBg;
+    public Image circleBg;
+    private Sprite spriteBg;
+    private Texture2D tex;
 
     private void Awake()
     {
@@ -47,6 +56,55 @@ public class ResultInfomation : MonoBehaviour
         score.text    = judge.GetResult( HitResult.Score ).ToString();
         rate.text     = $"{( judge.GetResult( HitResult.Rate ) / 100d ):F2}%";
 
+        // background
+        StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+
         Destroy( judge );
+    }
+
+    private void OnDestroy()
+    {
+        if ( tex ) DestroyImmediate( tex );
+    }
+
+    private IEnumerator LoadBackground( string _path )
+    {
+        bool isExist = System.IO.File.Exists( _path );
+        if ( isExist )
+        {
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path ) )
+            {
+                www.method = UnityWebRequest.kHttpVerbGET;
+                using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
+                {
+                    www.downloadHandler = handler;
+                    yield return www.SendWebRequest();
+
+                    if ( www.result == UnityWebRequest.Result.ConnectionError ||
+                         www.result == UnityWebRequest.Result.ProtocolError )
+                    {
+                        Debug.LogError( $"UnityWebRequest Error : {www.error}" );
+                        throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
+                    }
+
+                    tex = handler.texture;
+                    spriteBg = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+                }
+            }
+
+            originBg.sprite = spriteBg;
+            circleBg.sprite = spriteBg;
+
+            originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( Screen.width, Screen.height ) );
+            circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( 500f, 500f ) );
+        }
+        else
+        {
+            originBg.sprite = defaultOrigin;
+            circleBg.sprite = defaultCircle;
+
+            originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultOrigin.texture, new Vector2( Screen.width, Screen.height ) );
+            circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultCircle.texture, new Vector2( 500f, 500f ) );
+        }
     }
 }
