@@ -24,7 +24,15 @@ public class RateSystem : MonoBehaviour
         images.Reverse();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateUpdate;
+        NowPlaying.Inst.OnResult += Result;
     }
+
+    private void OnDestroy()
+    {
+        NowPlaying.Inst.OnResult -= Result;
+    }
+
+    private void Result() => judge.SetResult( HitResult.Rate, ( int )Globals.Round( curRate / curMaxCount ) );
 
     private void ReLoad()
     {

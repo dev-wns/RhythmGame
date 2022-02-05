@@ -55,7 +55,7 @@ public class InGame : Scene
         if ( !NowPlaying.Inst.Pause( _isPuase ) )
         {
             NowPlaying.Inst.Stop();
-            SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
+            SceneChanger.Inst.LoadScene( SceneType.Result );
         }
         else
         {

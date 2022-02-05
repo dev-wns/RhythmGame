@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Count }
+public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate, Combo, Score, Count }
 
 public class Judgement : MonoBehaviour
 {
@@ -24,7 +24,7 @@ public class Judgement : MonoBehaviour
 
     public int GetResult( HitResult _type )
     {
-        if ( results.ContainsKey( _type ) )
+        if ( !results.ContainsKey( _type ) )
         {
             Debug.LogError( $"type is not found key {_type}" );
             return -1;

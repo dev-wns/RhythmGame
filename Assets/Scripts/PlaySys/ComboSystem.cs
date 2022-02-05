@@ -11,6 +11,7 @@ public class ComboSystem : MonoBehaviour
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
+    private int maxCombo;
     private int prevCombo = -1, curCombo;
     private int prevNum, curNum;
     private Sequence sequence;
@@ -33,10 +34,14 @@ public class ComboSystem : MonoBehaviour
         judge.OnJudge += ComboUpdate;
 
         posCache = tf.position;
+        NowPlaying.Inst.OnResult += Result;
     }
-    
+
+    private void Result() => judge.SetResult( HitResult.Combo, maxCombo );
+
     private void ReLoad()
     {
+        maxCombo = 0;
         prevNum = curNum = 0;
         prevCombo = -1; 
         curCombo = 0;
@@ -61,6 +66,7 @@ public class ComboSystem : MonoBehaviour
     private void OnDestroy()
     {
         sequence?.Kill();
+        NowPlaying.Inst.OnResult -= Result;
     }
 
     private void ComboUpdate( HitResult _type )
@@ -83,6 +89,8 @@ public class ComboSystem : MonoBehaviour
             curCombo = 0;
             break;
         }
+
+        maxCombo = maxCombo < curCombo ? curCombo : maxCombo;
 
         if ( curCombo == 0 )
         {

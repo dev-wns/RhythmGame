@@ -5,13 +5,17 @@ using TMPro;
 
 public class SettingInfomation : MonoBehaviour
 {
-    private InGame game;
     public TextMeshProUGUI speed, offset, random, auto, noSlider, noFail;
 
     private void Awake()
     {
-        game = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        game.OnScrollChanged += () => speed.text = $"{GameSetting.ScrollSpeed:F1}";
+        var scene = GameObject.FindGameObjectWithTag( "Scene" );
+        if ( scene )
+        {
+            InGame game;
+            if ( scene.TryGetComponent( out game ) ) 
+                 game.OnScrollChanged += () => speed.text = $"{GameSetting.ScrollSpeed:F1}";
+        }
 
         speed.text  = $"{GameSetting.ScrollSpeed:F1}";
         offset.text = $"{Globals.Round( GameSetting.SoundOffset )}";

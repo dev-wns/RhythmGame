@@ -66,6 +66,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         {
             Stop();
             OnResult?.Invoke();
+            SceneChanger.Inst.LoadScene( SceneType.Result );
         }
     }
 

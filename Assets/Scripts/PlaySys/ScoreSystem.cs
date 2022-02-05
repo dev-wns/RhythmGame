@@ -24,7 +24,15 @@ public class ScoreSystem : MonoBehaviour
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreImageUpdate;
+        NowPlaying.Inst.OnResult += Result;
     }
+
+    private void OnDestroy()
+    {
+        NowPlaying.Inst.OnResult -= Result;
+    }
+
+    private void Result() => judge.SetResult( HitResult.Score, ( int )Globals.Round( curScore ) );
 
     private void ReLoad()
     {
