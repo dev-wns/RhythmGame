@@ -258,7 +258,7 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
         {
