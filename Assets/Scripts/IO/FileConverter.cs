@@ -275,7 +275,7 @@ public class FileConverter : FileReader
                     song.hasVideo = File.Exists( Path.Combine( directory, song.videoPath ) ) ? true : false;
                 }
 
-                if ( Contains( ".jpg" ) || Contains( ".png" ) )
+                if ( ( Contains( ".jpg" ) || Contains( ".png" ) || Contains( ".bmp" ) ) && ( !Contains( "Sprite," ) ) )
                 {
                     song.imagePath = SplitAndTrim( '"' );
                 }
