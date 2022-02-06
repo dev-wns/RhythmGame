@@ -12,8 +12,9 @@ public class SongBackground : MonoBehaviour
     {
         image = GetComponent<Image>();
         bool isEnabled = GameSetting.BGAOpacity <= .1f ? false : true;
-
-        if ( isEnabled )
+        var path = NowPlaying.Inst.CurrentSong.imagePath;
+        Debug.Log( $"{path != string.Empty} {path}" );
+        if ( isEnabled && path != string.Empty )
         {
             StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
 
@@ -70,7 +71,7 @@ public class SongBackground : MonoBehaviour
                     float offsetY = ( float )Screen.height / height;
                     if ( offsetY > 1f )
                     {
-                        width *= offsetY;
+                        width  *= offsetY;
                         height *= offsetY;
                     }
 

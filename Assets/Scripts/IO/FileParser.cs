@@ -37,14 +37,31 @@ public class FileParser : FileReader
             {
                 if ( line == string.Empty ) break;
 
-                if ( Contains( "AudioPath:" ) ) _song.audioPath = Path.Combine( directory, SplitAndTrim( ':' ) );
-                if ( Contains( "ImagePath:" ) ) _song.imagePath = Path.Combine( directory, SplitAndTrim( ':' ) );
+                if ( Contains( "AudioPath:" ) )
+                {
+                    var soundName = SplitAndTrim( ':' );
+                    if ( soundName == string.Empty )
+                        _song.audioPath = string.Empty;
+                    else
+                        _song.audioPath = Path.Combine( directory, soundName );
+                }
+                if ( Contains( "ImagePath:" ) )
+                {
+                    var imageName = SplitAndTrim( ':' );
+                    if ( imageName == string.Empty )
+                        _song.imagePath = string.Empty;
+                    else
+                        _song.imagePath = Path.Combine( directory, imageName );
+                }
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = SplitAndTrim( ':' );
 
-                    if ( videoName == string.Empty ) 
-                         _song.hasVideo = false;
+                    if ( videoName == string.Empty )
+                    {
+                        _song.videoPath = string.Empty;
+                        _song.hasVideo = false;
+                    }
                     else
                     {
                         _song.videoPath = Path.Combine( directory, videoName );
