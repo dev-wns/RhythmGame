@@ -25,8 +25,14 @@ public class InGame : Scene
     private void Start()
     {
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
-        OnGameStart();
+        StartCoroutine( Play() );
+    }
 
+    private IEnumerator Play()
+    {
+        yield return new WaitUntil( () => !NowPlaying.Inst.IsLoadKeySample && !NowPlaying.Inst.IsLoadSpriteSample );
+
+        OnGameStart();
         NowPlaying.Inst.Play();
     }
 

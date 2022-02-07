@@ -88,6 +88,7 @@ public class BackgroundSystem : MonoBehaviour
                 NowPlaying.Inst.OnPause += OnPause;
                 scene.OnReLoad += ReLoad;
 
+                NowPlaying.Inst.IsLoadSpriteSample = false;
                 Debug.Log( "Background Type : Video" );
             }
             else
@@ -114,7 +115,7 @@ public class BackgroundSystem : MonoBehaviour
                     {
                         StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
                     }
-
+                    NowPlaying.Inst.IsLoadSpriteSample = false;
                     Debug.Log( "Background Type : Image" );
                 }
                 vp.enabled = false;
@@ -136,7 +137,6 @@ public class BackgroundSystem : MonoBehaviour
 
     private IEnumerator Process()
     {
-        yield return new WaitUntil( () => samples.Count == sampleCount );
         if ( samples.Count > 0 )
         {
             curSample = samples[curIndex];
@@ -169,6 +169,8 @@ public class BackgroundSystem : MonoBehaviour
             else if ( _A.start < _B.start ) return -1;
             else return 0;
         } );
+
+        NowPlaying.Inst.IsLoadSpriteSample = false;
     }
 
     public IEnumerator LoadSample( string _dir, SpriteSample _sample )

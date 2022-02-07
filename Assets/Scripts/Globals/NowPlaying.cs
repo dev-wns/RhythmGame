@@ -44,6 +44,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public event DelPause OnPause;
     private Coroutine timeCoroutine;
 
+    public bool IsLoadKeySample { get; set; }
+    public bool IsLoadSpriteSample { get; set; }
+
     private void Awake()
     {
         //using ( FileConverter converter = new FileConverter() )
@@ -85,6 +88,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         Playback = waitTime;
         savedTime = 0d;
         PlaybackChanged = 0d;
+
+        IsLoadKeySample    = true;
+        IsLoadSpriteSample = true;
     }
 
     public void Initialize()
@@ -103,6 +109,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         {
             SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, curChart.keySoundNames[i] ) );
         }
+        IsLoadKeySample = false;
     }
 
     public void Play()
