@@ -7,15 +7,33 @@ using UnityEngine.Video;
 
 public class SongBackground : MonoBehaviour
 {
+    private InGame scene;
     private RawImage image;
+
+    [Header( "Video" )]
     private VideoPlayer vp;
+    public RenderTexture renderTexture;
     private bool canDestroyTex = false;
 
-    private void PlayVideo() => vp.Play();
+    private void PlayVideo()
+    {
+        image.texture = renderTexture;
+        vp.Play();
+    }
+
+    private void ReLoad()
+    {
+        image.texture = Texture2D.blackTexture;
+        vp.frame = 0;
+    }
 
     private void Awake()
     {
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        
         image = GetComponent<RawImage>();
+        image.texture = Texture2D.blackTexture;
+
         vp = GetComponent<VideoPlayer>();
         bool isEnabled = GameSetting.BGAOpacity <= .1f ? false : true;
         
@@ -24,12 +42,15 @@ public class SongBackground : MonoBehaviour
             bool hasVideo = NowPlaying.Inst.CurrentSong.hasVideo;
             if ( hasVideo )
             {
+                // Video
                 vp.url = @$"{NowPlaying.Inst.CurrentSong.videoPath}";
                 NowPlaying.Inst.OnStart += PlayVideo;
                 NowPlaying.Inst.OnPause += OnPause;
+                scene.OnReLoad += ReLoad;
             }
             else
             {
+                // Image
                 var path = NowPlaying.Inst.CurrentSong.imagePath;
                 if ( path == string.Empty )
                 {
@@ -46,7 +67,6 @@ public class SongBackground : MonoBehaviour
         }
         else
         {
-            vp.enabled = false;
             gameObject.SetActive( false );
         }
     }
