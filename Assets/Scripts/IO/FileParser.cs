@@ -133,9 +133,10 @@ public class FileParser : FileReader
                 SpriteSample sprite;
                 var split = line.Split( ',' );
 
-                sprite.start = double.Parse( split[0] ) * .001d;
-                sprite.end   = double.Parse( split[1] ) * .001d;
-                sprite.name  = split[2];
+                sprite.type  = ( SpriteType )int.Parse( split[0] );
+                sprite.start = double.Parse( split[1] ) * .001d;
+                sprite.end   = double.Parse( split[2] ) * .001d;
+                sprite.name  = split[3];
 
                 sprites.Add( sprite );
             }

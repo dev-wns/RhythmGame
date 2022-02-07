@@ -130,14 +130,16 @@ public struct KeySound
     }
 }
 
-
+public enum SpriteType { None, Background, Foreground }
 public struct SpriteSample
 {
+    public SpriteType type;
     public string name;
     public double start, end;
 
-    public SpriteSample( double _start, double _end, string _name )
+    public SpriteSample( SpriteType _type, double _start, double _end, string _name )
     {
+        type = _type;
         start = _start;
         end = _end;
         name = _name;
@@ -285,9 +287,11 @@ public class FileConverter : FileReader
 
                 if ( Contains( "Sprite," ) )
                 {
+                    string[] splitSprite = line.Split( ',' );
                     string name = SplitAndTrim( '"' );
-                    string[] split = ReadLine().Split( ',' );
-                    sprites.Add( new SpriteSample( float.Parse( split[2] ), float.Parse( split[3] ), name ) );
+                    var type = splitSprite[1].Contains( "Background" ) ? SpriteType.Background : splitSprite[1].Contains( "Foreground" ) ? SpriteType.Foreground : SpriteType.None;
+                    string[] splitTime = ReadLine().Split( ',' );
+                    sprites.Add( new SpriteSample( type, float.Parse( splitTime[2] ), float.Parse( splitTime[3] ), name ) );
                 }
 
                 if ( Contains( "Sample," ) )
@@ -503,6 +507,7 @@ public class FileConverter : FileReader
                     for ( int i = 0; i < sprites.Count; i++ )
                     {
                         text.Clear();
+                        text.Append( ( int )sprites[i].type ).Append( "," );
                         text.Append( sprites[i].start ).Append( "," );
                         text.Append( sprites[i].end ).Append( "," );
                         text.Append( sprites[i].name );
