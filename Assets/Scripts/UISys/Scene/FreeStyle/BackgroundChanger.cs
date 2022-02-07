@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class BackgroundSystem : MonoBehaviour
+public class BackgroundChanger : MonoBehaviour
 {
     public FreeStyleScrollSong songScroller;
     public FadeBackground bgPrefab;
     private ObjectPool<FadeBackground> bgPool;
-    public  Sprite defaultSprite;
+    public Sprite defaultSprite;
     private Coroutine loadCorutine;
     private FadeBackground curBg;
 
@@ -39,7 +39,7 @@ public class BackgroundSystem : MonoBehaviour
             if ( ext.Contains( ".bmp" ) )
             {
                 BMPLoader loader = new BMPLoader();
-                BMPImage img  = loader.LoadBMP( _path );
+                BMPImage img = loader.LoadBMP( _path );
                 Texture2D tex = img.ToTexture2D();
                 sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
             }

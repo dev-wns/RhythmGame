@@ -6,7 +6,7 @@ using DG.Tweening;
 
 public class FadeBackground : MonoBehaviour
 {
-    public BackgroundSystem system;
+    public BackgroundChanger system;
     public float fadeTime = .5f;
 
     private RectTransform rt;

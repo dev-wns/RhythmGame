@@ -39,8 +39,6 @@ public class Judgement : MonoBehaviour
             results[_type] = _count;
         else
             results.Add( _type, _count );
-
-        Debug.Log( $"{_type}  {results[_type]}" );
     }
 
     public bool CanBeHit( double _timeOffset )
