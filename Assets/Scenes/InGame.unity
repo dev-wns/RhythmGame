@@ -2505,6 +2505,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 376532908}
+  - component: {fileID: 376532909}
   m_Layer: 5
   m_Name: SpriteSystem
   m_TagString: Untagged
@@ -2531,8 +2532,24 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &376532909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376532907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e5915e040bec734086d456d04cca146, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 1610119570}
+  foreground: {fileID: 532474327}
+  vp: {fileID: 1610119569}
+  renderTexture: {fileID: 8400000, guid: 2dd77d849aeb58b43ac4fbb5c274b11c, type: 2}
 --- !u!1 &382188974
 GameObject:
   m_ObjectHideFlags: 0
@@ -3618,7 +3635,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &532474324
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11666,7 +11683,6 @@ GameObject:
   - component: {fileID: 1610119571}
   - component: {fileID: 1610119570}
   - component: {fileID: 1610119569}
-  - component: {fileID: 1610119568}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -11693,19 +11709,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1610119568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1610119566}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e261ae4808cb4a24ba4fd36a1e8e6f45, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  renderTexture: {fileID: 8400000, guid: 2dd77d849aeb58b43ac4fbb5c274b11c, type: 2}
 --- !u!328 &1610119569
 VideoPlayer:
   m_ObjectHideFlags: 0
@@ -11754,14 +11757,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 8400000, guid: 2dd77d849aeb58b43ac4fbb5c274b11c, type: 2}
+  m_Texture: {fileID: 0}
   m_UVRect:
     serializedVersion: 2
     x: 0
