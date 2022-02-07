@@ -141,11 +141,25 @@ public struct KeySample
     }
 }
 
+public struct SpriteSample
+{
+    public string name;
+    public double start, end;
+
+    public SpriteSample( double _start, double _end, string _name )
+    {
+        start = _start;
+        end = _end;
+        name = _name;
+    }
+}
+
 public struct Chart
 {
     public ReadOnlyCollection<Timing> timings;
     public ReadOnlyCollection<Note> notes;
-    public ReadOnlyCollection<KeySample> samples;
+    public ReadOnlyCollection<KeySample> keySamples;
+    public ReadOnlyCollection<SpriteSample> spriteSamples;
     public ReadOnlyCollection<string> keySoundNames;
 }
 
@@ -154,7 +168,8 @@ public class FileConverter : FileReader
 {
     private List<Timing> timings = new List<Timing>();
     private List<Note> notes = new List<Note>();
-    private List<KeySample> samples = new List<KeySample>();
+    private List<KeySample> keySamples = new List<KeySample>();
+    private List<SpriteSample> spriteSamples = new List<SpriteSample>();
     private List<string> keySoundNames = new List<string>();
     private List<int> removeKeys = new List<int>();
     private SortedDictionary<int/*column px*/, List<Note>> lanes = new SortedDictionary<int, List<Note>>( new IntegerComparer() );
@@ -263,7 +278,8 @@ public class FileConverter : FileReader
             }
 
             // [Events]
-            samples?.Clear();
+            keySamples?.Clear();
+            spriteSamples?.Clear();
             keySoundNames.Clear();
 
             var directory = Path.GetDirectoryName( _path );
@@ -280,11 +296,18 @@ public class FileConverter : FileReader
                     song.imagePath = SplitAndTrim( '"' );
                 }
 
+                if ( Contains( "Sprite," ) )
+                {
+                    string name = SplitAndTrim( '"' );
+                    string[] split = ReadLine().Split( ',' );
+                    spriteSamples.Add( new SpriteSample( float.Parse( split[2] ), float.Parse( split[3] ), name ) );
+                }
+
                 if ( Contains( "Sample," ) )
                 {
                     string[] split = line.Split( ',' );
                     string name    = SplitAndTrim( '"' );
-                    samples.Add( new KeySample( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
+                    keySamples.Add( new KeySample( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
                     if ( !keySoundNames.Contains( name ) )
                           keySoundNames.Add( name );
                 }
@@ -389,7 +412,7 @@ public class FileConverter : FileReader
                     {
                         var note = lanes[key][j];
                         if ( note.keySound.name != string.Empty && note.keySound.name != null )
-                             samples.Add( new KeySample( note.time, note.keySound ) );
+                             keySamples.Add( new KeySample( note.time, note.keySound ) );
                     }
                 }
                 else
@@ -417,7 +440,7 @@ public class FileConverter : FileReader
             }
 
             // BMS2Osu로 뽑은 파일은 Lane값 기준으로 정렬되어 있어서 시간 순으로 다시 정렬해준다.
-            samples.Sort( delegate ( KeySample _A, KeySample _B )
+            keySamples.Sort( delegate ( KeySample _A, KeySample _B )
             {
                 if ( _A.time > _B.time ) return 1;
                 else if ( _A.time < _B.time ) return -1;
@@ -497,13 +520,24 @@ public class FileConverter : FileReader
                         writer.WriteLine( text );
                     }
 
-                    writer.WriteLine( "[Samples]" );
-                    for ( int i = 0; i < samples.Count; i++ )
+                    writer.WriteLine( "[SpriteSamples]" );
+                    for ( int i = 0; i < spriteSamples.Count; i++ )
                     {
                         text.Clear();
-                        text.Append( samples[i].time ).Append( "," );
-                        text.Append( samples[i].sound.volume ).Append( "," );
-                        text.Append( samples[i].sound.name );
+                        text.Append( spriteSamples[i].start ).Append( "," );
+                        text.Append( spriteSamples[i].end ).Append( "," );
+                        text.Append( spriteSamples[i].name );
+
+                        writer.WriteLine( text );
+                    }
+
+                    writer.WriteLine( "[KeySamples]" );
+                    for ( int i = 0; i < keySamples.Count; i++ )
+                    {
+                        text.Clear();
+                        text.Append( keySamples[i].time ).Append( "," );
+                        text.Append( keySamples[i].sound.volume ).Append( "," );
+                        text.Append( keySamples[i].sound.name );
 
                         writer.WriteLine( text );
                     }

@@ -27,9 +27,9 @@ public class KeySampleSystem : MonoBehaviour
 
     private void Initialize( in Chart _chart )
     {
-        for( int i = 0; i < _chart.samples.Count; i++ )
+        for( int i = 0; i < _chart.keySamples.Count; i++ )
         {
-            var newSample = _chart.samples[i];
+            var newSample = _chart.keySamples[i];
             newSample.sound.key = SoundManager.Inst.GetSampleKey( newSample.sound.name );
             samples.Add( newSample );
         }

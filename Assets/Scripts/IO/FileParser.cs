@@ -108,7 +108,7 @@ public class FileParser : FileReader
             #region Timings Parsing
             List<Timing> timings = new List<Timing>();
 
-            while ( ReadLine() != "[Samples]" )
+            while ( ReadLine() != "[SpriteSamples]" )
             {
                 Timing timing = new Timing();
                 var split = line.Split( ',' );
@@ -125,9 +125,25 @@ public class FileParser : FileReader
 
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
             #endregion
+            
+            #region Sprite Samples Parsing
+            List<SpriteSample> sprites = new List<SpriteSample>();
+            while ( ReadLine() != "[KeySamples]" )
+            {
+                SpriteSample sprite;
+                var split = line.Split( ',' );
 
-            #region Samples Parsing
-            List<KeySample> samples = new List<KeySample>();
+                sprite.start = double.Parse( split[0] ) * .001d;
+                sprite.end   = double.Parse( split[1] ) * .001d;
+                sprite.name  = split[2];
+
+                sprites.Add( sprite );
+            }
+            _chart.spriteSamples = new ReadOnlyCollection<SpriteSample>( sprites );
+            #endregion
+
+            #region Key Samples Parsing
+            List<KeySample> keySamples = new List<KeySample>();
             while ( ReadLine() != "[KeySounds]" )
             {
                 KeySample sample;
@@ -138,9 +154,9 @@ public class FileParser : FileReader
                 sample.sound.name = split[2];
                 sample.sound.key = -1;
 
-                samples.Add( sample );
+                keySamples.Add( sample );
             }
-            _chart.samples = new ReadOnlyCollection<KeySample>( samples );
+            _chart.keySamples = new ReadOnlyCollection<KeySample>( keySamples );
             #endregion
 
             #region HitSounds Parsing
