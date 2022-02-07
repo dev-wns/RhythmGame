@@ -39,7 +39,7 @@ public class NoteSystem : MonoBehaviour
 
     public void ScrollUpdate() => loadTime = GameSetting.PreLoadTime;
 
-    public void AddNote( Note _note ) => notes.Add( _note );
+    public void AddNote( in Note _note ) => notes.Add( _note );
 
     public void Despawn( NoteRenderer _note ) => nPool.Despawn( _note );
 
@@ -64,5 +64,5 @@ public class NoteSystem : MonoBehaviour
             if ( ++curIndex < notes.Count )
                  curNote = notes[curIndex];
         }
-    } 
+    }
 }

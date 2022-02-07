@@ -5,6 +5,7 @@ using UnityEngine;
 public class LaneSystem : MonoBehaviour
 {
     private InGame scene;
+    private KeySampleSystem keySampleSystem;
     private List<Lane> lanes = new List<Lane>();
 
     private struct CalcNote
@@ -16,6 +17,7 @@ public class LaneSystem : MonoBehaviour
 
     private void Awake()
     {
+        keySampleSystem = GetComponent<KeySampleSystem>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
 
@@ -26,10 +28,20 @@ public class LaneSystem : MonoBehaviour
 
     private void Initialize( in Chart _chart )
     {
-        CreateNotes( _chart );
+        var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
+        for ( int i = 0; i < _chart.samples.Count; i++ )
+        {
+            var sample = _chart.samples[i];
+            if( sample.hasSound )
+                SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, sample.name ), out sample.sound );
+            keySampleSystem.AddSample( sample );
+        }
+        NowPlaying.Inst.IsLoadKeySounds = false;
 
+        CreateNotes( _chart );
         for ( int i = 0; i < ( int )GameKeyAction.Count; i++ )
             lanes[i].SetLane( i );
+
     }
 
     private void LaneSwap( int _min, int _max, int _swapCount = 6 )
@@ -47,6 +59,8 @@ public class LaneSystem : MonoBehaviour
 
     private void CreateNotes( in Chart _chart )
     {
+        var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
+
         var notes = _chart.notes;
         CalcNote[] column = new CalcNote[6];
         for ( int i = 0; i < notes.Count; i++ )
@@ -66,12 +80,13 @@ public class LaneSystem : MonoBehaviour
                     if ( hasNoSliderMod ) 
                          newNote.isSlider = false;
 
-                    newNote.keySound.key = SoundManager.Inst.GetSampleKey( newNote.keySound.name );
-
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
-                    lanes[lane].NoteSys.AddNote( newNote );
+                    if ( newNote.keySound.hasSound ) 
+                         SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+
+                    lanes[lane].NoteSys.AddNote( in newNote );
                 }
                 break;
 
@@ -126,16 +141,17 @@ public class LaneSystem : MonoBehaviour
                         if ( column[j].note.HasValue )
                         {
                             Note newNote = column[j].note.Value;
+                            
+                            if ( hasNoSliderMod )
+                                 newNote.isSlider = false;
 
                             newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                             newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
-                            newNote.keySound.key = SoundManager.Inst.GetSampleKey( newNote.keySound.name );
+                            if ( newNote.keySound.hasSound )
+                                 SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
 
-                            if ( hasNoSliderMod ) 
-                                 newNote.isSlider = false;
-
-                            lanes[j].NoteSys.AddNote( newNote );
+                            lanes[j].NoteSys.AddNote( in newNote );
                         }
 
                         column[j].note = null;

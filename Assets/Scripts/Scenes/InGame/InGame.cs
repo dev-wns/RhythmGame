@@ -30,7 +30,7 @@ public class InGame : Scene
 
     private IEnumerator Play()
     {
-        yield return new WaitUntil( () => !NowPlaying.Inst.IsLoadKeySample && !NowPlaying.Inst.IsLoadSpriteSample );
+        yield return new WaitUntil( () => !NowPlaying.Inst.IsLoadKeySounds && !NowPlaying.Inst.IsLoadBackground );
 
         OnGameStart();
         NowPlaying.Inst.Play();

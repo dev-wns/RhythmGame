@@ -18,8 +18,8 @@ public class SoundManager : SingletonUnity<SoundManager>
     private static readonly int MaxVirtualChannels = 1000;
     private Dictionary<ChannelType, FMOD.ChannelGroup> groups = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound> sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
-    private Dictionary<int, FMOD.Sound> keySounds = new Dictionary<int, FMOD.Sound>();
-    private Dictionary<string, int> keySoundTemps = new Dictionary<string, int>();
+    private Dictionary<string, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
+    //private Dictionary<string, int> keySoundTemps = new Dictionary<string, int>();
     private FMOD.Sound bgmSound;
     private FMOD.Channel bgmChannel;
     public FMOD.DSP? FFT { get; private set; }
@@ -195,10 +195,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
         }
         keySounds.Clear();
-        keySoundTemps.Clear();
     }
-
-    public void ReleaseTemps() => keySoundTemps.Clear();
 
     public void Release()
     {
@@ -212,7 +209,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
         }
         sfxSounds.Clear();
-        keySoundTemps.Clear();
+        //keySoundTemps.Clear();
 
         foreach ( var keySound in keySounds )
         {
@@ -316,21 +313,21 @@ public class SoundManager : SingletonUnity<SoundManager>
         sfxSounds.Add( _type, sound );
     }
 
-    public void LoadKeySound( string _path )
+    public void LoadKeySound( string _path, out FMOD.Sound _sound )
     {
-        string name = System.IO.Path.GetFileName( _path );
-        if ( keySoundTemps.ContainsKey( name ) )
-             return;
+        var name = System.IO.Path.GetFileName( _path );
+        if ( keySounds.ContainsKey( name ) )
+        {
+            _sound = keySounds[name];
+            return;
+        }
 
-        if ( !System.IO.File.Exists( _path ) )
+        if ( !System.IO.File.Exists( @_path ) )
              throw new Exception( $"File Exists  {_path}" );
 
-        FMOD.Sound sound;
-        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out sound ) );
-        keySounds.Add( keySoundTemps.Count, sound );
-        keySoundTemps.Add( name, keySoundTemps.Count );
+        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out _sound ) );
+        keySounds.Add( name, _sound );
     }
-
     #endregion
 
     #region Play
@@ -363,25 +360,20 @@ public class SoundManager : SingletonUnity<SoundManager>
     }
 
     /// <summary> Play Key Sound Effects </summary>
-    public void Play( KeySound _key )
+    public void Play( in KeySound _keySound )
     {
-        if ( _key.name == string.Empty || !keySounds.ContainsKey( _key.key ) )
+        if ( !_keySound.hasSound )
+             return;
+
+        if ( !_keySound.sound.hasHandle() )
         {
-            //Debug.LogError( $"sfxSound[{_key.name}] is not loaded." );
+            Debug.LogError( $"keySound[{_keySound.name}] is not loaded." );
             return;
         }
 
         FMOD.Channel channel;
-        ErrorCheck( system.playSound( keySounds[_key.key], groups[ChannelType.KeySound], false, out channel ) );
-        ErrorCheck( channel.setVolume( _key.volume) );
-    }
-
-    public int GetSampleKey( string _name )
-    {
-        if ( keySoundTemps.ContainsKey( _name ) )
-             return keySoundTemps[_name];
-
-        return -1;
+        ErrorCheck( system.playSound( _keySound.sound, groups[ChannelType.KeySound], false, out channel ) );
+        ErrorCheck( channel.setVolume( _keySound.volume ) );
     }
     #endregion
 

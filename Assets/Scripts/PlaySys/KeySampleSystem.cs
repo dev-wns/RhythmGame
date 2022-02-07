@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 
+
+/// <summary>
+/// KeySound that plays unconditionally.
+/// </summary>
 public class KeySampleSystem : MonoBehaviour
 {
     private InGame scene;
-    private List<KeySample> samples = new List<KeySample>();
+    private List<KeySound> samples = new List<KeySound>();
     private int curIndex;
     private double curTime;
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnSystemInitialize += Initialize;
         scene.OnGameStart += () => StartCoroutine( Process() );
         scene.OnReLoad += ReLoad;
     }
@@ -25,14 +28,9 @@ public class KeySampleSystem : MonoBehaviour
         curTime = 0d;
     }
 
-    private void Initialize( in Chart _chart )
+    public void AddSample( in KeySound _sample )
     {
-        for( int i = 0; i < _chart.keySamples.Count; i++ )
-        {
-            var newSample = _chart.keySamples[i];
-            newSample.sound.key = SoundManager.Inst.GetSampleKey( newSample.sound.name );
-            samples.Add( newSample );
-        }
+        samples.Add( _sample );
     }
 
     private IEnumerator Process()
@@ -56,7 +54,7 @@ public class KeySampleSystem : MonoBehaviour
             {
                 if ( curTime == samples[curIndex].time )
                 {
-                    SoundManager.Inst.Play( samples[curIndex++].sound );
+                    SoundManager.Inst.Play( samples[curIndex++] );
                 }
                 else
                 {

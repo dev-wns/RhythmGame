@@ -7,6 +7,7 @@ using UnityEngine;
 public class NowPlaying : SingletonUnity<NowPlaying>
 {
     public ReadOnlyCollection<Song> Songs { get; private set; }
+    public List<FMOD.Sound> KeySounds { get; private set; }
 
     public  Song CurrentSong => curSong;
     private Song curSong;
@@ -31,11 +32,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public static double Playback;        // 노래 재생 시간
     public static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
 
-    public bool IsPlaying { get; private set; }
     private readonly double waitTime = -2d;
     private double startTime;
     private double savedTime;
-
     private double totalTime;
 
     public event Action OnResult;
@@ -44,13 +43,13 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public event DelPause OnPause;
     private Coroutine timeCoroutine;
 
-    public bool IsLoadKeySample { get; set; }
-    public bool IsLoadSpriteSample { get; set; }
+    public bool IsLoadKeySounds { get; set; }
+    public bool IsLoadBackground { get; set; }
 
     private void Awake()
     {
-        //using ( FileConverter converter = new FileConverter() )
-        //    converter.ReLoad();
+        using ( FileConverter converter = new FileConverter() )
+            converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {
@@ -64,7 +63,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator TimeUpdate()
     {
-        //if ( !IsPlaying ) return;
         while ( true )
         {
             Playback = savedTime + ( System.DateTime.Now.TimeOfDay.TotalSeconds - startTime );
@@ -84,13 +82,13 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         StopAllCoroutines();
         timeCoroutine = null;
-        //IsPlaying = false;
         Playback = waitTime;
         savedTime = 0d;
         PlaybackChanged = 0d;
 
-        IsLoadKeySample    = true;
-        IsLoadSpriteSample = true;
+        IsLoadKeySounds  = true;
+        IsLoadBackground = true;
+        SoundManager.Inst.KeyRelease();
     }
 
     public void Initialize()
@@ -102,19 +100,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         {
             parser.TryParse( curSong.filePath, out curChart );
         }
-
-        SoundManager.Inst.KeyRelease();
-        string dir = System.IO.Path.GetDirectoryName( curSong.filePath );
-        for ( int i = 0; i < curChart.keySoundNames.Count; i++ )
-        {
-            SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, curChart.keySoundNames[i] ) );
-        }
-        IsLoadKeySample = false;
     }
 
     public void Play()
     {
-        SoundManager.Inst.ReleaseTemps();
         StartCoroutine( MusicStart() );
     }
 

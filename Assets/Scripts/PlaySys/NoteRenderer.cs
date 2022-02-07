@@ -17,7 +17,6 @@ public class NoteRenderer : MonoBehaviour
     public double CalcSliderTime => note.calcSliderTime;
     public bool IsSlider => note.isSlider;
     public bool IsPressed { get; set; }
-    public bool HasKeySound => note.keySound.name != string.Empty;
     public KeySound Sound => note.keySound;
 
     private float column;
@@ -45,11 +44,11 @@ public class NoteRenderer : MonoBehaviour
         game.OnScrollChanged -= ScrollUpdate;
     }
 
-    public void SetInfo( int _lane, NoteSystem _system, in Note _data )
+    public void SetInfo( int _lane, NoteSystem _system, in Note _note )
     {
         system    = _system;
-        note      = _data;
-        newTime   = _data.calcTime;
+        note      = _note;
+        newTime   = _note.calcTime;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
 

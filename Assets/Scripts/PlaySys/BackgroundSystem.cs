@@ -29,7 +29,6 @@ public class BackgroundSystem : MonoBehaviour
             tex = _tex;
         }
     }
-    private int sampleCount;
     private List<PlaySpriteSample> samples = new List<PlaySpriteSample>();
     private Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
     private PlaySpriteSample curSample;
@@ -88,18 +87,17 @@ public class BackgroundSystem : MonoBehaviour
                 NowPlaying.Inst.OnPause += OnPause;
                 scene.OnReLoad += ReLoad;
 
-                NowPlaying.Inst.IsLoadSpriteSample = false;
+                NowPlaying.Inst.IsLoadBackground = false;
                 Debug.Log( "Background Type : Video" );
             }
             else
             {
-                sampleCount = _chart.spriteSamples.Count;
-                bool hasSprites = _chart.spriteSamples.Count > 0 ? true : false;
+                bool hasSprites = _chart.sprites.Count > 0 ? true : false;
                 if ( hasSprites )
                 {
                     // Sprites
                     scene.OnGameStart += () => StartCoroutine( Process() );
-                    StartCoroutine( LoadSamples( _chart.spriteSamples ) );
+                    StartCoroutine( LoadSamples( _chart.sprites ) );
                     
                     Debug.Log( "Background Type : Sprite" );
                 }
@@ -115,7 +113,7 @@ public class BackgroundSystem : MonoBehaviour
                     {
                         StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
                     }
-                    NowPlaying.Inst.IsLoadSpriteSample = false;
+                    NowPlaying.Inst.IsLoadBackground = false;
                     Debug.Log( "Background Type : Image" );
                 }
                 vp.enabled = false;
@@ -170,7 +168,7 @@ public class BackgroundSystem : MonoBehaviour
             else return 0;
         } );
 
-        NowPlaying.Inst.IsLoadSpriteSample = false;
+        NowPlaying.Inst.IsLoadBackground = false;
     }
 
     public IEnumerator LoadSample( string _dir, SpriteSample _sample )
