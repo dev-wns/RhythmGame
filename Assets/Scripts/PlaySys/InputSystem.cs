@@ -32,7 +32,7 @@ public class InputSystem : MonoBehaviour
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnGameStart += () => StartCoroutine( NoteSelect() );
         scene.OnReLoad += ReLoad;
-        scene.OnPause += DuringPauseProcess;
+        NowPlaying.Inst.OnPause += DuringPauseProcess;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
@@ -103,6 +103,7 @@ public class InputSystem : MonoBehaviour
     private void OnDestroy()
     {
         StopAllCoroutines();
+        NowPlaying.Inst.OnPause -= DuringPauseProcess;
     }
 
     /// <summary>

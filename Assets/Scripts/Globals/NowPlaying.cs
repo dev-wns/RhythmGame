@@ -39,7 +39,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     private double totalTime;
 
     public event Action OnResult;
-    public event Action OnStart;
+    public event Action OnStart; 
+    public delegate void DelPause( bool _isPause );
+    public event DelPause OnPause;
     private Coroutine timeCoroutine;
 
     private void Awake()
@@ -118,10 +120,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             return false;
         }
 
-
         if ( _isPause )
         {
-            //IsPlaying = false;
             if ( timeCoroutine != null )
             {
                 StopCoroutine( timeCoroutine );
@@ -130,6 +130,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
+            OnPause?.Invoke( true );
             savedTime = Playback >= 0d ? waitTime + Playback : 0d;
         }
         else
@@ -151,12 +152,12 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
 
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
-        //IsPlaying = true;
         timeCoroutine = StartCoroutine( TimeUpdate() );
 
         yield return new WaitUntil( () => Playback >= savedTime - waitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
+        OnPause?.Invoke( false );
 
         yield return YieldCache.WaitForSeconds( 3f );
         SceneChanger.CurrentScene.InputLock( false );

@@ -12,8 +12,7 @@ public class InGame : Scene
 
     public event Action OnGameStart;
     public event Action OnScrollChanged;
-    public delegate void DelPause( bool _isPause );
-    public event DelPause OnPause;
+
     public event Action OnReLoad;
 
     protected override void Awake()
@@ -55,25 +54,23 @@ public class InGame : Scene
     {
         if ( _isPuase )
         {
-            if ( !NowPlaying.Inst.Pause( _isPuase ) )
-            {
-                NowPlaying.Inst.Stop();
-                SceneChanger.Inst.LoadScene( SceneType.Result );
-            }
-            else
+            if ( NowPlaying.Inst.Pause( true ) )
             {
                 pauseCanvas.SetActive( true );
                 SoundManager.Inst.Play( SoundSfxType.Return );
                 ChangeAction( SceneAction.Option );
-                OnPause?.Invoke( true );
+            }
+            else
+            {
+                NowPlaying.Inst.Stop();
+                SceneChanger.Inst.LoadScene( SceneType.Result );
             }
         }
         else
         {
+            NowPlaying.Inst.Pause( false );
             pauseCanvas.SetActive( false );
             ChangeAction( SceneAction.Main );
-            NowPlaying.Inst.Pause( false );
-            OnPause?.Invoke( false );
         }
     }
 
