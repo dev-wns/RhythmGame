@@ -269,7 +269,7 @@ public class FileConverter : FileReader
             var directory = Path.GetDirectoryName( _path );
             while ( ReadLine() != "[TimingPoints]" )
             {
-                if ( Contains( ".avi" ) || Contains( ".mp4" ) || Contains( ".mpg" ) )
+                if ( Contains( ".avi" ) || Contains( ".mp4" ) )
                 {
                     song.videoPath = SplitAndTrim( '"' );
                     song.hasVideo = File.Exists( Path.Combine( directory, song.videoPath ) ) ? true : false;

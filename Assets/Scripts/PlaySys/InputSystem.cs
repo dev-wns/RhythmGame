@@ -81,9 +81,9 @@ public class InputSystem : MonoBehaviour
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
     /// </summary>
-    private void DuringPauseProcess()
+    private void DuringPauseProcess( bool _isPause )
     {
-        if ( curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
+        if ( !_isPause || curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
              return;
 
         if ( isAuto )

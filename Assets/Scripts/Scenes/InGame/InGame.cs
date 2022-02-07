@@ -12,7 +12,8 @@ public class InGame : Scene
 
     public event Action OnGameStart;
     public event Action OnScrollChanged;
-    public event Action OnPause;
+    public delegate void DelPause( bool _isPause );
+    public event DelPause OnPause;
     public event Action OnReLoad;
 
     protected override void Awake()
@@ -52,17 +53,27 @@ public class InGame : Scene
 
     public void Pause( bool _isPuase )
     {
-        if ( !NowPlaying.Inst.Pause( _isPuase ) )
+        if ( _isPuase )
         {
-            NowPlaying.Inst.Stop();
-            SceneChanger.Inst.LoadScene( SceneType.Result );
+            if ( !NowPlaying.Inst.Pause( _isPuase ) )
+            {
+                NowPlaying.Inst.Stop();
+                SceneChanger.Inst.LoadScene( SceneType.Result );
+            }
+            else
+            {
+                pauseCanvas.SetActive( true );
+                SoundManager.Inst.Play( SoundSfxType.Return );
+                ChangeAction( SceneAction.Option );
+                OnPause?.Invoke( true );
+            }
         }
         else
         {
-            pauseCanvas.SetActive( true );
-            SoundManager.Inst.Play( SoundSfxType.Return );
-            ChangeAction( SceneAction.Option );
-            OnPause?.Invoke();
+            pauseCanvas.SetActive( false );
+            ChangeAction( SceneAction.Main );
+            NowPlaying.Inst.Pause( false );
+            OnPause?.Invoke( false );
         }
     }
 
@@ -77,5 +88,8 @@ public class InGame : Scene
         Bind( SceneAction.Main, KeyCode.Alpha2, () => GameSetting.ScrollSpeed += .1d );
         Bind( SceneAction.Main, KeyCode.Alpha2, () => SoundManager.Inst.Play( SoundSfxType.Increase ) );
         Bind( SceneAction.Main, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
+
+        Bind( SceneAction.Option, KeyCode.Escape, () => Pause( false ) );
+        Bind( SceneAction.Option, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.Escape ) );
     }
 }

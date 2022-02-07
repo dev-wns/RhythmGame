@@ -3,38 +3,79 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using UnityEngine.Video;
 
 public class SongBackground : MonoBehaviour
 {
-    private Image image;
+    private InGame scene;
+    private RawImage image;
+    private VideoPlayer vp;
+    private bool canDestroyTex = false;
+
+    private void PlayVideo() => vp.Play();
+
+    private IEnumerator LoadVideo()
+    {
+        vp.url = @$"{NowPlaying.Inst.CurrentSong.videoPath}";
+        vp.Prepare();
+        while ( !vp.isPrepared )
+        {
+            Debug.Log( $"prepare {vp.isPrepared}" );
+            yield return null;
+        }
+    }
 
     private void Awake()
     {
-        image = GetComponent<Image>();
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        image = GetComponent<RawImage>();
+        vp = GetComponent<VideoPlayer>();
         bool isEnabled = GameSetting.BGAOpacity <= .1f ? false : true;
-        var path = NowPlaying.Inst.CurrentSong.imagePath;
-        Debug.Log( $"{path != string.Empty} {path}" );
-        if ( isEnabled && path != string.Empty )
+        
+        if ( isEnabled )
         {
-            StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+            bool hasVideo = NowPlaying.Inst.CurrentSong.hasVideo;
+            if ( hasVideo )
+            {
+                StartCoroutine( LoadVideo() );
+                NowPlaying.Inst.OnStart += PlayVideo;
+                scene.OnPause += OnPause;
+            }
+            else
+            {
+                var path = NowPlaying.Inst.CurrentSong.imagePath;
+                if ( path == string.Empty )
+                {
+                    gameObject.SetActive( false );
+                }
+                else
+                {
+                    StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+                }
+                vp.enabled = false;
+            }
 
             image.color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
         }
         else
         {
+            vp.enabled = false;
             gameObject.SetActive( false );
         }
     }
 
+    private void OnPause( bool _isPause )
+    {
+        if ( _isPause ) vp.Pause();
+        else            vp.Play();
+    }
+
     private void OnDestroy()
     {
-        if ( image.sprite )
+        NowPlaying.Inst.OnStart -= PlayVideo;
+        if ( canDestroyTex && image.texture )
         {
-            if ( image.sprite.texture )
-            {
-                DestroyImmediate( image.sprite.texture );
-            }
-            Destroy( image.sprite );
+            DestroyImmediate( image.texture );
         }
     }
 
@@ -59,23 +100,9 @@ public class SongBackground : MonoBehaviour
                     }
 
                     Texture2D tex = handler.texture;
-                    image.sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
-
-                    float width = tex.width;
-                    float height = tex.height;
-
-                    float offsetX = ( float )Screen.width / tex.width;
-                    width *= offsetX;
-                    height *= offsetX;
-
-                    float offsetY = ( float )Screen.height / height;
-                    if ( offsetY > 1f )
-                    {
-                        width  *= offsetY;
-                        height *= offsetY;
-                    }
-
-                    image.rectTransform.sizeDelta = new Vector2( width, height );
+                    image.texture = tex;
+                    image.rectTransform.sizeDelta = Globals.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
+                    canDestroyTex = true;
                 }
             }
         }

@@ -39,6 +39,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     private double totalTime;
 
     public event Action OnResult;
+    public event Action OnStart;
     private Coroutine timeCoroutine;
 
     private void Awake()
@@ -176,6 +177,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         timeCoroutine = StartCoroutine( TimeUpdate() );
 
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d ); ;
+
+        OnStart?.Invoke();
 
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );

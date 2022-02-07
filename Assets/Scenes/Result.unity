@@ -1145,7 +1145,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9e99bf2e7a1b6e4499af27b677ce9610, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1bc9ec5832f095644bce2be5d96fa540, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1180,7 +1180,7 @@ MonoBehaviour:
   m_BlurFactor: 1
   m_EffectMode: 0
   m_ColorMode: 0
-  m_BlurMode: 1
+  m_BlurMode: 2
   m_AdvancedBlur: 1
 --- !u!1 &282358660
 GameObject:
@@ -5241,7 +5241,7 @@ MonoBehaviour:
   score: {fileID: 203582327}
   rate: {fileID: 1204265906}
   rank: {fileID: 893710554}
-  defaultOrigin: {fileID: 21300000, guid: 9e99bf2e7a1b6e4499af27b677ce9610, type: 3}
+  defaultOrigin: {fileID: 21300000, guid: 1bc9ec5832f095644bce2be5d96fa540, type: 3}
   defaultCircle: {fileID: 21300000, guid: 9e99bf2e7a1b6e4499af27b677ce9610, type: 3}
   originBg: {fileID: 209727160}
   circleBg: {fileID: 556019291}

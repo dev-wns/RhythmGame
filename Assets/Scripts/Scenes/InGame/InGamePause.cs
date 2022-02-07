@@ -44,20 +44,10 @@ public class InGamePause : ScrollOption, IKeyBind
         SoundManager.Inst.Play( SoundSfxType.Move );
     }
 
-    public void Continue()
-    {
-        gameObject.SetActive( false );
-        scene.ChangeAction( SceneAction.Main );
-        NowPlaying.Inst.Pause( false );
-    }
-
     public void KeyBind()
     {
         scene.Bind( SceneAction.Option, KeyCode.UpArrow, () => PrevMove() );
         scene.Bind( SceneAction.Option, KeyCode.DownArrow, () => NextMove() );
-
-        scene.Bind( SceneAction.Option, KeyCode.Escape, Continue );
-        scene.Bind( SceneAction.Option, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.Escape ) );
 
         scene.Bind( SceneAction.Option, KeyCode.Return, () => CurrentOption.Process() );
         scene.Bind( SceneAction.Option, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.Return ) );
