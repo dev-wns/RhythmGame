@@ -79,7 +79,6 @@ public class SpriteSystem : MonoBehaviour
 
             case BackgroundType.Video:
             {
-                // Video
                 StartCoroutine( LoadVideo() );
                 NowPlaying.Inst.OnStart += PlayVideo;
                 NowPlaying.Inst.OnPause += OnPause;
@@ -90,7 +89,6 @@ public class SpriteSystem : MonoBehaviour
 
             case BackgroundType.Sprite:
             {
-                // Sprites
                 scene.OnGameStart += SpriteProcess;
                 foreground.gameObject.SetActive( true );
                 StartCoroutine( LoadSamples( _chart.sprites ) );
@@ -100,7 +98,6 @@ public class SpriteSystem : MonoBehaviour
 
             case BackgroundType.Image:
             {
-                // Image
                 var path = NowPlaying.Inst.CurrentSong.imagePath;
                 if ( path == string.Empty )
                 {
@@ -314,7 +311,6 @@ public class SpriteSystem : MonoBehaviour
 
     public IEnumerator LoadBackground( string _path )
     {
-        bool isExist = System.IO.File.Exists( _path );
         if ( !System.IO.File.Exists( _path ) )
             yield break;
         

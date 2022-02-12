@@ -45,11 +45,11 @@ public class ResultInfomation : MonoBehaviour
 
         // Hit Count 
         totalNotes.text = ( song.noteCount + song.sliderCount ).ToString();
-        perfect.text = judge.GetResult( HitResult.Perfect ).ToString();
-        great.text   = judge.GetResult( HitResult.Great ).ToString();
-        good.text    = judge.GetResult( HitResult.Good ).ToString();
-        bad.text     = judge.GetResult( HitResult.Bad ).ToString();
-        miss.text    = judge.GetResult( HitResult.Miss ).ToString();
+        perfect.text    = judge.GetResult( HitResult.Perfect ).ToString();
+        great.text      = judge.GetResult( HitResult.Great ).ToString();
+        good.text       = judge.GetResult( HitResult.Good ).ToString();
+        bad.text        = judge.GetResult( HitResult.Bad ).ToString();
+        miss.text       = judge.GetResult( HitResult.Miss ).ToString();
 
         // Result
         maxCombo.text = judge.GetResult( HitResult.Combo ).ToString();
@@ -69,8 +69,26 @@ public class ResultInfomation : MonoBehaviour
 
     private IEnumerator LoadBackground( string _path )
     {
-        bool isExist = System.IO.File.Exists( _path );
-        if ( isExist )
+        if ( !System.IO.File.Exists( _path ) )
+        {
+            originBg.sprite = defaultOrigin;
+            circleBg.sprite = defaultCircle;
+
+            originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultOrigin.texture, new Vector2( Screen.width, Screen.height ) );
+            circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultCircle.texture, new Vector2( 500f, 500f ) );
+            yield break;
+        }
+
+        Texture2D tex;
+        var ext = System.IO.Path.GetExtension( _path );
+        if ( ext.Contains( ".bmp" ) )
+        {
+            BMPLoader loader = new BMPLoader();
+            BMPImage img = loader.LoadBMP( _path );
+            tex = img.ToTexture2D();
+            spriteBg = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+        }
+        else
         {
             using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path ) )
             {
@@ -91,20 +109,12 @@ public class ResultInfomation : MonoBehaviour
                     spriteBg = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
                 }
             }
-
-            originBg.sprite = spriteBg;
-            circleBg.sprite = spriteBg;
-
-            originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( Screen.width, Screen.height ) );
-            circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( 500f, 500f ) );
         }
-        else
-        {
-            originBg.sprite = defaultOrigin;
-            circleBg.sprite = defaultCircle;
 
-            originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultOrigin.texture, new Vector2( Screen.width, Screen.height ) );
-            circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultCircle.texture, new Vector2( 500f, 500f ) );
-        }
+        originBg.sprite = spriteBg;
+        circleBg.sprite = spriteBg;
+
+        originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( Screen.width, Screen.height ) );
+        circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( 500f, 500f ) );
     }
 }
