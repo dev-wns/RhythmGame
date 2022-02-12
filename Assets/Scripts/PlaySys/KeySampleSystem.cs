@@ -25,7 +25,7 @@ public class KeySampleSystem : MonoBehaviour
     {
         StopAllCoroutines();
         curIndex = 0;
-        curTime = 0d;
+        curTime = 0f;
     }
 
     public void AddSample( in KeySound _sample )

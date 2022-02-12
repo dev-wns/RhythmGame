@@ -28,11 +28,16 @@ public class InGame : Scene
         StartCoroutine( Play() );
     }
 
+    private void OnDestroy()
+    {
+        SoundManager.Inst.KeyRelease();
+    }
+
     private IEnumerator Play()
     {
         yield return new WaitUntil( () => !NowPlaying.Inst.IsLoadKeySounds && !NowPlaying.Inst.IsLoadBackground );
 
-        OnGameStart();
+        OnGameStart?.Invoke();
         NowPlaying.Inst.Play();
     }
 

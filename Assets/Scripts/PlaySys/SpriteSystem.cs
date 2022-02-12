@@ -14,7 +14,6 @@ public class SpriteSystem : MonoBehaviour
     [Header( "Video" )]
     public VideoPlayer vp;
     public RenderTexture renderTexture;
-    private bool canDestroyTex = false;
 
     private struct PlaySpriteSample
     {
@@ -34,22 +33,18 @@ public class SpriteSystem : MonoBehaviour
     private Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
 
     private Color color;
-    private void PlayVideo()
-    {
-        background.texture = renderTexture;
-        vp.Play();
-    }
 
-    private void ReLoad()
-    {
-        background.texture = Texture2D.blackTexture;
-        vp.frame = 0;
-    }
+    private int curBackIndex = 0;
+    private int curForeIndex = 0;
+
+    private enum BackgroundType { None, Video, Sprite, Image, }
+    private BackgroundType type;
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
+        scene.OnReLoad += ReLoad;
 
         color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
 
@@ -68,11 +63,101 @@ public class SpriteSystem : MonoBehaviour
         }
     }
 
+    private void Initialize( in Chart _chart )
+    {
+        type = GameSetting.BGAOpacity <= .1f        ? BackgroundType.None   :
+               NowPlaying.Inst.CurrentSong.hasVideo ? BackgroundType.Video  :
+               _chart.sprites.Count > 0             ? BackgroundType.Sprite : 
+                                                      BackgroundType.Image;
+
+        switch( type )
+        {
+            case BackgroundType.None:
+            {
+                gameObject.SetActive( false );
+            } break;
+
+            case BackgroundType.Video:
+            {
+                // Video
+                StartCoroutine( LoadVideo() );
+                NowPlaying.Inst.OnStart += PlayVideo;
+                NowPlaying.Inst.OnPause += OnPause;
+
+                foreground.gameObject.SetActive( false );
+                Debug.Log( "Background Type : Video" );
+            } break;
+
+            case BackgroundType.Sprite:
+            {
+                // Sprites
+                scene.OnGameStart += SpriteProcess;
+                foreground.gameObject.SetActive( true );
+                StartCoroutine( LoadSamples( _chart.sprites ) );
+
+                Debug.Log( "Background Type : Sprite" );
+            } break;
+
+            case BackgroundType.Image:
+            {
+                // Image
+                var path = NowPlaying.Inst.CurrentSong.imagePath;
+                if ( path == string.Empty )
+                {
+                    gameObject.SetActive( false );
+                }
+                else
+                {
+                    StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+                }
+                NowPlaying.Inst.IsLoadBackground = false;
+                Debug.Log( "Background Type : Image" );
+            } break;
+        }
+    }
+
+    private void PlayVideo()
+    {
+        background.texture = renderTexture;
+        vp.Play();
+    }
+
+    private void ReLoad()
+    {
+        switch( type )
+        {
+            case BackgroundType.None:
+            case BackgroundType.Image:
+            break;
+
+            case BackgroundType.Video:
+            {
+                background.texture = Texture2D.blackTexture;
+                vp.frame = 0;
+            } break;
+
+            case BackgroundType.Sprite:
+            {
+                background.texture = Texture2D.blackTexture;
+                foreground.texture = Texture2D.blackTexture;
+                curBackIndex = 0;
+                curForeIndex = 0;
+            } break;
+        }
+    }
+
+    private void OnPause( bool _isPause )
+    {
+        if ( _isPause ) vp.Pause();
+        else            vp.Play();
+    }
+
     private IEnumerator LoadVideo()
     {
-        background.color = color;
+        vp.enabled = true;
+        vp.targetTexture = renderTexture;
         background.texture = renderTexture;
-        vp.targetTexture   = renderTexture;
+        background.color = color;
 
         vp.url = @$"{NowPlaying.Inst.CurrentSong.videoPath}";
         vp.Prepare();
@@ -82,67 +167,7 @@ public class SpriteSystem : MonoBehaviour
         NowPlaying.Inst.IsLoadBackground = false;
     }
 
-    private void Initialize( in Chart _chart )
-    {
-        bool isEnabled = GameSetting.BGAOpacity <= .1f ? false : true;
-        if ( isEnabled )
-        {
-            bool hasVideo = NowPlaying.Inst.CurrentSong.hasVideo;
-            if ( hasVideo )
-            {
-                // Video
-                StartCoroutine( LoadVideo() );
-                NowPlaying.Inst.OnStart += PlayVideo;
-                NowPlaying.Inst.OnPause += OnPause;
-                scene.OnReLoad += ReLoad;
-
-                foreground.gameObject.SetActive( false );
-                Debug.Log( "Background Type : Video" );
-            }
-            else
-            {
-                bool hasSprites = _chart.sprites.Count > 0 ? true : false;
-                if ( hasSprites )
-                {
-                    // Sprites
-                    scene.OnGameStart += Process;
-                    StartCoroutine( LoadSamples( _chart.sprites ) );
-
-                    Debug.Log( "Background Type : Sprite" );
-                }
-                else
-                {
-                    // Image
-                    var path = NowPlaying.Inst.CurrentSong.imagePath;
-
-                    if ( path == string.Empty )
-                    {
-                        gameObject.SetActive( false );
-                    }
-                    else
-                    {
-                        StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
-                    }
-                    foreground.gameObject.SetActive( false );
-                    NowPlaying.Inst.IsLoadBackground = false;
-                    Debug.Log( "Background Type : Image" );
-                }
-                vp.enabled = false;
-            }
-        }
-        else
-        {
-            gameObject.SetActive( false );
-        }
-    }
-
-    private void OnPause( bool _isPause )
-    {
-        if ( _isPause ) vp.Pause();
-        else vp.Play();
-    }
-
-    private void Process()
+    private void SpriteProcess()
     {
         StartCoroutine( BackProcess() );
         StartCoroutine( ForeProcess() );
@@ -150,11 +175,10 @@ public class SpriteSystem : MonoBehaviour
 
     private IEnumerator BackProcess()
     {   
-        int curIndex = 0;
         PlaySpriteSample curSample = new PlaySpriteSample();
 
         if ( backgrounds.Count > 0 )
-             curSample = backgrounds[curIndex];
+             curSample = backgrounds[curBackIndex];
 
         Debug.Log( "back" + backgrounds.Count );
         WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= NowPlaying.Playback );
@@ -163,25 +187,24 @@ public class SpriteSystem : MonoBehaviour
         yield return waitSampleStart;
         background.color = color;
         
-        while ( curIndex < backgrounds.Count )
+        while ( curBackIndex < backgrounds.Count )
         {
             yield return waitSampleStart;
             background.texture = curSample.tex;
             background.rectTransform.sizeDelta = Globals.GetScreenRatio( curSample.tex, new Vector2( Screen.width, Screen.height ) );
 
             yield return waitSampleEnd;
-            if ( ++curIndex < backgrounds.Count )
-                 curSample = backgrounds[curIndex];
+            if ( ++curBackIndex < backgrounds.Count )
+                 curSample = backgrounds[curBackIndex];
         }
     }
 
     private IEnumerator ForeProcess()
     {
-        int curIndex = 0;
         PlaySpriteSample curSample = new PlaySpriteSample();
 
         if ( foregrounds.Count > 0 )
-             curSample = foregrounds[curIndex];
+             curSample = foregrounds[curForeIndex];
         else if ( foregrounds.Count == 0 )
         {
             foreground.gameObject.SetActive( false );
@@ -195,18 +218,17 @@ public class SpriteSystem : MonoBehaviour
         yield return waitSampleStart;
         foreground.color = color;
 
-        while ( curIndex < foregrounds.Count )
+        while ( curForeIndex < foregrounds.Count )
         {
             yield return waitSampleStart;
             foreground.texture = curSample.tex;
             foreground.rectTransform.sizeDelta = Globals.GetScreenRatio( curSample.tex, new Vector2( Screen.width, Screen.height ) );
 
             yield return waitSampleEnd;
-            if ( ++curIndex < foregrounds.Count )
-                 curSample = foregrounds[curIndex];
+            if ( ++curForeIndex < foregrounds.Count )
+                 curSample = foregrounds[curForeIndex];
         }
     }
-
 
     public IEnumerator LoadSamples( ReadOnlyCollection<SpriteSample> _samples )
     {
@@ -218,16 +240,16 @@ public class SpriteSystem : MonoBehaviour
 
         backgrounds.Sort( delegate ( PlaySpriteSample _A, PlaySpriteSample _B )
         {
-            if ( _A.start > _B.start ) return 1;
+            if ( _A.start > _B.start )      return 1;
             else if ( _A.start < _B.start ) return -1;
-            else return 0;
+            else                            return 0;
         } );
 
         foregrounds.Sort( delegate ( PlaySpriteSample _A, PlaySpriteSample _B )
         {
-            if ( _A.start > _B.start ) return 1;
+            if ( _A.start > _B.start )      return 1;
             else if ( _A.start < _B.start ) return -1;
-            else return 0;
+            else                            return 0;
         } );
 
         NowPlaying.Inst.IsLoadBackground = false;
@@ -276,7 +298,6 @@ public class SpriteSystem : MonoBehaviour
             }
 
             textures.Add( _sample.name, tex );
-            canDestroyTex = true;
         }
 
         switch ( _sample.type )
@@ -284,6 +305,7 @@ public class SpriteSystem : MonoBehaviour
             case SpriteType.Background:
             backgrounds.Add( new PlaySpriteSample( _sample, tex ) );
             break;
+
             case SpriteType.Foreground:
             foregrounds.Add( new PlaySpriteSample( _sample, tex ) );
             break;
@@ -329,7 +351,6 @@ public class SpriteSystem : MonoBehaviour
         background.color = color;
         background.texture = tex;
         background.rectTransform.sizeDelta = Globals.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
-        canDestroyTex = true;
     }
 }
 

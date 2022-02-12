@@ -88,7 +88,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         IsLoadKeySounds  = true;
         IsLoadBackground = true;
-        SoundManager.Inst.KeyRelease();
     }
 
     public void Initialize()

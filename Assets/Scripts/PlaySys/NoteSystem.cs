@@ -32,7 +32,8 @@ public class NoteSystem : MonoBehaviour
     {
         StopAllCoroutines();
         curIndex = 0;
-        curNote = new Note();
+        curNote = notes[curIndex];
+        lane.InputSys.SetSound( curNote.keySound );
     }
 
     private void OnDestroy() => CurrentScene.OnScrollChanged -= ScrollUpdate;

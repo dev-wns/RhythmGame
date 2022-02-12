@@ -60,7 +60,7 @@ public class InputSystem : MonoBehaviour
     private void ReLoad()
     {
         StopAllCoroutines();
-        curSound = new KeySound();
+        //curSound = new KeySound();
         playback = 0f;
         while ( sliderMissQueue.Count > 0 )
         {
