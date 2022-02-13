@@ -5,8 +5,14 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 
 public enum ChannelType { Master, BGM, KeySound, Sfx, Count };
-public enum SoundSfxType { Move, Return, Escape, Increase, Decrease }
+
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
+
+public enum SoundSfxType 
+{ 
+    MainSelect, MainClick, MainHover, Slider,
+    MenuSelect, MenuClick, MenuHover
+}
 
 public class SoundManager : SingletonUnity<SoundManager>
 {
@@ -168,11 +174,16 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         // Sfx Sound
-        LoadSfx( SoundSfxType.Move,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_001.wav" );
-        LoadSfx( SoundSfxType.Return,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_003.wav" );
-        LoadSfx( SoundSfxType.Escape,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_004.wav" );
-        LoadSfx( SoundSfxType.Increase, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_005.wav" );
-        LoadSfx( SoundSfxType.Decrease, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\confirm_style_2_006.wav" );
+        LoadSfx( SoundSfxType.MainClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav" );
+        LoadSfx( SoundSfxType.MenuClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav" );
+        
+        LoadSfx( SoundSfxType.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
+        LoadSfx( SoundSfxType.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
+
+        LoadSfx( SoundSfxType.MainHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav" );
+        LoadSfx( SoundSfxType.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
+
+        LoadSfx( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
 
         // DSP
         CreateLowEffectDsp();
@@ -209,7 +220,6 @@ public class SoundManager : SingletonUnity<SoundManager>
             }
         }
         sfxSounds.Clear();
-        //keySoundTemps.Clear();
 
         foreach ( var keySound in keySounds )
         {

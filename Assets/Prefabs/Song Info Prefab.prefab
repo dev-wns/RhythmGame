@@ -362,6 +362,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionType: 0
+  isPlaySfxSound: 0
   title: {fileID: 6398163851407190828}
   artist: {fileID: 126389761674496591}
 --- !u!114 &-6036897128450080802

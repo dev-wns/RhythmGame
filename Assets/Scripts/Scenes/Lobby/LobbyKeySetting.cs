@@ -15,13 +15,13 @@ public class LobbyKeySetting : SceneOptionBase
     public override void KeyBind()
     {
         CurrentScene.Bind( SceneAction.SubOption, KeyCode.UpArrow, () => PrevMove() );
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.UpArrow, () => SoundManager.Inst.Play( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.SubOption, KeyCode.UpArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
         CurrentScene.Bind( SceneAction.SubOption, KeyCode.DownArrow, () => NextMove() );
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.SubOption, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
         CurrentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => CurrentScene.ChangeAction( SceneAction.Option ) );
         CurrentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.Escape ) );
+        CurrentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
     }
 }

@@ -99,10 +99,13 @@ public class FreeStyleScrollSong : SceneScrollOption
 
     public override void KeyBind()
     {
-        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => PrevMove() );
-        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.Play( SoundSfxType.Move ) );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SceneType.Game ) );
 
+        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.Play( SoundSfxType.MainSelect ) );
+        CurrentScene.Bind( SceneAction.Main, KeyCode.UpArrow, () => PrevMove() );
+
+        CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.MainSelect ) );
         CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => NextMove() );
-        CurrentScene.Bind( SceneAction.Main, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.Move ) );
     }
 }

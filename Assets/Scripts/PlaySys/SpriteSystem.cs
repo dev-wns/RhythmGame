@@ -146,20 +146,22 @@ public class SpriteSystem : MonoBehaviour
     private void OnPause( bool _isPause )
     {
         if ( _isPause ) vp.Pause();
-        else            vp.Play();
+        else
+        {
+            vp.Play();
+        }
     }
 
     private IEnumerator LoadVideo()
     {
         vp.enabled = true;
+        vp.url = @$"{NowPlaying.Inst.CurrentSong.videoPath}";
         vp.targetTexture = renderTexture;
         background.texture = renderTexture;
         background.color = color;
-
-        vp.url = @$"{NowPlaying.Inst.CurrentSong.videoPath}";
+        
         vp.Prepare();
-        while ( !vp.isPrepared )
-            yield return null;
+        yield return new WaitUntil( () => vp.isPrepared );
 
         NowPlaying.Inst.IsLoadBackground = false;
     }

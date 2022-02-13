@@ -15,10 +15,10 @@ public class SongInfomation : OptionButton
         artist.text = _song.artist;
     }
 
-    public override void Process()
-    {
-        base.Process();
+    //public override void Process()
+    //{
+    //    base.Process();
 
-        SceneChanger.Inst.LoadScene( SceneType.Game );
-    }
+    //    SceneChanger.Inst.LoadScene( SceneType.Game );
+    //}
 }

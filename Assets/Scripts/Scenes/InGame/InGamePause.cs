@@ -33,7 +33,7 @@ public class InGamePause : ScrollOption, IKeyBind
         base.PrevMove();
 
         MoveSelectPosition();
-        SoundManager.Inst.Play( SoundSfxType.Move );
+        SoundManager.Inst.Play( SoundSfxType.MenuSelect );
     }
 
     public override void NextMove()
@@ -41,7 +41,7 @@ public class InGamePause : ScrollOption, IKeyBind
         base.NextMove();
 
         MoveSelectPosition();
-        SoundManager.Inst.Play( SoundSfxType.Move );
+        SoundManager.Inst.Play( SoundSfxType.MenuSelect );
     }
 
     public void KeyBind()
@@ -50,6 +50,6 @@ public class InGamePause : ScrollOption, IKeyBind
         scene.Bind( SceneAction.Option, KeyCode.DownArrow, () => NextMove() );
 
         scene.Bind( SceneAction.Option, KeyCode.Return, () => CurrentOption.Process() );
-        scene.Bind( SceneAction.Option, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.Return ) );
+        scene.Bind( SceneAction.Option, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
     }
 }

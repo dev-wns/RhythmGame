@@ -31,7 +31,7 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
 
     public void Return()
     {
-        SoundManager.Inst.Play( SoundSfxType.Return );
+        SoundManager.Inst.Play( SoundSfxType.MenuClick );
         if ( isReturnProcess ) Process();
     }
 
@@ -57,7 +57,7 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
     public override void LeftArrow()
     {
         PrevMove();
-        SoundManager.Inst.Play( SoundSfxType.Decrease );
+        SoundManager.Inst.Play( SoundSfxType.Slider );
         ChangeText( texts[curIndex] );
         if ( !isReturnProcess ) Process();
     }
@@ -65,7 +65,7 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
     public override void RightArrow()
     {
         NextMove();
-        SoundManager.Inst.Play( SoundSfxType.Increase );
+        SoundManager.Inst.Play( SoundSfxType.Slider );
         ChangeText( texts[curIndex] );
         if ( !isReturnProcess ) Process();
     }

@@ -80,7 +80,7 @@ public class InGame : Scene
             if ( NowPlaying.Inst.Pause( true ) )
             {
                 pauseCanvas.SetActive( true );
-                SoundManager.Inst.Play( SoundSfxType.Return );
+                SoundManager.Inst.Play( SoundSfxType.MenuClick );
                 ChangeAction( SceneAction.Option );
             }
             else
@@ -93,23 +93,23 @@ public class InGame : Scene
         {
             NowPlaying.Inst.Pause( false );
             pauseCanvas.SetActive( false );
+            SoundManager.Inst.Play( SoundSfxType.MenuHover );
             ChangeAction( SceneAction.Main );
         }
     }
 
     public override void KeyBind()
     {
-        Bind( SceneAction.Main, KeyCode.Escape, () => Pause( true ) );
+        Bind( SceneAction.Option, KeyCode.Escape, () => Pause( false ) );
+        Bind( SceneAction.Main,   KeyCode.Escape, () => Pause( true ) );
 
         Bind( SceneAction.Main, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= .1d );
-        Bind( SceneAction.Main, KeyCode.Alpha1, () => SoundManager.Inst.Play( SoundSfxType.Decrease ) );
+        Bind( SceneAction.Main, KeyCode.Alpha1, () => SoundManager.Inst.Play( SoundSfxType.Slider ) );
         Bind( SceneAction.Main, KeyCode.Alpha1, () => OnScrollChanged?.Invoke() );
 
         Bind( SceneAction.Main, KeyCode.Alpha2, () => GameSetting.ScrollSpeed += .1d );
-        Bind( SceneAction.Main, KeyCode.Alpha2, () => SoundManager.Inst.Play( SoundSfxType.Increase ) );
+        Bind( SceneAction.Main, KeyCode.Alpha2, () => SoundManager.Inst.Play( SoundSfxType.Slider ) );
         Bind( SceneAction.Main, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
 
-        Bind( SceneAction.Option, KeyCode.Escape, () => Pause( false ) );
-        Bind( SceneAction.Option, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.Escape ) );
     }
 }

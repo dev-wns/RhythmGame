@@ -5,6 +5,8 @@ using UnityEngine.Events;
 
 public class OptionButton : OptionBindReturnBase
 {
+	public bool isPlaySfxSound = true;
+
 	protected override void Awake()
 	{
 		base.Awake();
@@ -14,8 +16,10 @@ public class OptionButton : OptionBindReturnBase
 
 	public override void Return()
 	{
-		SoundManager.Inst.Play( SoundSfxType.Return );
-		Process();
+		if ( isPlaySfxSound )
+			 SoundManager.Inst.Play( SoundSfxType.MenuClick );
+
+        Process();
 	}
 
 	public override void Process() { }

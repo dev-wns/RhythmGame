@@ -42,13 +42,14 @@ public class Lobby : Scene
     public override void KeyBind()
     {
         Bind( SceneAction.Main, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
+        Bind( SceneAction.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
 
         Bind( SceneAction.Main, KeyCode.Space, () => optionCanvas.SetActive( true ) );
         Bind( SceneAction.Main, KeyCode.Space, () => ChangeAction( SceneAction.Option ) );
-        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.Play( SoundSfxType.Return ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
 
         Bind( SceneAction.Main, KeyCode.Escape, () => exitCanvas.SetActive( true ) );
         Bind( SceneAction.Main, KeyCode.Escape, () => ChangeAction( SceneAction.Exit ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.Return ) );
+        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
     }
 }
