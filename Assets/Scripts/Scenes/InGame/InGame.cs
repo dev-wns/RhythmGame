@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 public class InGame : Scene
 {
+    public GameObject loadingCanvas;
     public GameObject pauseCanvas;
 
     public delegate void DelSystemInitialize( in Chart _chart );
@@ -28,10 +29,11 @@ public class InGame : Scene
     {
         InputLock( true );
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
-        Task task = Task.Run( () => OnSystemInitializeThread( NowPlaying.Inst.CurrentChart ) );
+        Task LoadkeySoundAsyncTask = Task.Run( () => OnSystemInitializeThread( NowPlaying.Inst.CurrentChart ) );
 
-        await task;
+        await LoadkeySoundAsyncTask;
 
+        Debug.Log( " KeySample Async End " );
         StartCoroutine( Play() );
     }
 
@@ -43,6 +45,8 @@ public class InGame : Scene
     private IEnumerator Play()
     {
         yield return new WaitUntil( () => !NowPlaying.Inst.IsLoadKeySounds && !NowPlaying.Inst.IsLoadBackground );
+
+        loadingCanvas.SetActive( false );
 
         OnGameStart?.Invoke();
         InputLock( false );

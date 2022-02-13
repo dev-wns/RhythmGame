@@ -22,7 +22,7 @@ public class Gear : MonoBehaviour
         judge.anchoredPosition = new Vector3( 0f, GameSetting.JudgePos, -1f );
         judge.sizeDelta = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
 
-        bool isEnabled = GameSetting.PanelOpacity <= .1f ? false : true;
+        bool isEnabled = GameSetting.PanelOpacity <= .01f ? false : true;
         if ( isEnabled )
         {
             background.color = new Color( 0f, 0f, 0f, GameSetting.PanelOpacity * .01f );
