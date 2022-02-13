@@ -4,9 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using TMPro;
+using UnityEngine.U2D;
 
 public class ResultInfomation : MonoBehaviour
 {
+    public SpriteAtlas rankAtlas;
+
     [Header("Song Infomation")]
     public TextMeshProUGUI title;
     public TextMeshProUGUI artist;
@@ -53,8 +56,16 @@ public class ResultInfomation : MonoBehaviour
 
         // Result
         maxCombo.text = judge.GetResult( HitResult.Combo ).ToString();
-        score.text    = judge.GetResult( HitResult.Score ).ToString();
         rate.text     = $"{( judge.GetResult( HitResult.Rate ) / 100d ):F2}%";
+
+        int scoreValue = judge.GetResult( HitResult.Score );
+        score.text = scoreValue.ToString();
+
+        rank.sprite = scoreValue >= 950000 ? rankAtlas.GetSprite( "Ranking-S" ) :
+                      scoreValue >= 900000 ? rankAtlas.GetSprite( "Ranking-A" ) :
+                      scoreValue >= 850000 ? rankAtlas.GetSprite( "Ranking-B" ) :
+                      scoreValue >= 800000 ? rankAtlas.GetSprite( "Ranking-C" ) :
+                                             rankAtlas.GetSprite( "Ranking-D" );
 
         // background
         StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );

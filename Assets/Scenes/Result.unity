@@ -5229,6 +5229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50ce3b4fa4bf5474d87fb9339eaec345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rankAtlas: {fileID: 100100200, guid: a6fd5974c857b224d816984c7f31208d, type: 3}
   title: {fileID: 1222060313}
   artist: {fileID: 178240095}
   totalNotes: {fileID: 2009991957}
