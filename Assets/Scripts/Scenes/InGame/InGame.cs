@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class InGame : Scene
 {
@@ -9,6 +10,7 @@ public class InGame : Scene
 
     public delegate void DelSystemInitialize( in Chart _chart );
     public event DelSystemInitialize OnSystemInitialize;
+    public event DelSystemInitialize OnSystemInitializeThread;
 
     public event Action OnGameStart;
     public event Action OnScrollChanged;
@@ -22,9 +24,14 @@ public class InGame : Scene
         NowPlaying.Inst.Initialize();
     }
 
-    private void Start()
+    private async void Start()
     {
+        InputLock( true );
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
+        Task task = Task.Run( () => OnSystemInitializeThread( NowPlaying.Inst.CurrentChart ) );
+
+        await task;
+
         StartCoroutine( Play() );
     }
 
@@ -38,6 +45,7 @@ public class InGame : Scene
         yield return new WaitUntil( () => !NowPlaying.Inst.IsLoadKeySounds && !NowPlaying.Inst.IsLoadBackground );
 
         OnGameStart?.Invoke();
+        InputLock( false );
         NowPlaying.Inst.Play();
     }
 

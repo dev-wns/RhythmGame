@@ -19,7 +19,8 @@ public class LaneSystem : MonoBehaviour
     {
         keySampleSystem = GetComponent<KeySampleSystem>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnSystemInitialize += Initialize;
+        scene.OnSystemInitializeThread += Initialize;
+        scene.OnGameStart += SetLane;
 
         lanes.AddRange( GetComponentsInChildren<Lane>() );
 
@@ -39,9 +40,12 @@ public class LaneSystem : MonoBehaviour
         NowPlaying.Inst.IsLoadKeySounds = false;
 
         CreateNotes( _chart );
+    }
+
+    private void SetLane()
+    {
         for ( int i = 0; i < ( int )GameKeyAction.Count; i++ )
             lanes[i].SetLane( i );
-
     }
 
     private void LaneSwap( int _min, int _max, int _swapCount = 6 )
