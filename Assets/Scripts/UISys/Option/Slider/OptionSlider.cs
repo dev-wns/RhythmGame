@@ -31,8 +31,11 @@ public abstract class OptionSlider : OptionBindArrowBase
     public override void LeftArrow()
     {
         curValue -= increaseValue;
-        if ( curValue < minValue ) 
-             curValue = minValue;
+        if ( curValue < minValue )
+        {
+            curValue = minValue;
+            return;
+        }
 
         Process();
         UpdateValue( curValue );
@@ -43,7 +46,10 @@ public abstract class OptionSlider : OptionBindArrowBase
     {
         curValue += increaseValue;
         if ( curValue > maxValue )
-             curValue = maxValue;
+        {
+            curValue = maxValue;
+            return;
+        }
 
         Process();
         UpdateValue( curValue );

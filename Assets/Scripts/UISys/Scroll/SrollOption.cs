@@ -39,15 +39,15 @@ public class ScrollOption : ScrollBase
     {
         base.PrevMove();
 
-        CurrentOption = options[CurrentIndex];
+        CurrentOption  = options[CurrentIndex];
         PreviousOption = options[PreviousIndex];
     }
 
     public override void NextMove()
     {
         base.NextMove();
-
-        CurrentOption = options[CurrentIndex];
+         
+        CurrentOption  = options[CurrentIndex];
         PreviousOption = options[PreviousIndex];
     }
 }

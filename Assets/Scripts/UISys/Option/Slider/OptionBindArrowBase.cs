@@ -9,6 +9,8 @@ public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
     private DelKeyAction UpAction;
 
     private bool isPress = false;
+    private static float PressWaitTime   = .5f;
+    private static float PressUpdateTime = .05f;
     private float time;
 
     protected override void Awake()
@@ -30,10 +32,10 @@ public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
     private void LeftPress()
     {
         time += Time.deltaTime;
-        if ( time >= 1f ) 
+        if ( time >= PressWaitTime ) 
              isPress = true;
 
-        if ( isPress && time >= .1f )
+        if ( isPress && time >= PressUpdateTime )
         {
             time = 0f;
             LeftArrow();
@@ -43,10 +45,10 @@ public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
     private void RightPress()
     {
         time += Time.deltaTime;
-        if ( time >= 1f )
-            isPress = true;
+        if ( time >= PressWaitTime )
+             isPress = true;
 
-        if ( isPress && time >= .1f )
+        if ( isPress && time >= PressUpdateTime )
         {
             time = 0f;
             RightArrow();
