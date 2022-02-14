@@ -169,7 +169,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
         savedTime = waitTime;
-        //IsPlaying = true;
         timeCoroutine = StartCoroutine( TimeUpdate() );
 
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d ); ;

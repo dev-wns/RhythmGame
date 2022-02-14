@@ -38,7 +38,7 @@ public class KeySampleSystem : MonoBehaviour
         if ( samples.Count > 0 )
              curTime = samples[curIndex].time;
 
-        WaitUntil waitNextSample = new WaitUntil( () => curTime <= NowPlaying.Playback );
+        WaitUntil waitNextSample = new WaitUntil( () => curTime <= NowPlaying.Playback + GameSetting.SoundOffset * .001d );
         
         while ( curIndex < samples.Count )
         {
