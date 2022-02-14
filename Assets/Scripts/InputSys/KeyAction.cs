@@ -40,69 +40,34 @@ public class KeyAction
         }
     }
 
-    public void AwakeBind( KeyCode _code, KeyType _keyType )
-    {
-        if ( keyActions.ContainsKey( _code ) )
-        {
-            if ( keyActions[_code] == null )
-            {
-                var typeAction = new Dictionary<KeyType, DelKeyAction>();
-                typeAction.Add( _keyType, null );
-                keyActions[_code] = typeAction;
-            }
-        }
-        else
-        {
-            var typeAction = new Dictionary<KeyType, DelKeyAction>();
-            typeAction.Add( _keyType, null );
-            keyActions.Add( _code, typeAction );
-        }
-    }
-
-    public void Bind( KeyAction _action )
-    {
-        foreach ( var code in _action.keyActions.Keys )
-        {
-            foreach ( var type in _action.keyActions[code].Keys )
-            {
-                var action = _action.keyActions[code][type];
-                Bind( code, type, action );
-            }
-        }
-    }
-
     public void Bind( KeyCode _code, KeyType _type, DelKeyAction _action )
     {
-        if ( _action == null ) return;
+        if ( _action == null || IsDuplicate( _code, _type, _action ) ) 
+             return;
+       
+        KeyAlloc( _code );
+        keyActions[_code][_type] += _action;
+    }
 
-        if ( keyActions.ContainsKey( _code ) )
-        {
-            if ( keyActions[_code].ContainsKey( _type ) )
-            {
-                if ( IsDuplicate( _code, _type, _action ) )
-                    return;
-
-                keyActions[_code][_type] += _action;
-            }
-            else
-            {
-                var typeAction = new Dictionary<KeyType, DelKeyAction>();
-                typeAction.Add( _type, _action );
-                keyActions[_code] = typeAction;
-            }
-        }
-        else
+    private void KeyAlloc( KeyCode _code )
+    {
+        if ( !keyActions.ContainsKey( _code ) )
         {
             var typeAction = new Dictionary<KeyType, DelKeyAction>();
-            typeAction.Add( _type, _action );
+            
+            typeAction.Add( KeyType.Down, () => { } );
+            typeAction.Add( KeyType.Hold, () => { } );
+            typeAction.Add( KeyType.Up,   () => { } );
+
             keyActions.Add( _code, typeAction );
         }
     }
 
     private bool IsDuplicate( KeyCode _code, KeyType _type, DelKeyAction _action )
     {
-        if ( keyActions[_code][_type] == null )
-            return false;
+        // KeyType은 KeyCode가 없으면 Down, Hold, Up을 전부 할당하기 때문에 체크 안해도 된다.
+        if ( !keyActions.ContainsKey( _code ) )
+             return false;
 
         foreach ( var action in keyActions[_code][_type].GetInvocationList() )
         {

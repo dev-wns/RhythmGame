@@ -15,7 +15,7 @@ public abstract class OptionBindReturnBase : OptionBase, IOptionReturn
 
     private void Start()
     {
-        CurrentScene?.AwakeBind( actionType, KeyCode.Return );
+        //CurrentScene?.AwakeBind( actionType, KeyCode.Return );
     }
 
     public abstract void Return();

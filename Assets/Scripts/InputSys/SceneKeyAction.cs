@@ -25,29 +25,6 @@ public class SceneKeyAction : MonoBehaviour
         keyActions[CurrentAction].ActionCheck();
     }
 
-    public void AwakeBind( SceneAction _type, KeyCode _code )
-    {
-        if ( keyActions.ContainsKey( _type ) )
-        {
-            if ( keyActions[_type] == null )
-            {
-                KeyAction keyAction = new KeyAction();
-                keyAction.AwakeBind( _code, KeyType.Down );
-                keyActions[_type] = keyAction;
-            }
-            else
-            {
-                keyActions[_type].AwakeBind( _code, KeyType.Down );
-            }
-        }
-        else
-        {
-            KeyAction keyAction = new KeyAction();
-            keyAction.AwakeBind( _code, KeyType.Down );
-            keyActions.Add( _type, keyAction );
-        }
-    }
-
     public void Bind( SceneAction _type, KeyCode _code, DelKeyAction _action )
     {
         if ( keyActions.ContainsKey( _type ) )
@@ -62,11 +39,32 @@ public class SceneKeyAction : MonoBehaviour
         }
     }
 
+    public void Bind( SceneAction _type, KeyType _keyType, KeyCode _code, DelKeyAction _action )
+    {
+        if ( keyActions.ContainsKey( _type ) )
+        {
+            keyActions[_type].Bind( _code, _keyType, _action );
+        }
+        else
+        {
+            KeyAction keyAction = new KeyAction();
+            keyAction.Bind( _code, _keyType, _action );
+            keyActions.Add( _type, keyAction );
+        }
+    }
+
     public void Remove( SceneAction _type, KeyCode _code, DelKeyAction _action )
     {
         if ( !keyActions.ContainsKey( _type ) ) return;
 
         keyActions[_type].Remove( _code, KeyType.Down, _action );
+    }
+
+    public void Remove( SceneAction _type, KeyType _keyType, KeyCode _code, DelKeyAction _action )
+    {
+        if ( !keyActions.ContainsKey( _type ) ) return;
+
+        keyActions[_type].Remove( _code, _keyType, _action );
     }
 
     public void ChangeAction( SceneAction _type )

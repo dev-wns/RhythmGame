@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class LobbyOption : SceneScrollOption
 {
-    protected override void Awake()
-    {
-        base.Awake();
-
-        CurrentScene.AwakeBind( SceneAction.Option, KeyCode.Return );
-        CurrentScene.AwakeBind( SceneAction.Option, KeyCode.LeftArrow );
-        CurrentScene.AwakeBind( SceneAction.Option, KeyCode.RightArrow );
-    }
-
     public override void KeyBind()
     {
         CurrentScene.Bind( SceneAction.Option, KeyCode.UpArrow,   () => PrevMove() );

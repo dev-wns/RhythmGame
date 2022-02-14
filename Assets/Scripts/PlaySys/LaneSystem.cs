@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,8 @@ public class LaneSystem : MonoBehaviour
     private InGame scene;
     private KeySampleSystem keySampleSystem;
     private List<Lane> lanes = new List<Lane>();
+
+    private System.Random random;
 
     private struct CalcNote
     {
@@ -24,7 +27,8 @@ public class LaneSystem : MonoBehaviour
 
         lanes.AddRange( GetComponentsInChildren<Lane>() );
 
-        Random.InitState( ( int )System.DateTime.Now.Ticks );
+        random = new System.Random( ( int )System.DateTime.Now.Ticks );
+        //Random.InitState( ( int )System.DateTime.Now.Ticks );
     }
 
     private void Initialize( in Chart _chart )
@@ -52,12 +56,14 @@ public class LaneSystem : MonoBehaviour
     {
         for ( int i = 0; i < _swapCount; i++ )
         {
-            var randA = Random.Range( _min, _max );
-            var randB = Random.Range( _min, _max );
+            var randA = random.Next( _min, _max );
+            var randB = random.Next( _min, _max );
 
             var tmp      = lanes[randA];
             lanes[randA] = lanes[randB];
             lanes[randB] = tmp;
+
+            Thread.Sleep( 1 );
         }
     }
 
@@ -119,7 +125,7 @@ public class LaneSystem : MonoBehaviour
                     // 일반노트만 있을 때 스왑
                     for ( int j = 0; j < 6; j++ )
                     {
-                        var rand = Random.Range( 0, 5 );
+                        var rand = random.Next( 0, 5 );
 
                         bool isOverlab = false;
                         for ( int k = 0; k < 6; k++ )
@@ -137,6 +143,8 @@ public class LaneSystem : MonoBehaviour
                             column[j]    = column[rand];
                             column[rand] = tmp;
                         }
+
+                        Thread.Sleep( 1 );
                     }
 
                     // 노트 추가

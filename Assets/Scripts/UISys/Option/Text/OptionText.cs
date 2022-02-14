@@ -22,11 +22,6 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
         maxCount = texts.Count;
     }
 
-    private void Start()
-    {
-        CurrentScene?.AwakeBind( actionType, KeyCode.Return );
-    }
-
     protected abstract void CreateObject();
 
     public void Return()
