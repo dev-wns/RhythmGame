@@ -17,17 +17,22 @@ public class SettingInfomation : MonoBehaviour
                  game.OnScrollChanged += () => speed.text = $"{GameSetting.ScrollSpeed:F1}";
         }
 
+        UpdateInfomation();
+    }
+
+    public void UpdateInfomation()
+    {
         speed.text  = $"{GameSetting.ScrollSpeed:F1}";
         offset.text = $"{Globals.Round( GameSetting.SoundOffset )}";
         random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
-        
-        string temp = ( GameSetting.CurrentGameMode & GameMode.AutoPlay ) != 0 ? "On" : "Off";
-        auto.text = $"{temp}";
 
-        temp = ( GameSetting.CurrentGameMode & GameMode.NoSlider ) != 0 ? "On" : "Off";
+        string temp = ( GameSetting.CurrentGameMode & GameMode.AutoPlay ) != 0 ? "On" : "Off";
+        auto.text   = $"{temp}";
+
+        temp          = ( GameSetting.CurrentGameMode & GameMode.NoSlider ) != 0 ? "On" : "Off";
         noSlider.text = $"{temp}";
 
-        temp = ( GameSetting.CurrentGameMode & GameMode.NoFail ) != 0 ? "On" : "Off";
+        temp        = ( GameSetting.CurrentGameMode & GameMode.NoFail ) != 0 ? "On" : "Off";
         noFail.text = $"{temp}";
     }
 }

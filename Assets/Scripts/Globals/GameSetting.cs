@@ -56,7 +56,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static double OriginScrollSpeed = 7.0d;
+    private static double OriginScrollSpeed = 6.8d;
     public static double ScrollSpeed
     {
 
@@ -91,7 +91,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 3f;
 
     // Jugdement
-    public static float JudgePos    = -450f;
+    public static float JudgePos    = -490f;
     public static float JudgeHeight = 100f; // scaleY
 
     // note
@@ -107,7 +107,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
     private readonly KeyCode[] defaultKeys = new KeyCode[]
     {
-        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.K, KeyCode.L, KeyCode.Semicolon
+        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote,
     };
 
     private void Awake()

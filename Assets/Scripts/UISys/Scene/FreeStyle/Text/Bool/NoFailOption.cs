@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class NoFailOption : OptionText
 {
+    public TMPro.TextMeshProUGUI settingText;
+
     private void OnEnable()
     {
         curIndex = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail ) ? 1 : 0;
@@ -22,6 +24,10 @@ public class NoFailOption : OptionText
     {
         if ( curIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.NoFail;
         else                 GameSetting.CurrentGameMode |=  GameMode.NoFail;
+
+        string temp = ( GameSetting.CurrentGameMode & GameMode.NoFail ) != 0 ? "On" : "Off";
+        settingText.text = $"{temp}";
+
         Debug.Log( GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail ) );
     }
 }

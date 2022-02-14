@@ -55,12 +55,12 @@ public class Judgement : MonoBehaviour
     {
         double diffAbs = Globals.Abs( _timeOffset );
 
-        if ( _timeOffset < -Bad )                           OnJudge?.Invoke( HitResult.Miss );
-        else if ( diffAbs > Good    && diffAbs <= Bad )     OnJudge?.Invoke( HitResult.Bad );
-        else if ( diffAbs > Great   && diffAbs <= Good )    OnJudge?.Invoke( HitResult.Good );
-        else if ( diffAbs > Perfect && diffAbs <= Great )   OnJudge?.Invoke( HitResult.Great );
-        else if ( diffAbs >= 0d     && diffAbs <= Perfect ) OnJudge?.Invoke( HitResult.Perfect );
-        else                                                OnJudge?.Invoke( HitResult.None );
+        if ( _timeOffset < -Bad )                         OnJudge?.Invoke( HitResult.Miss );
+        else if ( diffAbs > Good && diffAbs <= Bad )      OnJudge?.Invoke( HitResult.Bad );
+        else if ( diffAbs > Great && diffAbs <= Good )    OnJudge?.Invoke( HitResult.Good );
+        else if ( diffAbs > Perfect && diffAbs <= Great ) OnJudge?.Invoke( HitResult.Great );
+        else if ( diffAbs >= 0d && diffAbs <= Perfect )   OnJudge?.Invoke( HitResult.Perfect );
+        else                                              OnJudge?.Invoke( HitResult.None );
 
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {

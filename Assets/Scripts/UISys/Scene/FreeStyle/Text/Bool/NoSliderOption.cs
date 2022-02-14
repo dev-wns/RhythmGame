@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class NoSliderOption : OptionText
 {
+    public TMPro.TextMeshProUGUI settingText;
+
     private void OnEnable()
     {
         curIndex = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? 1 : 0;
@@ -22,6 +24,10 @@ public class NoSliderOption : OptionText
     {
         if ( curIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.NoSlider;
         else                 GameSetting.CurrentGameMode |=  GameMode.NoSlider;
+
+        string temp = ( GameSetting.CurrentGameMode & GameMode.NoSlider ) != 0 ? "On" : "Off";
+        settingText.text = $"{temp}";
+
         Debug.Log( GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) );
     }
 }

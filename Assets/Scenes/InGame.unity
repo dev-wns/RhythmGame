@@ -829,8 +829,8 @@ RectTransform:
   - {fileID: 1811236363}
   - {fileID: 1632539424}
   - {fileID: 390523585}
-  - {fileID: 1699594077}
   - {fileID: 1730536113}
+  - {fileID: 1699594077}
   m_Father: {fileID: 1120565876}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -863,8 +863,8 @@ MonoBehaviour:
   - {fileID: 1811236363}
   - {fileID: 1632539424}
   - {fileID: 390523585}
-  - {fileID: 1699594077}
   - {fileID: 1730536113}
+  - {fileID: 1699594077}
 --- !u!114 &64259534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7271,7 +7271,7 @@ MonoBehaviour:
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
   m_CancelButton: Cancel
-  m_InputActionsPerSecond: 20
+  m_InputActionsPerSecond: 10000
   m_RepeatDelay: 0
   m_ForceModuleActive: 0
 --- !u!114 &930784871
@@ -7616,6 +7616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionType: 1
+  isPlaySfxSound: 1
   ButtonEvent:
     m_PersistentCalls:
       m_Calls:
@@ -8536,6 +8537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionType: 1
+  isPlaySfxSound: 1
   ButtonEvent:
     m_PersistentCalls:
       m_Calls:
@@ -9077,6 +9079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionType: 1
+  isPlaySfxSound: 1
   ButtonEvent:
     m_PersistentCalls:
       m_Calls:
@@ -13670,11 +13673,11 @@ RectTransform:
   - {fileID: 1603820321}
   - {fileID: 304256654}
   m_Father: {fileID: 64259532}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 150, y: 0}
+  m_AnchoredPosition: {x: 250, y: 0}
   m_SizeDelta: {x: 95, y: 95}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1699594078
@@ -13747,11 +13750,11 @@ RectTransform:
   - {fileID: 1181588123}
   - {fileID: 1637564396}
   m_Father: {fileID: 64259532}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 250, y: 0}
+  m_AnchoredPosition: {x: 150, y: 0}
   m_SizeDelta: {x: 95, y: 95}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1730536114

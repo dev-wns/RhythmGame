@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class AutoPlayOption : OptionText
 {
+    public TMPro.TextMeshProUGUI settingText;
+
     private void OnEnable()
     {
         curIndex = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 1 : 0;
@@ -22,5 +24,8 @@ public class AutoPlayOption : OptionText
     {
         if ( curIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.AutoPlay;
         else                 GameSetting.CurrentGameMode |=  GameMode.AutoPlay;
+
+        string temp = ( GameSetting.CurrentGameMode & GameMode.AutoPlay ) != 0 ? "On" : "Off";
+        settingText.text = $"{temp}";
     }
 }

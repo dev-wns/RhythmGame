@@ -5,6 +5,8 @@ using System.Text;
 
 public class RandomOption : OptionText
 {
+    public TMPro.TextMeshProUGUI settingText;
+
     private void OnEnable()
     {
         curIndex = ( int )GameSetting.CurrentRandom;
@@ -26,6 +28,7 @@ public class RandomOption : OptionText
     public override void Process()
     {
         GameSetting.CurrentRandom = ( GameRandom )curIndex;
+        settingText.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
         Debug.Log( ( GameRandom )curIndex );
     }
 }
