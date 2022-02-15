@@ -18,7 +18,7 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
 
         if ( outline is null ) return;
         outline.effectDistance = new Vector2( 5f, -5f );
-        outline.effectColor    = Color.yellow;
+        //outline.effectColor    = Color.yellow;
         ActiveOutline( false );
     }
 

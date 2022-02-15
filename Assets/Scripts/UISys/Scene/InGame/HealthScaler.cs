@@ -38,7 +38,7 @@ public class HealthScaler : MonoBehaviour
         curHealth = offset < 1f ? 0f : offset;
 
         float maxHeight = Globals.Clamp( initScl.y * curHealth / HealthSystem.MaxHealth, 0f, initScl.y );
-        float minHeight = Globals.Clamp( maxHeight * .95f, 0f, initScl.y );
+        float minHeight = Globals.Clamp( maxHeight * .9f, 0f, initScl.y );
         float height    = ( minHeight + ( ( maxHeight - minHeight ) * loop0_1 ) );
 
         tf.localScale = new Vector2( initScl.x, Globals.Clamp( height, minHeight, maxHeight ) );
