@@ -22,9 +22,9 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
         }
     }
     [SerializeField]
-    protected RectOffset padding;
+    public int spacing;
     [SerializeField]
-    protected int spacing;
+    protected RectOffset padding;
     [SerializeField] 
     protected TextAnchor childAlignment = TextAnchor.MiddleCenter;
     protected Vector2 anchor;

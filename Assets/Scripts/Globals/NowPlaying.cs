@@ -28,6 +28,13 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
     }
     private int curSongIndex;
+    public Song GetSongIndexAt( int _index )
+    {
+        if ( _index > Songs.Count )
+            throw new Exception( "out of range" );
+
+        return Songs[_index];
+    }
 
     public static double Playback;        // 노래 재생 시간
     public static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
