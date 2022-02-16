@@ -10,9 +10,8 @@ public class SongInfomation : OptionButton
 
     public RectTransform rt { get; private set; }
 
-    protected override void Awake()
+    public void Initialize()
     {
-        base.Awake();
         rt = transform as RectTransform;
     }
 

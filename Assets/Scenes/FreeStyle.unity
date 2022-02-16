@@ -6287,7 +6287,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &620280204
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12869,7 +12869,7 @@ MonoBehaviour:
     right: 0
     top: 0
     bottom: 0
-  childAlignment: 1
+  childAlignment: 4
   rectChildren: []
 --- !u!1 &1583733045
 GameObject:
