@@ -10948,8 +10948,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779, type: 3}
-  maxShowCount: 9
-  extraCount: 6
+  maxShowCount: 13
+  extraCount: 4
 --- !u!114 &1575546729
 MonoBehaviour:
   m_ObjectHideFlags: 0

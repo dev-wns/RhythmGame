@@ -42,10 +42,11 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         median = Mathf.FloorToInt( ( maxShowCount + extraCount ) / 2f );
 
         // 객체 할당
-        Length    = NowPlaying.Inst.Songs.Count - 1;
+        Length    = NowPlaying.Inst.Songs.Count;
         int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
                     NowPlaying.Inst.CurrentSongIndex - median + Length :
                     NowPlaying.Inst.CurrentSongIndex - median;
+
         for ( int i = 0; i < maxShowCount + extraCount; i++ )
         {
             if ( count > Length - 1 ) count = 0;
@@ -113,7 +114,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
 
         // Song 정보 수정
         int infoIndex = CurrentIndex - median < 0 ?
-                        CurrentIndex - median + Length :
+                        CurrentIndex - median + Length:
                         CurrentIndex - median;
         last.SetInfo( NowPlaying.Inst.GetSongIndexAt( infoIndex ) );
         
@@ -180,6 +181,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
 
     private void UpdateSong()
     {
+        Debug.Log( $"{NowPlaying.Inst.Songs.Count} {CurrentIndex}" );
         NowPlaying.Inst.CurrentSongIndex = CurrentIndex;
         curSong = NowPlaying.Inst.CurrentSong;
         soundLength = curSong.totalTime;
