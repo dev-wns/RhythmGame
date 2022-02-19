@@ -5,8 +5,14 @@ using UnityEngine.UI;
 
 public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
 {
-    public OptionType type { get; protected set; }
+    [Header( "Type" )]
     public SceneAction actionType = SceneAction.Option;
+    public OptionType type { get; protected set; }
+
+    [Header("Infomation")]
+    public TMPro.TextMeshProUGUI infoObject;
+    [TextArea]
+    public string infoText;
 
     protected Scene CurrentScene { get; private set; }
     private Outline outline;
@@ -27,6 +33,12 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
         if ( outline is null ) return;
         outline ??= GetComponent<Outline>();
         outline.enabled = _isActive;
+    }
+
+    public void UpdateInfoText()
+    {
+        if ( infoObject == null ) return;
+        infoObject.text = infoText;
     }
 
     public abstract void Process();

@@ -68,6 +68,7 @@ public abstract class SceneScrollOption : ScrollHide, IKeyBind
         {
             CurrentOption.KeyBind();
             CurrentOption.ActiveOutline( true );
+            CurrentOption.UpdateInfoText();
         }
     }
 

@@ -5,6 +5,7 @@ using TMPro;
 
 public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
 {
+    [Header("Text")]
     public List<string> texts;
     public TextMeshProUGUI valueText;
     private DelKeyAction keyReturnAction;

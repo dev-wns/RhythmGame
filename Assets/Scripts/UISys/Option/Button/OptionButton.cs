@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 public class OptionButton : OptionBindReturnBase
 {
+	[Header( "Button" )]
 	public bool isPlaySfxSound = true;
 
 	protected override void Awake()

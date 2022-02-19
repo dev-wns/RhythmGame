@@ -6,6 +6,7 @@ using TMPro;
 
 public abstract class OptionSlider : OptionBindArrowBase
 {
+    [Header( "Slider" )]
     public Slider slider;
     public TextMeshProUGUI valueText;
 
