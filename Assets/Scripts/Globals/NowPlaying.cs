@@ -46,8 +46,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public event Action OnResult;
     public event Action OnStart; 
-    public delegate void DelPause( bool _isPause );
-    public event DelPause OnPause;
+    public event Action<bool> OnPause;
     private Coroutine timeCoroutine;
 
     public bool IsLoadKeySounds { get; set; }
@@ -55,8 +54,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void Awake()
     {
-        using ( FileConverter converter = new FileConverter() )
-            converter.ReLoad();
+        //using ( FileConverter converter = new FileConverter() )
+        //    converter.ReLoad();
 
         using ( FileParser parser = new FileParser() )
         {

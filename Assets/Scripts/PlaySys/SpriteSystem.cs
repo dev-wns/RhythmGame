@@ -54,6 +54,7 @@ public class SpriteSystem : MonoBehaviour
 
     private void OnDestroy()
     {
+        ClearRenderTexture();
         NowPlaying.Inst.OnStart -= PlayVideo;
         NowPlaying.Inst.OnPause -= OnPause;
 
@@ -62,6 +63,15 @@ public class SpriteSystem : MonoBehaviour
             DestroyImmediate( tex.Value );
         }
     }
+
+    private void ClearRenderTexture()
+    {
+        RenderTexture rt = RenderTexture.active;
+        RenderTexture.active = vp.targetTexture;
+        GL.Clear( true, true, Color.black );
+        RenderTexture.active = rt;
+    }
+
 
     private void Initialize( in Chart _chart )
     {
@@ -121,7 +131,8 @@ public class SpriteSystem : MonoBehaviour
 
     private void ReLoad()
     {
-        switch( type )
+        ClearRenderTexture();
+        switch ( type )
         {
             case BackgroundType.None:
             case BackgroundType.Image:
