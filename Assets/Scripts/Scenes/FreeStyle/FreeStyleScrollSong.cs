@@ -47,13 +47,13 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
                     NowPlaying.Inst.CurrentSongIndex - median + Length :
                     NowPlaying.Inst.CurrentSongIndex - median;
 
+
         for ( int i = 0; i < maxShowCount + extraCount; i++ )
         {
             if ( count > Length - 1 ) count = 0;
             var song = Instantiate( prefab, transform );
             song.Initialize();
             song.SetInfo( NowPlaying.Inst.GetSongIndexAt( count++ ) );
-
             songs.AddLast( song );
         }
         Select( NowPlaying.Inst.CurrentSongIndex );
@@ -82,7 +82,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
             nextNode = nextNode.Previous;
         }
 
-        curNode.Value.ActiveOutline( true );
+        curNode.Value.rt.DOAnchorPosX( -250f, .5f );
     }
 
     private void Start()
@@ -128,13 +128,12 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         // 노드 이동
         songs.RemoveLast();
         songs.AddFirst( last );
-       
-        // 아웃라인 
-        curNode.Value.ActiveOutline( false );
-        curNode = curNode.Previous;
-        curNode.Value.ActiveOutline( true );
-
+      
         // 위치 갱신
+        curNode.Value.rt.DOAnchorPosX( 0f, .5f );
+        curNode = curNode.Previous;
+        curNode.Value.rt.DOAnchorPosX( -250f, .5f );
+
         curPos -= size;
         rt.DOAnchorPosY( curPos, .25f );
 
@@ -167,12 +166,11 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         songs.RemoveFirst();
         songs.AddLast( first );
 
-        // 아웃라인 
-        curNode.Value.ActiveOutline( false );
-        curNode = curNode.Next;
-        curNode.Value.ActiveOutline( true );
-
         // 위치 갱신
+        curNode.Value.rt.DOAnchorPosX( 0f, .5f );
+        curNode = curNode.Next;
+        curNode.Value.rt.DOAnchorPosX( -250f, .5f );
+
         curPos += size;
         rt.DOAnchorPosY( curPos, .25f );
 
