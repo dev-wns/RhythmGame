@@ -238,7 +238,7 @@ RectTransform:
   m_GameObject: {fileID: 10376200}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 180962778}
   m_RootOrder: 0
@@ -261,16 +261,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lane: {fileID: 634770572}
-  sprites:
-  - {fileID: 21300000, guid: a458de4c8e09310439e51171c7c3f77d, type: 3}
-  - {fileID: 21300000, guid: b61f3cb5daeffcc4bb1e79f012386eb7, type: 3}
-  - {fileID: 21300000, guid: 508d3dbca9edd004b8f9a4aa29fe9a39, type: 3}
-  - {fileID: 21300000, guid: 41b04ad8ef53d024ca116ce391ebeae8, type: 3}
-  - {fileID: 21300000, guid: cae8e4aad86b44c479449dcfa408ff98, type: 3}
-  - {fileID: 21300000, guid: e8b621c30ba5d7f4a974740a81d3f0cc, type: 3}
-  - {fileID: 21300000, guid: 73e5b5c965bd15449987db0e072bd6aa, type: 3}
-  - {fileID: 21300000, guid: 586579f0cee622d4f8df1c5fa84d9907, type: 3}
-  - {fileID: 21300000, guid: 8a6e5c6b8d80fed49809a95912bcd2bb, type: 3}
+  noteSprites:
+  - {fileID: 21300000, guid: 169f3fe262e186943bf4ce234aad87b6, type: 3}
+  - {fileID: 21300000, guid: 480ed5138a9c77742a8b400279d997f1, type: 3}
+  - {fileID: 21300000, guid: f5b88dce6eff3b142bd4d4e47b70b001, type: 3}
+  - {fileID: 21300000, guid: 58179c0401f51cb4ca4a2b4b24ade9c6, type: 3}
+  - {fileID: 21300000, guid: f2953a48b681c464aba39a55e57e17ba, type: 3}
+  - {fileID: 21300000, guid: 6eb322c1173647841af03e0519d6f5c5, type: 3}
+  - {fileID: 21300000, guid: dc7d9861c0495404283e7c61019bf751, type: 3}
+  - {fileID: 21300000, guid: ab39669ad26dc1248a7d12f74fb251f8, type: 3}
+  - {fileID: 21300000, guid: b8f1f65b01a6966478d049009f3f2c27, type: 3}
+  sliderSprites:
+  - {fileID: 21300000, guid: 5b3d27ceb6b47d543ab289e856a69d64, type: 3}
+  - {fileID: 21300000, guid: 794855d7dfec681438b5cb741160aa4c, type: 3}
+  - {fileID: 21300000, guid: 95f4c389c9ff7bb46bd060509992807f, type: 3}
+  - {fileID: 21300000, guid: 97152f95943e7d349a8dfe562d739cd1, type: 3}
+  - {fileID: 21300000, guid: c3af19ebe818f804aa509ccfddace9b2, type: 3}
 --- !u!212 &10376203
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -317,7 +323,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 3.121951}
+  m_Size: {x: 2.1, y: 2.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -575,7 +581,7 @@ RectTransform:
   m_GameObject: {fileID: 22183611}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 180962778}
   m_RootOrder: 1
@@ -598,16 +604,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lane: {fileID: 1275821260}
-  sprites:
-  - {fileID: 21300000, guid: a458de4c8e09310439e51171c7c3f77d, type: 3}
-  - {fileID: 21300000, guid: b61f3cb5daeffcc4bb1e79f012386eb7, type: 3}
-  - {fileID: 21300000, guid: 508d3dbca9edd004b8f9a4aa29fe9a39, type: 3}
-  - {fileID: 21300000, guid: 41b04ad8ef53d024ca116ce391ebeae8, type: 3}
-  - {fileID: 21300000, guid: cae8e4aad86b44c479449dcfa408ff98, type: 3}
-  - {fileID: 21300000, guid: e8b621c30ba5d7f4a974740a81d3f0cc, type: 3}
-  - {fileID: 21300000, guid: 73e5b5c965bd15449987db0e072bd6aa, type: 3}
-  - {fileID: 21300000, guid: 586579f0cee622d4f8df1c5fa84d9907, type: 3}
-  - {fileID: 21300000, guid: 8a6e5c6b8d80fed49809a95912bcd2bb, type: 3}
+  noteSprites:
+  - {fileID: 21300000, guid: 169f3fe262e186943bf4ce234aad87b6, type: 3}
+  - {fileID: 21300000, guid: 480ed5138a9c77742a8b400279d997f1, type: 3}
+  - {fileID: 21300000, guid: f5b88dce6eff3b142bd4d4e47b70b001, type: 3}
+  - {fileID: 21300000, guid: 58179c0401f51cb4ca4a2b4b24ade9c6, type: 3}
+  - {fileID: 21300000, guid: f2953a48b681c464aba39a55e57e17ba, type: 3}
+  - {fileID: 21300000, guid: 6eb322c1173647841af03e0519d6f5c5, type: 3}
+  - {fileID: 21300000, guid: dc7d9861c0495404283e7c61019bf751, type: 3}
+  - {fileID: 21300000, guid: ab39669ad26dc1248a7d12f74fb251f8, type: 3}
+  - {fileID: 21300000, guid: b8f1f65b01a6966478d049009f3f2c27, type: 3}
+  sliderSprites:
+  - {fileID: 21300000, guid: 5b3d27ceb6b47d543ab289e856a69d64, type: 3}
+  - {fileID: 21300000, guid: 794855d7dfec681438b5cb741160aa4c, type: 3}
+  - {fileID: 21300000, guid: 95f4c389c9ff7bb46bd060509992807f, type: 3}
+  - {fileID: 21300000, guid: 97152f95943e7d349a8dfe562d739cd1, type: 3}
+  - {fileID: 21300000, guid: c3af19ebe818f804aa509ccfddace9b2, type: 3}
 --- !u!212 &22183614
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -654,7 +666,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 3.121951}
+  m_Size: {x: 2.1, y: 2.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -3817,7 +3829,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: a3d0f825b08bd284e81a7a2d4df5cd91, type: 2}
+  m_Material: {fileID: 2100000, guid: 765229f6a6d4002488de2cf7a01d9e2f, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -6402,7 +6414,7 @@ RectTransform:
   m_GameObject: {fileID: 788516226}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 180962778}
   m_RootOrder: 5
@@ -6425,16 +6437,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lane: {fileID: 13102681}
-  sprites:
-  - {fileID: 21300000, guid: a458de4c8e09310439e51171c7c3f77d, type: 3}
-  - {fileID: 21300000, guid: b61f3cb5daeffcc4bb1e79f012386eb7, type: 3}
-  - {fileID: 21300000, guid: 508d3dbca9edd004b8f9a4aa29fe9a39, type: 3}
-  - {fileID: 21300000, guid: 41b04ad8ef53d024ca116ce391ebeae8, type: 3}
-  - {fileID: 21300000, guid: cae8e4aad86b44c479449dcfa408ff98, type: 3}
-  - {fileID: 21300000, guid: e8b621c30ba5d7f4a974740a81d3f0cc, type: 3}
-  - {fileID: 21300000, guid: 73e5b5c965bd15449987db0e072bd6aa, type: 3}
-  - {fileID: 21300000, guid: 586579f0cee622d4f8df1c5fa84d9907, type: 3}
-  - {fileID: 21300000, guid: 8a6e5c6b8d80fed49809a95912bcd2bb, type: 3}
+  noteSprites:
+  - {fileID: 21300000, guid: 169f3fe262e186943bf4ce234aad87b6, type: 3}
+  - {fileID: 21300000, guid: 480ed5138a9c77742a8b400279d997f1, type: 3}
+  - {fileID: 21300000, guid: f5b88dce6eff3b142bd4d4e47b70b001, type: 3}
+  - {fileID: 21300000, guid: 58179c0401f51cb4ca4a2b4b24ade9c6, type: 3}
+  - {fileID: 21300000, guid: f2953a48b681c464aba39a55e57e17ba, type: 3}
+  - {fileID: 21300000, guid: 6eb322c1173647841af03e0519d6f5c5, type: 3}
+  - {fileID: 21300000, guid: dc7d9861c0495404283e7c61019bf751, type: 3}
+  - {fileID: 21300000, guid: ab39669ad26dc1248a7d12f74fb251f8, type: 3}
+  - {fileID: 21300000, guid: b8f1f65b01a6966478d049009f3f2c27, type: 3}
+  sliderSprites:
+  - {fileID: 21300000, guid: 5b3d27ceb6b47d543ab289e856a69d64, type: 3}
+  - {fileID: 21300000, guid: 794855d7dfec681438b5cb741160aa4c, type: 3}
+  - {fileID: 21300000, guid: 95f4c389c9ff7bb46bd060509992807f, type: 3}
+  - {fileID: 21300000, guid: 97152f95943e7d349a8dfe562d739cd1, type: 3}
+  - {fileID: 21300000, guid: c3af19ebe818f804aa509ccfddace9b2, type: 3}
 --- !u!212 &788516229
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -6481,7 +6499,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 3.121951}
+  m_Size: {x: 2.1, y: 2.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -6690,7 +6708,7 @@ RectTransform:
   m_GameObject: {fileID: 817658960}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 180962778}
   m_RootOrder: 3
@@ -6713,16 +6731,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lane: {fileID: 1524544346}
-  sprites:
-  - {fileID: 21300000, guid: a458de4c8e09310439e51171c7c3f77d, type: 3}
-  - {fileID: 21300000, guid: b61f3cb5daeffcc4bb1e79f012386eb7, type: 3}
-  - {fileID: 21300000, guid: 508d3dbca9edd004b8f9a4aa29fe9a39, type: 3}
-  - {fileID: 21300000, guid: 41b04ad8ef53d024ca116ce391ebeae8, type: 3}
-  - {fileID: 21300000, guid: cae8e4aad86b44c479449dcfa408ff98, type: 3}
-  - {fileID: 21300000, guid: e8b621c30ba5d7f4a974740a81d3f0cc, type: 3}
-  - {fileID: 21300000, guid: 73e5b5c965bd15449987db0e072bd6aa, type: 3}
-  - {fileID: 21300000, guid: 586579f0cee622d4f8df1c5fa84d9907, type: 3}
-  - {fileID: 21300000, guid: 8a6e5c6b8d80fed49809a95912bcd2bb, type: 3}
+  noteSprites:
+  - {fileID: 21300000, guid: 169f3fe262e186943bf4ce234aad87b6, type: 3}
+  - {fileID: 21300000, guid: 480ed5138a9c77742a8b400279d997f1, type: 3}
+  - {fileID: 21300000, guid: f5b88dce6eff3b142bd4d4e47b70b001, type: 3}
+  - {fileID: 21300000, guid: 58179c0401f51cb4ca4a2b4b24ade9c6, type: 3}
+  - {fileID: 21300000, guid: f2953a48b681c464aba39a55e57e17ba, type: 3}
+  - {fileID: 21300000, guid: 6eb322c1173647841af03e0519d6f5c5, type: 3}
+  - {fileID: 21300000, guid: dc7d9861c0495404283e7c61019bf751, type: 3}
+  - {fileID: 21300000, guid: ab39669ad26dc1248a7d12f74fb251f8, type: 3}
+  - {fileID: 21300000, guid: b8f1f65b01a6966478d049009f3f2c27, type: 3}
+  sliderSprites:
+  - {fileID: 21300000, guid: 5b3d27ceb6b47d543ab289e856a69d64, type: 3}
+  - {fileID: 21300000, guid: 794855d7dfec681438b5cb741160aa4c, type: 3}
+  - {fileID: 21300000, guid: 95f4c389c9ff7bb46bd060509992807f, type: 3}
+  - {fileID: 21300000, guid: 97152f95943e7d349a8dfe562d739cd1, type: 3}
+  - {fileID: 21300000, guid: c3af19ebe818f804aa509ccfddace9b2, type: 3}
 --- !u!212 &817658963
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -6769,7 +6793,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 3.121951}
+  m_Size: {x: 2.1, y: 2.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -7660,7 +7684,7 @@ RectTransform:
   m_GameObject: {fileID: 997291763}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 180962778}
   m_RootOrder: 4
@@ -7683,16 +7707,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lane: {fileID: 606623208}
-  sprites:
-  - {fileID: 21300000, guid: a458de4c8e09310439e51171c7c3f77d, type: 3}
-  - {fileID: 21300000, guid: b61f3cb5daeffcc4bb1e79f012386eb7, type: 3}
-  - {fileID: 21300000, guid: 508d3dbca9edd004b8f9a4aa29fe9a39, type: 3}
-  - {fileID: 21300000, guid: 41b04ad8ef53d024ca116ce391ebeae8, type: 3}
-  - {fileID: 21300000, guid: cae8e4aad86b44c479449dcfa408ff98, type: 3}
-  - {fileID: 21300000, guid: e8b621c30ba5d7f4a974740a81d3f0cc, type: 3}
-  - {fileID: 21300000, guid: 73e5b5c965bd15449987db0e072bd6aa, type: 3}
-  - {fileID: 21300000, guid: 586579f0cee622d4f8df1c5fa84d9907, type: 3}
-  - {fileID: 21300000, guid: 8a6e5c6b8d80fed49809a95912bcd2bb, type: 3}
+  noteSprites:
+  - {fileID: 21300000, guid: 169f3fe262e186943bf4ce234aad87b6, type: 3}
+  - {fileID: 21300000, guid: 480ed5138a9c77742a8b400279d997f1, type: 3}
+  - {fileID: 21300000, guid: f5b88dce6eff3b142bd4d4e47b70b001, type: 3}
+  - {fileID: 21300000, guid: 58179c0401f51cb4ca4a2b4b24ade9c6, type: 3}
+  - {fileID: 21300000, guid: f2953a48b681c464aba39a55e57e17ba, type: 3}
+  - {fileID: 21300000, guid: 6eb322c1173647841af03e0519d6f5c5, type: 3}
+  - {fileID: 21300000, guid: dc7d9861c0495404283e7c61019bf751, type: 3}
+  - {fileID: 21300000, guid: ab39669ad26dc1248a7d12f74fb251f8, type: 3}
+  - {fileID: 21300000, guid: b8f1f65b01a6966478d049009f3f2c27, type: 3}
+  sliderSprites:
+  - {fileID: 21300000, guid: 5b3d27ceb6b47d543ab289e856a69d64, type: 3}
+  - {fileID: 21300000, guid: 794855d7dfec681438b5cb741160aa4c, type: 3}
+  - {fileID: 21300000, guid: 95f4c389c9ff7bb46bd060509992807f, type: 3}
+  - {fileID: 21300000, guid: 97152f95943e7d349a8dfe562d739cd1, type: 3}
+  - {fileID: 21300000, guid: c3af19ebe818f804aa509ccfddace9b2, type: 3}
 --- !u!212 &997291766
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -7739,7 +7769,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 3.121951}
+  m_Size: {x: 2.1, y: 2.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -10011,7 +10041,7 @@ RectTransform:
   m_GameObject: {fileID: 1263140507}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children: []
   m_Father: {fileID: 180962778}
   m_RootOrder: 2
@@ -10034,16 +10064,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lane: {fileID: 613721260}
-  sprites:
-  - {fileID: 21300000, guid: a458de4c8e09310439e51171c7c3f77d, type: 3}
-  - {fileID: 21300000, guid: b61f3cb5daeffcc4bb1e79f012386eb7, type: 3}
-  - {fileID: 21300000, guid: 508d3dbca9edd004b8f9a4aa29fe9a39, type: 3}
-  - {fileID: 21300000, guid: 41b04ad8ef53d024ca116ce391ebeae8, type: 3}
-  - {fileID: 21300000, guid: cae8e4aad86b44c479449dcfa408ff98, type: 3}
-  - {fileID: 21300000, guid: e8b621c30ba5d7f4a974740a81d3f0cc, type: 3}
-  - {fileID: 21300000, guid: 73e5b5c965bd15449987db0e072bd6aa, type: 3}
-  - {fileID: 21300000, guid: 586579f0cee622d4f8df1c5fa84d9907, type: 3}
-  - {fileID: 21300000, guid: 8a6e5c6b8d80fed49809a95912bcd2bb, type: 3}
+  noteSprites:
+  - {fileID: 21300000, guid: 169f3fe262e186943bf4ce234aad87b6, type: 3}
+  - {fileID: 21300000, guid: 480ed5138a9c77742a8b400279d997f1, type: 3}
+  - {fileID: 21300000, guid: f5b88dce6eff3b142bd4d4e47b70b001, type: 3}
+  - {fileID: 21300000, guid: 58179c0401f51cb4ca4a2b4b24ade9c6, type: 3}
+  - {fileID: 21300000, guid: f2953a48b681c464aba39a55e57e17ba, type: 3}
+  - {fileID: 21300000, guid: 6eb322c1173647841af03e0519d6f5c5, type: 3}
+  - {fileID: 21300000, guid: dc7d9861c0495404283e7c61019bf751, type: 3}
+  - {fileID: 21300000, guid: ab39669ad26dc1248a7d12f74fb251f8, type: 3}
+  - {fileID: 21300000, guid: b8f1f65b01a6966478d049009f3f2c27, type: 3}
+  sliderSprites:
+  - {fileID: 21300000, guid: 5b3d27ceb6b47d543ab289e856a69d64, type: 3}
+  - {fileID: 21300000, guid: 794855d7dfec681438b5cb741160aa4c, type: 3}
+  - {fileID: 21300000, guid: 95f4c389c9ff7bb46bd060509992807f, type: 3}
+  - {fileID: 21300000, guid: 97152f95943e7d349a8dfe562d739cd1, type: 3}
+  - {fileID: 21300000, guid: c3af19ebe818f804aa509ccfddace9b2, type: 3}
 --- !u!212 &1263140510
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -10090,7 +10126,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 3.121951}
+  m_Size: {x: 2.1, y: 2.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum NoteType { Default, Slider }
 public class NoteSystem : MonoBehaviour
 {
     public InGame CurrentScene { get; private set; }

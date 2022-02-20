@@ -6,16 +6,20 @@ using UnityEngine.UI;
 public class HitEffectSystem : MonoBehaviour
 {
     public Lane lane;
-    public List<Sprite> sprites = new List<Sprite>();
     private SpriteRenderer rdr;
-    private readonly float lifeTime = .1f;
+    private readonly float lifeTime = .05f;
 
-    private float changeTime;
-    private float playback;
+    public List<Sprite> noteSprites = new List<Sprite>();
+    private float noteTime;
+
+    public List<Sprite> sliderSprites = new List<Sprite>();
+    private float sliderTime;
+
     private int curIndex = 0;
-    private bool isStop = true;
+    private bool isKeyPress = false;
 
     private Transform tf;
+    private NoteType type;
 
     protected void Awake()
     {
@@ -24,12 +28,15 @@ public class HitEffectSystem : MonoBehaviour
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
         {
             lane.OnLaneInitialize += Initialize;
-            changeTime = lifeTime / sprites.Count;
+            noteTime   = lifeTime / noteSprites.Count;
+            sliderTime = lifeTime / sliderSprites.Count;
         }
         else
         {
             enabled = false;
         }
+
+        StartCoroutine( Process() );
     }
 
     private void Initialize( int _key )
@@ -37,35 +44,81 @@ public class HitEffectSystem : MonoBehaviour
         lane.InputSys.OnHitNote += HitEffect;
 
         tf.position = lane.transform.position;
-        tf.localScale = new Vector2( GameSetting.NoteWidth * .75f, GameSetting.NoteWidth * .75f );
+        tf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteWidth );
     }
 
-    private void HitEffect()
+    private void HitEffect( NoteType _type, bool _isKeyPress )
     {
-        playback = 0f;
+        type = _type;
         curIndex = 0;
-        rdr.sprite = sprites[curIndex];
-        isStop = false;
-        rdr.color = Color.white;
+        isKeyPress = _isKeyPress;
+        rdr.color = isKeyPress ? new Color( 1, 1, 1, .5f ) : Color.clear;
+
+        switch( _type )
+        {
+            case NoteType.Default:
+            rdr.sprite = noteSprites[curIndex];
+            break;
+
+            case NoteType.Slider:
+            rdr.sprite = sliderSprites[curIndex];
+            break;
+        }
     }
 
-    private void Update()
+    private IEnumerator Process()
     {
-        if ( isStop ) return;
-
-        playback += Time.deltaTime;
-        if ( playback >= changeTime )
+        while ( true )
         {
-            if ( curIndex + 1 < sprites.Count )
+            yield return new WaitUntil( () => isKeyPress );
+
+            switch( type )
             {
-                rdr.sprite = sprites[++curIndex];
-                playback = 0;
-            }
-            else
-            {
-                isStop = true;
-                rdr.color = Color.clear;
+                case NoteType.Default:
+                yield return YieldCache.WaitForSeconds( noteTime );
+                if ( curIndex + 1 < noteSprites.Count )
+                {
+                    rdr.sprite = noteSprites[++curIndex];
+                }
+                else
+                {
+                    isKeyPress = false;
+                    rdr.color = Color.clear;
+                }
+                break;
+
+                case NoteType.Slider:
+                yield return YieldCache.WaitForSeconds( sliderTime );
+                if ( curIndex + 1 < sliderSprites.Count )
+                {
+                    rdr.sprite = sliderSprites[++curIndex];
+                }
+                else
+                {
+                    curIndex = 0;
+                }
+                break;
             }
         }
     }
+
+    //private void Update()
+    //{
+    //    if ( isStop ) return;
+
+    //    playback += Time.deltaTime;
+    //    if ( playback >= changeTime )
+    //    {
+    //        if ( curIndex + 1 < sprites.Count )
+    //        {
+    //            rdr.sprite = sprites[++curIndex];
+    //            playback = 0;
+    //        }
+    //        else
+    //        {
+    //            isStop = true;
+    //            rdr.color = Color.clear;
+    //        }
+    //    }
+    //}
 }

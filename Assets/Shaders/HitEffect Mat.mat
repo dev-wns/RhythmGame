@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AlphaClip Mat
+  m_Name: HitEffect Mat
   m_Shader: {fileID: 4800000, guid: b669ab30213a60b4b8035bbfd0509f7d, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -25,7 +25,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Offset: 0.85
+    - _Offset: 0.1
+    - _Threshold: 0.1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _MainColor: {r: 1, g: 1, b: 1, a: 1}

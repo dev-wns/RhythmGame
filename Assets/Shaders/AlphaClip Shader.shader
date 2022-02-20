@@ -3,7 +3,7 @@ Shader "Unlit/AlphaClip Shader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Offset ("Clip Offset", Range(0, 1)) = .1
+        _Offset ("Offset", Range(0, 1)) = .1
     }
     SubShader
     {
@@ -13,27 +13,30 @@ Shader "Unlit/AlphaClip Shader"
             "Queue"="Transparent"
         }
         LOD 100
+            
+            Cull Off
+            Blend One OneMinusSrcAlpha
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
-            #pragma fragment frag
+            #pragma fragment frag alpha
 
-            #include "UnityCG.cginc"
+            #include "UnityCG.cginc"         
 
             struct appdata
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
-                fixed4 c :COLOR;
+                float4 c : COLOR;
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
-                fixed4 c : COLOR;
+                float4 c : COLOR;
             };
 
             sampler2D _MainTex;
@@ -52,11 +55,16 @@ Shader "Unlit/AlphaClip Shader"
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 c = tex2D(_MainTex, i.uv) * i.c;
+                half rgbSquared = dot(c.rgb, c.rgb);
+                if (rgbSquared <= _Offset)
+                    discard;
 
-                half alpha = c.r + c.g + c.b - _Offset;
-                clip(alpha);
+                return c;
 
-                return fixed4(c.rgb, alpha);
+                // half alpha = c.r + c.g + c.b - _Offset;
+                // clip(alpha);
+                // 
+                // return fixed4(c.rgb, alpha);
             }
             ENDCG
         }
