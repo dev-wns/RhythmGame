@@ -6,6 +6,7 @@ using DG.Tweening;
 public class FreeStyleScrollSong : ScrollBase, IKeyBind
 {
     public SongInfomation prefab;
+    public ScrollBar scrollbar;
 
     public int maxShowCount = 7;
     public int extraCount   = 8;
@@ -42,11 +43,11 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         median = Mathf.FloorToInt( ( maxShowCount + extraCount ) / 2f );
 
         // °´Ã¼ ÇÒ´ç
+        scrollbar.Initialize( NowPlaying.Inst.Songs.Count );
         Length    = NowPlaying.Inst.Songs.Count;
         int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
                     NowPlaying.Inst.CurrentSongIndex - median + Length :
                     NowPlaying.Inst.CurrentSongIndex - median;
-
 
         for ( int i = 0; i < maxShowCount + extraCount; i++ )
         {
@@ -87,6 +88,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
 
     private void Start()
     {
+        scrollbar.UpdateHandle( CurrentIndex );
         UpdateSong();
     }
 
@@ -137,6 +139,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         curPos -= size;
         rt.DOAnchorPosY( curPos, .25f );
 
+        scrollbar.UpdateHandle( CurrentIndex );
         UpdateSong();
     }
 
@@ -174,6 +177,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         curPos += size;
         rt.DOAnchorPosY( curPos, .25f );
 
+        scrollbar.UpdateHandle( CurrentIndex );
         UpdateSong();
     }
 

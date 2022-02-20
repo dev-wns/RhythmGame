@@ -92,7 +92,7 @@ public class GameSetting : SingletonUnity<GameSetting>
 
     // Jugdement
     public static float JudgePos    = -490f;
-    public static float JudgeHeight = 100f; // scaleY
+    public static float JudgeHeight = 50f;
 
     // note
     public static float NoteWidth  = 80f;

@@ -25,6 +25,7 @@ public class HitEffectSystem : MonoBehaviour
     {
         tf = transform;
         rdr = GetComponent<SpriteRenderer>();
+
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
         {
             lane.OnLaneInitialize += Initialize;
