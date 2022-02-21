@@ -11,6 +11,7 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
 
         float childrenMaxWidth  = 0f;
         float childrenMaxHeight = 0f;
+        float maxSpacing        = 0f;
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
             if ( !rectChildren[i].gameObject.activeSelf )
@@ -18,11 +19,11 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
 
             childrenMaxWidth  += rectChildren[i].sizeDelta.x;
             childrenMaxHeight += rectChildren[i].sizeDelta.y;
+            maxSpacing        += spacing * anchor.x;
         }
 
         float childrenWidthOffset = childrenMaxWidth * anchor.x;
         float firstArgHalf        = rectChildren[0].sizeDelta.x * .5f;
-        float maxSpacing          = spacing * ( rectChildren.Count - 1 ) * anchor.x;
 
         float widthOffset  = firstArgHalf - childrenWidthOffset - maxSpacing;
         float heightOffset = -rectChildren[0].sizeDelta.y * ( anchor.y - .5f );
