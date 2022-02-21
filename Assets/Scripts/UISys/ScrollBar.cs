@@ -4,43 +4,25 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-[RequireComponent( typeof( RectTransform ) )]
-public class ScrollBar : MonoBehaviour
+[RequireComponent( typeof( Scrollbar ) )]
+public class ScrollBar : Scrollbar
 {
-    [Range(0f, 1f)]
-    public float value;
-    public RectTransform handle;
-
+    private Scrollbar scrollbar;
     private float offset;
-    private RectTransform rt;
-    public bool isSmoothMove = true;
 
-    private void Awake()
+    protected override void Awake()
     {
-        rt = transform as RectTransform;
+        base.Awake();
+        scrollbar = GetComponent<Scrollbar>();
     }
 
     public void Initialize( int _size )
     {
-        offset = 1f / _size;
+        offset = 1f / ( _size - 1 );
     }
 
     public void UpdateHandle( int _pos )
     {
-        float posY = rt.sizeDelta.y - ( handle.sizeDelta.y * .5f );
-
-        if ( isSmoothMove )
-            handle.DOAnchorPosY( posY - ( posY * offset * _pos ), .15f );
-        else
-            handle.anchoredPosition = new Vector2( handle.anchoredPosition.x, posY - ( posY * offset * _pos ) );
+        scrollbar.value = offset * _pos;
     }
-
-    //private virtual void Update()
-    //{
-    //    // Editor Update
-    //    if ( !Application.isPlaying )
-    //    {
-    //        value = 1f;
-    //    }
-    //}
 }

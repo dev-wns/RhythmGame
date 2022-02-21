@@ -83,7 +83,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
             nextNode = nextNode.Previous;
         }
 
-        curNode.Value.rt.DOAnchorPosX( -250f, .5f );
+        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
     }
 
     private void Start()
@@ -134,7 +134,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         // 위치 갱신
         curNode.Value.rt.DOAnchorPosX( 0f, .5f );
         curNode = curNode.Previous;
-        curNode.Value.rt.DOAnchorPosX( -250f, .5f );
+        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
 
         curPos -= size;
         rt.DOAnchorPosY( curPos, .25f );
@@ -172,7 +172,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         // 위치 갱신
         curNode.Value.rt.DOAnchorPosX( 0f, .5f );
         curNode = curNode.Next;
-        curNode.Value.rt.DOAnchorPosX( -250f, .5f );
+        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
 
         curPos += size;
         rt.DOAnchorPosY( curPos, .25f );
@@ -183,7 +183,6 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
 
     private void UpdateSong()
     {
-        Debug.Log( $"{NowPlaying.Inst.Songs.Count} {CurrentIndex}" );
         NowPlaying.Inst.CurrentSongIndex = CurrentIndex;
         curSong = NowPlaying.Inst.CurrentSong;
         soundLength = curSong.totalTime;
@@ -201,7 +200,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
     private uint GetPreviewTime()
     {
         int time = curSong.previewTime;
-        if ( time <= 0 ) return ( uint )( soundLength * 0.3141592f );
+        if ( time <= 0 ) return ( uint )( soundLength * Mathf.PI * .1f );
         else             return ( uint )curSong.previewTime;
     }
 
