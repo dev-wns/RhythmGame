@@ -2,33 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 
 public class FreeStyleScrollSong : ScrollBase, IKeyBind
 {
     public SongInfomation prefab;
-    public ScrollBar scrollbar;
+    private RectTransform rt;
 
+    [Header("Scroll")]
+    public ScrollBar scrollbar;
     public int maxShowCount = 7;
     public int extraCount   = 8;
+    
     private int median;
+    private float curPos;
+    private float size;
+    
+    [Header( "Count Text" )]
+    public TextMeshProUGUI maxText;
+    public TextMeshProUGUI curText;
 
-    public delegate void DelSelectSong( Song _song );
-    public event DelSelectSong OnSelectSong;
+    [Header("Scene")]
+    private Scene scene;
+    private LinkedList<SongInfomation> songs = new LinkedList<SongInfomation>();
+    private LinkedListNode<SongInfomation> curNode, prevNode, nextNode;
+    private CustomVerticalLayoutGroup group;
 
     private Song curSong;
     private float playback;
     private float soundLength;
     private uint previewTime;
     private readonly uint waitPreviewTime = 500;
-
-    private Scene scene;
-    private LinkedList<SongInfomation> songs = new LinkedList<SongInfomation>();
-    private LinkedListNode<SongInfomation> curNode, prevNode, nextNode;
-    private CustomVerticalLayoutGroup group;
-
-    private RectTransform rt;
-    private float curPos;
-    private float size;
+    
+    public delegate void DelSelectSong( Song _song );
+    public event DelSelectSong OnSelectSong;
+    
 
     private void Awake()
     {
@@ -83,12 +91,13 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
             nextNode = nextNode.Previous;
         }
 
-        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
+        // Count Text
+        if ( maxText ) maxText.text = Length.ToString();
     }
 
     private void Start()
     {
-        scrollbar.UpdateHandle( CurrentIndex );
+        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
         UpdateSong();
     }
 
@@ -100,7 +109,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
              !SoundManager.Inst.IsPlaying( ChannelType.BGM ) )
         {
             SoundManager.Inst.Play();
-            SoundManager.Inst.Position = GetPreviewTime();
+            SoundManager.Inst.Position = GetPreviewTime( curSong.previewTime );
             playback = previewTime;
         }
     }
@@ -139,7 +148,6 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         curPos -= size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        scrollbar.UpdateHandle( CurrentIndex );
         UpdateSong();
     }
 
@@ -177,12 +185,21 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         curPos += size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        scrollbar.UpdateHandle( CurrentIndex );
         UpdateSong();
+    }
+
+    private void UpdateScrollBar()
+    {
+        scrollbar.UpdateHandle( CurrentIndex );
+
+        if ( curText ) 
+             curText.text = ( CurrentIndex + 1 ).ToString();
     }
 
     private void UpdateSong()
     {
+        UpdateScrollBar();
+
         NowPlaying.Inst.CurrentSongIndex = CurrentIndex;
         curSong = NowPlaying.Inst.CurrentSong;
         soundLength = curSong.totalTime;
@@ -192,17 +209,12 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
         SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
         SoundManager.Inst.Play();
 
-        previewTime = GetPreviewTime();
+        previewTime = GetPreviewTime( curSong.previewTime );
         SoundManager.Inst.Position = previewTime;
         playback = previewTime;
     }
 
-    private uint GetPreviewTime()
-    {
-        int time = curSong.previewTime;
-        if ( time <= 0 ) return ( uint )( soundLength * Mathf.PI * .1f );
-        else             return ( uint )curSong.previewTime;
-    }
+    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( soundLength * Mathf.PI * .1f ) : ( uint )_time;
 
     public void KeyBind()
     {

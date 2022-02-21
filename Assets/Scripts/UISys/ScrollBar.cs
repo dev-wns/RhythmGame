@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
 [RequireComponent( typeof( Scrollbar ) )]
 public class ScrollBar : Scrollbar
 {
+
     private Scrollbar scrollbar;
     private float offset;
 
