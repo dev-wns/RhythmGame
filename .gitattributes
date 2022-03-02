@@ -55,5 +55,4 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-.sdf filter=lfs diff=lfs merge=lfs -text
 Assets/Fonts/NotoSansKR-Bold[[:space:]]SDF.asset filter=lfs diff=lfs merge=lfs -text
