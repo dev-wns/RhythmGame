@@ -226,6 +226,7 @@ public class InputSystem : MonoBehaviour
                 if ( endDiff <= 0f )
                 { 
                     judge.ResultUpdate( endDiff );
+                    OnHitNote?.Invoke( NoteType.Slider, false );
                     SelectNextNote();
                     return;
                 }
@@ -240,8 +241,6 @@ public class InputSystem : MonoBehaviour
 
             if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
             {
-                OnHitNote?.Invoke( NoteType.Slider, false );
-
                 if ( judge.CanBeHit( endDiff ) )
                 {
                     judge.ResultUpdate( endDiff );
@@ -265,7 +264,11 @@ public class InputSystem : MonoBehaviour
             OnInputEvent?.Invoke( true );
             SoundManager.Inst.Play( curSound );
         }
-        else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) ) OnInputEvent?.Invoke( false );
+        else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
+        {
+            OnInputEvent?.Invoke( false );
+            OnHitNote?.Invoke( NoteType.Slider, false );
+        }
 
         if ( sliderMissQueue.Count > 0 )
         {
