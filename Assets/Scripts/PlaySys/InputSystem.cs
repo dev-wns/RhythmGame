@@ -224,7 +224,8 @@ public class InputSystem : MonoBehaviour
             if ( Input.GetKey( GameSetting.Inst.Keys[key] ) )
             { 
                 if ( endDiff <= 0f )
-                { 
+                {
+                    curNote.IsPressed = false;
                     judge.ResultUpdate( endDiff );
                     OnHitNote?.Invoke( NoteType.Slider, false );
                     SelectNextNote();
@@ -248,6 +249,7 @@ public class InputSystem : MonoBehaviour
                 }
                 else
                 {
+                    curNote.IsPressed = false;
                     curNote.SetBodyFail();
                     judge.ResultUpdate( HitResult.Miss );
                     sliderMissQueue.Enqueue( curNote );
