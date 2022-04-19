@@ -20,7 +20,7 @@ public class InputSystem : MonoBehaviour
     private float playback;
 
     private Action NoteProcessAction;
-    private bool isAuto;
+    private bool isAuto, isReady;
 
     private KeySound curSound;
 
@@ -37,8 +37,9 @@ public class InputSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
         lane  = GetComponent<Lane>(); 
-        lane.OnLaneInitialize += _key => key = ( GameKeyAction )_key;
+        lane.OnLaneInitialize += Initialize;
 
+        isReady = false;
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
         if ( isAuto )
         {
@@ -57,10 +58,16 @@ public class InputSystem : MonoBehaviour
             };
         }
     }
+
+    public void Initialize( int _key )
+    {
+        key = ( GameKeyAction )_key;
+        isReady = true;
+    }
+
     private void ReLoad()
     {
         StopAllCoroutines();
-        //curSound = new KeySound();
         playback = 0f;
         while ( sliderMissQueue.Count > 0 )
         {
@@ -261,6 +268,8 @@ public class InputSystem : MonoBehaviour
 
     private void Update()
     {
+        if ( !isReady ) return;
+
         if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
         {
             OnInputEvent?.Invoke( true );
