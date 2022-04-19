@@ -6,7 +6,7 @@ using TMPro;
 public class PauseJoke : MonoBehaviour
 {
     private TextMeshProUGUI text;
-    private string[] jokeList = { "데님", "계단", "즈레", "롱놋", "따닥", "연타", "동치" };
+    private string[] jokeList = { "데님", "계단", "즈레", "롱잡", "따닥", "연타", "동치", "알약" };
 
     private void Awake()
     {

@@ -13,6 +13,7 @@ public struct Song
     public string imagePath;
     public string videoPath;
     public bool   hasVideo;
+    public int    videoOffset;
 
     public string title;
     public string artist;
@@ -276,8 +277,10 @@ public class FileConverter : FileReader
             {
                 if ( Contains( ".avi" ) || Contains( ".mp4" ) )
                 {
-                    song.videoPath = SplitAndTrim( '"' );
-                    song.hasVideo = File.Exists( Path.Combine( directory, song.videoPath ) ) ? true : false;
+                    var splitData = line.Split( ',' );
+                    song.videoOffset = int.Parse( splitData[1] );
+                    song.videoPath   = splitData[2].Split( '"' )[1].Trim();
+                    song.hasVideo    = File.Exists( Path.Combine( directory, song.videoPath ) ) ? true : false;
                 }
 
                 if ( ( Contains( ".jpg" ) || Contains( ".png" ) || Contains( ".bmp" ) ) && ( !Contains( "Sprite," ) ) )
@@ -475,6 +478,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"AudioPath: {_song.audioPath}" );
                     writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
+                    writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
 
                     writer.WriteLine( $"Title: {_song.title}" );
                     writer.WriteLine( $"Artist: {_song.artist}" );

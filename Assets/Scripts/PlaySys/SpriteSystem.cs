@@ -126,7 +126,14 @@ public class SpriteSystem : MonoBehaviour
     private void PlayVideo()
     {
         background.texture = renderTexture;
+        StartCoroutine( WaitVideo() );
+    }
+
+    private IEnumerator WaitVideo()
+    {
+        yield return new WaitUntil( () => NowPlaying.Playback >= NowPlaying.Inst.CurrentSong.videoOffset * .001d );
         vp.Play();
+        Debug.Log( $"Start Video // Playback {NowPlaying.Playback} // Offset {NowPlaying.Inst.CurrentSong.videoOffset * .001d}" );
     }
 
     private void ReLoad()
