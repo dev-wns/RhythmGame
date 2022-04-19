@@ -29,7 +29,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     private FMOD.Sound bgmSound;
     private FMOD.Channel bgmChannel;
     public FMOD.DSP? FFT { get; private set; }
-    private FMOD.DSP lowEffectEQ;
+    private FMOD.DSP Multiband;
 
     public struct SoundDriver
     {
@@ -241,8 +241,8 @@ public class SoundManager : SingletonUnity<SoundManager>
         // DSP
         RemoveFFT();
 
-        ErrorCheck( groups[ChannelType.BGM].removeDSP( lowEffectEQ ) );
-        ErrorCheck( lowEffectEQ.release() );
+        ErrorCheck( groups[ChannelType.BGM].removeDSP( Multiband ) );
+        ErrorCheck( Multiband.release() );
 
         // ChannelGroup
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
@@ -461,38 +461,44 @@ public class SoundManager : SingletonUnity<SoundManager>
     ///    Boost or attenuation [high/low shelf and peaking only]
     private void CreateLowEffectDsp()
     {
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out lowEffectEQ ) );
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out Multiband ) );
 
         // multiband 구조체 정보 확인
-        // int numParameters = 0;
-        // ErrorCheck( multibandEQ.getNumParameters( out numParameters ) );
-        // FMOD.DSP_PARAMETER_DESC[] descs = new FMOD.DSP_PARAMETER_DESC[numParameters];
-        // for ( int i = 0; i < numParameters; i++ )
-        // {
-        //     ErrorCheck( multibandEQ.getParameterInfo( i, out descs[i] ) );
-        //     Debug.Log( $"Desc[{i}] Name        : { System.Text.Encoding.Default.GetString( descs[i].name ) }" );
-        //     Debug.Log( $"Desc[{i}] Label       : { System.Text.Encoding.Default.GetString( descs[i].label ) }" );
-        //     Debug.Log( $"Desc[{i}] Description : { descs[i].description }" );
-        //     Debug.Log( $"Desc[{i}] Type        : { descs[i].type }" );
-        // }
+        //int numParameters = 0;
+        //ErrorCheck( Multiband.getNumParameters( out numParameters ) );
+        //FMOD.DSP_PARAMETER_DESC[] descs = new FMOD.DSP_PARAMETER_DESC[numParameters];
+        //for ( int i = 0; i < numParameters; i++ )
+        //{
+        //    ErrorCheck( Multiband.getParameterInfo( i, out descs[i] ) );
+        //    Debug.Log( $"Desc[{i}] Name        : { System.Text.Encoding.Default.GetString( descs[i].name ) }" );
+        //    Debug.Log( $"Desc[{i}] Label       : { System.Text.Encoding.Default.GetString( descs[i].label ) }" );
+        //    Debug.Log( $"Desc[{i}] Description : { descs[i].description }" );
+        //    Debug.Log( $"Desc[{i}] Type        : { descs[i].type }" );
+        //}
 
-        ErrorCheck( lowEffectEQ.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.A_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_48DB ) );
-        ErrorCheck( lowEffectEQ.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.B_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_48DB ) );
-        ErrorCheck( lowEffectEQ.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.C_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_48DB ) );
-        ErrorCheck( lowEffectEQ.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.D_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_48DB ) );
-        ErrorCheck( lowEffectEQ.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.E_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_48DB ) );
+        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.A_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
+        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.B_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
+        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.C_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
+        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.D_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
+        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.E_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
 
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_Q, .1f ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_Q, .1f ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_Q, .1f ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_Q, .1f ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_Q, .1f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_FREQUENCY, 320f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_FREQUENCY, 5000f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_FREQUENCY, 6000f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_FREQUENCY, 7000f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_FREQUENCY, 8000f ) );
 
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_GAIN, ( float )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_GAIN, ( float )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_GAIN, ( float )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_GAIN, ( float )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
-        ErrorCheck( lowEffectEQ.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_GAIN, ( float )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
+        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_Q, .1f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_Q, .11f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_Q, .11f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_Q, .11f ) );
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_Q, .11f ) );
+                    
+        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_GAIN, 10f ) );
+        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_GAIN, 4f ) );
+        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_GAIN, 4f ) );
+        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_GAIN, 4f ) );
+        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_GAIN, 4f ) );
     }
 
     public void UseLowEqualizer( bool _isUse )
@@ -505,21 +511,21 @@ public class SoundManager : SingletonUnity<SoundManager>
             FMOD.DSP dsp;
             ErrorCheck( bgmGroup.getDSP( i, out dsp ) );
 
-            bool isEquals = Equals( dsp, lowEffectEQ );
+            bool isEquals = Equals( dsp, Multiband );
             if ( isEquals && _isUse == true ) // 이미 적용된 상태
             {
                 return;
             }
             else if ( isEquals && _isUse == false )
             {
-                ErrorCheck( bgmGroup.removeDSP( lowEffectEQ ) );
+                ErrorCheck( bgmGroup.removeDSP( Multiband ) );
                 return;
             }
         }
 
         // 적용된 dsp가 없어서 추가함.
         if ( _isUse == true )
-             ErrorCheck( bgmGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, lowEffectEQ ) );
+             ErrorCheck( bgmGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, Multiband ) );
     }
     #endregion
 
