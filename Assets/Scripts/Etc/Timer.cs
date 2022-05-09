@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class Timer
 {
-    private float startTime;
-    public  float elapsedSeconds => ( float )( System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTime ) * .001f;
-    public  float elapsedMilliSeconds => ( float )System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTime;
+    private double startTime;
+    public  double elapsedSeconds => ( System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTime ) * .001f;
+    public double elapsedMilliSeconds => System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTime;
 
-    public void Start() => startTime = ( float )System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-    public float End => elapsedMilliSeconds; 
+    public void Start() => startTime = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+    public double End => elapsedMilliSeconds;
+
+    public double CurrentTime => System.DateTime.Now.TimeOfDay.TotalSeconds;
 }

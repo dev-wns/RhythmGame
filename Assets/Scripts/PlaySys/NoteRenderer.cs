@@ -1,14 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class NoteRenderer : MonoBehaviour
 {
     private InGame game;
     private NoteSystem system;
-    
-    public SpriteRenderer head, body;
-    private Transform headTf, bodyTf;
 
+    public SpriteRenderer head, body, tail;
+    private Transform headTf, bodyTf, tailTf;
+
+    public Sprite skinNormal, skinHead, skinBody;
+    private static readonly float BodyScaleOffset    = 256f / 82f;  // PixelPerUnit  / TextureHeight
+    private static readonly float BodyPositionOffset = 82f  / 256f; // TextureHeight / PixelPerUnit
     private Note note;
 
     public double Time => note.time;
@@ -20,11 +24,10 @@ public class NoteRenderer : MonoBehaviour
     public KeySound Sound => note.keySound;
 
     private float column;
-    private double newTime;
 
-    private static readonly Color MiddleColor   = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
-    private static readonly Color BodyColor     = new Color( .4f, .4f, .4f, 1f );
-    private static readonly Color BodyFailColor = new Color( .15f, .15f, .15f, 1f );
+    //private static readonly Color MiddleColor   = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
+    //private static readonly Color BodyColor     = new Color( .4f, .4f, .4f, 1f );
+    private static readonly Color NoteFailColor = new Color( .15f, .15f, .15f, 1f );
 
     private double weight;
 
@@ -37,6 +40,9 @@ public class NoteRenderer : MonoBehaviour
         headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
 
         bodyTf = body.transform;
+
+        tailTf = tail.transform;
+        tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
     }
 
     private void OnDestroy()
@@ -48,26 +54,44 @@ public class NoteRenderer : MonoBehaviour
     {
         system    = _system;
         note      = _note;
-        newTime   = _note.calcTime;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
 
-        body.enabled = IsSlider ? true : false;
+        if ( IsSlider )
+        {
+            body.enabled = tail.enabled = true;
+            head.sprite = skinHead;
+        }
+        else
+        {
+            body.enabled = tail.enabled = false;
+            head.sprite = skinNormal;
+        }
+
+        //body.enabled = tail.enabled = IsSlider ? true : false;
         ScrollUpdate();
 
-        head.color = _lane == 1 || _lane == 4 ? MiddleColor : Color.white;
-        body.color = BodyColor;
+        head.color = body.color = tail.color = Color.white;
     }
 
-    public void SetBodyFail() => body.color = BodyFailColor;
+    public void SetBodyFail() => head.color = body.color = tail.color = NoteFailColor;
 
     private void ScrollUpdate()
     {
         weight = GameSetting.Weight;
         if ( !IsSlider ) return;
 
-        double sliderLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * GameSetting.Weight );
-        bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, ( float )sliderLengthAbs );
+        // 전부 같은 결과.
+        // SliderTime은 NoteTime보다 큰 값을 가지는 것이 파싱 단계에서 보장되기 때문에
+        // 절대값 계산은 생략함.
+        double bodyLength    = ( CalcSliderTime - CalcTime ) * weight;
+        //double bodyLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * weight );
+        //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) - ( ( CalcTime - NowPlaying.PlaybackChanged ) * weight );
+        //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) - ( CalcTime - NowPlaying.PlaybackChanged ) ) * weight;
+        bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
+        bodyTf.localScale = new Vector2( GameSetting.NoteWidth, ( float )( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
+
+        tailTf.localPosition = new Vector2( 0f, ( float )bodyLength );
     }
 
     public void Despawn()
@@ -78,23 +102,24 @@ public class NoteRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        Vector2 headPos;
-        if ( IsPressed )
-        {
-            if ( transform.position.y <= GameSetting.JudgePos )
-                 newTime = NowPlaying.PlaybackChanged;
+        // 롱노트일때 판정선에 노트 붙기
+        //Vector2 headPos;
+        //if ( IsPressed )
+        //{
+        //    if ( transform.position.y <= GameSetting.HintPos )
+        //         newTime = NowPlaying.PlaybackChanged;
 
-            headPos         = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime        - NowPlaying.PlaybackChanged ) * weight ) );
-            Vector2 tailPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
+        //    headPos         = new Vector2( column, GameSetting.HintPos + ( float )( ( newTime        - NowPlaying.PlaybackChanged ) * weight ) );
+        //    Vector2 tailPos = new Vector2( column, GameSetting.HintPos + ( float )( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
 
-            double bodyDiff   = tailPos.y - headPos.y;
-            bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, bodyDiff <= 0d ? 0f : ( float )bodyDiff );
-        }
-        else
-        {
-            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
-        }
+        //    double bodyDiff = tailPos.y - headPos.y;
+        //    bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, bodyDiff <= 0d ? 0f : ( float )bodyDiff );
+        //}
+        //else
+        //{
+        //headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
+        //}
 
-        transform.position = headPos;
+        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcTime - NowPlaying.PlaybackChanged ) * weight ) ) );
     }
 }

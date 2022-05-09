@@ -19,7 +19,6 @@ public class InputSystem : MonoBehaviour
     private GameKeyAction key;
     private float playback;
 
-    private Action NoteProcessAction;
     private bool isAuto, isReady;
 
     private KeySound curSound;
@@ -41,30 +40,13 @@ public class InputSystem : MonoBehaviour
 
         isReady = false;
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-        if ( isAuto )
-        {
-            NoteProcessAction = () =>
-            {
-                if ( curNote.IsSlider ) AutoCheckSlider();
-                else                    AutoCheckNote();
-            };
-        }
-        else
-        {
-            NoteProcessAction = () =>
-            {
-                if ( curNote.IsSlider ) CheckSlider();
-                else                    CheckNote();
-            };
-        }
     }
 
     public void Initialize( int _key )
     {
-        key = ( GameKeyAction )_key;
+        key = ( GameKeyAction )_key; 
         isReady = true;
     }
-
     private void ReLoad()
     {
         StopAllCoroutines();
@@ -140,103 +122,64 @@ public class InputSystem : MonoBehaviour
         curNote = null;
     }
 
-    private void AutoCheckNote()
+    private void CheckNote()
     {
+        if ( curNote == null ) return;
+
         double startDiff = curNote.Time - NowPlaying.Playback;
-
-        if ( startDiff <= 0f )
+        if ( isAuto )
         {
-            OnHitNote?.Invoke( NoteType.Default, true );
-            judge.ResultUpdate( startDiff );
-            SoundManager.Inst.Play( curSound );
-            SelectNextNote();
-        }
-    }
-
-    private void AutoCheckSlider()
-    {
-        if ( !curNote.IsPressed )
-        {
-            double startDiff = curNote.Time - NowPlaying.Playback;
-            if ( startDiff <= 0f )
+            if ( startDiff <= 0d )
             {
-                curNote.IsPressed = true;
-                OnHitNote?.Invoke( NoteType.Slider, true );
-                SoundManager.Inst.Play( curSound );
+                OnHitNote?.Invoke( NoteType.Default, true );
                 judge.ResultUpdate( startDiff );
+                SoundManager.Inst.Play( curSound );
+                SelectNextNote();
             }
         }
         else
         {
-            double endDiff = curNote.SliderTime - NowPlaying.Playback;
-            if ( endDiff <= 0f )
-            {
-                OnHitNote?.Invoke( NoteType.Slider, false );
-                judge.ResultUpdate( endDiff );
-                SelectNextNote();
-            }
-
-            playback += Time.deltaTime;
-            if ( playback > .1f )
-            {
-                judge.ResultUpdate( HitResult.None );
-                playback = 0f;
-            }
-        }
-    }
-
-    private void CheckNote()
-    {
-        double startDiff = curNote.Time - NowPlaying.Playback;
-        if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
-        {
-            OnHitNote?.Invoke( NoteType.Default, true );
-            judge.ResultUpdate( startDiff );
-            SelectNextNote();
-            return;
-        }
-
-        if( judge.IsMiss( startDiff ) )
-        {
-            judge.ResultUpdate( HitResult.Miss );
-            SelectNextNote();
-        }        
-    }
-
-    private void CheckSlider()
-    {
-        if ( !curNote.IsPressed )
-        {
-            double startDiff = curNote.Time - NowPlaying.Playback;
-
             if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
             {
-                curNote.IsPressed = true;
-                OnHitNote?.Invoke( NoteType.Slider, true );
+                OnHitNote?.Invoke( NoteType.Default, true );
                 judge.ResultUpdate( startDiff );
+                SelectNextNote();
                 return;
             }
 
             if ( judge.IsMiss( startDiff ) )
             {
-                curNote.SetBodyFail();
                 judge.ResultUpdate( HitResult.Miss );
-                sliderMissQueue.Enqueue( curNote );
-                SelectNextNote( false );
+                SelectNextNote();
             }
         }
-        else
+    }
+
+    private void CheckSlider()
+    {
+        if ( curNote == null ) return;
+
+        double startDiff = curNote.Time       - NowPlaying.Playback;
+        double endDiff   = curNote.SliderTime - NowPlaying.Playback;
+        if ( isAuto )
         {
-            double endDiff = curNote.SliderTime - NowPlaying.Playback;
-            if ( Input.GetKey( GameSetting.Inst.Keys[key] ) )
-            { 
-                if ( endDiff <= 0f )
+            if ( !curNote.IsPressed )
+            {
+                if ( startDiff <= 0d )
                 {
-                    curNote.IsPressed = false;
-                    judge.ResultUpdate( endDiff );
+                    curNote.IsPressed = true;
+                    OnHitNote?.Invoke( NoteType.Slider, true );
+                    SoundManager.Inst.Play( curSound );
+                    judge.ResultUpdate( startDiff );
+                }
+            }
+            else
+            {
+                if ( endDiff <= 0d )
+                {
                     OnHitNote?.Invoke( NoteType.Slider, false );
+                    judge.ResultUpdate( endDiff );
                     SelectNextNote();
-                    return;
                 }
 
                 playback += Time.deltaTime;
@@ -246,21 +189,63 @@ public class InputSystem : MonoBehaviour
                     playback = 0f;
                 }
             }
-
-            if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
+        }
+        else
+        {
+            if ( !curNote.IsPressed )
             {
-                if ( judge.CanBeHit( endDiff ) )
+                if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
                 {
-                    judge.ResultUpdate( endDiff );
-                    SelectNextNote();
+                    curNote.IsPressed = true;
+                    OnHitNote?.Invoke( NoteType.Slider, true );
+                    judge.ResultUpdate( startDiff );
+                    return;
                 }
-                else
+
+                if ( judge.IsMiss( startDiff ) )
                 {
-                    curNote.IsPressed = false;
                     curNote.SetBodyFail();
                     judge.ResultUpdate( HitResult.Miss );
                     sliderMissQueue.Enqueue( curNote );
                     SelectNextNote( false );
+                }
+            }
+            else
+            {
+                if ( Input.GetKey( GameSetting.Inst.Keys[key] ) )
+                {
+                    if ( endDiff <= 0d )
+                    {
+                        curNote.IsPressed = false;
+                        judge.ResultUpdate( endDiff );
+                        OnHitNote?.Invoke( NoteType.Slider, false );
+                        SelectNextNote();
+                        return;
+                    }
+
+                    playback += Time.deltaTime;
+                    if ( playback > .1f )
+                    {
+                        judge.ResultUpdate( HitResult.None );
+                        playback = 0f;
+                    }
+                }
+
+                if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
+                {
+                    if ( judge.CanBeHit( endDiff ) )
+                    {
+                        judge.ResultUpdate( endDiff );
+                        SelectNextNote();
+                    }
+                    else
+                    {
+                        curNote.IsPressed = false;
+                        curNote.SetBodyFail();
+                        judge.ResultUpdate( HitResult.Miss );
+                        sliderMissQueue.Enqueue( curNote );
+                        SelectNextNote( false );
+                    }
                 }
             }
         }
@@ -270,28 +255,37 @@ public class InputSystem : MonoBehaviour
     {
         if ( !isReady ) return;
 
-        if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
-        {
-            OnInputEvent?.Invoke( true );
-            SoundManager.Inst.Play( curSound );
-        }
-        else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
-        {
-            OnInputEvent?.Invoke( false );
-            OnHitNote?.Invoke( NoteType.Slider, false );
-        }
-
         if ( sliderMissQueue.Count > 0 )
         {
-            var slider = sliderMissQueue.Peek();
-            if ( judge.IsMiss( slider.SliderTime - NowPlaying.Playback ) )
+            var note = sliderMissQueue.Peek();
+            if ( judge.IsMiss( note.SliderTime - NowPlaying.Playback ) )
             {
-                slider.Despawn();
+                note.Despawn();
                 sliderMissQueue.Dequeue();
             }
         }
 
+        if ( !isAuto )
+        {
+            if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] )  )
+            {
+                OnInputEvent?.Invoke( true );
+                SoundManager.Inst.Play( curSound );
+            }
+            else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
+            {
+                OnInputEvent?.Invoke( false );
+                OnHitNote?.Invoke( NoteType.Slider, false );
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
         if ( curNote != null )
-             NoteProcessAction();
+        {
+            if ( curNote.IsSlider ) CheckSlider();
+            else CheckNote();
+        }
     }
 }

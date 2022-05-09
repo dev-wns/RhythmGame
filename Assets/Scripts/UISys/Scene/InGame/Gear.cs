@@ -5,31 +5,21 @@ using UnityEngine.UI;
 
 public class Gear : MonoBehaviour
 {
-    public RectTransform bgRT, leftRT, rightRT, judge;
-    private Image background;
+    public RectTransform hint;
+    public Image panel;
 
     private void Awake()
     {
-        background = bgRT.GetComponent<Image>();
+        GameSetting.HintPos = hint.position.y;
+        //GameSetting.JudgePos = hint.position.y;
 
-        leftRT.anchoredPosition  = new Vector3(  GameSetting.GearStartPos, -Screen.height * .5f, 0f );
-        rightRT.anchoredPosition = new Vector3( -GameSetting.GearStartPos, -Screen.height * .5f, 0f );
-
-        bgRT = background.rectTransform;
-        bgRT.anchoredPosition = Vector3.zero;
-        bgRT.sizeDelta        = new Vector3( GameSetting.GearWidth, Screen.height, 0f );
-
-        judge.anchoredPosition = new Vector3( 0f, GameSetting.JudgePos, -1f );
-        judge.sizeDelta = new Vector3( GameSetting.GearWidth, GameSetting.JudgeHeight, 1f );
-
-        bool isEnabled = GameSetting.PanelOpacity <= .01f ? false : true;
-        if ( isEnabled )
+        if ( GameSetting.PanelOpacity <= .01f ? false : true )
         {
-            background.color = new Color( 0f, 0f, 0f, GameSetting.PanelOpacity * .01f );
+            panel.color = new Color( 0f, 0f, 0f, GameSetting.PanelOpacity * .01f );
         }
         else
         {
-            background.gameObject.SetActive( false );
+            panel.gameObject.SetActive( false );
         }
     }
 }

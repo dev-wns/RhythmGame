@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,8 @@ public class FrequencyBand : MonoBehaviour
     public float defaultPos = 450f;
     public float bandPower;
 
+    public Action<float[]/* freqBands */> OnFrqBandUpdate;
+
     private void Awake()
     {
         freqBands = new float[numBands];
@@ -24,7 +27,7 @@ public class FrequencyBand : MonoBehaviour
         freqObjects = new Transform[numBands - 1];
         newPosition = new Vector3[freqObjects.Length];
 
-        float angle = angle = ( 360f / freqObjects.Length );
+        float angle = ( 360f / freqObjects.Length );
         for ( int i = 0; i < freqObjects.Length; i++ )
         {
             GameObject obj = new GameObject( i.ToString() );
@@ -63,6 +66,8 @@ public class FrequencyBand : MonoBehaviour
             }
             freqBands[i] = ( average / count ) * _offset;
         }
+
+        OnFrqBandUpdate?.Invoke( freqBands );
     }
 
     private void FixedUpdate()

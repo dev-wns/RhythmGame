@@ -48,7 +48,7 @@ public class GameSetting : SingletonUnity<GameSetting>
 {
     // Mode
     public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All;
-    public static GameMode       CurrentGameMode      = GameMode.AutoPlay;
+    public static GameMode       CurrentGameMode      = GameMode.AutoPlay | GameMode.NoFail;
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
 
@@ -63,9 +63,9 @@ public class GameSetting : SingletonUnity<GameSetting>
         get => OriginScrollSpeed;
         set
         {
-            if ( value < 1 )
+            if ( value < 1d )
             {
-                Debug.LogWarning( $"ScrollSpeed : {OriginScrollSpeed}" );
+                //Debug.LogWarning( $"ScrollSpeed : {OriginScrollSpeed}" );
                 return;
             }
 
@@ -92,11 +92,12 @@ public class GameSetting : SingletonUnity<GameSetting>
 
     // Jugdement
     public static float JudgePos    = -490f;
+    public static float HintPos     = 0f;
     public static float JudgeHeight = 50f;
 
     // note
-    public static float NoteWidth  = 80f;
-    public static float NoteHeight = 30f;
+    public static float NoteWidth  = 83f; // 75f
+    public static float NoteHeight = 100f;
     public static float NoteBlank  = 2f;
     public static float NoteStartPos => -( ( NoteWidth * 5f ) + ( NoteBlank * 7f ) ) * .5f;
 

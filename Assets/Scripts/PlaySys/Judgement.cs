@@ -7,11 +7,10 @@ public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate,
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect     = .0284d;
-    public const double Great       = .064d;
-    public const double Good        = .097d;
-    public const double Bad         = .127d;
-    public const double Miss        = .151d;
+    public const double Perfect      = .0421d; //.0284d;
+    public const double Great        = .0276d + Perfect; //.064d;
+    public const double Good         = .0135d + Great; //.097d;
+    public const double Bad          = .0119d + Good; //.127d;
 
     public event Action<HitResult> OnJudge;
 
@@ -41,31 +40,43 @@ public class Judgement : MonoBehaviour
             results.Add( _type, _count );
     }
 
-    public bool CanBeHit( double _timeOffset )
+    public bool CanBeHit( double _diff )
     {
-        return Globals.Abs( _timeOffset ) <= Bad ? true : false;
+        double diff = ( _diff >= 0 ) ? _diff - NowPlaying.PlaybackOffset
+                                     : _diff + NowPlaying.PlaybackOffset;
+
+        return Globals.Abs( diff ) <= Bad ? true : false;
     }
     
-    public bool IsMiss( double _timeOffset )
+    public bool IsMiss( double _diff )
     {
-        return _timeOffset < -Bad ? true : false;
+        return _diff + NowPlaying.PlaybackOffset < -Bad ? true : false;
     }
 
-    public void ResultUpdate( double _timeOffset )
+    public void ResultUpdate( double _diff )
     {
-        double diffAbs = Globals.Abs( _timeOffset );
+        double diff = ( _diff >= 0 ) ? _diff - NowPlaying.PlaybackOffset
+                                     : _diff + NowPlaying.PlaybackOffset;
+        double diffAbs = Globals.Abs( diff );
 
-        if ( _timeOffset < -Bad )                         OnJudge?.Invoke( HitResult.Miss );
-        else if ( diffAbs > Good && diffAbs <= Bad )      OnJudge?.Invoke( HitResult.Bad );
-        else if ( diffAbs > Great && diffAbs <= Good )    OnJudge?.Invoke( HitResult.Good );
-        else if ( diffAbs > Perfect && diffAbs <= Great ) OnJudge?.Invoke( HitResult.Great );
-        else if ( diffAbs >= 0d && diffAbs <= Perfect )   OnJudge?.Invoke( HitResult.Perfect );
-        else                                              OnJudge?.Invoke( HitResult.None );
+        if      ( diffAbs <= Perfect                    ) OnJudge?.Invoke( HitResult.Perfect );
+        else if ( diffAbs > Perfect && diffAbs <= Great ) OnJudge?.Invoke( HitResult.Great   );
+        else if ( diffAbs > Great   && diffAbs <= Good  ) OnJudge?.Invoke( HitResult.Good    );
+        else if ( diffAbs > Good    && diffAbs <= Bad   ) OnJudge?.Invoke( HitResult.Bad     );
+        else if ( diff    < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
+        else                                              OnJudge?.Invoke( HitResult.None    );
+
+        // if ( _timeOffset < -Bad )                           OnJudge?.Invoke( HitResult.Miss );
+        // else if ( diffAbs > Good    && diffAbs <= Bad )     OnJudge?.Invoke( HitResult.Bad );
+        // else if ( diffAbs > Great   && diffAbs <= Good )    OnJudge?.Invoke( HitResult.Good );
+        // else if ( diffAbs > Perfect && diffAbs <= Great )   OnJudge?.Invoke( HitResult.Great );
+        // else if ( diffAbs >= 0d     && diffAbs <= Perfect ) OnJudge?.Invoke( HitResult.Perfect );
+        // else                                                OnJudge?.Invoke( HitResult.None );
 
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
-            if ( _timeOffset >= 0d ) OnJudge?.Invoke( HitResult.Fast );
-            else                     OnJudge?.Invoke( HitResult.Slow );
+            if ( diff > 0d ) OnJudge?.Invoke( HitResult.Fast );
+            else             OnJudge?.Invoke( HitResult.Slow );
         }
     }
 

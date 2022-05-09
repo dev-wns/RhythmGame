@@ -13,27 +13,28 @@ public class InGame : Scene
     public event DelSystemInitialize OnSystemInitialize;
     public event DelSystemInitialize OnSystemInitializeThread;
 
+    public event Action OnKeySoundLoadEnd;
     public event Action OnGameStart;
-    public event Action OnScrollChanged;
-
     public event Action OnReLoad;
+
+    private readonly float AdditionalLoadTime = 1f;
 
     protected override void Awake()
     {
         base.Awake();
 
-        NowPlaying.Inst.Initialize();
+        NowPlaying.Inst.ParseChart();
     }
 
-    private async void Start()
+    protected async override void Start()
     {
+        base.Start();
         InputLock( true );
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
         Task LoadkeySoundAsyncTask = Task.Run( () => OnSystemInitializeThread( NowPlaying.Inst.CurrentChart ) );
 
         await LoadkeySoundAsyncTask;
 
-        Debug.Log( " KeySample Async End " );
         StartCoroutine( Play() );
     }
 
@@ -44,7 +45,12 @@ public class InGame : Scene
 
     private IEnumerator Play()
     {
-        yield return new WaitUntil( () => !NowPlaying.Inst.IsLoadKeySounds && !NowPlaying.Inst.IsLoadBackground );
+        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadKeySounds );
+        OnKeySoundLoadEnd?.Invoke();
+
+        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadBackground );
+
+        yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
 
         loadingCanvas.SetActive( false );
 
@@ -57,7 +63,7 @@ public class InGame : Scene
     {
         var judge = GameObject.FindGameObjectWithTag( "Judgement" );
         Destroy( judge );
-        SceneChanger.Inst.LoadScene( SceneType.FreeStyle );
+        LoadScene( SceneType.FreeStyle );
     }
 
     public void Restart()
@@ -86,7 +92,7 @@ public class InGame : Scene
             else
             {
                 NowPlaying.Inst.Stop();
-                SceneChanger.Inst.LoadScene( SceneType.Result );
+                LoadScene( SceneType.Result );
             }
         }
         else
@@ -103,13 +109,12 @@ public class InGame : Scene
         Bind( SceneAction.Option, KeyCode.Escape, () => Pause( false ) );
         Bind( SceneAction.Main,   KeyCode.Escape, () => Pause( true ) );
 
-        Bind( SceneAction.Main, KeyCode.Alpha1, () => GameSetting.ScrollSpeed -= .1d );
-        Bind( SceneAction.Main, KeyCode.Alpha1, () => SoundManager.Inst.Play( SoundSfxType.Slider ) );
-        Bind( SceneAction.Main, KeyCode.Alpha1, () => OnScrollChanged?.Invoke() );
-
-        Bind( SceneAction.Main, KeyCode.Alpha2, () => GameSetting.ScrollSpeed += .1d );
-        Bind( SceneAction.Main, KeyCode.Alpha2, () => SoundManager.Inst.Play( SoundSfxType.Slider ) );
-        Bind( SceneAction.Main, KeyCode.Alpha2, () => OnScrollChanged?.Invoke() );
-
+        Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
+        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha1, () => PressdSpeedControl( false ) );
+        Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
+                                                           
+        Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
+        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha2, () => PressdSpeedControl( true ) );
+        Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
     }
 }

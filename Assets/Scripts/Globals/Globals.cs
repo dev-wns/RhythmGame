@@ -30,7 +30,7 @@ public static class Globals
 
     /// <summary>
     /// Returns the calculated value of the ratio to the screen.
-    /// </summary>
+    /// </summary> 
     /// <param name="_screen"> The value is adjusted based on this value. </param>
     public static Vector3 GetScreenRatio( Texture2D _tex, Vector2 _screen )
     {

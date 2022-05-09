@@ -1,30 +1,34 @@
+// #define ASYNC_PARSE
+
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class NowPlaying : SingletonUnity<NowPlaying>
 {
+    public static Scene CurrentScene;
     public ReadOnlyCollection<Song> Songs { get; private set; }
     public List<FMOD.Sound> KeySounds { get; private set; }
 
-    public  Song CurrentSong => curSong;
+    public Song CurrentSong => curSong;
     private Song curSong;
 
-    public  Chart CurrentChart => curChart;
+    public Chart CurrentChart => curChart;
     private Chart curChart;
 
-    public  int CurrentSongIndex 
+    public int CurrentSongIndex
     {
         get => curSongIndex;
         set
         {
             if ( value >= Songs.Count )
-                throw new System.Exception( "Out of Range. " );
+                throw new Exception( "Out of Range. " );
 
             curSongIndex = value;
-            curSong      = Songs[value];
+            curSong = Songs[value];
         }
     }
     private int curSongIndex;
@@ -36,26 +40,42 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         return Songs[_index];
     }
 
-    public static double Playback;        // 노래 재생 시간
-    public static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
+    public  static double Playback;        // 노래 재생 시간
+    public  static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
+    public  static double PlaybackOffset;
+    private double PrevPlayback;
 
     private readonly double waitTime = -2d;
     private double startTime;
     private double savedTime;
     private double totalTime;
 
-    public event Action OnResult;
-    public event Action OnStart; 
+    public event Action       OnResult;
+    public event Action       OnStart;
     public event Action<bool> OnPause;
     private Coroutine timeCoroutine;
 
-    public bool IsLoadKeySounds { get; set; }
-    public bool IsLoadBackground { get; set; }
+    public bool IsLoadKeySounds { get; set; }  = false;
+    public bool IsLoadBackground { get; set; } = false;
+    public bool IsParseSongs { get; private set; } = false;
 
-    private void Awake()
+    private async void Awake()
+    {
+#if ASYNC_PARSE
+        Task parseSongsAsyncTask = Task.Run( ParseSongs );
+        await parseSongsAsyncTask;
+#else
+        ParseSongs();
+        await Task.CompletedTask;
+#endif        
+    }
+
+    private void ParseSongs()
     {
         //using ( FileConverter converter = new FileConverter() )
+        //{
         //    converter.ReLoad();
+        //}
 
         using ( FileParser parser = new FileParser() )
         {
@@ -64,21 +84,26 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             Songs = songs;
         }
 
+        IsParseSongs = true;
         CurrentSongIndex = 0;
+
+        Debug.Log( "Songs Parse End." );
     }
 
     private IEnumerator TimeUpdate()
     {
         while ( true )
         {
-            Playback = savedTime + ( System.DateTime.Now.TimeOfDay.TotalSeconds - startTime );
+            PrevPlayback = Playback;
+            Playback = savedTime + ( Globals.Timer.CurrentTime - startTime );
+            PlaybackOffset = Globals.Abs( PrevPlayback - Playback );
             PlaybackChanged = GetChangedTime( Playback );
 
             if ( Playback >= totalTime + 3d )
             {
                 Stop();
                 OnResult?.Invoke();
-                SceneChanger.Inst.LoadScene( SceneType.Result );
+                CurrentScene?.LoadScene( SceneType.Result );
             }
             yield return null;
         }
@@ -92,11 +117,11 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         savedTime = 0d;
         PlaybackChanged = 0d;
 
-        IsLoadKeySounds  = true;
-        IsLoadBackground = true;
+        IsLoadKeySounds = false;
+        IsLoadBackground = false;
     }
 
-    public void Initialize()
+    public void ParseChart()
     {
         Stop();
 
@@ -112,7 +137,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         StartCoroutine( MusicStart() );
     }
 
-    /// <returns>False : Playback is higher than the Last Note Time.</returns>
+    /// <returns>   FALSE : Playback is higher than the last note time. </returns>
     public bool Pause( bool _isPause )
     {
         if ( Playback >= totalTime )
@@ -144,7 +169,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator PauseStart()
     {
-        SceneChanger.CurrentScene.InputLock( true );
+        CurrentScene.InputLock( true );
         while ( Playback >= savedTime )
         {
             Playback -= Time.deltaTime * 3f;
@@ -152,7 +177,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             yield return null;
         }
 
-        startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
+        startTime = Globals.Timer.CurrentTime;
         timeCoroutine = StartCoroutine( TimeUpdate() );
 
         yield return new WaitUntil( () => Playback >= savedTime - waitTime );
@@ -160,20 +185,20 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
         OnPause?.Invoke( false );
 
-        yield return YieldCache.WaitForSeconds( 3f );
-        SceneChanger.CurrentScene.InputLock( false );
+        yield return YieldCache.WaitForSeconds( 2f );
+        CurrentScene.InputLock( false );
     }
 
     private IEnumerator MusicStart()
     {
         if ( !curSong.isOnlyKeySound )
         {
-            SoundManager.Inst.LoadBgm( CurrentSong.audioPath, false, false, false );
+            SoundManager.Inst.LoadBgm( curSong.audioPath, false, false, false );
             SoundManager.Inst.Play( true );
             SoundManager.Inst.Position = 0;
         }
 
-        startTime = System.DateTime.Now.TimeOfDay.TotalSeconds;
+        startTime = Globals.Timer.CurrentTime;
         savedTime = waitTime;
         timeCoroutine = StartCoroutine( TimeUpdate() );
 
@@ -188,7 +213,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     /// <returns> Time including BPM. </returns>
     public double GetChangedTime( double _time ) // BPM 변화에 따른 시간 계산
     {
-        var timings = CurrentChart.timings;
+        var timings = curChart.timings;
         double newTime = _time;
         double prevBpm = 0d;
         for ( int i = 0; i < timings.Count; i++ )

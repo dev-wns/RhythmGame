@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.Video;
 
+public enum BackgroundType { None, Video, Sprite, Image, }
+
 public class SpriteSystem : MonoBehaviour
 {
     private InGame scene;
@@ -14,6 +16,8 @@ public class SpriteSystem : MonoBehaviour
     [Header( "Video" )]
     public VideoPlayer vp;
     public RenderTexture renderTexture;
+
+    public GameDebug gameDebug;
 
     private struct PlaySpriteSample
     {
@@ -37,7 +41,6 @@ public class SpriteSystem : MonoBehaviour
     private int curBackIndex = 0;
     private int curForeIndex = 0;
 
-    private enum BackgroundType { None, Video, Sprite, Image, }
     private BackgroundType type;
 
     private void Awake()
@@ -80,7 +83,9 @@ public class SpriteSystem : MonoBehaviour
                _chart.sprites.Count > 0             ? BackgroundType.Sprite : 
                                                       BackgroundType.Image;
 
-        switch( type )
+        gameDebug?.SetBackgroundType( type );
+
+        switch ( type )
         {
             case BackgroundType.None:
             {
@@ -117,7 +122,7 @@ public class SpriteSystem : MonoBehaviour
                 {
                     StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
                 }
-                NowPlaying.Inst.IsLoadBackground = false;
+                NowPlaying.Inst.IsLoadBackground = true;
                 Debug.Log( "Background Type : Image" );
             } break;
         }
@@ -181,13 +186,13 @@ public class SpriteSystem : MonoBehaviour
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
 
-        NowPlaying.Inst.IsLoadBackground = false;
+        NowPlaying.Inst.IsLoadBackground = true;
     }
 
     private void SpriteProcess()
     {
         StartCoroutine( BackProcess() );
-        StartCoroutine( ForeProcess() );
+        //StartCoroutine( ForeProcess() );
     }
 
     private IEnumerator BackProcess()
@@ -269,7 +274,7 @@ public class SpriteSystem : MonoBehaviour
             else                            return 0;
         } );
 
-        NowPlaying.Inst.IsLoadBackground = false;
+        NowPlaying.Inst.IsLoadBackground = true;
     }
 
     public IEnumerator LoadSample( string _dir, SpriteSample _sample )
@@ -315,6 +320,7 @@ public class SpriteSystem : MonoBehaviour
             }
 
             textures.Add( _sample.name, tex );
+            gameDebug?.SetBackgroundType( type, textures.Count );
         }
 
         switch ( _sample.type )
@@ -327,6 +333,8 @@ public class SpriteSystem : MonoBehaviour
             foregrounds.Add( new PlaySpriteSample( _sample, tex ) );
             break;
         }
+
+        gameDebug?.SetSpriteCount( backgrounds.Count, foregrounds.Count );
     }
 
     public IEnumerator LoadBackground( string _path )

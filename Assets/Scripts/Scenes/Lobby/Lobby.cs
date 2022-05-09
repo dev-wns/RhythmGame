@@ -9,6 +9,8 @@ public class Lobby : Scene
     public GameObject optionCanvas;
     public GameObject exitCanvas;
 
+    public GameObject loadIcon;
+
     private float playback, soundLength;
     private bool isStart = false;
 
@@ -17,7 +19,19 @@ public class Lobby : Scene
         base.Awake();
         SoundManager.Inst.OnSoundSystemReLoad += SoundReStart;
         SoundReStart();
+
+        StartCoroutine( LoadingEndCheck() );
         isStart = true;
+    }
+
+    private IEnumerator LoadingEndCheck()
+    {
+        if ( !NowPlaying.Inst.IsParseSongs )
+             loadIcon.SetActive( true );
+
+        yield return new WaitUntil( () => NowPlaying.Inst.IsParseSongs );
+
+        loadIcon.SetActive( false );
     }
 
     private void SoundReStart()
@@ -39,10 +53,18 @@ public class Lobby : Scene
             playback = 0;
     }
 
+    private void GotoFreeStyle()
+    {
+        if ( NowPlaying.Inst.IsParseSongs )
+        {
+            LoadScene( SceneType.FreeStyle );
+            SoundManager.Inst.Play( SoundSfxType.MainClick );
+        }
+    }
+
     public override void KeyBind()
     {
-        Bind( SceneAction.Main, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SceneType.FreeStyle ) );
-        Bind( SceneAction.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
+        Bind( SceneAction.Main, KeyCode.Return, GotoFreeStyle );
 
         Bind( SceneAction.Main, KeyCode.Space, () => optionCanvas.SetActive( true ) );
         Bind( SceneAction.Main, KeyCode.Space, () => ChangeAction( SceneAction.Option ) );

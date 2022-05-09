@@ -39,7 +39,7 @@ public class FileParser : FileReader
 
                 if ( Contains( "AudioPath:" ) )
                 {
-                    var soundName = SplitAndTrim( ':' );
+                    var soundName = Split( ':' );
                     if ( soundName == string.Empty )
                         _song.audioPath = string.Empty;
                     else
@@ -47,7 +47,7 @@ public class FileParser : FileReader
                 }
                 if ( Contains( "ImagePath:" ) )
                 {
-                    var imageName = SplitAndTrim( ':' );
+                    var imageName = Split( ':' );
                     if ( imageName == string.Empty )
                         _song.imagePath = string.Empty;
                     else
@@ -55,7 +55,7 @@ public class FileParser : FileReader
                 }
                 if ( Contains( "VideoPath:" ) )
                 {
-                    string videoName = SplitAndTrim( ':' );
+                    string videoName = Split( ':' );
 
                     if ( videoName == string.Empty )
                     {
@@ -68,23 +68,23 @@ public class FileParser : FileReader
                         _song.hasVideo = true;
                     }
                 }
-                if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( Split( ':' ) );
 
-                if ( Contains( "Title:" ) )   _song.title   = SplitAndTrim( ':' );
-                if ( Contains( "Artist:" ) )  _song.artist  = SplitAndTrim( ':' );
-                if ( Contains( "Creator:" ) ) _song.creator = SplitAndTrim( ':' );
-                if ( Contains( "Version:" ) ) _song.version = SplitAndTrim( ':' );
+                if ( Contains( "Title:" ) )   _song.title   = Replace( "Title:",   string.Empty );
+                if ( Contains( "Artist:" ) )  _song.artist  = Replace( "Artist:",  string.Empty );
+                if ( Contains( "Creator:" ) ) _song.creator = Replace( "Creator:", string.Empty );
+                if ( Contains( "Version:" ) ) _song.version = Replace( "Version:", string.Empty );
 
-                if ( Contains( "PreviewTime:" ) ) _song.previewTime = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "TotalTime:" ) )   _song.totalTime   = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "PreviewTime:" ) ) _song.previewTime = int.Parse( Split( ':' ) );
+                if ( Contains( "TotalTime:" ) )   _song.totalTime   = int.Parse( Split( ':' ) );
 
-                if ( Contains( "NumNote:" ) )   _song.noteCount   = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( SplitAndTrim( ':' ) );
+                if ( Contains( "NumNote:" ) )   _song.noteCount   = int.Parse( Split( ':' ) );
+                if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( Split( ':' ) );
 
-                if ( Contains( "MinBPM:" ) ) _song.minBpm    = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "MaxBPM:" ) ) _song.maxBpm    = int.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "Median:" ) ) _song.medianBpm = double.Parse( SplitAndTrim( ':' ) );
-                if ( Contains( "Virtual:" ) ) _song.isOnlyKeySound = int.Parse( SplitAndTrim( ':' ) ) == 1 ? true : false;
+                if ( Contains( "MinBPM:" ) ) _song.minBpm    = int.Parse( Split( ':' ) );
+                if ( Contains( "MaxBPM:" ) ) _song.maxBpm    = int.Parse( Split( ':' ) );
+                if ( Contains( "Median:" ) ) _song.medianBpm = double.Parse( Split( ':' ) );
+                if ( Contains( "Virtual:" ) ) _song.isOnlyKeySound = int.Parse( Split( ':' ) ) == 1 ? true : false;
             }
         }
         catch ( Exception _error )
@@ -106,7 +106,7 @@ public class FileParser : FileReader
             OpenFile( _path );
             while ( ReadLine() != "[Timings]" ) { }
 
-            #region Timings Parsing
+#region Timings
             List<Timing> timings = new List<Timing>();
 
             while ( ReadLine() != "[Sprites]" )
@@ -125,9 +125,9 @@ public class FileParser : FileReader
                  throw new Exception( "Timing Parsing Error" );
 
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
-            #endregion
+#endregion
             
-            #region Sprite Samples Parsing
+#region Sprite Samples
             List<SpriteSample> sprites = new List<SpriteSample>();
             while ( ReadLine() != "[Samples]" )
             {
@@ -142,9 +142,9 @@ public class FileParser : FileReader
                 sprites.Add( sprite );
             }
             _chart.sprites = new ReadOnlyCollection<SpriteSample>( sprites );
-            #endregion
+#endregion
 
-            #region Key Samples Parsing
+#region Key Samples
             List<KeySound> keySounds = new List<KeySound>();
             while ( ReadLine() != "[Notes]" )
             {
@@ -160,9 +160,9 @@ public class FileParser : FileReader
                 keySounds.Add( sample );
             }
             _chart.samples = new ReadOnlyCollection<KeySound>( keySounds );
-            #endregion
+#endregion
 
-            #region Notes Parsing
+#region Notes
             List<Note> notes = new List<Note>();
 
             while ( ReadLineEndOfStream() )
@@ -187,7 +187,7 @@ public class FileParser : FileReader
                 throw new Exception( "Note Parsing Error" );
 
             _chart.notes = new ReadOnlyCollection<Note>( notes );
-            #endregion
+#endregion
         }
         catch ( Exception _error )
         {

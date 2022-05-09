@@ -41,7 +41,7 @@ public class LaneSystem : MonoBehaviour
                 SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, sample.name ), out sample.sound );
             keySampleSystem.AddSample( sample );
         }
-        NowPlaying.Inst.IsLoadKeySounds = false;
+        NowPlaying.Inst.IsLoadKeySounds = true;
 
         CreateNotes( _chart );
     }

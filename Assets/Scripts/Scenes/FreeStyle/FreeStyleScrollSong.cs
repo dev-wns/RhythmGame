@@ -219,7 +219,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
     public void KeyBind()
     {
         scene.Bind( SceneAction.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
-        scene.Bind( SceneAction.Main, KeyCode.Return, () => SceneChanger.Inst.LoadScene( SceneType.Game ) );
+        scene.Bind( SceneAction.Main, KeyCode.Return, () => scene.LoadScene( SceneType.Game ) );
 
         scene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.Play( SoundSfxType.MainSelect ) );
         scene.Bind( SceneAction.Main, KeyCode.UpArrow, () => PrevMove() );

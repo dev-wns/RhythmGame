@@ -25,7 +25,11 @@ public class SoundManager : SingletonUnity<SoundManager>
     private Dictionary<ChannelType, FMOD.ChannelGroup> groups = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound> sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
     private Dictionary<string, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
-    //private Dictionary<string, int> keySoundTemps = new Dictionary<string, int>();
+
+    private int totalKeySoundCount;
+    public int TotalKeySoundCount => totalKeySoundCount;
+    public int KeySoundCount => keySounds.Count;
+
     private FMOD.Sound bgmSound;
     private FMOD.Channel bgmChannel;
     public FMOD.DSP? FFT { get; private set; }
@@ -101,6 +105,17 @@ public class SoundManager : SingletonUnity<SoundManager>
             return length;
         }
     }
+
+    public int UseChannelCount
+    {
+        get
+        {
+            int channels = 0;
+            ErrorCheck( system.getChannelsPlaying( out channels ) );
+            return channels;
+        }
+    }
+
     private bool hasAccurateTime = false;
 
     public event Action OnSoundSystemReLoad;
@@ -191,11 +206,14 @@ public class SoundManager : SingletonUnity<SoundManager>
         // Details
         SetVolume( .1f, ChannelType.Master );
         SetVolume( .1f, ChannelType.BGM );
-        SetVolume( .2f, ChannelType.KeySound );
+        SetVolume( .1f, ChannelType.KeySound );
+        SetVolume( .5f, ChannelType.Sfx );
     }
 
     public void KeyRelease()
     {
+        totalKeySoundCount = 0;
+
         foreach ( var keySound in keySounds )
         {
             var sound = keySound.Value;
@@ -328,6 +346,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         var name = System.IO.Path.GetFileName( _path );
         if ( keySounds.ContainsKey( name ) )
         {
+            ++totalKeySoundCount;
             _sound = keySounds[name];
             return;
         }
@@ -337,6 +356,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out _sound ) );
         keySounds.Add( name, _sound );
+        ++totalKeySoundCount;
     }
     #endregion
 

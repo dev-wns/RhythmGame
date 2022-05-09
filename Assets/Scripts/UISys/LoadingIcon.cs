@@ -7,6 +7,8 @@ using TMPro;
 public class LoadingIcon : MonoBehaviour
 {
     public RectTransform iconRt;
+
+    public bool hasText = true;
     public List<GameObject> dotList = new List<GameObject>();
 
     public float rotateSpeed = 100f;
@@ -14,7 +16,8 @@ public class LoadingIcon : MonoBehaviour
 
     private void Awake()
     {
-        StartCoroutine( Loading() );
+        if ( hasText )
+             StartCoroutine( Loading() );
     }
 
     private void AllActive( bool _isActive )
