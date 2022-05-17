@@ -162,7 +162,6 @@ public class FileConverter : FileReader
     private List<Note> notes           = new List<Note>();
     private List<KeySound> samples     = new List<KeySound>();
     private List<SpriteSample> sprites = new List<SpriteSample>();
-    private List<int> removeKeys = new List<int>();
 
     private readonly string virtualAudioName = "preview.wav";
 
@@ -174,6 +173,39 @@ public class FileConverter : FileReader
             else if ( _left < _right ) return -1;
             else                       return 0;
         }
+    }
+
+    private class DeleteKey
+    {
+        public BitArray bits { get; private set; }
+        public Dictionary<int/* lane */, int /* final key */> keys = new Dictionary<int, int>();
+        
+        public int FinalKey( int _lane ) => keys[_lane];
+
+        public DeleteKey( int _bitCount )
+        {
+            bits = new BitArray( _bitCount );
+            int[] deleteKeys = ( _bitCount == 7 ) ? new int[] { 3, }   :
+                               ( _bitCount == 8 ) ? new int[] { 0, 4 } :
+                                                    new int[] { -5, };
+
+            int finalLane = -1;
+            for ( int i = 0; i < bits.Length; i++ )
+            {
+                for ( int j = 0; j < deleteKeys.Length; j++ )
+                {
+                    if ( i == deleteKeys[j] )
+                    {
+                        bits[i] = true;
+                        break;
+                    }
+                }
+
+                keys.Add( i, bits[i] ? -1 : ++finalLane );
+            }
+        }
+
+        public bool this[int _key] => bits[_key];
     }
 
     private class LaneData : IEquatable<LaneData>
@@ -256,31 +288,10 @@ public class FileConverter : FileReader
             }
 
             // [Metadata] ~ [Difficulty]
-            removeKeys?.Clear();
             int keyCount = 0;
-
             while ( ReadLine() != "[Events]" )
             {
-                if ( Contains( "CircleSize" ) )
-                {
-                    keyCount = int.Parse( Split( ':' ) );
-                    switch ( keyCount )
-                    {
-                        default:
-                        return;
-
-                        case 6:
-                        break;
-
-                        case 7:
-                        removeKeys.AddRange( new int[] { 6 } );
-                        break;
-
-                        case 8:
-                        removeKeys.AddRange( new int[] { 0, 7 } );
-                        break;
-                    }
-                }
+                if ( Contains( "CircleSize" ) ) keyCount = int.Parse( Split( ':' ) );
             }
 
             // 키음만으로 재생되는 노래는 프리뷰 음악이 대부분 없다.
@@ -366,9 +377,10 @@ public class FileConverter : FileReader
 #endregion
 
 #region Notes Parsing
-            notes?.Clear();
-
             // [HitObjects]
+            notes?.Clear();
+            DeleteKey deleteKey = new DeleteKey( keyCount );
+
             while ( ReadLineEndOfStream() )
             {
                 string[] splitDatas = line.Split( ',' );
@@ -380,9 +392,11 @@ public class FileConverter : FileReader
                      sliderTime = double.Parse( objParams[0] );
 
                 // 잘린 노트의 키음은 자동으로 재생되는 KeySample로 만들어 준다.
-                int lane          = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * keyCount / 512 );
+                int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * keyCount / 512 );
+                int finalLane     = deleteKey.FinalKey( originLane );
                 KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], float.Parse( objParams[objParams.Length - 2] ) );
-                if ( removeKeys.Contains( lane ) )
+
+                if ( deleteKey[originLane] )
                 {
                     samples.Add( keySound );
                 }
@@ -398,7 +412,8 @@ public class FileConverter : FileReader
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
                     }
-                    notes.Add( new Note( ( keyCount == 6 ) ? lane : lane - 1, noteTime, sliderTime, keySound ) );
+
+                    notes.Add( new Note( finalLane, noteTime, sliderTime, keySound ) );
                 }
             }
 

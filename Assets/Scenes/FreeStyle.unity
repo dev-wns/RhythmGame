@@ -985,8 +985,8 @@ MonoBehaviour:
   slider: {fileID: 2115645225}
   valueText: {fileID: 772159161}
   increaseValue: 1
-  minValue: 0
-  maxValue: 200
+  minValue: -100
+  maxValue: 100
   curValue: 0
   prePos: 
   postPos: 
@@ -1320,7 +1320,6 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1351,7 +1350,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -15687,10 +15686,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 770236077}
   m_HandleRect: {fileID: 1998961847}
   m_Direction: 0
-  m_MinValue: 0
+  m_MinValue: -100
   m_MaxValue: 100
   m_WholeNumbers: 1
-  m_Value: 50
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []

@@ -91,8 +91,13 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 3f;
 
     // Jugdement
-    public static float JudgePos    = -490f;
-    public static float HintPos     = 0f;
+    public static float HintPos     = -( Screen.height * .5f ) + 190;
+    public static float JudgePos 
+    {
+        get => HintPos + JudgementPosition;//-490f;
+        set => JudgementPosition = value;
+    }
+    private static float JudgementPosition = 0f;
     public static float JudgeHeight = 50f;
 
     // note

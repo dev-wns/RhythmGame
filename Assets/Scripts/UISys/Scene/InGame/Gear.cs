@@ -10,7 +10,8 @@ public class Gear : MonoBehaviour
 
     private void Awake()
     {
-        GameSetting.HintPos = hint.position.y;
+        hint.position = new Vector2( 0f, GameSetting.HintPos );
+        //GameSetting.HintPos  = hint.position.y;
         //GameSetting.JudgePos = hint.position.y;
 
         if ( GameSetting.PanelOpacity <= .01f ? false : true )
