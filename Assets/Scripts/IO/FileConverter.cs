@@ -185,9 +185,9 @@ public class FileConverter : FileReader
         public DeleteKey( int _bitCount )
         {
             bits = new BitArray( _bitCount );
-            int[] deleteKeys = ( _bitCount == 7 ) ? new int[] { 3, }   :
-                               ( _bitCount == 8 ) ? new int[] { 0, 4 } :
-                                                    new int[] { -5, };
+            int[] deleteKeys = ( _bitCount == 7 ) ? new int[] { 6, }   :
+                               ( _bitCount == 8 ) ? new int[] { 0, 7 } :
+                                                    new int[] { -1, };
 
             int finalLane = -1;
             for ( int i = 0; i < bits.Length; i++ )

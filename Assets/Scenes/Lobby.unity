@@ -3980,7 +3980,7 @@ Canvas:
   m_RenderMode: 1
   m_Camera: {fileID: 839238307}
   m_PlaneDistance: 100
-  m_PixelPerfect: 0
+  m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
@@ -6434,7 +6434,8 @@ SpriteMask:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: f6f6e6b4bbb74c347b189a08df9c56bf, type: 3}
+  m_Sprite: {fileID: 8177471321811730583, guid: 87aaca0a643d54397ba969dab4fc8875,
+    type: 3}
   m_MaskAlphaCutoff: 0.21
   m_FrontSortingLayerID: 0
   m_BackSortingLayerID: 0
@@ -6841,7 +6842,7 @@ Canvas:
   m_RenderMode: 0
   m_Camera: {fileID: 839238307}
   m_PlaneDistance: 100
-  m_PixelPerfect: 0
+  m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
@@ -9509,7 +9510,7 @@ Canvas:
   m_RenderMode: 0
   m_Camera: {fileID: 839238307}
   m_PlaneDistance: 100
-  m_PixelPerfect: 0
+  m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
