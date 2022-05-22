@@ -192,7 +192,7 @@ public class SpriteSystem : MonoBehaviour
     private void SpriteProcess()
     {
         StartCoroutine( BackProcess() );
-        //StartCoroutine( ForeProcess() );
+        StartCoroutine( ForeProcess() );
     }
 
     private IEnumerator BackProcess()

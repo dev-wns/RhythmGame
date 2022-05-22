@@ -204,9 +204,9 @@ public class SoundManager : SingletonUnity<SoundManager>
         CreateLowEffectDsp();
 
         // Details
-        SetVolume( .1f, ChannelType.Master );
-        SetVolume( .1f, ChannelType.BGM );
-        SetVolume( .1f, ChannelType.KeySound );
+        SetVolume( .3f, ChannelType.Master );
+        SetVolume( .3f, ChannelType.BGM );
+        SetVolume( .3f, ChannelType.KeySound );
         SetVolume( .5f, ChannelType.Sfx );
     }
 
