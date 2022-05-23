@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class Gear : MonoBehaviour
 {
-    public RectTransform hint;
-    public Image panel;
+    public Transform hint;
+    public SpriteRenderer panel;
 
     private void Awake()
     {

@@ -53,8 +53,7 @@ public class HitEffectSystem : MonoBehaviour
         type = _type;
         curIndex = 0;
         isKeyPress = _isKeyPress;
-        rdr.color = isKeyPress ? new Color( 1, 1, 1, .5f ) : Color.clear;
-        rdr.enabled = isKeyPress ? true : false;
+        rdr.color = isKeyPress ? Color.white : Color.clear;
 
         switch( _type )
         {
@@ -86,7 +85,6 @@ public class HitEffectSystem : MonoBehaviour
                 {
                     isKeyPress = false;
                     rdr.color = Color.clear;
-                    rdr.enabled = false;
                 }
                 break;
 

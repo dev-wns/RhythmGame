@@ -24,7 +24,7 @@ SpriteAtlasAsset:
     platformSettings:
     - serializedVersion: 3
       m_BuildTarget: DefaultTexturePlatform
-      m_MaxTextureSize: 1024
+      m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
       m_TextureFormat: -1
       m_TextureCompression: 2
@@ -94,6 +94,18 @@ SpriteAtlasAsset:
     - {fileID: 2800000, guid: f3463a567960e964e80d307c1b5feb27, type: 3}
     - {fileID: 2800000, guid: 3a31a93e82e913d49a8de621155763f4, type: 3}
     - {fileID: 2800000, guid: 4ead2b74471abf24c86e5efd2bc6ba77, type: 3}
+    - {fileID: 2800000, guid: 6d441b195cb2b9b45ad94bfba5586552, type: 3}
+    - {fileID: 2800000, guid: 3e8cd0e12a9caf34ea393bb807421606, type: 3}
+    - {fileID: 2800000, guid: ca87963c7ea3ef342ad8853e8ec82311, type: 3}
+    - {fileID: 2800000, guid: 9a72e0ecf5bd2d648a4119630b52e647, type: 3}
+    - {fileID: 2800000, guid: 6e9c9ec8f7b71264da3eb9a083a13206, type: 3}
+    - {fileID: 2800000, guid: 1a83b0d18411d3248b3df26d2a772d3e, type: 3}
+    - {fileID: 2800000, guid: b50c93a86bf73c94a8a5e0d468b70d28, type: 3}
+    - {fileID: 2800000, guid: 4cd5f2dd47e18924990db4ef57d7107d, type: 3}
+    - {fileID: 2800000, guid: 75d97b12366cc6b4594faeec1cec41ea, type: 3}
+    - {fileID: 2800000, guid: f0f7e2fa9e6e90445adc732c5dbfc842, type: 3}
+    - {fileID: 2800000, guid: e539e1bcd4c8fc94181668e9f1318041, type: 3}
+    - {fileID: 2800000, guid: 8d066f0369773cc42afc6133a3c8554f, type: 3}
     bindAsDefault: 1
     isAtlasV2: 1
     cachedData: {fileID: 0}

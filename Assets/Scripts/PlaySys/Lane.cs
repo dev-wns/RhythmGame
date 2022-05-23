@@ -12,7 +12,7 @@ public class Lane : MonoBehaviour
 
     public event Action<int/*Lane Key*/> OnLaneInitialize;
 
-    public Image keyImage;
+    public SpriteRenderer keyImage;
     public Sprite keyDefaultSprite, keyPressSprite;
     private SpriteRenderer rdr;
     private Color color;
