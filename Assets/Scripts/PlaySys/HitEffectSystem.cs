@@ -7,7 +7,7 @@ public class HitEffectSystem : MonoBehaviour
 {
     public Lane lane;
     private SpriteRenderer rdr;
-    private readonly float lifeTime = .05f;
+    private readonly float lifeTime = .055f;
 
     public List<Sprite> noteSprites = new List<Sprite>();
     private float noteTime;
