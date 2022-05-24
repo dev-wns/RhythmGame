@@ -14,8 +14,7 @@ public class LaneSystem : MonoBehaviour
     private struct CalcNote
     {
         public Note? note;
-        public double noteTime;
-        public double sliderTime;
+        //public double sliderTime;
     }
 
     private void Awake()
@@ -73,6 +72,8 @@ public class LaneSystem : MonoBehaviour
 
         var notes = _chart.notes;
         CalcNote[] column = new CalcNote[6];
+        double[] sliderTimes = new double[6];
+
         for ( int i = 0; i < notes.Count; i++ )
         {
             bool hasNoSliderMod = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
@@ -85,89 +86,112 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Half_Random:
                 {
                     Note newNote = notes[i];
-                    int lane = newNote.lane;
 
-                    if ( hasNoSliderMod ) 
-                         newNote.isSlider = false;
+                    if ( hasNoSliderMod )
+                        newNote.isSlider = false;
 
-                    newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
+                    newNote.calcTime = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
-                    if ( newNote.keySound.hasSound ) 
-                         SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+                    if ( newNote.keySound.hasSound )
+                        SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
 
-                    lanes[lane].NoteSys.AddNote( in newNote );
+                    lanes[newNote.lane].NoteSys.AddNote( in newNote );
                 }
                 break;
 
                 case GameRandom.Max_Random:
                 {
-                    int count = -1;
+                    var rand = random.Next( 0, 6 );
+                    while ( sliderTimes[rand] > notes[i].time )
+                    {
+                        rand = random.Next( 0, 6 );
+                    }
+
+                    if ( notes[i].isSlider )
+                         sliderTimes[rand] = notes[i].sliderTime;
+
+                    Note newNote = notes[i];
+                    if ( hasNoSliderMod )
+                         newNote.isSlider = false;
+
+                    newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
+                    newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
+
+                    if ( newNote.keySound.hasSound )
+                         SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+
+                    lanes[rand].NoteSys.AddNote( in newNote );
+
+
+                    //int count = -1;
                     // 타격시간이 같은 노트 저장
-                    for ( int j = 0; j < 6; j++ )
-                    {
-                        if ( i + j < notes.Count && notes[i].time == notes[i + j].time )
-                        {
-                            column[notes[i + j].lane].note = notes[i + j];
-                            column[notes[i + j].lane].noteTime = notes[i + j].time;
+                    //for ( int j = 0; j < 6; j++ )
+                    //{
+                    //    if ( i + j < notes.Count && notes[i].time == notes[i + j].time )
+                    //    {
+                    //        column[notes[i + j].lane].note = notes[i + j];
+                    //        column[notes[i + j].lane].noteTime = notes[i + j].time;
 
-                            if ( !hasNoSliderMod && notes[i + j].isSlider )
-                            {
-                                column[notes[i + j].lane].sliderTime = notes[i + j].sliderTime;
-                            }
+                    //        if ( !hasNoSliderMod && notes[i + j].isSlider )
+                    //        {
+                    //            column[notes[i + j].lane].sliderTime = notes[i + j].sliderTime;
+                    //            column[notes[i + j].lane].slider = notes[i + j];
+                    //        }
 
-                            count++;
-                        }
-                        else break;
-                    }
-                    i += count;
+                    //        count++;
+                    //    }
+                    //    else
+                    //        break;
+                    //}
+                    //i += count;
 
-                    // 일반노트만 있을 때 스왑
-                    for ( int j = 0; j < 6; j++ )
-                    {
-                        var rand = random.Next( 0, 5 );
+                    //// 일반노트만 있을 때 스왑
+                    //for ( int j = 0; j < 6; j++ )
+                    //{
+                    //    var rand = random.Next( 0, 5 );
 
-                        bool isOverlab = false;
-                        for ( int k = 0; k < 6; k++ )
-                        {
-                            if ( column[k].sliderTime >= column[rand].noteTime )
-                            {
-                                isOverlab = true;
-                                break;
-                            }
-                        }
+                    //    bool isOverlab = false;
+                    //    for ( int k = 0; k < 6; k++ )
+                    //    {
+                    //        if ( column[k].sliderTime >= column[rand].noteTime )
+                    //        {
+                    //            isOverlab = true;
+                    //            break;
+                    //        }
+                    //    }
 
-                        if ( !isOverlab )
-                        {
-                            var tmp      = column[j];
-                            column[j]    = column[rand];
-                            column[rand] = tmp;
-                        }
+                    //    if ( !isOverlab )
+                    //    {
+                    //        var tmp      = column[j];
+                    //        column[j]    = column[rand];
+                    //        column[rand] = tmp;
+                    //    }
 
-                        Thread.Sleep( 1 );
-                    }
+                    //    Thread.Sleep( 1 );
+                    //}
 
                     // 노트 추가
-                    for ( int j = 0; j < 6; j++ )
-                    {
-                        if ( column[j].note.HasValue )
-                        {
-                            Note newNote = column[j].note.Value;
-                            
-                            if ( hasNoSliderMod )
-                                 newNote.isSlider = false;
+                    //for ( int j = 0; j < 6; j++ )
+                    //{
+                    //    if ( column[j].note.HasValue )
+                    //    {
+                    //        Note newNote = column[j].note.Value;
 
-                            newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
-                            newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
+                    //        if ( hasNoSliderMod )
+                    //             newNote.isSlider = false;
 
-                            if ( newNote.keySound.hasSound )
-                                 SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+                    //        newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
+                    //        newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
-                            lanes[j].NoteSys.AddNote( in newNote );
-                        }
+                    //        if ( newNote.keySound.hasSound )
+                    //             SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
 
-                        column[j].note = null;
-                    }
+                    //        lanes[j].NoteSys.AddNote( in newNote );
+                    //    }
+
+                    //    column[j].note = null;
+                    //}
                 }
                 break;
             }

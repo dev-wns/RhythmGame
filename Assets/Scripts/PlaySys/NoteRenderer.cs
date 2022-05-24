@@ -84,14 +84,19 @@ public class NoteRenderer : MonoBehaviour
         // 전부 같은 결과.
         // SliderTime은 NoteTime보다 큰 값을 가지는 것이 파싱 단계에서 보장되기 때문에
         // 절대값 계산은 생략함.
-        double bodyLength    = ( CalcSliderTime - CalcTime ) * weight;
+        double bodyLength = ( CalcSliderTime - CalcTime ) * weight;
         //double bodyLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * weight );
         //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) - ( ( CalcTime - NowPlaying.PlaybackChanged ) * weight );
         //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) - ( CalcTime - NowPlaying.PlaybackChanged ) ) * weight;
         bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
-        bodyTf.localScale = new Vector2( GameSetting.NoteWidth, ( float )( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
 
-        tailTf.localPosition = new Vector2( 0f, ( float )bodyLength );
+        var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
+
+        bodyTf.localScale = bodyScale < 0 ? new Vector2( GameSetting.NoteWidth, 0f ) :
+                                            new Vector2( GameSetting.NoteWidth, bodyScale );
+
+        tailTf.localPosition = new Vector2( 0f, ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset ) );
+
     }
 
     public void Despawn()
