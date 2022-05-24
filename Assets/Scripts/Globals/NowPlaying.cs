@@ -53,7 +53,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public event Action       OnResult;
     public event Action       OnStart;
     public event Action<bool> OnPause;
-    private Coroutine timeCoroutine;
+    private bool isStart;
 
     public bool IsLoadKeySounds { get; set; }  = false;
     public bool IsLoadBackground { get; set; } = false;
@@ -90,6 +90,24 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         Debug.Log( "Songs Parse End." );
     }
 
+    private void Update()
+    {
+        if ( !isStart )
+             return;
+
+        PrevPlayback = Playback;
+        Playback = savedTime + ( Globals.Timer.CurrentTime - startTime );
+        PlaybackOffset = Globals.Abs( PrevPlayback - Playback );
+        PlaybackChanged = GetChangedTime( Playback );
+
+        if ( Playback >= totalTime + 3d )
+        {
+            Stop();
+            OnResult?.Invoke();
+            CurrentScene?.LoadScene( SceneType.Result );
+        }
+    }
+
     private IEnumerator TimeUpdate()
     {
         while ( true )
@@ -112,10 +130,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public void Stop()
     {
         StopAllCoroutines();
-        timeCoroutine = null;
         Playback = waitTime;
         savedTime = 0d;
         PlaybackChanged = 0d;
+        isStart = false;
 
         IsLoadKeySounds = false;
         IsLoadBackground = false;
@@ -148,11 +166,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         if ( _isPause )
         {
-            if ( timeCoroutine != null )
-            {
-                StopCoroutine( timeCoroutine );
-                timeCoroutine = null;
-            }
+            isStart = false;
 
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
@@ -178,7 +192,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
 
         startTime = Globals.Timer.CurrentTime;
-        timeCoroutine = StartCoroutine( TimeUpdate() );
+
+        isStart = true;
 
         yield return new WaitUntil( () => Playback >= savedTime - waitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
@@ -200,7 +215,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         startTime = Globals.Timer.CurrentTime;
         savedTime = waitTime;
-        timeCoroutine = StartCoroutine( TimeUpdate() );
+        isStart = true;
 
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d ); ;
 

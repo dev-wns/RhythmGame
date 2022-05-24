@@ -19,10 +19,15 @@ public class FilledTime : MonoBehaviour
     private void Initialize()
     {
         length = NowPlaying.Inst.CurrentSong.totalTime * .001d;
+        StartCoroutine( Process() );
     }
 
-    private void LateUpdate()
+    private IEnumerator Process()
     {
-        image.fillAmount = ( float )( NowPlaying.Playback / length );
+        while ( NowPlaying.Playback < length )
+        {
+            image.fillAmount = ( float )( NowPlaying.Playback / length );
+            yield return null;
+        }
     }
 }

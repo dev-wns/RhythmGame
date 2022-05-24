@@ -88,7 +88,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static readonly string FailedPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
 
     // Measure
-    public static float MeasureHeight = 3f;
+    public static float MeasureHeight = 2.5f;
 
     // Jugdement
     public static float HintPos     = -( Screen.height * .5f ) + 190;
