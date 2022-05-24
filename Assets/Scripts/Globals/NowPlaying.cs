@@ -108,25 +108,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
     }
 
-    private IEnumerator TimeUpdate()
-    {
-        while ( true )
-        {
-            PrevPlayback = Playback;
-            Playback = savedTime + ( Globals.Timer.CurrentTime - startTime );
-            PlaybackOffset = Globals.Abs( PrevPlayback - Playback );
-            PlaybackChanged = GetChangedTime( Playback );
-
-            if ( Playback >= totalTime + 3d )
-            {
-                Stop();
-                OnResult?.Invoke();
-                CurrentScene?.LoadScene( SceneType.Result );
-            }
-            yield return null;
-        }
-    }
-
     public void Stop()
     {
         StopAllCoroutines();

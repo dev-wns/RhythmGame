@@ -7,7 +7,7 @@ public class HitEffectSystem : MonoBehaviour
 {
     public Lane lane;
     private SpriteRenderer rdr;
-    private readonly float lifeTime = .055f;
+    private readonly float lifeTime = .05f;
 
     public List<Sprite> noteSprites = new List<Sprite>();
     private float noteTime;
@@ -69,9 +69,10 @@ public class HitEffectSystem : MonoBehaviour
 
     private IEnumerator Process()
     {
+        WaitUntil waitKeyPress = new WaitUntil( () => isKeyPress );
         while ( true )
         {
-            yield return new WaitUntil( () => isKeyPress );
+            yield return waitKeyPress;
 
             switch( type )
             {

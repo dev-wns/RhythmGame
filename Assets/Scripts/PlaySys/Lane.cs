@@ -31,7 +31,7 @@ public class Lane : MonoBehaviour
 
         transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .13f ), 1f );
         color = rdr.color;
-        color.a = .35f;
+        color.a = .75f;
         rdr.color = Color.clear;
     }
 

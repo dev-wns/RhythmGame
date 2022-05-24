@@ -10,9 +10,9 @@ public class NoteRenderer : MonoBehaviour
     public SpriteRenderer head, body, tail;
     private Transform headTf, bodyTf, tailTf;
 
-    public Sprite skinNormal, skinHead, skinBody;
-    private static readonly float BodyScaleOffset    = 256f / 82f;  // PixelPerUnit  / TextureHeight
-    private static readonly float BodyPositionOffset = 82f  / 256f; // TextureHeight / PixelPerUnit
+    public Sprite skinNormal, skinHead, skinBody, skinTail;
+    private static readonly float BodyScaleOffset    = 256f / 128f;  // PixelPerUnit  / TextureHeight
+    private static readonly float BodyPositionOffset = 128f / 256f; // TextureHeight / PixelPerUnit
     private Note note;
 
     public double Time => note.time;
@@ -52,8 +52,8 @@ public class NoteRenderer : MonoBehaviour
 
     public void SetInfo( int _lane, NoteSystem _system, in Note _note )
     {
-        system    = _system;
-        note      = _note;
+        system  = _system;
+        note    = _note;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
 
@@ -109,15 +109,15 @@ public class NoteRenderer : MonoBehaviour
         //    if ( transform.position.y <= GameSetting.HintPos )
         //         newTime = NowPlaying.PlaybackChanged;
 
-        //    headPos         = new Vector2( column, GameSetting.HintPos + ( float )( ( newTime        - NowPlaying.PlaybackChanged ) * weight ) );
+        //    headPos = new Vector2( column, GameSetting.HintPos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * weight ) );
         //    Vector2 tailPos = new Vector2( column, GameSetting.HintPos + ( float )( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
 
         //    double bodyDiff = tailPos.y - headPos.y;
-        //    bodyTf.localScale = new Vector2( GameSetting.NoteWidth * .8f, bodyDiff <= 0d ? 0f : ( float )bodyDiff );
+        //    bodyTf.localScale = new Vector2( GameSetting.NoteWidth, bodyDiff <= 0d ? 0f : ( float )bodyDiff );
         //}
         //else
         //{
-        //headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
+        //    headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
         //}
 
         transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcTime - NowPlaying.PlaybackChanged ) * weight ) ) );
