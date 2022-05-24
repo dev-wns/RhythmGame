@@ -27,7 +27,7 @@ public class LaneSystem : MonoBehaviour
         lanes.AddRange( GetComponentsInChildren<Lane>() );
 
         random = new System.Random( ( int )System.DateTime.Now.Ticks );
-        //Random.InitState( ( int )System.DateTime.Now.Ticks );
+        Random.InitState( ( int )System.DateTime.Now.Ticks );
     }
 
     private void Initialize( in Chart _chart )
@@ -71,8 +71,9 @@ public class LaneSystem : MonoBehaviour
         var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
 
         var notes = _chart.notes;
-        CalcNote[] column = new CalcNote[6];
         double[] sliderTimes = new double[6];
+        BitArray isUsedColumn = new BitArray( 6 );
+        double prevTime = 0d;
 
         for ( int i = 0; i < notes.Count; i++ )
         {
@@ -102,11 +103,24 @@ public class LaneSystem : MonoBehaviour
 
                 case GameRandom.Max_Random:
                 {
+                    if ( prevTime < notes[i].time )
+                    {
+                        for ( int j = 0; j < 6; j++ )
+                        {
+                            if ( sliderTimes[j] < notes[i].time )
+                                 isUsedColumn[j] = false;
+                            // isUsedColumn[j] = !( sliderTimes[j] < notes[i].time );
+                        }
+                    }
+
                     var rand = random.Next( 0, 6 );
-                    while ( sliderTimes[rand] > notes[i].time )
+                    while ( isUsedColumn[rand] || sliderTimes[rand] > notes[i].time )
                     {
                         rand = random.Next( 0, 6 );
                     }
+
+                    isUsedColumn[rand] = true;
+                    prevTime = notes[i].time;
 
                     if ( notes[i].isSlider )
                          sliderTimes[rand] = notes[i].sliderTime;
