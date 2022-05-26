@@ -235,6 +235,7 @@ MonoBehaviour:
   skinNormal: {fileID: 21300000, guid: f3463a567960e964e80d307c1b5feb27, type: 3}
   skinHead: {fileID: 21300000, guid: 3a31a93e82e913d49a8de621155763f4, type: 3}
   skinBody: {fileID: 21300000, guid: 4ead2b74471abf24c86e5efd2bc6ba77, type: 3}
+  skinTail: {fileID: 0}
 --- !u!222 &-337763570364687424
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -318,7 +319,7 @@ SpriteRenderer:
   m_Sprite: {fileID: 21300000, guid: 3a31a93e82e913d49a8de621155763f4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
-  m_FlipY: 1
+  m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5

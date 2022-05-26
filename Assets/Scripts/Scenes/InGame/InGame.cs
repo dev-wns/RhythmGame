@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 public class InGame : Scene
 {
-    public GameObject loadingCanvas;
     public GameObject pauseCanvas;
 
     public delegate void DelSystemInitialize( in Chart _chart );
@@ -16,6 +15,7 @@ public class InGame : Scene
     public event Action OnKeySoundLoadEnd;
     public event Action OnGameStart;
     public event Action OnReLoad;
+    public event Action OnLoadEnd;
 
     private readonly float AdditionalLoadTime = 1f;
 
@@ -51,8 +51,7 @@ public class InGame : Scene
         yield return new WaitUntil( () => NowPlaying.Inst.IsLoadBackground );
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
-
-        loadingCanvas.SetActive( false );
+        OnLoadEnd?.Invoke();
 
         OnGameStart?.Invoke();
         InputLock( false );

@@ -6,63 +6,71 @@ using TMPro;
 
 public class LoadingIcon : MonoBehaviour
 {
-    public RectTransform iconRt;
+    public GameObject icon;
+    public TextMeshProUGUI loadingText;
 
     public bool hasText = true;
-    public List<GameObject> dotList = new List<GameObject>();
+    private string[] textList = new string[] { "로딩중 ", "로딩중 .", "로딩중 ..", "로딩중 ..." };
 
     public float rotateSpeed = 100f;
-    private float rotateValue = 0f;
 
     private void Awake()
     {
-        if ( hasText )
-             StartCoroutine( Loading() );
+        InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        scene.OnLoadEnd += IconDisable;
+
+        icon?.SetActive( false );
+        loadingText?.gameObject.SetActive( false );
     }
 
-    private void AllActive( bool _isActive )
+    private void Start()
     {
-        for ( int i = 0; i < dotList.Count; i++ )
+        if ( !NowPlaying.Inst.IsLoadKeySounds && !NowPlaying.Inst.IsLoadBackground )
         {
-            dotList[i].SetActive( _isActive );
+            StartCoroutine( IconRotate() );
+
+            if ( hasText )
+                 StartCoroutine( ChangeText() );
         }
     }
 
-    private IEnumerator Loading()
+    private void IconDisable()
+    {
+        StopAllCoroutines();
+
+        icon.SetActive( false );
+        loadingText.gameObject.SetActive( false );
+
+        Destroy( this );
+    }
+
+    private IEnumerator ChangeText()
     {
         int curIndex = 0;
-        GameObject curText;
-        if ( dotList.Count > 0 )
-        {
-            curText = dotList[curIndex];
-        }
-        else
-        {
-            gameObject.SetActive( false );
-            yield break;
-        }
+        loadingText.gameObject.SetActive( true );
+        loadingText.text = textList[curIndex];
 
         while ( true )
         {
-            if ( curIndex == 0 )
-                 yield return YieldCache.WaitForSeconds( .25f );
-            
-            curText.SetActive( true );
             yield return YieldCache.WaitForSeconds( .25f );
 
-            if ( ++curIndex >= dotList.Count )
-            {
-                AllActive( false );
-                curIndex = 0;
-            }
+            if ( ++curIndex >= textList.Length )
+                 curIndex = 0;
 
-            curText = dotList[curIndex];
+            loadingText.text = textList[curIndex];
         }
     }
 
-    private void Update()
+    private IEnumerator IconRotate()
     {
-        rotateValue += Time.deltaTime * rotateSpeed;
-        iconRt.rotation = Quaternion.Euler( new Vector3( 0f, 0f, rotateValue ) );
+        float curValue = 0f;
+        icon.SetActive( true );
+
+        while ( true )
+        {
+            curValue -= Time.deltaTime * rotateSpeed;
+            icon.transform.rotation = Quaternion.Euler( new Vector3( 0f, 0f, curValue ) );
+            yield return null;
+        }
     }
 }
