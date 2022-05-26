@@ -36,7 +36,7 @@ public class Lobby : Scene
 
     private void SoundReStart()
     {
-        SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName + ".mp3"}", true, false, true );
+        SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
         SoundManager.Inst.Play( true );
         SoundManager.Inst.Position = ( uint )playback;
         soundLength = SoundManager.Inst.Length;

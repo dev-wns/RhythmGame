@@ -21,7 +21,7 @@ public class FrequencyBand : MonoBehaviour
 
     private void Awake()
     {
-        freqBands = new float[numBands];
+        freqBands = new float[11];
 
         // create object
         freqObjects = new Transform[numBands - 1];
@@ -47,17 +47,17 @@ public class FrequencyBand : MonoBehaviour
         //rdr.loop = true;
 
         if ( numBands % 2 != 0 )
-            transform.rotation = Quaternion.Euler( new Vector3( 0, 0, 90 ) );
+            transform.rotation = Quaternion.Euler( new Vector3( 0, 0, 270 ) );
     }
 
     private void UpdateBand( float[] _values, float _offset )
     {
         int count = 0;
-        for ( int i = 0; i < numBands; i++ )
+        for ( int i = 0; i < 11; i++ )
         {
             float average = 0f;
             int sampleCount = ( int )Mathf.Pow( 2, i ) * 2;
-            if ( i == numBands ) sampleCount += 2;
+            if ( i == 11 ) sampleCount += 2;
 
             for ( int j = 0; j < sampleCount; j++ )
             {
@@ -72,12 +72,16 @@ public class FrequencyBand : MonoBehaviour
 
     private void FixedUpdate()
     {
-        for ( int i = 0; i < freqObjects.Length; i++ )
+        for ( int i = 1; i < freqObjects.Length; i++ )
         {
             freqObjects[i].position = Vector3.Slerp( freqObjects[i].position,
                                                    ( freqObjects[i].transform.up * defaultPos ) + ( freqObjects[i].transform.up * freqBands[i + 1] * 1000f * bandPower ), .25f );
+            
             newPosition[i] = transform.position + freqObjects[i].position;
-            rdr.SetPositions( newPosition ); 
         }
+
+        newPosition[0] = transform.position - freqObjects[3].position;
+
+        rdr.SetPositions( newPosition ); 
     }
 }
