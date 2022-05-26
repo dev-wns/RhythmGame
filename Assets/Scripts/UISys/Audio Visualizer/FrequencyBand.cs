@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent( typeof( LineRenderer ) )]
 public class FrequencyBand : MonoBehaviour
 {
-    private AudioVisualizer audioVisualizer;
+    public AudioVisualizer audioVisualizer;
     private LineRenderer rdr;
     private Transform[] freqObjects;
 
@@ -38,8 +38,7 @@ public class FrequencyBand : MonoBehaviour
         }
 
         // delegate chain
-        audioVisualizer = GameObject.FindGameObjectWithTag( "Visualizer" ).GetComponent<AudioVisualizer>();
-        if ( audioVisualizer ) audioVisualizer.UpdateSpectrums += UpdateBand;
+        audioVisualizer.UpdateSpectrums += UpdateBand;
 
         // renderer setting 
         rdr = GetComponent<LineRenderer>();

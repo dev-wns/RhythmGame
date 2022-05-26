@@ -67,7 +67,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     #region Fade
     private void CreateFadeSprite()
     {
-        gameObject.layer = 6; // 3d
+        //gameObject.layer = 6; // 3d
 
         Texture2D tex = Texture2D.whiteTexture;
         blackSprite = GetComponent<SpriteRenderer>();

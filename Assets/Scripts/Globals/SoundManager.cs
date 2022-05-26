@@ -32,7 +32,6 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     private FMOD.Sound bgmSound;
     private FMOD.Channel bgmChannel;
-    public FMOD.DSP? FFT { get; private set; }
     private FMOD.DSP Multiband;
 
     public struct SoundDriver
@@ -119,6 +118,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     private bool hasAccurateTime = false;
 
     public event Action OnSoundSystemReLoad;
+    public event Action OnRelease;
     public bool IsLoad { get; private set; } = false;
     #endregion
 
@@ -257,10 +257,14 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         // DSP
-        RemoveFFT();
+        int numPrevDSP, numCurrentDSP;
+        ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numPrevDSP ) );
 
-        ErrorCheck( groups[ChannelType.BGM].removeDSP( Multiband ) );
-        ErrorCheck( Multiband.release() );
+        OnRelease?.Invoke();
+        RemoveDSP( ref Multiband );
+
+        ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numCurrentDSP ) );
+        Debug.Log( $"DSP Count : {numPrevDSP} -> {numCurrentDSP}" );
 
         // ChannelGroup
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
@@ -304,7 +308,17 @@ public class SoundManager : SingletonUnity<SoundManager>
         if ( !IsLoad ) 
              system.update();
     }
-    private void OnApplicationQuit() => Release();
+
+    private void OnDestroy()
+    {
+        Debug.Log( "SoundManager OnDestroy" );
+
+        // 매니저격 클래스라 가장 마지막에 제거되어야 한다.
+        // OnApplicationQuit -> OnDisable -> OnDestroy 순으로 호출 되기 때문에
+        // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후
+        // SoundManager OnDestroy가 실행될 수 있도록 한다.
+        Release();
+    }
     #endregion
 
     #region Load
@@ -449,24 +463,21 @@ public class SoundManager : SingletonUnity<SoundManager>
     #region DSP
     public void AddFFT( int _size, FMOD.DSP_FFT_WINDOW _type, out FMOD.DSP _dsp )
     {
-        if ( FFT != null ) RemoveFFT();
-
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out _dsp ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, _size ) );
         ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )_type ) );
         // 다른 DSP 또는 다른 소리와 합쳐진 FFT가 아닌 BGM만의 FFT 정보를 얻기위해 TAIL에 붙임.
         ErrorCheck( groups[ChannelType.BGM].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, _dsp ) );
-        FFT = _dsp;
     }
 
-    public void RemoveFFT()
+    public void RemoveDSP( ref FMOD.DSP _dsp, ChannelType _type = ChannelType.BGM )
     {
-        if ( FFT != null )
-        {
-            ErrorCheck( groups[ChannelType.BGM].removeDSP( FFT.Value ) );
-            ErrorCheck( FFT.Value.release() );
-            FFT = null;
-        }
+        if ( !_dsp.hasHandle() )
+             return;
+
+        ErrorCheck( groups[_type].removeDSP( _dsp ) );
+        ErrorCheck( _dsp.release() );
+        _dsp.clearHandle();
     }
 
     /// A ~ E  5 bands 

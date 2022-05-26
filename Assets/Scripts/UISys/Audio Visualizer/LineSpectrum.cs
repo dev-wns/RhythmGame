@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class LineSpectrum : MonoBehaviour
 {
-    private AudioVisualizer audioVisualizer;
-    private Transform[] visualSpectrums;
+    public AudioVisualizer audioVisualizer;
     public Transform spectrumPrefab;
+    private Transform[] visualSpectrums;
 
     public int numSpectrum;
     public float specWidth;
@@ -18,9 +18,7 @@ public class LineSpectrum : MonoBehaviour
     private void Awake()
     {
         // delegate chain
-        audioVisualizer = GameObject.FindGameObjectWithTag( "Visualizer" ).GetComponent<AudioVisualizer>();
-        if ( audioVisualizer ) 
-             audioVisualizer.UpdateSpectrums += UpdateSpectrum;
+        audioVisualizer.UpdateSpectrums += UpdateSpectrum;
 
         // create spectrum objects
         visualSpectrums = new Transform[numSpectrum];
@@ -31,6 +29,7 @@ public class LineSpectrum : MonoBehaviour
             Transform obj = Instantiate( spectrumPrefab, this.transform );
             visualSpectrums[i] = obj.transform;
             visualSpectrums[i].position = new Vector3( startPos + ( offset * i ), 0f, transform.position.z );
+            visualSpectrums[i].GetComponent<SpriteRenderer>().sortingOrder = ( int )transform.position.z;
 
             obj.GetComponent<SpriteRenderer>().color = color;
         }
@@ -46,7 +45,8 @@ public class LineSpectrum : MonoBehaviour
 
         for ( int i = 0; i < numSpectrum; i++ )
         {
-            float value = _values[i] * 1000f * specPower * _offset;
+            float value = ( _values[i] / highValue ) * 1000f * specPower * _offset;
+            // _values[i] * 1000f * specPower * _offset;
 
             float y = visualSpectrums[i].localScale.y;
             float scale = Mathf.Lerp( y, value, .35f );

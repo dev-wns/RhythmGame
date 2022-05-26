@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class CircleSpectrum : MonoBehaviour
 {
-    private AudioVisualizer audioVisualizer;
-    private Transform[] visualSpectrums;
+    public AudioVisualizer audioVisualizer;
     public Transform spectrumPrefab;
+    private Transform[] visualSpectrums;
 
     public ParticleSystem particleSys;
     public float particleSpeed;
@@ -38,8 +38,7 @@ public class CircleSpectrum : MonoBehaviour
         transform.localScale = new Vector3( scale, scale, scale );
 
         // delegate chain
-        audioVisualizer = GameObject.FindGameObjectWithTag( "Visualizer" ).GetComponent<AudioVisualizer>();
-        if ( audioVisualizer ) audioVisualizer.UpdateSpectrums += UpdateSpectrum;
+        audioVisualizer.UpdateSpectrums += UpdateSpectrum;
 
         // create spectrum objects
         int symmetryColorIdx = numSpectrum;

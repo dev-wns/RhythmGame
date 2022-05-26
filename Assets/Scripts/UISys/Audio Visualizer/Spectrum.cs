@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Spectrum : MonoBehaviour
 {
-    private AudioVisualizer audioVisualizer;
-    private Transform[] visualSpectrums;
+    public AudioVisualizer audioVisualizer;
     public Transform spectrumPrefab;
+    private Transform[] visualSpectrums;
     
     public Transform centerImage;
     public float imageSize;
@@ -29,8 +29,7 @@ public class Spectrum : MonoBehaviour
         transform.localScale = new Vector3( scale, scale, scale );
 
         // delegate chain
-        audioVisualizer = GameObject.FindGameObjectWithTag( "Visualizer" ).GetComponent<AudioVisualizer>();
-        if ( audioVisualizer ) audioVisualizer.UpdateSpectrums += UpdateSpectrum;
+        audioVisualizer.UpdateSpectrums += UpdateSpectrum;
 
         // create spectrum objects
         int symmetryColorIdx = numSpectrum;
