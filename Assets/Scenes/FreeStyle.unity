@@ -2577,7 +2577,7 @@ GameObject:
   - component: {fileID: 268402045}
   - component: {fileID: 268402044}
   m_Layer: 5
-  m_Name: Setting Canvas
+  m_Name: Option Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8698,8 +8698,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 1
   infoObject: {fileID: 75480787}
-  infoText: "\uC2AC\uB77C\uC774\uB354( \uB871\uB178\uD2B8 )\uB97C \uC77C\uBC18\uB178\uD2B8\uB85C
-    \uBCC0\uD665\uD569\uB2C8\uB2E4."
+  infoText: "\uB871\uB178\uD2B8 \uB300\uC2E0 \uC77C\uBC18\uB178\uD2B8\uB97C \uC0DD\uC131\uD569\uB2C8\uB2E4."
   texts: []
   valueText: {fileID: 1709866454}
   isReturnProcess: 0
