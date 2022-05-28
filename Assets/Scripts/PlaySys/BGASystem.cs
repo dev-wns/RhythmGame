@@ -8,7 +8,7 @@ using UnityEngine.Video;
 
 public enum BackgroundType { None, Video, Sprite, Image, }
 
-public class SpriteSystem : MonoBehaviour
+public class BGASystem : MonoBehaviour
 {
     private InGame scene;
     public RawImage background, foreground;

@@ -6,20 +6,21 @@ using UnityEngine.UI;
 public class HitEffectSystem : MonoBehaviour
 {
     public Lane lane;
-    private SpriteRenderer rdr;
-    private readonly float lifeTime = .09f;
-
-    public List<Sprite> noteSprites = new List<Sprite>();
-    private float noteTime;
-
-    public List<Sprite> sliderSprites = new List<Sprite>();
-    private float sliderTime;
-
-    private int curIndex = 0;
-    private bool isKeyPress = false;
 
     private Transform tf;
     private NoteType type;
+
+    public List<Sprite> spritesN = new List<Sprite>();
+    private float timeN = 0f;
+    public List<Sprite> spritesL = new List<Sprite>();
+    private float timeL = 0f;
+
+    private float lifeTime = .065f;
+
+    private SpriteRenderer rdr;
+    private int curIndex = 0;
+    private bool isPlay;
+    private bool isKeyUp;
 
     protected void Awake()
     {
@@ -29,15 +30,19 @@ public class HitEffectSystem : MonoBehaviour
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
         {
             lane.OnLaneInitialize += Initialize;
-            noteTime   = lifeTime / noteSprites.Count;
-            sliderTime = lifeTime / sliderSprites.Count;
+
+            timeN = lifeTime / spritesN.Count;
+            timeL = lifeTime / spritesL.Count;
+
+            rdr.enabled = true;
+            rdr.color = Color.clear;
+
+            StartCoroutine( Process() );
         }
         else
         {
             enabled = false;
         }
-
-        StartCoroutine( Process() );
     }
 
     private void Initialize( int _key )
@@ -48,79 +53,79 @@ public class HitEffectSystem : MonoBehaviour
         tf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteWidth );
     }
 
-    private void HitEffect( NoteType _type, bool _isKeyPress )
+    private void HitEffect( NoteType _type, bool _isKeyUp )
     {
         type = _type;
+        isKeyUp = _isKeyUp;
         curIndex = 0;
-        isKeyPress = _isKeyPress;
-        //rdr.color = isKeyPress ? Color.white : Color.clear;
 
-        switch( _type )
-        {
-            case NoteType.Default:
-            rdr.sprite = noteSprites[curIndex];
-            break;
-
-            case NoteType.Slider:
-            rdr.sprite = sliderSprites[curIndex];
-            break;
-        }
+        if ( isKeyUp && _type == NoteType.Slider )
+            Stop();
+        if ( !isKeyUp )
+            Play();
     }
 
     private IEnumerator Process()
     {
-        WaitUntil waitKeyPress = new WaitUntil( () => isKeyPress );
+        WaitUntil waitPlay = new WaitUntil( () => isPlay );
         while ( true )
         {
-            yield return waitKeyPress;
+            yield return waitPlay;
 
-            switch( type )
+            switch ( type )
             {
                 case NoteType.Default:
-                yield return YieldCache.WaitForSeconds( noteTime );
-                if ( curIndex + 1 < noteSprites.Count )
                 {
-                    rdr.sprite = noteSprites[++curIndex];
-                }
-                else
-                {
-                    isKeyPress = false;
-                    rdr.color = Color.clear;
+                    rdr.sprite = spritesN[curIndex];
+                    yield return YieldCache.WaitForSeconds( timeN );
                 }
                 break;
 
                 case NoteType.Slider:
-                yield return YieldCache.WaitForSeconds( sliderTime );
-                if ( curIndex + 1 < sliderSprites.Count )
                 {
-                    rdr.sprite = sliderSprites[++curIndex];
-                }
-                else
-                {
-                    curIndex = 0;
+                    rdr.sprite = spritesL[curIndex];
+                    yield return YieldCache.WaitForSeconds( timeL );
                 }
                 break;
+            }
+
+            if ( curIndex < spritesN.Count - 1 )
+            {
+                curIndex++;
+            }
+            else
+            {
+                curIndex = 0;
+
+                switch ( type )
+                {
+                    case NoteType.Default:
+                    {
+                        Stop();
+                    }
+                    break;
+
+                    case NoteType.Slider:
+                    {
+                        curIndex = 0;
+                        Play();
+                    }
+                    break;
+                }
             }
         }
     }
 
-    //private void Update()
-    //{
-    //    if ( isStop ) return;
+    private void Play()
+    {
+        isPlay = true;
+        rdr.color = Color.white;
+    }
 
-    //    playback += Time.deltaTime;
-    //    if ( playback >= changeTime )
-    //    {
-    //        if ( curIndex + 1 < sprites.Count )
-    //        {
-    //            rdr.sprite = sprites[++curIndex];
-    //            playback = 0;
-    //        }
-    //        else
-    //        {
-    //            isStop = true;
-    //            rdr.color = Color.clear;
-    //        }
-    //    }
-    //}
+    private void Stop()
+    {
+        curIndex = 0;
+        rdr.color = Color.clear;
+        isPlay = false;
+    }
 }

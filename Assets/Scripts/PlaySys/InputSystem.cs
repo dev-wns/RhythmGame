@@ -14,7 +14,7 @@ public class InputSystem : MonoBehaviour
 
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
     public event Action<bool> OnInputEvent;
-    public event Action<NoteType, bool/*Is Key Press*/> OnHitNote;
+    public event Action<NoteType, bool/*Key Up*/> OnHitNote;
 
     private GameKeyAction key;
     private float playback;
@@ -77,13 +77,13 @@ public class InputSystem : MonoBehaviour
 
         if ( isAuto )
         {
-            OnHitNote?.Invoke( NoteType.Default, true );
+            OnHitNote?.Invoke( NoteType.Default, false );
             judge.ResultUpdate( HitResult.Perfect );
             SelectNextNote();
         }
         else
         {
-            OnHitNote?.Invoke( NoteType.Default, true );
+            OnHitNote?.Invoke( NoteType.Default, false );
             judge.ResultUpdate( curNote.SliderTime - NowPlaying.Playback );
             SelectNextNote();
         }
@@ -131,7 +131,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( startDiff <= 0d )
             {
-                OnHitNote?.Invoke( NoteType.Default, true );
+                OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
                 SoundManager.Inst.Play( curSound );
                 SelectNextNote();
@@ -141,7 +141,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
             {
-                OnHitNote?.Invoke( NoteType.Default, true );
+                OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
                 SelectNextNote();
                 return;
@@ -168,7 +168,7 @@ public class InputSystem : MonoBehaviour
                 if ( startDiff <= 0d )
                 {
                     curNote.IsPressed = true;
-                    OnHitNote?.Invoke( NoteType.Slider, true );
+                    OnHitNote?.Invoke( NoteType.Slider, false );
                     SoundManager.Inst.Play( curSound );
                     judge.ResultUpdate( startDiff );
                 }
@@ -177,7 +177,7 @@ public class InputSystem : MonoBehaviour
             {
                 if ( endDiff <= 0d )
                 {
-                    OnHitNote?.Invoke( NoteType.Slider, false );
+                    OnHitNote?.Invoke( NoteType.Slider, true );
                     judge.ResultUpdate( endDiff );
                     SelectNextNote();
                 }
@@ -197,7 +197,7 @@ public class InputSystem : MonoBehaviour
                 if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
                 {
                     curNote.IsPressed = true;
-                    OnHitNote?.Invoke( NoteType.Slider, true );
+                    OnHitNote?.Invoke( NoteType.Slider, false );
                     judge.ResultUpdate( startDiff );
                     return;
                 }
@@ -218,7 +218,7 @@ public class InputSystem : MonoBehaviour
                     {
                         curNote.IsPressed = false;
                         judge.ResultUpdate( endDiff );
-                        OnHitNote?.Invoke( NoteType.Slider, false );
+                        OnHitNote?.Invoke( NoteType.Slider, true );
                         SelectNextNote();
                         return;
                     }
@@ -233,6 +233,8 @@ public class InputSystem : MonoBehaviour
 
                 if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
                 {
+                    OnHitNote?.Invoke( NoteType.Slider, true );
+
                     if ( judge.CanBeHit( endDiff ) )
                     {
                         judge.ResultUpdate( endDiff );
@@ -275,7 +277,6 @@ public class InputSystem : MonoBehaviour
             else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
             {
                 OnInputEvent?.Invoke( false );
-                OnHitNote?.Invoke( NoteType.Slider, false );
             }
         }
     }
