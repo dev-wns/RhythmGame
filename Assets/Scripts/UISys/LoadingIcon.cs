@@ -19,19 +19,16 @@ public class LoadingIcon : MonoBehaviour
         InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnLoadEnd += IconDisable;
 
-        icon?.SetActive( false );
-        loadingText?.gameObject.SetActive( false );
+        //icon?.SetActive( false );
+        //loadingText?.gameObject.SetActive( false );
     }
 
     private void Start()
     {
-        if ( !NowPlaying.Inst.IsLoadKeySounds && !NowPlaying.Inst.IsLoadBackground )
-        {
-            StartCoroutine( IconRotate() );
+        StartCoroutine( IconRotate() );
 
-            if ( hasText )
-                 StartCoroutine( ChangeText() );
-        }
+        if ( hasText )
+             StartCoroutine( ChangeText() );
     }
 
     private void IconDisable()

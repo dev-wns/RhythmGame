@@ -7,30 +7,42 @@ using DG.Tweening;
 public class InitScene : Scene
 {
     public List<Canvas> canvasList;
-    private readonly float CanvasWaitTime = 2f;
-    private int canvasIndex;
+    //private readonly float CanvasWaitTime = 1f;
+    //private int canvasIndex;
 
     public Image fadeImage;
 
     private IEnumerator Process()
     {
         fadeImage.enabled = true;
-        while ( true )
-        {
-            canvasList[canvasIndex].gameObject.SetActive( true );
+        fadeImage.color = Color.black;
 
-            yield return YieldCache.WaitForSeconds( CanvasWaitTime );
+        yield return YieldCache.WaitForSeconds( 1f );
 
-            fadeImage.DOFade( 1f, .7f );
+        fadeImage.DOFade( 0f, .7f );
 
-            yield return YieldCache.WaitForSeconds( CanvasWaitTime );
+        yield return YieldCache.WaitForSeconds( 3f );
 
-            canvasList[canvasIndex].gameObject.SetActive( false );
-            fadeImage.DOFade( 0f, .7f );
+        fadeImage.DOFade( 1f, .7f );
 
-            if ( canvasIndex + 1 < canvasList.Count ) ++canvasIndex;
-            else                                      break;
-        }
+        //yield return YieldCache.WaitForSeconds( CanvasWaitTime );
+
+        //while ( true )
+        //{
+        //    canvasList[canvasIndex].gameObject.SetActive( true );
+
+        //    yield return YieldCache.WaitForSeconds( CanvasWaitTime );
+
+        //    fadeImage.DOFade( 1f, .7f );
+
+        //    yield return YieldCache.WaitForSeconds( CanvasWaitTime );
+
+        //    canvasList[canvasIndex].gameObject.SetActive( false );
+        //    fadeImage.DOFade( 0f, .7f );
+
+        //    if ( canvasIndex + 1 < canvasList.Count ) ++canvasIndex;
+        //    else                                      break;
+        //}
 
         fadeImage.enabled = false;
         LoadScene( SceneType.Lobby );

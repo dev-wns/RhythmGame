@@ -25,6 +25,8 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     #region Unity Callback
     protected virtual void Awake()
     {
+        Cursor.visible = false;
+
         CreateFadeSprite();
         Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
         

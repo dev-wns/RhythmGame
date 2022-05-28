@@ -73,7 +73,7 @@ public class GameSetting : SingletonUnity<GameSetting>
             Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static double Weight => ( 320d * ScrollSpeed ) / NowPlaying.Inst.CurrentSong.medianBpm;
+    public static double Weight => ( 320d * ScrollSpeed ) / NowPlaying.Inst.CurrentSong.medianBpm; // 320
     public static double PreLoadTime => ( 1500d / Weight );
 
     // Sound
@@ -91,7 +91,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 2.5f;
 
     // Jugdement
-    public static float HintPos     = -( Screen.height * .5f ) + 190;
+    public static float HintPos = -( Screen.height * .5f ) + 190;
     public static float JudgePos 
     {
         get => HintPos + JudgementPosition;//-490f;

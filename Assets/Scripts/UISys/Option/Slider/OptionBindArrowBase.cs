@@ -8,9 +8,9 @@ public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
     private DelKeyAction leftHoldAction, rightHoldAction;
     private DelKeyAction UpAction;
 
-    private bool isPress = false;
-    private static float PressWaitTime   = .5f;
     private static float PressUpdateTime = .05f;
+    private static float PressWaitTime   = .5f;
+    private bool isPress = false;
     private float time;
 
     protected override void Awake()

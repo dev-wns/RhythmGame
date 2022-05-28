@@ -7,7 +7,7 @@ public class HitEffectSystem : MonoBehaviour
 {
     public Lane lane;
     private SpriteRenderer rdr;
-    private readonly float lifeTime = .05f;
+    private readonly float lifeTime = .09f;
 
     public List<Sprite> noteSprites = new List<Sprite>();
     private float noteTime;
@@ -53,7 +53,7 @@ public class HitEffectSystem : MonoBehaviour
         type = _type;
         curIndex = 0;
         isKeyPress = _isKeyPress;
-        rdr.color = isKeyPress ? Color.white : Color.clear;
+        //rdr.color = isKeyPress ? Color.white : Color.clear;
 
         switch( _type )
         {

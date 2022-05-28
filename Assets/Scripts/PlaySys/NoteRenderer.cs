@@ -89,13 +89,14 @@ public class NoteRenderer : MonoBehaviour
         //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) - ( ( CalcTime - NowPlaying.PlaybackChanged ) * weight );
         //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) - ( CalcTime - NowPlaying.PlaybackChanged ) ) * weight;
         bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
-
+        
         var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
-
         bodyTf.localScale = bodyScale < 0 ? new Vector2( GameSetting.NoteWidth, 0f ) :
                                             new Vector2( GameSetting.NoteWidth, bodyScale );
 
-        tailTf.localPosition = new Vector2( 0f, ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset ) );
+        var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
+        tailTf.localPosition = tailPos < GameSetting.NoteHeight * .5f ? new Vector2( 0f, GameSetting.NoteHeight * .5f ) :
+                                                                        new Vector2( 0f, tailPos );
 
     }
 
