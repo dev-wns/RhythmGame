@@ -5,7 +5,7 @@ using TMPro;
 
 public class SongPreview : MonoBehaviour
 {
-    public FreeStyleScrollSong scroller;
+    public FreeStyleMainScroll scroller;
 
     public TextMeshProUGUI time;
     public TextMeshProUGUI noteCount;

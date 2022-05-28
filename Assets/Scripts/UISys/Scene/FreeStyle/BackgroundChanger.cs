@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 public class BackgroundChanger : MonoBehaviour
 {
-    public FreeStyleScrollSong songScroller;
+    public FreeStyleMainScroll scroller;
     public FadeBackground bgPrefab;
     private ObjectPool<FadeBackground> bgPool;
     public Sprite defaultSprite;
@@ -15,7 +15,7 @@ public class BackgroundChanger : MonoBehaviour
     private void Awake()
     {
         bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
-        songScroller.OnSelectSong += ChangeImage;
+        scroller.OnSelectSong += ChangeImage;
     }
 
     private void ChangeImage( Song _song )

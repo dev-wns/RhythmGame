@@ -14,10 +14,6 @@ public class LobbyOption : SceneScrollOption
         CurrentScene.Bind( SceneAction.Option, KeyCode.Escape, () => CurrentScene.ChangeAction( SceneAction.Main ) );
         CurrentScene.Bind( SceneAction.Option, KeyCode.Escape, () => gameObject.SetActive( false ) );
         CurrentScene.Bind( SceneAction.Option, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
-        
-        CurrentScene.Bind( SceneAction.Option, KeyCode.Space, () => CurrentScene.ChangeAction( SceneAction.Main ) );
-        CurrentScene.Bind( SceneAction.Option, KeyCode.Space, () => gameObject.SetActive( false ) );
-        CurrentScene.Bind( SceneAction.Option, KeyCode.Space, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
     }
 
     public void ShowKeySetting( GameObject _obj )

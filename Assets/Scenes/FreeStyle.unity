@@ -491,7 +491,6 @@ MonoBehaviour:
   actionType: 1
   infoObject: {fileID: 75480787}
   infoText: "\uAE30\uC5B4 \uC704\uCE58 \uC815\uB82C \uC635\uC158\uC785\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 1445339599}
   isReturnProcess: 0
@@ -983,7 +982,6 @@ MonoBehaviour:
   infoObject: {fileID: 75480787}
   infoText: "\uD310\uC815\uC120\uC758 \uC704\uCE58\uB97C \uC870\uC808\uD569\uB2C8\uB2E4.\n-\uC77C\uC218\uB85D
     \uC544\uB798 +\uC77C\uC218\uB85D \uC704\uC5D0 \uC704\uCE58\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   slider: {fileID: 2115645225}
   valueText: {fileID: 772159161}
   increaseValue: 5
@@ -3085,7 +3083,6 @@ MonoBehaviour:
   actionType: 1
   infoObject: {fileID: 75480787}
   infoText: "\uBC15\uC790\uC120 \uC0DD\uC131 \uC5EC\uBD80\uB97C \uC124\uC815\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 1202690982}
   isReturnProcess: 0
@@ -3290,7 +3287,6 @@ MonoBehaviour:
   actionType: 1
   infoObject: {fileID: 75480787}
   infoText: "\uB178\uD2B8\uB97C \uBB34\uC791\uC704\uB85C \uC0DD\uC131\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 782506834}
   isReturnProcess: 0
@@ -5579,7 +5575,6 @@ MonoBehaviour:
   actionType: 1
   infoObject: {fileID: 75480787}
   infoText: "BGA \uBD88\uD22C\uBA85\uB3C4 \uAC12\uC744 \uC870\uC808\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   slider: {fileID: 249072653}
   valueText: {fileID: 542599231}
   increaseValue: 5
@@ -6652,7 +6647,6 @@ MonoBehaviour:
   actionType: 1
   infoObject: {fileID: 75480787}
   infoText: "\uAE30\uC5B4 \uBC30\uACBD\uC758 \uBD88\uD22C\uBA85\uB3C4\uB97C \uC870\uC808\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   slider: {fileID: 2131771859}
   valueText: {fileID: 215368336}
   increaseValue: 5
@@ -8409,7 +8403,6 @@ MonoBehaviour:
   infoObject: {fileID: 75480787}
   infoText: "\uD0A4 \uC785\uB825\uC2DC \uC0DD\uC131\uB418\uB294 \uB77C\uC778 \uC774\uD399\uD2B8
     \uC0AC\uC6A9 \uC5EC\uBD80\uB97C \uC124\uC815\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 2040641122}
   isReturnProcess: 0
@@ -8707,7 +8700,6 @@ MonoBehaviour:
   infoObject: {fileID: 75480787}
   infoText: "\uC2AC\uB77C\uC774\uB354( \uB871\uB178\uD2B8 )\uB97C \uC77C\uBC18\uB178\uD2B8\uB85C
     \uBCC0\uD665\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 1709866454}
   isReturnProcess: 0
@@ -8785,7 +8777,6 @@ MonoBehaviour:
   infoObject: {fileID: 75480787}
   infoText: "\uC74C\uC545\uC758 \uC2DC\uC791 \uC624\uD504\uC14B\uC744 \uC870\uC808\uD569\uB2C8\uB2E4.\n-\uC77C\uC218\uB85D
     \uBE60\uB974\uAC8C +\uC77C\uC218\uB85D \uB2A6\uAC8C \uC7AC\uC0DD\uB429\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   slider: {fileID: 73648283}
   valueText: {fileID: 209394007}
   increaseValue: 1
@@ -10192,7 +10183,6 @@ MonoBehaviour:
   infoObject: {fileID: 75480787}
   infoText: "\uCCB4\uB825\uC774 0\uC774 \uB418\uC5B4\uB3C4 \uD328\uBC30\uD558\uC9C0
     \uC54A\uC2B5\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 576304219}
   isReturnProcess: 0
@@ -14370,7 +14360,6 @@ MonoBehaviour:
   actionType: 1
   infoObject: {fileID: 75480787}
   infoText: "\uC790\uB3D9 \uC5F0\uC8FC \uC635\uC158\uC785\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 639455529}
   isReturnProcess: 0
@@ -14561,7 +14550,6 @@ MonoBehaviour:
   infoObject: {fileID: 75480787}
   infoText: "\uB178\uD2B8 \uCC98\uB9AC \uD6C4 \uC0DD\uC131\uB418\uB294 \uC774\uD399\uD2B8
     \uD6A8\uACFC \uC0AC\uC6A9 \uC5EC\uBD80\uB97C \uC124\uC815\uD569\uB2C8\uB2E4."
-  PressUpdateTime: 0.05
   texts: []
   valueText: {fileID: 1919940877}
   isReturnProcess: 0
@@ -14898,7 +14886,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f822efcb4895143b006570eced4fa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  songScroller: {fileID: 1575546728}
+  scroller: {fileID: 1575546728}
   bgPrefab: {fileID: 1419412381515201341, guid: 7c4fa7096f17bbb4199169bc7de8225f,
     type: 3}
   defaultSprite: {fileID: 21300000, guid: 9e99bf2e7a1b6e4499af27b677ce9610, type: 3}

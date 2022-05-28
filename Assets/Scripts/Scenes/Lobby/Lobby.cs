@@ -6,9 +6,6 @@ public class Lobby : Scene
 {
     public string soundName;
 
-    public GameObject optionCanvas;
-    public GameObject exitCanvas;
-
     public GameObject loadIcon;
 
     private float playback, soundLength;
@@ -53,25 +50,8 @@ public class Lobby : Scene
             playback = 0;
     }
 
-    private void GotoFreeStyle()
-    {
-        if ( NowPlaying.Inst.IsParseSongs )
-        {
-            LoadScene( SceneType.FreeStyle );
-            SoundManager.Inst.Play( SoundSfxType.MainClick );
-        }
-    }
-
     public override void KeyBind()
     {
-        Bind( SceneAction.Main, KeyCode.Return, GotoFreeStyle );
-
-        Bind( SceneAction.Main, KeyCode.Space, () => optionCanvas.SetActive( true ) );
-        Bind( SceneAction.Main, KeyCode.Space, () => ChangeAction( SceneAction.Option ) );
-        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
-
-        Bind( SceneAction.Main, KeyCode.Escape, () => exitCanvas.SetActive( true ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => ChangeAction( SceneAction.Exit ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
+  
     }
 }

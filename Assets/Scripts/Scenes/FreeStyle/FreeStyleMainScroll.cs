@@ -4,7 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using TMPro;
 
-public class FreeStyleScrollSong : ScrollBase, IKeyBind
+public class FreeStyleMainScroll : ScrollBase, IKeyBind
 {
     public SongInfomation prefab;
     private RectTransform rt;
@@ -125,7 +125,7 @@ public class FreeStyleScrollSong : ScrollBase, IKeyBind
 
         // Song 정보 수정
         int infoIndex = CurrentIndex - median < 0 ?
-                        CurrentIndex - median + Length:
+                        CurrentIndex - median + Length :
                         CurrentIndex - median;
         last.SetInfo( NowPlaying.Inst.GetSongIndexAt( infoIndex ) );
         
