@@ -43,7 +43,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public  static double Playback;        // 노래 재생 시간
     public  static double PlaybackChanged; // BPM 변화에 따른 노래 재생 시간
     public  static double PlaybackOffset;
-    private double PrevPlayback;
+    private double prevPlayback;
 
     private readonly double waitTime = -2d;
     private double startTime;
@@ -72,10 +72,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void ParseSongs()
     {
-        //using ( FileConverter converter = new FileConverter() )
-        //{
-        //    converter.ReLoad();
-        //}
+        using ( FileConverter converter = new FileConverter() )
+        {
+            converter.ReLoad();
+        }
 
         using ( FileParser parser = new FileParser() )
         {
@@ -95,11 +95,11 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         if ( !isStart )
              return;
 
-        PrevPlayback = Playback;
+        prevPlayback = Playback;
         Playback = savedTime + ( Globals.Timer.CurrentTime - startTime );
-        PlaybackOffset = Globals.Abs( PrevPlayback - Playback );
+        PlaybackOffset = Globals.Abs( prevPlayback - Playback );
         PlaybackChanged = GetChangedTime( Playback );
-
+        
         if ( Playback >= totalTime + 3d )
         {
             Stop();
@@ -207,10 +207,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     }
 
     /// <returns> Time including BPM. </returns>
-    public double GetChangedTime( double _time ) // BPM 변화에 따른 시간 계산
+    public double GetChangedTime( double _time )
     {
         var timings = curChart.timings;
-        double newTime = _time;
+        double newTime = 0d;
         double prevBpm = 0d;
         for ( int i = 0; i < timings.Count; i++ )
         {

@@ -126,6 +126,6 @@ public class NoteRenderer : MonoBehaviour
         //    headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
         //}
 
-        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( CalcTime - NowPlaying.PlaybackChanged ) * weight ) ) );
+        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( CalcTime - NowPlaying.PlaybackChanged ) * weight ) );
     }
 }

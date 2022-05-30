@@ -27,7 +27,7 @@ public class SongPreview : MonoBehaviour
         second = second % 60;
         time.text = $"{minute:00}:{second:00}";
 
-        int medianBpm = ( int )_song.medianBpm;
+        int medianBpm = Mathf.RoundToInt( ( float )_song.medianBpm );
         if ( _song.minBpm == _song.maxBpm ) bpm.text = medianBpm.ToString();
         else                                bpm.text = $"{medianBpm} ({_song.minBpm} ~ {_song.maxBpm})";
     }

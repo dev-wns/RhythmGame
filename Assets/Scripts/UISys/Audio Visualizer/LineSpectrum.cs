@@ -114,7 +114,7 @@ public class LineSpectrum : MonoBehaviour
             float scale = Mathf.Lerp( y, value, .35f );
 
             Vector3 newScale = new Vector3( specWidth, scale, 1f );
-            spectrums[i].localScale                           = newScale; // left
+            spectrums[i].localScale                   = newScale; // left
             spectrums[numSpectrum - 1 - i].localScale = newScale; // right
 
             spectrums[i].position = new Vector3( -offset * i, 0f, transform.position.z );

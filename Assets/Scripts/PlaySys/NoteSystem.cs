@@ -24,7 +24,7 @@ public class NoteSystem : MonoBehaviour
         CurrentScene.OnReLoad += ReLoad;
         CurrentScene.OnScrollChanged += ScrollUpdate;
 
-        nPool = new ObjectPool<NoteRenderer>( nPrefab, 10 );
+        nPool = new ObjectPool<NoteRenderer>( nPrefab, 5 );
 
         ScrollUpdate();
     }

@@ -129,7 +129,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( FMOD.Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
         
-        // to do before system initialize
+        // To do Before System Initialize
         int samplerRate, numRawSpeakers;
         FMOD.SPEAKERMODE mode;
         ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
@@ -151,6 +151,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
         Debug.Log( $"buffer size : {bufferSize} numbuffers : {numbuffers}" );
 
+        // System Initialize
         IntPtr extraDriverData = new IntPtr();
         ErrorCheck( system.init( MaxVirtualChannels, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
         uint version;
@@ -170,8 +171,8 @@ public class SoundManager : SingletonUnity<SoundManager>
                 driver.index = i;
                 drivers.Add( driver );
             }
-            SoundDrivers = new ReadOnlyCollection<SoundDriver>( drivers );
         }
+        SoundDrivers = new ReadOnlyCollection<SoundDriver>( drivers );
         ErrorCheck( system.getDriver( out curDriverIndex ) );
         Debug.Log( $"Current Sound Device : {SoundDrivers[curDriverIndex].name}" );
 

@@ -13,8 +13,6 @@ public class BpmChanger : MonoBehaviour
     private int curIndex;
     private Timing curTiming;
 
-    public event Action<double/* bpm */> OnBpmChange;
-
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
@@ -62,12 +60,11 @@ public class BpmChanger : MonoBehaviour
         while ( curIndex < timings.Count )
         {
             curTiming = timings[curIndex];
+            var bpm = Math.Round( curTiming.bpm );
             yield return waitChangedTimeUntil;
-            
-            OnBpmChange?.Invoke( curTiming.bpm );
 
-            double calcCurBpm = curTiming.bpm;
-            curNum = Globals.Log10( curTiming.bpm ) + 1;
+            double calcCurBpm = bpm;
+            curNum = Globals.Log10( bpm ) + 1;
             for ( int i = 0; i < images.Count; i++ )
             {
                 if ( i < curNum )
