@@ -30,7 +30,7 @@ public class JudgeEffectSystem : MonoBehaviour
         sequence = DOTween.Sequence();
 
         sequence.Pause().SetAutoKill( false );
-        sequence.Append( tf.DOScale( sclCache, .15f ) );
+        sequence.Append( tf.DOScale( sclCache, .1f ) );
         sequence.AppendInterval( .5f );
         sequence.Append( rdr.DOFade( 0f, .5f ) );
     }

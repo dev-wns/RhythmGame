@@ -21,17 +21,17 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
     {
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         outline = GetComponent<Outline>();
-
-        if ( outline is null ) return;
-        outline.effectDistance = new Vector2( 5f, -5f );
-        //outline.effectColor    = Color.yellow;
-        ActiveOutline( false );
+        if ( outline )
+        {
+            outline.effectDistance = new Vector2( 5f, -5f );
+            //outline.effectColor    = Color.yellow;
+            ActiveOutline( false );
+        }
     }
 
     public void ActiveOutline( bool _isActive )
     {
         if ( outline is null ) return;
-        outline ??= GetComponent<Outline>();
         outline.enabled = _isActive;
     }
 

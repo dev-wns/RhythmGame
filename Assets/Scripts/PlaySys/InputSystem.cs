@@ -253,9 +253,10 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if ( !isReady ) return;
+        if ( !isReady )
+            return;
 
         if ( sliderMissQueue.Count > 0 )
         {
@@ -269,7 +270,7 @@ public class InputSystem : MonoBehaviour
 
         if ( !isAuto )
         {
-            if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] )  )
+            if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
             {
                 OnInputEvent?.Invoke( true );
                 SoundManager.Inst.Play( curSound );
@@ -279,10 +280,7 @@ public class InputSystem : MonoBehaviour
                 OnInputEvent?.Invoke( false );
             }
         }
-    }
 
-    private void LateUpdate()
-    {
         if ( curNote != null )
         {
             if ( curNote.IsSlider ) CheckSlider();
