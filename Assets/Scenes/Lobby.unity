@@ -5330,7 +5330,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 38b9d1484b257e14b8581554bfeb2fef, type: 2}
+  - {fileID: 2100000, guid: 22b6fa544fe62d14fa6015b6bfd9af54, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5360,7 +5360,7 @@ LineRenderer:
   - {x: 300, y: 175, z: 0}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 15.106815
+    widthMultiplier: 125
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -5378,8 +5378,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.15, g: 0.15, b: 0.15, a: 1}
-      key1: {r: 0.15, g: 0.15, b: 0.15, a: 1}
+      key0: {r: 0, g: 1, b: 0.7, a: 1}
+      key1: {r: 0, g: 1, b: 0.7, a: 1}
       key2: {r: 1, g: 1, b: 1, a: 0}
       key3: {r: 1, g: 0.5, b: 0.5, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -5408,7 +5408,7 @@ LineRenderer:
     numCornerVertices: 3
     numCapVertices: 0
     alignment: 0
-    textureMode: 0
+    textureMode: 2
     shadowBias: 0.3
     generateLightingData: 0
   m_UseWorldSpace: 1
