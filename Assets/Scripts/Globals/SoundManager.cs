@@ -312,8 +312,6 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     private void OnDestroy()
     {
-        Debug.Log( "SoundManager OnDestroy" );
-
         // 매니저격 클래스라 가장 마지막에 제거되어야 한다.
         // OnApplicationQuit -> OnDisable -> OnDestroy 순으로 호출 되기 때문에
         // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후

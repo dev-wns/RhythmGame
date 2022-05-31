@@ -5,9 +5,10 @@ using DG.Tweening;
 
 public class LobbyMainScroll : ScrollOption, IKeyBind
 {
-    private Scene scene;
     public GameObject optionCanvas, exitCanvas;
+    public RectTransform leftImage, rightImage;
 
+    private Scene scene;
     private RectTransform rt;
 
     protected override void Awake()
@@ -18,29 +19,41 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
         rt = transform as RectTransform;
         
         // ScrollOption
-        IsLoop = true;
         var childRT = CurrentOption.transform as RectTransform;
-        rt.DOAnchorPosX( -childRT.anchoredPosition.x, .25f );
+        rt.anchoredPosition = -childRT.anchoredPosition;
 
         // Key
         KeyBind();
     }
+
     public override void PrevMove()
     {
         base.PrevMove();
+        if ( !IsLoop && IsDuplicate )
+            return;
+
+        SoundManager.Inst.Play( SoundSfxType.MainSelect );
+
         var childRT = CurrentOption.transform as RectTransform;
         rt.DOAnchorPosX( -childRT.anchoredPosition.x, .25f );
 
-        Debug.Log( $"{PreviousIndex} -> {CurrentIndex} {CurrentOption.name}" );
+        leftImage.localScale = new Vector3( .65f, .65f, 1f );
+        leftImage.DOScale( 1f, .25f );
     }
 
     public override void NextMove()
     {
         base.NextMove();
+        if ( !IsLoop && IsDuplicate )
+            return;
+        
+        SoundManager.Inst.Play( SoundSfxType.MainSelect );
+
         var childRT = CurrentOption.transform as RectTransform;
         rt.DOAnchorPosX( -childRT.anchoredPosition.x, .25f );
 
-        Debug.Log( $"{PreviousIndex} -> {CurrentIndex} {CurrentOption.name}" );
+        rightImage.localScale = new Vector3( .65f, .65f, 1f );
+        rightImage.DOScale( 1f, .25f );
     }
 
     public void GotoFreeStyle()
@@ -70,10 +83,8 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
     {
         scene.Bind( SceneAction.Main, KeyCode.Return, () => CurrentOption.Process() );
 
-        scene.Bind( SceneAction.Main, KeyCode.LeftArrow, () => SoundManager.Inst.Play( SoundSfxType.MainSelect ) );
         scene.Bind( SceneAction.Main, KeyCode.LeftArrow, () => PrevMove() );
 
-        scene.Bind( SceneAction.Main, KeyCode.RightArrow, () => SoundManager.Inst.Play( SoundSfxType.MainSelect ) );
         scene.Bind( SceneAction.Main, KeyCode.RightArrow, () => NextMove() );
     }
 }
