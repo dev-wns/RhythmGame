@@ -1053,7 +1053,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 206, y: 0}
+  m_AnchoredPosition: {x: 208, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &108148577
@@ -7396,7 +7396,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: KeySounds ( Duplicate Sounds )
+  m_text: KeySound ( Duplicate Sound )
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,
@@ -8687,7 +8687,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 6, y: 0}
+  m_AnchoredPosition: {x: 8, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1004723518
@@ -11477,7 +11477,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Foregrounds
+  m_text: Foreground
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,
@@ -14146,7 +14146,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Background Type ( Textures )
+  m_text: Background Type ( Texture )
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,
@@ -14658,7 +14658,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -194, y: 0}
+  m_AnchoredPosition: {x: -192, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1629311011
@@ -15772,7 +15772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spacing: 0
   padding:
-    left: 6
+    left: 8
     right: 0
     top: 0
     bottom: 0
@@ -16624,7 +16624,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Backgrounds
+  m_text: Background
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,
@@ -18239,7 +18239,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Channels in Use
+  m_text: Channel in Use
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,

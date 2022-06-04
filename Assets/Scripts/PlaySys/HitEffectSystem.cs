@@ -15,7 +15,7 @@ public class HitEffectSystem : MonoBehaviour
     public List<Sprite> spritesL = new List<Sprite>();
     private float timeL = 0f;
 
-    private float lifeTime = .065f;
+    private float lifeTime = .1f; // 065
 
     private SpriteRenderer rdr;
     private int curIndex = 0;

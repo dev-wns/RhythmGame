@@ -1117,9 +1117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 1
   infoObject: {fileID: 1136143859}
-  infoText: "\uC0AC\uC6B4\uB4DC \uBC84\uD37C \uC870\uC808 \uC635\uC158\uC785\uB2C8\uB2E4.\n\uC0AC\uC6B4\uB4DC\uC2DC\uC2A4\uD15C
-    \uC7AC\uAD6C\uCD95\uC73C\uB85C \uC778\uD55C \uC57D\uAC04\uC758 \uB04A\uAE40 \uD604\uC0C1\uC774
-    \uC788\uC2B5\uB2C8\uB2E4."
+  infoText: "\uC0AC\uC6B4\uB4DC \uBC84\uD37C \uC870\uC808 \uC635\uC158\uC785\uB2C8\uB2E4."
   texts: []
   valueText: {fileID: 1552898771}
   isReturnProcess: 1
@@ -2028,7 +2026,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 1
   infoObject: {fileID: 1136143859}
-  infoText: "\uC0AC\uC6B4\uB4DC \uCD9C\uB825 \uB4DC\uB77C\uC774\uBC84 \uC124\uC815
+  infoText: "\uC0AC\uC6B4\uB4DC \uCD9C\uB825 \uB514\uBC14\uC774\uC2A4 \uC124\uC815
     \uC635\uC158\uC785\uB2C8\uB2E4."
   texts: []
   valueText: {fileID: 479822855}
@@ -4476,8 +4474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 1
   infoObject: {fileID: 1136143859}
-  infoText: "\uB2E8\uB3C5\uC73C\uB85C \uC7AC\uC0DD\uB418\uB294 \uBC30\uACBD\uC74C
-    \uBCFC\uB968 \uC870\uC808 \uC635\uC158\uC785\uB2C8\uB2E4."
+  infoText: "\uBC30\uACBD\uC74C \uBCFC\uB968 \uC870\uC808 \uC635\uC158\uC785\uB2C8\uB2E4."
   slider: {fileID: 238525633}
   valueText: {fileID: 539131399}
   increaseValue: 10
@@ -8530,9 +8527,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 1
   infoObject: {fileID: 1136143859}
-  infoText: "\uD0A4\uC74C \uBCFC\uB968 \uC870\uC808 \uC635\uC158\uC785\uB2C8\uB2E4.\n\uC790\uB3D9\uC73C\uB85C
-    \uC7AC\uC0DD\uB418\uB294 \uBC30\uACBD\uC74C\uC774 \uD0A4\uC74C\uC77C \uACBD\uC6B0
-    \n\uC774 \uC635\uC158\uC5D0 \uC601\uD5A5\uC744 \uBC1B\uC2B5\uB2C8\uB2E4."
+  infoText: "\uD0A4\uC74C \uBCFC\uB968 \uC870\uC808 \uC635\uC158\uC785\uB2C8\uB2E4."
   slider: {fileID: 80381780}
   valueText: {fileID: 81242708}
   increaseValue: 10
