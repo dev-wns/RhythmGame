@@ -11,12 +11,6 @@ public class LaneSystem : MonoBehaviour
 
     private System.Random random;
 
-    private struct CalcNote
-    {
-        public Note? note;
-        //public double sliderTime;
-    }
-
     private void Awake()
     {
         keySampleSystem = GetComponent<KeySampleSystem>();
@@ -27,7 +21,6 @@ public class LaneSystem : MonoBehaviour
         lanes.AddRange( GetComponentsInChildren<Lane>() );
 
         random = new System.Random( ( int )System.DateTime.Now.Ticks );
-        Random.InitState( ( int )System.DateTime.Now.Ticks );
     }
 
     private void Initialize( in Chart _chart )
@@ -48,7 +41,9 @@ public class LaneSystem : MonoBehaviour
     private void SetLane()
     {
         for ( int i = 0; i < ( int )GameKeyAction.Count; i++ )
+        {
             lanes[i].SetLane( i );
+        }
     }
 
     private void LaneSwap( int _min, int _max, int _swapCount = 6 )
@@ -87,13 +82,13 @@ public class LaneSystem : MonoBehaviour
                     Note newNote = notes[i];
 
                     if ( hasNoSliderMod )
-                        newNote.isSlider = false;
+                         newNote.isSlider = false;
 
-                    newNote.calcTime = NowPlaying.Inst.GetChangedTime( newNote.time );
+                    newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                     if ( newNote.keySound.hasSound )
-                        SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+                         SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
 
                     lanes[newNote.lane].NoteSys.AddNote( in newNote );
                 }
@@ -107,7 +102,6 @@ public class LaneSystem : MonoBehaviour
                         {
                             if ( sliderTimes[j] < notes[i].time )
                                  isUsedColumn[j] = false;
-                            // isUsedColumn[j] = !( sliderTimes[j] < notes[i].time );
                         }
                     }
 
@@ -134,76 +128,6 @@ public class LaneSystem : MonoBehaviour
                          SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
 
                     lanes[rand].NoteSys.AddNote( in newNote );
-
-
-                    //int count = -1;
-                    // 타격시간이 같은 노트 저장
-                    //for ( int j = 0; j < 6; j++ )
-                    //{
-                    //    if ( i + j < notes.Count && notes[i].time == notes[i + j].time )
-                    //    {
-                    //        column[notes[i + j].lane].note = notes[i + j];
-                    //        column[notes[i + j].lane].noteTime = notes[i + j].time;
-
-                    //        if ( !hasNoSliderMod && notes[i + j].isSlider )
-                    //        {
-                    //            column[notes[i + j].lane].sliderTime = notes[i + j].sliderTime;
-                    //            column[notes[i + j].lane].slider = notes[i + j];
-                    //        }
-
-                    //        count++;
-                    //    }
-                    //    else
-                    //        break;
-                    //}
-                    //i += count;
-
-                    //// 일반노트만 있을 때 스왑
-                    //for ( int j = 0; j < 6; j++ )
-                    //{
-                    //    var rand = random.Next( 0, 5 );
-
-                    //    bool isOverlab = false;
-                    //    for ( int k = 0; k < 6; k++ )
-                    //    {
-                    //        if ( column[k].sliderTime >= column[rand].noteTime )
-                    //        {
-                    //            isOverlab = true;
-                    //            break;
-                    //        }
-                    //    }
-
-                    //    if ( !isOverlab )
-                    //    {
-                    //        var tmp      = column[j];
-                    //        column[j]    = column[rand];
-                    //        column[rand] = tmp;
-                    //    }
-
-                    //    Thread.Sleep( 1 );
-                    //}
-
-                    // 노트 추가
-                    //for ( int j = 0; j < 6; j++ )
-                    //{
-                    //    if ( column[j].note.HasValue )
-                    //    {
-                    //        Note newNote = column[j].note.Value;
-
-                    //        if ( hasNoSliderMod )
-                    //             newNote.isSlider = false;
-
-                    //        newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
-                    //        newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
-
-                    //        if ( newNote.keySound.hasSound )
-                    //             SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
-
-                    //        lanes[j].NoteSys.AddNote( in newNote );
-                    //    }
-
-                    //    column[j].note = null;
-                    //}
                 }
                 break;
             }

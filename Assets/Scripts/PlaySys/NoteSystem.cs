@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum NoteType { Default, Slider }
+
 public class NoteSystem : MonoBehaviour
 {
     public InGame CurrentScene { get; private set; }
     private Lane lane;
 
     private ObjectPool<NoteRenderer> nPool;
-    public NoteRenderer nPrefab;
+    public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */;
 
     private List<Note> notes = new List<Note>();
     private Note curNote;
@@ -19,12 +20,15 @@ public class NoteSystem : MonoBehaviour
     private void Awake()
     {
         lane = GetComponent<Lane>();
-        CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        CurrentScene.OnGameStart += () => StartCoroutine( Process() );
-        CurrentScene.OnReLoad += ReLoad;
-        CurrentScene.OnScrollChanged += ScrollUpdate;
+        lane.OnLaneInitialize += ( int _key ) =>
+        {
+            nPool = new ObjectPool<NoteRenderer>( _key == 1 || _key == 4 ? note2 : note1, 5 );
+        };
 
-        nPool = new ObjectPool<NoteRenderer>( nPrefab, 5 );
+        CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        CurrentScene.OnGameStart     += () => StartCoroutine( Process() );
+        CurrentScene.OnReLoad        += ReLoad;
+        CurrentScene.OnScrollChanged += ScrollUpdate;
 
         ScrollUpdate();
     }

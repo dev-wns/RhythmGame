@@ -81,13 +81,7 @@ public class NoteRenderer : MonoBehaviour
         weight = GameSetting.Weight;
         if ( !IsSlider ) return;
 
-        // 전부 같은 결과.
-        // SliderTime은 NoteTime보다 큰 값을 가지는 것이 파싱 단계에서 보장되기 때문에
-        // 절대값 계산은 생략함.
         double bodyLength = ( CalcSliderTime - CalcTime ) * weight;
-        //double bodyLengthAbs = Globals.Abs( ( CalcSliderTime - CalcTime ) * weight );
-        //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) - ( ( CalcTime - NowPlaying.PlaybackChanged ) * weight );
-        //var bodyPos = ( ( CalcSliderTime - NowPlaying.PlaybackChanged ) - ( CalcTime - NowPlaying.PlaybackChanged ) ) * weight;
         bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
         
         var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
@@ -97,7 +91,6 @@ public class NoteRenderer : MonoBehaviour
         var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
         tailTf.localPosition = tailPos < GameSetting.NoteHeight * .5f ? new Vector2( 0f, GameSetting.NoteHeight * .5f ) :
                                                                         new Vector2( 0f, tailPos );
-
     }
 
     public void Despawn()
@@ -108,7 +101,7 @@ public class NoteRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        // 롱노트일때 판정선에 노트 붙기
+        // 롱노트 판정선에 붙기
         //Vector2 headPos;
         //if ( IsPressed )
         //{
