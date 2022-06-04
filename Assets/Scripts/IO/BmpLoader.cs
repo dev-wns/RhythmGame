@@ -66,8 +66,19 @@ public class BMPImage
             tex.Apply();
             return tex;
         }
-        // flip image if height is negative
-        internal void FlipImage()
+        public Texture2D ToTexture2D( TextureFormat _format )
+        {
+            var tex = new Texture2D( info.absWidth, info.absHeight, _format, false );
+
+            if ( info.height < 0 )
+                FlipImage();
+
+            tex.SetPixels32( imageData );
+            tex.Apply();
+            return tex;
+        }
+    // flip image if height is negative
+    internal void FlipImage()
         {
             if ( info.height > 0 )
                 return;

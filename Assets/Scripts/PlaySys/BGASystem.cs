@@ -295,7 +295,7 @@ public class BGASystem : MonoBehaviour
             {
                 BMPLoader loader = new BMPLoader();
                 BMPImage img = loader.LoadBMP( path );
-                tex = img.ToTexture2D();
+                tex = img.ToTexture2D( TextureFormat.RGB24 );
             }
             else
             {
@@ -314,7 +314,18 @@ public class BGASystem : MonoBehaviour
                             throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
                         }
 
-                        tex = handler.texture;
+                        // 이미지 배경 알파값이 빠져있거나 검정색인 2가지 경우가 있다.
+                        // 쉐이더 블렌드 옵션을 사용하기위해 배경을 검은색으로 통일한다.
+                        tex = new Texture2D( handler.texture.width, handler.texture.height, TextureFormat.RGB24, false );
+                        if ( !tex.LoadImage( handler.data ) )
+                        {
+                            throw new System.Exception( $"LoadImage Error : {www.error}" );
+                        }
+                        //tex = handler.texture;
+
+                        // 다운로드 하기전에 Texture2D 설정할수있는 방법 찾기
+                        // UnityWebRequest로 다운받은 데이터는 비관리 데이터라 지워줘야한다.
+                        DestroyImmediate( handler.texture );
                     }
                 }
             }

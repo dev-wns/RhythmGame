@@ -4,16 +4,15 @@ Shader "Unlit/Blend Shader"
     {
         _MainTex ("Texture", 2D) = "white" {}
     }
-    SubShader
+        SubShader
     {
         Tags { "RenderType" = "Transparent" "Queue" = "Transparent"}
         LOD 100
 
-        Blend SrcAlpha One
+        Blend One One 
 
         Pass
         {
-
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
