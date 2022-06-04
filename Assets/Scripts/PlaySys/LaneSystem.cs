@@ -61,8 +61,6 @@ public class LaneSystem : MonoBehaviour
             var tmp      = lanes[randA];
             lanes[randA] = lanes[randB];
             lanes[randB] = tmp;
-
-            Thread.Sleep( 1 );
         }
     }
 

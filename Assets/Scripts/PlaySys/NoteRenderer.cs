@@ -11,7 +11,7 @@ public class NoteRenderer : MonoBehaviour
     private Transform headTf, bodyTf, tailTf;
 
     public Sprite skinNormal, skinHead, skinBody, skinTail;
-    private static readonly float BodyScaleOffset    = 256f / 128f;  // PixelPerUnit  / TextureHeight
+    private static readonly float BodyScaleOffset    = 256f / 128f; // PixelPerUnit  / TextureHeight
     private static readonly float BodyPositionOffset = 128f / 256f; // TextureHeight / PixelPerUnit
     private Note note;
 
@@ -27,7 +27,7 @@ public class NoteRenderer : MonoBehaviour
 
     //private static readonly Color MiddleColor   = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
     //private static readonly Color BodyColor     = new Color( .4f, .4f, .4f, 1f );
-    private static readonly Color NoteFailColor = new Color( .15f, .15f, .15f, 1f );
+    private static readonly Color NoteFailColor = new Color( .25f, .25f, .25f, 1f );
 
     private double weight;
 

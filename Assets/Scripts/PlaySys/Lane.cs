@@ -51,6 +51,9 @@ public class Lane : MonoBehaviour
         transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) +
                                         ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank,
                                           GameSetting.HintPos, 90f );
+
+        var keyPos = keyImage.transform.position;
+        keyImage.transform.position = new Vector3( transform.position.x, keyPos.y, keyPos.z );
         OnLaneInitialize?.Invoke( Key );
     }
 }
