@@ -45,7 +45,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public  static double PlaybackOffset;
     private double prevPlayback;
 
-    private readonly double waitTime = -2d;
+    private readonly double waitTime = -1.25d;
     private double startTime;
     private double savedTime;
     private double totalTime;
@@ -167,7 +167,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         CurrentScene.InputLock( true );
         while ( Playback >= savedTime )
         {
-            Playback -= Time.deltaTime * 3f;
+            Playback -= Time.deltaTime;
             PlaybackChanged = GetChangedTime( Playback );
             yield return null;
         }
