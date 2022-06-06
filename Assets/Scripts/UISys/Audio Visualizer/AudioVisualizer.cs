@@ -9,21 +9,23 @@ public class AudioVisualizer : MonoBehaviour
     private FMOD.DSP dsp;
     public FMOD.DSP_FFT_WINDOW type = FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS;
     public SpectrumSize size        = SpectrumSize._4096;
-    public event System.Action<float[] /* values */, float /* offset */> UpdateSpectrums;
+    public event System.Action<float[] /* values */> UpdateSpectrums;
 
     private void Awake()
     {
-        SoundManager.Inst.AddFFT( ( int )size, type, out dsp );
-        
-        SoundManager.Inst.OnSoundSystemReLoad += 
-            () => { SoundManager.Inst.AddFFT( ( int )size, type, out dsp ); };
-
-        SoundManager.Inst.OnRelease += () => { SoundManager.Inst.RemoveDSP( ref dsp ); };
+        AddFFT();
+        SoundManager.Inst.OnSoundSystemReLoad += AddFFT;
+        SoundManager.Inst.OnRelease += RemoveDSP;
     }
+
+    private void RemoveDSP() => SoundManager.Inst.RemoveDSP( ref dsp );
+    private void AddFFT() => SoundManager.Inst.AddFFT( ( int )size, type, out dsp );
 
     private void OnDestroy()
     {
         SoundManager.Inst.RemoveDSP( ref dsp );
+        SoundManager.Inst.OnSoundSystemReLoad -= AddFFT;
+        SoundManager.Inst.OnRelease           -= RemoveDSP;
     }
 
     private void FixedUpdate()
@@ -35,14 +37,9 @@ public class AudioVisualizer : MonoBehaviour
         dsp.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
         FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
         
-        float masterVolume, bgmVolume, volume;
         if ( fftData.numchannels > 0 )
         {
-            masterVolume = SoundManager.Inst.GetVolume( ChannelType.Master );
-            bgmVolume    = SoundManager.Inst.GetVolume( ChannelType.BGM );
-            volume       = masterVolume * bgmVolume;
-
-            UpdateSpectrums?.Invoke( fftData.spectrum[0], volume >= 1f ? 1f : 1f - volume );
+            UpdateSpectrums?.Invoke( fftData.spectrum[0] );
         }
     }
 }

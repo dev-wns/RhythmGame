@@ -71,7 +71,7 @@ public class CircleSpectrum : MonoBehaviour
         isParticleReady = true;
     }
 
-    private void UpdateSpectrum( float[] _values, float _offset )
+    private void UpdateSpectrum( float[] _values )
     {
         float highValue = 1f;
         for ( int i = 0; i < numSpectrum; i++ )
@@ -82,7 +82,7 @@ public class CircleSpectrum : MonoBehaviour
         float average = 0f;
         for ( int i = 0; i < numSpectrum; i++ )
         {
-            float value = ( _values[i] / highValue ) * 1000f * spectrumPower * _offset;
+            float value = ( ( _values[i] / highValue ) * 1000f * spectrumPower );
 
             //float value = _values[i] * 1000f * spectrumPower;
             float y = visualSpectrums[i].localScale.y;
@@ -95,7 +95,7 @@ public class CircleSpectrum : MonoBehaviour
             if ( i < bassRange ) average += _values[i] * ( 1 + i );
         }
 
-        average = ( average / bassRange ) * _offset;
+        average /= bassRange;
 
         if ( isParticleReady )
             particleMain.simulationSpeed = average * particleSpeed;

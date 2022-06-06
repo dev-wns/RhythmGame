@@ -47,7 +47,7 @@ public class Spectrum : MonoBehaviour
         }
     }
 
-    private void UpdateSpectrum( float[] _values, float _offset )
+    private void UpdateSpectrum( float[] _values )
     {
         float highValue = 1f;
         for ( int i = 0; i < numSpectrum; i++ )
@@ -58,7 +58,7 @@ public class Spectrum : MonoBehaviour
         float average = 0f;
         for ( int i = 0; i < numSpectrum; i++ )
         {
-            float value = ( _values[i] / highValue ) * 1000f * spectrumPower * _offset;
+            float value = ( _values[i] / highValue ) * 1000f * spectrumPower;
 
             //float value = _values[i] * 1000f * spectrumPower;
             float y = visualSpectrums[i].localScale.y;
@@ -71,7 +71,7 @@ public class Spectrum : MonoBehaviour
             if ( i < bassRange ) average += _values[i] * ( 1 + i );
         }
 
-        average = ( average / bassRange ) * 1000f * _offset;
+        average = ( average / bassRange ) * 1000f;
         float clampValue = Mathf.Clamp( average * pumpingPower, imageSize, imageSize * 1.5f );
         float scaleValue = Mathf.Lerp( centerImage.localScale.y, clampValue, .15f );
         centerImage.localScale = new Vector3( scaleValue, scaleValue, scaleValue );

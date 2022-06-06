@@ -9834,7 +9834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30ef6303bbd6f1e4e9360b16b22b81c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundName: Sky Pilgrim  Eternal Love.mp3
+  soundName: Lack-Of-Talent.mp3
   loadIcon: {fileID: 912918544}
 --- !u!4 &1753334077
 Transform:

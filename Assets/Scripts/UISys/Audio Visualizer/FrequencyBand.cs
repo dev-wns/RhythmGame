@@ -49,7 +49,7 @@ public class FrequencyBand : MonoBehaviour
             transform.rotation = Quaternion.Euler( new Vector3( 0, 0, 270 ) );
     }
 
-    private void UpdateBand( float[] _values, float _offset )
+    private void UpdateBand( float[] _values )
     {
         int count = 0;
         for ( int i = 0; i < 11; i++ )
@@ -63,7 +63,7 @@ public class FrequencyBand : MonoBehaviour
                 average += _values[count] * ( count + 1 );
                 count++;
             }
-            freqBands[i] = ( average / count ) * _offset;
+            freqBands[i] = average / count;
         }
 
         OnFrqBandUpdate?.Invoke( freqBands );

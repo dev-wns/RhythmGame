@@ -47,7 +47,7 @@ public class LineSpectrum : MonoBehaviour
         }
     }
 
-    private void UpdateBand64( float[] _values, float _offset )
+    private void UpdateBand64( float[] _values )
     {
         int count = 0;
         int sampleCount =1;
