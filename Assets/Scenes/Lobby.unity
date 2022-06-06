@@ -4695,13 +4695,13 @@ MonoBehaviour:
   spectrumPrefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf,
     type: 3}
   particleSys: {fileID: 1991919314}
-  particleSpeed: 5
+  particleSpeed: 3.5
   centerImage: {fileID: 1025897911}
   imageSize: 425
   numSpectrum: 128
-  spectrumPower: 1.75
+  spectrumPower: 1.5
   specWidth: 4.75
-  pumpingPower: 1.75
+  pumpingPower: 1.65
 --- !u!1 &912918544
 GameObject:
   m_ObjectHideFlags: 0
@@ -5302,7 +5302,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1068476985}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 75, z: 0}
+  m_LocalPosition: {x: 0, y: 80, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1920789431}
@@ -5425,7 +5425,7 @@ MonoBehaviour:
   audioVisualizer: {fileID: 1920789432}
   numBands: 7
   defaultPos: 400
-  bandPower: 0.41
+  bandPower: 0.43
 --- !u!1 &1075571078
 GameObject:
   m_ObjectHideFlags: 0
@@ -9834,8 +9834,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30ef6303bbd6f1e4e9360b16b22b81c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundName: Lack-Of-Talent.mp3
   loadIcon: {fileID: 912918544}
+  soundName: Lack-Of-Talent.mp3
 --- !u!4 &1753334077
 Transform:
   m_ObjectHideFlags: 0

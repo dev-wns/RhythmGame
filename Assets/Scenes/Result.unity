@@ -1683,6 +1683,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ed1f3b7335f0184f9d89a52d5792118, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  soundName: Sporia & Froej - Destiny.wav
+  highlightPos: 26500
 --- !u!212 &374339461
 SpriteRenderer:
   m_ObjectHideFlags: 0

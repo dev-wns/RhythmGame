@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class Lobby : Scene
 {
-    public string soundName;
-
     public GameObject loadIcon;
 
+    public string soundName;
     private float playback, soundLength;
     private bool isStart = false;
 
