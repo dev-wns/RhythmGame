@@ -15,7 +15,7 @@ public class HitEffectSystem : MonoBehaviour
     public List<Sprite> spritesL = new List<Sprite>();
     private float timeL = 0f;
 
-    private float lifeTime = .1f; // 065
+    private float lifeTime = .1f;
 
     private SpriteRenderer rdr;
     private int curIndex = 0;
@@ -59,8 +59,8 @@ public class HitEffectSystem : MonoBehaviour
         isKeyUp = _isKeyUp;
         curIndex = 0;
 
-        if ( isKeyUp && _type == NoteType.Slider )
-            Stop();
+        //if ( isKeyUp && _type == NoteType.Slider )
+        //    Stop();
         if ( !isKeyUp )
             Play();
     }
@@ -78,6 +78,9 @@ public class HitEffectSystem : MonoBehaviour
                 {
                     rdr.sprite = spritesN[curIndex];
                     yield return YieldCache.WaitForSeconds( timeN );
+
+                    if ( curIndex < spritesN.Count - 1 ) curIndex++;
+                    else                                 Stop();
                 }
                 break;
 
@@ -85,34 +88,45 @@ public class HitEffectSystem : MonoBehaviour
                 {
                     rdr.sprite = spritesL[curIndex];
                     yield return YieldCache.WaitForSeconds( timeL );
+
+                    if ( curIndex < spritesL.Count - 1 ) curIndex++;
+                    else
+                    {
+                        if ( isKeyUp ) Stop();
+                        else
+                        {
+                            curIndex = 0;
+                            Play();
+                        }
+                    }
                 }
                 break;
             }
 
-            if ( curIndex < spritesN.Count - 1 )
-            {
-                curIndex++;
-            }
-            else
-            {
-                curIndex = 0;
+            //if ( curIndex < spritesN.Count - 1 )
+            //{
+            //    curIndex++;
+            //}
+            //else
+            //{
+            //    curIndex = 0;
 
-                switch ( type )
-                {
-                    case NoteType.Default:
-                    {
-                        Stop();
-                    }
-                    break;
+            //    switch ( type )
+            //    {
+            //        case NoteType.Default:
+            //        {
+            //            Stop();
+            //        }
+            //        break;
 
-                    case NoteType.Slider:
-                    {
-                        curIndex = 0;
-                        Play();
-                    }
-                    break;
-                }
-            }
+            //        case NoteType.Slider:
+            //        {
+            //            curIndex = 0;
+            //            Play();
+            //        }
+            //        break;
+            //    }
+            //}
         }
     }
 
