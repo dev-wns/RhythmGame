@@ -3555,11 +3555,11 @@ MonoBehaviour:
   audioVisualizer: {fileID: 1920789432}
   spectrumPrefab: {fileID: 2841630171828651903, guid: 3e958ed5e751951429ddfb30c7c72f04,
     type: 3}
-  specWidth: 10
-  specBlank: 22
-  specPower: 15
+  specWidth: 7.5
+  specBlank: 25
+  specPower: 16.5
   color: {r: 1, g: 1, b: 1, a: 0.105882354}
-  decreasePower: 0.16
+  decreasePower: 0.275
 --- !u!1 &555054652
 GameObject:
   m_ObjectHideFlags: 0
@@ -4679,9 +4679,9 @@ MonoBehaviour:
   centerImage: {fileID: 1025897911}
   imageSize: 425
   numSpectrum: 128
-  spectrumPower: 1.5
+  spectrumPower: 1.35
   specWidth: 4.75
-  pumpingPower: 1.65
+  pumpingPower: 1.45
 --- !u!1 &912918544
 GameObject:
   m_ObjectHideFlags: 0
@@ -5403,8 +5403,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioVisualizer: {fileID: 1920789432}
   numBands: 7
-  defaultPos: 400
-  bandPower: 0.43
+  defaultPos: 410
+  bandPower: 0.415
 --- !u!1 &1075571078
 GameObject:
   m_ObjectHideFlags: 0
@@ -9646,7 +9646,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadIcon: {fileID: 912918544}
-  soundName: Lack-Of-Talent.mp3
+  soundName: Jacob Tillberg  Feel You.mp3
 --- !u!4 &1753334077
 Transform:
   m_ObjectHideFlags: 0
