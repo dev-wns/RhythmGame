@@ -9,11 +9,6 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
     public SceneAction actionType = SceneAction.Option;
     public OptionType type { get; protected set; }
 
-    [Header("Infomation")]
-    public TMPro.TextMeshProUGUI infoObject;
-    [TextArea]
-    public string infoText;
-
     protected Scene CurrentScene { get; private set; }
     private Outline outline;
 
@@ -24,7 +19,6 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
         if ( outline )
         {
             outline.effectDistance = new Vector2( 5f, -5f );
-            //outline.effectColor    = Color.yellow;
             ActiveOutline( false );
         }
     }
@@ -33,12 +27,6 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
     {
         if ( outline is null ) return;
         outline.enabled = _isActive;
-    }
-
-    public void UpdateInfoText()
-    {
-        if ( infoObject == null ) return;
-        infoObject.text = infoText;
     }
 
     public abstract void Process();

@@ -59,10 +59,8 @@ public class HitEffectSystem : MonoBehaviour
         isKeyUp = _isKeyUp;
         curIndex = 0;
 
-        //if ( isKeyUp && _type == NoteType.Slider )
-        //    Stop();
-        if ( !isKeyUp )
-            Play();
+
+        if ( !isKeyUp ) Play();
     }
 
     private IEnumerator Process()
@@ -102,31 +100,6 @@ public class HitEffectSystem : MonoBehaviour
                 }
                 break;
             }
-
-            //if ( curIndex < spritesN.Count - 1 )
-            //{
-            //    curIndex++;
-            //}
-            //else
-            //{
-            //    curIndex = 0;
-
-            //    switch ( type )
-            //    {
-            //        case NoteType.Default:
-            //        {
-            //            Stop();
-            //        }
-            //        break;
-
-            //        case NoteType.Slider:
-            //        {
-            //            curIndex = 0;
-            //            Play();
-            //        }
-            //        break;
-            //    }
-            //}
         }
     }
 
