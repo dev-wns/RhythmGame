@@ -74,7 +74,7 @@ public class GameSetting : SingletonUnity<GameSetting>
         }
     }
     public static double Weight => ( 320d * ScrollSpeed ) / NowPlaying.Inst.CurrentSong.medianBpm; // 320
-    public static double PreLoadTime => ( 1000d / Weight );
+    public static double PreLoadTime => ( 1200d / Weight );
 
     // Sound
     public static int SoundOffset = 0;
