@@ -379,20 +379,28 @@ public class SoundManager : SingletonUnity<SoundManager>
     #region Play
 
     #region Fade
-    public void FadeIn( float _time, Action _callback = null )
+    public void FadeIn( float _time )
     {
-        volume = GetVolume( ChannelType.BGM );
-        SetVolume( 0f, ChannelType.BGM );
-
-        DOTween.To( () => 0f, x => SetVolume( x, ChannelType.BGM ), volume, _time ).OnComplete( () => { _callback.Invoke(); } );
+        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
+        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _time );
     }
 
-    public void FadeOut( float _time, Action _callback = null )
+    public void FadeIn( float _time, Action _callback )
     {
-        volume = GetVolume( ChannelType.BGM );
-
-        DOTween.To( () => volume, x => SetVolume( x, ChannelType.BGM ), 0f, _time ).OnComplete( () => { _callback.Invoke(); } );
+        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
+        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _time ).OnComplete( () => { _callback.Invoke(); } );
     }
+
+    public void FadeOut( float _time )
+    {
+        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _time );
+    }
+
+    public void FadeOut( float _time, Action _callback )
+    {
+        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _time ).OnComplete( () => { _callback.Invoke(); } );
+    }
+
     #endregion
 
     /// <summary> Play Background Music </summary>
@@ -454,20 +462,22 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     public float GetVolume( ChannelType _type )
     {
-        float volume = 0f;
-        ErrorCheck( groups[_type].getVolume( out volume ) );
+        float chlVolume = 0f;
+        ErrorCheck( groups[_type].getVolume( out chlVolume ) );
 
-        return volume;
+        return chlVolume;
     }
 
     public void SetVolume( float _value, ChannelType _type )
     {
-        float volume = _value;
-        if ( _value < 0f ) volume = 0f;
-        if ( _value > 1f ) volume = 1f;
+        float chlVolume = _value;
+        if ( _value < 0f ) chlVolume = 0f;
+        if ( _value > 1f ) chlVolume = 1f;
+        if ( _type == ChannelType.BGM ) volume = chlVolume;
 
-        ErrorCheck( groups[_type].setVolume( volume ) );
+        ErrorCheck( groups[_type].setVolume( chlVolume ) );
     }
+
     public void Stop( ChannelType _type ) => ErrorCheck( groups[_type].stop() );
 
     public void AllStop()

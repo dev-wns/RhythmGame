@@ -208,6 +208,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
         SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
         SoundManager.Inst.Play();
+        SoundManager.Inst.FadeIn( 1f );
 
         previewTime = GetPreviewTime( curSong.previewTime );
         SoundManager.Inst.Position = previewTime;
