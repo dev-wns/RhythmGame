@@ -123,6 +123,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     public bool IsLoad { get; private set; } = false;
 
     public float volume { get; private set; }
+    private Tweener fadeTweener;
     #endregion
 
     #region System
@@ -431,35 +432,41 @@ public class SoundManager : SingletonUnity<SoundManager>
     #region Effect
     public void FadeIn( float _duration )
     {
+        fadeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+        fadeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
     }
     
     public void FadeIn( float _startValue, float _duration )
     {
+        fadeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+        fadeTweener = DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
     }
 
     public void FadeIn( float _duration, Action _callback )
     {
+        fadeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
+        fadeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
     }
 
     public void FadeOut( float _duration )
     {
-        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
+        fadeTweener?.Kill();
+        fadeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
     }
 
     public void FadeOut( float _endValue, float _duration )
     {
-        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
+        fadeTweener?.Kill();
+        fadeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
     }
 
     public void FadeOut( float _duration, Action _callback )
     {
-        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
+        fadeTweener?.Kill();
+        fadeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
     }
 
     #endregion

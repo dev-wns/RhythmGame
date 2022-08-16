@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class ScoreSystem : MonoBehaviour
 {
@@ -11,7 +12,9 @@ public class ScoreSystem : MonoBehaviour
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private double curScore;
+    private double incScore;
     private double maxScore;
+    private Tweener tweener;
 
     private void Awake()
     {
@@ -23,12 +26,13 @@ public class ScoreSystem : MonoBehaviour
         scene.OnReLoad += ReLoad;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += ScoreImageUpdate;
+        judge.OnJudge += ScoreUpdate;
         NowPlaying.Inst.OnResult += Result;
     }
 
     private void OnDestroy()
     {
+        tweener?.Kill();
         NowPlaying.Inst.OnResult -= Result;
     }
 
@@ -60,8 +64,10 @@ public class ScoreSystem : MonoBehaviour
         maxScore = 1000000d / maxJudgeCount;
     }
 
-    private void ScoreImageUpdate( HitResult _type )
+    private void ScoreUpdate( HitResult _type )
     {
+        tweener?.Kill();
+
         switch ( _type )
         {
             case HitResult.None:
@@ -69,21 +75,27 @@ public class ScoreSystem : MonoBehaviour
             case HitResult.Slow:
             return;
 
-            case HitResult.Perfect:     curScore += maxScore;         break; 
-            case HitResult.Great:       curScore += maxScore * .87d;  break; 
-            case HitResult.Good:        curScore += maxScore * .63d;  break; 
-            case HitResult.Bad:         curScore += maxScore * .41d;  break; 
-            case HitResult.Miss:        curScore += 0d;               break; 
+            case HitResult.Perfect: curScore += maxScore;        break;
+            case HitResult.Great:   curScore += maxScore * .87d; break;
+            case HitResult.Good:    curScore += maxScore * .63d; break;
+            case HitResult.Bad:     curScore += maxScore * .41d; break;
+            case HitResult.Miss:    curScore += 0d;              break;
         }
 
-        double calcCurScore = Globals.Round( curScore );
-        int num = Globals.Log10( calcCurScore ) + 1;
+        tweener = DOTween.To( () => incScore, x => ImageUpdate( x ), curScore, .1f );
+    }
+
+    private void ImageUpdate( double _value )
+    {
+        incScore = _value;
+        double calcScore = Globals.Round( _value );
+        int num = Globals.Log10( calcScore ) + 1;
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( i == num ) break;
 
-            images[i].sprite = sprites[( int )calcCurScore % 10];
-            calcCurScore  *= .1d;
+            images[i].sprite = sprites[( int )calcScore % 10];
+            calcScore *= .1d;
         }
     }
 }
