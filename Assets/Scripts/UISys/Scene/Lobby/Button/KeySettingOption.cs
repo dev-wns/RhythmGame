@@ -92,6 +92,13 @@ public class KeySettingOption : OptionButton
         codeList.Add( KeyCode.Comma, "," );
         codeList.Add( KeyCode.Period, "." );
         codeList.Add( KeyCode.Slash, "/" );
+
+        codeList.Add( KeyCode.Home,     "Home" );
+        codeList.Add( KeyCode.Insert,   "Insert" );
+        codeList.Add( KeyCode.PageUp,   "PageUp" );
+        codeList.Add( KeyCode.Delete,   "Delete" );
+        codeList.Add( KeyCode.End,      "End" );
+        codeList.Add( KeyCode.PageDown, "PageDown" );
     }
 
     protected override void Awake()
