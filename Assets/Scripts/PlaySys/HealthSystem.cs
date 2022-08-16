@@ -34,9 +34,9 @@ public class HealthSystem : MonoBehaviour
         switch ( _type )
         {
             case HitResult.Perfect:     offset = 5f;  break;
-            case HitResult.Great:       offset = 3f;   break;
-            case HitResult.Good:        offset = 1f;   break;
-            case HitResult.Bad:         offset = -3f;  break;
+            case HitResult.Great:       offset = 3f;  break;
+            case HitResult.Good:        offset = 1f;  break;
+            case HitResult.Bad:         offset = -3f; break;
             case HitResult.Miss:        offset = -5f; break;
         }
 

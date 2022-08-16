@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate, Combo, Score, Count }
 
@@ -15,6 +16,10 @@ public class Judgement : MonoBehaviour
     public event Action<HitResult> OnJudge;
 
     private Dictionary<HitResult, int /* count */> results = new Dictionary<HitResult, int>();
+    public TextMeshProUGUI hitAverageText;
+    private double hitTotalValue;
+    private double hitAverage;
+    private Queue<double/*diff*/> hitValues = new Queue<double>();
 
     private void Awake()
     {
@@ -66,18 +71,26 @@ public class Judgement : MonoBehaviour
         else if ( diff    < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
         else                                              OnJudge?.Invoke( HitResult.None    );
 
-        // if ( _timeOffset < -Bad )                           OnJudge?.Invoke( HitResult.Miss );
-        // else if ( diffAbs > Good    && diffAbs <= Bad )     OnJudge?.Invoke( HitResult.Bad );
-        // else if ( diffAbs > Great   && diffAbs <= Good )    OnJudge?.Invoke( HitResult.Good );
-        // else if ( diffAbs > Perfect && diffAbs <= Great )   OnJudge?.Invoke( HitResult.Great );
-        // else if ( diffAbs >= 0d     && diffAbs <= Perfect ) OnJudge?.Invoke( HitResult.Perfect );
-        // else                                                OnJudge?.Invoke( HitResult.None );
-
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
             if ( diff > 0d ) OnJudge?.Invoke( HitResult.Fast );
             else             OnJudge?.Invoke( HitResult.Slow );
         }
+
+        double hitms = diff * 1000d;
+        if ( hitValues.Count <= 10 )
+        {
+            hitValues.Enqueue( hitms );
+            hitTotalValue += hitms;
+        }
+        else
+        {
+            hitValues.Enqueue( hitms );
+            hitTotalValue += hitms - hitValues.Dequeue();
+        }
+
+        hitAverage = hitTotalValue / hitValues.Count;
+        hitAverageText.text = $"{( int )hitAverage} ms";
     }
 
     public void ResultUpdate( HitResult _type )
