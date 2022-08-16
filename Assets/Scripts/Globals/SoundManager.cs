@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using DG.Tweening;
 
 public enum ChannelType { Master, BGM, KeySound, Sfx, Count };
 
@@ -120,6 +121,8 @@ public class SoundManager : SingletonUnity<SoundManager>
     public event Action OnSoundSystemReLoad;
     public event Action OnRelease;
     public bool IsLoad { get; private set; } = false;
+
+    public float volume { get; private set; }
     #endregion
 
     #region System
@@ -374,6 +377,24 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #region Play
+
+    #region Fade
+    public void FadeIn( float _time, Action _callback = null )
+    {
+        volume = GetVolume( ChannelType.BGM );
+        SetVolume( 0f, ChannelType.BGM );
+
+        DOTween.To( () => 0f, x => SetVolume( x, ChannelType.BGM ), volume, _time ).OnComplete( () => { _callback.Invoke(); } );
+    }
+
+    public void FadeOut( float _time, Action _callback = null )
+    {
+        volume = GetVolume( ChannelType.BGM );
+
+        DOTween.To( () => volume, x => SetVolume( x, ChannelType.BGM ), 0f, _time ).OnComplete( () => { _callback.Invoke(); } );
+    }
+    #endregion
+
     /// <summary> Play Background Music </summary>
     public void Play( bool _isPause = false )
     {
