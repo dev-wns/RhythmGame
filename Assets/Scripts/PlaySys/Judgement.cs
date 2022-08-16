@@ -78,7 +78,7 @@ public class Judgement : MonoBehaviour
         }
 
         double hitms = diff * 1000d;
-        if ( hitValues.Count <= 10 )
+        if ( hitValues.Count <= 50 )
         {
             hitValues.Enqueue( hitms );
             hitTotalValue += hitms;
