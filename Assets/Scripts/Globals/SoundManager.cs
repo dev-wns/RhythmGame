@@ -364,15 +364,19 @@ public class SoundManager : SingletonUnity<SoundManager>
         {
             ++totalKeySoundCount;
             _sound = keySounds[name];
-            return;
         }
-
-        if ( !System.IO.File.Exists( @_path ) )
-             throw new Exception( $"File Exists  {_path}" );
-
-        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out _sound ) );
-        keySounds.Add( name, _sound );
-        ++totalKeySoundCount;
+        else if ( System.IO.File.Exists( @_path ) )
+        {
+            ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out _sound ) );
+            keySounds.Add( name, _sound );
+            ++totalKeySoundCount;
+        }
+        //   if ( !System.IO.File.Exists( @_path ) )
+        else
+        {
+            // throw new Exception( $"File Exists  {_path}" );
+            _sound = new FMOD.Sound();
+        }
     }
     #endregion
 
