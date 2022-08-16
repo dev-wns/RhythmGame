@@ -18,7 +18,7 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
         outline = GetComponent<Outline>();
         if ( outline )
         {
-            outline.effectDistance = new Vector2( 5f, -5f );
+            //outline.effectDistance = new Vector2( 3f, -3f );
             ActiveOutline( false );
         }
     }
