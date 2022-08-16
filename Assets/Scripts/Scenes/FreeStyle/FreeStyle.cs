@@ -22,8 +22,8 @@ public class FreeStyle : Scene
         Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.UseLowEqualizer( true ) );
         Bind( SceneAction.Main, KeyCode.Space, () => ChangeAction( SceneAction.Option ) );
         Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
+        Bind( SceneAction.Main, KeyCode.Space, () => SoundManager.Inst.FadeOut( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .25f, .5f ) );
 
-        //Bind( SceneAction.Main, KeyCode.Escape, () => SceneChanger.Inst.LoadScene( SceneType.Lobby ) );
         Bind( SceneAction.Main, KeyCode.Escape, () => LoadScene( SceneType.Lobby ) );
         Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MainHover ) );
 

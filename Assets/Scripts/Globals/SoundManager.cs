@@ -378,31 +378,6 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     #region Play
 
-    #region Fade
-    public void FadeIn( float _time )
-    {
-        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _time );
-    }
-
-    public void FadeIn( float _time, Action _callback )
-    {
-        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _time ).OnComplete( () => { _callback.Invoke(); } );
-    }
-
-    public void FadeOut( float _time )
-    {
-        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _time );
-    }
-
-    public void FadeOut( float _time, Action _callback )
-    {
-        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _time ).OnComplete( () => { _callback.Invoke(); } );
-    }
-
-    #endregion
-
     /// <summary> Play Background Music </summary>
     public void Play( bool _isPause = false )
     {
@@ -447,6 +422,42 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.playSound( _keySound.sound, groups[ChannelType.KeySound], false, out channel ) );
         ErrorCheck( channel.setVolume( _keySound.volume ) );
     }
+    #endregion
+
+    #region Effect
+    public void FadeIn( float _duration )
+    {
+        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
+        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+    }
+    
+    public void FadeIn( float _startValue, float _duration )
+    {
+        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
+        DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+    }
+
+    public void FadeIn( float _duration, Action _callback )
+    {
+        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
+        DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
+    }
+
+    public void FadeOut( float _duration )
+    {
+        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
+    }
+
+    public void FadeOut( float _endValue, float _duration )
+    {
+        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
+    }
+
+    public void FadeOut( float _duration, Action _callback )
+    {
+        DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
+    }
+
     #endregion
 
     #region ChannelGroup
