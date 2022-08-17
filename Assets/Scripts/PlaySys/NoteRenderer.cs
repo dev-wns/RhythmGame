@@ -30,6 +30,7 @@ public class NoteRenderer : MonoBehaviour
     private static readonly Color NoteFailColor = new Color( .25f, .25f, .25f, 1f );
 
     private double weight;
+    private double newTime;
 
     private void Awake()
     {
@@ -56,6 +57,7 @@ public class NoteRenderer : MonoBehaviour
         note    = _note;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
+        newTime = note.calcTime;
 
         if ( IsSlider )
         {
@@ -70,7 +72,6 @@ public class NoteRenderer : MonoBehaviour
 
         //body.enabled = tail.enabled = IsSlider ? true : false;
         ScrollUpdate();
-
         head.color = body.color = tail.color = Color.white;
     }
 
@@ -101,24 +102,31 @@ public class NoteRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        // 롱노트 판정선에 붙기
-        //Vector2 headPos;
-        //if ( IsPressed )
-        //{
-        //    if ( transform.position.y <= GameSetting.HintPos )
-        //         newTime = NowPlaying.PlaybackChanged;
+       // 롱노트 판정선에 붙기
+        Vector2 headPos;
+        if ( IsPressed )
+        {
+            if ( transform.position.y <= GameSetting.JudgePos )
+                 newTime = NowPlaying.PlaybackChanged;
 
-        //    headPos = new Vector2( column, GameSetting.HintPos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * weight ) );
-        //    Vector2 tailPos = new Vector2( column, GameSetting.HintPos + ( float )( ( CalcSliderTime - NowPlaying.PlaybackChanged ) * weight ) );
+            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * weight ) );
 
-        //    double bodyDiff = tailPos.y - headPos.y;
-        //    bodyTf.localScale = new Vector2( GameSetting.NoteWidth, bodyDiff <= 0d ? 0f : ( float )bodyDiff );
-        //}
-        //else
-        //{
-        //    headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
-        //}
+            double bodyLength = ( CalcSliderTime - newTime ) * weight;
+            bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
 
-        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( CalcTime - NowPlaying.PlaybackChanged ) * weight ) );
+            var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
+            bodyTf.localScale = bodyScale < 0 ? new Vector2( GameSetting.NoteWidth, 0f ) :
+                                                new Vector2( GameSetting.NoteWidth, bodyScale );
+
+            var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
+            tailTf.localPosition = tailPos < GameSetting.NoteHeight * .5f ? new Vector2( 0f, GameSetting.NoteHeight * .5f ) :
+                                                                            new Vector2( 0f, tailPos );
+        }
+        else
+        {
+            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
+        }
+
+        transform.localPosition = headPos;
     }
 }
