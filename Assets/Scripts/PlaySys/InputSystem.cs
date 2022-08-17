@@ -17,14 +17,14 @@ public class InputSystem : MonoBehaviour
     public event Action<NoteType, bool/*Key Up*/> OnHitNote;
 
     private GameKeyAction key;
-    private float playback;
-
-    private bool isAuto, isReady;
-
     private KeySound curSound;
+    private bool isAuto, isReady;
 
     public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
     public void SetSound( in KeySound _sound ) => curSound = _sound;
+
+    private double inputStartTime;
+    private double inputHoldTime;
 
     private void Awake()
     {
@@ -50,7 +50,6 @@ public class InputSystem : MonoBehaviour
     private void ReLoad()
     {
         StopAllCoroutines();
-        playback = 0f;
         while ( sliderMissQueue.Count > 0 )
         {
             var note = sliderMissQueue.Dequeue();
@@ -112,8 +111,6 @@ public class InputSystem : MonoBehaviour
 
     private void SelectNextNote( bool _isDespawn = true )
     {
-        playback = 0f;
-
         if ( _isDespawn )
         {
             curNote.gameObject.SetActive( false );
@@ -171,6 +168,8 @@ public class InputSystem : MonoBehaviour
                     OnHitNote?.Invoke( NoteType.Slider, false );
                     SoundManager.Inst.Play( curSound );
                     judge.ResultUpdate( startDiff );
+
+                    inputStartTime = curNote.Time;
                 }
             }
             else
@@ -182,11 +181,11 @@ public class InputSystem : MonoBehaviour
                     SelectNextNote();
                 }
 
-                playback += Time.deltaTime;
-                if ( playback > .1f )
+                inputHoldTime = NowPlaying.Playback - inputStartTime;
+                if ( inputHoldTime > .1f )
                 {
                     judge.ResultUpdate( HitResult.None );
-                    playback = 0f;
+                    inputStartTime = NowPlaying.Playback - ( inputHoldTime - .1f );
                 }
             }
         }
@@ -199,6 +198,8 @@ public class InputSystem : MonoBehaviour
                     curNote.IsPressed = true;
                     OnHitNote?.Invoke( NoteType.Slider, false );
                     judge.ResultUpdate( startDiff );
+
+                    inputStartTime = curNote.Time;
                     return;
                 }
 
@@ -223,11 +224,11 @@ public class InputSystem : MonoBehaviour
                         return;
                     }
 
-                    playback += Time.deltaTime;
-                    if ( playback > .1f )
+                    inputHoldTime = NowPlaying.Playback - inputStartTime;
+                    if ( inputHoldTime > .1f )
                     {
                         judge.ResultUpdate( HitResult.None );
-                        playback = 0f;
+                        inputStartTime = NowPlaying.Playback - ( inputHoldTime - .1f );
                     }
                 }
 

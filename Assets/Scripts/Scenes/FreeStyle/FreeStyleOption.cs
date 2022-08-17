@@ -10,7 +10,7 @@ public class FreeStyleOption : SceneScrollOption
         SoundManager.Inst.UseLowEqualizer( false );
         CurrentScene.ChangeAction( SceneAction.Main );
         SoundManager.Inst.Play( SoundSfxType.MenuHover );
-        SoundManager.Inst.FadeIn( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .35f, .5f );
+        SoundManager.Inst.FadeIn( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .4f, .5f );
     }
 
     public override void KeyBind()
