@@ -6,21 +6,20 @@ using UnityEngine.UI;
 public class Gear : MonoBehaviour
 {
     public Transform hint;
-    public SpriteRenderer panel;
+    public Transform panel;
+    public Transform sideLeft, sideRight;
 
     private void Awake()
     {
-        hint.position = new Vector2( 0f, GameSetting.HintPos );
-        //GameSetting.HintPos  = hint.position.y;
-        //GameSetting.JudgePos = hint.position.y;
+        hint.position   = new Vector2( 0f, GameSetting.HintPos );
 
         if ( GameSetting.PanelOpacity <= .01f ? false : true )
-        {
-            panel.color = new Color( 0f, 0f, 0f, GameSetting.PanelOpacity * .01f );
-        }
+             panel.GetComponent<SpriteRenderer>().color = new Color( 0f, 0f, 0f, GameSetting.PanelOpacity * .01f );
         else
-        {
-            panel.gameObject.SetActive( false );
-        }
+             panel.gameObject.SetActive( false );
+
+        panel.localScale   = new Vector3( GameSetting.GearWidth, Screen.height );
+        sideLeft.position  = new Vector3( GameSetting.GearStartPos, 0f );
+        sideRight.position = new Vector3( -GameSetting.GearStartPos, 0f );
     }
 }

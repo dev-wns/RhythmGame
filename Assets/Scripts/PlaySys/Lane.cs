@@ -52,8 +52,10 @@ public class Lane : MonoBehaviour
                                         ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank,
                                           GameSetting.HintPos, 90f );
 
-        var keyPos = keyImage.transform.position;
-        keyImage.transform.position = new Vector3( transform.position.x, keyPos.y, keyPos.z );
+        var keytf = keyImage.transform;
+        keyImage.transform.position   = new Vector3( transform.position.x, keytf.position.y, keytf.position.z );
+        keyImage.transform.localScale = new Vector3( transform.localScale.x + GameSetting.NoteBlank, keytf.localScale.y );
+
         OnLaneInitialize?.Invoke( Key );
     }
 }

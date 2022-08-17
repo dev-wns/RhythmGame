@@ -101,9 +101,9 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float JudgeHeight = 50f;
 
     // note
-    public static float NoteWidth  = 83f; // 75f
-    public static float NoteHeight = 90f; // 1.28125
-    public static float NoteBlank  = 2f;
+    public static float NoteWidth  = 65f; // 83f; // 75f
+    public static float NoteHeight = 65f; // 90f; // 1.28125
+    public static float NoteBlank  = 7.5f;
     public static float NoteStartPos => -( ( NoteWidth * 5f ) + ( NoteBlank * 7f ) ) * .5f;
 
     // Gear
