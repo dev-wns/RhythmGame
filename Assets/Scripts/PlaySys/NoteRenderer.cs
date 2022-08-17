@@ -11,8 +11,8 @@ public class NoteRenderer : MonoBehaviour
     private Transform headTf, bodyTf, tailTf;
 
     public Sprite skinNormal, skinHead, skinBody, skinTail;
-    private static readonly float BodyScaleOffset    = 256f / 128f; // PixelPerUnit  / TextureHeight
-    private static readonly float BodyPositionOffset = 128f / 256f; // TextureHeight / PixelPerUnit
+    private static readonly float BodyScaleOffset    = 256f / 64f; // PixelPerUnit  / TextureHeight
+    private static readonly float BodyPositionOffset = 64f / 256f; // TextureHeight / PixelPerUnit
     private Note note;
 
     public double Time => note.time;
@@ -44,6 +44,9 @@ public class NoteRenderer : MonoBehaviour
 
         tailTf = tail.transform;
         tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
+
+        body.sprite = skinBody;
+        tail.sprite = skinTail;
     }
 
     private void OnDestroy()
@@ -90,7 +93,7 @@ public class NoteRenderer : MonoBehaviour
                                             new Vector2( GameSetting.NoteWidth, bodyScale );
 
         var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
-        tailTf.localPosition = tailPos < GameSetting.NoteHeight * .5f ? new Vector2( 0f, GameSetting.NoteHeight * .5f ) :
+        tailTf.localPosition = tailPos < GameSetting.NoteHeight * BodyPositionOffset ? new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset ) :
                                                                         new Vector2( 0f, tailPos );
     }
 
@@ -119,7 +122,7 @@ public class NoteRenderer : MonoBehaviour
                                                 new Vector2( GameSetting.NoteWidth, bodyScale );
 
             var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
-            tailTf.localPosition = tailPos < GameSetting.NoteHeight * .5f ? new Vector2( 0f, GameSetting.NoteHeight * .5f ) :
+            tailTf.localPosition = tailPos < GameSetting.NoteHeight * BodyPositionOffset ? new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset ) :
                                                                             new Vector2( 0f, tailPos );
         }
         else

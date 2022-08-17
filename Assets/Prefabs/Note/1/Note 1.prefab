@@ -232,10 +232,10 @@ MonoBehaviour:
   head: {fileID: 4345467133029532209}
   body: {fileID: 8511283501919975727}
   tail: {fileID: 8698400396741977447}
-  skinNormal: {fileID: 21300000, guid: 3c7b34d58b3f453418413faddf64c1d5, type: 3}
-  skinHead: {fileID: 21300000, guid: dde08ea8dfe2b5c46aa6e4d364b753db, type: 3}
-  skinBody: {fileID: 21300000, guid: 33159c94c203d3c49804829f6bddbf03, type: 3}
-  skinTail: {fileID: 21300000, guid: a7375f19b1cfcc8458c79f1758e6315c, type: 3}
+  skinNormal: {fileID: 21300000, guid: 60abcc8a616e09742978af19e82117a9, type: 3}
+  skinHead: {fileID: 21300000, guid: 9a761ee87dc3a3e4f8210d078cc68486, type: 3}
+  skinBody: {fileID: 21300000, guid: 7795b9bf85bbe2847a8f1b55d4063a6a, type: 3}
+  skinTail: {fileID: 21300000, guid: 4aa6af1bede698744b23921a71a47e55, type: 3}
 --- !u!222 &-337763570364687424
 CanvasRenderer:
   m_ObjectHideFlags: 0
