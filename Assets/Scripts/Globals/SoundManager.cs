@@ -254,14 +254,14 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         // DSP
-        int numPrevDSP, numCurrentDSP;
-        ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numPrevDSP ) );
+        //int numPrevDSP, numCurrentDSP;
+        //ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numPrevDSP ) );
 
         OnRelease?.Invoke();
         RemoveDSP( ref Multiband );
 
-        ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numCurrentDSP ) );
-        Debug.Log( $"DSP Count : {numPrevDSP} -> {numCurrentDSP}" );
+        //ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numCurrentDSP ) );
+        //Debug.Log( $"DSP Count : {numPrevDSP} -> {numCurrentDSP}" );
 
         // ChannelGroup
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )

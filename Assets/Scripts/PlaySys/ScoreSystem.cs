@@ -40,7 +40,9 @@ public class ScoreSystem : MonoBehaviour
 
     private void ReLoad()
     {
+        tweener?.Kill();
         curScore = 0d;
+        incScore = 0d;
 
         for ( int i = 0; i < images.Count; i++ )
         {
