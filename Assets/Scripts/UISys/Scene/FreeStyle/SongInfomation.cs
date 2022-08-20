@@ -21,11 +21,4 @@ public class SongInfomation : OptionButton
         title.text = _song.title;
         artist.text = _song.artist;
     }
-
-    //public override void Process()
-    //{
-    //    base.Process();
-
-    //    SceneChanger.Inst.LoadScene( SceneType.Game );
-    //}
 }

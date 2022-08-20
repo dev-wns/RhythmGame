@@ -163,7 +163,7 @@ public class FileConverter : FileReader
     private List<KeySound> samples     = new List<KeySound>();
     private List<SpriteSample> sprites = new List<SpriteSample>();
 
-    private readonly string virtualAudioName = "preview.wav";
+    private readonly string[] virtualAudioName = { "preview.wav", "preview.mp3", "preview.ogg" };
 
     private class IntegerComparer : IComparer<int>
     {
@@ -298,10 +298,14 @@ public class FileConverter : FileReader
             // preview.wav는 따로 프로그램을 통해 만들어놓은 파일이다.
             if ( song.audioPath == null || song.audioPath == string.Empty )
             {
-                if ( File.Exists( Path.Combine( dir, virtualAudioName ) ) )
+                for ( int i = 0; i < virtualAudioName.Length; i++ )
                 {
-                    song.audioPath = virtualAudioName;
-                    song.isOnlyKeySound = true;
+                    if ( File.Exists( Path.Combine( dir, virtualAudioName[i] ) ) )
+                    {
+                        song.audioPath = virtualAudioName[i];
+                        song.isOnlyKeySound = true;
+                        break;
+                    }
                 }
             }
 

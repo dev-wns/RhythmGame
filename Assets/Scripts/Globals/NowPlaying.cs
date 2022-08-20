@@ -87,7 +87,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         IsParseSongs = true;
         CurrentSongIndex = 0;
 
-        Debug.Log( "Songs Parse End." );
+        Debug.Log( "Song Parse End." );
     }
 
     private void Update()

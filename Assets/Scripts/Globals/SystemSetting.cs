@@ -37,4 +37,5 @@ public class SystemSetting : MonoBehaviour
     public static FrameRate   CurrentFrameRate   = FrameRate.No_Limit;
     public static ScreenMode  CurrentScreenMode  = ScreenMode.Exclusive_FullScreen;
     public static SoundBuffer CurrentSoundBuffer = SoundBuffer._256;
+    public static string CurrentSoundBufferString => CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
 }

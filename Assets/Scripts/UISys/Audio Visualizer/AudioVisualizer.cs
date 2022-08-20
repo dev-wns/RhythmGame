@@ -14,7 +14,7 @@ public class AudioVisualizer : MonoBehaviour
     private void Awake()
     {
         AddFFT();
-        SoundManager.Inst.OnSoundSystemReLoad += AddFFT;
+        SoundManager.Inst.OnReLoad += AddFFT;
         SoundManager.Inst.OnRelease += RemoveDSP;
     }
 
@@ -24,7 +24,7 @@ public class AudioVisualizer : MonoBehaviour
     private void OnDestroy()
     {
         SoundManager.Inst.RemoveDSP( ref dsp );
-        SoundManager.Inst.OnSoundSystemReLoad -= AddFFT;
+        SoundManager.Inst.OnReLoad -= AddFFT;
         SoundManager.Inst.OnRelease           -= RemoveDSP;
     }
 

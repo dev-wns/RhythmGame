@@ -1,10 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class OptionBindReturnBase : OptionBase, IOptionReturn
 {
-    private DelKeyAction keyReturnAction;
+    private Action keyReturnAction;
 
     protected override void Awake()
     {

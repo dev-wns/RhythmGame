@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class ObjectPool<T> where T : MonoBehaviour
 {
-    private T poolableObject;
+    private T copyObject;
     private Transform parent;
     private Stack<T> pool = new Stack<T>();
     
     private int allocateCount;
 
-    public ObjectPool( T _poolableObject, int _allocate = 100 )
+    public ObjectPool( T _copyObject, int _allocate = 100 )
     {
         allocateCount = _allocate;
 
-        if ( ReferenceEquals( _poolableObject, null ) )
+        if ( ReferenceEquals( _copyObject, null ) )
         {
             Debug.LogError( "objectpool Constructor failed" );
         }
-        poolableObject = _poolableObject;
+        copyObject = _copyObject;
 
         GameObject canvas = GameObject.FindGameObjectWithTag( "Pools" );
         if ( ReferenceEquals( canvas, null ) )
@@ -40,7 +40,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     {
         for( int i = 0; i < allocateCount; i++ )
         {
-            T obj = UnityEngine.GameObject.Instantiate( poolableObject, parent );
+            T obj = UnityEngine.GameObject.Instantiate( copyObject, parent );
 
             obj.gameObject.SetActive( false );
             pool.Push( obj );
@@ -50,9 +50,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     public T Spawn()
     {
         if ( pool.Count == 0 )
-        {
-            Allocate();
-        }
+             Allocate();
 
         T obj = pool.Pop();
         obj.gameObject.SetActive( true );

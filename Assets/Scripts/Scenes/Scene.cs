@@ -12,6 +12,7 @@ public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction, IKeyBind
 {
+    #region Variables
     public event Action OnScrollChanged;
 
     private bool isPressed = false;
@@ -21,11 +22,12 @@ public abstract class Scene : SceneKeyAction, IKeyBind
 
     private SpriteRenderer blackSprite;
     private readonly float FadeTime = .65f;
+    #endregion
 
     #region Unity Callback
     protected virtual void Awake()
     {
-        Cursor.visible = false;
+        //Cursor.visible = false;
 
         CreateFadeSprite();
         Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
@@ -44,7 +46,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     protected virtual void Update() => ActionCheck();
     #endregion
 
-    #region Scene Load
+    #region Load
     public void LoadScene( SceneType _type )
     {
         StopAllCoroutines();
@@ -60,50 +62,13 @@ public abstract class Scene : SceneKeyAction, IKeyBind
 
         SoundManager.Inst.AllStop();
         SceneManager.LoadScene( ( int )_type );
-
-        //AsyncOperation oper = SceneManager.LoadSceneAsync( ( int )_type );
-        //if ( !oper.isDone ) yield return null;
-    }
-    #endregion
-
-    #region Fade
-    private void CreateFadeSprite()
-    {
-        //gameObject.layer = 6; // 3d
-
-        Texture2D tex = Texture2D.whiteTexture;
-        blackSprite = GetComponent<SpriteRenderer>();
-        blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
-
-        blackSprite.drawMode = SpriteDrawMode.Sliced;
-        blackSprite.size = new Vector2( 10000, 10000 );
-        blackSprite.sortingOrder = 100;
-
-        transform.localScale = Vector3.one;
-    }
-
-    private IEnumerator FadeIn()
-    {
-        blackSprite.color = Color.black;
-        blackSprite.enabled = true;
-        blackSprite.DOFade( 0f, FadeTime );
-        yield return YieldCache.WaitForSeconds( FadeTime + .1f );
-        blackSprite.enabled = false;
-    }
-
-    private IEnumerator FadeOut()
-    {
-        blackSprite.color = Color.clear;
-        blackSprite.enabled = true;
-        blackSprite.DOFade( 1f, FadeTime );
-        yield return YieldCache.WaitForSeconds( FadeTime + .1f );
     }
     #endregion
 
     #region Input
     public abstract void KeyBind();
 
-    protected void PressdSpeedControl( bool _isPlus )
+    protected void PressedSpeedControl( bool _isPlus )
     {
         presstime += Time.deltaTime;
         if ( presstime >= pressWaitTime )
@@ -138,6 +103,41 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         }
 
         OnScrollChanged?.Invoke();
+    }
+    #endregion
+
+
+    #region Effect
+    private void CreateFadeSprite()
+    {
+        //gameObject.layer = 6; // 3d
+
+        Texture2D tex = Texture2D.whiteTexture;
+        blackSprite = GetComponent<SpriteRenderer>();
+        blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+
+        blackSprite.drawMode = SpriteDrawMode.Sliced;
+        blackSprite.size = new Vector2( 10000, 10000 );
+        blackSprite.sortingOrder = 100;
+
+        transform.localScale = Vector3.one;
+    }
+
+    private IEnumerator FadeIn()
+    {
+        blackSprite.color = Color.black;
+        blackSprite.enabled = true;
+        blackSprite.DOFade( 0f, FadeTime );
+        yield return YieldCache.WaitForSeconds( FadeTime + .1f );
+        blackSprite.enabled = false;
+    }
+
+    private IEnumerator FadeOut()
+    {
+        blackSprite.color = Color.clear;
+        blackSprite.enabled = true;
+        blackSprite.DOFade( 1f, FadeTime );
+        yield return YieldCache.WaitForSeconds( FadeTime + .1f );
     }
     #endregion
 }

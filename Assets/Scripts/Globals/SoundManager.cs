@@ -17,24 +17,6 @@ public enum SoundSfxType
 
 public class SoundManager : SingletonUnity<SoundManager>
 {
-    #region variables
-    private FMOD.System system;
-
-    private static readonly int MaxNameLength = 256;
-    private static readonly int MaxSoftwareChnnels = 128;
-    private static readonly int MaxVirtualChannels = 1000;
-    private Dictionary<ChannelType, FMOD.ChannelGroup> groups = new Dictionary<ChannelType, FMOD.ChannelGroup>();
-    private Dictionary<SoundSfxType, FMOD.Sound> sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
-    private Dictionary<string, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
-
-    private int totalKeySoundCount;
-    public int TotalKeySoundCount => totalKeySoundCount;
-    public int KeySoundCount => keySounds.Count;
-
-    private FMOD.Sound bgmSound;
-    private FMOD.Channel bgmChannel;
-    private FMOD.DSP Multiband;
-
     public struct SoundDriver
     {
         public System.Guid guid;
@@ -43,7 +25,27 @@ public class SoundManager : SingletonUnity<SoundManager>
         public int systemRate, speakModeChannels;
         public FMOD.SPEAKERMODE mode;
     }
+    
+    #region variables
+    private static readonly int MaxSoftwareChnnels = 128;
+    private static readonly int MaxVirtualChannels = 1000;
+    private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
+    private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
+    private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
+    private FMOD.System system;
+    private FMOD.Sound bgmSound;
+    private FMOD.Channel bgmChannel;
+    private FMOD.DSP Multiband;
+    private Tweener fadeTweener;
+    private int curDriverIndex;
+    private int totalKeySoundCount;
+    private bool hasAccurateTime = false;
+    public event Action OnReLoad;
+    public event Action OnRelease;
+
+    #region Properties
     public ReadOnlyCollection<SoundDriver> SoundDrivers { get; private set; }
+    public int KeySoundCount => keySounds.Count;
     public int CurrentDriverIndex 
     {
         get => curDriverIndex;
@@ -62,8 +64,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             curDriverIndex = value;
         }
     }
-    private int curDriverIndex;
-
+    public int TotalKeySoundCount => totalKeySoundCount;
     public uint Position
     {
         get
@@ -105,7 +106,6 @@ public class SoundManager : SingletonUnity<SoundManager>
             return length;
         }
     }
-
     public int UseChannelCount
     {
         get
@@ -115,15 +115,9 @@ public class SoundManager : SingletonUnity<SoundManager>
             return channels;
         }
     }
-
-    private bool hasAccurateTime = false;
-
-    public event Action OnSoundSystemReLoad;
-    public event Action OnRelease;
     public bool IsLoad { get; private set; } = false;
-
     public float volume { get; private set; }
-    private Tweener fadeTweener;
+    #endregion
     #endregion
 
     #region System
@@ -134,26 +128,12 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
         
         // To do Before System Initialize
-        int samplerRate, numRawSpeakers;
+        int sampleRate, numRawSpeakers;
         FMOD.SPEAKERMODE mode;
-        ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
-        ErrorCheck( system.setSoftwareFormat( samplerRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
-
-        ErrorCheck( system.getSoftwareFormat( out samplerRate, out mode, out numRawSpeakers ) );
-        Debug.Log( $"SampleRate : {samplerRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
-
+        ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
+        ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChnnels ) );
-        int softwareChannels;
-        ErrorCheck( system.getSoftwareChannels( out softwareChannels ) );
-        Debug.Log( $"SoftwareChannel {softwareChannels}" );
-
-        var bufferText  = SystemSetting.CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
-        uint bufferSize = uint.Parse( bufferText );
-        ErrorCheck( system.setDSPBufferSize( bufferSize, 4 ) );
-
-        int numbuffers;
-        ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
-        Debug.Log( $"buffer size : {bufferSize} numbuffers : {numbuffers}" );
+        ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
 
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
@@ -161,7 +141,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         uint version;
         ErrorCheck( system.getVersion( out version ) );
         if ( version < FMOD.VERSION.number )
-            Debug.LogError( "using the old version." );
+             Debug.LogError( "using the old version." );
 
         // Sound Driver
         int numDriver;
@@ -170,15 +150,13 @@ public class SoundManager : SingletonUnity<SoundManager>
         for ( int i = 0; i < numDriver; i++ )
         {
             SoundDriver driver;
-            if ( ErrorCheck( system.getDriverInfo( i, out driver.name, MaxNameLength, out driver.guid, out driver.systemRate, out driver.mode, out driver.speakModeChannels ) ) )
+            if ( ErrorCheck( system.getDriverInfo( i, out driver.name, 256, out driver.guid, out driver.systemRate, out driver.mode, out driver.speakModeChannels ) ) )
             {
                 driver.index = i;
                 drivers.Add( driver );
             }
         }
         SoundDrivers = new ReadOnlyCollection<SoundDriver>( drivers );
-        ErrorCheck( system.getDriver( out curDriverIndex ) );
-        Debug.Log( $"Current Sound Device : {SoundDrivers[curDriverIndex].name}" );
 
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
@@ -193,6 +171,10 @@ public class SoundManager : SingletonUnity<SoundManager>
             groups.Add( type, group );
         }
 
+        #region Details
+        // DSP
+        CreateLowEffectDsp();
+
         // Sfx Sound
         LoadSfx( SoundSfxType.MainClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav" );
         LoadSfx( SoundSfxType.MenuClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav" );
@@ -205,14 +187,24 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         LoadSfx( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
 
-        // DSP
-        CreateLowEffectDsp();
+        // Logs
+        //ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
+        //Debug.Log( $"SampleRate : {sampleRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
+        //int softwareChannels;
+        //ErrorCheck( system.getSoftwareChannels( out softwareChannels ) );
+        //Debug.Log( $"SoftwareChannel {softwareChannels}" );
+        //int numbuffers;
+        //ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
+        //Debug.Log( $"buffer size : {bufferSize} numbuffers : {numbuffers}" );
+        //ErrorCheck( system.getDriver( out curDriverIndex ) );
+        //Debug.Log( $"Current Sound Device : {SoundDrivers[curDriverIndex].name}" );
 
         // Details
         //SetVolume( .3f, ChannelType.Master );
         SetVolume( .3f, ChannelType.BGM );
         SetVolume( .3f, ChannelType.KeySound );
         SetVolume( .7f, ChannelType.Sfx );
+        #endregion
     }
 
     public void KeyRelease()
@@ -298,7 +290,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         Release();
         Initialize();
 
-        OnSoundSystemReLoad?.Invoke();
+        OnReLoad?.Invoke();
         ErrorCheck( system.setDriver( prevDriverIndex ) );
         curDriverIndex = prevDriverIndex;
 

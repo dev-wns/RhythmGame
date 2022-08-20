@@ -1,12 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public enum KeyType { Down, Hold, Up, }
-public delegate void DelKeyAction();
+//public delegate void DelKeyAction();
 public class KeyAction
 {
-    private Dictionary<KeyCode, Dictionary<KeyType, DelKeyAction>> keyActions = new Dictionary<KeyCode, Dictionary<KeyType, DelKeyAction>>();
+    private Dictionary<KeyCode, Dictionary<KeyType, Action>> keyActions = new Dictionary<KeyCode, Dictionary<KeyType, Action>>();
 
     public void ActionCheck()
     {
@@ -24,7 +25,7 @@ public class KeyAction
         }
     }
 
-    public void Remove( KeyCode _code, KeyType _keyType, DelKeyAction _action )
+    public void Remove( KeyCode _code, KeyType _keyType, Action _action )
     {
         if ( !keyActions.ContainsKey( _code ) )           return;
         if ( !keyActions[_code].ContainsKey( _keyType ) ) return;
@@ -40,7 +41,7 @@ public class KeyAction
         }
     }
 
-    public void Bind( KeyCode _code, KeyType _type, DelKeyAction _action )
+    public void Bind( KeyCode _code, KeyType _type, Action _action )
     {
         if ( _action == null || IsDuplicate( _code, _type, _action ) ) 
              return;
@@ -53,7 +54,7 @@ public class KeyAction
     {
         if ( !keyActions.ContainsKey( _code ) )
         {
-            var typeAction = new Dictionary<KeyType, DelKeyAction>();
+            var typeAction = new Dictionary<KeyType, Action>();
             
             typeAction.Add( KeyType.Down, () => { } );
             typeAction.Add( KeyType.Hold, () => { } );
@@ -63,7 +64,7 @@ public class KeyAction
         }
     }
 
-    private bool IsDuplicate( KeyCode _code, KeyType _type, DelKeyAction _action )
+    private bool IsDuplicate( KeyCode _code, KeyType _type, Action _action )
     {
         // KeyType은 KeyCode가 없으면 Down, Hold, Up을 전부 할당하기 때문에 체크 안해도 된다.
         if ( !keyActions.ContainsKey( _code ) )

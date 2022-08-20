@@ -19,12 +19,12 @@ public class BGASystem : MonoBehaviour
 
     public GameDebug gameDebug;
 
-    private struct PlaySpriteSample
+    private struct SpriteBGA
     {
         public string name;
         public double start, end;
         public Texture2D tex;
-        public PlaySpriteSample( SpriteSample _sample, Texture2D _tex )
+        public SpriteBGA( SpriteSample _sample, Texture2D _tex )
         {
             name = _sample.name;
             start = _sample.start;
@@ -32,8 +32,8 @@ public class BGASystem : MonoBehaviour
             tex = _tex;
         }
     }
-    private List<PlaySpriteSample> backgrounds = new List<PlaySpriteSample>();
-    private List<PlaySpriteSample> foregrounds = new List<PlaySpriteSample>();
+    private List<SpriteBGA> backgrounds = new List<SpriteBGA>();
+    private List<SpriteBGA> foregrounds = new List<SpriteBGA>();
     private Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
 
     private Color color;
@@ -99,7 +99,7 @@ public class BGASystem : MonoBehaviour
                 NowPlaying.Inst.OnPause += OnPause;
 
                 foreground.gameObject.SetActive( false );
-                Debug.Log( "Background Type : Video" );
+                //Debug.Log( "Background Type : Video" );
             } break;
 
             case BackgroundType.Sprite:
@@ -108,7 +108,7 @@ public class BGASystem : MonoBehaviour
                 foreground.gameObject.SetActive( true );
                 StartCoroutine( LoadSamples( _chart.sprites ) );
 
-                Debug.Log( "Background Type : Sprite" );
+                //Debug.Log( "Background Type : Sprite" );
             } break;
 
             case BackgroundType.Image:
@@ -123,7 +123,7 @@ public class BGASystem : MonoBehaviour
                     StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
                 }
                 NowPlaying.Inst.IsLoadBackground = true;
-                Debug.Log( "Background Type : Image" );
+                //Debug.Log( "Background Type : Image" );
             } break;
         }
     }
@@ -138,7 +138,6 @@ public class BGASystem : MonoBehaviour
     {
         yield return new WaitUntil( () => NowPlaying.Playback >= NowPlaying.Inst.CurrentSong.videoOffset * .001d );
         vp.Play();
-        Debug.Log( $"Start Video // Playback {NowPlaying.Playback} // Offset {NowPlaying.Inst.CurrentSong.videoOffset * .001d}" );
     }
 
     private void ReLoad()
@@ -193,13 +192,12 @@ public class BGASystem : MonoBehaviour
     }
 
     private IEnumerator BackProcess()
-    {   
-        PlaySpriteSample curSample = new PlaySpriteSample();
+    {
+        SpriteBGA curSample = new SpriteBGA();
 
         if ( backgrounds.Count > 0 )
              curSample = backgrounds[curBackIndex];
 
-        Debug.Log( "back" + backgrounds.Count );
         WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= NowPlaying.Playback );
         WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= NowPlaying.Playback );
 
@@ -220,7 +218,7 @@ public class BGASystem : MonoBehaviour
 
     private IEnumerator ForeProcess()
     {
-        PlaySpriteSample curSample = new PlaySpriteSample();
+        SpriteBGA curSample = new SpriteBGA();
 
         if ( foregrounds.Count > 0 )
              curSample = foregrounds[curForeIndex];
@@ -230,7 +228,6 @@ public class BGASystem : MonoBehaviour
             yield break;
         }
 
-        Debug.Log( "fore" + foregrounds.Count );
         WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= NowPlaying.Playback );
         WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= NowPlaying.Playback );
 
@@ -257,14 +254,14 @@ public class BGASystem : MonoBehaviour
             yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
         }
 
-        backgrounds.Sort( delegate ( PlaySpriteSample _A, PlaySpriteSample _B )
+        backgrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
         {
             if ( _A.start > _B.start )      return 1;
             else if ( _A.start < _B.start ) return -1;
             else                            return 0;
         } );
 
-        foregrounds.Sort( delegate ( PlaySpriteSample _A, PlaySpriteSample _B )
+        foregrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
         {
             if ( _A.start > _B.start )      return 1;
             else if ( _A.start < _B.start ) return -1;
@@ -334,11 +331,11 @@ public class BGASystem : MonoBehaviour
         switch ( _sample.type )
         {
             case SpriteType.Background:
-            backgrounds.Add( new PlaySpriteSample( _sample, tex ) );
+            backgrounds.Add( new SpriteBGA( _sample, tex ) );
             break;
 
             case SpriteType.Foreground:
-            foregrounds.Add( new PlaySpriteSample( _sample, tex ) );
+            foregrounds.Add( new SpriteBGA( _sample, tex ) );
             break;
         }
 

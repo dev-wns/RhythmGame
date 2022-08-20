@@ -19,6 +19,8 @@ public class FileParser : FileReader
                  songs.Add( newSong );
         }
 
+        songs.Sort( delegate ( Song A, Song B ) { return A.title.CompareTo( B.title ); } );
+
         _songs = new ReadOnlyCollection<Song>( songs );
     }
 

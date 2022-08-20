@@ -22,6 +22,5 @@ public class LineEffectOption : OptionText
     {
         if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.LaneEffect;
         else                 GameSetting.CurrentVisualFlag |=  GameVisualFlag.LaneEffect;
-        Debug.Log( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) );
     }
 }

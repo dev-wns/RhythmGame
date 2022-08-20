@@ -27,7 +27,5 @@ public class NoFailOption : OptionText
 
         string temp = ( GameSetting.CurrentGameMode & GameMode.NoFail ) != 0 ? "On" : "Off";
         settingText.text = $"{temp}";
-
-        Debug.Log( GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail ) );
     }
 }

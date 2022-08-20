@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +26,7 @@ public class SceneKeyAction : MonoBehaviour
         keyActions[CurrentAction].ActionCheck();
     }
 
-    public void Bind( SceneAction _type, KeyCode _code, DelKeyAction _action )
+    public void Bind( SceneAction _type, KeyCode _code, Action _action )
     {
         if ( keyActions.ContainsKey( _type ) )
         {
@@ -39,7 +40,7 @@ public class SceneKeyAction : MonoBehaviour
         }
     }
 
-    public void Bind( SceneAction _type, KeyType _keyType, KeyCode _code, DelKeyAction _action )
+    public void Bind( SceneAction _type, KeyType _keyType, KeyCode _code, Action _action )
     {
         if ( keyActions.ContainsKey( _type ) )
         {
@@ -53,14 +54,14 @@ public class SceneKeyAction : MonoBehaviour
         }
     }
 
-    public void Remove( SceneAction _type, KeyCode _code, DelKeyAction _action )
+    public void Remove( SceneAction _type, KeyCode _code, Action _action )
     {
         if ( !keyActions.ContainsKey( _type ) ) return;
 
         keyActions[_type].Remove( _code, KeyType.Down, _action );
     }
 
-    public void Remove( SceneAction _type, KeyType _keyType, KeyCode _code, DelKeyAction _action )
+    public void Remove( SceneAction _type, KeyType _keyType, KeyCode _code, Action _action )
     {
         if ( !keyActions.ContainsKey( _type ) ) return;
 

@@ -13,7 +13,7 @@ public class Lobby : Scene
     protected override void Awake()
     {
         base.Awake();
-        SoundManager.Inst.OnSoundSystemReLoad += SoundReStart;
+        SoundManager.Inst.OnReLoad += SoundReStart;
         SoundReStart();
 
         StartCoroutine( LoadingEndCheck() );

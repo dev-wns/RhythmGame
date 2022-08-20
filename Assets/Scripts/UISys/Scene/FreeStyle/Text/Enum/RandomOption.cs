@@ -29,6 +29,5 @@ public class RandomOption : OptionText
     {
         GameSetting.CurrentRandom = ( GameRandom )curIndex;
         settingText.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
-        Debug.Log( ( GameRandom )curIndex );
     }
 }

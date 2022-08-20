@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +9,7 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
     [Header("Text")]
     public List<string> texts;
     public TextMeshProUGUI valueText;
-    private DelKeyAction keyReturnAction;
+    private Action keyReturnAction;
     public bool isReturnProcess = true;
 
     protected override void Awake()

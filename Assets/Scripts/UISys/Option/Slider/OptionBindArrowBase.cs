@@ -1,12 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
 {
-    private DelKeyAction leftDownAction, rightDownAction;
-    private DelKeyAction leftHoldAction, rightHoldAction;
-    private DelKeyAction UpAction;
+    private Action leftDownAction, rightDownAction;
+    private Action leftHoldAction, rightHoldAction;
+    private Action UpAction;
 
     private static float PressUpdateTime = .05f;
     private static float PressWaitTime   = .5f;

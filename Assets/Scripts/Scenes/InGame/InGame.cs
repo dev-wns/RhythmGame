@@ -109,11 +109,11 @@ public class InGame : Scene
         Bind( SceneAction.Main,   KeyCode.Escape, () => Pause( true ) );
 
         Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha1, () => PressdSpeedControl( false ) );
+        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
         Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
                                                            
         Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha2, () => PressdSpeedControl( true ) );
+        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
         Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
     }
 }

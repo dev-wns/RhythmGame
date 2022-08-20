@@ -22,6 +22,5 @@ public class TouchEffectOption : OptionText
     {
         if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.TouchEffect;
         else                 GameSetting.CurrentVisualFlag |=  GameVisualFlag.TouchEffect;
-        Debug.Log( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.TouchEffect ) );
     }
 }

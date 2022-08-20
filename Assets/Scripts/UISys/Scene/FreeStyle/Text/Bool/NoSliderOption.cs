@@ -27,7 +27,5 @@ public class NoSliderOption : OptionText
 
         string temp = ( GameSetting.CurrentGameMode & GameMode.NoSlider ) != 0 ? "On" : "Off";
         settingText.text = $"{temp}";
-
-        Debug.Log( GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) );
     }
 }

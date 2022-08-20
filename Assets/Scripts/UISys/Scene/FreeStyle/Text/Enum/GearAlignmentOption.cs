@@ -21,6 +21,5 @@ public class GearAlignmentOption : OptionText
     public override void Process()
     {
         GameSetting.CurrentGearAlignment = ( Alignment )curIndex;
-        Debug.Log( ( Alignment )curIndex );
     }
 }

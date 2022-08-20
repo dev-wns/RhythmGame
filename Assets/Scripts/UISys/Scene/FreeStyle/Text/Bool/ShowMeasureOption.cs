@@ -22,6 +22,5 @@ public class ShowMeasureOption : OptionText
     {
         if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.ShowMeasure;
         else                 GameSetting.CurrentVisualFlag |=  GameVisualFlag.ShowMeasure;
-        Debug.Log( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowMeasure ) );
     }
 }
