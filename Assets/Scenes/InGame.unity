@@ -8857,6 +8857,7 @@ MonoBehaviour:
   panel: {fileID: 952276541}
   sideLeft: {fileID: 992659269}
   sideRight: {fileID: 1632783135}
+  keyUI: {fileID: 2048759147}
 --- !u!224 &1017649044
 RectTransform:
   m_ObjectHideFlags: 0

@@ -16,6 +16,7 @@ public class InGame : Scene
     public event Action OnGameStart;
     public event Action OnReLoad;
     public event Action OnLoadEnd;
+    public event Action OnShowGearKey;
 
     private readonly float AdditionalLoadTime = 1f;
 
@@ -103,6 +104,12 @@ public class InGame : Scene
         }
     }
 
+    private void ShowGearKey()
+    {
+        GameSetting.CurrentVisualFlag ^= GameVisualFlag.ShowGearKey;
+        OnShowGearKey?.Invoke();
+    }
+
     public override void KeyBind()
     {
         Bind( SceneAction.Option, KeyCode.Escape, () => Pause( false ) );
@@ -115,5 +122,7 @@ public class InGame : Scene
         Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
         Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
         Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
+
+        Bind( SceneAction.Main, KeyType.Down, KeyCode.F1, ShowGearKey );
     }
 }

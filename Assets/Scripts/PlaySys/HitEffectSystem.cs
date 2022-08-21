@@ -7,7 +7,6 @@ public class HitEffectSystem : MonoBehaviour
 {
     public Lane lane;
 
-    private Transform tf;
     private NoteType type;
 
     public List<Sprite> spritesN = new List<Sprite>();
@@ -24,7 +23,6 @@ public class HitEffectSystem : MonoBehaviour
 
     protected void Awake()
     {
-        tf = transform;
         rdr = GetComponent<SpriteRenderer>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
@@ -44,13 +42,23 @@ public class HitEffectSystem : MonoBehaviour
             enabled = false;
         }
     }
+    private void Start()
+    {
+        ( NowPlaying.CurrentScene as InGame ).OnShowGearKey += UpdatePosition;
+    }
+
+    private void UpdatePosition()
+    {
+        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * lane.Key ) + ( GameSetting.NoteBlank * lane.Key ) + GameSetting.NoteBlank,
+                                          GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) ? GameSetting.HintPos : GameSetting.JudgePos, 90f );
+    }
 
     private void Initialize( int _key )
     {
         lane.InputSys.OnHitNote += HitEffect;
 
-        tf.position = lane.transform.position;
-        tf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteWidth );
+        UpdatePosition();
+        transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteWidth );
     }
 
     private void HitEffect( NoteType _type, bool _isKeyUp )

@@ -11,7 +11,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 {
     public static Scene CurrentScene;
     public ReadOnlyCollection<Song> Songs { get; private set; }
-    public List<FMOD.Sound> KeySounds { get; private set; }
 
     public Song CurrentSong => curSong;
     private Song curSong;
@@ -47,7 +46,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private readonly double waitTime = -1.25d;
     private double startTime;
-    private double savedTime;
+    private double saveTime;
     private double totalTime;
 
     public event Action       OnResult;
@@ -58,6 +57,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public bool IsLoadKeySounds { get; set; }  = false;
     public bool IsLoadBackground { get; set; } = false;
     public bool IsParseSongs { get; private set; } = false;
+    private double bpm;
 
     private async void Awake()
     {
@@ -96,7 +96,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
              return;
 
         prevPlayback = Playback;
-        Playback = savedTime + ( Globals.Timer.CurrentTime - startTime );
+        Playback = saveTime + ( Globals.Timer.CurrentTime - startTime );
         PlaybackOffset = Globals.Abs( prevPlayback - Playback );
         PlaybackChanged = GetChangedTime( Playback );
         
@@ -112,7 +112,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         StopAllCoroutines();
         Playback = waitTime;
-        savedTime = 0d;
+        saveTime = 0d;
         PlaybackChanged = 0d;
         isStart = false;
 
@@ -152,23 +152,24 @@ public class NowPlaying : SingletonUnity<NowPlaying>
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
             OnPause?.Invoke( true );
-            savedTime = Playback >= 0d ? waitTime + Playback : 0d;
+            saveTime = Playback >= 0d ? waitTime + Playback : 0d;
         }
         else
         {
-            StartCoroutine( PauseStart() );
+            StartCoroutine( Continue() );
         }
 
         return true;
     }
 
-    private IEnumerator PauseStart()
+    private IEnumerator Continue()
     {
         CurrentScene.InputLock( true );
-        while ( Playback >= savedTime )
+        while ( Playback >= saveTime )
         {
-            Playback -= Time.deltaTime;
+            Playback -= Time.deltaTime * 2d;
             PlaybackChanged = GetChangedTime( Playback );
+
             yield return null;
         }
 
@@ -176,7 +177,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         isStart = true;
 
-        yield return new WaitUntil( () => Playback >= savedTime - waitTime );
+        yield return new WaitUntil( () => Playback >= saveTime - waitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
         OnPause?.Invoke( false );
@@ -195,7 +196,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         }
 
         startTime = Globals.Timer.CurrentTime;
-        savedTime = waitTime;
+        saveTime = waitTime;
         isStart = true;
 
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d ); ;
@@ -215,7 +216,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         for ( int i = 0; i < timings.Count; i++ )
         {
             double time = timings[i].time;
-            double bpm  = timings[i].bpm;
+            bpm  = timings[i].bpm;
 
             if ( time > _time ) break;
             newTime += ( bpm - prevBpm ) * ( _time - time );

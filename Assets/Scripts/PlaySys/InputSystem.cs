@@ -31,7 +31,7 @@ public class InputSystem : MonoBehaviour
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnGameStart += () => StartCoroutine( NoteSelect() );
         scene.OnReLoad += ReLoad;
-        NowPlaying.Inst.OnPause += DuringPauseProcess;
+        NowPlaying.Inst.OnPause += Pause;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
@@ -69,7 +69,7 @@ public class InputSystem : MonoBehaviour
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
     /// </summary>
-    private void DuringPauseProcess( bool _isPause )
+    private void Pause( bool _isPause )
     {
         if ( !_isPause || curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
              return;
@@ -91,7 +91,7 @@ public class InputSystem : MonoBehaviour
     private void OnDestroy()
     {
         StopAllCoroutines();
-        NowPlaying.Inst.OnPause -= DuringPauseProcess;
+        NowPlaying.Inst.OnPause -= Pause;
     }
 
     /// <summary>
@@ -285,7 +285,7 @@ public class InputSystem : MonoBehaviour
         if ( curNote != null )
         {
             if ( curNote.IsSlider ) CheckSlider();
-            else CheckNote();
+            else                    CheckNote();
         }
     }
 }

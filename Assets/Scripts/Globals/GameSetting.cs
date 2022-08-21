@@ -35,6 +35,7 @@ public enum GameVisualFlag
     TouchEffect = 1 << 0,
     LaneEffect  = 1 << 1,
     ShowMeasure = 1 << 2,
+    ShowGearKey = 1 << 3,
 
     All         = int.MaxValue,
 }
@@ -70,11 +71,11 @@ public class GameSetting : SingletonUnity<GameSetting>
             }
 
             OriginScrollSpeed = value;
-            Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
+            //Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static double Weight => ( 320d * ScrollSpeed ) / NowPlaying.Inst.CurrentSong.medianBpm; // 320
-    public static double PreLoadTime => ( 1200d / Weight );
+    public static double Weight => ScrollSpeed * ( 320d / NowPlaying.Inst.CurrentSong.medianBpm );
+    public static double PreLoadTime => 1200d / Weight;
 
     // Sound
     public static int SoundOffset = 0;

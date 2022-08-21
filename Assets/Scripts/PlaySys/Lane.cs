@@ -35,6 +35,11 @@ public class Lane : MonoBehaviour
         rdr.color = Color.clear;
     }
 
+    private void Start()
+    {
+        ( NowPlaying.CurrentScene as InGame ).OnShowGearKey += UpdatePosition;
+    }
+
     private void PlayEffect( bool _isEnable )
     {
         // sprite renderer Enable로 활성화 시키는것보다
@@ -48,14 +53,16 @@ public class Lane : MonoBehaviour
     public void SetLane( int _key )
     {
         Key = _key;
-        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) +
-                                        ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank,
-                                          GameSetting.HintPos, 90f );
-
-        var keytf = keyImage.transform;
-        keyImage.transform.position   = new Vector3( transform.position.x, keytf.position.y, keytf.position.z );
-        keyImage.transform.localScale = new Vector3( transform.localScale.x + GameSetting.NoteBlank, keytf.localScale.y );
-
+        UpdatePosition();
         OnLaneInitialize?.Invoke( Key );
+    }
+
+    private void UpdatePosition()
+    {
+        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) + ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank,
+                                          GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) ? GameSetting.HintPos : GameSetting.JudgePos, 90f );
+
+        keyImage.transform.position = new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
+        keyImage.transform.localScale = new Vector3( transform.localScale.x + GameSetting.NoteBlank, keyImage.transform.localScale.y );
     }
 }
