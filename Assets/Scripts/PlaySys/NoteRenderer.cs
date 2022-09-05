@@ -10,7 +10,7 @@ public class NoteRenderer : MonoBehaviour
     public SpriteRenderer head, body, tail;
     private Transform headTf, bodyTf, tailTf;
 
-    public Sprite skinNormal, skinHead, skinBody, skinTail;
+    //public Sprite skinNormal, skinHead, skinBody, skinTail;
     private static readonly float BodyScaleOffset    = 256f / 64f; // PixelPerUnit  / TextureHeight
     private static readonly float BodyPositionOffset = 64f / 256f; // TextureHeight / PixelPerUnit
     private Note note;
@@ -44,14 +44,52 @@ public class NoteRenderer : MonoBehaviour
 
         tailTf = tail.transform;
         tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
-
-        body.sprite = skinBody;
-        tail.sprite = skinTail;
     }
 
     private void OnDestroy()
     {
         game.OnScrollChanged -= ScrollUpdate;
+    }
+
+    private void SetSkin( int _lane, bool _isSlider )
+    {
+        switch ( _lane )
+        {
+            case 0:
+            case 2:
+            case 3:
+            case 5:
+                if ( _isSlider )
+                {
+                    body.enabled = tail.enabled = true;
+                    head.sprite = GameSetting.CurrentNoteSkin.left.head;
+                }
+                else
+                {
+                    body.enabled = tail.enabled = false;
+                    head.sprite = GameSetting.CurrentNoteSkin.left.normal;
+                }
+
+                body.sprite = GameSetting.CurrentNoteSkin.left.body;
+                tail.sprite = GameSetting.CurrentNoteSkin.left.tail;
+            break;
+
+            case 1:
+            case 4:
+                if ( _isSlider )
+                {
+                    body.enabled = tail.enabled = true;
+                    head.sprite = GameSetting.CurrentNoteSkin.right.head;
+                }
+                else
+                {
+                    body.enabled = tail.enabled = false;
+                    head.sprite = GameSetting.CurrentNoteSkin.right.normal;
+                }
+                body.sprite = GameSetting.CurrentNoteSkin.right.body;
+                tail.sprite = GameSetting.CurrentNoteSkin.right.tail;
+            break;
+        }
     }
 
     public void SetInfo( int _lane, NoteSystem _system, in Note _note )
@@ -62,17 +100,7 @@ public class NoteRenderer : MonoBehaviour
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
         newTime = note.calcTime;
 
-        if ( IsSlider )
-        {
-            body.enabled = tail.enabled = true;
-            head.sprite = skinHead;
-        }
-        else
-        {
-            body.enabled = tail.enabled = false;
-            head.sprite = skinNormal;
-        }
-
+        SetSkin( _lane, IsSlider );
         //body.enabled = tail.enabled = IsSlider ? true : false;
         ScrollUpdate();
         head.color = body.color = tail.color = Color.white;

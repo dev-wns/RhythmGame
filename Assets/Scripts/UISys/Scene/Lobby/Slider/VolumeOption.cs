@@ -15,6 +15,5 @@ public class VolumeOption : OptionSlider
     public override void Process()
     {
         SoundManager.Inst.SetVolume( curValue * .01f, groupType );
-        Debug.Log( curValue );
     }
 }

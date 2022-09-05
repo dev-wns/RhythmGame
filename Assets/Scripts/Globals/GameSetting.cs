@@ -7,6 +7,8 @@ public enum BooleanOption { Off, On, Count }
 
 public enum Alignment { Left, Center, Right, Count, }
 
+public enum NoteSkinType { Default, Aqua, Count, }
+
 public enum GameRandom
 {
     None,
@@ -92,7 +94,8 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 3.5f;
 
     // Jugdement
-    public static float HintPos = -( Screen.height * .5f ) + 190;
+    public static float HintPos = -( 1080f * .5f ) + 190 + HintOffset;//-( Screen.height * .5f ) + 190;
+    public static float HintOffset = -10f;
     public static float JudgePos 
     {
         get => HintPos + JudgementPosition;//-490f;
@@ -117,11 +120,31 @@ public class GameSetting : SingletonUnity<GameSetting>
         KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote,
     };
 
+    [Serializable]
+    public struct NoteSkin
+    {
+        public NoteSkinType type;
+        public NoteSkinParts left, center, right;
+    }
+    [Serializable]
+    public struct NoteSkinParts
+    {
+        public Sprite normal, head, body, tail;
+    }
+
+    [SerializeField]
+    public List<NoteSkin> NoteSkins = new List<NoteSkin>();
+    public static NoteSkin CurrentNoteSkin;
+
     private void Awake()
     {
+        DontDestroyOnLoad( this );
+
         for ( int i = 0; i < defaultKeys.Length; i++ )
         {
             Keys.Add( ( GameKeyAction )i, defaultKeys[i] );
         }
+
+        CurrentNoteSkin = NoteSkins[0];
     }
 }

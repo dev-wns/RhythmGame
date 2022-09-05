@@ -10,15 +10,16 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
     public OptionType type { get; protected set; }
 
     protected Scene CurrentScene { get; private set; }
-    private Outline outline;
+    private GameObject outline;
 
     protected virtual void Awake()
     {
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-        outline = GetComponent<Outline>();
-        if ( outline )
+
+        var outlineTf = transform.Find( "Outline" );
+        if ( outlineTf )
         {
-            //outline.effectDistance = new Vector2( 3f, -3f );
+            outline = outlineTf.gameObject;
             ActiveOutline( false );
         }
     }
@@ -26,7 +27,7 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
     public void ActiveOutline( bool _isActive )
     {
         if ( outline is null ) return;
-        outline.enabled = _isActive;
+        outline.SetActive( _isActive );
     }
 
     public abstract void Process();

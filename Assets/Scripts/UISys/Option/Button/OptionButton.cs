@@ -10,6 +10,7 @@ public class OptionButton : OptionBindReturnBase
 
 	protected override void Awake()
 	{
+		
 		base.Awake();
 
 		type = OptionType.Button;

@@ -34,6 +34,6 @@ public class Gear : MonoBehaviour
     private void UpdateHintPosition()
     {
         keyUI.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) );
-        hint.position = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) ? new Vector2( 0f, GameSetting.HintPos ) : new Vector2( 0f, GameSetting.JudgePos );
+        hint.position = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) ? new Vector2( 0f, GameSetting.HintPos ) : new Vector2( 0f, GameSetting.JudgePos + GameSetting.HintOffset );
     }
 }
