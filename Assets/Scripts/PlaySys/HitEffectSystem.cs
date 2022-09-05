@@ -9,12 +9,13 @@ public class HitEffectSystem : MonoBehaviour
 
     private NoteType type;
 
+    private float time;
     public List<Sprite> spritesN = new List<Sprite>();
-    private float timeN = 0f;
+    private float offsetN;
     public List<Sprite> spritesL = new List<Sprite>();
-    private float timeL = 0f;
+    private float offsetL;
 
-    private float lifeTime = .075f;
+    private float lifeTime = .12f;
 
     private SpriteRenderer rdr;
     private int curIndex = 0;
@@ -29,13 +30,13 @@ public class HitEffectSystem : MonoBehaviour
         {
             lane.OnLaneInitialize += Initialize;
 
-            timeN = lifeTime / spritesN.Count;
-            timeL = lifeTime / spritesL.Count;
+            offsetN = lifeTime / spritesN.Count;
+            offsetL = lifeTime / spritesL.Count;
 
             rdr.enabled = true;
             rdr.color = Color.clear;
 
-            StartCoroutine( Process() );
+            //StartCoroutine( Process() );
         }
         else
         {
@@ -63,49 +64,98 @@ public class HitEffectSystem : MonoBehaviour
         isKeyUp = _isKeyUp;
         curIndex = 0;
 
+        switch ( type )
+        {
+            case NoteType.Default: rdr.sprite = spritesN[0]; break;
+            case NoteType.Slider:  rdr.sprite = spritesL[0]; break;
+        }
 
         if ( !isKeyUp ) Play();
     }
 
-    private IEnumerator Process()
+    private void Update()
     {
-        WaitUntil waitPlay = new WaitUntil( () => isPlay );
-        while ( true )
+        if ( !isPlay ) return;
+
+        time += Time.deltaTime;
+
+        switch ( type )
         {
-            yield return waitPlay;
-
-            switch ( type )
+            case NoteType.Default:
             {
-                case NoteType.Default:
+                if ( time >= offsetN )
                 {
-                    rdr.sprite = spritesN[curIndex];
-                    yield return YieldCache.WaitForSeconds( timeN );
-
-                    if ( curIndex < spritesN.Count - 1 ) curIndex++;
+                    if ( curIndex < spritesN.Count - 1 ) rdr.sprite = spritesN[++curIndex];
                     else                                 Stop();
+
+                    time = Globals.Abs( time - offsetN );
                 }
-                break;
+            }
+            break;
 
-                case NoteType.Slider:
+            case NoteType.Slider:
+            {
+                if ( time >= offsetL )
                 {
-                    rdr.sprite = spritesL[curIndex];
-                    yield return YieldCache.WaitForSeconds( timeL );
-
-                    if ( curIndex < spritesL.Count - 1 ) curIndex++;
+                    if ( curIndex < spritesL.Count - 1 )
+                        rdr.sprite = spritesL[++curIndex];
                     else
                     {
-                        if ( isKeyUp ) Stop();
+                        if ( isKeyUp )
+                            Stop();
                         else
                         {
                             curIndex = 0;
                             Play();
                         }
                     }
+
+                    time = Globals.Abs( time - offsetL );
                 }
-                break;
             }
+            break;
         }
     }
+
+    //private IEnumerator Process()
+    //{
+    //    WaitUntil waitPlay = new WaitUntil( () => isPlay );
+    //    while ( true )
+    //    {
+    //        yield return waitPlay;
+
+    //        switch ( type )
+    //        {
+    //            case NoteType.Default:
+    //            {
+    //                rdr.sprite = spritesN[curIndex];
+    //                yield return YieldCache.WaitForSeconds( timeN );
+
+    //                if ( curIndex < spritesN.Count - 1 ) curIndex++;
+    //                else                                 Stop();
+    //            }
+    //            break;
+
+    //            case NoteType.Slider:
+    //            {
+    //                rdr.sprite = spritesL[curIndex];
+    //                yield return YieldCache.WaitForSeconds( timeL );
+
+    //                if ( curIndex < spritesL.Count - 1 ) curIndex++;
+    //                else
+    //                {
+    //                    if ( isKeyUp ) Stop();
+    //                    else
+    //                    {
+    //                        curIndex = 0;
+    //                        Play();
+    //                    }
+    //                }
+    //            }
+    //            break;
+    //        }
+    //    }
+    //}
 
     private void Play()
     {
