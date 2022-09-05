@@ -1,12 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class FreeStyleOption : SceneScrollOption
 {
+    private CanvasGroup group;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        if ( !TryGetComponent<CanvasGroup>( out group ) )
+             Debug.LogError( $"FreeStyle Option CanvasGroup is null" );
+
+    }
+
     private void Back()
     {
-        gameObject.SetActive( false );
+        DOTween.Clear();
+        group.alpha = 1f;
+        DOTween.To( () => 1f, x => group.alpha = x, 0f, GlobalConst.OptionFadeDuration ).OnComplete( () => gameObject.SetActive( false ) );
+
         SoundManager.Inst.UseLowEqualizer( false );
         CurrentScene.ChangeAction( SceneAction.Main );
         SoundManager.Inst.Play( SoundSfxType.MenuHover );

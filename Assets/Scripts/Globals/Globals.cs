@@ -52,6 +52,11 @@ public static class Globals
     }
 }
 
+public static class GlobalConst
+{
+    public static readonly float OptionFadeDuration = .15f;
+}
+
 public static class Debug
 {
     [Conditional( "UNITY_EDITOR" )] public static void Log( object _message ) => UnityEngine.Debug.Log( _message );

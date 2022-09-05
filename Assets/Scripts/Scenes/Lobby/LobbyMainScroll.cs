@@ -7,6 +7,7 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
 {
     public GameObject optionCanvas, exitCanvas;
     public RectTransform leftImage, rightImage;
+    private CanvasGroup optionGroup;
 
     private Scene scene;
     private RectTransform rt;
@@ -16,6 +17,9 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
         base.Awake();
 
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        if ( !optionCanvas.TryGetComponent<CanvasGroup>( out optionGroup ) )
+             Debug.LogError( $"Lobby Option CanvasGroup is null" );
+
         rt = transform as RectTransform;
         
         // ScrollOption
@@ -67,7 +71,9 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
 
     public void ShowOptionCanvas()
     {
+        optionGroup.alpha = 0f;
         optionCanvas.SetActive( true );
+        DOTween.To( () => 0f, x => optionGroup.alpha = x, 1f, GlobalConst.OptionFadeDuration );
         scene.ChangeAction( SceneAction.Option );
         SoundManager.Inst.Play( SoundSfxType.MenuClick );
     }
