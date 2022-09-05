@@ -26,11 +26,6 @@ public class Gear : MonoBehaviour
         sideRight.position = new Vector3( -GameSetting.GearStartPos, 0f );
     }
 
-    private void Start()
-    {
-        ( NowPlaying.CurrentScene as InGame ).OnShowGearKey += UpdateHintPosition;
-    }
-
     private void UpdateHintPosition()
     {
         keyUI.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) );

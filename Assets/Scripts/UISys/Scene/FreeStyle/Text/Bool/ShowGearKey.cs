@@ -20,9 +20,7 @@ public class ShowGearKey : OptionText
 
     public override void Process()
     {
-        if ( curIndex == 0 )
-            GameSetting.CurrentVisualFlag &= ~GameVisualFlag.ShowGearKey;
-        else
-            GameSetting.CurrentVisualFlag |= GameVisualFlag.ShowGearKey;
+        if ( curIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.ShowGearKey;
+        else                 GameSetting.CurrentVisualFlag |= GameVisualFlag.ShowGearKey;
     }
 }

@@ -35,11 +35,6 @@ public class Lane : MonoBehaviour
         rdr.color = Color.clear;
     }
 
-    private void Start()
-    {
-        ( NowPlaying.CurrentScene as InGame ).OnShowGearKey += UpdatePosition;
-    }
-
     private void PlayEffect( bool _isEnable )
     {
         // sprite renderer Enable로 활성화 시키는것보다

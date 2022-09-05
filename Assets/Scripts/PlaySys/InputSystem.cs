@@ -254,7 +254,7 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         if ( !isReady )
             return;
