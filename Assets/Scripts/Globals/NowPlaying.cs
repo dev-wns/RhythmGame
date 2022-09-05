@@ -59,8 +59,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public bool IsParseSongs { get; private set; } = false;
     private double bpm;
 
-    private async void Awake()
+    protected override async void Awake()
     {
+        base.Awake();
 #if ASYNC_PARSE
         Task parseSongsAsyncTask = Task.Run( ParseSongs );
         await parseSongsAsyncTask;

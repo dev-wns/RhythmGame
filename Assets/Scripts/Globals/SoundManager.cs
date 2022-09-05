@@ -299,7 +299,11 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #region Unity Callback
-    private void Awake() => Initialize();
+    protected override void Awake()
+    {
+        base.Awake();
+        Initialize();
+    }
     private void Update()
     {
         if ( !IsLoad ) 

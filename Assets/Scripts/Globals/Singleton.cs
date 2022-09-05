@@ -26,6 +26,18 @@ public class SingletonUnity<T> : MonoBehaviour where T : MonoBehaviour
             return instance;
         }
     }
+
+    protected virtual void Awake()
+    {
+        T[] objs = FindObjectsOfType<T>();
+        if ( objs.Length == 1 )
+        {
+            instance = objs[0];
+            DontDestroyOnLoad( this );
+        }
+        else if ( objs.Length > 1 )
+            Destroy( this );
+    }
 }
 
 public class Singleton<T> where T : class, new()

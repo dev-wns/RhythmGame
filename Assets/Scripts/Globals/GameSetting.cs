@@ -136,9 +136,9 @@ public class GameSetting : SingletonUnity<GameSetting>
     public List<NoteSkin> NoteSkins = new List<NoteSkin>();
     public static NoteSkin CurrentNoteSkin;
 
-    private void Awake()
+    protected override void Awake()
     {
-        DontDestroyOnLoad( this );
+        base.Awake();
 
         for ( int i = 0; i < defaultKeys.Length; i++ )
         {
