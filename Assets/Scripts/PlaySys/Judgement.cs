@@ -16,10 +16,6 @@ public class Judgement : MonoBehaviour
     public event Action<HitResult> OnJudge;
 
     private Dictionary<HitResult, int /* count */> results = new Dictionary<HitResult, int>();
-    public TextMeshProUGUI hitAverageText;
-    private double hitTotalValue;
-    private double hitAverage;
-    private Queue<double/*diff*/> hitValues = new Queue<double>();
 
     private void Awake()
     {
@@ -76,21 +72,6 @@ public class Judgement : MonoBehaviour
             if ( diff > 0d ) OnJudge?.Invoke( HitResult.Fast );
             else             OnJudge?.Invoke( HitResult.Slow );
         }
-
-        double hitms = diff * 1000d;
-        if ( hitValues.Count <= 50 )
-        {
-            hitValues.Enqueue( hitms );
-            hitTotalValue += hitms;
-        }
-        else
-        {
-            hitValues.Enqueue( hitms );
-            hitTotalValue += hitms - hitValues.Dequeue();
-        }
-
-        hitAverage = hitTotalValue / hitValues.Count;
-        hitAverageText.text = $"{( int )hitAverage} ms";
     }
 
     public void ResultUpdate( HitResult _type )
