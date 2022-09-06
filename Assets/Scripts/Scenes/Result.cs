@@ -14,7 +14,7 @@ public class Result : Scene
     {
         base.Awake();
         SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
-        SoundManager.Inst.Play( true );
+        SoundManager.Inst.Play( 1f, true );
         soundLength = SoundManager.Inst.Length;
         playback = SoundManager.Inst.Position = highlightPos;
 

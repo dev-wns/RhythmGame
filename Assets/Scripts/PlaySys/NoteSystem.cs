@@ -70,5 +70,8 @@ public class NoteSystem : MonoBehaviour
             if ( ++curIndex < notes.Count )
                  curNote = notes[curIndex];
         }
+
+        yield return new WaitUntil( () => NowPlaying.Playback >= curNote.time );
+        Debug.Log( $"{NowPlaying.Playback}" );
     }
 }

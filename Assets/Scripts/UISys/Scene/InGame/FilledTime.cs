@@ -18,7 +18,7 @@ public class FilledTime : MonoBehaviour
 
     private void Initialize()
     {
-        length = NowPlaying.Inst.CurrentSong.totalTime * .001d;
+        length = NowPlaying.Inst.CurrentSong.totalTime * .001d / GameSetting.CurrentPitch;
         StartCoroutine( Process() );
     }
 

@@ -108,7 +108,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         if ( soundLength + waitPreviewTime < playback &&
              !SoundManager.Inst.IsPlaying( ChannelType.BGM ) )
         {
-            SoundManager.Inst.Play();
+            SoundManager.Inst.Play( GameSetting.CurrentPitch, false );
             SoundManager.Inst.Position = GetPreviewTime( curSong.previewTime );
             playback = previewTime;
         }
@@ -207,7 +207,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         OnSelectSong( curSong );
 
         SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
-        SoundManager.Inst.Play();
+        SoundManager.Inst.Play( GameSetting.CurrentPitch, false );
         SoundManager.Inst.FadeIn( 1f );
 
         previewTime = GetPreviewTime( curSong.previewTime );

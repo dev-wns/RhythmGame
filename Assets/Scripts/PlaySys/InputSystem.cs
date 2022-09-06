@@ -130,7 +130,7 @@ public class InputSystem : MonoBehaviour
             {
                 OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
-                SoundManager.Inst.Play( curSound );
+                SoundManager.Inst.Play( GameSetting.CurrentPitch, curSound );
                 SelectNextNote();
             }
         }
@@ -166,7 +166,7 @@ public class InputSystem : MonoBehaviour
                 {
                     curNote.IsPressed = true;
                     OnHitNote?.Invoke( NoteType.Slider, false );
-                    SoundManager.Inst.Play( curSound );
+                    SoundManager.Inst.Play( GameSetting.CurrentPitch, curSound );
                     judge.ResultUpdate( startDiff );
 
                     inputStartTime = curNote.Time;
@@ -274,7 +274,7 @@ public class InputSystem : MonoBehaviour
             if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
             {
                 OnInputEvent?.Invoke( true );
-                SoundManager.Inst.Play( curSound );
+                SoundManager.Inst.Play( GameSetting.CurrentPitch, curSound );
             }
             else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
             {

@@ -174,6 +174,7 @@ public class BGASystem : MonoBehaviour
     private IEnumerator LoadVideo()
     {
         vp.enabled = true;
+        vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.url = @$"{NowPlaying.Inst.CurrentSong.videoPath}";
         vp.targetTexture = renderTexture;
         background.texture = renderTexture;

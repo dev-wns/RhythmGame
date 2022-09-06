@@ -100,7 +100,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         Playback = saveTime + ( Globals.Timer.CurrentTime - startTime );
         PlaybackOffset = Globals.Abs( prevPlayback - Playback );
         PlaybackChanged = GetChangedTime( Playback );
-        
+
         if ( Playback >= totalTime + 3d )
         {
             Stop();
@@ -125,7 +125,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     {
         Stop();
 
-        totalTime = curSong.totalTime * .001d;
+        totalTime = curSong.totalTime * .001d / GameSetting.CurrentPitch;
         using ( FileParser parser = new FileParser() )
         {
             parser.TryParse( curSong.filePath, out curChart );
@@ -192,7 +192,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         if ( !curSong.isOnlyKeySound )
         {
             SoundManager.Inst.LoadBgm( curSong.audioPath, false, false, false );
-            SoundManager.Inst.Play( true );
+            SoundManager.Inst.Play( GameSetting.CurrentPitch, true );
             SoundManager.Inst.Position = 0;
         }
 
@@ -217,7 +217,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         for ( int i = 0; i < timings.Count; i++ )
         {
             double time = timings[i].time;
-            bpm  = timings[i].bpm;
+            bpm = timings[i].bpm;
 
             if ( time > _time ) break;
             newTime += ( bpm - prevBpm ) * ( _time - time );

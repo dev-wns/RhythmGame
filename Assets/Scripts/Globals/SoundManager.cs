@@ -117,6 +117,15 @@ public class SoundManager : SingletonUnity<SoundManager>
     }
     public bool IsLoad { get; private set; } = false;
     public float volume { get; private set; }
+
+    public float Pitch
+    {
+        set
+        {
+            if ( IsPlaying( ChannelType.BGM ) )
+                 ErrorCheck( groups[ChannelType.BGM].setPitch( value ) );
+        }
+    }
     #endregion
     #endregion
 
@@ -331,7 +340,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         mode = _isStream        ? mode |= ( mode &= ~FMOD.MODE.CREATESAMPLE ) | FMOD.MODE.CREATESTREAM | FMOD.MODE.LOWMEM : mode;
 
         FMOD.Sound sound;
-        ErrorCheck( system.createSound( _path, mode, out sound ) ); 
+        ErrorCheck( system.createSound( _path, mode, out sound ) );
 
         if ( bgmSound.hasHandle() )
         {
@@ -380,7 +389,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     #region Play
 
     /// <summary> Play Background Music </summary>
-    public void Play( bool _isPause = false )
+    public void Play( float _pitch, bool _isPause )
     {
         if ( !bgmSound.hasHandle() )
         {
@@ -388,8 +397,11 @@ public class SoundManager : SingletonUnity<SoundManager>
             return;
         }
 
-        Stop( ChannelType.BGM );
+        // var pitch = GameSetting.CurrentPitch * .01f;
 
+        ErrorCheck( groups[ChannelType.BGM].setPitch( _pitch ) );
+        Stop( ChannelType.BGM );
+        
         SetPaused( _isPause, ChannelType.BGM );
         ErrorCheck( system.playSound( bgmSound, groups[ChannelType.BGM], false, out bgmChannel ) );
     }
@@ -408,7 +420,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     }
 
     /// <summary> Play Key Sound Effects </summary>
-    public void Play( in KeySound _keySound )
+    public void Play( float _pitch, in KeySound _keySound )
     {
         if ( !_keySound.hasSound )
              return;
@@ -418,6 +430,9 @@ public class SoundManager : SingletonUnity<SoundManager>
             Debug.LogError( $"keySound[{_keySound.name}] is not loaded." );
             return;
         }
+        //var pitch = GameSetting.CurrentPitch * .01f;
+
+        ErrorCheck( groups[ChannelType.KeySound].setPitch( _pitch ) );
 
         FMOD.Channel channel;
         ErrorCheck( system.playSound( _keySound.sound, groups[ChannelType.KeySound], false, out channel ) );

@@ -9,6 +9,8 @@ public enum Alignment { Left, Center, Right, Count, }
 
 public enum NoteSkinType { Default, Aqua, Count, }
 
+public enum PitchType : int { _7 = 7, _8, _9, _10, _11, _12, _13, _14, _15, Count };
+
 public enum GameRandom
 {
     None,
@@ -54,12 +56,18 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static GameMode       CurrentGameMode      = GameMode.AutoPlay | GameMode.NoFail;
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
+    //public static PitchType      CurrentPitch         = PitchType._13;
+
+    // ¹éºÐÀ²
+    private static float pitch = 100;
+    public static float CurrentPitch { get { return pitch * .01f; } set { pitch = value; } }
+        
 
     // PPU
     public static int PPU = 100; // pixel per unit
 
     // Speed
-    private static double OriginScrollSpeed = 6.8d;
+    private static double OriginScrollSpeed = 6.8d; 
     public static double ScrollSpeed
     {
 
@@ -76,7 +84,7 @@ public class GameSetting : SingletonUnity<GameSetting>
             //Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
-    public static double Weight => ScrollSpeed * ( 320d / NowPlaying.Inst.CurrentSong.medianBpm );
+    public static double Weight => ScrollSpeed * ( 320d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) );
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
