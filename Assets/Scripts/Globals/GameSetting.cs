@@ -9,7 +9,7 @@ public enum Alignment { Left, Center, Right, Count, }
 
 public enum NoteSkinType { Default, Aqua, Count, }
 
-public enum PitchType : int { _7 = 7, _8, _9, _10, _11, _12, _13, _14, _15, Count };
+public enum PitchType { None, Normalize, Nightcore, Count, }
 
 public enum GameRandom
 {
@@ -56,7 +56,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static GameMode       CurrentGameMode      = GameMode.AutoPlay | GameMode.NoFail;
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
-    //public static PitchType      CurrentPitch         = PitchType._13;
+    public static PitchType      CurrentPitchType     = PitchType.None;
 
     // ¹éºÐÀ²
     private static float pitch = 100;

@@ -23,6 +23,7 @@ public class InGame : Scene
     {
         base.Awake();
 
+        SoundManager.Inst.AddPitchShift();
         NowPlaying.Inst.ParseChart();
     }
 

@@ -15,7 +15,8 @@ public class Lobby : Scene
         base.Awake();
         SoundManager.Inst.OnReLoad += SoundReStart;
         SoundReStart();
-
+        
+        SoundManager.Inst.RemovePitchShift();
         StartCoroutine( LoadingEndCheck() );
         isStart = true;
     }

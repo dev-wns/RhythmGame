@@ -18,14 +18,14 @@ public class AudioVisualizer : MonoBehaviour
         SoundManager.Inst.OnRelease += RemoveDSP;
     }
 
-    private void RemoveDSP() => SoundManager.Inst.RemoveDSP( ref dsp );
+    private void RemoveDSP() => SoundManager.Inst.DeleteDSP( dsp );
     private void AddFFT() => SoundManager.Inst.AddFFT( ( int )size, type, out dsp );
 
     private void OnDestroy()
     {
-        SoundManager.Inst.RemoveDSP( ref dsp );
+        SoundManager.Inst.DeleteDSP( dsp );
         SoundManager.Inst.OnReLoad -= AddFFT;
-        SoundManager.Inst.OnRelease           -= RemoveDSP;
+        SoundManager.Inst.OnRelease -= RemoveDSP;
     }
 
     private void FixedUpdate()

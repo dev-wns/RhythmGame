@@ -19,7 +19,8 @@ public class SoundPitchOption : OptionSlider
     {
         GameSetting.CurrentPitch = ( int )curValue;
         SoundManager.Inst.Pitch = GameSetting.CurrentPitch;
-        // curValue * .01f;
+
+        SoundManager.Inst.UpdatePitchShift();
         OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
     }
 }

@@ -21,6 +21,7 @@ public class Result : Scene
         SoundManager.Inst.FadeIn( 2f );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
+        SoundManager.Inst.RemovePitchShift();
         isStart = true;
     }
 
