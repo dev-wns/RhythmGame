@@ -122,12 +122,6 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float GearStartPos => ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f );
     public static float GearWidth    => ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) );
 
-    public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
-    private readonly KeyCode[] defaultKeys = new KeyCode[]
-    {
-        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote,
-    };
-
     [Serializable]
     public struct NoteSkin
     {
@@ -147,11 +141,6 @@ public class GameSetting : SingletonUnity<GameSetting>
     protected override void Awake()
     {
         base.Awake();
-
-        for ( int i = 0; i < defaultKeys.Length; i++ )
-        {
-            Keys.Add( ( GameKeyAction )i, defaultKeys[i] );
-        }
 
         CurrentNoteSkin = NoteSkins[0];
     }

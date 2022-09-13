@@ -136,7 +136,7 @@ public class InputSystem : MonoBehaviour
         }
         else
         {
-            if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
+            if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
             {
                 OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
@@ -193,7 +193,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( !curNote.IsPressed )
             {
-                if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
+                if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
                 {
                     curNote.IsPressed = true;
                     OnHitNote?.Invoke( NoteType.Slider, false );
@@ -213,7 +213,7 @@ public class InputSystem : MonoBehaviour
             }
             else
             {
-                if ( Input.GetKey( GameSetting.Inst.Keys[key] ) )
+                if ( Input.GetKey( KeySetting.Inst.Keys[key] ) )
                 {
                     if ( endDiff <= 0d )
                     {
@@ -232,7 +232,7 @@ public class InputSystem : MonoBehaviour
                     }
                 }
 
-                if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
+                if ( Input.GetKeyUp( KeySetting.Inst.Keys[key] ) )
                 {
                     OnHitNote?.Invoke( NoteType.Slider, true );
 
@@ -271,12 +271,12 @@ public class InputSystem : MonoBehaviour
 
         if ( !isAuto )
         {
-            if ( Input.GetKeyDown( GameSetting.Inst.Keys[key] ) )
+            if ( Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
             {
                 OnInputEvent?.Invoke( true );
                 SoundManager.Inst.Play( GameSetting.CurrentPitch, curSound );
             }
-            else if ( Input.GetKeyUp( GameSetting.Inst.Keys[key] ) )
+            else if ( Input.GetKeyUp( KeySetting.Inst.Keys[key] ) )
             {
                 OnInputEvent?.Invoke( false );
             }

@@ -90,7 +90,7 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
         scene.Bind( SceneAction.Main, KeyCode.Return, () => CurrentOption.Process() );
 
         scene.Bind( SceneAction.Main, KeyCode.LeftArrow, () => PrevMove() );
-
+        
         scene.Bind( SceneAction.Main, KeyCode.RightArrow, () => NextMove() );
     }
 }
