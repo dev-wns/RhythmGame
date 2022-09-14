@@ -17,7 +17,6 @@ public class Lane : MonoBehaviour
     private SpriteRenderer rdr;
     private Color color;
 
-
     private void Awake()
     {
         NoteSys  = GetComponent<NoteSystem>();
@@ -39,8 +38,7 @@ public class Lane : MonoBehaviour
     {
         // sprite renderer Enable로 활성화 시키는것보다
         // color 값 변경하는게 6배정도 빠름.
-
-        // laneEffect.enabled = _isEnable;
+        
         rdr.color       = _isEnable ? color : Color.clear;
         keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
     }

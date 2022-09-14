@@ -14,6 +14,10 @@ public class InputSystem : MonoBehaviour
 
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
     public event Action<bool> OnInputEvent;
+    private NoteType autoNoteType;
+    private double curAutoTime, prevAutoTime;
+    private double autoPressTime;
+    private float inputAutoTime;
     public event Action<NoteType, bool/*Key Up*/> OnHitNote;
 
     private GameKeyAction key;
@@ -106,11 +110,17 @@ public class InputSystem : MonoBehaviour
             yield return WaitNote;
             curNote = notes.Dequeue();
             curSound = curNote.Sound;
+
+            curAutoTime = curNote.Time;
+            double offset = curAutoTime - prevAutoTime;
+            autoPressTime = offset > .1d ? .065d : offset * .5d;
         }
     }
 
     private void SelectNextNote( bool _isDespawn = true )
     {
+        prevAutoTime = curNote.Time;
+
         if ( _isDespawn )
         {
             curNote.gameObject.SetActive( false );
@@ -128,6 +138,10 @@ public class InputSystem : MonoBehaviour
         {
             if ( startDiff <= 0d )
             {
+                autoNoteType = NoteType.Default;
+                inputAutoTime = 0f;
+                OnInputEvent?.Invoke( true );
+
                 OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
                 SoundManager.Inst.Play( curSound );
@@ -164,6 +178,10 @@ public class InputSystem : MonoBehaviour
             {
                 if ( startDiff <= 0d )
                 {
+                    autoNoteType = NoteType.Slider;
+                    inputAutoTime = 0f;
+                    OnInputEvent?.Invoke( true );
+
                     curNote.IsPressed = true;
                     OnHitNote?.Invoke( NoteType.Slider, false );
                     SoundManager.Inst.Play( curSound );
@@ -176,6 +194,9 @@ public class InputSystem : MonoBehaviour
             {
                 if ( endDiff <= 0d )
                 {
+                    inputAutoTime = 0f;
+                    OnInputEvent?.Invoke( false );
+
                     OnHitNote?.Invoke( NoteType.Slider, true );
                     judge.ResultUpdate( endDiff );
                     SelectNextNote();
@@ -193,6 +214,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( !curNote.IsPressed )
             {
+
                 if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
                 {
                     curNote.IsPressed = true;
@@ -269,7 +291,13 @@ public class InputSystem : MonoBehaviour
             }
         }
 
-        if ( !isAuto )
+        if ( isAuto )
+        {
+            inputAutoTime += Time.deltaTime;
+            if ( autoNoteType == NoteType.Default && inputAutoTime > autoPressTime )
+                 OnInputEvent?.Invoke( false );
+        }
+        else
         {
             if ( Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
             {
