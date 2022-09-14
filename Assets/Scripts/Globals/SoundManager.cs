@@ -9,7 +9,6 @@ public enum ChannelType { Master, BGM, KeySound, Sfx, Count };
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 
-
 public enum SoundSfxType 
 { 
     MainSelect, MainClick, MainHover, Slider,
@@ -28,17 +27,15 @@ public class SoundManager : SingletonUnity<SoundManager>
     }
     
     #region variables
-    private static readonly int MaxSoftwareChnnels = 128;
+    private static readonly int MaxSoftwareChannels = 128;
     private static readonly int MaxVirtualChannels = 1000;
     private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
+    private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>           dsps     = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
     private FMOD.System system;
     private FMOD.Sound bgmSound;
     private FMOD.Channel bgmChannel;
-    private FMOD.DSP Multiband;
-    private List<FMOD.DSP> pitchShifts = new List<FMOD.DSP>();
-    private bool hasPitchShiftDSP;
     private Tweener fadeTweener;
     private int curDriverIndex;
     private int totalKeySoundCount;
@@ -120,15 +117,6 @@ public class SoundManager : SingletonUnity<SoundManager>
     }
     public bool IsLoad { get; private set; } = false;
     public float volume { get; private set; }
-
-    public float Pitch
-    {
-        set
-        {
-            if ( IsPlaying( ChannelType.BGM ) )
-                 ErrorCheck( groups[ChannelType.BGM].setPitch( value ) );
-        }
-    }
     #endregion
     #endregion
 
@@ -144,7 +132,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         FMOD.SPEAKERMODE mode;
         ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
         ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
-        ErrorCheck( system.setSoftwareChannels( MaxSoftwareChnnels ) );
+        ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannels ) );
         ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
 
         // System Initialize
@@ -266,15 +254,14 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         // DSP
-        //int numPrevDSP, numCurrentDSP;
-        //ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numPrevDSP ) );
-
         OnRelease?.Invoke();
-        ClearDSP();
-        // RemoveDSP( ref Multiband );
+        AllRemoveDSP();
 
-        //ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out numCurrentDSP ) );
-        //Debug.Log( $"DSP Count : {numPrevDSP} -> {numCurrentDSP}" );
+        foreach ( var dsp in dsps.Values )
+        {
+            ErrorCheck( dsp.release() );
+            dsp.clearHandle();
+        }
 
         // ChannelGroup
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
@@ -290,6 +277,8 @@ public class SoundManager : SingletonUnity<SoundManager>
             ErrorCheck( system.release() ); // 내부에서 close 함.
             system.clearHandle();
         }
+
+        Debug.Log( "SoundManager Release" );
     }
 
     public void ReLoad()
@@ -317,6 +306,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         base.Awake();
         Initialize();
     }
+
     private void Update()
     {
         if ( !IsLoad ) 
@@ -367,7 +357,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         sfxSounds.Add( _type, sound );
     }
 
-    public void LoadKeySound( string _path, out FMOD.Sound _sound )
+    public bool LoadKeySound( string _path, out FMOD.Sound _sound )
     {
         var name = System.IO.Path.GetFileName( _path );
         if ( keySounds.ContainsKey( name ) )
@@ -386,14 +376,17 @@ public class SoundManager : SingletonUnity<SoundManager>
         {
             // throw new Exception( $"File Exists  {_path}" );
             _sound = new FMOD.Sound();
+            return false;
         }
+
+        return true;
     }
     #endregion
 
     #region Play
 
     /// <summary> Play Background Music </summary>
-    public void Play( float _pitch, bool _isPause )
+    public void Play( bool _isPause )
     {
         if ( !bgmSound.hasHandle() )
         {
@@ -401,11 +394,9 @@ public class SoundManager : SingletonUnity<SoundManager>
             return;
         }
 
-        // var pitch = GameSetting.CurrentPitch * .01f;
+        //Stop( ChannelType.BGM );
+        //ErrorCheck( groups[ChannelType.BGM].setPitch( _pitch ) );
 
-        ErrorCheck( groups[ChannelType.BGM].setPitch( _pitch ) );
-        Stop( ChannelType.BGM );
-        
         SetPaused( _isPause, ChannelType.BGM );
         ErrorCheck( system.playSound( bgmSound, groups[ChannelType.BGM], false, out bgmChannel ) );
     }
@@ -424,20 +415,18 @@ public class SoundManager : SingletonUnity<SoundManager>
     }
 
     /// <summary> Play Key Sound Effects </summary>
-    public void Play( float _pitch, in KeySound _keySound )
+    public void Play( KeySound _keySound )
     {
-        if ( !_keySound.hasSound )
-             return;
+        if ( !_keySound.hasSound ) return;
 
         if ( !_keySound.sound.hasHandle() )
         {
             Debug.LogError( $"keySound[{_keySound.name}] is not loaded." );
             return;
         }
-        //var pitch = GameSetting.CurrentPitch * .01f;
 
-        ErrorCheck( groups[ChannelType.KeySound].setPitch( _pitch ) );
-
+        //ErrorCheck( groups[ChannelType.KeySound].setPitch( _pitch ) );
+        
         FMOD.Channel channel;
         ErrorCheck( system.playSound( _keySound.sound, groups[ChannelType.KeySound], false, out channel ) );
         ErrorCheck( channel.setVolume( _keySound.volume ) );
@@ -495,6 +484,21 @@ public class SoundManager : SingletonUnity<SoundManager>
         return isPlay;
     }
 
+    public void SetPitch( float _pitch, ChannelType _type )
+    {
+        ErrorCheck( groups[_type].setPitch( _pitch ) );
+        UpdatePitchShift();
+    }
+
+    public void PitchReset()
+    {
+        foreach ( var group in groups.Values )
+        {
+            ErrorCheck( group.setPitch( 1f ) );
+            UpdatePitchShift();
+        }
+    }
+
     public void SetPaused( bool _isPause, ChannelType _type ) => ErrorCheck( groups[_type].setPaused( _isPause ) );
 
     public float GetVolume( ChannelType _type )
@@ -528,36 +532,26 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #region DSP
-    public void AddFFT( int _size, FMOD.DSP_FFT_WINDOW _type, out FMOD.DSP _dsp )
+
+    public bool GetDSP( FMOD.DSP_TYPE _type, out FMOD.DSP _dsp )
     {
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out _dsp ) );
-        ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, _size ) );
-        ErrorCheck( _dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )_type ) );
-        // 다른 DSP 또는 다른 소리와 합쳐진 FFT가 아닌 BGM만의 FFT 정보를 얻기위해 TAIL에 붙임.
-        AddDSP( _dsp, ChannelType.BGM );
-        // ErrorCheck( groups[ChannelType.BGM].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, _dsp ) );
+        if ( !dsps.ContainsKey( _type ) )
+        {
+            Debug.LogError( "DSP is not loaded." );
+            _dsp = new FMOD.DSP();
+            return false;
+        }
+
+        _dsp = dsps[_type];
+        return true;
     }
 
-    public void CreateDPS()
-    {
-        CreateLowEffectDSP();
-
-        CreatePitchShiftDSP( ChannelType.BGM );
-        CreatePitchShiftDSP( ChannelType.KeySound );
-
-        UpdatePitchShift();
-    }
-
-    public void AddDSP( FMOD.DSP _dsp, ChannelType _type )
+    public void AddDSP( in FMOD.DSP _dsp, ChannelType _type )
     {
         if ( !_dsp.hasHandle() )
             return;
 
         ErrorCheck( groups[_type].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, _dsp ) );
-        
-        int numDSP = 0;
-        groups[_type].getNumDSPs( out numDSP );
-        Debug.Log( $"Channel {_type} DSP Count : {numDSP}" );
     }
 
     public void RemoveDSP( FMOD.DSP _dsp, ChannelType _type )
@@ -566,13 +560,35 @@ public class SoundManager : SingletonUnity<SoundManager>
              return;
 
         ErrorCheck( groups[_type].removeDSP( _dsp ) );
-        
-        int numDSP = 0;
-        ErrorCheck( groups[_type].getNumDSPs( out numDSP ) );
-        Debug.Log( $"Channel {_type} DSP Count : {numDSP}" );
     }
 
-    public void DeleteDSP( FMOD.DSP _dsp )
+    public void AllRemoveDSP()
+    {
+        for ( int i = 0; i < ( int )ChannelType.Count; i++ )
+        {
+            int numDSP = 0;
+            ErrorCheck( groups[( ChannelType )i].getNumDSPs( out numDSP ) );
+            for ( int j = 1; j < numDSP; j++ )
+            {
+                FMOD.DSP dsp;
+                ErrorCheck( groups[( ChannelType )i].getDSP( j, out dsp ) );
+                ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
+            }
+        }
+    }
+
+    public void PrintDSPCount()
+    {
+        for ( int i = 0; i < ( int )ChannelType.Count; i++ )
+        {
+            int numDSP = 0;
+            ErrorCheck( groups[( ChannelType )i].getNumDSPs( out numDSP ) );
+
+            Debug.Log( $"{( ChannelType )i} DSP : {numDSP}" );
+        }
+    }
+
+    public void DeleteDSP( ref FMOD.DSP _dsp )
     {
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
         {
@@ -583,65 +599,38 @@ public class SoundManager : SingletonUnity<SoundManager>
         _dsp.clearHandle();
     }
 
-    public void ClearDSP()
+    #region DSP Create
+    public void CreateDPS()
     {
-        for ( int i = 0; i < ( int )ChannelType.Count; i++ )
-        {
-            int numDSP = 0;
-            groups[( ChannelType )i].getNumDSPs( out numDSP );
-            for ( int j = 0; j < numDSP; j++ )
-            {
-                FMOD.DSP dsp;
-                groups[( ChannelType )i].getDSP( j, out dsp );
-                groups[( ChannelType )i].removeDSP( dsp );
-            }
-        }
-
-        ErrorCheck( Multiband.release() );
-        Multiband.clearHandle();
-
-        for ( int i = 0; i < pitchShifts.Count; i++ )
-        {
-            ErrorCheck( pitchShifts[i].release() );
-            pitchShifts[i].clearHandle();
-        }
+        CreateMultiBandDSP();
+        CreatePitchShiftDSP();
+        CreateFFTWindow();
     }
 
-    public void AddPitchShift()
+    public void CreateFFTWindow()
     {
-        if ( hasPitchShiftDSP ) return;
-        hasPitchShiftDSP = true;
-        AddDSP( pitchShifts[0], ChannelType.BGM );
-        AddDSP( pitchShifts[1], ChannelType.KeySound );
+        if ( dsps.ContainsKey( FMOD.DSP_TYPE.FFT ) )
+             return;
+
+        FMOD.DSP dsp;
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp ) );
+        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
+        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
+
+        dsps.Add( FMOD.DSP_TYPE.FFT, dsp );
     }
 
-    public void RemovePitchShift()
+    private void CreatePitchShiftDSP()
     {
-        if ( !hasPitchShiftDSP ) return;
-        hasPitchShiftDSP = false;
-        RemoveDSP( pitchShifts[0], ChannelType.BGM );
-        RemoveDSP( pitchShifts[1], ChannelType.KeySound );
-    }
+        if ( dsps.ContainsKey( FMOD.DSP_TYPE.PITCHSHIFT ) )
+            return;
 
-    private void CreatePitchShiftDSP( ChannelType _type )
-    {
         FMOD.DSP dsp;
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.PITCHSHIFT, out dsp ) );
-        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.MAXCHANNELS, 2f ) );
-        //ErrorCheck( PitchShiftBGM.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.FFTSIZE, 1024f ) );
-        //AddDSP( dsp, _type );
-        pitchShifts.Add( dsp );
-    }
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.MAXCHANNELS, 0 ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.FFTSIZE, 1024 ) );
 
-    public void UpdatePitchShift()
-    {
-        float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f    / GameSetting.CurrentPitch :
-                       GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.15f / GameSetting.CurrentPitch : 1f;
-
-        for ( int i = 0; i < pitchShifts.Count; i++ )
-        {
-            ErrorCheck( pitchShifts[i].setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.PITCH, offset ) );
-        }
+        dsps.Add( FMOD.DSP_TYPE.PITCHSHIFT, dsp );
     }
 
     /// A ~ E  5 bands 
@@ -654,9 +643,14 @@ public class SoundManager : SingletonUnity<SoundManager>
     /// 4. gain( float ) Default = 0, Range = -30 ~ 30, Unit = Decibels( dB )
     ///    선택한 대역의 증폭, 감소
     ///    Boost or attenuation [high/low shelf and peaking only]
-    private void CreateLowEffectDSP()
+    private void CreateMultiBandDSP()
     {
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out Multiband ) );
+        if ( dsps.ContainsKey( FMOD.DSP_TYPE.MULTIBAND_EQ ) )
+             return;
+
+        FMOD.DSP dsp;
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out dsp ) );
+        dsps.Add( FMOD.DSP_TYPE.MULTIBAND_EQ, dsp );
 
         // multiband 구조체 정보 확인
         //int numParameters = 0;
@@ -671,57 +665,45 @@ public class SoundManager : SingletonUnity<SoundManager>
         //    Debug.Log( $"Desc[{i}] Type        : { descs[i].type }" );
         //}
 
-        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.A_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
-        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.B_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
-        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.C_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
-        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.D_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
-        ErrorCheck( Multiband.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.E_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
+        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.A_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
+        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.B_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
+        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.C_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
+        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.D_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
+        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.E_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWPASS_12DB ) );
 
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_FREQUENCY, 320f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_FREQUENCY, 5000f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_FREQUENCY, 6000f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_FREQUENCY, 7000f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_FREQUENCY, 8000f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_FREQUENCY, 320f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_FREQUENCY, 5000f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_FREQUENCY, 6000f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_FREQUENCY, 7000f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_FREQUENCY, 8000f ) );
 
-        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_Q, .1f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_Q, .11f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_Q, .11f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_Q, .11f ) );
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_Q, .11f ) );
+        //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_Q, .1f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_Q, .11f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_Q, .11f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_Q, .11f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_Q, .11f ) );
                     
-        ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_GAIN, 10f ) );
-        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_GAIN, 4f ) );
-        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_GAIN, 4f ) );
-        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_GAIN, 4f ) );
-        //ErrorCheck( Multiband.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_GAIN, 4f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_GAIN, 10f ) );
+        //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_GAIN, 4f ) );
+        //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_GAIN, 4f ) );
+        //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_GAIN, 4f ) );
+        //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_GAIN, 4f ) );
     }
-
-    public void UseLowEqualizer( bool _isUse )
+    #endregion
+    
+    #region DSP Update
+    public void UpdatePitchShift()
     {
-        var bgmGroup = groups[ChannelType.BGM];
-        int numDsp;
-        ErrorCheck( bgmGroup.getNumDSPs( out numDsp ) );
-        for ( int i = 0; i < numDsp; i++ )
-        {
-            FMOD.DSP dsp;
-            ErrorCheck( bgmGroup.getDSP( i, out dsp ) );
+        if ( !dsps.ContainsKey( FMOD.DSP_TYPE.PITCHSHIFT ) )
+            return;
 
-            bool isEquals = Equals( dsp, Multiband );
-            if ( isEquals && _isUse == true ) // 이미 적용된 상태
-            {
-                return;
-            }
-            else if ( isEquals && _isUse == false )
-            {
-                ErrorCheck( bgmGroup.removeDSP( Multiband ) );
-                return;
-            }
-        }
+        float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f    / GameSetting.CurrentPitch :
+                       GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.15f / GameSetting.CurrentPitch : 1f;
 
-        // 적용된 dsp가 없어서 추가함.
-        if ( _isUse == true )
-             ErrorCheck( bgmGroup.addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, Multiband ) );
+        ErrorCheck( dsps[FMOD.DSP_TYPE.PITCHSHIFT].setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.PITCH, offset ) );
     }
+    #endregion
+
     #endregion
 
     private bool ErrorCheck( FMOD.RESULT _res )

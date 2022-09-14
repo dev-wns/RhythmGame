@@ -150,8 +150,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         {
             isStart = false;
 
+            //SoundManager.Inst.SetPaused( true, ChannelType.BGM );
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
-            SoundManager.Inst.SetPaused( true, ChannelType.BGM );
             OnPause?.Invoke( true );
             saveTime = Playback >= 0d ? waitTime + Playback : 0d;
         }
@@ -179,7 +179,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         isStart = true;
 
         yield return new WaitUntil( () => Playback >= saveTime - waitTime );
-        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+        //SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
         OnPause?.Invoke( false );
 
@@ -189,12 +189,12 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator MusicStart()
     {
-        if ( !curSong.isOnlyKeySound )
-        {
-            SoundManager.Inst.LoadBgm( curSong.audioPath, false, false, false );
-            SoundManager.Inst.Play( GameSetting.CurrentPitch, true );
-            SoundManager.Inst.Position = 0;
-        }
+        //if ( !curSong.isOnlyKeySound )
+        //{
+        //    SoundManager.Inst.LoadBgm( curSong.audioPath, false, false, false );
+        //    SoundManager.Inst.Play( GameSetting.CurrentPitch, true );
+        //    SoundManager.Inst.Position = 0;
+        //}
 
         startTime = Globals.Timer.CurrentTime;
         saveTime = waitTime;
@@ -204,8 +204,10 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         OnStart?.Invoke();
 
-        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+        //SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
+
+        SoundManager.Inst.PrintDSPCount();
     }
 
     /// <returns> Time including BPM. </returns>

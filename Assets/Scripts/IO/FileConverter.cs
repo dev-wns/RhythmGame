@@ -111,7 +111,7 @@ public struct KeySound
     public double time;
     public FMOD.Sound sound;
     public bool hasSound;
-  
+
     public KeySound( double _time, string _name, float _volume )
     {
         time = _time;

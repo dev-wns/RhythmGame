@@ -18,9 +18,8 @@ public class SoundPitchOption : OptionSlider
     public override void Process()
     {
         GameSetting.CurrentPitch = ( int )curValue;
-        SoundManager.Inst.Pitch = GameSetting.CurrentPitch;
+        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
 
-        SoundManager.Inst.UpdatePitchShift();
         OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
     }
 }

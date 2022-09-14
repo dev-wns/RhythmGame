@@ -52,13 +52,12 @@ public enum GameKeyAction : int
 public class GameSetting : SingletonUnity<GameSetting>
 {
     // Mode
-    public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All;
+    public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All &~ GameVisualFlag.ShowGearKey;
     public static GameMode       CurrentGameMode      = GameMode.AutoPlay | GameMode.NoFail;
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;
 
-    // ¹éºÐÀ²
     private static float pitch = 100;
     public static float CurrentPitch { get { return pitch * .01f; } set { pitch = value; } }
         

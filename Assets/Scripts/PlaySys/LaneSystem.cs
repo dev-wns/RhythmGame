@@ -25,6 +25,15 @@ public class LaneSystem : MonoBehaviour
 
     private void Initialize( in Chart _chart )
     {
+        if ( !NowPlaying.Inst.CurrentSong.isOnlyKeySound )
+        {
+            KeySound bgm = new KeySound( 0d, "BGM", 1f );
+            if ( SoundManager.Inst.LoadKeySound( NowPlaying.Inst.CurrentSong.audioPath, out bgm.sound ) )
+                bgm.hasSound = true;
+
+            keySampleSystem.AddSample( bgm );
+        }
+
         var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
         for ( int i = 0; i < _chart.samples.Count; i++ )
         {

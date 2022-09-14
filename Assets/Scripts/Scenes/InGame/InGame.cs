@@ -23,8 +23,12 @@ public class InGame : Scene
     {
         base.Awake();
 
-        SoundManager.Inst.AddPitchShift();
         NowPlaying.Inst.ParseChart();
+
+        FMOD.DSP pitchShift;
+        SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.PITCHSHIFT, out pitchShift );
+        SoundManager.Inst.AddDSP( in pitchShift, ChannelType.KeySound );
+        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.KeySound );
     }
 
     protected async override void Start()

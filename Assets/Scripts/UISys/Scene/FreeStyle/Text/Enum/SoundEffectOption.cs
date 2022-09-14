@@ -26,19 +26,6 @@ public class SoundEffectOption : OptionText
     public override void Process()
     {
         GameSetting.CurrentPitchType = ( PitchType )curIndex;
-        
-        switch ( GameSetting.CurrentPitchType )
-        {
-            case PitchType.None:
-            // dsp Á¦°Å
-            SoundManager.Inst.RemovePitchShift();
-            break;
-
-            case PitchType.Normalize:
-            case PitchType.Nightcore:
-            SoundManager.Inst.AddPitchShift();
-            SoundManager.Inst.UpdatePitchShift();
-            break;
-        }
+        SoundManager.Inst.UpdatePitchShift();
     }
 }

@@ -72,6 +72,5 @@ public class NoteSystem : MonoBehaviour
         }
 
         yield return new WaitUntil( () => NowPlaying.Playback >= curNote.time );
-        Debug.Log( $"{NowPlaying.Playback}" );
     }
 }

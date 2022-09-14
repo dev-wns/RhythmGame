@@ -54,7 +54,7 @@ public class KeySampleSystem : MonoBehaviour
             {
                 if ( curTime == samples[curIndex].time )
                 {
-                    SoundManager.Inst.Play( GameSetting.CurrentPitch, samples[curIndex++] );
+                    SoundManager.Inst.Play( samples[curIndex++] );
                 }
                 else
                 {

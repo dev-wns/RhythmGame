@@ -16,7 +16,6 @@ public class Lobby : Scene
         SoundManager.Inst.OnReLoad += SoundReStart;
         SoundReStart();
         
-        SoundManager.Inst.RemovePitchShift();
         StartCoroutine( LoadingEndCheck() );
         isStart = true;
     }
@@ -34,7 +33,7 @@ public class Lobby : Scene
     private void SoundReStart()
     {
         SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
-        SoundManager.Inst.Play( 1f, true );
+        SoundManager.Inst.Play( true );
         SoundManager.Inst.Position = ( uint )playback;
         soundLength = SoundManager.Inst.Length;
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
