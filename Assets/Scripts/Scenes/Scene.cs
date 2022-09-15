@@ -125,7 +125,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         transform.localScale = Vector3.one;
     }
 
-    private IEnumerator FadeIn()
+    protected IEnumerator FadeIn()
     {
         blackSprite.color = Color.black;
         blackSprite.enabled = true;
@@ -134,7 +134,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         blackSprite.enabled = false;
     }
 
-    private IEnumerator FadeOut()
+    protected IEnumerator FadeOut()
     {
         blackSprite.color = Color.clear;
         blackSprite.enabled = true;

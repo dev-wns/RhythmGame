@@ -150,7 +150,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         {
             isStart = false;
 
-            //SoundManager.Inst.SetPaused( true, ChannelType.BGM );
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
             OnPause?.Invoke( true );
             saveTime = Playback >= 0d ? waitTime + Playback : 0d;
@@ -179,7 +178,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         isStart = true;
 
         yield return new WaitUntil( () => Playback >= saveTime - waitTime );
-        //SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
         OnPause?.Invoke( false );
 
@@ -204,7 +202,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         OnStart?.Invoke();
 
-        //SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
 
         SoundManager.Inst.PrintDSPCount();
