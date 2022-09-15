@@ -78,6 +78,7 @@ public class InputSystem : MonoBehaviour
         if ( !_isPause || curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
              return;
 
+        OnInputEvent?.Invoke( false );
         if ( isAuto )
         {
             OnHitNote?.Invoke( NoteType.Default, false );
