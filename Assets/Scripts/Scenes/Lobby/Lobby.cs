@@ -20,6 +20,11 @@ public class Lobby : Scene
         isStart = true;
     }
 
+    private void OnDestroy()
+    {
+        SoundManager.Inst.OnReLoad -= SoundReStart;
+    }
+
     private IEnumerator LoadingEndCheck()
     {
         if ( !NowPlaying.Inst.IsParseSongs )

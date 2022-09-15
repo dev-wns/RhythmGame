@@ -28,8 +28,11 @@ public abstract class OptionText : OptionBindArrowScroll, IOptionReturn
 
     public void Return()
     {
-        SoundManager.Inst.Play( SoundSfxType.MenuClick );
-        if ( isReturnProcess ) Process();
+        if ( isReturnProcess )
+        {
+            SoundManager.Inst.Play( SoundSfxType.MenuClick );
+            Process();
+        }
     }
 
     public override void KeyBind()

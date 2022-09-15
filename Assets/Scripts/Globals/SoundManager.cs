@@ -32,7 +32,7 @@ public class SoundManager : SingletonUnity<SoundManager>
     private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
-    private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>           dsps     = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
+    private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>          dsps      = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
     private FMOD.System system;
     private FMOD.Sound bgmSound;
     private FMOD.Channel bgmChannel;
@@ -262,6 +262,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             ErrorCheck( dsp.release() );
             dsp.clearHandle();
         }
+        dsps.Clear();
 
         // ChannelGroup
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )

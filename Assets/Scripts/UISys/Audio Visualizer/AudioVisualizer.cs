@@ -9,6 +9,17 @@ public class AudioVisualizer : MonoBehaviour
 
     private void Awake()
     {
+        DSPLoad();
+        SoundManager.Inst.OnReLoad += DSPLoad;
+    }
+
+    private void OnDestroy()
+    {
+        SoundManager.Inst.OnReLoad -= DSPLoad;
+    }
+
+    private void DSPLoad()
+    {
         SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fftWindowDSP );
         SoundManager.Inst.AddDSP( in fftWindowDSP, ChannelType.BGM );
     }
