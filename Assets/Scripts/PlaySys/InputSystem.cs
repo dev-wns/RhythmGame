@@ -75,21 +75,26 @@ public class InputSystem : MonoBehaviour
     /// </summary>
     private void Pause( bool _isPause )
     {
+        isReady = !_isPause;
+        OnInputEvent?.Invoke( false );
+
         if ( !_isPause || curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
              return;
 
-        OnInputEvent?.Invoke( false );
         if ( isAuto )
         {
-            OnHitNote?.Invoke( NoteType.Default, false );
+            OnHitNote?.Invoke( NoteType.Slider, false );
             judge.ResultUpdate( HitResult.Perfect );
             SelectNextNote();
         }
         else
         {
-            OnHitNote?.Invoke( NoteType.Default, false );
-            judge.ResultUpdate( curNote.SliderTime - NowPlaying.Playback );
-            SelectNextNote();
+            OnHitNote?.Invoke( NoteType.Slider, false );
+            curNote.IsPressed = false;
+            curNote.SetBodyFail();
+            judge.ResultUpdate( HitResult.Miss );
+            sliderMissQueue.Enqueue( curNote );
+            SelectNextNote( false );
         }
     }
 
