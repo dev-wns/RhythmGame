@@ -33,7 +33,6 @@ public class ResultInfomation : MonoBehaviour
     public Sprite defaultOrigin;
     public Image originBg;
     private Sprite spriteBg;
-    private Texture2D tex;
 
     private readonly float duration = .5f;
     private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = _value.ToString();
@@ -117,11 +116,6 @@ public class ResultInfomation : MonoBehaviour
         Destroy( judge );
     }
 
-    private void OnDestroy()
-    {
-        if ( tex ) DestroyImmediate( tex );
-    }
-
     private IEnumerator LoadBackground( string _path )
     {
         if ( !System.IO.File.Exists( _path ) )
@@ -154,7 +148,7 @@ public class ResultInfomation : MonoBehaviour
                          www.result == UnityWebRequest.Result.ProtocolError )
                     {
                         Debug.LogError( $"UnityWebRequest Error : {www.error}" );
-                        throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
+                        throw new Exception( $"UnityWebRequest Error : {www.error}" );
                     }
 
                     tex = handler.texture;

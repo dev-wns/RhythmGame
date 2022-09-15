@@ -9,12 +9,12 @@ public class NoteSkinOption : OptionText
 
     private void OnEnable()
     {
-        curIndex = ( int )GameSetting.CurrentNoteSkin.type;
+        curIndex = ( int )SkinManager.CurrentNoteSkin.type;
         ChangeText( texts[curIndex] );
 
-        left.sprite   = GameSetting.CurrentNoteSkin.left.normal;
-        center.sprite = GameSetting.CurrentNoteSkin.center.normal;
-        right.sprite  = GameSetting.CurrentNoteSkin.right.normal;
+        left.sprite   = SkinManager.CurrentNoteSkin.left.normal;
+        center.sprite = SkinManager.CurrentNoteSkin.center.normal;
+        right.sprite  = SkinManager.CurrentNoteSkin.right.normal;
     }
 
     protected override void CreateObject()
@@ -27,9 +27,9 @@ public class NoteSkinOption : OptionText
 
     public override void Process()
     {
-        GameSetting.CurrentNoteSkin = GameSetting.Inst.NoteSkins[curIndex];
-        left.sprite   = GameSetting.CurrentNoteSkin.left.normal;
-        center.sprite = GameSetting.CurrentNoteSkin.center.normal;
-        right.sprite  = GameSetting.CurrentNoteSkin.right.normal;
+        SkinManager.CurrentNoteSkin = SkinManager.Inst.NoteSkins[curIndex];
+        left.sprite   = SkinManager.CurrentNoteSkin.left.normal;
+        center.sprite = SkinManager.CurrentNoteSkin.center.normal;
+        right.sprite  = SkinManager.CurrentNoteSkin.right.normal;
     }
 }

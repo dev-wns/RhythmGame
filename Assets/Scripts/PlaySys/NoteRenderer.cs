@@ -62,16 +62,16 @@ public class NoteRenderer : MonoBehaviour
                 if ( _isSlider )
                 {
                     body.enabled = tail.enabled = true;
-                    head.sprite = GameSetting.CurrentNoteSkin.left.head;
+                    head.sprite = SkinManager.CurrentNoteSkin.left.head;
                 }
                 else
                 {
                     body.enabled = tail.enabled = false;
-                    head.sprite = GameSetting.CurrentNoteSkin.left.normal;
+                    head.sprite = SkinManager.CurrentNoteSkin.left.normal;
                 }
 
-                body.sprite = GameSetting.CurrentNoteSkin.left.body;
-                tail.sprite = GameSetting.CurrentNoteSkin.left.tail;
+                body.sprite = SkinManager.CurrentNoteSkin.left.body;
+                tail.sprite = SkinManager.CurrentNoteSkin.left.tail;
             break;
 
             case 1:
@@ -79,15 +79,15 @@ public class NoteRenderer : MonoBehaviour
                 if ( _isSlider )
                 {
                     body.enabled = tail.enabled = true;
-                    head.sprite = GameSetting.CurrentNoteSkin.right.head;
+                    head.sprite = SkinManager.CurrentNoteSkin.right.head;
                 }
                 else
                 {
                     body.enabled = tail.enabled = false;
-                    head.sprite = GameSetting.CurrentNoteSkin.right.normal;
+                    head.sprite = SkinManager.CurrentNoteSkin.right.normal;
                 }
-                body.sprite = GameSetting.CurrentNoteSkin.right.body;
-                tail.sprite = GameSetting.CurrentNoteSkin.right.tail;
+                body.sprite = SkinManager.CurrentNoteSkin.right.body;
+                tail.sprite = SkinManager.CurrentNoteSkin.right.tail;
             break;
         }
     }

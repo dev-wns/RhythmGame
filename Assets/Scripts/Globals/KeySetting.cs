@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameKeyAction : int
+{
+    _0, _1, _2, _3, _4, _5, Count // InGame Input Keys
+};
+
 public class KeySetting : SingletonUnity<KeySetting>
 {
     public Dictionary<KeyCode, string/*keyCode to string*/> AvailableKeys = new Dictionary<KeyCode, string>();

@@ -7,8 +7,6 @@ public enum BooleanOption { Off, On, Count }
 
 public enum Alignment { Left, Center, Right, Count, }
 
-public enum NoteSkinType { Default, Aqua, Count, }
-
 public enum PitchType { None, Normalize, Nightcore, Count, }
 
 public enum GameRandom
@@ -43,11 +41,6 @@ public enum GameVisualFlag
 
     All         = int.MaxValue,
 }
-
-public enum GameKeyAction : int
-{
-    _0, _1, _2, _3, _4, _5, Count // InGame Input Keys
-};
 
 public class GameSetting : SingletonUnity<GameSetting>
 {
@@ -109,7 +102,7 @@ public class GameSetting : SingletonUnity<GameSetting>
         set => JudgementPosition = value;
     }
     private static float JudgementPosition = 0f;
-    public static float JudgeHeight = 50f;
+    public  static float JudgeHeight = 50f;
 
     // note
     public static float NoteWidth  = 65f; // 83f; // 75f
@@ -120,27 +113,4 @@ public class GameSetting : SingletonUnity<GameSetting>
     // Gear
     public static float GearStartPos => ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f );
     public static float GearWidth    => ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) );
-
-    [Serializable]
-    public struct NoteSkin
-    {
-        public NoteSkinType type;
-        public NoteSkinParts left, center, right;
-    }
-    [Serializable]
-    public struct NoteSkinParts
-    {
-        public Sprite normal, head, body, tail;
-    }
-
-    [SerializeField]
-    public List<NoteSkin> NoteSkins = new List<NoteSkin>();
-    public static NoteSkin CurrentNoteSkin;
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        CurrentNoteSkin = NoteSkins[0];
-    }
 }

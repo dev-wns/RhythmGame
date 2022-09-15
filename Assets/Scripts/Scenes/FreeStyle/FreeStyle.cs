@@ -32,7 +32,7 @@ public class FreeStyle : Scene
         //SoundManager.Inst.UseLowEqualizer( true );
         ChangeAction( SceneAction.Option );
         SoundManager.Inst.Play( SoundSfxType.MenuClick );
-        SoundManager.Inst.FadeOut( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .4f, .5f );
+        SoundManager.Inst.FadeOut( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .5f, .5f );
     }
 
     public override void KeyBind()

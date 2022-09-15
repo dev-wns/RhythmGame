@@ -14042,7 +14042,7 @@ GameObject:
   - component: {fileID: 1297513431}
   - component: {fileID: 1297513430}
   m_Layer: 0
-  m_Name: GameSetting
+  m_Name: SkinManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14057,7 +14057,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1297513429}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 098641ebf23a7c9439397b0d86d48197, type: 3}
+  m_Script: {fileID: 11500000, guid: 05ceffaf0a1f0154998cb5c6322dbad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   NoteSkins:
