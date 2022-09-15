@@ -1,11 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
+using TMPro;
 
 public class RandomOption : OptionText
 {
-    public TMPro.TextMeshProUGUI settingText;
+    public TextMeshProUGUI previewText;
 
     private void OnEnable()
     {
@@ -28,6 +30,6 @@ public class RandomOption : OptionText
     public override void Process()
     {
         GameSetting.CurrentRandom = ( GameRandom )curIndex;
-        settingText.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
+        previewText.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
     }
 }

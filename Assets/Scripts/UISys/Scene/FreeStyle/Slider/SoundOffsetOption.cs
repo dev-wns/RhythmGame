@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class SoundOffsetOption : OptionSlider
 {
-    public TMPro.TextMeshProUGUI settingText;
-
     protected override void Awake()
     {
         base.Awake();
@@ -17,6 +15,5 @@ public class SoundOffsetOption : OptionSlider
     public override void Process()
     {
         GameSetting.SoundOffset = ( int )curValue;
-        settingText.text = $"{Globals.Round( GameSetting.SoundOffset )}";
     }
 }

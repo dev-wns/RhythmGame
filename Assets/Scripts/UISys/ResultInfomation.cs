@@ -28,9 +28,7 @@ public class ResultInfomation : MonoBehaviour
 
     [Header( "Background" )]
     public Sprite defaultOrigin;
-    public Sprite defaultCircle;
     public Image originBg;
-    public Image circleBg;
     private Sprite spriteBg;
     private Texture2D tex;
 
@@ -83,10 +81,7 @@ public class ResultInfomation : MonoBehaviour
         if ( !System.IO.File.Exists( _path ) )
         {
             originBg.sprite = defaultOrigin;
-            circleBg.sprite = defaultCircle;
-
             originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultOrigin.texture, new Vector2( Screen.width, Screen.height ) );
-            circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( defaultCircle.texture, new Vector2( 500f, 500f ) );
             yield break;
         }
 
@@ -123,9 +118,6 @@ public class ResultInfomation : MonoBehaviour
         }
 
         originBg.sprite = spriteBg;
-        circleBg.sprite = spriteBg;
-
         originBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( Screen.width, Screen.height ) );
-        circleBg.rectTransform.sizeDelta = Globals.GetScreenRatio( spriteBg.texture, new Vector2( 500f, 500f ) );
     }
 }

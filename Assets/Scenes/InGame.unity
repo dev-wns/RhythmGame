@@ -835,8 +835,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69b3c421d7642cd4c87da0e39d5116c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: {fileID: 384445396}
-  offset: {fileID: 326197522}
+  scrollSpeed: {fileID: 384445396}
+  pitch: {fileID: 326197522}
   random: {fileID: 1262261327}
   auto: {fileID: 1833904195}
   noSlider: {fileID: 304256655}
@@ -6247,7 +6247,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Offset
+  m_text: Pitch
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,
@@ -16006,7 +16006,7 @@ GameObject:
   - component: {fileID: 1811236363}
   - component: {fileID: 1811236365}
   m_Layer: 5
-  m_Name: Offset
+  m_Name: Pitch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

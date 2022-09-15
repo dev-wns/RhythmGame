@@ -5,7 +5,7 @@ using TMPro;
 
 public class SettingInfomation : MonoBehaviour
 {
-    public TextMeshProUGUI speed, offset, random, auto, noSlider, noFail;
+    public TextMeshProUGUI scrollSpeed, pitch, random, auto, noSlider, noFail;
 
     private void Awake()
     {
@@ -14,7 +14,7 @@ public class SettingInfomation : MonoBehaviour
         {
             InGame game;
             if ( scene.TryGetComponent( out game ) ) 
-                 game.OnScrollChanged += () => speed.text = $"{GameSetting.ScrollSpeed:F1}";
+                 game.OnScrollChanged += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
         }
 
         UpdateInfomation();
@@ -22,9 +22,11 @@ public class SettingInfomation : MonoBehaviour
 
     public void UpdateInfomation()
     {
-        speed.text  = $"{GameSetting.ScrollSpeed:F1}";
-        offset.text = $"{Globals.Round( GameSetting.SoundOffset )}";
-        random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
+        scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
+        random.text      = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
+        pitch.text       = $"x{GameSetting.CurrentPitch:F1}";
+        pitch.color      = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
+                           GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         string temp = ( GameSetting.CurrentGameMode & GameMode.AutoPlay ) != 0 ? "On" : "Off";
         auto.text   = $"{temp}";

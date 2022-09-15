@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class SoundPitchOption : OptionSlider
 {
     public event Action<float/* Pitch */> OnPitchUpdate;
+    public TextMeshProUGUI previewText;
 
     protected override void Awake()
     {
@@ -21,5 +23,8 @@ public class SoundPitchOption : OptionSlider
         SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
 
         OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
+        previewText.text  = $"x{GameSetting.CurrentPitch:F1}";
+        previewText.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
+                            GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
     }
 }

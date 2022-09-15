@@ -3738,6 +3738,7 @@ MonoBehaviour:
   curValue: 100
   prePos: 
   postPos: '%'
+  previewText: {fileID: 1632190984}
 --- !u!222 &285005635
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4611,7 +4612,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 782506834}
   isReturnProcess: 0
-  settingText: {fileID: 129563645}
+  previewText: {fileID: 129563645}
 --- !u!1 &340003580
 GameObject:
   m_ObjectHideFlags: 0
@@ -5928,7 +5929,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Offset
+  m_text: Pitch
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,
@@ -8392,7 +8393,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Note Speed
+  m_text: Scroll Speed
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,
@@ -10426,7 +10427,7 @@ GameObject:
   - component: {fileID: 879483727}
   - component: {fileID: 879483726}
   m_Layer: 5
-  m_Name: Offset
+  m_Name: Pitch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11314,7 +11315,6 @@ MonoBehaviour:
   curValue: 0
   prePos: 
   postPos: ' ms'
-  settingText: {fileID: 1632190984}
 --- !u!114 &1024090417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16015,8 +16015,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69b3c421d7642cd4c87da0e39d5116c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: {fileID: 308743033}
-  offset: {fileID: 1632190984}
+  scrollSpeed: {fileID: 308743033}
+  pitch: {fileID: 1632190984}
   random: {fileID: 129563645}
   auto: {fileID: 517101140}
   noSlider: {fileID: 152997966}
@@ -16684,7 +16684,7 @@ GameObject:
   - component: {fileID: 1560950358}
   - component: {fileID: 1560950357}
   m_Layer: 5
-  m_Name: Speed
+  m_Name: Scroll Speed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
