@@ -421,7 +421,7 @@ public class SoundManager : SingletonUnity<SoundManager>
 
         if ( !_keySound.sound.hasHandle() )
         {
-            Debug.LogError( $"keySound[{_keySound.name}] is not loaded." );
+            Debug.LogWarning( $"keySound[{_keySound.name}] is not loaded." );
             return;
         }
 
