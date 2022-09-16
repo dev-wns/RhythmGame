@@ -52,12 +52,11 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     public event Action       OnResult;
     public event Action       OnStart;
     public event Action<bool> OnPause;
-    private bool isStart;
 
+    public bool IsStart { get; private set; }
+    public bool IsParseSongs { get; private set; } = false;
     public bool IsLoadKeySounds { get; set; }  = false;
     public bool IsLoadBackground { get; set; } = false;
-    public bool IsParseSongs { get; private set; } = false;
-    private double bpm;
 
     protected override async void Awake()
     {
@@ -93,8 +92,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private void Update()
     {
-        if ( !isStart )
-             return;
+        if ( !IsStart ) return;
 
         prevPlayback = Playback;
         Playback = saveTime + ( Globals.Timer.CurrentTime - startTime );
@@ -115,9 +113,9 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         Playback = waitTime;
         saveTime = 0d;
         PlaybackChanged = 0d;
-        isStart = false;
-
-        IsLoadKeySounds = false;
+        
+        IsStart          = false;
+        IsLoadKeySounds  = false;
         IsLoadBackground = false;
     }
 
@@ -148,7 +146,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         if ( _isPause )
         {
-            isStart = false;
+            IsStart = false;
 
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
             OnPause?.Invoke( true );
@@ -175,7 +173,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         startTime = Globals.Timer.CurrentTime;
 
-        isStart = true;
+        IsStart = true;
 
         yield return new WaitUntil( () => Playback >= saveTime - waitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
@@ -196,7 +194,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
         startTime = Globals.Timer.CurrentTime;
         saveTime = waitTime;
-        isStart = true;
+        IsStart = true;
 
         yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d ); ;
 
@@ -216,7 +214,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         for ( int i = 0; i < timings.Count; i++ )
         {
             double time = timings[i].time;
-            bpm = timings[i].bpm;
+            double bpm  = timings[i].bpm;
 
             if ( time > _time ) break;
             newTime += ( bpm - prevBpm ) * ( _time - time );

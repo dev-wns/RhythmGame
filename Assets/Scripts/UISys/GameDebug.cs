@@ -40,13 +40,22 @@ public class GameDebug : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnKeySoundLoadEnd += () => keySoundCount.text = $"{SoundManager.Inst.KeySoundCount} ( {SoundManager.Inst.TotalKeySoundCount} )";
         StartCoroutine( CalcFrameRate() );
+        StartCoroutine( UpdateKeySoundCount() );
     }
 
     private void Update()
     {
         deltaTime += ( Time.unscaledDeltaTime - deltaTime ) * .1f;
+    }
+
+    private IEnumerator UpdateKeySoundCount()
+    {
+        while ( !NowPlaying.Inst.IsStart )
+        {
+            keySoundCount.text = $"{SoundManager.Inst.KeySoundCount} ( {SoundManager.Inst.TotalKeySoundCount} )";
+            yield return YieldCache.WaitForEndOfFrame;
+        }
     }
 
     private IEnumerator CalcFrameRate()

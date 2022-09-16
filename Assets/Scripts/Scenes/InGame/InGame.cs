@@ -12,7 +12,6 @@ public class InGame : Scene
     public event DelSystemInitialize OnSystemInitialize;
     public event DelSystemInitialize OnSystemInitializeThread;
 
-    public event Action OnKeySoundLoadEnd;
     public event Action OnGameStart;
     public event Action OnReLoad;
     public event Action OnLoadEnd;
@@ -50,10 +49,7 @@ public class InGame : Scene
 
     private IEnumerator Play()
     {
-        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadKeySounds );
-        OnKeySoundLoadEnd?.Invoke();
-
-        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadBackground );
+        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadKeySounds && NowPlaying.Inst.IsLoadBackground );
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         OnLoadEnd?.Invoke();

@@ -341,7 +341,6 @@ public class BGASystem : MonoBehaviour
 
         textures.Add( _sample.name, tex );
         gameDebug?.SetBackgroundType( type, textures.Count );
-        
 
         switch ( _sample.type )
         {

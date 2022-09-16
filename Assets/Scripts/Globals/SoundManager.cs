@@ -45,7 +45,6 @@ public class SoundManager : SingletonUnity<SoundManager>
 
     #region Properties
     public ReadOnlyCollection<SoundDriver> SoundDrivers { get; private set; }
-    public int KeySoundCount => keySounds.Count;
     public int CurrentDriverIndex 
     {
         get => curDriverIndex;
@@ -64,6 +63,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             curDriverIndex = value;
         }
     }
+    public int KeySoundCount => keySounds.Count;
     public int TotalKeySoundCount => totalKeySoundCount;
     public uint Position
     {
