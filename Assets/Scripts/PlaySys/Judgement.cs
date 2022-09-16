@@ -8,10 +8,10 @@ public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate,
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect      = .0287d; // .0421d;
-    public const double Great        = .0264d + Perfect; //.064d;
-    public const double Good         = .0229d + Great; //.097d;
-    public const double Bad          = .0181d + Good; //.127d;
+    public const double Perfect      = .022d; // .0421d;
+    public const double Great        = .041d + Perfect; //.064d;
+    public const double Good         = .015d + Great; //.097d;
+    public const double Bad          = .013d + Good; //.127d;
 
     public event Action<HitResult> OnJudge;
 

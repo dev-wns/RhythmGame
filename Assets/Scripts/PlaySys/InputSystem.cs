@@ -83,15 +83,16 @@ public class InputSystem : MonoBehaviour
 
         if ( isAuto )
         {
-            OnHitNote?.Invoke( NoteType.Slider, false );
+            curNote.IsPressed = false;
+            OnHitNote?.Invoke( NoteType.Slider, true );
             judge.ResultUpdate( HitResult.Perfect );
             SelectNextNote();
         }
         else
         {
-            OnHitNote?.Invoke( NoteType.Slider, false );
             curNote.IsPressed = false;
             curNote.SetBodyFail();
+            OnHitNote?.Invoke( NoteType.Slider, true );
             judge.ResultUpdate( HitResult.Miss );
             sliderMissQueue.Enqueue( curNote );
             SelectNextNote( false );

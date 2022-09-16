@@ -252,7 +252,24 @@ public class BGASystem : MonoBehaviour
         var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
         for ( int i = 0; i < _samples.Count; i++ )
         {
-            yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
+            if ( textures.ContainsKey( _samples[i].name ) )
+            {
+                Texture2D tex;
+                tex = textures[_samples[i].name];
+                switch ( _samples[i].type )
+                {
+                    case SpriteType.Background:
+                    backgrounds.Add( new SpriteBGA( _samples[i], tex ) );
+                    break;
+
+                    case SpriteType.Foreground:
+                    foregrounds.Add( new SpriteBGA( _samples[i], tex ) );
+                    break;
+                }
+
+                gameDebug?.SetSpriteCount( backgrounds.Count, foregrounds.Count );
+            }
+            else  yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
         }
 
         backgrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
@@ -269,65 +286,62 @@ public class BGASystem : MonoBehaviour
             else                            return 0;
         } );
 
+        yield return YieldCache.WaitForEndOfFrame;
+
         NowPlaying.Inst.IsLoadBackground = true;
     }
 
     public IEnumerator LoadSample( string _dir, SpriteSample _sample )
     {
         Texture2D tex;
-        if ( textures.ContainsKey( _sample.name ) )
+
+        var path = @System.IO.Path.Combine( _dir, _sample.name );
+        if ( !System.IO.File.Exists( path ) ) 
+             yield break;
+        
+        var ext = System.IO.Path.GetExtension( path );
+        if ( ext.Contains( ".bmp" ) )
         {
-            tex = textures[_sample.name];
+            BMPLoader loader = new BMPLoader();
+            BMPImage img = loader.LoadBMP( path );
+            tex = img.ToTexture2D( TextureFormat.RGB24 );
         }
         else
         {
-            var path = @System.IO.Path.Combine( _dir, _sample.name );
-            if ( !System.IO.File.Exists( path ) ) 
-                 yield break;
-            
-            var ext = System.IO.Path.GetExtension( path );
-            if ( ext.Contains( ".bmp" ) )
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path ) )
             {
-                BMPLoader loader = new BMPLoader();
-                BMPImage img = loader.LoadBMP( path );
-                tex = img.ToTexture2D( TextureFormat.RGB24 );
-            }
-            else
-            {
-                using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path ) )
+                www.method = UnityWebRequest.kHttpVerbGET;
+                using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
                 {
-                    www.method = UnityWebRequest.kHttpVerbGET;
-                    using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
+                    www.downloadHandler = handler;
+                    yield return www.SendWebRequest();
+
+                    if ( www.result == UnityWebRequest.Result.ConnectionError ||
+                         www.result == UnityWebRequest.Result.ProtocolError )
                     {
-                        www.downloadHandler = handler;
-                        yield return www.SendWebRequest();
-
-                        if ( www.result == UnityWebRequest.Result.ConnectionError ||
-                             www.result == UnityWebRequest.Result.ProtocolError )
-                        {
-                            Debug.LogError( $"UnityWebRequest Error : {www.error}" );
-                            throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
-                        }
-
-                        // 이미지 배경 알파값이 빠져있거나 검정색인 2가지 경우가 있다.
-                        // 쉐이더 블렌드 옵션을 사용하기위해 배경을 검은색으로 통일한다.
-                        //tex = new Texture2D( handler.texture.width, handler.texture.height, TextureFormat.RGB24, false );
-                        //if ( !tex.LoadImage( handler.data ) )
-                        //{
-                        //    throw new System.Exception( $"LoadImage Error : {www.error}" );
-                        //}
-                        tex = handler.texture;
-
-                        // 다운로드 하기전에 Texture2D 설정할수있는 방법 찾기
-                        // UnityWebRequest로 다운받은 데이터는 비관리 데이터라 지워줘야한다.
-                        //DestroyImmediate( handler.texture );
+                        Debug.LogError( $"UnityWebRequest Error : {www.error}" );
+                        throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
                     }
+
+                    // 이미지 배경 알파값이 빠져있거나 검정색인 2가지 경우가 있다.
+                    // 쉐이더 블렌드 옵션을 사용하기위해 배경을 검은색으로 통일한다.
+                    //tex = new Texture2D( handler.texture.width, handler.texture.height, TextureFormat.RGB24, false );
+                    //if ( !tex.LoadImage( handler.data ) )
+                    //{
+                    //    throw new System.Exception( $"LoadImage Error : {www.error}" );
+                    //}
+                    tex = handler.texture;
+
+                    // 다운로드 하기전에 Texture2D 설정할수있는 방법 찾기
+                    // UnityWebRequest로 다운받은 데이터는 비관리 데이터라 지워줘야한다.
+                    //DestroyImmediate( handler.texture );
                 }
             }
-
-            textures.Add( _sample.name, tex );
-            gameDebug?.SetBackgroundType( type, textures.Count );
         }
+
+        textures.Add( _sample.name, tex );
+        gameDebug?.SetBackgroundType( type, textures.Count );
+        
 
         switch ( _sample.type )
         {
