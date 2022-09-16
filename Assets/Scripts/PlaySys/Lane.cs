@@ -24,9 +24,10 @@ public class Lane : MonoBehaviour
         rdr      = GetComponent<SpriteRenderer>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.LaneEffect ) != 0 )
-        {
-            InputSys.OnInputEvent += PlayEffect;
-        }
+             InputSys.OnInputEvent += LaneEffect;
+
+        if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowGearKey ) != 0 )
+             InputSys.OnInputEvent += KeyEffect;
 
         transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .13f ), 1f );
         color = rdr.color;
@@ -34,14 +35,9 @@ public class Lane : MonoBehaviour
         rdr.color = Color.clear;
     }
 
-    private void PlayEffect( bool _isEnable )
-    {
-        // sprite renderer Enable로 활성화 시키는것보다
-        // color 값 변경하는게 6배정도 빠름.
-        
-        rdr.color       = _isEnable ? color : Color.clear;
-        keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
-    }
+    private void LaneEffect( bool _isEnable ) => rdr.color = _isEnable ? color : Color.clear;
+
+    private void KeyEffect( bool _isEnable )=> keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
 
     public void SetLane( int _key )
     {
@@ -55,7 +51,7 @@ public class Lane : MonoBehaviour
         transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) + ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank,
                                           GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) ? GameSetting.HintPos : GameSetting.JudgePos, 90f );
 
-        keyImage.transform.position = new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
+        keyImage.transform.position   = new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
         keyImage.transform.localScale = new Vector3( transform.localScale.x + GameSetting.NoteBlank, keyImage.transform.localScale.y );
     }
 }
