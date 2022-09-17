@@ -43,7 +43,7 @@ public class LaneSystem : MonoBehaviour
             keySampleSystem.AddSample( sample );
         }
 
-        NowPlaying.Inst.IsLoadKeySounds = true;
+        NowPlaying.Inst.IsLoadKeySound = true;
 
         CreateNotes( _chart );
     }

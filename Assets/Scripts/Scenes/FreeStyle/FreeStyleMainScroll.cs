@@ -62,7 +62,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
             if ( count > Length - 1 ) count = 0;
             var song = Instantiate( prefab, transform );
             song.Initialize();
-            song.SetInfo( NowPlaying.Inst.GetSongIndexAt( count++ ) );
+            song.SetInfo( NowPlaying.Inst.Songs[count++] );
             songs.AddLast( song );
         }
         Select( NowPlaying.Inst.CurrentSongIndex );
@@ -127,7 +127,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         int infoIndex = CurrentIndex - median < 0 ?
                         CurrentIndex - median + Length :
                         CurrentIndex - median;
-        last.SetInfo( NowPlaying.Inst.GetSongIndexAt( infoIndex ) );
+        last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
         
         // 활성화
         nextNode.Value.gameObject.SetActive( false );
@@ -164,7 +164,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         int infoIndex = CurrentIndex + median >= Length ?
                         CurrentIndex + median - Length :
                         CurrentIndex + median;
-        first.SetInfo( NowPlaying.Inst.GetSongIndexAt( infoIndex ) );
+        first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
         // 활성화
         prevNode.Value.gameObject.SetActive( false );
@@ -200,9 +200,9 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     {
         UpdateScrollBar();
 
-        NowPlaying.Inst.CurrentSongIndex = CurrentIndex;
+        NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
-        soundLength = curSong.totalTime;
+        soundLength = curSong.totalTime / GameSetting.CurrentPitch;
 
         OnSelectSong( curSong );
 
@@ -215,7 +215,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         playback = previewTime;
     }
 
-    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( soundLength * Mathf.PI * .1f ) : ( uint )_time;
+    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( ( soundLength * GameSetting.CurrentPitch ) * Mathf.PI * .1f ) : ( uint )_time;
 
     public void KeyBind()
     {

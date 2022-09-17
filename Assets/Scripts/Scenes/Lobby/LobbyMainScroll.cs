@@ -62,7 +62,7 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
 
     public void GotoFreeStyle()
     {
-        if ( NowPlaying.Inst.IsParseSongs )
+        if ( NowPlaying.Inst.IsParseSong )
         {
             scene.LoadScene( SceneType.FreeStyle );
             SoundManager.Inst.Play( SoundSfxType.MainClick );

@@ -8,10 +8,10 @@ public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate,
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect      = .022d; // .0421d;
+    public const double Perfect      = .022d;           // .0421d;
     public const double Great        = .041d + Perfect; //.064d;
-    public const double Good         = .015d + Great; //.097d;
-    public const double Bad          = .013d + Good; //.127d;
+    public const double Good         = .015d + Great;   //.097d;
+    public const double Bad          = .013d + Good;    //.127d;
 
     public event Action<HitResult> OnJudge;
 
@@ -41,23 +41,13 @@ public class Judgement : MonoBehaviour
             results.Add( _type, _count );
     }
 
-    public bool CanBeHit( double _diff )
-    {
-        double diff = ( _diff >= 0 ) ? _diff - NowPlaying.PlaybackOffset
-                                     : _diff + NowPlaying.PlaybackOffset;
-
-        return Globals.Abs( diff ) <= Bad ? true : false;
-    }
+    public bool CanBeHit( double _diff ) => Globals.Abs( _diff ) <= Bad ? true : false;
     
-    public bool IsMiss( double _diff )
-    {
-        return _diff + NowPlaying.PlaybackOffset < -Bad ? true : false;
-    }
+    public bool IsMiss( double _diff ) =>_diff < -Bad ? true : false;
 
     public void ResultUpdate( double _diff )
     {
-        double diff = ( _diff >= 0 ) ? _diff - NowPlaying.PlaybackOffset
-                                     : _diff + NowPlaying.PlaybackOffset;
+        double diff = _diff;
         double diffAbs = Globals.Abs( diff );
 
         if      ( diffAbs <= Perfect                    ) OnJudge?.Invoke( HitResult.Perfect );

@@ -49,14 +49,14 @@ public class InGame : Scene
 
     private IEnumerator Play()
     {
-        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadKeySounds && NowPlaying.Inst.IsLoadBackground );
+        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadKeySound && NowPlaying.Inst.IsLoadBGA );
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         OnLoadEnd?.Invoke();
 
         OnGameStart?.Invoke();
         InputLock( false );
-        NowPlaying.Inst.Play();
+        StartCoroutine( NowPlaying.Inst.Play() );
     }
 
     public void BackToLobby()
@@ -84,7 +84,7 @@ public class InGame : Scene
 
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();
-        NowPlaying.Inst.Play();
+        yield return NowPlaying.Inst.Play();
     }
 
     public void Restart() => StartCoroutine( RestartProcess() );

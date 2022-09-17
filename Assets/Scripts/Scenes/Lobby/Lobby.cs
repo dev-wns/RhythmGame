@@ -27,10 +27,10 @@ public class Lobby : Scene
 
     private IEnumerator LoadingEndCheck()
     {
-        if ( !NowPlaying.Inst.IsParseSongs )
+        if ( !NowPlaying.Inst.IsParseSong )
              loadIcon.SetActive( true );
 
-        yield return new WaitUntil( () => NowPlaying.Inst.IsParseSongs );
+        yield return new WaitUntil( () => NowPlaying.Inst.IsParseSong );
 
         loadIcon.SetActive( false );
     }

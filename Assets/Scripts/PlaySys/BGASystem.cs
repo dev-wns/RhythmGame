@@ -122,7 +122,7 @@ public class BGASystem : MonoBehaviour
                 {
                     StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
                 }
-                NowPlaying.Inst.IsLoadBackground = true;
+                NowPlaying.Inst.IsLoadBGA = true;
                 //Debug.Log( "Background Type : Image" );
             } break;
         }
@@ -183,7 +183,7 @@ public class BGASystem : MonoBehaviour
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
 
-        NowPlaying.Inst.IsLoadBackground = true;
+        NowPlaying.Inst.IsLoadBGA = true;
     }
 
     private void SpriteProcess()
@@ -288,7 +288,7 @@ public class BGASystem : MonoBehaviour
 
         yield return YieldCache.WaitForEndOfFrame;
 
-        NowPlaying.Inst.IsLoadBackground = true;
+        NowPlaying.Inst.IsLoadBGA = true;
     }
 
     public IEnumerator LoadSample( string _dir, SpriteSample _sample )
