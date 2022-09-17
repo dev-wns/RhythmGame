@@ -17,7 +17,7 @@ public class MeasureRenderer : MonoBehaviour
         game.OnScrollChanged += ScrollUpdate;
 
         rdr = GetComponent<SpriteRenderer>();
-        transform.localScale = new Vector2( GameSetting.GearWidth, GameSetting.MeasureHeight );
+        transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
 
         ScrollUpdate();
     }
@@ -29,7 +29,7 @@ public class MeasureRenderer : MonoBehaviour
     private void LateUpdate()
     {
         var pos = GameSetting.JudgePos + ( float )( ( time - NowPlaying.PlaybackChanged ) * weight );
-        transform.position = new Vector2( 0, pos );
+        transform.localPosition = new Vector2( 0, pos );
 
         if ( pos <= GameSetting.JudgePos )
         {

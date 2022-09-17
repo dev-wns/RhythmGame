@@ -26,7 +26,7 @@ public class NoteSystem : MonoBehaviour
         };
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        CurrentScene.OnGameStart     += () => StartCoroutine( Process() );
+        CurrentScene.OnGameStart += () => StartCoroutine( Process() );
         CurrentScene.OnReLoad        += ReLoad;
         CurrentScene.OnScrollChanged += ScrollUpdate;
 

@@ -46,40 +46,37 @@ public class MeasureSystem : MonoBehaviour
 
     private void Initialize( in Chart _chart )
     {
-        int noteIndex = 0;
-        var timings = _chart.timings;
+        var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
+        var timings   = _chart.timings;
+
+        // 0초 ~ 첫 노트시간까지 마디선 생성
+        {
+            double spb  = ( 60d / timings[0].bpm ) * 4;
+            double time = _chart.notes[0].time;
+
+            int maxCount = ( int )( time / spb );
+            for ( int j = maxCount; j > 0; j-- )
+                measures.Add( NowPlaying.Inst.GetChangedTime( time - ( j * spb ) ) );
+        }
+
+        // 첫 노트 ~ 음악 끝시간까지 마디선 생성
         for ( int i = 0; i < timings.Count; i++ )
         {
-            if ( timings[i].bpm < 10 ) continue;
-            double bpms = ( 60d / timings[i].bpm ) * 4; // beat per seconds
+            if ( timings[i].bpm < 1 )
+                continue;
 
-            double time = timings[i].time;
-            if ( i == 0 )
-            {
-                int maxBeat = Mathf.FloorToInt( ( float )( ( _chart.notes[0].time + 3d ) / bpms ) );
-                time = _chart.notes[0].time - ( bpms * maxBeat );
-            }
+            double spb      = ( 60d / timings[i].bpm ) * 4; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
+            double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime * 0.001d ) : timings[i + 1].time;
+            double time     = ( i == 0 ) ? _chart.notes[0].time : timings[i].time;
+
+            int maxCount = ( int )( ( nextTime - time ) / spb );
+            if ( maxCount == 0 ) measures.Add( NowPlaying.Inst.GetChangedTime( time ) );
             else
             {
-                for ( int j = noteIndex; j < _chart.notes.Count; noteIndex = ++j )
+                for ( int j = 0; j < maxCount; j++ )
                 {
-                    if ( timings[i].time < _chart.notes[j].time )
-                    {
-                        time = _chart.notes[j].time;
-                        break;
-                    }
+                    measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * spb ) ) ) );
                 }
-            }
-
-            double nextTime = ( i + 1 == timings.Count ) ? _chart.notes[_chart.notes.Count - 1].time + 3d : timings[i + 1].time;
-            double calcTime = NowPlaying.Inst.GetChangedTime( time );
-            if ( measures.Count == 0 || measures[measures.Count - 1] < calcTime )
-                 measures.Add( calcTime );
-
-            int maxCount = Mathf.FloorToInt( ( float )( ( nextTime - time ) / bpms ) );
-            for ( int j = 1; j < maxCount + 1; j++ )
-            {
-                measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * bpms ) ) ) );
             }
         }
     }
@@ -100,7 +97,6 @@ public class MeasureSystem : MonoBehaviour
 
             if ( ++curIndex < measures.Count )
                  curTime = measures[curIndex];
-            
         }
     }
 }
