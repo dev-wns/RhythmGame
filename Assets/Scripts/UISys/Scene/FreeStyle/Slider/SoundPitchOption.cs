@@ -13,7 +13,7 @@ public class SoundPitchOption : OptionSlider
     {
         base.Awake();
 
-        curValue = GameSetting.CurrentPitch * 100f;
+        curValue = Globals.Round( GameSetting.CurrentPitch * 100f );
         UpdateValue( curValue );
     }
 

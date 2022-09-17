@@ -8,7 +8,7 @@ public class SoundOffsetOption : OptionSlider
     {
         base.Awake();
 
-        curValue = GameSetting.SoundOffset;
+        curValue = Globals.Round( GameSetting.SoundOffset );
         UpdateValue( curValue );
     }
 

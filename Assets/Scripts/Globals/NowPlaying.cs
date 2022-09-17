@@ -185,13 +185,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator MusicStart()
     {
-        //if ( !curSong.isOnlyKeySound )
-        //{
-        //    SoundManager.Inst.LoadBgm( curSong.audioPath, false, false, false );
-        //    SoundManager.Inst.Play( GameSetting.CurrentPitch, true );
-        //    SoundManager.Inst.Position = 0;
-        //}
-
         startTime = Globals.Timer.CurrentTime;
         saveTime = waitTime;
         IsStart = true;
@@ -201,8 +194,6 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         OnStart?.Invoke();
 
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
-
-        SoundManager.Inst.PrintDSPCount();
     }
 
     /// <returns> Time including BPM. </returns>

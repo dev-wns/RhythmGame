@@ -45,14 +45,14 @@ public enum GameVisualFlag
 public class GameSetting : SingletonUnity<GameSetting>
 {
     // Mode
-    public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All &~ GameVisualFlag.ShowGearKey;
+    public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All;
     public static GameMode       CurrentGameMode      = GameMode.AutoPlay | GameMode.NoFail;
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;
 
-    private static float pitch = 100;
-    public static float CurrentPitch { get { return pitch * .01f; } set { pitch = value; } }
+    private static int pitch = 100;
+    public static float CurrentPitch { get { return pitch * .01f; } set { pitch = ( int )value; } }
         
 
     // PPU
@@ -66,14 +66,8 @@ public class GameSetting : SingletonUnity<GameSetting>
         get => OriginScrollSpeed;
         set
         {
-            if ( value < 1d )
-            {
-                //Debug.LogWarning( $"ScrollSpeed : {OriginScrollSpeed}" );
-                return;
-            }
-
+            if ( value < 1d ) return;
             OriginScrollSpeed = value;
-            //Debug.Log( $"ScrollSpeed : {OriginScrollSpeed}" );
         }
     }
     public static double Weight => ScrollSpeed * ( 320d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) );

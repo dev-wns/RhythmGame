@@ -8,7 +8,7 @@ public class BGAOpacityOption : OptionSlider
     {
         base.Awake();
 
-        curValue = GameSetting.BGAOpacity;
+        curValue = Globals.Round( GameSetting.BGAOpacity );
         UpdateValue( curValue );
     }
 
