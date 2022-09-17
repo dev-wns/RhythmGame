@@ -5,6 +5,9 @@ using DG.Tweening;
 
 public class Result : Scene
 {
+    public Judgement Judge = null;
+    
+
     public string soundName;
     public uint highlightPos;
     private float playback, soundLength;
@@ -13,6 +16,10 @@ public class Result : Scene
     protected override void Awake()
     {
         base.Awake();
+
+        var obj = GameObject.FindGameObjectWithTag( "Judgement" );
+        obj?.TryGetComponent( out Judge );
+
         SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
         SoundManager.Inst.Play( true );
         soundLength = SoundManager.Inst.Length;
@@ -22,6 +29,11 @@ public class Result : Scene
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         isStart = true;
+    }
+
+    private void OnDestroy()
+    {
+        Destroy( Judge );
     }
 
     protected override void Update()

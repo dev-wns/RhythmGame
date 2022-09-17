@@ -85,9 +85,8 @@ public class ResultInfomation : MonoBehaviour
 
     private void Awake()
     {
-        Judgement judge = null;
-        var obj = GameObject.FindGameObjectWithTag( "Judgement" );
-        obj?.TryGetComponent( out judge );
+        Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
+        Judgement judge = scene.Judge;
         if ( judge == null ) return;
 
         var song = NowPlaying.Inst.CurrentSong;
@@ -112,9 +111,8 @@ public class ResultInfomation : MonoBehaviour
         StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
 
         StartCoroutine( ProgressEffect( judge ) );
-
-        Destroy( judge );
     }
+
 
     private IEnumerator LoadBackground( string _path )
     {

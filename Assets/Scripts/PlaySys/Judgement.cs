@@ -16,6 +16,18 @@ public class Judgement : MonoBehaviour
     public event Action<HitResult> OnJudge;
 
     private Dictionary<HitResult, int /* count */> results = new Dictionary<HitResult, int>();
+    public struct HitData
+    {
+        public double time;
+        public double diff;
+
+        public HitData( double _time, double _diff )
+        {
+            time = _time;
+            diff = _diff;
+        }
+    }
+    public List<HitData> hitDatas = new List<HitData>();
 
     private void Awake()
     {
@@ -56,6 +68,9 @@ public class Judgement : MonoBehaviour
         else if ( diffAbs > Good    && diffAbs <= Bad   ) OnJudge?.Invoke( HitResult.Bad     );
         else if ( diff    < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
         else                                              OnJudge?.Invoke( HitResult.None    );
+
+        if ( CanBeHit( _diff ) )
+             hitDatas.Add( new HitData( NowPlaying.Playback, _diff ) );
 
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
