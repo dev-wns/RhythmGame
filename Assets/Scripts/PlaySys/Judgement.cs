@@ -69,8 +69,7 @@ public class Judgement : MonoBehaviour
         else if ( diff    < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
         else                                              OnJudge?.Invoke( HitResult.None    );
 
-        if ( CanBeHit( _diff ) )
-             hitDatas.Add( new HitData( NowPlaying.Playback, _diff ) );
+        hitDatas.Add( new HitData( NowPlaying.Playback, _diff ) );
 
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
@@ -82,6 +81,8 @@ public class Judgement : MonoBehaviour
     public void ResultUpdate( HitResult _type )
     {
         OnJudge?.Invoke( _type );
-        hitDatas.Add( new HitData( NowPlaying.Playback, -.1f ) );
+
+        if ( _type == HitResult.Miss )
+             hitDatas.Add( new HitData( NowPlaying.Playback, -.1f ) );
     }
 }

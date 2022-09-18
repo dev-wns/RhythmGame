@@ -49,7 +49,6 @@ public class SongPreview : MonoBehaviour
             int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * _pitch  );
             if ( song.minBpm == song.maxBpm ) bpm.text = medianBpm.ToString();
             else                              bpm.text = $"{medianBpm} ({Mathf.RoundToInt( song.minBpm * _pitch )} ~ {Mathf.RoundToInt( song.maxBpm * _pitch )})";
-
         }
 
         time.color = bpm.color = _pitch < 1f ? new Color( .5f, .5f, 1f ) :

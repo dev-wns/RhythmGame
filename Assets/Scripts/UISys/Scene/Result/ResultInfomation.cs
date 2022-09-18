@@ -12,14 +12,17 @@ public class ResultInfomation : MonoBehaviour
 {
     public SpriteAtlas rankAtlas;
 
-    [Header("Song Infomation")]
+    [Header( "Song Infomation" )]
     public TextMeshProUGUI title;
     public TextMeshProUGUI artist;
 
     [Header( "Hit Count" )]
     public TextMeshProUGUI totalNotes;
     public TextMeshProUGUI perfect, great, good, bad, miss;
-    public TextMeshProUGUI fast, slow;
+
+    [Header( "Fast Slow" )]
+    public TextMeshProUGUI bpm;
+    public TextMeshProUGUI fast, slow; 
 
     [Header( "Result" )]
     public TextMeshProUGUI maxCombo;
@@ -96,8 +99,27 @@ public class ResultInfomation : MonoBehaviour
 
         // Hit Count 
         totalNotes.text = ( song.noteCount + song.sliderCount ).ToString();
+
+        // fast slow
         fast.text       = judge.GetResult( HitResult.Fast ).ToString();
         slow.text       = judge.GetResult( HitResult.Slow ).ToString();
+
+        // bpm
+        var pitch = GameSetting.CurrentPitch;
+        if ( Globals.Abs( pitch - 1f ) < .0001f )
+        {
+            int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm );
+            if ( song.minBpm == song.maxBpm ) bpm.text = medianBpm.ToString();
+            else                              bpm.text = $"{medianBpm} ({song.minBpm} ~ {song.maxBpm})";
+        }
+        else
+        {
+            int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * pitch  );
+            if ( song.minBpm == song.maxBpm ) bpm.text = medianBpm.ToString();
+            else                              bpm.text = $"{medianBpm} ({Mathf.RoundToInt( song.minBpm * pitch )} ~ {Mathf.RoundToInt( song.maxBpm * pitch )})";
+        }
+        bpm.color = pitch < 1f ? new Color( .5f, .5f, 1f ) :
+                    pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Score
         int scoreValue = judge.GetResult( HitResult.Score );

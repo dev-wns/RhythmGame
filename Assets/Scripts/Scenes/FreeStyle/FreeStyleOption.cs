@@ -22,7 +22,6 @@ public class FreeStyleOption : SceneScrollOption
         group.alpha = 1f;
         DOTween.To( () => 1f, x => group.alpha = x, 0f, GlobalConst.OptionFadeDuration ).OnComplete( () => gameObject.SetActive( false ) );
 
-        //SoundManager.Inst.UseLowEqualizer( false );
         CurrentScene.ChangeAction( SceneAction.Main );
         SoundManager.Inst.Play( SoundSfxType.MenuHover );
         SoundManager.Inst.FadeIn( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .5f, .5f );
