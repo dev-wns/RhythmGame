@@ -5,9 +5,9 @@ using UnityEngine;
 public class JudgeDistribution : MonoBehaviour
 {
     private LineRenderer rdr;
-    private List<Vector3> newPositions = new List<Vector3>();
+    private List<Vector3> positions = new List<Vector3>();
     private const int TotalJudge = 100;
-    private readonly float PosOffset = 700f / ( TotalJudge + 2);
+    private readonly float PosOffset = 700f / ( TotalJudge + 2 );
 
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class JudgeDistribution : MonoBehaviour
             else                         return 0;
         } );
 
-        newPositions.Add( new Vector3( -875f, 0f, 0f ) );
+        positions.Add( new Vector3( -875f, 0f, 0f ) );
         for ( int i = 0; i < hitDatas.Count; ++i )
         {
             ++judgeCount;
@@ -35,16 +35,37 @@ public class JudgeDistribution : MonoBehaviour
 
             if ( hitDatas[i].time > curTime )
             {
-                newPositions.Add( new Vector3( -875f + ( PosOffset * posCount++ ),
+                positions.Add( new Vector3( -875f + ( PosOffset * posCount++ ),
                                                Globals.Clamp( ( float )( average / judgeCount ) * 100f, -100f, 100f ), 0 ) );
                 curTime += offset;
                 judgeCount = 0;
                 average = 0d;
             }
         }
-        newPositions.Add( new Vector3( -875f + ( PosOffset * ( posCount + 1 ) ), 0f, 0f ) );
+        positions.Add( new Vector3( -875f + ( PosOffset * ( posCount + 1 ) ), 0f, 0f ) );
 
-        rdr.positionCount = newPositions.Count;
-        rdr.SetPositions( newPositions.ToArray() );
+        //rdr.positionCount = positions.Count;
+        //rdr.SetPositions( positions.ToArray() );
+
+        StartCoroutine( UpdatePosition() );
+    }
+
+    private IEnumerator UpdatePosition()
+    {
+        rdr.positionCount = 1;
+        rdr.SetPosition( 0, positions[0] );
+        for ( int i = 1; i < positions.Count; i++ )
+        {
+            Vector3 newVector = positions[i - 1];
+            rdr.positionCount = i + 1;
+            while ( Vector3.Distance( newVector, positions[i] ) > .00001f )
+            {
+                newVector = Vector3.MoveTowards( newVector, positions[i], Time.deltaTime * ( TotalJudge + 2 ) * 10 );
+                rdr.SetPosition( i, newVector );
+                yield return null;
+            }
+
+            rdr.SetPosition( i, positions[i] );
+        }
     }
 }

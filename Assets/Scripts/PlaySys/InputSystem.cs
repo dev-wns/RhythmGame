@@ -145,8 +145,8 @@ public class InputSystem : MonoBehaviour
         double startDiff = curNote.Time - NowPlaying.Playback;
         if ( isAuto )
         {
-            //if ( startDiff <= 0d )
-            if ( startDiff <= rand )
+            if ( startDiff <= 0d )
+            //if ( startDiff <= rand )
             {
                 rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .005d), ( float )( Judgement.Bad - .005d ) );
                 autoNoteType = NoteType.Default;
