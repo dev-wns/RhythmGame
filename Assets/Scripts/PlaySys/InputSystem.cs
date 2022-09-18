@@ -44,7 +44,7 @@ public class InputSystem : MonoBehaviour
 
         isReady = false;
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-        rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .005d ), ( float )( Judgement.Bad - .005d ) );
+        rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .01d ), ( float )( Judgement.Bad - .01d ) );
     }
 
     public void Initialize( int _key )
@@ -145,10 +145,11 @@ public class InputSystem : MonoBehaviour
         double startDiff = curNote.Time - NowPlaying.Playback;
         if ( isAuto )
         {
-            if ( startDiff <= 0d )
-            //if ( startDiff <= rand )
+            bool isHit = GameSetting.IsAutoRandom ? startDiff <= rand : startDiff <= 0d;
+            //if ( startDiff <= 0d )
+            if ( isHit )
             {
-                rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .005d), ( float )( Judgement.Bad - .005d ) );
+                rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .01d), ( float )( Judgement.Bad - .01d ) );
                 autoNoteType = NoteType.Default;
                 inputAutoTime = 0f;
                 OnInputEvent?.Invoke( true );

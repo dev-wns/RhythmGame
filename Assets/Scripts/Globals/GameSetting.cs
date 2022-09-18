@@ -107,4 +107,7 @@ public class GameSetting : SingletonUnity<GameSetting>
     // Gear
     public static float GearStartPos => ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f );
     public static float GearWidth    => ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) );
+
+    // Debug
+    public static bool IsAutoRandom;
 }

@@ -126,5 +126,7 @@ public class InGame : Scene
         Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
         Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
         Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
+
+        Bind( SceneAction.Main, KeyType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
     }
 }

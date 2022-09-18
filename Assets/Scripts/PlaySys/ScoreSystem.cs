@@ -68,7 +68,6 @@ public class ScoreSystem : MonoBehaviour
 
     private void ScoreUpdate( HitResult _type )
     {
-        tweener?.Kill();
 
         switch ( _type )
         {
@@ -84,6 +83,7 @@ public class ScoreSystem : MonoBehaviour
             case HitResult.Miss:    curScore += 0d;              break;
         }
 
+        tweener?.Kill();
         tweener = DOTween.To( () => incScore, x => ImageUpdate( x ), curScore, .1f );
     }
 
