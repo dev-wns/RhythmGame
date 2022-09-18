@@ -20,7 +20,7 @@ public class JudgeDistribution : MonoBehaviour
         double average = 0d;
         int judgeCount = 0, posCount = 1;
         var hitDatas   = judge.hitDatas;
-        hitDatas.Sort(delegate( Judgement.HitData A, Judgement.HitData B)
+        hitDatas.Sort(delegate( Judgement.HitData A, Judgement.HitData B )
         {
             if      ( A.time > B.time  ) return 1;
             else if ( A.time < B.time  ) return -1;

@@ -82,5 +82,6 @@ public class Judgement : MonoBehaviour
     public void ResultUpdate( HitResult _type )
     {
         OnJudge?.Invoke( _type );
+        hitDatas.Add( new HitData( NowPlaying.Playback, -.1f ) );
     }
 }
