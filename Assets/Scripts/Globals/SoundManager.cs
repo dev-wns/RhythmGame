@@ -200,10 +200,10 @@ public class SoundManager : SingletonUnity<SoundManager>
         //Debug.Log( $"Current Sound Device : {SoundDrivers[curDriverIndex].name}" );
 
         // Details
-        SetVolume( .1f, ChannelType.Master );
-        SetVolume( .3f, ChannelType.BGM );
-        SetVolume( .3f, ChannelType.KeySound );
-        SetVolume( .7f, ChannelType.Sfx );
+        SetVolume( .5f, ChannelType.Master );
+        SetVolume( .5f, ChannelType.BGM );
+        SetVolume( .5f, ChannelType.KeySound );
+        SetVolume( 1f, ChannelType.Sfx );
         #endregion
     }
 

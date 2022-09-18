@@ -32,7 +32,7 @@ public class RateSystem : MonoBehaviour
         NowPlaying.Inst.OnResult -= Result;
     }
 
-    private void Result() => judge.SetResult( HitResult.Rate, ( int )Globals.Round( curRate / curMaxCount ) );
+    private void Result() => judge.SetResult( HitResult.Rate, ( int )( curRate / curMaxCount ) );
 
     private void ReLoad()
     {
