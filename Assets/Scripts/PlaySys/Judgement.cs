@@ -5,6 +5,17 @@ using UnityEngine;
 using TMPro;
 
 public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate, Combo, Score, Count }
+public struct HitData
+{
+    public double time;
+    public double diff;
+
+    public HitData( double _time, double _diff )
+    {
+        time = _time;
+        diff = _diff;
+    }
+}
 
 public class Judgement : MonoBehaviour
 {
@@ -14,20 +25,8 @@ public class Judgement : MonoBehaviour
     public const double Bad          = .013d + Good;    //.127d;
 
     public event Action<HitResult> OnJudge;
-
-    private Dictionary<HitResult, int /* count */> results = new Dictionary<HitResult, int>();
-    public struct HitData
-    {
-        public double time;
-        public double diff;
-
-        public HitData( double _time, double _diff )
-        {
-            time = _time;
-            diff = _diff;
-        }
-    }
     public List<HitData> hitDatas = new List<HitData>();
+    private Dictionary<HitResult, int /* count */> results = new Dictionary<HitResult, int>();
 
     private void Awake()
     {
@@ -59,22 +58,20 @@ public class Judgement : MonoBehaviour
 
     public void ResultUpdate( double _diff )
     {
-        double diff = _diff;
-        double diffAbs = Globals.Abs( diff );
+        double diffAbs = Globals.Abs( _diff );
 
         if      ( diffAbs <= Perfect                    ) OnJudge?.Invoke( HitResult.Perfect );
         else if ( diffAbs > Perfect && diffAbs <= Great ) OnJudge?.Invoke( HitResult.Great   );
         else if ( diffAbs > Great   && diffAbs <= Good  ) OnJudge?.Invoke( HitResult.Good    );
         else if ( diffAbs > Good    && diffAbs <= Bad   ) OnJudge?.Invoke( HitResult.Bad     );
-        else if ( diff    < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
+        else if ( _diff   < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
         else                                              OnJudge?.Invoke( HitResult.None    );
 
         hitDatas.Add( new HitData( NowPlaying.Playback, _diff ) );
-
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
-            if ( diff > 0d ) OnJudge?.Invoke( HitResult.Fast );
-            else             OnJudge?.Invoke( HitResult.Slow );
+            if ( _diff > 0d ) OnJudge?.Invoke( HitResult.Fast );
+            else              OnJudge?.Invoke( HitResult.Slow );
         }
     }
 
@@ -83,6 +80,6 @@ public class Judgement : MonoBehaviour
         OnJudge?.Invoke( _type );
 
         if ( _type == HitResult.Miss )
-             hitDatas.Add( new HitData( NowPlaying.Playback, -.1f ) );
+             hitDatas.Add( new HitData( NowPlaying.Playback, .1f ) );
     }
 }

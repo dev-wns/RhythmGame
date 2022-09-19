@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,38 +17,32 @@ public class JudgeDistribution : MonoBehaviour
         Judgement judge = scene.Judge;
         if ( judge == null || !TryGetComponent( out rdr ) ) return;
 
-        double offset  = ( ( NowPlaying.Inst.CurrentSong.totalTime / GameSetting.CurrentPitch ) * .001d ) / TotalJudge;
-        double curTime = offset;
-        double average = 0d;
-        int judgeCount = 0, posCount = 1;
         var hitDatas   = judge.hitDatas;
-        hitDatas.Sort(delegate( Judgement.HitData A, Judgement.HitData B )
+        hitDatas.Sort(delegate( HitData A, HitData B )
         {
             if      ( A.time > B.time  ) return 1;
             else if ( A.time < B.time  ) return -1;
             else                         return 0;
         } );
 
-        positions.Add( new Vector3( -875f, 0f, 0f ) );
-        for ( int i = 0; i < hitDatas.Count; ++i )
+        double offset      = ( ( NowPlaying.Inst.CurrentSong.totalTime / GameSetting.CurrentPitch ) * .001d ) / TotalJudge;
+        double divideTime  = offset;
+        List<double> diffs = new List<double>();
+        positions.Add( new Vector3( -875f, 100f, 0f ) );
+        for ( int i = 0; i < hitDatas.Count; i++ )
         {
-            ++judgeCount;
-            average += Globals.Abs( hitDatas[i].diff ) <= Judgement.Perfect ? 0d : ( Judgement.Bad * 1000d ) / ( hitDatas[i].diff * 1000d );
+            var diffAbs = Globals.Abs( hitDatas[i].diff );
+            diffs.Add( diffAbs <= Judgement.Perfect ?  0d : diffAbs * 2000d );
 
-            if ( hitDatas[i].time > curTime )
+            if ( hitDatas[i].time > divideTime )
             {
-                positions.Add( new Vector3( -875f + ( PosOffset * posCount++ ),
-                                               Globals.Clamp( ( float )( average / judgeCount ) * 100f, -100f, 100f ), 0 ) );
-                curTime += offset;
-                judgeCount = 0;
-                average = 0d;
+                positions.Add( new Vector3( -875f + ( PosOffset * ( positions.Count + 1 ) ),
+                                             100f - Globals.Clamp( ( ( float )diffs.Average() * 2 ), 0f, 200f ), 0 ) );
+                diffs.Clear();
+                divideTime += offset;
             }
         }
-        positions.Add( new Vector3( -875f + ( PosOffset * ( posCount + 1 ) ), 0f, 0f ) );
-
-        //rdr.positionCount = positions.Count;
-        //rdr.SetPositions( positions.ToArray() );
-
+        positions.Add( new Vector3( -875f + PosOffset * ( positions.Count + 1 ), 100f, 0f ) );
         StartCoroutine( UpdatePosition() );
     }
 
@@ -60,7 +56,7 @@ public class JudgeDistribution : MonoBehaviour
             rdr.positionCount = i + 1;
             while ( Vector3.Distance( newVector, positions[i] ) > .00001f )
             {
-                newVector = Vector3.MoveTowards( newVector, positions[i], Time.deltaTime * ( TotalJudge + 2 ) * 10 );
+                newVector = Vector3.MoveTowards( newVector, positions[i], Time.deltaTime * TotalJudge * 10 );
                 rdr.SetPosition( i, newVector );
                 yield return null;
             }
