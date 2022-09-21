@@ -180,6 +180,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
     }
     #endregion
 
+
     /// <returns> Time including BPM. </returns>
     public double GetChangedTime( double _time )
     {

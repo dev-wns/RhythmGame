@@ -29,7 +29,6 @@ public class FreeStyle : Scene
         optionGroup.alpha = 0f;
         optionCanvas.SetActive( true );
         DOTween.To( () => 0f, x => optionGroup.alpha = x, 1f, GlobalConst.OptionFadeDuration );
-        //SoundManager.Inst.UseLowEqualizer( true );
         ChangeAction( SceneAction.Option );
         SoundManager.Inst.Play( SoundSfxType.MenuClick );
         SoundManager.Inst.FadeOut( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .5f, .5f );

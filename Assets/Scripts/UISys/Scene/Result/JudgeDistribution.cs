@@ -36,8 +36,11 @@ public class JudgeDistribution : MonoBehaviour
 
             if ( hitDatas[i].time > divideTime )
             {
-                positions.Add( new Vector3( -875f + ( PosOffset * ( positions.Count + 1 ) ),
-                                             100f - Globals.Clamp( ( ( float )diffs.Average() * 2 ), 0f, 200f ), 0 ) );
+                float average  = ( ( float )diffs.Average() ) - ( float )( Judgement.Perfect * 2000d );
+                Vector3 newPos = average <= 0f ? new Vector3( -875f + ( PosOffset * ( positions.Count + 1 ) ), 100f, 0f ) :
+                                                 new Vector3( -875f + ( PosOffset * ( positions.Count + 1 ) ),
+                                                               100f - ( Globals.Clamp( average, 0f, 200f ) * 2f ), 0 );
+                positions.Add( newPos );
                 diffs.Clear();
                 divideTime += offset;
             }

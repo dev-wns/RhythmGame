@@ -6481,9 +6481,9 @@ MonoBehaviour:
   centerImage: {fileID: 1025897911}
   imageSize: 425
   numSpectrum: 128
-  spectrumPower: 1.35
+  spectrumPower: 1.7
   specWidth: 4.75
-  pumpingPower: 1.45
+  pumpingPower: 1.2
 --- !u!1 &912918544
 GameObject:
   m_ObjectHideFlags: 0
