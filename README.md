@@ -3,7 +3,7 @@
 ## 소개
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/19517385/173755218-73fdcb16-a463-4721-ac52-5a774e683ffd.gif">
+<img src="https://user-images.githubusercontent.com/19517385/192090994-a74490b6-86d2-41c1-ac09-f3453efd69c3.gif">
 
 BMS, Osu Mania! 등 다양한 채보를 6키로 즐기는 것을 목표로 제작한 리듬게임 구동기입니다.
 <br></br>
@@ -25,7 +25,7 @@ BMS, Osu Mania! 등 다양한 채보를 6키로 즐기는 것을 목표로 제�
 - **변속 ( BPM 변화 )**
 
     <p align="center">
-    <img src="https://user-images.githubusercontent.com/19517385/173755225-780ae641-3d46-42a9-a957-7383fc2aadc9.gif">
+    <img src="https://user-images.githubusercontent.com/19517385/192090996-143422c0-63f3-4b4f-ab86-39d1c3b0af73.gif">
 
       여러 BPM에 대응하여 내려오는 노트의 속도가 달라집니다.
     
