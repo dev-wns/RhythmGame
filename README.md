@@ -1,4 +1,3 @@
-
 <p align="center"> *** 본 프로젝트는 취업목적만으로 제작한 개인 프로젝트입니다 ***
       
 - - -
@@ -100,3 +99,7 @@
 # 4. 마치며
       
       Blah Blah Blah
+      
+![VS](https://img.shields.io/badge/VS2019-v16.11.15-red?style=flat&logo=visualstudio)
+![Unity](https://img.shields.io/badge/Unity-v2020.3.34f1-blue?style=flat&logo=unity)
+![FMOD](https://img.shields.io/badge/FMOD-v2.01.11-brightgreen?style=flat&logo=FMOD)
