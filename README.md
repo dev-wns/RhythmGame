@@ -1,9 +1,5 @@
-# Carpal Tunnel Syndrome
-
-## 소개
-
-<p align="center">
-<img src="https://user-images.githubusercontent.com/19517385/192090994-a74490b6-86d2-41c1-ac09-f3453efd69c3.gif">
+# 1. 소개
+<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192090994-a74490b6-86d2-41c1-ac09-f3453efd69c3.gif"> 
 
 BMS, Osu Mania! 등 다양한 채보를 6키로 즐기는 것을 목표로 제작한 리듬게임 구동기입니다.
 <br></br>
@@ -20,19 +16,24 @@ BMS, Osu Mania! 등 다양한 채보를 6키로 즐기는 것을 목표로 제�
 - Osu Mania! ( .osu )
 - ~~BMS ( .bms, .bml, .bme … ) 제작 중~~
 
-## 기능
-
-- **변속 ( BPM 변화 )**
-
-    <p align="center">
-    <img src="https://user-images.githubusercontent.com/19517385/192090996-143422c0-63f3-4b4f-ab86-39d1c3b0af73.gif">
+# 2. 기능
+## 2.1. 변속 ( BPM 변화 )
+<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192090996-143422c0-63f3-4b4f-ab86-39d1c3b0af73.gif">    
 
       여러 BPM에 대응하여 내려오는 노트의 속도가 달라집니다.
     
       서로 다른 BPM을 가진 곡을 플레이할 때 일정한 속도를 유지하기위해
       해당 곡의 가장 오래 지속되는 BPM을 기준으로 스크롤속도를 일정비율 자동으로 조절합니다.
 
-- **BGA ( Background Animation )**
+## 2.2. 사운드 속도 조절
+<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192102583-13d6f6a2-4513-43c0-b0ff-0c9246b72707.gif">
+<p align="center"> < 왼쪽부터 0.7  1.0  1.5 배속 >
+    
+        사운드 속도 조절을 통해 사용자가 난이도를 조절할 수 있도록 했습니다.
+    
+        게임 내에서 사운드 속도를 0.1 단위로 0.7 ~ 1.5 까지 조절할 수 있고 값에 따라 노트의 간격도 함께 조정됩니다.
+    
+## 2.3. BGA
     - **Video**
         
           여러 배경타입이 있을 때 가장 우선적으로 채택되는 타입입니다.
