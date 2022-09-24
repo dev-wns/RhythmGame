@@ -19,8 +19,8 @@ public struct HitData
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect      = .022d;           // .0421d;
-    public const double Great        = .041d + Perfect; //.064d;
+    public const double Perfect      = .042d;           // .0421d;
+    public const double Great        = .022d + Perfect; //.064d;
     public const double Good         = .015d + Great;   //.097d;
     public const double Bad          = .013d + Good;    //.127d;
 

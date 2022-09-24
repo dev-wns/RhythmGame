@@ -36,7 +36,7 @@ public class JudgeDistribution : MonoBehaviour
 
             if ( hitDatas[i].time > divideTime )
             {
-                float average  = ( ( float )diffs.Average() ) - ( float )( Judgement.Perfect * 2000d );
+                float average  = ( ( float )diffs.Average() ) - 10f;
                 Vector3 newPos = average <= 0f ? new Vector3( -875f + ( PosOffset * ( positions.Count + 1 ) ), 100f, 0f ) :
                                                  new Vector3( -875f + ( PosOffset * ( positions.Count + 1 ) ),
                                                                100f - ( Globals.Clamp( average, 0f, 200f ) * 2f ), 0 );
