@@ -1,13 +1,11 @@
-<p align="center"> *** 본 프로젝트는 취업목적만으로 제작한 개인 프로젝트입니다 ***
-      
-- - -
-      
+![VS](https://img.shields.io/badge/VS2019-v16.11.15-red?style=flat&logo=visualstudio)
+![Unity](https://img.shields.io/badge/Unity-v2020.3.34f1-blue?style=flat&logo=unity)
+![FMOD](https://img.shields.io/badge/FMOD-v2.01.11-brightgreen?style=flat&logo=FMOD)
+
 # 1. 소개
 <p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192090994-a74490b6-86d2-41c1-ac09-f3453efd69c3.gif"> 
 
-      주로 6키를 즐기고 실력을 높이고 싶은 사용자를 위해 제작한 건반형 리듬게임 구동기입니다.
-      
-      실력을 늘릴 수 있는 각종 옵션이나 편의성에 대한 기능에 중점을 두고 제작했습니다.
+      6키의 실력을 높이고 싶은 사용자를 위해 제작한 건반형 리듬게임 구동기입니다.
 
 # 2. 사용 방법
 ## 2.1. 파일 목록
@@ -16,7 +14,7 @@
       
 ## 2.2. 채보 추가 방법
 
-      게임 설치 경로에 있는 <ProjectName>_Data\\StreamingAssets\\Songs 폴더 안의 파일들을 탐색하여 곡 리스트를 작성합니다.
+      게임 설치 경로에 있는 StreamingAssets\\Songs 폴더 안의 파일들을 탐색하여 곡 리스트를 작성합니다.
       리소스, 채보 데이터 등이 포함된 폴더를 해당 경로에 생성하시면 됩니다.
       
       7키 이상의 채보는 6키로 고정되어 일부 키를 제거하고 키음 데이터는 자동으로 재생되도록 변환합니다.
@@ -25,14 +23,14 @@
       
       게임 내에서 마우스는 사용하지 않습니다.
       
-      사용자가 직접 게임 세팅을 통해 정의한 키를 제외하고 방향키, 엔터, 스페이스바, ESC 키로 대부분의 조작이 가능하며
+      사용자가 게임 세팅을 통해 정의한 키를 제외하고 방향키, 엔터, 스페이스바, ESC로 대부분의 조작이 가능합니다.
       예외로 스크롤 속도는 키보드 상단의 1, 2 키를 통해 조절할 수 있습니다.
 
 # 3. 기능
 ## 3.1. 변속 ( BPM 변화 )
 <p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192090996-143422c0-63f3-4b4f-ab86-39d1c3b0af73.gif">    
             
-      플레이 중 BPM 변화에 맞춰 내려오는 노트의 속도도 달라집니다.
+      BPM 변화에 맞춰 내려오는 노트의 속도도 달라집니다.
       
 ## 3.2. 속도 조절
 * ### 스크롤 속도
@@ -47,7 +45,7 @@
 <p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192102583-13d6f6a2-4513-43c0-b0ff-0c9246b72707.gif">
 <p align="center"> < 왼쪽부터 0.7  1.0  1.5 배속 >
                 
-      사운드 속도 변경을 통해 사용자가 난이도를 조절할 수 있습니다.
+      사용자는 사운드 속도 변경을 통해 난이도를 조절할 수 있습니다.
     
       게임 내에서 사운드 속도를 0.1 단위로 0.7 ~ 1.5까지 조절할 수 있고 값에 따라 노트의 간격도 함께 조정됩니다.
     
@@ -100,6 +98,3 @@
       
       Blah Blah Blah
       
-![VS](https://img.shields.io/badge/VS2019-v16.11.15-red?style=flat&logo=visualstudio)
-![Unity](https://img.shields.io/badge/Unity-v2020.3.34f1-blue?style=flat&logo=unity)
-![FMOD](https://img.shields.io/badge/FMOD-v2.01.11-brightgreen?style=flat&logo=FMOD)
