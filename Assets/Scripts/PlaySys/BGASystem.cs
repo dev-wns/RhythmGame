@@ -209,7 +209,7 @@ public class BGASystem : MonoBehaviour
         {
             yield return waitSampleStart;
             background.texture = curSample.tex;
-            background.rectTransform.sizeDelta = Globals.GetScreenRatio( curSample.tex, new Vector2( Screen.width, Screen.height ) );
+            background.rectTransform.sizeDelta = Global.Math.GetScreenRatio( curSample.tex, new Vector2( Screen.width, Screen.height ) );
 
             yield return waitSampleEnd;
             if ( ++curBackIndex < backgrounds.Count )
@@ -239,7 +239,7 @@ public class BGASystem : MonoBehaviour
         {
             yield return waitSampleStart;
             foreground.texture = curSample.tex;
-            foreground.rectTransform.sizeDelta = Globals.GetScreenRatio( curSample.tex, new Vector2( Screen.width, Screen.height ) );
+            foreground.rectTransform.sizeDelta = Global.Math.GetScreenRatio( curSample.tex, new Vector2( Screen.width, Screen.height ) );
 
             yield return waitSampleEnd;
             if ( ++curForeIndex < foregrounds.Count )
@@ -393,7 +393,7 @@ public class BGASystem : MonoBehaviour
         textures.Add( "BackgroundImage", tex );
         background.color = color;
         background.texture = tex;
-        background.rectTransform.sizeDelta = Globals.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
+        background.rectTransform.sizeDelta = Global.Math.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
     }
 }
 

@@ -7,7 +7,7 @@ public enum GameKeyAction : int
     _0, _1, _2, _3, _4, _5, Count // InGame Input Keys
 };
 
-public class KeySetting : SingletonUnity<KeySetting>
+public class KeySetting : Singleton<KeySetting>
 {
     public Dictionary<KeyCode, string/*keyCode to string*/> AvailableKeys = new Dictionary<KeyCode, string>();
     public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();

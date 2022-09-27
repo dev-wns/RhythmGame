@@ -73,7 +73,7 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
     {
         optionGroup.alpha = 0f;
         optionCanvas.SetActive( true );
-        DOTween.To( () => 0f, x => optionGroup.alpha = x, 1f, GlobalConst.OptionFadeDuration );
+        DOTween.To( () => 0f, x => optionGroup.alpha = x, 1f, Global.Const.OptionFadeDuration );
         scene.ChangeAction( SceneAction.Option );
         SoundManager.Inst.Play( SoundSfxType.MenuClick );
     }
@@ -87,10 +87,8 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
 
     public void KeyBind()
     {
-        scene.Bind( SceneAction.Main, KeyCode.Return, () => CurrentOption.Process() );
-
-        scene.Bind( SceneAction.Main, KeyCode.LeftArrow, () => PrevMove() );
-        
-        scene.Bind( SceneAction.Main, KeyCode.RightArrow, () => NextMove() );
+        scene.Bind( SceneAction.Main, KeyCode.Return,     CurrentOption.Process );
+        scene.Bind( SceneAction.Main, KeyCode.LeftArrow,  PrevMove );
+        scene.Bind( SceneAction.Main, KeyCode.RightArrow, NextMove );
     }
 }

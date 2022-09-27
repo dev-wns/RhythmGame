@@ -3,29 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SceneAction
+public enum SceneAction : byte
 {
     Main, Option, SubOption, Pause, Exit,
 }
 
-public class SceneKeyAction : MonoBehaviour
+public abstract class SceneKeyAction : MonoBehaviour, IKeyBind
 {
     private Dictionary<SceneAction, KeyAction> keyActions = new Dictionary<SceneAction, KeyAction>();
     public SceneAction CurrentAction { get; private set; }
-    private bool IsLock = false;
+    public bool IsInputLock          { get; set; }
 
-    public void InputLock( bool _isLock ) => IsLock = _isLock;
-
-    public void ActionCheck()
+    protected virtual void Update()
     {
-        if ( IsLock || !keyActions.ContainsKey( CurrentAction ) )
-        {
-            return;
-        }
+        if ( IsInputLock || !keyActions.ContainsKey( CurrentAction ) ) 
+             return;
 
         keyActions[CurrentAction].ActionCheck();
     }
-
     public void Bind( SceneAction _type, KeyCode _code, Action _action )
     {
         if ( keyActions.ContainsKey( _type ) )
@@ -39,7 +34,6 @@ public class SceneKeyAction : MonoBehaviour
             keyActions.Add( _type, keyAction );
         }
     }
-
     public void Bind( SceneAction _type, KeyType _keyType, KeyCode _code, Action _action )
     {
         if ( keyActions.ContainsKey( _type ) )
@@ -53,21 +47,18 @@ public class SceneKeyAction : MonoBehaviour
             keyActions.Add( _type, keyAction );
         }
     }
-
     public void Remove( SceneAction _type, KeyCode _code, Action _action )
     {
         if ( !keyActions.ContainsKey( _type ) ) return;
 
         keyActions[_type].Remove( _code, KeyType.Down, _action );
     }
-
     public void Remove( SceneAction _type, KeyType _keyType, KeyCode _code, Action _action )
     {
         if ( !keyActions.ContainsKey( _type ) ) return;
 
         keyActions[_type].Remove( _code, _keyType, _action );
     }
-
     public void ChangeAction( SceneAction _type )
     {
         if ( !keyActions.ContainsKey( _type ) )
@@ -78,4 +69,5 @@ public class SceneKeyAction : MonoBehaviour
 
         CurrentAction = _type;
     }
+    public abstract void KeyBind();
 }

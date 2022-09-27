@@ -22,7 +22,7 @@ public class ScrollHide : ScrollOption
     protected virtual void Start()
     {
         int minIndex = CurrentIndex - activeIndex;
-        int maxIndex = CurrentIndex + Globals.Abs( activeIndex - numMaxActive );
+        int maxIndex = CurrentIndex + Global.Math.Abs( activeIndex - numMaxActive );
         for ( int i = 0; i < options.Count; i++ )
         {
             var rt = options[i].transform as RectTransform;

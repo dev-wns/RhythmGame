@@ -33,7 +33,7 @@ public class InGame : Scene
     protected async override void Start()
     {
         base.Start();
-        InputLock( true );
+        IsInputLock = true;
         OnSystemInitialize( NowPlaying.Inst.CurrentChart );
         Task LoadkeySoundAsyncTask = Task.Run( () => OnSystemInitializeThread( NowPlaying.Inst.CurrentChart ) );
 
@@ -55,7 +55,7 @@ public class InGame : Scene
         OnLoadEnd?.Invoke();
 
         OnGameStart?.Invoke();
-        InputLock( false );
+        IsInputLock = false;
         StartCoroutine( NowPlaying.Inst.Play() );
     }
 

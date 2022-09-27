@@ -34,13 +34,13 @@ public class HealthScaler : MonoBehaviour
         loop0_1 += isReverse ? deltaTime : -deltaTime;
         isReverse = loop0_1 <= 0f || loop0_1 >= 1f ? !isReverse : isReverse;
 
-        float offset = Globals.Lerp( curHealth, health, deltaTime );
+        float offset = Global.Math.Lerp( curHealth, health, deltaTime );
         curHealth = offset < 1f ? 0f : offset;
 
-        float maxHeight = Globals.Clamp( initScl.y * curHealth / HealthSystem.MaxHealth, 0f, initScl.y );
-        float minHeight = Globals.Clamp( maxHeight * .9f, 0f, initScl.y );
+        float maxHeight = Global.Math.Clamp( initScl.y * curHealth / HealthSystem.MaxHealth, 0f, initScl.y );
+        float minHeight = Global.Math.Clamp( maxHeight * .9f, 0f, initScl.y );
         float height    = ( minHeight + ( ( maxHeight - minHeight ) * loop0_1 ) );
 
-        tf.localScale = new Vector2( initScl.x, Globals.Clamp( height, minHeight, maxHeight ) );
+        tf.localScale = new Vector2( initScl.x, Global.Math.Clamp( height, minHeight, maxHeight ) );
     }
 }

@@ -52,13 +52,13 @@ public class Judgement : MonoBehaviour
             results.Add( _type, _count );
     }
 
-    public bool CanBeHit( double _diff ) => Globals.Abs( _diff ) <= Bad ? true : false;
+    public bool CanBeHit( double _diff ) => Global.Math.Abs( _diff ) <= Bad ? true : false;
     
     public bool IsMiss( double _diff ) =>_diff < -Bad ? true : false;
 
     public void ResultUpdate( double _diff )
     {
-        double diffAbs = Globals.Abs( _diff );
+        double diffAbs = Global.Math.Abs( _diff );
 
         if      ( diffAbs <= Perfect                    ) OnJudge?.Invoke( HitResult.Perfect );
         else if ( diffAbs > Perfect && diffAbs <= Great ) OnJudge?.Invoke( HitResult.Great   );

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum KeyType { Down, Hold, Up, }
-//public delegate void DelKeyAction();
 public class KeyAction
 {
     private Dictionary<KeyCode, Dictionary<KeyType, Action>> keyActions = new Dictionary<KeyCode, Dictionary<KeyType, Action>>();

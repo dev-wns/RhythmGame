@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class SingletonUnity<T> : MonoBehaviour where T : MonoBehaviour
+public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance = null;
     public static T Inst
@@ -40,8 +40,8 @@ public class SingletonUnity<T> : MonoBehaviour where T : MonoBehaviour
     }
 }
 
-public class Singleton<T> where T : class, new()
-{
-    private static readonly Lazy<T> instance = new Lazy<T>( () => new T() );
-    public static T Inst { get { return instance.Value; } }
-}
+//public class Singleton<T> where T : class, new()
+//{
+//    private static readonly Lazy<T> instance = new Lazy<T>( () => new T() );
+//    public static T Inst { get { return instance.Value; } }
+//}

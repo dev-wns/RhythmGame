@@ -8,7 +8,7 @@ public class PanelOpacityOption : OptionSlider
     {
         base.Awake();
 
-        curValue = Globals.Round( GameSetting.PanelOpacity );
+        curValue = Global.Math.Round( GameSetting.PanelOpacity );
         UpdateValue( curValue );
     }
 

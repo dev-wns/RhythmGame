@@ -88,7 +88,7 @@ public class HitEffectSystem : MonoBehaviour
                     if ( curIndex < spritesN.Count - 1 ) rdr.sprite = spritesN[++curIndex];
                     else                                 Stop();
 
-                    time = Globals.Abs( time - offsetN );
+                    time = Global.Math.Abs( time - offsetN );
                 }
             }
             break;
@@ -110,7 +110,7 @@ public class HitEffectSystem : MonoBehaviour
                         }
                     }
 
-                    time = Globals.Abs( time - offsetL );
+                    time = Global.Math.Abs( time - offsetL );
                 }
             }
             break;

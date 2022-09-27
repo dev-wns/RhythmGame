@@ -5,7 +5,7 @@ using System;
 
 public enum NoteSkinType { Default, Aqua, Count, }
 
-public class SkinManager : SingletonUnity<SkinManager>
+public class SkinManager : Singleton<SkinManager>
 {
     [Serializable]
     public struct NoteSkin

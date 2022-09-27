@@ -40,7 +40,7 @@ public class HealthSystem : MonoBehaviour
             case HitResult.Miss:        offset = -5f; break;
         }
 
-        curHealth = Globals.Clamp( curHealth + offset, 0f, MaxHealth );
+        curHealth = Global.Math.Clamp( curHealth + offset, 0f, MaxHealth );
         OnChangedHealth?.Invoke( curHealth );
 
         if ( curHealth < 0f ) 

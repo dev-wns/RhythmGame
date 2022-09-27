@@ -34,7 +34,7 @@ public class SongPreview : MonoBehaviour
         int minute = second / 60;
         second = second % 60;
 
-        if ( Globals.Abs( _pitch - 1f ) < .0001f )
+        if ( Global.Math.Abs( _pitch - 1f ) < .0001f )
         {
             time.text = $"{minute:00}:{second:00}";
 

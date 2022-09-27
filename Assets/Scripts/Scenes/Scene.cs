@@ -38,12 +38,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         ChangeAction( SceneAction.Main );
     }
 
-    protected virtual void Start()
-    {
-        StartCoroutine( FadeIn() );
-    }
-
-    protected virtual void Update() => ActionCheck();
+    protected virtual void Start() => StartCoroutine( FadeIn() );
     #endregion
 
     #region Load
@@ -56,8 +51,8 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     private IEnumerator SceneChange( SceneType _type )
     {
         DOTween.KillAll();
-        InputLock( true );
-        
+        IsInputLock = true;
+
         yield return StartCoroutine( FadeOut() );
 
         SoundManager.Inst.AllStop();
@@ -68,8 +63,6 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     #endregion
 
     #region Input
-    public abstract void KeyBind();
-
     protected void PressedSpeedControl( bool _isPlus )
     {
         presstime += Time.deltaTime;
@@ -107,7 +100,6 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         OnScrollChanged?.Invoke();
     }
     #endregion
-
 
     #region Effect
     private void CreateFadeSprite()

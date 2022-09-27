@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public class NowPlaying : SingletonUnity<NowPlaying>
+public class NowPlaying : Singleton<NowPlaying>
 {
     public static Scene CurrentScene;
     public ReadOnlyCollection<Song> Songs { get; private set; } = new ReadOnlyCollection<Song>( new List<Song>() );
@@ -24,7 +24,7 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     public event Action       OnResult;
     public event Action       OnStart;
-    public event Action<bool> OnPause;
+    public event Action<bool/* isPause */> OnPause;
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
@@ -148,7 +148,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
 
     private IEnumerator Continue()
     {
-        CurrentScene.InputLock( true );
+        CurrentScene.IsInputLock = true;
+        //CurrentScene.InputLock( true );
         while ( Playback >= saveTime )
         {
             Playback -= Time.deltaTime * 2d;
@@ -165,7 +166,8 @@ public class NowPlaying : SingletonUnity<NowPlaying>
         OnPause?.Invoke( false );
 
         yield return YieldCache.WaitForSeconds( 2f );
-        CurrentScene.InputLock( false );
+        CurrentScene.IsInputLock = false;
+        //CurrentScene.InputLock( false );
     }
     #endregion
 

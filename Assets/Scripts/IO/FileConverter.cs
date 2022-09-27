@@ -361,7 +361,7 @@ public class FileConverter : FileReader
                     continue;
 
                 // 상속된 BeatLength는 음수이기 때문에 절대값 변환 후 계산한다.
-                double beatLength = Globals.Abs( double.Parse( splitDatas[1] ) );
+                double beatLength = Global.Math.Abs( double.Parse( splitDatas[1] ) );
 
                 // 상속된 bpm은 부모 bpm의 역백분율 값을 가진다. ( 100 = 1배, 50 = 2배 ... )
                 if ( int.Parse( splitDatas[6] ) == 1 ) uninheritedBeat = beatLength;
@@ -616,7 +616,7 @@ public class FileConverter : FileReader
             bool isFind = false;
             for ( int j = 0; j < medianCalc.Count; j++ )
             {
-                if ( Globals.Abs( medianCalc[j].bpm - prevBpm ) < .1f )
+                if ( Global.Math.Abs( medianCalc[j].bpm - prevBpm ) < .1f )
                 {
                     isFind = true;
                     medianCalc[j].time += timings[i].time - prevTime;

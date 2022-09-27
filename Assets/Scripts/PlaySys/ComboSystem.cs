@@ -107,7 +107,7 @@ public class ComboSystem : MonoBehaviour
         }
         else
         {
-            curNum = curCombo == 0 ? 1 : Globals.Log10( curCombo ) + 1;
+            curNum = curCombo == 0 ? 1 : Global.Math.Log10( curCombo ) + 1;
             float calcPrevCombo = prevCombo;
             float calcCurCombo = curCombo;
             for ( int i = 0; i < images.Count; i++ )

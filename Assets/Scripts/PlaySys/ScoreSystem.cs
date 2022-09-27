@@ -36,7 +36,7 @@ public class ScoreSystem : MonoBehaviour
         NowPlaying.Inst.OnResult -= Result;
     }
 
-    private void Result() => judge.SetResult( HitResult.Score, ( int )Globals.Round( curScore ) );
+    private void Result() => judge.SetResult( HitResult.Score, ( int )Global.Math.Round( curScore ) );
 
     private void ReLoad()
     {
@@ -90,8 +90,8 @@ public class ScoreSystem : MonoBehaviour
     private void ImageUpdate( double _value )
     {
         incScore = _value;
-        double calcScore = Globals.Round( _value );
-        int num = Globals.Log10( calcScore ) + 1;
+        double calcScore = Global.Math.Round( _value );
+        int num = Global.Math.Log10( calcScore ) + 1;
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( i == num ) break;

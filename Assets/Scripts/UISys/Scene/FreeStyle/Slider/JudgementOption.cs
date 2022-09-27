@@ -9,7 +9,7 @@ public class JudgementOption : OptionSlider
         base.Awake();
         
         //curValue = GameSetting.JudgePos + ( Screen.height * .5f );
-        curValue = Globals.Round( GameSetting.JudgePos - GameSetting.HintPos );
+        curValue = Global.Math.Round( GameSetting.JudgePos - GameSetting.HintPos );
         
         UpdateValue( curValue );
     }

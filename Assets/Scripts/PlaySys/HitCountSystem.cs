@@ -56,7 +56,7 @@ public class HitCountSystem : MonoBehaviour
         if ( type != _type ) return;
         curCount++;
 
-        curNum = curCount == 0 ? 1 : Globals.Log10( curCount ) + 1;
+        curNum = curCount == 0 ? 1 : Global.Math.Log10( curCount ) + 1;
         float calcPrevCount = prevCount;
         float calcCurCount = curCount;
         for ( int i = 0; i < images.Count; i++ )

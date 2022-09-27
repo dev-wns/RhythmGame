@@ -20,7 +20,7 @@ public class LobbyOption : SceneScrollOption
         CurrentScene.ChangeAction( SceneAction.Main );
         DOTween.Clear();
         optionGroup.alpha = 1f;
-        DOTween.To( () => 1f, x => optionGroup.alpha = x, 0f, GlobalConst.OptionFadeDuration ).OnComplete( () => gameObject.SetActive( false ) );
+        DOTween.To( () => 1f, x => optionGroup.alpha = x, 0f, Global.Const.OptionFadeDuration ).OnComplete( () => gameObject.SetActive( false ) );
         SoundManager.Inst.Play( SoundSfxType.MenuHover );
     }
 

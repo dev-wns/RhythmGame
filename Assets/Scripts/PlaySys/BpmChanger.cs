@@ -64,7 +64,7 @@ public class BpmChanger : MonoBehaviour
             yield return waitChangedTimeUntil;
 
             double calcCurBpm = bpm;
-            curNum = Globals.Log10( bpm ) + 1;
+            curNum = Global.Math.Log10( bpm ) + 1;
             for ( int i = 0; i < images.Count; i++ )
             {
                 if ( i < curNum )

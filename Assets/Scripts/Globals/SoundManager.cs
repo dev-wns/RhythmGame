@@ -5,30 +5,20 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 using DG.Tweening;
 
-public enum ChannelType { Master, BGM, KeySound, Sfx, Count };
-
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
-
 public enum SoundSfxType 
 { 
     MainSelect, MainClick, MainHover, Slider,
     MenuSelect, MenuClick, MenuHover
 }
 
-public class SoundManager : SingletonUnity<SoundManager>
+
+public enum ChannelType : byte { Master, BGM, KeySound, SFX, Count, };
+public class SoundManager : Singleton<SoundManager>
 {
-    public struct SoundDriver
-    {
-        public System.Guid guid;
-        public int index;
-        public string name;
-        public int systemRate, speakModeChannels;
-        public FMOD.SPEAKERMODE mode;
-    }
-    
     #region variables
-    private static readonly int MaxSoftwareChannels = 128;
-    private static readonly int MaxVirtualChannels = 1000;
+    private static readonly int MaxSoftwareChannel = 128;
+    private static readonly int MaxVirtualChannel  = 1000;
     private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
@@ -36,15 +26,41 @@ public class SoundManager : SingletonUnity<SoundManager>
     private FMOD.System system;
     private FMOD.Sound bgmSound;
     private FMOD.Channel bgmChannel;
-    private Tweener fadeTweener;
+    private Tweener volumeTweener;
     private int curDriverIndex;
-    private int totalKeySoundCount;
-    private bool hasAccurateTime = false;
-    public event Action OnReLoad;
-    public event Action OnRelease;
+    private bool hasAccurateFlag;
+    public event Action OnReLoad, OnRelease;
+    public struct SoundDriver : IEquatable<SoundDriver>
+    #region SoundDriver Body
+    {
+        public Guid guid;
+        public int index;
+        public string name;
+        public int systemRate, speakModeChannels;
+        public FMOD.SPEAKERMODE mode;
 
+        public bool Equals( SoundDriver _other ) => index == _other.index;
+        public override bool Equals( object _obj ) => Equals( ( SoundDriver )_obj );
+        public override int GetHashCode() => base.GetHashCode();
+    }
+    #endregion
+    public ReadOnlyCollection<SoundDriver> Drivers { get; private set; } 
+    /// <summary>
+    /// AccurateTime flag is required.
+    /// </summary>
+    public uint Length {
+        get {
+            if ( !hasAccurateFlag || !bgmSound.hasHandle() ) {
+                Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
+                return uint.MaxValue;
+            }
+            
+            uint length;
+            ErrorCheck( bgmSound.getLength( out length, FMOD.TIMEUNIT.MS ) );
+            return length;
+        }
+    }
     #region Properties
-    public ReadOnlyCollection<SoundDriver> SoundDrivers { get; private set; }
     public int CurrentDriverIndex 
     {
         get => curDriverIndex;
@@ -53,7 +69,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             int curIndex;
             ErrorCheck( system.getDriver( out curIndex ) );
 
-            if ( SoundDrivers.Count <= value || curIndex == value )
+            if ( Drivers.Count <= value || curIndex == value )
             {
                 Debug.LogWarning( "SoundDriver Index is Out of Range or Duplicated Value" );
                 return;
@@ -64,7 +80,10 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
     }
     public int KeySoundCount => keySounds.Count;
-    public int TotalKeySoundCount => totalKeySoundCount;
+    public int TotalKeySoundCount { get; private set; }
+    /// <summary>
+    /// BGM Position
+    /// </summary>
     public uint Position
     {
         get
@@ -72,7 +91,7 @@ public class SoundManager : SingletonUnity<SoundManager>
             if ( !IsPlaying( ChannelType.BGM ) )
             {
                 Debug.LogError( "bgm is not playing" );
-                return 0;
+                return int.MaxValue;
             }
 
             uint pos;
@@ -91,21 +110,6 @@ public class SoundManager : SingletonUnity<SoundManager>
             ErrorCheck( bgmChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
         }
     }
-    public uint Length
-    {
-        get
-        {
-            if ( !hasAccurateTime && !bgmSound.hasHandle() )
-            {
-                Debug.LogError( $"Doesn't have AccurateTime Flag. or BGM is not playing" );
-                return 0;
-            }
-
-            uint length;
-            ErrorCheck( bgmSound.getLength( out length, FMOD.TIMEUNIT.MS ) );
-            return length;
-        }
-    }
     public int UseChannelCount
     {
         get
@@ -115,11 +119,10 @@ public class SoundManager : SingletonUnity<SoundManager>
             return channels;
         }
     }
-    public bool IsLoad { get; private set; } = false;
+    public bool IsLoad { get; private set; }
     public float volume { get; private set; }
     #endregion
     #endregion
-
     #region System
     public void Initialize()
     {
@@ -132,12 +135,12 @@ public class SoundManager : SingletonUnity<SoundManager>
         FMOD.SPEAKERMODE mode;
         ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
         ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
-        ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannels ) );
+        ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
         ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
 
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
-        ErrorCheck( system.init( MaxVirtualChannels, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
+        ErrorCheck( system.init( MaxVirtualChannel, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
         uint version;
         ErrorCheck( system.getVersion( out version ) );
         if ( version < FMOD.VERSION.number )
@@ -156,7 +159,7 @@ public class SoundManager : SingletonUnity<SoundManager>
                 drivers.Add( driver );
             }
         }
-        SoundDrivers = new ReadOnlyCollection<SoundDriver>( drivers );
+        Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
 
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
@@ -203,13 +206,13 @@ public class SoundManager : SingletonUnity<SoundManager>
         SetVolume( .5f, ChannelType.Master );
         SetVolume( .5f, ChannelType.BGM );
         SetVolume( .5f, ChannelType.KeySound );
-        SetVolume( 1f, ChannelType.Sfx );
+        SetVolume( 1f, ChannelType.SFX );
         #endregion
     }
 
     public void KeyRelease()
     {
-        totalKeySoundCount = 0;
+        TotalKeySoundCount = 0;
 
         foreach ( var keySound in keySounds )
         {
@@ -300,8 +303,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         IsLoad = false;
     }
     #endregion
-
-    #region Unity Callback
+    #region Unity Event Function
     protected override void Awake()
     {
         base.Awake();
@@ -323,11 +325,10 @@ public class SoundManager : SingletonUnity<SoundManager>
         Release();
     }
     #endregion
-
     #region Load
     public void LoadBgm( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
     {
-        hasAccurateTime = _hasAccurateTime;
+        hasAccurateFlag = _hasAccurateTime;
 
         FMOD.MODE mode = FMOD.MODE.CREATESAMPLE;
         mode = _hasAccurateTime ? mode |= FMOD.MODE.ACCURATETIME : mode;
@@ -363,14 +364,14 @@ public class SoundManager : SingletonUnity<SoundManager>
         var name = System.IO.Path.GetFileName( _path );
         if ( keySounds.ContainsKey( name ) )
         {
-            ++totalKeySoundCount;
+            ++TotalKeySoundCount;
             _sound = keySounds[name];
         }
         else if ( System.IO.File.Exists( @_path ) )
         {
             ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out _sound ) );
             keySounds.Add( name, _sound );
-            ++totalKeySoundCount;
+            ++TotalKeySoundCount;
         }
         //   if ( !System.IO.File.Exists( @_path ) )
         else
@@ -383,7 +384,6 @@ public class SoundManager : SingletonUnity<SoundManager>
         return true;
     }
     #endregion
-
     #region Play
 
     /// <summary> Play Background Music </summary>
@@ -412,7 +412,7 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
 
         FMOD.Channel channel;
-        ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Sfx], false, out channel ) );
+        ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX], false, out channel ) );
     }
 
     /// <summary> Play Key Sound Effects </summary>
@@ -433,49 +433,47 @@ public class SoundManager : SingletonUnity<SoundManager>
         ErrorCheck( channel.setVolume( _keySound.volume ) );
     }
     #endregion
-
     #region Effect
     public void FadeIn( float _duration )
     {
-        fadeTweener?.Kill();
+        volumeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        fadeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
     }
     
     public void FadeIn( float _startValue, float _duration )
     {
-        fadeTweener?.Kill();
+        volumeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        fadeTweener = DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+        volumeTweener = DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
     }
 
     public void FadeIn( float _duration, Action _callback )
     {
-        fadeTweener?.Kill();
+        volumeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        fadeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
+        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
     }
 
     public void FadeOut( float _duration )
     {
-        fadeTweener?.Kill();
-        fadeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
+        volumeTweener?.Kill();
+        volumeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
     }
 
     public void FadeOut( float _endValue, float _duration )
     {
-        fadeTweener?.Kill();
-        fadeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
+        volumeTweener?.Kill();
+        volumeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
     }
 
     public void FadeOut( float _duration, Action _callback )
     {
-        fadeTweener?.Kill();
-        fadeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
+        volumeTweener?.Kill();
+        volumeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
     }
 
     #endregion
-
     #region ChannelGroup
     public bool IsPlaying( ChannelType _type )
     {
@@ -531,7 +529,6 @@ public class SoundManager : SingletonUnity<SoundManager>
         }
     }
     #endregion
-
     #region DSP
 
     public bool GetDSP( FMOD.DSP_TYPE _type, out FMOD.DSP _dsp )
@@ -706,12 +703,11 @@ public class SoundManager : SingletonUnity<SoundManager>
     #endregion
 
     #endregion
-
-    private bool ErrorCheck( FMOD.RESULT _res )
+    private bool ErrorCheck( FMOD.RESULT _result )
     {
-        if ( FMOD.RESULT.OK != _res )
+        if ( FMOD.RESULT.OK != _result )
         {
-            Debug.LogError( FMOD.Error.String( _res ) );
+            Debug.LogError( FMOD.Error.String( _result ) );
             return false;
         }
 

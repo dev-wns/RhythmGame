@@ -70,7 +70,7 @@ public class RateSystem : MonoBehaviour
         ++curMaxCount;
 
         double calcCurRate  = curRate / curMaxCount;
-        curNum = Globals.Log10( calcCurRate ) + 1;
+        curNum = Global.Math.Log10( calcCurRate ) + 1;
         for ( int i = 3; i < images.Count; i++ )
         {
             if ( i >= curNum )

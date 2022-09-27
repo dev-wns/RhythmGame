@@ -217,15 +217,28 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( ( soundLength * GameSetting.CurrentPitch ) * Mathf.PI * .1f ) : ( uint )_time;
 
+    private void SelectChart()
+    {
+        SoundManager.Inst.Play( SoundSfxType.MainClick );
+        scene.LoadScene( SceneType.Game );
+    }
+
+    private void ScrollDown()
+    {
+        SoundManager.Inst.Play( SoundSfxType.MainSelect );
+        PrevMove();
+    }
+
+    private void ScrollUp()
+    {
+        SoundManager.Inst.Play( SoundSfxType.MainSelect );
+        NextMove();
+    }
+
     public void KeyBind()
     {
-        scene.Bind( SceneAction.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
-        scene.Bind( SceneAction.Main, KeyCode.Return, () => scene.LoadScene( SceneType.Game ) );
-
-        scene.Bind( SceneAction.Main, KeyCode.UpArrow, () => SoundManager.Inst.Play( SoundSfxType.MainSelect ) );
-        scene.Bind( SceneAction.Main, KeyCode.UpArrow, () => PrevMove() );
-
-        scene.Bind( SceneAction.Main, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.MainSelect ) );
-        scene.Bind( SceneAction.Main, KeyCode.DownArrow, () => NextMove() );
+        scene.Bind( SceneAction.Main, KeyCode.Return,    SelectChart );
+        scene.Bind( SceneAction.Main, KeyCode.UpArrow,   ScrollDown );
+        scene.Bind( SceneAction.Main, KeyCode.DownArrow, ScrollUp );
     }
 }

@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+
 public enum Resolution
 {
     _1920_1080,
@@ -31,7 +29,7 @@ public enum ScreenMode
     Count,
 }
 
-public class SystemSetting : MonoBehaviour
+public class SystemSetting
 {
     public static Resolution  CurrentResolution  = Resolution._1920_1080;
     public static FrameRate   CurrentFrameRate   = FrameRate.No_Limit;

@@ -14,7 +14,7 @@ public class SoundDriverOption : OptionText
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        var drivers = SoundManager.Inst.SoundDrivers;
+        var drivers = SoundManager.Inst.Drivers;
         for ( int i = 0; i < drivers.Count; i++ )
         {
             string text = drivers[i].name;

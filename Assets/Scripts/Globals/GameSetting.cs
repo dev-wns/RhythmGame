@@ -42,7 +42,7 @@ public enum GameVisualFlag
     All         = int.MaxValue,
 }
 
-public class GameSetting : SingletonUnity<GameSetting>
+public class GameSetting
 {
     // Mode
     public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All;
@@ -50,13 +50,6 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;
-
-    private static int pitch = 100;
-    public static float CurrentPitch { get { return pitch * .01f; } set { pitch = ( int )value; } }
-        
-
-    // PPU
-    public static int PPU = 100; // pixel per unit
 
     // Speed
     private static double OriginScrollSpeed = 7.3d; 
@@ -88,11 +81,11 @@ public class GameSetting : SingletonUnity<GameSetting>
     public static float MeasureHeight = 2.5f;
 
     // Jugdement
-    public static float HintPos = -( 1080f * .5f ) + 190 + HintOffset;//-( Screen.height * .5f ) + 190;
+    public static float HintPos = -( 1080f * .5f ) + 190 + HintOffset;
     public static float HintOffset = -10f;
     public static float JudgePos 
     {
-        get => HintPos + JudgementPosition;//-490f;
+        get => HintPos + JudgementPosition;
         set => JudgementPosition = value;
     }
     private static float JudgementPosition = 0f;
@@ -107,6 +100,13 @@ public class GameSetting : SingletonUnity<GameSetting>
     // Gear
     public static float GearStartPos => ( -( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) ) * .5f );
     public static float GearWidth    => ( ( NoteWidth * 6f ) + ( NoteBlank * 7f ) );
+
+    // Pitch
+    private static int pitch = 100;
+    public static float CurrentPitch { get { return pitch * .01f; } set { pitch = ( int )value; } }
+
+    // PPU
+    public static int PPU = 100; // pixel per unit
 
     // Debug
     public static bool IsAutoRandom;
