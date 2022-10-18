@@ -58,20 +58,21 @@ public class Judgement : MonoBehaviour
 
     public void ResultUpdate( double _diff )
     {
-        double diffAbs = Global.Math.Abs( _diff );
+        double diff = _diff;
+        double diffAbs = Global.Math.Abs( diff );
 
         if      ( diffAbs <= Perfect                    ) OnJudge?.Invoke( HitResult.Perfect );
         else if ( diffAbs > Perfect && diffAbs <= Great ) OnJudge?.Invoke( HitResult.Great   );
         else if ( diffAbs > Great   && diffAbs <= Good  ) OnJudge?.Invoke( HitResult.Good    );
         else if ( diffAbs > Good    && diffAbs <= Bad   ) OnJudge?.Invoke( HitResult.Bad     );
-        else if ( _diff   < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
+        else if ( diff    < -Bad                        ) OnJudge?.Invoke( HitResult.Miss    );
         else                                              OnJudge?.Invoke( HitResult.None    );
 
-        hitDatas.Add( new HitData( NowPlaying.Playback, _diff ) );
+        hitDatas.Add( new HitData( NowPlaying.Playback, diff ) );
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
-            if ( _diff > 0d ) OnJudge?.Invoke( HitResult.Fast );
-            else              OnJudge?.Invoke( HitResult.Slow );
+            if ( diff > 0d ) OnJudge?.Invoke( HitResult.Fast );
+            else             OnJudge?.Invoke( HitResult.Slow );
         }
     }
 

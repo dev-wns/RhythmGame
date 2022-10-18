@@ -9,27 +9,32 @@ using System.Threading.Tasks;
 
 public class NowPlaying : Singleton<NowPlaying>
 {
+    #region Variables
     public static Scene CurrentScene;
     public ReadOnlyCollection<Song> Songs { get; private set; } = new ReadOnlyCollection<Song>( new List<Song>() );
     public Song CurrentSong     { get; private set; }
     public Chart CurrentChart   { get; private set; }
     public int CurrentSongIndex { get; private set; }
 
+    #region Time
     private Timer timer = new Timer();
-    public static double  Playback        { get; private set; }
-    public  static double PlaybackChanged { get; private set; }
-
     private readonly double waitTime = -1.25d;
     private double startTime, saveTime, totalTime;
+    public static double  Playback        { get; private set; }
+    public static double PlaybackChanged { get; private set; }
+    #endregion
 
+    #region Event
     public event Action       OnResult;
     public event Action       OnStart;
     public event Action<bool/* isPause */> OnPause;
+    #endregion
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
     public bool IsLoadBGA      { get; set; }
     public bool IsLoadKeySound { get; set; }
+    #endregion
 
     #region Unity Callback
     protected override async void Awake()
@@ -59,7 +64,6 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
     #endregion
-
     #region Parsing
     private void ParseSongs()
     {
@@ -94,7 +98,6 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
     #endregion
-
     #region Sound Process
     public IEnumerator Play()
     {
@@ -102,11 +105,11 @@ public class NowPlaying : Singleton<NowPlaying>
         saveTime = waitTime;
         IsStart = true;
 
-        yield return new WaitUntil( () => Playback >= GameSetting.SoundOffset * .001d );
-
         OnStart?.Invoke();
-
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
+
+        yield return new WaitUntil( () => Playback >= 0d );
+        Playback = 0d;
     }
 
     public void Stop()
@@ -170,7 +173,6 @@ public class NowPlaying : Singleton<NowPlaying>
         //CurrentScene.InputLock( false );
     }
     #endregion
-
     #region Etc.
     public void UpdateSong( int _index )
     {
@@ -181,8 +183,6 @@ public class NowPlaying : Singleton<NowPlaying>
         CurrentSong      = Songs[_index];
     }
     #endregion
-
-
     /// <returns> Time including BPM. </returns>
     public double GetChangedTime( double _time )
     {

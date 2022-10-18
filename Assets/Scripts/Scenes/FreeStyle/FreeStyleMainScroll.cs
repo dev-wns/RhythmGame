@@ -237,8 +237,8 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     public void KeyBind()
     {
-        scene.Bind( SceneAction.Main, KeyCode.Return,    SelectChart );
-        scene.Bind( SceneAction.Main, KeyCode.UpArrow,   ScrollDown );
-        scene.Bind( SceneAction.Main, KeyCode.DownArrow, ScrollUp );
+        scene.Bind( ActionType.Main, KeyCode.Return,    SelectChart );
+        scene.Bind( ActionType.Main, KeyCode.UpArrow,   ScrollDown );
+        scene.Bind( ActionType.Main, KeyCode.DownArrow, ScrollUp );
     }
 }

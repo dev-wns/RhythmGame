@@ -74,21 +74,23 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
         optionGroup.alpha = 0f;
         optionCanvas.SetActive( true );
         DOTween.To( () => 0f, x => optionGroup.alpha = x, 1f, Global.Const.OptionFadeDuration );
-        scene.ChangeAction( SceneAction.Option );
+        scene.ChangeAction( ActionType.Option );
         SoundManager.Inst.Play( SoundSfxType.MenuClick );
     }
 
     public void ShowExitCanvas()
     {
         exitCanvas.SetActive( true );
-        scene.ChangeAction( SceneAction.Exit );
+        scene.ChangeAction( ActionType.Exit );
         SoundManager.Inst.Play( SoundSfxType.MenuClick );
     }
 
+    private void OptionProcess() => CurrentOption.Process();
+
     public void KeyBind()
     {
-        scene.Bind( SceneAction.Main, KeyCode.Return,     CurrentOption.Process );
-        scene.Bind( SceneAction.Main, KeyCode.LeftArrow,  PrevMove );
-        scene.Bind( SceneAction.Main, KeyCode.RightArrow, NextMove );
+        scene.Bind( ActionType.Main, KeyCode.Return, OptionProcess );
+        scene.Bind( ActionType.Main, KeyCode.LeftArrow,  PrevMove );
+        scene.Bind( ActionType.Main, KeyCode.RightArrow, NextMove );
     }
 }

@@ -22,7 +22,7 @@ public class FreeStyleOption : SceneScrollOption
         group.alpha = 1f;
         DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.OptionFadeDuration ).OnComplete( () => gameObject.SetActive( false ) );
 
-        CurrentScene.ChangeAction( SceneAction.Main );
+        CurrentScene.ChangeAction( ActionType.Main );
         SoundManager.Inst.Play( SoundSfxType.MenuHover );
         SoundManager.Inst.FadeIn( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .5f, .5f );
     }
@@ -41,9 +41,9 @@ public class FreeStyleOption : SceneScrollOption
 
     public override void KeyBind()
     {
-        CurrentScene.Bind( SceneAction.Option, KeyCode.UpArrow,   ScrollDown );
-        CurrentScene.Bind( SceneAction.Option, KeyCode.DownArrow, ScrollUp );
-        CurrentScene.Bind( SceneAction.Option, KeyCode.Escape,    Back );
-        CurrentScene.Bind( SceneAction.Option, KeyCode.Space,     Back );
+        CurrentScene.Bind( ActionType.Option, KeyCode.UpArrow,   ScrollDown );
+        CurrentScene.Bind( ActionType.Option, KeyCode.DownArrow, ScrollUp );
+        CurrentScene.Bind( ActionType.Option, KeyCode.Escape,    Back );
+        CurrentScene.Bind( ActionType.Option, KeyCode.Space,     Back );
     }
 }

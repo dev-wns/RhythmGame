@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.Video;
 
-public enum BackgroundType { None, Video, Sprite, Image, }
+public enum BackgroundType : byte { None, Video, Sprite, Image, }
 
 public class BGASystem : MonoBehaviour
 {
@@ -34,7 +34,7 @@ public class BGASystem : MonoBehaviour
     }
     private List<SpriteBGA> backgrounds = new List<SpriteBGA>();
     private List<SpriteBGA> foregrounds = new List<SpriteBGA>();
-    private Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
+    private Dictionary<string/*texture name*/, Texture2D> textures = new Dictionary<string, Texture2D>();
 
     private Color color;
 
@@ -88,31 +88,24 @@ public class BGASystem : MonoBehaviour
         switch ( type )
         {
             case BackgroundType.None:
-            {
                 gameObject.SetActive( false );
-            } break;
+            break;
 
             case BackgroundType.Video:
-            {
                 StartCoroutine( LoadVideo() );
                 NowPlaying.Inst.OnStart += PlayVideo;
                 NowPlaying.Inst.OnPause += OnPause;
 
                 foreground.gameObject.SetActive( false );
-                //Debug.Log( "Background Type : Video" );
-            } break;
+            break;
 
             case BackgroundType.Sprite:
-            {
                 scene.OnGameStart += SpriteProcess;
                 foreground.gameObject.SetActive( true );
                 StartCoroutine( LoadSamples( _chart.sprites ) );
-
-                //Debug.Log( "Background Type : Sprite" );
-            } break;
+            break;
 
             case BackgroundType.Image:
-            {
                 var path = NowPlaying.Inst.CurrentSong.imagePath;
                 if ( path == string.Empty )
                 {
@@ -123,8 +116,7 @@ public class BGASystem : MonoBehaviour
                     StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
                 }
                 NowPlaying.Inst.IsLoadBGA = true;
-                //Debug.Log( "Background Type : Image" );
-            } break;
+            break;
         }
     }
 

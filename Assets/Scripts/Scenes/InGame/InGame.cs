@@ -68,7 +68,7 @@ public class InGame : Scene
 
     protected IEnumerator RestartProcess()
     {
-        ChangeAction( SceneAction.Main );
+        ChangeAction( ActionType.Main );
         yield return StartCoroutine( FadeOut() );
 
         pauseCanvas.SetActive( false );
@@ -84,7 +84,7 @@ public class InGame : Scene
 
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();
-        yield return NowPlaying.Inst.Play();
+        yield return StartCoroutine( NowPlaying.Inst.Play() );
     }
 
     public void Restart() => StartCoroutine( RestartProcess() );
@@ -97,7 +97,7 @@ public class InGame : Scene
             {
                 pauseCanvas.SetActive( true );
                 SoundManager.Inst.Play( SoundSfxType.MenuClick );
-                ChangeAction( SceneAction.Option );
+                ChangeAction( ActionType.Option );
             }
             else
             {
@@ -110,23 +110,23 @@ public class InGame : Scene
             NowPlaying.Inst.Pause( false );
             pauseCanvas.SetActive( false );
             SoundManager.Inst.Play( SoundSfxType.MenuHover );
-            ChangeAction( SceneAction.Main );
+            ChangeAction( ActionType.Main );
         }
     }
 
     public override void KeyBind()
     {
-        Bind( SceneAction.Option, KeyCode.Escape, () => Pause( false ) );
-        Bind( SceneAction.Main,   KeyCode.Escape, () => Pause( true ) );
+        Bind( ActionType.Option, KeyCode.Escape, () => Pause( false ) );
+        Bind( ActionType.Main,   KeyCode.Escape, () => Pause( true ) );
 
-        Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
+        Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
+        Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
                                                            
-        Bind( SceneAction.Main, KeyType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( SceneAction.Main, KeyType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( SceneAction.Main, KeyType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Main, InputType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
+        Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
+        Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
 
-        Bind( SceneAction.Main, KeyType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
+        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
     }
 }

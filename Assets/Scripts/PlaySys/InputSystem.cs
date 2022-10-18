@@ -5,36 +5,42 @@ using UnityEngine;
 
 public class InputSystem : MonoBehaviour
 {
+    #region Variables
+    #region Objects
     private Lane lane;
     private InGame scene;
     private Judgement judge;
-
-    private Queue<NoteRenderer> notes = new Queue<NoteRenderer>();
+    #endregion
+    private Queue<NoteRenderer> notes           = new Queue<NoteRenderer>();
+    private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
     private NoteRenderer curNote;
 
-    private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
-    public event Action<bool> OnInputEvent;
-    private NoteType autoNoteType;
-    private double curAutoTime, prevAutoTime;
-    private double autoPressTime;
-    private float inputAutoTime;
     public event Action<NoteType, bool/*Key Up*/> OnHitNote;
+    public event Action<bool/*Key Down*/>         OnInputEvent;
 
     private GameKeyAction key;
     private KeySound curSound;
     private bool isAuto, isReady;
 
-    public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
-    public void SetSound( in KeySound _sound ) => curSound = _sound;
-
+    #region AutoPlay
+    private NoteType autoNoteType;
+    private double curAutoTime, prevAutoTime;
+    private double autoPressTime;
+    private float inputAutoTime;
+    private float rand;
+    #endregion
+    #region Time
     private double inputStartTime;
     private double inputHoldTime;
+    #endregion
+    #endregion
 
+    #region Unity Event Function
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnGameStart += () => StartCoroutine( NoteSelect() );
-        scene.OnReLoad += ReLoad;
+        scene.OnGameStart       += () => StartCoroutine( NoteSelect() );
+        scene.OnReLoad          += ReLoad;
         NowPlaying.Inst.OnPause += Pause;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
@@ -43,10 +49,62 @@ public class InputSystem : MonoBehaviour
         lane.OnLaneInitialize += Initialize;
 
         isReady = false;
-        isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-        rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .01d ), ( float )( Judgement.Bad - .01d ) );
+        isAuto  = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
     }
+    private void Update()
+    {
+        if ( !isReady ) return;
 
+        if ( sliderMissQueue.Count > 0 )
+        {
+            var note = sliderMissQueue.Peek();
+            if ( judge.IsMiss( note.SliderTime - NowPlaying.Playback ) )
+            {
+                note.Despawn();
+                sliderMissQueue.Dequeue();
+            }
+        }
+
+        if ( isAuto )
+        {
+            inputAutoTime += Time.deltaTime;
+            if ( autoNoteType == NoteType.Default && inputAutoTime > autoPressTime )
+                OnInputEvent?.Invoke( false );
+        }
+        else
+        {
+            if ( Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
+            {
+                OnInputEvent?.Invoke( true );
+                SoundManager.Inst.Play( curSound );
+            }
+            else if ( Input.GetKeyUp( KeySetting.Inst.Keys[key] ) )
+            {
+                OnInputEvent?.Invoke( false );
+            }
+        }
+
+        if ( curNote != null )
+        {
+            if ( curNote.IsSlider )
+                CheckSlider();
+            else
+                CheckNote();
+        }
+    }
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+        NowPlaying.Inst.OnPause -= Pause;
+    }
+    #endregion
+
+    #region Initialize
+    public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
+    public void SetSound( in KeySound _sound ) => curSound = _sound;
+    #endregion
+
+    #region Event
     public void Initialize( int _key )
     {
         key = ( GameKeyAction )_key; 
@@ -70,7 +128,6 @@ public class InputSystem : MonoBehaviour
         curNote?.Despawn();
         curNote = null;
     }
-
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
     /// </summary>
@@ -99,13 +156,9 @@ public class InputSystem : MonoBehaviour
             SelectNextNote( false );
         }
     }
+    #endregion
 
-    private void OnDestroy()
-    {
-        StopAllCoroutines();
-        NowPlaying.Inst.OnPause -= Pause;
-    }
-
+    #region Note Process
     /// <summary>
     /// Find the next note in the current lane.
     /// </summary>
@@ -137,7 +190,6 @@ public class InputSystem : MonoBehaviour
         curNote = null;
     }
 
-    float rand = 0f;
     private void CheckNote()
     {
         if ( curNote == null ) return;
@@ -145,11 +197,11 @@ public class InputSystem : MonoBehaviour
         double startDiff = curNote.Time - NowPlaying.Playback;
         if ( isAuto )
         {
+            rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .01d ), ( float )( Judgement.Bad - .01d ) );
             bool isHit = GameSetting.IsAutoRandom ? startDiff <= rand : startDiff <= 0d;
             //if ( startDiff <= 0d )
             if ( isHit )
             {
-                rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .01d), ( float )( Judgement.Bad - .01d ) );
                 autoNoteType = NoteType.Default;
                 inputAutoTime = 0f;
                 OnInputEvent?.Invoke( true );
@@ -287,45 +339,5 @@ public class InputSystem : MonoBehaviour
             }
         }
     }
-
-    private void Update()
-    {
-        if ( !isReady )
-            return;
-
-        if ( sliderMissQueue.Count > 0 )
-        {
-            var note = sliderMissQueue.Peek();
-            if ( judge.IsMiss( note.SliderTime - NowPlaying.Playback ) )
-            {
-                note.Despawn();
-                sliderMissQueue.Dequeue();
-            }
-        }
-
-        if ( isAuto )
-        {
-            inputAutoTime += Time.deltaTime;
-            if ( autoNoteType == NoteType.Default && inputAutoTime > autoPressTime )
-                 OnInputEvent?.Invoke( false );
-        }
-        else
-        {
-            if ( Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
-            {
-                OnInputEvent?.Invoke( true );
-                SoundManager.Inst.Play( curSound );
-            }
-            else if ( Input.GetKeyUp( KeySetting.Inst.Keys[key] ) )
-            {
-                OnInputEvent?.Invoke( false );
-            }
-        }
-
-        if ( curNote != null )
-        {
-            if ( curNote.IsSlider ) CheckSlider();
-            else                    CheckNote();
-        }
-    }
+    #endregion
 }

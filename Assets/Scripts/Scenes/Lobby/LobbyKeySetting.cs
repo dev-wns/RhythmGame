@@ -19,7 +19,7 @@ public class LobbyKeySetting : SceneOptionBase
 
     private void OnEnable()
     {
-        CurrentScene.ChangeAction( SceneAction.SubOption );
+        CurrentScene.ChangeAction( ActionType.SubOption );
     }
 
     private void Process( KeyCode _key )
@@ -41,15 +41,15 @@ public class LobbyKeySetting : SceneOptionBase
 
     public override void KeyBind()
     {
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.LeftArrow, () => PrevMove() );
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.LeftArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.LeftArrow, () => PrevMove() );
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.LeftArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.RightArrow, () => NextMove() );
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.RightArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.RightArrow, () => NextMove() );
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.RightArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => CurrentScene.ChangeAction( SceneAction.Option ) );
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
-        CurrentScene.Bind( SceneAction.SubOption, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => CurrentScene.ChangeAction( ActionType.Option ) );
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
     }
 
     private void Update()

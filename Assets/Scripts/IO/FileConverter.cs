@@ -361,18 +361,27 @@ public class FileConverter : FileReader
                     continue;
 
                 // 상속된 BeatLength는 음수이기 때문에 절대값 변환 후 계산한다.
-                double beatLength = Global.Math.Abs( double.Parse( splitDatas[1] ) );
+                double beatLength = 0d;
+                if ( !double.TryParse( splitDatas[1], out beatLength ) ) 
+                     throw new Exception( "Error" );
 
-                // 상속된 bpm은 부모 bpm의 역백분율 값을 가진다. ( 100 = 1배, 50 = 2배 ... )
-                if ( int.Parse( splitDatas[6] ) == 1 ) uninheritedBeat = beatLength;
-                else                                   beatLength = uninheritedBeat * ( beatLength * .01d );
+                int uninherited = 0;
+                if ( !int.TryParse( splitDatas[6], out uninherited ) )
+                     throw new Exception( "Error" );
 
-                double BPM = 1d / beatLength * 60000d;
+                double beatLengthAbs = Global.Math.Abs( beatLength );
+                if ( uninherited == 1 ) uninheritedBeat = beatLengthAbs;
+                else beatLengthAbs = uninheritedBeat * ( beatLengthAbs * .01d );
+
+                double BPM = 1d / beatLengthAbs * 60000d;
                 if ( song.minBpm > BPM ) song.minBpm = Mathf.RoundToInt( ( float )BPM );
                 if ( song.maxBpm < BPM ) song.maxBpm = Mathf.RoundToInt( ( float )BPM );
 
-                double time = double.Parse( splitDatas[0] );
-                Timing timing = new Timing( time, BPM, beatLength );
+                double time = 0d;
+                if ( !double.TryParse( splitDatas[0], out time ) )
+                     throw new Exception( "Error" );
+
+                Timing timing = new Timing( time, BPM, beatLengthAbs );
                 if ( prevTiming.bpm != timing.bpm )
                 {
                     timings.Add( timing );

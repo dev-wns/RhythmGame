@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +9,8 @@ using UnityEngine.UI;
 [RequireComponent( typeof( RectTransform ) )]
 public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
 {
-    [System.Serializable]
+    public int spacing;
+    [Serializable]
     protected struct RectOffset
     {
         public int left, right, top, bottom;
@@ -21,8 +23,6 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
             bottom = _bottom;
         }
     }
-    [SerializeField]
-    public int spacing;
     [SerializeField]
     protected RectOffset padding;
     [SerializeField] 

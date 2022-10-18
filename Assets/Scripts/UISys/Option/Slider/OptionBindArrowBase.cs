@@ -65,27 +65,27 @@ public abstract class OptionBindArrowBase : OptionBase, IOptionArrow
     public override void KeyBind()
     {
         base.KeyBind();
-        CurrentScene?.Bind( actionType, KeyType.Down, KeyCode.LeftArrow,  leftDownAction );
-        CurrentScene?.Bind( actionType, KeyType.Down, KeyCode.RightArrow, rightDownAction );
+        CurrentScene?.Bind( actionType, InputType.Down, KeyCode.LeftArrow,  leftDownAction );
+        CurrentScene?.Bind( actionType, InputType.Down, KeyCode.RightArrow, rightDownAction );
 
-        CurrentScene?.Bind( actionType, KeyType.Hold, KeyCode.LeftArrow,  leftHoldAction );
-        CurrentScene?.Bind( actionType, KeyType.Hold, KeyCode.RightArrow, rightHoldAction );
+        CurrentScene?.Bind( actionType, InputType.Hold, KeyCode.LeftArrow,  leftHoldAction );
+        CurrentScene?.Bind( actionType, InputType.Hold, KeyCode.RightArrow, rightHoldAction );
 
-        CurrentScene?.Bind( actionType, KeyType.Up, KeyCode.LeftArrow,  UpAction );
-        CurrentScene?.Bind( actionType, KeyType.Up, KeyCode.RightArrow, UpAction );
+        CurrentScene?.Bind( actionType, InputType.Up, KeyCode.LeftArrow,  UpAction );
+        CurrentScene?.Bind( actionType, InputType.Up, KeyCode.RightArrow, UpAction );
     }
 
     public override void KeyRemove()
     {
         base.KeyRemove();
-        CurrentScene?.Remove( actionType, KeyType.Down, KeyCode.LeftArrow,  leftDownAction );
-        CurrentScene?.Remove( actionType, KeyType.Down, KeyCode.RightArrow, rightDownAction );
+        CurrentScene?.Remove( actionType, InputType.Down, KeyCode.LeftArrow,  leftDownAction );
+        CurrentScene?.Remove( actionType, InputType.Down, KeyCode.RightArrow, rightDownAction );
 
-        CurrentScene?.Remove( actionType, KeyType.Hold, KeyCode.LeftArrow,  leftHoldAction );
-        CurrentScene?.Remove( actionType, KeyType.Hold, KeyCode.RightArrow, rightHoldAction );
+        CurrentScene?.Remove( actionType, InputType.Hold, KeyCode.LeftArrow,  leftHoldAction );
+        CurrentScene?.Remove( actionType, InputType.Hold, KeyCode.RightArrow, rightHoldAction );
 
-        CurrentScene?.Remove( actionType, KeyType.Up, KeyCode.LeftArrow,  UpAction );
-        CurrentScene?.Remove( actionType, KeyType.Up, KeyCode.RightArrow, UpAction );
+        CurrentScene?.Remove( actionType, InputType.Up, KeyCode.LeftArrow,  UpAction );
+        CurrentScene?.Remove( actionType, InputType.Up, KeyCode.RightArrow, UpAction );
 
         KeyUp();
     }

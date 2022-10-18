@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum KeyType { Down, Hold, Up, }
+public enum InputType { Down, Hold, Up, }
 public class KeyAction
 {
-    private Dictionary<KeyCode, Dictionary<KeyType, Action>> keyActions = new Dictionary<KeyCode, Dictionary<KeyType, Action>>();
+    private Dictionary<KeyCode, Dictionary<InputType, Action>> keyActions = new Dictionary<KeyCode, Dictionary<InputType, Action>>();
 
     public void ActionCheck()
     {
@@ -16,15 +16,15 @@ public class KeyAction
             {
                 switch ( type )
                 {
-                    case KeyType.Down: { if ( Input.GetKeyDown( code ) ) { keyActions[code][type]?.Invoke(); } } break;
-                    case KeyType.Hold: { if ( Input.GetKey( code ) )     { keyActions[code][type]?.Invoke(); } } break;
-                    case KeyType.Up:   { if ( Input.GetKeyUp( code ) )   { keyActions[code][type]?.Invoke(); } } break;
+                    case InputType.Down: { if ( Input.GetKeyDown( code ) ) { keyActions[code][type]?.Invoke(); } } break;
+                    case InputType.Hold: { if ( Input.GetKey( code ) )     { keyActions[code][type]?.Invoke(); } } break;
+                    case InputType.Up:   { if ( Input.GetKeyUp( code ) )   { keyActions[code][type]?.Invoke(); } } break;
                 }
             }
         }
     }
 
-    public void Remove( KeyCode _code, KeyType _keyType, Action _action )
+    public void Remove( KeyCode _code, InputType _keyType, Action _action )
     {
         if ( !keyActions.ContainsKey( _code ) )           return;
         if ( !keyActions[_code].ContainsKey( _keyType ) ) return;
@@ -40,7 +40,7 @@ public class KeyAction
         }
     }
 
-    public void Bind( KeyCode _code, KeyType _type, Action _action )
+    public void Bind( KeyCode _code, InputType _type, Action _action )
     {
         if ( _action == null || IsDuplicate( _code, _type, _action ) ) 
              return;
@@ -53,19 +53,19 @@ public class KeyAction
     {
         if ( !keyActions.ContainsKey( _code ) )
         {
-            var typeAction = new Dictionary<KeyType, Action>();
+            var typeAction = new Dictionary<InputType, Action>();
             
-            typeAction.Add( KeyType.Down, () => { } );
-            typeAction.Add( KeyType.Hold, () => { } );
-            typeAction.Add( KeyType.Up,   () => { } );
+            typeAction.Add( InputType.Down, () => { } );
+            typeAction.Add( InputType.Hold, () => { } );
+            typeAction.Add( InputType.Up,   () => { } );
 
             keyActions.Add( _code, typeAction );
         }
     }
 
-    private bool IsDuplicate( KeyCode _code, KeyType _type, Action _action )
+    private bool IsDuplicate( KeyCode _code, InputType _type, Action _action )
     {
-        // KeyType은 KeyCode가 없으면 Down, Hold, Up을 전부 할당하기 때문에 체크 안해도 된다.
+        // InputType은 KeyCode가 없으면 Down, Hold, Up을 전부 할당하기 때문에 체크 안해도 된다.
         if ( !keyActions.ContainsKey( _code ) )
              return false;
 

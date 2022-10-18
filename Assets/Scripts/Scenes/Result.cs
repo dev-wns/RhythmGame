@@ -56,9 +56,9 @@ public class Result : Scene
 
     public override void KeyBind()
     {
-        Bind( SceneAction.Main, KeyCode.Escape, () => LoadScene( SceneType.FreeStyle ) );
-        Bind( SceneAction.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
-        Bind( SceneAction.Main, KeyCode.Return, () => LoadScene( SceneType.FreeStyle ) );
-        Bind( SceneAction.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
+        Bind( ActionType.Main, KeyCode.Escape, () => LoadScene( SceneType.FreeStyle ) );
+        Bind( ActionType.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
+        Bind( ActionType.Main, KeyCode.Return, () => LoadScene( SceneType.FreeStyle ) );
+        Bind( ActionType.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
     }
 }

@@ -35,7 +35,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         KeyBind();
 
         NowPlaying.CurrentScene = this;
-        ChangeAction( SceneAction.Main );
+        ChangeAction( ActionType.Main );
     }
 
     protected virtual void Start() => StartCoroutine( FadeIn() );

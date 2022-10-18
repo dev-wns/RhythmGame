@@ -11,15 +11,14 @@ public class FileParser : FileReader
     {
         List<Song> songs = new List<Song>();
 
-        var files = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
+        string[] files = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
         for ( int i = 0; i < files.Length; i++ )
         {
             Song newSong = new Song();
             if ( TryParse( files[i], out newSong ) )
                  songs.Add( newSong );
         }
-
-        songs.Sort( delegate ( Song A, Song B ) { return A.title.CompareTo( B.title ); } );
+        songs.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
 
         _songs = new ReadOnlyCollection<Song>( songs );
     }
@@ -83,9 +82,9 @@ public class FileParser : FileReader
                 if ( Contains( "NumNote:" ) )   _song.noteCount   = int.Parse( Split( ':' ) );
                 if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( Split( ':' ) );
 
-                if ( Contains( "MinBPM:" ) ) _song.minBpm    = int.Parse( Split( ':' ) );
-                if ( Contains( "MaxBPM:" ) ) _song.maxBpm    = int.Parse( Split( ':' ) );
-                if ( Contains( "Median:" ) ) _song.medianBpm = double.Parse( Split( ':' ) );
+                if ( Contains( "MinBPM:" ) )  _song.minBpm         = int.Parse( Split( ':' ) );
+                if ( Contains( "MaxBPM:" ) )  _song.maxBpm         = int.Parse( Split( ':' ) );
+                if ( Contains( "Median:" ) )  _song.medianBpm      = double.Parse( Split( ':' ) );
                 if ( Contains( "Virtual:" ) ) _song.isOnlyKeySound = int.Parse( Split( ':' ) ) == 1 ? true : false;
             }
         }

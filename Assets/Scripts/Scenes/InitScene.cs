@@ -64,6 +64,6 @@ public class InitScene : Scene
 
     public override void KeyBind()
     {
-        Bind( SceneAction.Main, KeyCode.Return, () => { } );
+        Bind( ActionType.Main, KeyCode.Return, () => { } );
     }
 }

@@ -3,15 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SceneAction : byte
+public enum ActionType : byte
 {
     Main, Option, SubOption, Pause, Exit,
 }
 
 public abstract class SceneKeyAction : MonoBehaviour, IKeyBind
 {
-    private Dictionary<SceneAction, KeyAction> keyActions = new Dictionary<SceneAction, KeyAction>();
-    public SceneAction CurrentAction { get; private set; }
+    private Dictionary<ActionType, KeyAction> keyActions = new Dictionary<ActionType, KeyAction>();
+    public ActionType CurrentAction { get; private set; }
     public bool IsInputLock          { get; set; }
 
     protected virtual void Update()
@@ -21,20 +21,20 @@ public abstract class SceneKeyAction : MonoBehaviour, IKeyBind
 
         keyActions[CurrentAction].ActionCheck();
     }
-    public void Bind( SceneAction _type, KeyCode _code, Action _action )
+    public void Bind( ActionType _type, KeyCode _code, Action _action )
     {
         if ( keyActions.ContainsKey( _type ) )
         {
-            keyActions[_type].Bind( _code, KeyType.Down, _action );
+            keyActions[_type].Bind( _code, InputType.Down, _action );
         }
         else
         {
             KeyAction keyAction = new KeyAction();
-            keyAction.Bind( _code, KeyType.Down, _action );
+            keyAction.Bind( _code, InputType.Down, _action );
             keyActions.Add( _type, keyAction );
         }
     }
-    public void Bind( SceneAction _type, KeyType _keyType, KeyCode _code, Action _action )
+    public void Bind( ActionType _type, InputType _keyType, KeyCode _code, Action _action )
     {
         if ( keyActions.ContainsKey( _type ) )
         {
@@ -47,19 +47,19 @@ public abstract class SceneKeyAction : MonoBehaviour, IKeyBind
             keyActions.Add( _type, keyAction );
         }
     }
-    public void Remove( SceneAction _type, KeyCode _code, Action _action )
+    public void Remove( ActionType _type, KeyCode _code, Action _action )
     {
         if ( !keyActions.ContainsKey( _type ) ) return;
 
-        keyActions[_type].Remove( _code, KeyType.Down, _action );
+        keyActions[_type].Remove( _code, InputType.Down, _action );
     }
-    public void Remove( SceneAction _type, KeyType _keyType, KeyCode _code, Action _action )
+    public void Remove( ActionType _type, InputType _keyType, KeyCode _code, Action _action )
     {
         if ( !keyActions.ContainsKey( _type ) ) return;
 
         keyActions[_type].Remove( _code, _keyType, _action );
     }
-    public void ChangeAction( SceneAction _type )
+    public void ChangeAction( ActionType _type )
     {
         if ( !keyActions.ContainsKey( _type ) )
         {

@@ -38,6 +38,11 @@ public abstract class FileReader : IDisposable
         }
     }
 
+    protected void Peek()
+    {
+        
+    }
+
     protected string ReadLine()
     {
         return line = streamReader.ReadLine();
@@ -70,11 +75,9 @@ public abstract class FileReader : IDisposable
     protected string[] GetFilesInSubDirectories( string _dirPath, string _extension )
     {
         List<string> paths = new List<string>();
-
         try 
         {
             string[] subDirectories = Directory.GetDirectories( _dirPath );
-
             paths.Capacity = subDirectories.Length;
             for ( int i = 0; i < subDirectories.Length; i++ )
             {
@@ -88,7 +91,7 @@ public abstract class FileReader : IDisposable
         catch ( Exception _error )
         {
             // 대부분 폴더가 없는 경우.
-            Debug.LogWarning( $"{_error}, {_dirPath}" );
+            Debug.LogError( $"{_error}, {_dirPath}" );
         }
 
         return paths.ToArray();

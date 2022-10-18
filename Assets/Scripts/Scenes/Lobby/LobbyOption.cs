@@ -17,7 +17,7 @@ public class LobbyOption : SceneScrollOption
 
     private void Back()
     {
-        CurrentScene.ChangeAction( SceneAction.Main );
+        CurrentScene.ChangeAction( ActionType.Main );
         DOTween.Clear();
         optionGroup.alpha = 1f;
         DOTween.To( () => 1f, x => optionGroup.alpha = x, 0f, Global.Const.OptionFadeDuration ).OnComplete( () => gameObject.SetActive( false ) );
@@ -26,13 +26,13 @@ public class LobbyOption : SceneScrollOption
 
     public override void KeyBind()
     {
-        CurrentScene.Bind( SceneAction.Option, KeyCode.UpArrow,   () => PrevMove() );
-        CurrentScene.Bind( SceneAction.Option, KeyCode.UpArrow,   () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
+        CurrentScene.Bind( ActionType.Option, KeyCode.UpArrow,   () => PrevMove() );
+        CurrentScene.Bind( ActionType.Option, KeyCode.UpArrow,   () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
-        CurrentScene.Bind( SceneAction.Option, KeyCode.DownArrow, () => NextMove() );
-        CurrentScene.Bind( SceneAction.Option, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
+        CurrentScene.Bind( ActionType.Option, KeyCode.DownArrow, () => NextMove() );
+        CurrentScene.Bind( ActionType.Option, KeyCode.DownArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
-        CurrentScene.Bind( SceneAction.Option, KeyCode.Escape, Back );
+        CurrentScene.Bind( ActionType.Option, KeyCode.Escape, Back );
     }
 
     public void ShowKeySetting( GameObject _obj )
