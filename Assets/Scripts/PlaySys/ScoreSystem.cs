@@ -11,10 +11,12 @@ public class ScoreSystem : MonoBehaviour
 
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
+    private double targetScore;
     private double curScore;
-    private double incScore;
     private double maxScore;
-    private Tweener tweener;
+
+    private float countDuration = 0.1f; // 카운팅에 걸리는 시간 설정.
+    private float countOffset;
 
     private void Awake()
     {
@@ -32,17 +34,15 @@ public class ScoreSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        tweener?.Kill();
         NowPlaying.Inst.OnResult -= Result;
     }
 
-    private void Result() => judge.SetResult( HitResult.Score, ( int )Global.Math.Round( curScore ) );
+    private void Result() => judge.SetResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
 
     private void ReLoad()
     {
-        tweener?.Kill();
+        targetScore = 0d;
         curScore = 0d;
-        incScore = 0d;
 
         for ( int i = 0; i < images.Count; i++ )
         {
@@ -64,6 +64,7 @@ public class ScoreSystem : MonoBehaviour
         }
 
         maxScore = 1000000d / maxJudgeCount;
+        StartCoroutine( Count() );
     }
 
     private void ScoreUpdate( HitResult _type )
@@ -76,20 +77,35 @@ public class ScoreSystem : MonoBehaviour
             case HitResult.Slow:
             return;
 
-            case HitResult.Perfect: curScore += maxScore;        break;
-            case HitResult.Great:   curScore += maxScore * .87d; break;
-            case HitResult.Good:    curScore += maxScore * .63d; break;
-            case HitResult.Bad:     curScore += maxScore * .41d; break;
-            case HitResult.Miss:    curScore += 0d;              break;
+            case HitResult.Perfect: targetScore += maxScore;        break;
+            case HitResult.Great:   targetScore += maxScore * .87d; break;
+            case HitResult.Good:    targetScore += maxScore * .63d; break;
+            case HitResult.Bad:     targetScore += maxScore * .41d; break;
+            case HitResult.Miss:    targetScore += 0d;              break;
         }
 
-        tweener?.Kill();
-        tweener = DOTween.To( () => incScore, x => ImageUpdate( x ), curScore, .1f );
+        countOffset = ( float )( targetScore - curScore ) / countDuration;
+    }
+
+    private IEnumerator Count()
+    {
+        WaitUntil waitNextValue = new WaitUntil( () => targetScore > curScore );
+        while ( true )
+        {
+            yield return waitNextValue;
+            
+            curScore += countOffset * Time.deltaTime;
+            if ( curScore >= targetScore )
+                 curScore = targetScore;
+
+            ImageUpdate( curScore );
+            yield return null;
+        }
     }
 
     private void ImageUpdate( double _value )
     {
-        incScore = _value;
+        curScore = _value;
         double calcScore = Global.Math.Round( _value );
         int num = Global.Math.Log10( calcScore ) + 1;
         for ( int i = 0; i < images.Count; i++ )

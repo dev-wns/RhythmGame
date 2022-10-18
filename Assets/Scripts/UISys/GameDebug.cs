@@ -6,14 +6,11 @@ using TMPro;
 public class GameDebug : MonoBehaviour
 {
     private InGame scene;
-    public static float FPS;
     public TextMeshProUGUI fpsText;
     public TextMeshProUGUI channelsInUse;
     public TextMeshProUGUI backgroundType;
     public TextMeshProUGUI background, foreground;
     public TextMeshProUGUI keySoundCount;
-
-    private float deltaTime = 0f;
 
     public void SetBackgroundType( BackgroundType _type, int _count = 0 )
     {
@@ -41,14 +38,9 @@ public class GameDebug : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        StartCoroutine( CalcFrameRate() );
-        StartCoroutine( UpdateKeySoundCount() );
-    }
 
-    private void Update()
-    {
-        deltaTime += ( Time.unscaledDeltaTime - deltaTime ) * .1f;
-        FPS = 1f / deltaTime;
+        //StartCoroutine( CalcFrameRate() );
+        StartCoroutine( UpdateKeySoundCount() );
     }
 
     private IEnumerator UpdateKeySoundCount()
@@ -66,8 +58,8 @@ public class GameDebug : MonoBehaviour
         {
             yield return YieldCache.WaitForSeconds( .075f );
 
-            fpsText.text = $"{( int )FPS} ( {( deltaTime * 1000f ):F1} ms )";
-            channelsInUse.text = $"{SoundManager.Inst.UseChannelCount}";
+            //fpsText.text = $"{( int )FPS} ( {( deltaTime * 1000f ):F1} ms )";
+            //channelsInUse.text = $"{SoundManager.Inst.UseChannelCount}";
         }
     }
 }
