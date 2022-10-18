@@ -92,9 +92,9 @@ public class GameSetting
     public  static float JudgeHeight = 50f;
 
     // note
-    public static float NoteWidth  = 65f; // 83f; // 75f
-    public static float NoteHeight = 65f; // 90f; // 1.28125
-    public static float NoteBlank  = 7.5f;
+    public static float NoteWidth  = 80f; // 83f; // 75f
+    public static float NoteHeight = 80f; // 65f; // 90f; // 1.28125
+    public static float NoteBlank  = 0f; //7.5f;
     public static float NoteStartPos => -( ( NoteWidth * 5f ) + ( NoteBlank * 7f ) ) * .5f;
 
     // Gear

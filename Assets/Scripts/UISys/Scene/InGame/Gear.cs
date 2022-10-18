@@ -13,7 +13,6 @@ public class Gear : MonoBehaviour
 
     private void Awake()
     {
-        // hint.position   = new Vector2( 0f, GameSetting.HintPos );
         UpdateHintPosition();
 
         if ( GameSetting.PanelOpacity <= .01f ? false : true )
@@ -30,5 +29,6 @@ public class Gear : MonoBehaviour
     {
         keyUI.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) );
         hint.position = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) ? new Vector2( 0f, GameSetting.HintPos ) : new Vector2( 0f, GameSetting.JudgePos + GameSetting.HintOffset );
+        hint.localScale = new Vector3( GameSetting.GearWidth, hint.localScale.y );
     }
 }

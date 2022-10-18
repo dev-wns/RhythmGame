@@ -40,7 +40,7 @@ public class KeySampleSystem : MonoBehaviour
 
         WaitUntil waitNextSample = NowPlaying.Inst.CurrentSong.isOnlyKeySound || GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 
                                    new WaitUntil( () => curTime <= NowPlaying.Playback ) : 
-                                   new WaitUntil( () => curTime <= NowPlaying.Playback + ( GameSetting.SoundOffset * .001d ) );
+                                   new WaitUntil( () => curTime <= NowPlaying.Playback + ( GameSetting.SoundOffset * .001d ) + .1d );
 
         while ( curIndex < samples.Count )
         {

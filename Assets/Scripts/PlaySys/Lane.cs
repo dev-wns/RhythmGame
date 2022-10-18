@@ -29,7 +29,6 @@ public class Lane : MonoBehaviour
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowGearKey ) != 0 )
              InputSys.OnInputEvent += KeyEffect;
 
-        transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .13f ), 1f );
         color = rdr.color;
         color.a = .75f;
         rdr.color = Color.clear;
@@ -42,14 +41,15 @@ public class Lane : MonoBehaviour
     public void SetLane( int _key )
     {
         Key = _key;
-        UpdatePosition();
+        UpdatePosition( _key );
         OnLaneInitialize?.Invoke( Key );
     }
 
-    private void UpdatePosition()
+    public void UpdatePosition( int _key )
     {
-        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) + ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank,
+        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank,
                                           GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) ? GameSetting.HintPos : GameSetting.JudgePos, 90f );
+        transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .13f ), 1f );
 
         keyImage.transform.position   = new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
         keyImage.transform.localScale = new Vector3( transform.localScale.x + GameSetting.NoteBlank, keyImage.transform.localScale.y );
