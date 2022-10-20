@@ -10,9 +10,8 @@ public class NoteRenderer : MonoBehaviour
     public SpriteRenderer head, body, tail;
     private Transform headTf, bodyTf, tailTf;
 
-    //public Sprite skinNormal, skinHead, skinBody, skinTail;
-    private static readonly float BodyScaleOffset    = 256f / 64f; // PixelPerUnit  / TextureHeight
-    private static readonly float BodyPositionOffset = 64f / 256f; // TextureHeight / PixelPerUnit
+    private static readonly float BodyScaleOffset    = 128f / 32f; // PixelPerUnit  / TextureHeight
+    private static readonly float BodyPositionOffset = 64f / 128f; // TextureHeight / PixelPerUnit
     private Note note;
 
     public double Time => note.time;
@@ -24,11 +23,7 @@ public class NoteRenderer : MonoBehaviour
     public KeySound Sound => note.keySound;
 
     private float column;
-
-    //private static readonly Color MiddleColor   = new Color( 0.2078432f, 0.7843138f, 1f, 1f );
-    //private static readonly Color BodyColor     = new Color( .4f, .4f, .4f, 1f );
     private static readonly Color NoteFailColor = new Color( .25f, .25f, .25f, 1f );
-
     private double weight;
     private double newTime;
 
@@ -44,52 +39,12 @@ public class NoteRenderer : MonoBehaviour
 
         tailTf = tail.transform;
         tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
+        tail.enabled = false;
     }
 
     private void OnDestroy()
     {
         game.OnScrollChanged -= ScrollUpdate;
-    }
-
-    private void SetSkin( int _lane, bool _isSlider )
-    {
-        switch ( _lane )
-        {
-            case 0:
-            case 2:
-            case 3:
-            case 5:
-                if ( _isSlider )
-                {
-                    body.enabled = tail.enabled = true;
-                    head.sprite = SkinManager.CurrentNoteSkin.left.head;
-                }
-                else
-                {
-                    body.enabled = tail.enabled = false;
-                    head.sprite = SkinManager.CurrentNoteSkin.left.normal;
-                }
-
-                body.sprite = SkinManager.CurrentNoteSkin.left.body;
-                tail.sprite = SkinManager.CurrentNoteSkin.left.tail;
-            break;
-
-            case 1:
-            case 4:
-                if ( _isSlider )
-                {
-                    body.enabled = tail.enabled = true;
-                    head.sprite = SkinManager.CurrentNoteSkin.right.head;
-                }
-                else
-                {
-                    body.enabled = tail.enabled = false;
-                    head.sprite = SkinManager.CurrentNoteSkin.right.normal;
-                }
-                body.sprite = SkinManager.CurrentNoteSkin.right.body;
-                tail.sprite = SkinManager.CurrentNoteSkin.right.tail;
-            break;
-        }
     }
 
     public void SetInfo( int _lane, NoteSystem _system, in Note _note )
@@ -100,9 +55,8 @@ public class NoteRenderer : MonoBehaviour
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
         newTime = note.calcTime;
 
-        SetSkin( _lane, IsSlider );
-        //body.enabled = tail.enabled = IsSlider ? true : false;
-        ScrollUpdate();
+        ScrollUpdate();head.color = body.color = tail.color = Color.white;
+        body.enabled = IsSlider ? true : false;
         head.color = body.color = tail.color = Color.white;
     }
 

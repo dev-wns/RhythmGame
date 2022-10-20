@@ -72,12 +72,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: a2bae6204dc0f2a44b2dee839599b19f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3a193603e49a208448c669edc90ae573, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -163,12 +163,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: 9f70fd79b0692ee40940bb3f851cdc35, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 190b0efb799adfc4da0fcce42a661df6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 0.25}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -232,10 +232,6 @@ MonoBehaviour:
   head: {fileID: 4345467133029532209}
   body: {fileID: 8511283501919975727}
   tail: {fileID: 8698400396741977447}
-  skinNormal: {fileID: 21300000, guid: 6ca6779e45aa022468c3c0fa33e127ac, type: 3}
-  skinHead: {fileID: 21300000, guid: 8c3bc942494ebf94a8561f54695efcba, type: 3}
-  skinBody: {fileID: 21300000, guid: 05496ca107a775a4ea66af9cd6d4bce1, type: 3}
-  skinTail: {fileID: 21300000, guid: 85ea271d8b3f9834cbe048eb64a0d28b, type: 3}
 --- !u!222 &-337763570364687424
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -316,12 +312,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: ca7a1c028316529488a3656d50f0a00a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3a193603e49a208448c669edc90ae573, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.56, y: 1.28}
+  m_Size: {x: 1, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
