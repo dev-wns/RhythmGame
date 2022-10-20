@@ -50,6 +50,7 @@ public class InputSystem : MonoBehaviour
 
         isReady = false;
         isAuto  = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
+        rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
     }
     private void Update()
     {
@@ -197,11 +198,11 @@ public class InputSystem : MonoBehaviour
         double startDiff = curNote.Time - NowPlaying.Playback;
         if ( isAuto )
         {
-            rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .01d ), ( float )( Judgement.Bad - .01d ) );
+            //rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad + .01d ), ( float )( Judgement.Bad - .01d ) );
             bool isHit = GameSetting.IsAutoRandom ? startDiff <= rand : startDiff <= 0d;
-            //if ( startDiff <= 0d )
             if ( isHit )
             {
+                rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
                 autoNoteType = NoteType.Default;
                 inputAutoTime = 0f;
                 OnInputEvent?.Invoke( true );

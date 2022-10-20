@@ -104,5 +104,5 @@ public class GameSetting
     public static int PPU = 100; // pixel per unit
 
     // Debug
-    public static bool IsAutoRandom;
+    public static bool IsAutoRandom = true;
 }
