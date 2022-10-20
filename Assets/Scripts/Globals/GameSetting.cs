@@ -81,15 +81,10 @@ public class GameSetting
     public static float MeasureHeight = 2.5f;
 
     // Jugdement
-    public static float HintPos = -( 1080f * .5f ) + 190 + HintOffset;
-    public static float HintOffset = -10f;
-    public static float JudgePos 
-    {
-        get => HintPos + JudgementPosition;
-        set => JudgementPosition = value;
-    }
-    private static float JudgementPosition = 0f;
-    public  static float JudgeHeight = 50f;
+    private static float DefaultJudgePos = -340f;
+    public static float JudgePos => DefaultJudgePos + JudgeOffset;
+    public static float JudgeOffset = 0f;
+    public static float JudgeHeight = 50f;
 
     // note
     public static float NoteWidth  = 80f; // 83f; // 75f
