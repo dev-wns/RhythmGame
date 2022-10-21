@@ -164,7 +164,6 @@ public class FileConverter : FileReader
     private List<SpriteSample> sprites = new List<SpriteSample>();
 
     private readonly string[] virtualAudioName = { "preview.wav", "preview.mp3", "preview.ogg" };
-
     private class IntegerComparer : IComparer<int>
     {
         int IComparer<int>.Compare( int _left, int _right )
@@ -174,7 +173,6 @@ public class FileConverter : FileReader
             else                       return 0;
         }
     }
-
     private class DeleteKey
     {
         public BitArray bits { get; private set; }
@@ -207,7 +205,6 @@ public class FileConverter : FileReader
 
         public bool this[int _key] => bits[_key];
     }
-
     private class LaneData : IEquatable<LaneData>
     {
         public int px;
@@ -257,16 +254,13 @@ public class FileConverter : FileReader
             Convert( osuFiles[i] );
         }
     }
-
-    private void Convert( string _path )
+    private void Convert( string _path ) 
     {
-        try
+        try 
         {
             Song song = new Song();
-
             OpenFile( _path );
-
-#region General Data Parsing
+#region General
             // [General] ~ [Editor]
             int mode = 0;
             while ( ReadLine() != "[Metadata]" )
@@ -275,9 +269,9 @@ public class FileConverter : FileReader
                 if ( Contains( "PreviewTime" ) )   song.previewTime = int.Parse( Split( ':' ) );
                 if ( Contains( "Mode" ) )          mode             = int.Parse( Split( ':' ) );
             }
+
             // 건반형 모드가 아니면 읽지 않음.
             if ( mode != 3 ) return;
-
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Difficulty]" )
             {
@@ -345,84 +339,41 @@ public class FileConverter : FileReader
                     samples.Add( new KeySound( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
                 }
             }
-#endregion
-
-#region Timings Parsing
             timings?.Clear();
-
-            // [TimingPoints]
+#endregion
+#region Timing
             double uninheritedBeat = 0d;
-            Timing prevTiming = new Timing();
             song.minBpm = int.MaxValue;
             while ( ReadLine() != "[HitObjects]" )
             {
                 string[] splitDatas = line.Split( ',' );
-                if ( splitDatas.Length != 8 )
-                    continue;
+                if ( splitDatas.Length != 8 ) 
+                     continue;
 
                 // 상속된 BeatLength는 음수이기 때문에 절대값 변환 후 계산한다.
-                double beatLength = 0d;
-                if ( !double.TryParse( splitDatas[1], out beatLength ) ) 
-                     throw new Exception( "Error" );
+                double beatLengthAbs = Global.Math.Abs( double.Parse( splitDatas[1] ) );
+                int isUninherited = int.Parse( splitDatas[6] );
 
-                int uninherited = 0;
-                if ( !int.TryParse( splitDatas[6], out uninherited ) )
-                     throw new Exception( "Error" );
-
-                double beatLengthAbs = Global.Math.Abs( beatLength );
-                if ( uninherited == 1 ) uninheritedBeat = beatLengthAbs;
+                if ( isUninherited == 1 ) uninheritedBeat = beatLengthAbs;
                 else beatLengthAbs = uninheritedBeat * ( beatLengthAbs * .01d );
 
                 double BPM = 1d / beatLengthAbs * 60000d;
                 if ( song.minBpm > BPM ) song.minBpm = Mathf.RoundToInt( ( float )BPM );
                 if ( song.maxBpm < BPM ) song.maxBpm = Mathf.RoundToInt( ( float )BPM );
 
-                double time = 0d;
-                if ( !double.TryParse( splitDatas[0], out time ) )
-                     throw new Exception( "Error" );
-
-                Timing timing = new Timing( time, BPM, beatLengthAbs );
-                if ( prevTiming.bpm != timing.bpm )
-                {
-                    timings.Add( timing );
-                    prevTiming = timing;
-                }
-
-                //string[] splitDatas = line.Split( ',' );
-                //if ( splitDatas.Length != 8 ) continue;
-
-                //// 상속된 BeatLength는 음수이기 때문에 절대값 변환 후 계산한다.
-                //double beatLength = Globals.Abs( double.Parse( splitDatas[1] ) );
-                //double BPM = 1d / beatLength * 60000d;
-
-                //// 상속된 bpm은 부모 bpm의 역백분율 값을 가진다. ( 100 = 1배, 50 = 2배 ... )
-                //bool isUninherited = int.Parse( splitDatas[6] ) == 1;
-                //if ( isUninherited ) uninheritedBpm = BPM;
-                //else                 BPM = ( uninheritedBpm * 100d ) / beatLength;
-
-                //if ( song.minBpm >= BPM || song.minBpm == 0 ) song.minBpm = Mathf.RoundToInt( ( float )BPM );
-                //if ( song.maxBpm <= BPM )                     song.maxBpm = Mathf.RoundToInt( ( float )BPM );
-
-                //double time = double.Parse( splitDatas[0] );
-                //Timing timing = new Timing( time, BPM, 60000d / BPM );
-                //if ( prevTiming.bpm != timing.bpm )
-                //{
-                //    timings.Add( timing );
-                //    prevTiming = timing;
-                //}
+                double time = double.Parse( splitDatas[0] );
+                if ( timings.Count == 0 )
+                    timings.Add( new Timing( NowPlaying.WaitTime * 1000d, BPM, beatLengthAbs ) );
+                else
+                    timings.Add( new Timing( time, BPM, beatLengthAbs ) );
             }
-#endregion
-
-#region Notes Parsing
-            // [HitObjects]
+            #endregion
+            #region Note
             notes?.Clear();
             DeleteKey deleteKey = new DeleteKey( keyCount );
-
-            while ( ReadLineEndOfStream() )
-            {
+            while ( ReadLineEndOfStream() ) {
                 string[] splitDatas = line.Split( ',' );
                 string[] objParams = splitDatas[5].Split( ':' );
-                
                 double noteTime    = double.Parse( splitDatas[2] );
                 double sliderTime  = 0d;
                 if ( int.Parse( splitDatas[3] ) == 2 << 6 )
@@ -431,29 +382,23 @@ public class FileConverter : FileReader
                 // 잘린 노트의 키음은 자동으로 재생되는 KeySample로 만들어 준다.
                 int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * keyCount / 512 );
                 int finalLane     = deleteKey.FinalKey( originLane );
-                KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], float.Parse( objParams[objParams.Length - 2] ) );
-
-                if ( deleteKey[originLane] )
-                {
+                KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], 
+                                                  float.Parse( objParams[objParams.Length - 2] ) );
+                if ( deleteKey[originLane] ) {
                     samples.Add( keySound );
                 }
-                else
-                {
-                    if ( sliderTime > 0d )
-                    {
+                else {
+                    if ( sliderTime > 0d ) {
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
                     }
-                    else
-                    {
+                    else {
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
                     }
-
                     notes.Add( new Note( finalLane, noteTime, sliderTime, keySound ) );
                 }
             }
-
             // BMS2Osu로 뽑은 파일은 Pixel값 기준으로 정렬되어 있기 때문에 시간 순으로 다시 정렬해준다.
             samples.Sort( delegate ( KeySound _A, KeySound _B )
             {
@@ -461,23 +406,18 @@ public class FileConverter : FileReader
                 else if ( _A.time < _B.time ) return -1;
                 else                          return 0;
             } );
-
             notes.Sort( delegate ( Note _A, Note _B )
             {
                 if ( _A.time > _B.time )      return 1;
                 else if ( _A.time < _B.time ) return -1;
                 else                          return 0;
             } );
-#endregion
-
-
+            #endregion
             song.medianBpm = GetMedianBpm();
-            timings[0] = new Timing( -5000d, timings[0].bpm, timings[0].beatLength );
-
             Write( in song );
         }
-        catch ( Exception _error )
-        {
+        catch ( Exception _error ) {
+            #region 미처리된 파일 Failed 폴더로 이동
             //if ( !Directory.Exists( GameSetting.FailedPath ) )
             //      Directory.CreateDirectory( GameSetting.FailedPath );
 
@@ -486,7 +426,7 @@ public class FileConverter : FileReader
             //    File.Move( path, GameSetting.FailedPath );
             //    Debug.LogWarning( $"File Move Failed Directory : {path}" );
             //}
-
+            #endregion
             Dispose();
             Debug.LogError( $"{_error} : {_error.Message}" );
         }
@@ -605,27 +545,21 @@ public class FileConverter : FileReader
     }
 
     private double GetMedianBpm()
-    {        
-        // 값 전부 복사해서 계산해도 되지만 타이밍도 몇천개 있을 수도 있다.
-        // 첫번째, 마지막 타이밍만 수정한 후 계산 끝나면 돌려놓자.
-        var firstTimingCached = new Timing( timings[0] );
-
-        // 노트 기준으로 길이 측정 하기위해 첫번째, 마지막 타이밍 수정
-        // 마지막 Timing Bpm은 마지막 노트 시간까지의 길이로 계산한다.
-        timings[0] = new Timing( notes[0].time, timings[0].bpm );
-        timings.Add( new Timing( notes[notes.Count - 1].time, timings[timings.Count - 1].bpm ) );
-        
+    {
         List<CalcMedianTiming> medianCalc = new List<CalcMedianTiming>();
-        medianCalc.Add( new CalcMedianTiming( timings[0] ) );
+        medianCalc.Add( new CalcMedianTiming( new Timing( 0, timings[0].bpm ) ) );
         for ( int i = 1; i < timings.Count; i++ )
         {
             double prevTime = timings[i - 1].time;
             double prevBpm  = timings[i - 1].bpm;
 
+            if ( prevBpm < 60d )
+                 continue;
+
             bool isFind = false;
             for ( int j = 0; j < medianCalc.Count; j++ )
             {
-                if ( Global.Math.Abs( medianCalc[j].bpm - prevBpm ) < .1f )
+                if ( Global.Math.Abs( medianCalc[j].bpm - prevBpm ) < .0001d )
                 {
                     isFind = true;
                     medianCalc[j].time += timings[i].time - prevTime;
@@ -642,10 +576,6 @@ public class FileConverter : FileReader
             else if ( A.time > B.time ) return -1;
             else                        return 0;
         } );
-
-        // 계산 끝난 후 값 돌려놓기.
-        timings[0] = firstTimingCached;
-        timings.RemoveAt( timings.Count - 1 );
 
         return medianCalc[0].bpm;
     }

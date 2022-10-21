@@ -30,7 +30,7 @@ public class NoteRenderer : MonoBehaviour
     private void Awake()
     {
         game = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        game.OnScrollChanged += ScrollUpdate;
+        game.OnScrollChange += ScrollUpdate;
 
         headTf = head.transform;
         headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
@@ -44,7 +44,7 @@ public class NoteRenderer : MonoBehaviour
 
     private void OnDestroy()
     {
-        game.OnScrollChanged -= ScrollUpdate;
+        game.OnScrollChange -= ScrollUpdate;
     }
 
     public void SetInfo( int _lane, NoteSystem _system, in Note _note )

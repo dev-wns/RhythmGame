@@ -5,7 +5,7 @@ using UnityEngine;
 public class MeasureRenderer : MonoBehaviour
 {
     private InGame game;
-    private MeasureSystem system;
+    private ObjectPool<MeasureRenderer> pool;
     private double time;
 
     private SpriteRenderer rdr;
@@ -14,7 +14,7 @@ public class MeasureRenderer : MonoBehaviour
     private void Awake()
     {
         game = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        game.OnScrollChanged += ScrollUpdate;
+        game.OnScrollChange += ScrollUpdate;
 
         rdr = GetComponent<SpriteRenderer>();
         transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
@@ -22,7 +22,7 @@ public class MeasureRenderer : MonoBehaviour
         ScrollUpdate();
     }
 
-    private void OnDestroy() => game.OnScrollChanged -= ScrollUpdate;
+    private void OnDestroy() => game.OnScrollChange -= ScrollUpdate;
 
     private void ScrollUpdate() => weight = GameSetting.Weight;
 
@@ -34,14 +34,14 @@ public class MeasureRenderer : MonoBehaviour
         if ( pos <= GameSetting.JudgePos )
         {
             rdr.enabled = false;
-            system.Despawn( this );
+            pool.Despawn( this );
         }
     }
 
-    public void SetInfo( MeasureSystem _system, double _time )
+    public void SetInfo( ObjectPool<MeasureRenderer> _pool, double _time )
     {
         rdr.enabled = true;
-        system = _system;
+        pool = _pool;
         time = _time;
     }
 }

@@ -18,15 +18,15 @@ public class NowPlaying : Singleton<NowPlaying>
 
     #region Time
     private Timer timer = new Timer();
-    private readonly double waitTime = -1.25d;
     private double startTime, saveTime, totalTime;
-    public static double  Playback        { get; private set; }
+    public static readonly double WaitTime = -1.25d;
+    public static double Playback        { get; private set; }
     public static double PlaybackChanged { get; private set; }
     #endregion
 
     #region Event
-    public event Action       OnResult;
-    public event Action       OnStart;
+    public event Action                    OnResult;
+    public event Action                    OnStart;
     public event Action<bool/* isPause */> OnPause;
     #endregion
 
@@ -40,11 +40,12 @@ public class NowPlaying : Singleton<NowPlaying>
     protected override async void Awake()
     {
         base.Awake();
-        #if ASYNC_PARSE
+
+#if ASYNC_PARSE
         Task parseSongsAsyncTask = Task.Run( ParseSongs );
         await parseSongsAsyncTask;
-        #else
-        ParseSongs();
+#else
+        ParseSong();
         await Task.CompletedTask;
         #endif        
     }
@@ -65,44 +66,51 @@ public class NowPlaying : Singleton<NowPlaying>
     }
     #endregion
     #region Parsing
-    private void ParseSongs()
+    private void ConvertSong()
     {
-        //using ( FileConverter converter = new FileConverter() )
-        //{
-        //    converter.ReLoad();
-        //}
+        using ( FileConverter converter = new FileConverter() )
+        {
+            converter.ReLoad();
+        }
+    }
 
+    private void ParseSong()
+    {
+        ConvertSong();
+        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
         using ( FileParser parser = new FileParser() )
         {
             ReadOnlyCollection<Song> songs;
-            parser.ParseFilesInDirectories( out songs );
+            parser.ParseFileInDirectories( out songs );
             Songs = songs;
         }
-
         IsParseSong = true;
         UpdateSong( 0 );
-
-        Debug.Log( "Parsing Completed." );
     }
 
     public void ParseChart()
     {
         Stop();
-
         totalTime = CurrentSong.totalTime * .001d / GameSetting.CurrentPitch;
         using ( FileParser parser = new FileParser() )
         {
             Chart chart;
-            parser.TryParse( CurrentSong.filePath, out chart );
-            CurrentChart = chart;
+            if ( !parser.TryParse( CurrentSong.filePath, out chart ) )
+            {
+                CurrentScene.LoadScene( SceneType.FreeStyle );
+            }
+            else {
+                CurrentChart = chart;
+            }
         }
     }
+
     #endregion
     #region Sound Process
     public IEnumerator Play()
     {
         startTime = timer.CurrentTime;
-        saveTime = waitTime;
+        saveTime = WaitTime;
         IsStart = true;
 
         OnStart?.Invoke();
@@ -115,7 +123,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Stop()
     {
         StopAllCoroutines();
-        Playback = waitTime;
+        Playback = WaitTime;
         saveTime = 0d;
         PlaybackChanged = 0d;
 
@@ -139,7 +147,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
             SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
             OnPause?.Invoke( true );
-            saveTime = Playback >= 0d ? waitTime + Playback : 0d;
+            saveTime = Playback >= 0d ? WaitTime + Playback : 0d;
         }
         else
         {
@@ -164,13 +172,12 @@ public class NowPlaying : Singleton<NowPlaying>
         startTime = timer.CurrentTime;
         IsStart   = true;
 
-        yield return new WaitUntil( () => Playback >= saveTime - waitTime );
+        yield return new WaitUntil( () => Playback >= saveTime - WaitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
         OnPause?.Invoke( false );
 
         yield return YieldCache.WaitForSeconds( 2f );
         CurrentScene.IsInputLock = false;
-        //CurrentScene.InputLock( false );
     }
     #endregion
     #region Etc.

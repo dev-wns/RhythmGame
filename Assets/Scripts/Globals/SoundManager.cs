@@ -203,10 +203,10 @@ public class SoundManager : Singleton<SoundManager>
         //Debug.Log( $"Current Sound Device : {SoundDrivers[curDriverIndex].name}" );
 
         // Details
-        SetVolume( .1f, ChannelType.Master );
+        SetVolume( 1f, ChannelType.Master );
         SetVolume( .1f, ChannelType.BGM );
         SetVolume( .1f, ChannelType.KeySound );
-        SetVolume( 1f, ChannelType.SFX );
+        SetVolume( .3f, ChannelType.SFX );
         #endregion
     }
 

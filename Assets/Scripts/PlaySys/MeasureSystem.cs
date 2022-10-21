@@ -6,8 +6,6 @@ using System.Linq;
 public class MeasureSystem : MonoBehaviour
 {
     private InGame scene;
-    public BpmChanger bpmChanger;
-
     public ObjectPool<MeasureRenderer> mPool;
     public MeasureRenderer mPrefab;
     private List<double /* JudgeLine hit time */> measures = new List<double>();
@@ -23,11 +21,10 @@ public class MeasureSystem : MonoBehaviour
             scene.OnSystemInitialize += Initialize;
             scene.OnReLoad += ReLoad;
             scene.OnGameStart += () => StartCoroutine( Process() );
-            scene.OnScrollChanged += ScrollUpdate;
+            scene.OnScrollChange += ScrollUpdate;
         }
 
         mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
-
         ScrollUpdate();
     }
 
@@ -38,7 +35,7 @@ public class MeasureSystem : MonoBehaviour
         curTime = 0d;
     }
 
-    private void OnDestroy() => scene.OnScrollChanged -= ScrollUpdate;
+    private void OnDestroy() => scene.OnScrollChange -= ScrollUpdate;
 
     private void ScrollUpdate() => loadTime = GameSetting.PreLoadTime;
 
@@ -108,13 +105,12 @@ public class MeasureSystem : MonoBehaviour
              curTime = measures[curIndex];
         
         WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + loadTime );
-
         while ( curIndex < measures.Count )
         {
             yield return waitNextMeasure;
 
             MeasureRenderer measure = mPool.Spawn();
-            measure.SetInfo( this, curTime );
+            measure.SetInfo( mPool, curTime );
 
             if ( ++curIndex < measures.Count )
                  curTime = measures[curIndex];

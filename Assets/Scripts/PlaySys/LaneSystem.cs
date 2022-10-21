@@ -81,7 +81,7 @@ public class LaneSystem : MonoBehaviour
 
         for ( int i = 0; i < notes.Count; i++ )
         {
-            bool hasNoSliderMod = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+            bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
 
             switch ( GameSetting.CurrentRandom )
             {
@@ -92,7 +92,7 @@ public class LaneSystem : MonoBehaviour
                 {
                     Note newNote = notes[i];
 
-                    if ( hasNoSliderMod )
+                    if ( hasNoSlider )
                          newNote.isSlider = false;
 
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
@@ -129,7 +129,7 @@ public class LaneSystem : MonoBehaviour
                          sliderTimes[rand] = notes[i].sliderTime;
 
                     Note newNote = notes[i];
-                    if ( hasNoSliderMod )
+                    if ( hasNoSlider )
                          newNote.isSlider = false;
 
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );

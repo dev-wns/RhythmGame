@@ -40,7 +40,6 @@ public abstract class FileReader : IDisposable
 
     protected void Peek()
     {
-        
     }
 
     protected string ReadLine()

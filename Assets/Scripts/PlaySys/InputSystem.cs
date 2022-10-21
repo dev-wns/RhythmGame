@@ -70,7 +70,7 @@ public class InputSystem : MonoBehaviour
         {
             inputAutoTime += Time.deltaTime;
             if ( autoNoteType == NoteType.Default && inputAutoTime > autoPressTime )
-                OnInputEvent?.Invoke( false );
+                 OnInputEvent?.Invoke( false );
         }
         else
         {
@@ -87,12 +87,11 @@ public class InputSystem : MonoBehaviour
 
         if ( curNote != null )
         {
-            if ( curNote.IsSlider )
-                CheckSlider();
-            else
-                CheckNote();
+            if ( curNote.IsSlider ) CheckSlider();
+            else                    CheckNote();
         }
     }
+
     private void OnDestroy()
     {
         StopAllCoroutines();
@@ -111,6 +110,7 @@ public class InputSystem : MonoBehaviour
         key = ( GameKeyAction )_key; 
         isReady = true;
     }
+
     private void ReLoad()
     {
         StopAllCoroutines();
@@ -193,8 +193,6 @@ public class InputSystem : MonoBehaviour
 
     private void CheckNote()
     {
-        if ( curNote == null ) return;
-
         double startDiff = curNote.Time - NowPlaying.Playback;
         if ( isAuto )
         {
@@ -213,8 +211,7 @@ public class InputSystem : MonoBehaviour
                 SelectNextNote();
             }
         }
-        else
-        {
+        else {
             if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
             {
                 OnHitNote?.Invoke( NoteType.Default, false );
@@ -223,8 +220,7 @@ public class InputSystem : MonoBehaviour
                 return;
             }
 
-            if ( judge.IsMiss( startDiff ) )
-            {
+            if ( judge.IsMiss( startDiff ) ) {
                 judge.ResultUpdate( HitResult.Miss );
                 SelectNextNote();
             }
@@ -233,8 +229,6 @@ public class InputSystem : MonoBehaviour
 
     private void CheckSlider()
     {
-        if ( curNote == null ) return;
-
         double startDiff = curNote.Time       - NowPlaying.Playback;
         double endDiff   = curNote.SliderTime - NowPlaying.Playback;
         if ( isAuto )
@@ -279,7 +273,6 @@ public class InputSystem : MonoBehaviour
         {
             if ( !curNote.IsPressed )
             {
-
                 if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
                 {
                     curNote.IsPressed = true;

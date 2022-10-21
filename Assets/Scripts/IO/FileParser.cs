@@ -7,7 +7,7 @@ using System.IO;
 
 public class FileParser : FileReader
 {
-    public void ParseFilesInDirectories( out ReadOnlyCollection<Song> _songs )
+    public void ParseFileInDirectories( out ReadOnlyCollection<Song> _songs )
     {
         List<Song> songs = new List<Song>();
 
@@ -36,8 +36,6 @@ public class FileParser : FileReader
 
             while ( ReadLine() != "[Timings]" )
             {
-                if ( line == string.Empty ) break;
-
                 if ( Contains( "AudioPath:" ) )
                 {
                     var soundName = Split( ':' );
@@ -101,15 +99,14 @@ public class FileParser : FileReader
     public bool TryParse( string _path, out Chart _chart )
     {
         _chart = new Chart();
-
         try
         {
             OpenFile( _path );
-            while ( ReadLine() != "[Timings]" ) { }
-
-#region Timings
+            while ( ReadLine() != "[Timings]" )
+            { }
+            
+            #region Timings
             List<Timing> timings = new List<Timing>();
-
             while ( ReadLine() != "[Sprites]" )
             {
                 Timing timing = new Timing();
@@ -144,7 +141,6 @@ public class FileParser : FileReader
             }
             _chart.sprites = new ReadOnlyCollection<SpriteSample>( sprites );
 #endregion
-
 #region Key Samples
             List<KeySound> keySounds = new List<KeySound>();
             while ( ReadLine() != "[Notes]" )
@@ -162,7 +158,6 @@ public class FileParser : FileReader
             }
             _chart.samples = new ReadOnlyCollection<KeySound>( keySounds );
 #endregion
-
 #region Notes
             List<Note> notes = new List<Note>();
 

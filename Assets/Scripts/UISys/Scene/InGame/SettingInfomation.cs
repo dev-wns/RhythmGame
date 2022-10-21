@@ -14,7 +14,7 @@ public class SettingInfomation : MonoBehaviour
         {
             InGame game;
             if ( scene.TryGetComponent( out game ) ) 
-                 game.OnScrollChanged += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
+                 game.OnScrollChange += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
         }
 
         UpdateInfomation();

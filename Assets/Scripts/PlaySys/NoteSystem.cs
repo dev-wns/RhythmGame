@@ -28,7 +28,7 @@ public class NoteSystem : MonoBehaviour
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         CurrentScene.OnGameStart += () => StartCoroutine( Process() );
         CurrentScene.OnReLoad        += ReLoad;
-        CurrentScene.OnScrollChanged += ScrollUpdate;
+        CurrentScene.OnScrollChange += ScrollUpdate;
 
         ScrollUpdate();
     }
@@ -41,7 +41,7 @@ public class NoteSystem : MonoBehaviour
         lane.InputSys.SetSound( curNote.keySound );
     }
 
-    private void OnDestroy() => CurrentScene.OnScrollChanged -= ScrollUpdate;
+    private void OnDestroy() => CurrentScene.OnScrollChange -= ScrollUpdate;
 
     public void ScrollUpdate() => loadTime = GameSetting.PreLoadTime;
 

@@ -75,27 +75,23 @@ public class BGASystem : MonoBehaviour
         RenderTexture.active = rt;
     }
 
-
     private void Initialize( in Chart _chart )
     {
-        type = GameSetting.BGAOpacity <= .1f        ? BackgroundType.None   :
-               NowPlaying.Inst.CurrentSong.hasVideo ? BackgroundType.Video  :
+        if ( GameSetting.BGAOpacity <= .0001f )
+        {
+            gameObject.SetActive( false );
+            return;
+        }
+
+        type = NowPlaying.Inst.CurrentSong.hasVideo ? BackgroundType.Video  :
                _chart.sprites.Count > 0             ? BackgroundType.Sprite : 
                                                       BackgroundType.Image;
-
-        gameDebug?.SetBackgroundType( type );
-
         switch ( type )
         {
-            case BackgroundType.None:
-                gameObject.SetActive( false );
-            break;
-
             case BackgroundType.Video:
                 StartCoroutine( LoadVideo() );
                 NowPlaying.Inst.OnStart += PlayVideo;
                 NowPlaying.Inst.OnPause += OnPause;
-
                 foreground.gameObject.SetActive( false );
             break;
 
@@ -106,18 +102,10 @@ public class BGASystem : MonoBehaviour
             break;
 
             case BackgroundType.Image:
-                var path = NowPlaying.Inst.CurrentSong.imagePath;
-                if ( path == string.Empty )
-                {
-                    gameObject.SetActive( false );
-                }
-                else
-                {
-                    StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
-                }
-                NowPlaying.Inst.IsLoadBGA = true;
+                StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
             break;
         }
+        gameDebug?.SetBackgroundType( type );
     }
 
     private void PlayVideo()
@@ -261,7 +249,8 @@ public class BGASystem : MonoBehaviour
 
                 gameDebug?.SetSpriteCount( backgrounds.Count, foregrounds.Count );
             }
-            else  yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
+            else 
+                yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
         }
 
         backgrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
@@ -286,7 +275,6 @@ public class BGASystem : MonoBehaviour
     public IEnumerator LoadSample( string _dir, SpriteSample _sample )
     {
         Texture2D tex;
-
         var path = @System.IO.Path.Combine( _dir, _sample.name );
         if ( !System.IO.File.Exists( path ) ) 
              yield break;
@@ -332,7 +320,6 @@ public class BGASystem : MonoBehaviour
         }
 
         textures.Add( _sample.name, tex );
-        gameDebug?.SetBackgroundType( type, textures.Count );
 
         switch ( _sample.type )
         {
@@ -345,6 +332,7 @@ public class BGASystem : MonoBehaviour
             break;
         }
 
+        gameDebug?.SetBackgroundType( type, textures.Count );
         gameDebug?.SetSpriteCount( backgrounds.Count, foregrounds.Count );
     }
 
@@ -386,6 +374,7 @@ public class BGASystem : MonoBehaviour
         background.color = color;
         background.texture = tex;
         background.rectTransform.sizeDelta = Global.Math.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
+        NowPlaying.Inst.IsLoadBGA = true;
     }
 }
 

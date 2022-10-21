@@ -8,18 +8,10 @@ using DG.Tweening;
 
 // Build Index
 public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
-
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction, IKeyBind
 {
     #region Variables
-    public event Action OnScrollChanged;
-
-    private bool isPressed = false;
-    private float pressWaitTime = .5f;
-    private float pressUpdateTime = .05f;
-    private float presstime;
-
     private SpriteRenderer blackSprite;
     private readonly float FadeTime = .65f;
     #endregion
@@ -63,22 +55,29 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     #endregion
 
     #region Input
+    public event Action OnScrollChange;
+
+    private bool isPressed = false;
+    private float pressWaitTime = .5f;
+    private float pressUpdateTime = .05f;
+    private float pressTime;
+
     protected void PressedSpeedControl( bool _isPlus )
     {
-        presstime += Time.deltaTime;
-        if ( presstime >= pressWaitTime )
+        pressTime += Time.deltaTime;
+        if ( pressTime >= pressWaitTime )
             isPressed = true;
 
-        if ( isPressed && presstime >= pressUpdateTime )
+        if ( isPressed && pressTime >= pressUpdateTime )
         {
-            presstime = 0f;
+            pressTime = 0f;
             SpeedControlProcess( _isPlus );
         }
     }
 
     protected void UpedSpeedControl()
     {
-        presstime = 0f;
+        pressTime = 0f;
         isPressed = false;
     }
 
@@ -97,10 +96,9 @@ public abstract class Scene : SceneKeyAction, IKeyBind
             GameSetting.ScrollSpeed -= .1d;
         }
 
-        OnScrollChanged?.Invoke();
+        OnScrollChange?.Invoke();
     }
     #endregion
-
     #region Effect
     private void CreateFadeSprite()
     {

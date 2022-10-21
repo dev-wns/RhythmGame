@@ -16,7 +16,7 @@ public class FreeStyle : Scene
         var judge = GameObject.FindGameObjectWithTag( "Judgement" );
         if ( judge ) Destroy( judge );
 
-        OnScrollChanged += () => speedText.text = $"{GameSetting.ScrollSpeed:F1}";
+        OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed:F1}";
 
         FMOD.DSP pitchShift;
         SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.PITCHSHIFT, out pitchShift );
