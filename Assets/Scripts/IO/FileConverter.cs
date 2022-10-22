@@ -31,54 +31,27 @@ public struct Song
     public double medianBpm;
 }
 
-public struct Timing : IEquatable<Timing>
+public struct Timing
 {
     public double time;
     public double bpm;
     public double beatLength;
+    public int isUninherited;
 
-    public override bool Equals( object _obj )
-    {
-        Debug.Log( "boxing" );
-        return base.Equals( _obj );
-    }
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
-
-    public bool Equals( Timing _other )
-    {
-        return ( time == _other.time ) && ( bpm == _other.bpm );
-    }
-
-    public static bool operator == ( in Timing _left, in Timing _right )
-    {
-        return _left.Equals( _right );
-    }
-
-    public static bool operator != ( in Timing _left, in Timing _right )
-    {
-        return !( _left == _right );
-    }
-
-    public Timing( Timing _timing )
-    {
-        time = _timing.time;
-        beatLength = _timing.beatLength;
-        bpm = _timing.bpm;
-    }
     public Timing( double _time, double _bpm )
     {
         time = _time;
         bpm = _bpm;
+        isUninherited = 0;
         beatLength = 0d;
     }
-    public Timing( double _time, double _bpm, double _beatLength )
+
+    public Timing( double _time, double _bpm, double _beatLength, int _isUninherited )
     {
         time = _time;
         beatLength = _beatLength;
         bpm = _bpm;
+        isUninherited = _isUninherited;
     }
 }
 
@@ -183,8 +156,8 @@ public class FileConverter : FileReader
         public DeleteKey( int _bitCount )
         {
             bits = new BitArray( _bitCount );
-            int[] deleteKeys = ( _bitCount == 7 ) ? new int[] { 6, }   :
-                               ( _bitCount == 8 ) ? new int[] { 0, 7 } :
+            int[] deleteKeys = ( _bitCount == 7 ) ? new int[] { 3, }   :
+                               ( _bitCount == 8 ) ? new int[] { 0, 4 } :
                                                     new int[] { -1, };
 
             int finalLane = -1;
@@ -362,10 +335,8 @@ public class FileConverter : FileReader
                 if ( song.maxBpm < BPM ) song.maxBpm = Mathf.RoundToInt( ( float )BPM );
 
                 double time = double.Parse( splitDatas[0] );
-                if ( timings.Count == 0 )
-                    timings.Add( new Timing( NowPlaying.WaitTime * 1000d, BPM, beatLengthAbs ) );
-                else
-                    timings.Add( new Timing( time, BPM, beatLengthAbs ) );
+                if ( timings.Count == 0 ) timings.Add( new Timing( NowPlaying.WaitTime * 1000d, BPM, beatLengthAbs, isUninherited ) );
+                else                      timings.Add( new Timing( time, BPM, beatLengthAbs, isUninherited ) );
             }
             #endregion
             #region Note
@@ -396,7 +367,9 @@ public class FileConverter : FileReader
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
                     }
-                    notes.Add( new Note( finalLane, noteTime, sliderTime, keySound ) );
+
+                    int lane = keyCount == 4 ? finalLane + 1 : finalLane;
+                    notes.Add( new Note( lane, noteTime, sliderTime, keySound ) );
                 }
             }
             // BMS2Osu로 뽑은 파일은 Pixel값 기준으로 정렬되어 있기 때문에 시간 순으로 다시 정렬해준다.
@@ -486,7 +459,8 @@ public class FileConverter : FileReader
                     {
                         text.Clear();
                         text.Append( timings[i].time ).Append( "," );
-                        text.Append( timings[i].beatLength );
+                        text.Append( timings[i].beatLength ).Append( "," );
+                        text.Append( timings[i].isUninherited );
 
                         writer.WriteLine( text );
                     }

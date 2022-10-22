@@ -78,7 +78,7 @@ public class GameSetting
     public static readonly string FailedPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
 
     // Measure
-    public static float MeasureHeight = 2.5f;
+    public static float MeasureHeight = 2f;
 
     // Jugdement
     private static float DefaultJudgePos = -340f;

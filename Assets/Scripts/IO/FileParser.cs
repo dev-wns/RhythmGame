@@ -112,9 +112,10 @@ public class FileParser : FileReader
                 Timing timing = new Timing();
                 var split = line.Split( ',' );
 
-                timing.time        = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
-                timing.beatLength  = double.Parse( split[1] );
-                timing.bpm         = ( 1d / timing.beatLength * 60000d ) * GameSetting.CurrentPitch;
+                timing.time          = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
+                timing.beatLength    = double.Parse( split[1] );
+                timing.bpm           = ( 1d / timing.beatLength * 60000d ) * GameSetting.CurrentPitch;
+                timing.isUninherited = int.Parse( split[2] );
 
                 timings.Add( timing );
             }

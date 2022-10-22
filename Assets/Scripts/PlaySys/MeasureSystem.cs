@@ -12,6 +12,18 @@ public class MeasureSystem : MonoBehaviour
     private int curIndex;
     private double curTime;
     private double loadTime;
+    private static readonly int Beat = 4;
+
+    private class MeasureTiming
+    {
+        public double time;
+        public double bpm;
+        public MeasureTiming( Timing _timing )
+        {
+            time  = _timing.time;
+            bpm   = _timing.bpm;
+        }
+    }
 
     private void Awake()
     {
@@ -43,58 +55,26 @@ public class MeasureSystem : MonoBehaviour
 
     private void Initialize( in Chart _chart )
     {
-        // Median BPM만 생성
-        //// 0초 ~ 첫 노트시간까지 마디선 생성
-        //{
-        //    double spb   = ( 60d / NowPlaying.Inst.CurrentSong.medianBpm ) * 4;
-        //    double time  = _chart.notes[0].time;
-        //    int maxCount = ( int )( time / spb );
-        //    for ( int j = maxCount; j > 0; j-- )
-        //        measures.Add( NowPlaying.Inst.GetChangedTime( time - ( j * spb ) ) );
-        //}
-
-        //// 첫 노트 ~ 음악 끝시간까지 마디선 생성
-        //{
-        //    double spb   = ( 60d / NowPlaying.Inst.CurrentSong.medianBpm ) * 4; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
-        //    double time  = _chart.notes[0].time;
-        //    int maxCount = ( int )( ( ( double )( NowPlaying.Inst.CurrentSong.totalTime * 0.001d ) - time ) / spb );
-        //    for ( int j = 0; j < maxCount; j++ )
-        //    {
-        //        measures.Add( NowPlaying.Inst.GetChangedTime( time + ( j * spb ) ) );
-        //    }
-        //}
-
-        // 모든 BPM 생성
-        // 0초 ~ 첫 노트시간까지 마디선 생성
-        var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
-        var timings   = _chart.timings;
+        List<MeasureTiming> timings = new List<MeasureTiming>();
+        for ( int i = 0; i < _chart.timings.Count; i++ )
         {
-            double spb  = ( 60d / timings[0].bpm ) * 4;
-            double time = _chart.notes[0].time;
-
-            int maxCount = ( int )( time / spb );
-            for ( int j = maxCount; j > 0; j-- )
-                measures.Add( NowPlaying.Inst.GetChangedTime( time - ( j * spb ) ) );
+            if ( _chart.timings[i].isUninherited == 1 )
+                 timings.Add( new MeasureTiming( _chart.timings[i] ) );
         }
-        // 첫 노트 ~ 음악 끝시간까지 마디선 생성
+
+        var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
+        double firstTime = _chart.notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
-            if ( timings[i].bpm < 1 )
-                continue;
+            double spb      = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
+            double time     = ( i == 0 ) ? firstTime - ( ( int )( firstTime / spb ) * spb ) : timings[i].time;
+            double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime * 0.001d ) + 10d : timings[i + 1].time;
 
-            double spb      = ( 60d / timings[i].bpm ) * 4; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
-            double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime * 0.001d ) : timings[i + 1].time;
-            double time     = ( i == 0 ) ? _chart.notes[0].time : timings[i].time;
-
+            measures.Add( NowPlaying.Inst.GetChangedTime( time ) );
             int maxCount = ( int )( ( nextTime - time ) / spb );
-            if ( maxCount == 0 )
-                measures.Add( NowPlaying.Inst.GetChangedTime( time ) );
-            else
+            for ( int j = 1; j < maxCount; j++ )
             {
-                for ( int j = 0; j < maxCount; j++ )
-                {
-                    measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * spb ) ) ) );
-                }
+                measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * spb ) ) ) );
             }
         }
     }
