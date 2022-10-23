@@ -263,7 +263,7 @@ public class FileConverter : FileReader
 
             // 키음만으로 재생되는 노래는 프리뷰 음악이 대부분 없다.
             // preview.wav는 따로 프로그램을 통해 만들어놓은 파일이다.
-            if ( song.audioPath == null || song.audioPath == string.Empty )
+            if ( song.audioPath == null || song.audioPath == string.Empty || song.audioPath == "virtual" )
             {
                 for ( int i = 0; i < virtualAudioName.Length; i++ )
                 {
@@ -305,7 +305,7 @@ public class FileConverter : FileReader
                     sprites.Add( new SpriteSample( type, float.Parse( splitTime[2] ), float.Parse( splitTime[3] ), name ) );
                 }
 
-                if ( Contains( "Sample," ) )
+                if ( Contains( ".mp3" ) || Contains( ".wav" ) || Contains( ".ogg" ) )
                 {
                     string[] split = line.Split( ',' );
                     string name    = Split( '"' );
@@ -328,7 +328,7 @@ public class FileConverter : FileReader
                 int isUninherited = int.Parse( splitDatas[6] );
 
                 if ( isUninherited == 1 ) uninheritedBeat = beatLengthAbs;
-                else beatLengthAbs = uninheritedBeat * ( beatLengthAbs * .01d );
+                else                      beatLengthAbs   = uninheritedBeat * ( beatLengthAbs * .01d );
 
                 double BPM = 1d / beatLengthAbs * 60000d;
                 if ( song.minBpm > BPM ) song.minBpm = Mathf.RoundToInt( ( float )BPM );

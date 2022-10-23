@@ -52,7 +52,7 @@ public class GameSetting
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static double OriginScrollSpeed = 6.7d; 
+    private static double OriginScrollSpeed = 7.3d; 
     public static double ScrollSpeed
     {
 
