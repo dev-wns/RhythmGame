@@ -22,12 +22,12 @@ public class NoteSystem : MonoBehaviour
         lane = GetComponent<Lane>();
         lane.OnLaneInitialize += ( int _key ) =>
         {
-            nPool = new ObjectPool<NoteRenderer>( _key == 1 || _key == 4 ? note2 : note1, 5 );
+            nPool ??= new ObjectPool<NoteRenderer>( _key == 1 || _key == 4 ? note2 : note1, 5 );
         };
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        CurrentScene.OnGameStart += () => StartCoroutine( Process() );
-        CurrentScene.OnReLoad        += ReLoad;
+        CurrentScene.OnGameStart    += () => StartCoroutine( Process() );
+        CurrentScene.OnReLoad       += ReLoad;
         CurrentScene.OnScrollChange += ScrollUpdate;
 
         ScrollUpdate();
