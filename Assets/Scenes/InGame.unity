@@ -361,7 +361,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 7443184f513d80942b0b7a4429b50c57, type: 3}
-  m_Color: {r: 0.15686275, g: 0.28627452, b: 0.34117648, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2067,7 +2067,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d72af7490b2eeda40b451021686bf666, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bpmChanger: {fileID: 0}
   mPrefab: {fileID: 3470382606213834254, guid: d68dd1704bffac94383d938af59c4aa7, type: 3}
 --- !u!114 &231758589
 MonoBehaviour:
@@ -5065,7 +5064,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 7443184f513d80942b0b7a4429b50c57, type: 3}
-  m_Color: {r: 0.15686275, g: 0.28627452, b: 0.34117648, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -5353,7 +5352,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 7443184f513d80942b0b7a4429b50c57, type: 3}
-  m_Color: {r: 0.15686275, g: 0.28627452, b: 0.34117648, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -5653,7 +5652,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 7443184f513d80942b0b7a4429b50c57, type: 3}
-  m_Color: {r: 0.15686275, g: 0.28627452, b: 0.34117648, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -11449,7 +11448,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 7443184f513d80942b0b7a4429b50c57, type: 3}
-  m_Color: {r: 0.15686275, g: 0.28627452, b: 0.34117648, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -14653,7 +14652,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 7443184f513d80942b0b7a4429b50c57, type: 3}
-  m_Color: {r: 0.15686275, g: 0.28627452, b: 0.34117648, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

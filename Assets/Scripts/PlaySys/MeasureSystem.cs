@@ -59,8 +59,9 @@ public class MeasureSystem : MonoBehaviour
         for ( int i = 0; i < _chart.timings.Count; i++ )
         {
             if ( _chart.timings[i].isUninherited == 1 )
-                 timings.Add( new MeasureTiming( _chart.timings[i] ) );
+                timings.Add( new MeasureTiming( _chart.timings[i] ) );
         }
+        
 
         var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
         double firstTime = _chart.notes[0].time;

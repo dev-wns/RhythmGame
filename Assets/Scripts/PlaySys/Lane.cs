@@ -17,6 +17,12 @@ public class Lane : MonoBehaviour
     private SpriteRenderer rdr;
     private Color color;
 
+    private readonly float StartFadeAlpha = .5f;
+    private readonly float FadeDuration = .1f;
+    private float fadeOffset;
+    private float fadeAlpha;
+    private bool isEnabled;
+
     private void Awake()
     {
         NoteSys  = GetComponent<NoteSystem>();
@@ -29,20 +35,41 @@ public class Lane : MonoBehaviour
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowGearKey ) != 0 )
              InputSys.OnInputEvent += KeyEffect;
 
-        color = rdr.color;
-        color.a = .75f;
-        rdr.color = Color.clear;
+        fadeOffset = StartFadeAlpha / FadeDuration;
     }
 
-    private void LaneEffect( bool _isEnable ) => rdr.color = _isEnable ? color : Color.clear;
+    private void LaneEffect( bool _isEnable )
+    {
+        // rdr.color = _isEnable ? color : Color.clear;
+        isEnabled = _isEnable;
+        if ( isEnabled )
+        {
+            rdr.color = color;
+            fadeAlpha = StartFadeAlpha;
+        }
+    }
 
     private void KeyEffect( bool _isEnable )=> keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
+
+
+    private void Update()
+    {
+        if ( !isEnabled && fadeAlpha > 0 )
+        {
+            fadeAlpha -= fadeOffset * Time.deltaTime;
+            Color newColor = color;
+            newColor.a = fadeAlpha;
+            rdr.color = newColor;
+        }
+    }
 
     public void SetLane( int _key )
     {
         Key = _key;
         UpdatePosition( _key );
         OnLaneInitialize?.Invoke( Key );
+
+        color = _key == 1 || _key == 4 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
     }
 
     public void UpdatePosition( int _key )
