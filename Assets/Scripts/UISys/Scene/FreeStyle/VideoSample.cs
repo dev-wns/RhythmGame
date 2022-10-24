@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class VideoSample : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
+    public SoundPitchOption pitchOption;
     private VideoPlayer vp;
     private RawImage image;
     public RenderTexture renderTexture;
@@ -20,6 +21,7 @@ public class VideoSample : MonoBehaviour
         image.texture    = renderTexture;
 
         scroller.OnSelectSong += UpdateVideoSample;
+        pitchOption.OnPitchUpdate += PitchUpdate;
     }
 
     private void UpdateVideoSample( Song _song )
@@ -33,9 +35,7 @@ public class VideoSample : MonoBehaviour
         if ( _song.hasVideo )
         {
             image.enabled = true;
-            float time   = _song.previewTime;
-            float length = _song.totalTime / GameSetting.CurrentPitch;
-            time = time <= 0 ? ( length * GameSetting.CurrentPitch ) * Mathf.PI * .1f : time;
+            float time    = _song.previewTime <= 0 ? _song.totalTime * Mathf.PI * .1f : _song.previewTime;
             coroutine = StartCoroutine( LoadVideo( ( _song.videoOffset + time ) * .001f, _song.videoPath ) );
         }
         else
@@ -45,6 +45,14 @@ public class VideoSample : MonoBehaviour
         }
     }
 
+    private void PitchUpdate( float _pitch )
+    {
+        if ( !vp.isPlaying )
+             return;
+
+        vp.playbackSpeed = GameSetting.CurrentPitch;
+    }
+
     private IEnumerator LoadVideo( float _time, string _path )
     {
         ClearRenderTexture();
@@ -52,16 +60,8 @@ public class VideoSample : MonoBehaviour
         vp.Prepare();
 
         yield return new WaitUntil( () => vp.isPrepared );
-        if ( _time > vp.length )
-        {
-            vp.playbackSpeed = 1.05f;
-            vp.time = 0f;
-        }
-        else
-        {
-            vp.playbackSpeed = 1f;
-            vp.time = _time;
-        }
+        vp.playbackSpeed = GameSetting.CurrentPitch;
+        vp.time = _time;
         vp.Play();
     }
 
