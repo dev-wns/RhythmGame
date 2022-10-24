@@ -6,13 +6,23 @@ using TMPro;
 public class SongPreview : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
-    public TextMeshProUGUI backgroundTypeText, hasKeySoundText;
     public SoundPitchOption pitchOption;
 
-    public TextMeshProUGUI time;
+    [Header("Line 0")]
+    public TextMeshProUGUI backgroundType;
+    public TextMeshProUGUI hasKeySound;
+
+    [Header("Line 1")]
     public TextMeshProUGUI noteCount;
     public TextMeshProUGUI sliderCount;
+    public TextMeshProUGUI time;
     public TextMeshProUGUI bpm;
+
+    [Header( "Line 2" )]
+    public TextMeshProUGUI scrollSpeed;
+    public TextMeshProUGUI soundSpeed;
+    public TextMeshProUGUI random;
+
 
     private void Awake()
     {
@@ -22,13 +32,20 @@ public class SongPreview : MonoBehaviour
 
     private void SelectChangedSoundInfo( Song _song )
     {
+        backgroundType.text = _song.hasVideo  ? "Video" :
+                              _song.hasSprite ? "Sprite" :
+                                                "Image";
+        hasKeySound.text = _song.isOnlyKeySound ? "O" : "X";
+
+
         noteCount.text   = _song.noteCount.ToString();
         sliderCount.text = _song.sliderCount.ToString();
 
-        //backgroundTypeText = _song.hasVideo ? BackgroundType.Video :
-        //                     _song.sprites.Count > 0 ? BackgroundType.Sprite :
-        //                                              BackgroundType.Image;
-
+        scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
+        random.text      = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
+        soundSpeed.text  = $"x{GameSetting.CurrentPitch:F1}";
+        soundSpeed.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
+                           GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         PitchUpdate( GameSetting.CurrentPitch );
     }

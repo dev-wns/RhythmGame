@@ -6409,7 +6409,7 @@ GameObject:
   - component: {fileID: 603360236}
   - component: {fileID: 603360235}
   m_Layer: 5
-  m_Name: Line_2
+  m_Name: Line_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10381,7 +10381,6 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1709866454}
   isReturnProcess: 0
-  settingText: {fileID: 0}
 --- !u!1 &985428249
 GameObject:
   m_ObjectHideFlags: 0
@@ -14667,7 +14666,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1477761610}
   - component: {fileID: 1477761611}
-  - component: {fileID: 1477761612}
   - component: {fileID: 1477761613}
   m_Layer: 5
   m_Name: Preview Infomation
@@ -14721,24 +14719,6 @@ MonoBehaviour:
   - {fileID: 2049825499}
   - {fileID: 603360234}
   - {fileID: 2132988772}
---- !u!114 &1477761612
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1477761609}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69b3c421d7642cd4c87da0e39d5116c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scrollSpeed: {fileID: 308743033}
-  pitch: {fileID: 1632190984}
-  random: {fileID: 129563645}
-  auto: {fileID: 0}
-  noSlider: {fileID: 0}
-  noFail: {fileID: 0}
 --- !u!114 &1477761613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14753,10 +14733,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scroller: {fileID: 1575546728}
   pitchOption: {fileID: 285005634}
-  time: {fileID: 163994260}
+  backgroundType: {fileID: 1137130746}
+  hasKeySound: {fileID: 1584550548}
   noteCount: {fileID: 627364140}
   sliderCount: {fileID: 1714604182}
+  time: {fileID: 163994260}
   bpm: {fileID: 772706742}
+  scrollSpeed: {fileID: 308743033}
+  soundSpeed: {fileID: 1632190984}
+  random: {fileID: 129563645}
 --- !u!1 &1484974154
 GameObject:
   m_ObjectHideFlags: 0
@@ -17092,7 +17077,7 @@ GameObject:
   - component: {fileID: 1671867705}
   - component: {fileID: 1671867704}
   m_Layer: 5
-  m_Name: Pitch
+  m_Name: Has KeySound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18012,7 +17997,7 @@ GameObject:
   - component: {fileID: 1731902945}
   - component: {fileID: 1731902944}
   m_Layer: 5
-  m_Name: Scroll Speed
+  m_Name: Background Type
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19721,7 +19706,7 @@ GameObject:
   - component: {fileID: 2049825499}
   - component: {fileID: 2049825500}
   m_Layer: 5
-  m_Name: Line_1
+  m_Name: Line_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
