@@ -26,11 +26,14 @@ public class JudgeGraph : MonoBehaviour
             else                        return 0;
         } );
 
+        RectTransform rt = transform as RectTransform;
+        var posY = rt.anchoredPosition.y;
+
         float posOffset = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 1 );
         int divideCount = ( int )( hitDatas.Count / ( TotalJudge + 2 ) );
         int curCount = 0;
         List<double> diffs = new List<double>();
-        positions.Add( new Vector3( StartPosX, 100f, 0f ) );
+        positions.Add( new Vector3( StartPosX, posY + 100f, 0f ) );
         for ( int i = 0; i < hitDatas.Count; i++ )
         {
             var diffAbs = Global.Math.Abs( hitDatas[i].diff );
@@ -48,12 +51,12 @@ public class JudgeGraph : MonoBehaviour
 
                 if ( diffs.Count == 0 )
                 {
-                    positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), 100f, 0 ) );
+                    positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), posY + 100f, 0 ) );
                 }
                 else
                 {
                     float average  = ( float )diffs.Average();
-                    Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( 100f - average, -100f, 100f ), 0 );
+                    Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), posY + Global.Math.Clamp( 100f - average, -100f, 100f ), 0 );
                     positions.Add( newPos );
                 }
 
@@ -61,7 +64,7 @@ public class JudgeGraph : MonoBehaviour
                 diffs.Clear();
             }
         }
-        positions.Add( new Vector3( EndPosX, 100f, 0f ) );
+        positions.Add( new Vector3( EndPosX, posY + 100f, 0f ) );
     }
 
     private void Start()
