@@ -15,6 +15,9 @@ public struct Song
     public bool   hasVideo;
     public int    videoOffset;
 
+    public int  spriteCount;
+    public bool hasSprite;
+
     public string title;
     public string artist;
     public string creator;
@@ -312,6 +315,8 @@ public class FileConverter : FileReader
                     samples.Add( new KeySound( float.Parse( split[1] ), name, float.Parse( split[4] ) ) );
                 }
             }
+
+            song.spriteCount = sprites.Count;
             timings?.Clear();
 #endregion
 #region Timing
@@ -436,6 +441,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
                     writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
+                    writer.WriteLine( $"SpriteCount: {_song.spriteCount}" );
 
                     writer.WriteLine( $"Title: {_song.title}" );
                     writer.WriteLine( $"Artist: {_song.artist}" );

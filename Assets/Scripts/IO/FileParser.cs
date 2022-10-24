@@ -68,6 +68,11 @@ public class FileParser : FileReader
                     }
                 }
                 if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( Split( ':' ) );
+                if ( Contains( "SpriteCount:" ) )
+                {
+                    _song.spriteCount = int.Parse( Split( ':' ) );
+                    _song.hasSprite = _song.spriteCount > 0;
+                }
 
                 if ( Contains( "Title:" ) )   _song.title   = Replace( "Title:",   string.Empty );
                 if ( Contains( "Artist:" ) )  _song.artist  = Replace( "Artist:",  string.Empty );

@@ -28,13 +28,22 @@ public class SettingInfomation : MonoBehaviour
         pitch.color      = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                            GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
-        string temp = ( GameSetting.CurrentGameMode & GameMode.AutoPlay ) != 0 ? "On" : "Off";
-        auto.text   = $"{temp}";
+        if ( auto )
+        {
+            string temp = ( GameSetting.CurrentGameMode & GameMode.AutoPlay ) != 0 ? "On" : "Off";
+            auto.text = $"{temp}";
+        }
 
-        temp          = ( GameSetting.CurrentGameMode & GameMode.NoSlider ) != 0 ? "On" : "Off";
-        noSlider.text = $"{temp}";
+        if ( noSlider )
+        {
+            string temp = ( GameSetting.CurrentGameMode & GameMode.NoSlider ) != 0 ? "On" : "Off";
+            noSlider.text = $"{temp}";
+        }
 
-        temp        = ( GameSetting.CurrentGameMode & GameMode.NoFail ) != 0 ? "On" : "Off";
-        noFail.text = $"{temp}";
+        if ( noFail )
+        {
+            string temp = ( GameSetting.CurrentGameMode & GameMode.NoFail ) != 0 ? "On" : "Off";
+            noFail.text = $"{temp}";
+        }
     }
 }

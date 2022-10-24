@@ -5795,6 +5795,7 @@ RectTransform:
   m_Children:
   - {fileID: 1128020161}
   - {fileID: 1477761610}
+  - {fileID: 1604240920}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -14669,7 +14670,7 @@ GameObject:
   - component: {fileID: 1477761612}
   - component: {fileID: 1477761613}
   m_Layer: 5
-  m_Name: Preview
+  m_Name: Preview Infomation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14694,7 +14695,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -450, y: -284}
+  m_AnchoredPosition: {x: -500, y: -290}
   m_SizeDelta: {x: 800, y: 450}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1477761611
@@ -16392,7 +16393,7 @@ GameObject:
   - component: {fileID: 1604240920}
   - component: {fileID: 1604240924}
   m_Layer: 5
-  m_Name: PreviewVideo
+  m_Name: Preview Video
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16412,13 +16413,13 @@ RectTransform:
   - {fileID: 1344341808}
   - {fileID: 782545982}
   - {fileID: 469753803}
-  m_Father: {fileID: 2068238576}
+  m_Father: {fileID: 499678219}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -450, y: 160}
-  m_SizeDelta: {x: 775, y: 425}
+  m_AnchoredPosition: {x: -500, y: 155}
+  m_SizeDelta: {x: 790, y: 430}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1604240924
 CanvasRenderer:
@@ -19864,7 +19865,6 @@ RectTransform:
   m_Children:
   - {fileID: 499860227}
   - {fileID: 1969700156}
-  - {fileID: 1604240920}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

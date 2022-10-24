@@ -6,6 +6,7 @@ using TMPro;
 public class SongPreview : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
+    public TextMeshProUGUI backgroundTypeText, hasKeySoundText;
     public SoundPitchOption pitchOption;
 
     public TextMeshProUGUI time;
@@ -23,6 +24,11 @@ public class SongPreview : MonoBehaviour
     {
         noteCount.text   = _song.noteCount.ToString();
         sliderCount.text = _song.sliderCount.ToString();
+
+        //backgroundTypeText = _song.hasVideo ? BackgroundType.Video :
+        //                     _song.sprites.Count > 0 ? BackgroundType.Sprite :
+        //                                              BackgroundType.Image;
+
 
         PitchUpdate( GameSetting.CurrentPitch );
     }
