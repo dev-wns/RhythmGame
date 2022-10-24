@@ -9226,6 +9226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scroller: {fileID: 1575546728}
+  pitchOption: {fileID: 285005634}
   renderTexture: {fileID: 8400000, guid: 2dd77d849aeb58b43ac4fbb5c274b11c, type: 2}
 --- !u!1 &785204991
 GameObject:

@@ -30,8 +30,6 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private Song curSong;
     private float playback;
-    private float soundLength;
-    private uint previewTime;
     private readonly uint waitPreviewTime = 500;
     
     public delegate void DelSelectSong( Song _song );
@@ -103,9 +101,9 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private void Update()
     {
-        playback += Time.deltaTime * 1000f;
+        playback += Time.deltaTime * 1000f * GameSetting.CurrentPitch;
 
-        if ( soundLength + waitPreviewTime < playback )
+        if ( curSong.totalTime + waitPreviewTime < playback )
         {
             UpdateSong( false );
         }
@@ -200,7 +198,6 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
-        soundLength = curSong.totalTime / GameSetting.CurrentPitch;
 
         OnSelectSong( curSong );
 
@@ -208,12 +205,12 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         SoundManager.Inst.Play( false );
         SoundManager.Inst.FadeIn( 1f );
 
-        previewTime = GetPreviewTime( curSong.previewTime );
-        SoundManager.Inst.Position = previewTime;
+        float previewTime = GetPreviewTime( curSong.previewTime );
+        SoundManager.Inst.Position = ( uint )previewTime;
         playback = previewTime;
     }
 
-    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( ( soundLength * GameSetting.CurrentPitch ) * Mathf.PI * .1f ) : ( uint )_time;
+    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( curSong.totalTime * Mathf.PI * .1f ) : ( uint )_time;
 
     private void SelectChart()
     {
