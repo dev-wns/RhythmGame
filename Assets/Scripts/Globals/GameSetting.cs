@@ -52,7 +52,7 @@ public class GameSetting
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static double OriginScrollSpeed = 7.3d; 
+    private static double OriginScrollSpeed = 9.1d; 
     public static double ScrollSpeed
     {
 
@@ -63,7 +63,17 @@ public class GameSetting
             OriginScrollSpeed = value;
         }
     }
-    public static double Weight => ScrollSpeed * ( 320d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) );
+    
+    /// 채보마다 다른 BPM으로 인한 속도를 일정하게 하기위해
+    /// 해당 채보에서 가장 오래 지속되는 BPM으로 계산하여 스크롤속도를 조절한다.
+    /// - 공식 : A + ( Speed * ( B / BPM ) )
+    /// 
+    /// - A : 최소 속도 
+    /// 270BPM 16비트 폭타( 스트림 )곡에서 속도가 1.7일때 노트가 겹치지 않았기 때문에 넉넉히 최소 속도 1을 추가함.
+    /// 
+    /// - B : 1당 변경되는 속도의 크기
+    /// 값이 낮을수록 세밀한 조절 가능
+    public static double Weight => 1d + ( ScrollSpeed * ( 240d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) ) );
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
