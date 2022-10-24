@@ -36,6 +36,12 @@ public class Judgement : MonoBehaviour
         DontDestroyOnLoad( gameObject );
     }
 
+    public void ReLoad()
+    {
+        hitDatas.Clear();
+        results.Clear();
+    }
+
     public int GetResult( HitResult _type )
     {
         if ( !results.ContainsKey( _type ) )
@@ -55,9 +61,9 @@ public class Judgement : MonoBehaviour
             results.Add( _type, _count );
     }
 
-    public bool CanBeHit( double _diff ) => Global.Math.Abs( _diff ) <= Bad ? true : false;
+    public bool CanBeHit( double _diff ) => Global.Math.Abs( _diff ) <= Bad;
     
-    public bool IsMiss( double _diff ) =>_diff < -Bad ? true : false;
+    public bool IsMiss( double _diff ) =>_diff < -Bad;
 
     public void ResultUpdate( double _diff )
     {
@@ -68,7 +74,7 @@ public class Judgement : MonoBehaviour
         if      ( diffAbs <= Perfect                    ) result = HitResult.Perfect;
         else if ( diffAbs > Perfect && diffAbs <= Great ) result = HitResult.Great;
         else if ( diffAbs > Great   && diffAbs <= Good  ) result = HitResult.Good;
-        else if ( diffAbs > Good    && diffAbs <= Bad   ) result = HitResult.Bad ;
+        else if ( diffAbs > Good    && diffAbs <= Bad   ) result = HitResult.Bad;
         else if ( diff    < -Bad                        ) result = HitResult.Miss;
         else                                              result = HitResult.None;
 

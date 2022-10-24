@@ -76,7 +76,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private void ParseSong()
     {
-        ConvertSong();
+        //ConvertSong();
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
         using ( FileParser parser = new FileParser() )
         {

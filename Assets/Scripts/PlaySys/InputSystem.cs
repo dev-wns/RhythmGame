@@ -128,6 +128,12 @@ public class InputSystem : MonoBehaviour
 
         curNote?.Despawn();
         curNote = null;
+
+        judge.ReLoad();
+
+        curAutoTime = prevAutoTime = 0;
+        autoPressTime = 0;
+        inputAutoTime = 0;
     }
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
