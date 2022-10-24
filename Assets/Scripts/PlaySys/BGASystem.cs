@@ -53,6 +53,7 @@ public class BGASystem : MonoBehaviour
 
         background.color = Color.clear;
         foreground.color = Color.clear;
+        ClearRenderTexture();
     }
 
     private void OnDestroy()

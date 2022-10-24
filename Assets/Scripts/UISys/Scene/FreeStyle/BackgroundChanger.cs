@@ -68,12 +68,13 @@ public class BackgroundChanger : MonoBehaviour
         }
         else sprite = defaultSprite;
 
-        curBg?.Despawn();
+        var prevBg = curBg;
 
         curBg = bgPool.Spawn();
         curBg.SetInfo( sprite, !isExist );
         curBg.system = this;
 
+        prevBg?.Despawn();
         // 원시 버젼 메모리 재할당이 큼
         //Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
         //byte[] binaryData = File.ReadAllBytes( _path );

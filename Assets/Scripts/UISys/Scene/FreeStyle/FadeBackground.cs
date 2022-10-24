@@ -7,12 +7,10 @@ using DG.Tweening;
 public class FadeBackground : MonoBehaviour
 {
     public BackgroundChanger system;
-    public float fadeTime = .5f;
-
+    public float fadeTime = 1f;
     private RectTransform rt;
     private Image image;
     private bool isDefault;
-    private static float depth = 0f;
 
     private void Awake()
     {
@@ -37,11 +35,10 @@ public class FadeBackground : MonoBehaviour
     public void SetInfo( Sprite _sprite, bool _isDefault = true )
     {
         isDefault = _isDefault;
-        rt.anchoredPosition = new Vector3( 0f, 0f, depth += .00001f );
-        rt.sizeDelta        = Global.Math.GetScreenRatio( _sprite.texture, new Vector2( Screen.width, Screen.height ) );
-        image.color = new Color( 1f, 1f, 1f, 0f );
-        image.sprite        = _sprite;
-        image.DOFade( 1f, fadeTime );
+        rt.sizeDelta = Global.Math.GetScreenRatio( _sprite.texture, new Vector2( Screen.width, Screen.height ) );
+        rt.SetAsFirstSibling();
+        image.color = Color.white;
+        image.sprite = _sprite;
     }
 
     public void Despawn()
@@ -52,8 +49,7 @@ public class FadeBackground : MonoBehaviour
     private IEnumerator FadeAfterDespawn()
     {
         image.DOFade( 0f, fadeTime );
-        yield return YieldCache.WaitForSeconds( fadeTime );
-
+        yield return new WaitUntil( () => image.color.a < .0001f );
         SpriteRelease();
         system.DeSpawn( this );
     }

@@ -98,19 +98,16 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void Start()
     {
         curNode.Value.rt.DOAnchorPosX( -100f, .5f );
-        UpdateSong();
+        UpdateSong( true );
     }
 
     private void Update()
     {
         playback += Time.deltaTime * 1000f;
 
-        if ( soundLength + waitPreviewTime < playback &&
-             !SoundManager.Inst.IsPlaying( ChannelType.BGM ) )
+        if ( soundLength + waitPreviewTime < playback )
         {
-            SoundManager.Inst.Play( false );
-            SoundManager.Inst.Position = GetPreviewTime( curSong.previewTime );
-            playback = previewTime;
+            UpdateSong( false );
         }
     }
 
@@ -148,7 +145,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         curPos -= size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        UpdateSong();
+        UpdateSong( true );
     }
 
     public override void NextMove()
@@ -185,7 +182,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         curPos += size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        UpdateSong();
+        UpdateSong( true );
     }
 
     private void UpdateScrollBar()
@@ -196,9 +193,10 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
              curText.text = ( CurrentIndex + 1 ).ToString();
     }
 
-    private void UpdateSong()
+    private void UpdateSong( bool _isUpdateScroll )
     {
-        UpdateScrollBar();
+        if ( _isUpdateScroll )
+             UpdateScrollBar();
 
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
