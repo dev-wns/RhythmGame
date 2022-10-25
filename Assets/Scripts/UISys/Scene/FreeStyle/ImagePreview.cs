@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Networking;
 
-public class BackgroundChanger : MonoBehaviour
+public class ImagePreview : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
     public FadeBackground bgPrefab;
-    private ObjectPool<FadeBackground> bgPool;
     public Sprite defaultSprite;
-    private Coroutine loadCorutine;
-    private FadeBackground curBg;
+    public RawImage previewImage;
+    private ObjectPool<FadeBackground> bgPool;
+    private FadeBackground background;
+    private Coroutine coroutine;
 
     private void Awake()
     {
@@ -20,16 +22,17 @@ public class BackgroundChanger : MonoBehaviour
 
     private void ChangeImage( Song _song )
     {
-        if ( !ReferenceEquals( loadCorutine, null ) )
+        if ( !ReferenceEquals( coroutine, null ) )
         {
-            StopCoroutine( loadCorutine );
-            loadCorutine = null;
+            StopCoroutine( coroutine );
+            coroutine = null;
         }
 
-        loadCorutine = StartCoroutine( LoadBackground( _song.imagePath ) );
+        bool isImageType = !_song.hasVideo && !_song.hasSprite;
+        coroutine = StartCoroutine( LoadBackground( _song.imagePath, isImageType ) );
     }
 
-    private IEnumerator LoadBackground( string _path )
+    private IEnumerator LoadBackground( string _path, bool _isImageType )
     {
         Sprite sprite;
         bool isExist = System.IO.File.Exists( _path );
@@ -68,13 +71,16 @@ public class BackgroundChanger : MonoBehaviour
         }
         else sprite = defaultSprite;
 
-        var prevBg = curBg;
+        background?.Despawn();
+        background = bgPool.Spawn();
+        background.SetInfo( this, sprite, !isExist );
 
-        curBg = bgPool.Spawn();
-        curBg.SetInfo( sprite, !isExist );
-        curBg.system = this;
+        if ( _isImageType )
+        {
+            previewImage.enabled = true;
+            previewImage.texture = sprite.texture;
+        }
 
-        prevBg?.Despawn();
         // 원시 버젼 메모리 재할당이 큼
         //Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
         //byte[] binaryData = File.ReadAllBytes( _path );

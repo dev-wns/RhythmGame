@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1419412381515201339}
   - component: {fileID: 1419412381515201338}
   - component: {fileID: 1419412381515201341}
+  - component: {fileID: -6680321734977782264}
   m_Layer: 5
   m_Name: background
   m_TagString: Untagged
@@ -88,5 +89,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69a6f2601974c245a130dbf8d9db2f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  system: {fileID: 0}
   fadeTime: 0.25
+--- !u!114 &-6680321734977782264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419412381515201337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8b2ed11d675446c5a49da1ea296d490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectFactor: 0.1
+  m_ColorFactor: 1
+  m_BlurFactor: 1
+  m_EffectMode: 3
+  m_ColorMode: 0
+  m_BlurMode: 0
+  m_AdvancedBlur: 0

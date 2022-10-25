@@ -6,9 +6,9 @@ using DG.Tweening;
 
 public class FadeBackground : MonoBehaviour
 {
-    public BackgroundChanger system;
-    public float fadeTime = 1f;
+    public float fadeTime = .25f;
     private RectTransform rt;
+    private ImagePreview system;
     private Image image;
     private bool isDefault;
 
@@ -32,7 +32,7 @@ public class FadeBackground : MonoBehaviour
         }
     }
 
-    public void SetInfo( Sprite _sprite, bool _isDefault = true )
+    public void SetInfo( ImagePreview _system, Sprite _sprite, bool _isDefault = true )
     {
         isDefault = _isDefault;
         rt.sizeDelta = Global.Math.GetScreenRatio( _sprite.texture, new Vector2( Screen.width, Screen.height ) );
