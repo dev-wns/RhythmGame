@@ -9117,8 +9117,9 @@ GameObject:
   - component: {fileID: 782545984}
   - component: {fileID: 782545983}
   - component: {fileID: 782545986}
+  - component: {fileID: 782545987}
   m_Layer: 5
-  m_Name: VideoSample
+  m_Name: BGASample
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9228,6 +9229,20 @@ MonoBehaviour:
   scroller: {fileID: 1575546728}
   pitchOption: {fileID: 285005634}
   renderTexture: {fileID: 8400000, guid: 2dd77d849aeb58b43ac4fbb5c274b11c, type: 2}
+--- !u!114 &782545987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 782545981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e15a5aadc48a248bdfb8b28878e27b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scroller: {fileID: 1575546728}
+  pitchOption: {fileID: 285005634}
 --- !u!1 &785204991
 GameObject:
   m_ObjectHideFlags: 0
@@ -16394,7 +16409,7 @@ GameObject:
   - component: {fileID: 1604240920}
   - component: {fileID: 1604240924}
   m_Layer: 5
-  m_Name: Preview Video
+  m_Name: Preview BGA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.UI;
 
-public class VideoSample : MonoBehaviour
+public class VideoPreview : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
     public SoundPitchOption pitchOption;
@@ -18,7 +18,6 @@ public class VideoSample : MonoBehaviour
         vp = GetComponent<VideoPlayer>();
         image = GetComponent<RawImage>();
         vp.targetTexture = renderTexture;
-        image.texture    = renderTexture;
 
         scroller.OnSelectSong += UpdateVideoSample;
         pitchOption.OnPitchUpdate += PitchUpdate;
@@ -34,14 +33,14 @@ public class VideoSample : MonoBehaviour
 
         if ( _song.hasVideo )
         {
-            image.enabled = true;
+            //image.enabled = true;
             float time    = _song.previewTime <= 0 ? _song.totalTime * Mathf.PI * .1f : _song.previewTime;
             coroutine = StartCoroutine( LoadVideo( ( _song.videoOffset + time ) * .001f, _song.videoPath ) );
         }
         else
         {
             vp.Stop();
-            image.enabled = false;
+            //image.enabled = false;
         }
     }
 
@@ -56,6 +55,7 @@ public class VideoSample : MonoBehaviour
     private IEnumerator LoadVideo( float _time, string _path )
     {
         ClearRenderTexture();
+        image.texture = renderTexture;
         vp.url = @$"{_path}";
         vp.Prepare();
 

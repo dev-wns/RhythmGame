@@ -10,6 +10,7 @@ public struct Song
 {
     public string filePath;
     public string audioPath;
+    public int    audioOffset;
     public string imagePath;
     public string videoPath;
     public bool   hasVideo;
@@ -316,6 +317,14 @@ public class FileConverter : FileReader
                 }
             }
 
+            sprites.Sort( delegate ( SpriteSample _A, SpriteSample _B )
+            {
+                if ( _A.start > _B.start )      return 1;
+                else if ( _A.start < _B.start ) return -1;
+                else                            return 0;
+            } );
+            if ( samples.Count > 0 )
+                 song.audioOffset = ( int )samples[0].time;
             song.spriteCount = sprites.Count;
             timings?.Clear();
 #endregion
@@ -390,6 +399,7 @@ public class FileConverter : FileReader
                 else if ( _A.time < _B.time ) return -1;
                 else                          return 0;
             } );
+
             #endregion
             song.medianBpm = GetMedianBpm();
             Write( in song );
@@ -438,6 +448,7 @@ public class FileConverter : FileReader
                 {
                     writer.WriteLine( "[General]" );
                     writer.WriteLine( $"AudioPath: {_song.audioPath}" );
+                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
                     writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
                     writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );

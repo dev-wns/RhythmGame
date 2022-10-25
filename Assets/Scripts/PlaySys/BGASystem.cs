@@ -254,19 +254,19 @@ public class BGASystem : MonoBehaviour
                 yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
         }
 
-        backgrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
-        {
-            if ( _A.start > _B.start )      return 1;
-            else if ( _A.start < _B.start ) return -1;
-            else                            return 0;
-        } );
+        //backgrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
+        //{
+        //    if ( _A.start > _B.start )      return 1;
+        //    else if ( _A.start < _B.start ) return -1;
+        //    else                            return 0;
+        //} );
 
-        foregrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
-        {
-            if ( _A.start > _B.start )      return 1;
-            else if ( _A.start < _B.start ) return -1;
-            else                            return 0;
-        } );
+        //foregrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
+        //{
+        //    if ( _A.start > _B.start )      return 1;
+        //    else if ( _A.start < _B.start ) return -1;
+        //    else                            return 0;
+        //} );
 
         yield return YieldCache.WaitForEndOfFrame;
 

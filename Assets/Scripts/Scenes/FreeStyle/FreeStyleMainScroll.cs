@@ -29,11 +29,12 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private CustomVerticalLayoutGroup group;
 
     private Song curSong;
-    private float playback;
+    private double playback;
     private readonly uint waitPreviewTime = 500;
     
     public delegate void DelSelectSong( Song _song );
     public event DelSelectSong OnSelectSong;
+    public event System.Action<double/* time */> OnPlaybackUpdate;
     
 
     private void Awake()
@@ -101,8 +102,9 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private void Update()
     {
-        playback += Time.deltaTime * 1000f * GameSetting.CurrentPitch;
-
+        OnPlaybackUpdate?.Invoke( playback );
+        playback += Time.deltaTime * 1000d * GameSetting.CurrentPitch;
+        //Debug.Log( $"Playback : {( uint )playback} ms  Position : {SoundManager.Inst.Position} ms  Diff : {( uint )Global.Math.Abs( playback - ( int )SoundManager.Inst.Position )} ms" );
         if ( curSong.totalTime + waitPreviewTime < playback )
         {
             UpdateSong( false );
@@ -194,16 +196,18 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void UpdateSong( bool _isUpdateScroll )
     {
         if ( _isUpdateScroll )
-             UpdateScrollBar();
+            UpdateScrollBar();
 
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
 
-        OnSelectSong( curSong );
 
         SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
         SoundManager.Inst.Play( false );
         SoundManager.Inst.FadeIn( 1f );
+
+        curSong.totalTime = ( int )SoundManager.Inst.Length;
+        OnSelectSong( curSong );
 
         float previewTime = GetPreviewTime( curSong.previewTime );
         SoundManager.Inst.Position = ( uint )previewTime;

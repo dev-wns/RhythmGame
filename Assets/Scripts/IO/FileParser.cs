@@ -44,6 +44,7 @@ public class FileParser : FileReader
                     else
                         _song.audioPath = Path.Combine( directory, soundName );
                 }
+                if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
                 if ( Contains( "ImagePath:" ) )
                 {
                     var imageName = Split( ':' );

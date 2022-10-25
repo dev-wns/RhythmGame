@@ -50,10 +50,10 @@ public class SoundManager : Singleton<SoundManager>
     /// </summary>
     public uint Length {
         get {
-            if ( !hasAccurateFlag || !bgmSound.hasHandle() ) {
-                Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
-                return uint.MaxValue;
-            }
+            //if ( !hasAccurateFlag || !bgmSound.hasHandle() ) {
+            //    Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
+            //    return uint.MaxValue;
+            //}
             
             uint length;
             ErrorCheck( bgmSound.getLength( out length, FMOD.TIMEUNIT.MS ) );
@@ -91,7 +91,7 @@ public class SoundManager : Singleton<SoundManager>
             if ( !IsPlaying( ChannelType.BGM ) )
             {
                 Debug.LogError( "bgm is not playing" );
-                return int.MaxValue;
+                return 0;
             }
 
             uint pos;

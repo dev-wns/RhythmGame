@@ -62,7 +62,6 @@ public class MeasureSystem : MonoBehaviour
                 timings.Add( new MeasureTiming( _chart.timings[i] ) );
         }
         
-
         var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
         double firstTime = _chart.notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
