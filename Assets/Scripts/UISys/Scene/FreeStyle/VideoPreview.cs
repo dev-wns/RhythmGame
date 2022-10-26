@@ -12,6 +12,7 @@ public class VideoPreview : MonoBehaviour
     private RawImage image;
     public RenderTexture renderTexture;
     private Coroutine coroutine;
+    private double playback;
 
     private void Awake()
     {
@@ -20,11 +21,13 @@ public class VideoPreview : MonoBehaviour
         vp.targetTexture = renderTexture;
 
         scroller.OnSelectSong += UpdateVideoSample;
+        scroller.OnPlaybackUpdate += ( double _playback ) => playback = _playback;
         pitchOption.OnPitchUpdate += PitchUpdate;
     }
 
     private void UpdateVideoSample( Song _song )
     {
+        vp.Stop();
         if ( coroutine != null )
         {
             StopCoroutine( coroutine );
@@ -33,9 +36,7 @@ public class VideoPreview : MonoBehaviour
 
         if ( _song.hasVideo )
         {
-            image.enabled = true;
-            float time    = _song.previewTime <= 0 ? _song.totalTime * Mathf.PI * .1f : _song.previewTime;
-            coroutine = StartCoroutine( LoadVideo( ( _song.videoOffset + time ) * .001f, _song.videoPath ) );
+            coroutine = StartCoroutine( LoadVideo( _song.audioOffset * .5f, _song.videoPath ) );
         }
     }
 
@@ -47,16 +48,18 @@ public class VideoPreview : MonoBehaviour
         vp.playbackSpeed = GameSetting.CurrentPitch;
     }
 
-    private IEnumerator LoadVideo( float _time, string _path )
+    private IEnumerator LoadVideo( float _offset, string _path )
     {
         ClearRenderTexture();
-        image.texture = renderTexture;
         vp.url = @$"{_path}";
         vp.Prepare();
 
         yield return new WaitUntil( () => vp.isPrepared );
+
+        image.texture = renderTexture;
         vp.playbackSpeed = GameSetting.CurrentPitch;
-        vp.time = _time;
+        vp.time = ( playback + _offset ) * .001f;
+
         vp.Play();
     }
 

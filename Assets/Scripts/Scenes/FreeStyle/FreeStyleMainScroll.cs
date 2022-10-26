@@ -206,15 +206,15 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         SoundManager.Inst.Play( false );
         SoundManager.Inst.FadeIn( 1f );
 
-        curSong.totalTime = ( int )SoundManager.Inst.Length;
-        OnSelectSong( curSong );
+        curSong.totalTime          = ( int )SoundManager.Inst.Length;
+        curSong.previewTime        = ( int )GetPreviewTime( curSong.previewTime );
+        SoundManager.Inst.Position = ( uint )curSong.previewTime;
+        playback                   = curSong.previewTime;
 
-        float previewTime = GetPreviewTime( curSong.previewTime );
-        SoundManager.Inst.Position = ( uint )previewTime;
-        playback = previewTime;
+        OnSelectSong( curSong );
     }
 
-    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( curSong.totalTime * Mathf.PI * .1f ) : ( uint )_time;
+    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( curSong.totalTime * .314f ) : ( uint )_time;
 
     private void SelectChart()
     {

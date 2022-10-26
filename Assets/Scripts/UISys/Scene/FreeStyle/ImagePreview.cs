@@ -77,7 +77,7 @@ public class ImagePreview : MonoBehaviour
 
         if ( _isImageType )
         {
-            previewImage.enabled = true;
+            //previewImage.enabled = true;
             previewImage.texture = sprite.texture;
         }
 

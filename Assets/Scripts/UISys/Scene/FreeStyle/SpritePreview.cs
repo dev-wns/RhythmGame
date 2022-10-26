@@ -13,7 +13,7 @@ public class SpritePreview : MonoBehaviour
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
     private double playback;
     private int startIndex;
-    private int offset;
+    private double offset;
 
     private void Awake()
     {
@@ -44,8 +44,8 @@ public class SpritePreview : MonoBehaviour
 
         if ( !_song.hasVideo && _song.hasSprite )
         {
-            image.enabled = false;
-            float previewTime = _song.previewTime <= 0 ? _song.totalTime * Mathf.PI * .1f : _song.previewTime;
+            //image.enabled = false;
+            float previewTime = _song.previewTime <= 0 ? _song.totalTime * .314f : _song.previewTime;
             using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
             {
                 string line;
@@ -63,25 +63,26 @@ public class SpritePreview : MonoBehaviour
                     sprite.end   = double.Parse( split[2] );
                     sprite.name  = split[3];
 
-                    if ( sprite.start <= previewTime )
+                    if ( sprites.Count == 0 )
+                         offset = ( sprite.start - _song.audioOffset ) * .5f;
+
+                    if ( sprite.start < previewTime - offset )
                          startIndex = sprites.Count;
 
                     sprites.Add( sprite );
                 }
             }
-
-            offset = ( int )( ( sprites[0].start - _song.audioOffset ) * .5f );
-            StartCoroutine( LoadTexture( _song ) );
+            StartCoroutine( LoadTexture( _song, previewTime ) );
             StartCoroutine( UpdatePreviewImage() );
         }
     }
 
-    private IEnumerator LoadTexture( Song _song )
+    private IEnumerator LoadTexture( Song _song, double _previewTime )
     {
         var dir = Path.GetDirectoryName( _song.filePath );
         for ( int i = 0; i < sprites.Count; i++ )
         {
-            if ( sprites[i].start < _song.previewTime )
+            if ( sprites[i].start < _previewTime - offset )
                  continue;
 
             if ( !textures.ContainsKey( sprites[i].name ) )
@@ -128,18 +129,18 @@ public class SpritePreview : MonoBehaviour
         if ( curIndex < sprites.Count )
              curSample = sprites[curIndex];
 
-        WaitUntil waitSampleEnd = new WaitUntil( () => curSample.end + offset <= playback );
+        WaitUntil waitSampleTime = new WaitUntil( () => curSample.start < playback - offset );
         while ( curIndex < sprites.Count )
         {
             curSample = sprites[curIndex];
 
             if ( textures.ContainsKey( curSample.name ) )
             {
-                image.enabled = true;
+                //image.enabled = true;
                 image.texture = textures[curSample.name];
             }
 
-            yield return waitSampleEnd;
+            yield return waitSampleTime;
             curIndex += 1;
         }
     }
