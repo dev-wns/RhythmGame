@@ -9,29 +9,30 @@ using System.Text;
 public struct Song
 {
     public string filePath;
+    public string imagePath;
     public string audioPath;
     public int    audioOffset;
-    public string imagePath;
     public string videoPath;
-    public bool   hasVideo;
     public int    videoOffset;
 
-    public int  spriteCount;
+    public bool hasVideo;
     public bool hasSprite;
+    public bool hasKeySound;    // 노트 키음이 하나라도 있을 때 ( 배경음은 상관 X )
+    public bool isOnlyKeySound; // 키음으로만 이루어진 노래 ( 배경음악과 노트 전부 키음으로 이루어짐 )
 
     public string title;
     public string artist;
     public string creator;
     public string version;
 
-    public int previewTime;
     public int totalTime;
-    public bool isOnlyKeySound;
+    public int previewTime;
 
     public int noteCount;
     public int sliderCount;
-    public int minBpm;
-    public int maxBpm;
+
+    public int    minBpm;
+    public int    maxBpm;
     public double medianBpm;
 }
 
@@ -292,7 +293,7 @@ public class FileConverter : FileReader
                     var splitData = line.Split( ',' );
                     song.videoOffset = int.Parse( splitData[1] );
                     song.videoPath   = splitData[2].Split( '"' )[1].Trim();
-                    song.hasVideo    = File.Exists( Path.Combine( directory, song.videoPath ) ) ? true : false;
+                    song.hasVideo    = File.Exists( Path.Combine( directory, song.videoPath ) );
                 }
 
                 if ( ( Contains( ".jpg" ) || Contains( ".png" ) || Contains( ".bmp" ) ) && ( !Contains( "Sprite," ) ) )
@@ -323,7 +324,9 @@ public class FileConverter : FileReader
                 else if ( _A.start < _B.start ) return -1;
                 else                            return 0;
             } );
-            song.spriteCount = sprites.Count;
+            if ( sprites.Count > 0 )
+                 song.hasSprite = true;
+             
             timings?.Clear();
 #endregion
 #region Timing
@@ -353,6 +356,7 @@ public class FileConverter : FileReader
             #endregion
             #region Note
             notes?.Clear();
+            bool isCheckKeySoundOnce = false;
             DeleteKey deleteKey = new DeleteKey( keyCount );
             while ( ReadLineEndOfStream() ) {
                 string[] splitDatas = line.Split( ',' );
@@ -382,6 +386,15 @@ public class FileConverter : FileReader
 
                     int lane = keyCount == 4 ? finalLane + 1 : finalLane;
                     notes.Add( new Note( lane, noteTime, sliderTime, keySound ) );
+
+                    if ( !isCheckKeySoundOnce )
+                    {
+                        if ( File.Exists( Path.Combine( directory, keySound.name ) ) )
+                        {
+                            song.hasKeySound    = true;
+                            isCheckKeySoundOnce = true;
+                        }
+                    }
                 }
             }
             // BMS2Osu로 뽑은 파일은 Pixel값 기준으로 정렬되어 있기 때문에 시간 순으로 다시 정렬해준다.
@@ -447,12 +460,11 @@ public class FileConverter : FileReader
                 using ( var writer = new StreamWriter( stream ) )
                 {
                     writer.WriteLine( "[General]" );
+                    writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"AudioPath: {_song.audioPath}" );
                     writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
-                    writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
                     writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
-                    writer.WriteLine( $"SpriteCount: {_song.spriteCount}" );
 
                     writer.WriteLine( $"Title: {_song.title}" );
                     writer.WriteLine( $"Artist: {_song.artist}" );
@@ -468,7 +480,11 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"MinBPM: {_song.minBpm}" );
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
                     writer.WriteLine( $"Median: {_song.medianBpm}" );
-                    writer.WriteLine( $"Virtual: {( _song.isOnlyKeySound ? 1 : 0 )}" );
+
+                    writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound ? 1 : 0 )}:" +
+                                                 $"{( _song.hasKeySound ? 1 : 0 )}:" +
+                                                 $"{( _song.hasVideo ? 1 : 0 )}:" +
+                                                 $"{( _song.hasSprite ? 1 : 0 )}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );

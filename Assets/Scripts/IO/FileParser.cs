@@ -36,6 +36,14 @@ public class FileParser : FileReader
 
             while ( ReadLine() != "[Timings]" )
             {
+                if ( Contains( "ImagePath:" ) )
+                {
+                    var imageName = Split( ':' );
+                    if ( imageName == string.Empty )
+                        _song.imagePath = string.Empty;
+                    else
+                        _song.imagePath = Path.Combine( directory, imageName );
+                }
                 if ( Contains( "AudioPath:" ) )
                 {
                     var soundName = Split( ':' );
@@ -45,14 +53,6 @@ public class FileParser : FileReader
                         _song.audioPath = Path.Combine( directory, soundName );
                 }
                 if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
-                if ( Contains( "ImagePath:" ) )
-                {
-                    var imageName = Split( ':' );
-                    if ( imageName == string.Empty )
-                        _song.imagePath = string.Empty;
-                    else
-                        _song.imagePath = Path.Combine( directory, imageName );
-                }
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = Split( ':' );
@@ -69,11 +69,6 @@ public class FileParser : FileReader
                     }
                 }
                 if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( Split( ':' ) );
-                if ( Contains( "SpriteCount:" ) )
-                {
-                    _song.spriteCount = int.Parse( Split( ':' ) );
-                    _song.hasSprite = _song.spriteCount > 0;
-                }
 
                 if ( Contains( "Title:" ) )   _song.title   = Replace( "Title:",   string.Empty );
                 if ( Contains( "Artist:" ) )  _song.artist  = Replace( "Artist:",  string.Empty );
@@ -89,7 +84,15 @@ public class FileParser : FileReader
                 if ( Contains( "MinBPM:" ) )  _song.minBpm         = int.Parse( Split( ':' ) );
                 if ( Contains( "MaxBPM:" ) )  _song.maxBpm         = int.Parse( Split( ':' ) );
                 if ( Contains( "Median:" ) )  _song.medianBpm      = double.Parse( Split( ':' ) );
-                if ( Contains( "Virtual:" ) ) _song.isOnlyKeySound = int.Parse( Split( ':' ) ) == 1 ? true : false;
+
+                if ( Contains( "DataExist:" ) )
+                {
+                    string[] splitDatas = line.Split( ':' );
+                    _song.isOnlyKeySound = int.Parse( splitDatas[1] ) == 1 ? true : false;
+                    _song.hasKeySound    = int.Parse( splitDatas[2] ) == 1 ? true : false;
+                    _song.hasVideo       = int.Parse( splitDatas[3] ) == 1 ? true : false;
+                    _song.hasSprite      = int.Parse( splitDatas[4] ) == 1 ? true : false;
+                }
             }
         }
         catch ( Exception _error )
