@@ -14,7 +14,7 @@ public class SpritePreview : MonoBehaviour
     private double playback;
     private int startIndex;
     private double offset;
-
+    private double previewTime;
     private void Awake()
     {
         image = GetComponent<RawImage>();
@@ -45,7 +45,7 @@ public class SpritePreview : MonoBehaviour
         if ( !_song.hasVideo && _song.hasSprite )
         {
             image.enabled = false;
-            float previewTime = _song.previewTime <= 0 ? _song.totalTime * .314f : _song.previewTime;
+            previewTime = _song.previewTime <= 0 ? _song.totalTime * .314f : _song.previewTime;
             using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
             {
                 string line;
@@ -80,11 +80,8 @@ public class SpritePreview : MonoBehaviour
     private IEnumerator LoadTexture( Song _song, double _previewTime )
     {
         var dir = Path.GetDirectoryName( _song.filePath );
-        for ( int i = 0; i < sprites.Count; i++ )
+        for ( int i = startIndex; i < sprites.Count; i++ )
         {
-            if ( sprites[i].start < _previewTime - offset )
-                 continue;
-
             if ( !textures.ContainsKey( sprites[i].name ) )
             {
                 Texture2D tex;
@@ -116,11 +113,6 @@ public class SpritePreview : MonoBehaviour
                     }
                 }
                 textures.Add( sprites[i].name, tex );
-                if ( textures.Count == 1 )
-                {
-                    image.texture = tex;
-                    image.enabled = true;
-                }
                 yield return null;
             }
         }
@@ -130,11 +122,15 @@ public class SpritePreview : MonoBehaviour
     {
         SpriteSample curSample = new SpriteSample();
         int curIndex = startIndex;
-
         if ( curIndex < sprites.Count )
              curSample = sprites[curIndex];
 
         WaitUntil waitSampleTime = new WaitUntil( () => curSample.start < playback - offset );
+
+        // Wait First Texture
+        yield return new WaitUntil( () => textures.ContainsKey( curSample.name ) );
+        image.enabled = true;
+
         while ( curIndex < sprites.Count )
         {
             curSample = sprites[curIndex];
