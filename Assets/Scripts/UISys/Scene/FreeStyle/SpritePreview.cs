@@ -44,7 +44,7 @@ public class SpritePreview : MonoBehaviour
 
         if ( !_song.hasVideo && _song.hasSprite )
         {
-            //image.enabled = false;
+            image.enabled = false;
             float previewTime = _song.previewTime <= 0 ? _song.totalTime * .314f : _song.previewTime;
             using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
             {
@@ -116,6 +116,11 @@ public class SpritePreview : MonoBehaviour
                     }
                 }
                 textures.Add( sprites[i].name, tex );
+                if ( textures.Count == 1 )
+                {
+                    image.texture = tex;
+                    image.enabled = true;
+                }
                 yield return null;
             }
         }

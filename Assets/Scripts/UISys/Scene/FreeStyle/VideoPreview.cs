@@ -16,8 +16,8 @@ public class VideoPreview : MonoBehaviour
 
     private void Awake()
     {
-        vp = GetComponent<VideoPlayer>();
         image = GetComponent<RawImage>();
+        vp = GetComponent<VideoPlayer>();
         vp.targetTexture = renderTexture;
 
         scroller.OnSelectSong += UpdateVideoSample;
@@ -36,6 +36,8 @@ public class VideoPreview : MonoBehaviour
 
         if ( _song.hasVideo )
         {
+            image.enabled = false;
+            image.texture = renderTexture;
             coroutine = StartCoroutine( LoadVideo( _song.audioOffset * .5f, _song.videoPath ) );
         }
     }
@@ -56,10 +58,9 @@ public class VideoPreview : MonoBehaviour
 
         yield return new WaitUntil( () => vp.isPrepared );
 
-        image.texture = renderTexture;
+        image.enabled = true;
         vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.time = ( playback + _offset ) * .001f;
-
         vp.Play();
     }
 
