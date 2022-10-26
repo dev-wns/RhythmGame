@@ -33,14 +33,9 @@ public class VideoPreview : MonoBehaviour
 
         if ( _song.hasVideo )
         {
-            //image.enabled = true;
+            image.enabled = true;
             float time    = _song.previewTime <= 0 ? _song.totalTime * Mathf.PI * .1f : _song.previewTime;
             coroutine = StartCoroutine( LoadVideo( ( _song.videoOffset + time ) * .001f, _song.videoPath ) );
-        }
-        else
-        {
-            vp.Stop();
-            //image.enabled = false;
         }
     }
 

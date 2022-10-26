@@ -79,7 +79,6 @@ public class SpritePreview : MonoBehaviour
     private IEnumerator LoadTexture( Song _song )
     {
         var dir = Path.GetDirectoryName( _song.filePath );
-
         for ( int i = 0; i < sprites.Count; i++ )
         {
             if ( sprites[i].start < _song.previewTime )
@@ -129,7 +128,7 @@ public class SpritePreview : MonoBehaviour
         if ( curIndex < sprites.Count )
              curSample = sprites[curIndex];
 
-        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end + offset <= playback );
+        WaitUntil waitSampleEnd = new WaitUntil( () => curSample.end + offset <= playback );
         while ( curIndex < sprites.Count )
         {
             curSample = sprites[curIndex];
