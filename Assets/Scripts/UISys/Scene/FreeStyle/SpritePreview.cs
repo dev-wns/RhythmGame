@@ -140,10 +140,7 @@ public class SpritePreview : MonoBehaviour
             curSample = sprites[curIndex];
 
             if ( textures.ContainsKey( curSample.name ) )
-            {
-                //image.enabled = true;
-                image.texture = textures[curSample.name];
-            }
+                 image.texture = textures[curSample.name];
 
             yield return waitSampleTime;
             curIndex += 1;

@@ -38,7 +38,7 @@ public class VideoPreview : MonoBehaviour
         {
             image.enabled = false;
             image.texture = renderTexture;
-            coroutine = StartCoroutine( LoadVideo( _song.audioOffset * .5f, _song.videoPath ) );
+            coroutine = StartCoroutine( LoadVideo( _song.audioOffset * .69f, _song.videoPath ) );
         }
     }
 
