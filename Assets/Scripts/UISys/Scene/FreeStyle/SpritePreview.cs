@@ -12,12 +12,14 @@ public class SpritePreview : MonoBehaviour
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
     private double playback;
+    private int startIndex;
+    private int offset;
 
     private void Awake()
     {
         image = GetComponent<RawImage>();
         scroller.OnSelectSong += UpdateSpriteSample;
-        scroller.OnPlaybackUpdate += UpdatePreview;
+        scroller.OnPlaybackUpdate += ( double _playback ) => playback = _playback;
     }
 
     private void OnDestroy()
@@ -42,7 +44,7 @@ public class SpritePreview : MonoBehaviour
 
         if ( !_song.hasVideo && _song.hasSprite )
         {
-            curIndex = 0;
+            image.enabled = false;
             float previewTime = _song.previewTime <= 0 ? _song.totalTime * Mathf.PI * .1f : _song.previewTime;
             using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
             {
@@ -68,10 +70,9 @@ public class SpritePreview : MonoBehaviour
                 }
             }
 
-            offset = ( int )( _song.audioOffset - ( sprites[0].start * .5f ) );
-            curIndex = startIndex;
+            offset = ( int )( ( sprites[0].start - _song.audioOffset ) * .5f );
             StartCoroutine( LoadTexture( _song ) );
-            StartCoroutine( UpdatePreviewImage( _song ) );
+            StartCoroutine( UpdatePreviewImage() );
         }
     }
 
@@ -81,6 +82,9 @@ public class SpritePreview : MonoBehaviour
 
         for ( int i = 0; i < sprites.Count; i++ )
         {
+            if ( sprites[i].start < _song.previewTime )
+                 continue;
+
             if ( !textures.ContainsKey( sprites[i].name ) )
             {
                 Texture2D tex;
@@ -115,48 +119,26 @@ public class SpritePreview : MonoBehaviour
                 yield return null;
             }
         }
-
-        //yield return StartCoroutine( UpdatePreviewImage( _song ) );
     }
 
-    int startIndex;
-    int curIndex;
-    SpriteSample curSample;
-    int offset;
-    private void UpdatePreview( double _playback )
+    private IEnumerator UpdatePreviewImage()
     {
-        playback = _playback;
-        //if ( sprites.Count > 0 )
-        //{
-        //    curSample = sprites[curIndex];
-        //    if ( curSample.start <= _playback + offset )
-        //    {
-        //        if ( textures.ContainsKey( curSample.name ) )
-        //            image.texture = textures[curSample.name];
-        //    }
+        SpriteSample curSample = new SpriteSample();
+        int curIndex = startIndex;
 
-        //    if ( curSample.end <= _playback + offset )
-        //    {
-        //        curIndex = curIndex + 1 < sprites.Count ? ++curIndex : startIndex;
-        //    }
-        //}
-    }
-
-    private IEnumerator UpdatePreviewImage( Song _song )
-    {
         if ( curIndex < sprites.Count )
              curSample = sprites[curIndex];
 
-        //WaitUntil waitSampleStart = new WaitUntil( () => curSample.start - offset <= playback );
-        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   - offset <= playback );
-
+        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end + offset <= playback );
         while ( curIndex < sprites.Count )
         {
             curSample = sprites[curIndex];
 
-            //yield return waitSampleStart;
             if ( textures.ContainsKey( curSample.name ) )
-                 image.texture = textures[curSample.name];
+            {
+                image.enabled = true;
+                image.texture = textures[curSample.name];
+            }
 
             yield return waitSampleEnd;
             curIndex += 1;
