@@ -35,7 +35,7 @@ public class SongPreview : MonoBehaviour
         backgroundType.text = _song.hasVideo  ? "Video" :
                               _song.hasSprite ? "Sprite" :
                                                 "Image";
-        hasKeySound.text = _song.isOnlyKeySound ? "O" : "X";
+        hasKeySound.text = _song.hasKeySound ? "O" : "X";
 
 
         noteCount.text   = _song.noteCount.ToString();
