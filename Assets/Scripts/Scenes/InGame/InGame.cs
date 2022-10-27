@@ -74,13 +74,13 @@ public class InGame : Scene
         pauseCanvas.SetActive( false );
         NowPlaying.Inst.Stop();
         SoundManager.Inst.AllStop();
-        SoundManager.Inst.AllRemoveDSP();
+        //SoundManager.Inst.AllRemoveDSP();
 
         OnReLoad?.Invoke();
 
-        FMOD.DSP pitchShift;
-        SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.PITCHSHIFT, out pitchShift );
-        SoundManager.Inst.AddDSP( in pitchShift, ChannelType.KeySound );
+        //FMOD.DSP pitchShift;
+        //SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.PITCHSHIFT, out pitchShift );
+        //SoundManager.Inst.AddDSP( in pitchShift, ChannelType.KeySound );
 
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();

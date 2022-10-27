@@ -11106,16 +11106,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3f22b39b7e0834dbbd9e179160b556, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioVisualizer: {fileID: 1923945050}
-  spectrumPrefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf,
-    type: 3}
-  sortingOrder: 3
-  specWidth: 5
-  specBlank: 10.15
-  specPower: 1.25
+  visualizer: {fileID: 1923945050}
+  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
+  isGradationColor: 1
   color: {r: 1, g: 1, b: 1, a: 0.14901961}
-  numSpectrum: 128
-  decreasePower: 0.15
+  sortingOrder: 3
+  lerpOffset: 0.32
+  specCount: 125
+  specPower: 0.75
+  specWidth: 4
+  specBlank: 4
+  isReverse: 1
 --- !u!1 &1118418892
 GameObject:
   m_ObjectHideFlags: 0
@@ -18826,6 +18827,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  particlePower: 0
+  bassPower: 0
+  bassRange: 0
 --- !u!4 &1923945051
 Transform:
   m_ObjectHideFlags: 0
