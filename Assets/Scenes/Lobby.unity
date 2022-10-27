@@ -4422,13 +4422,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3f22b39b7e0834dbbd9e179160b556, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioVisualizer: {fileID: 2136235395}
   spectrumPrefab: {fileID: 2841630171828651903, guid: 3e958ed5e751951429ddfb30c7c72f04,
     type: 3}
+  sortingOrder: 0
   specWidth: 7.5
   specBlank: 25
   specPower: 16.5
   color: {r: 1, g: 1, b: 1, a: 0.105882354}
+  numSpectrum: 64
   decreasePower: 0.275
 --- !u!1 &555054652
 GameObject:
@@ -6473,7 +6474,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cd1e9b72d194d4eabd32dc31078c0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioVisualizer: {fileID: 2136235395}
   spectrumPrefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf,
     type: 3}
   particleSys: {fileID: 1991919314}
@@ -7864,7 +7864,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bef85f6e902255548ad174923e106b2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioVisualizer: {fileID: 2136235395}
   numBands: 7
   defaultPos: 410
   bandPower: 0.415
@@ -18662,7 +18661,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2136235394}
-  - component: {fileID: 2136235395}
   m_Layer: 6
   m_Name: Audio Visualizer
   m_TagString: Untagged
@@ -18687,18 +18685,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2136235395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2136235393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2142128133
 GameObject:
   m_ObjectHideFlags: 0

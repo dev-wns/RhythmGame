@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LineSpectrum : MonoBehaviour
+public class LineSpectrum : AudioVisualizer
 {
-    public AudioVisualizer audioVisualizer;
     public Transform spectrumPrefab;
     public int sortingOrder;
     private Transform[] spectrums;
@@ -31,9 +30,6 @@ public class LineSpectrum : MonoBehaviour
         bandBuffer64    = new float[64];
         bufferDecrease64 = new float[64];
 
-        // delegate chain
-        audioVisualizer.UpdateSpectrums += UpdateBand64;
-
         // create spectrum objects
         spectrums = new Transform[numSpectrum];
         float offset   = specWidth + specBlank;
@@ -53,7 +49,7 @@ public class LineSpectrum : MonoBehaviour
         }
     }
 
-    private void UpdateBand64( float[] _values )
+    protected override void UpdateSpectrums( float[] _values )
     {
         float highValue = 1f;
         for ( int i = 0; i < numSpectrum / 2; i++ )
@@ -78,7 +74,6 @@ public class LineSpectrum : MonoBehaviour
             spectrums[i].position                   = new Vector3( -offset * i, tf.position.y, tf.position.z );
             spectrums[numSpectrum - 1 - i].position = new Vector3(  offset * i, tf.position.y, tf.position.z );
         }
-
         return;
 
         int count = 0;

@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CircleSpectrum : MonoBehaviour
+public class CircleSpectrum : AudioVisualizer
 {
-    public AudioVisualizer audioVisualizer;
     public Transform spectrumPrefab;
     private Transform[] visualSpectrums;
 
@@ -37,9 +36,6 @@ public class CircleSpectrum : MonoBehaviour
         float scale = 1 / imageSize;
         transform.localScale = new Vector3( scale, scale, scale );
 
-        // delegate chain
-        audioVisualizer.UpdateSpectrums += UpdateSpectrum;
-
         // create spectrum objects
         int symmetryColorIdx = numSpectrum;
         float angle = 180f / numSpectrum;
@@ -71,18 +67,18 @@ public class CircleSpectrum : MonoBehaviour
         isParticleReady = true;
     }
 
-    private void UpdateSpectrum( float[] _values )
+    protected override void UpdateSpectrums( float[] _datas )
     {
         float highValue = 1f;
         for ( int i = 0; i < numSpectrum; i++ )
         {
-            if ( highValue < _values[i] ) highValue = _values[i];
+            if ( highValue < _datas[i] ) highValue = _datas[i];
         }
 
         float average = 0f;
         for ( int i = 0; i < numSpectrum; i++ )
         {
-            float value = ( ( _values[i] / highValue ) * 1000f * spectrumPower );
+            float value = ( ( _datas[i] / highValue ) * 1000f * spectrumPower );
 
             //float value = _values[i] * 1000f * spectrumPower;
             float y = visualSpectrums[i].localScale.y;
@@ -92,13 +88,13 @@ public class CircleSpectrum : MonoBehaviour
             visualSpectrums[i].localScale                           = newScale; // left
             visualSpectrums[( numSpectrum * 2 ) - 1 - i].localScale = newScale; // right
 
-            if ( i < bassRange ) average += _values[i] * ( 1 + i );
+            if ( i < bassRange ) average += _datas[i] * ( 1 + i );
         }
 
         average /= bassRange;
 
         if ( isParticleReady )
-            particleMain.simulationSpeed = average * particleSpeed;
+             particleMain.simulationSpeed = average * particleSpeed;
 
 
         float clampValue = Mathf.Clamp( average * pumpingPower * 1000f, imageSize, imageSize * 1.5f );

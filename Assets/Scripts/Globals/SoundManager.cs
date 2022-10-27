@@ -616,6 +616,7 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
 
         dsps.Add( FMOD.DSP_TYPE.FFT, dsp );
+        AddDSP( dsp, ChannelType.BGM );
     }
 
     private void CreatePitchShiftDSP()
