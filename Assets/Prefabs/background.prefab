@@ -90,6 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeTime: 0.25
+  color: {r: 0.25, g: 0.25, b: 0.25, a: 1}
 --- !u!114 &-6680321734977782264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8b2ed11d675446c5a49da1ea296d490, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectFactor: 0.1
+  m_EffectFactor: 0.05
   m_ColorFactor: 1
   m_BlurFactor: 1
   m_EffectMode: 3

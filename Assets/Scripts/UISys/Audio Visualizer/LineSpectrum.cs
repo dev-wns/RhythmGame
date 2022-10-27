@@ -6,15 +6,16 @@ public class LineSpectrum : MonoBehaviour
 {
     public AudioVisualizer audioVisualizer;
     public Transform spectrumPrefab;
+    public int sortingOrder;
     private Transform[] spectrums;
+    private Transform tf;
 
     public float specWidth;
     public float specBlank;
     public float specPower;
     public Color color = Color.white;
-    private int numSpectrum = 64;
+    public int numSpectrum = 64;
     private List<SpriteRenderer> specRenderer = new List<SpriteRenderer>();
-
 
     // buffers
     public float decreasePower = .005f;
@@ -24,6 +25,8 @@ public class LineSpectrum : MonoBehaviour
 
     private void Awake()
     {
+        tf = transform;
+
         freqBand64 = new float[64];
         bandBuffer64    = new float[64];
         bufferDecrease64 = new float[64];
@@ -43,12 +46,41 @@ public class LineSpectrum : MonoBehaviour
             specRenderer.Add( spectrums[i].GetComponent<SpriteRenderer>() );
             specRenderer[i].sortingOrder = ( int )transform.position.z;
 
-            obj.GetComponent<SpriteRenderer>().color = color;
+            var rdr = obj.GetComponent<SpriteRenderer>();
+            rdr.sortingOrder = sortingOrder;
+            if ( i == 0 ) rdr.color = Color.clear;
+            else          rdr.color = color;
         }
     }
 
     private void UpdateBand64( float[] _values )
     {
+        float highValue = 1f;
+        for ( int i = 0; i < numSpectrum / 2; i++ )
+        {
+            if ( highValue < _values[i] )
+                 highValue = _values[i];
+        }
+
+        float offset = specWidth + specBlank;
+        for ( int i = 0; i < numSpectrum / 2; i++ )
+        {
+            float value = ( ( _values[( int )( numSpectrum / 2 ) - i] ) * 1000f * specPower );
+
+            //float value = _values[i] * 1000f * spectrumPower;
+            float y = spectrums[i].localScale.y;
+            float scale = Mathf.Lerp( y, value, .275f ); //Mathf.SmoothStep( y, value, value / y );
+
+            Vector3 newScale = new Vector3( specWidth, scale, 1f );
+            spectrums[i].localScale                   = newScale; // left
+            spectrums[numSpectrum - 1 - i].localScale = newScale; // right
+
+            spectrums[i].position                   = new Vector3( -offset * i, tf.position.y, tf.position.z );
+            spectrums[numSpectrum - 1 - i].position = new Vector3(  offset * i, tf.position.y, tf.position.z );
+        }
+
+        return;
+
         int count = 0;
         int sampleCount =1;
         int power = 0;
@@ -117,14 +149,14 @@ public class LineSpectrum : MonoBehaviour
             spectrums[i].localScale                   = newScale; // left
             spectrums[numSpectrum - 1 - i].localScale = newScale; // right
 
-            spectrums[i].position = new Vector3( -offset * i, 0f, transform.position.z );
-            spectrums[numSpectrum - 1 - i].position = new Vector3( offset * i, 0f, transform.position.z );
+            spectrums[i].position                   = new Vector3( -offset * i, tf.position.y, tf.position.z );
+            spectrums[numSpectrum - 1 - i].position = new Vector3(  offset * i, tf.position.y, tf.position.z );
 
-            float normalizeBuffer = bandBuffer64[i] / bufferHighest;
-            normalizeBuffer = normalizeBuffer < .25f ? .25f : normalizeBuffer;
-            var newColor = new Color( normalizeBuffer, normalizeBuffer, normalizeBuffer, normalizeBuffer );
-            specRenderer[i].color                   = newColor; // left
-            specRenderer[numSpectrum - 1 - i].color = newColor; // right
+            //float normalizeBuffer = bandBuffer64[i] / bufferHighest;
+            //normalizeBuffer = normalizeBuffer < .25f ? .25f : normalizeBuffer;
+            //var newColor = new Color( normalizeBuffer, normalizeBuffer, normalizeBuffer, normalizeBuffer );
+            //specRenderer[i].color                   = newColor; // left
+            //specRenderer[numSpectrum - 1 - i].color = newColor; // right
         }
     }
 }
