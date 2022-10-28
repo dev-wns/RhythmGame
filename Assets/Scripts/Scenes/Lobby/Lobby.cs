@@ -37,6 +37,7 @@ public class Lobby : Scene
 
     private void SoundReStart()
     {
+        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
         SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
         SoundManager.Inst.Play( true );
         SoundManager.Inst.Position = ( uint )playback;

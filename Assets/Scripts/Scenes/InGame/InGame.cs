@@ -34,7 +34,9 @@ public class InGame : Scene
 
         await LoadkeySoundAsyncTask;
 
-        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.KeySound );
+        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+
         StartCoroutine( Play() );
     }
 

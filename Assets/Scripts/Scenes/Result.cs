@@ -6,13 +6,13 @@ using DG.Tweening;
 public class Result : Scene
 {
     public Judgement Judge = null;
-    
+
 
     public string soundName;
     public uint highlightPos;
     private float playback, soundLength;
     private bool isStart = false;
-    
+
     protected override void Awake()
     {
         base.Awake();

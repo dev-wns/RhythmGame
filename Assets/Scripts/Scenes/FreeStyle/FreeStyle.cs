@@ -22,7 +22,10 @@ public class FreeStyle : Scene
     protected override void Start()
     {
         base.Start();
+        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
+
         SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     private void ShowOption()

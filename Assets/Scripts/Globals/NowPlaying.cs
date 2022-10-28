@@ -114,9 +114,9 @@ public class NowPlaying : Singleton<NowPlaying>
         IsStart = true;
 
         OnStart?.Invoke();
-        SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
+        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
-        yield return new WaitUntil( () => Playback >= 0d );
+        yield return new WaitUntil( () => Playback >= 5d );
         Playback = 0d;
     }
 
@@ -145,7 +145,7 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             IsStart = false;
 
-            SoundManager.Inst.SetPaused( true, ChannelType.KeySound );
+            SoundManager.Inst.SetPaused( true, ChannelType.BGM );
             OnPause?.Invoke( true );
             saveTime = Playback >= 0d ? WaitTime + Playback : 0d;
         }
@@ -160,7 +160,6 @@ public class NowPlaying : Singleton<NowPlaying>
     private IEnumerator Continue()
     {
         CurrentScene.IsInputLock = true;
-        //CurrentScene.InputLock( true );
         while ( Playback >= saveTime )
         {
             Playback -= Time.deltaTime * 2d;
@@ -173,7 +172,7 @@ public class NowPlaying : Singleton<NowPlaying>
         IsStart   = true;
 
         yield return new WaitUntil( () => Playback >= saveTime - WaitTime );
-        SoundManager.Inst.SetPaused( false, ChannelType.KeySound );
+        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         OnPause?.Invoke( false );
 
         yield return YieldCache.WaitForSeconds( 2f );

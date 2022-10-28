@@ -54,35 +54,34 @@ public class AudioVisualizer : MonoBehaviour
             uint length;
             IntPtr data;
             FMOD.DSP fftWindowDSP;
-            if ( !SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fftWindowDSP ) )
-            {
-                Debug.LogWarning( "FFTWindowData is not Load" );
-                continue;
-            }
+            SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fftWindowDSP );
             fftWindowDSP.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
             FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
             spectrums = fftData.spectrum;
-
-            float bassAmount = 0f;
-            if ( hasBass )
+            if ( fftData.spectrum.Length > 0 )
             {
-                float sumValue = 0f;
-                for ( int i = 0; i < bassRange; i++ )
+
+                float bassAmount = 0f;
+                if ( hasBass )
                 {
-                    sumValue += ( spectrums[0][i] + spectrums[1][i] ) * .5f;
+                    float sumValue = 0f;
+                    for ( int i = 0; i < bassRange; i++ )
+                    {
+                        sumValue += ( spectrums[0][i] + spectrums[1][i] ) * .5f;
+                    }
+                    Average = sumValue / bassRange;
+
+                    bassAmount = Average * bassPower;
+                    Bass = 1f + bassAmount;
                 }
-                Average = sumValue / bassRange;
 
-                bassAmount = Average * bassPower;
-                Bass = 1f + bassAmount;
+                if ( hasParticle )
+                {
+                    mainModule.simulationSpeed = bassAmount * particlePower;
+                }
+
+                OnUpdateSpectrums?.Invoke( spectrums );
             }
-
-            if ( hasParticle )
-            {
-                mainModule.simulationSpeed = bassAmount * particlePower;
-            }
-
-            OnUpdateSpectrums?.Invoke( spectrums );
         }
     }
 

@@ -30,7 +30,10 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         ChangeAction( ActionType.Main );
     }
 
-    protected virtual void Start() => StartCoroutine( FadeIn() );
+    protected virtual void Start()
+    {
+        StartCoroutine( FadeIn() );
+    }
     #endregion
 
     #region Load
@@ -40,6 +43,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         StartCoroutine( SceneChange( _type ) );
     }
 
+
     private IEnumerator SceneChange( SceneType _type )
     {
         DOTween.KillAll();
@@ -48,7 +52,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         yield return StartCoroutine( FadeOut() );
 
         SoundManager.Inst.AllStop();
-        //SoundManager.Inst.AllRemoveDSP();
+        SoundManager.Inst.AllRemoveDSP();
         SoundManager.Inst.PitchReset();
         SceneManager.LoadScene( ( int )_type );
     }
@@ -100,6 +104,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     }
     #endregion
     #region Effect
+
     private void CreateFadeSprite()
     {
         //gameObject.layer = 6; // 3d
