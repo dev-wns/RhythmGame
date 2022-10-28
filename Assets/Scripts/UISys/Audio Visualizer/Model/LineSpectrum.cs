@@ -5,9 +5,12 @@ using UnityEngine;
 public class LineSpectrum : BaseSpectrum
 {
     public bool isReverse;
-
+    [Range(0f,.1f)]
+    public float decrease;
+    private float[] cached;
     protected override void CreateSpectrumModel()
     {
+        cached = new float[specCount * 2];
         int symmetryColorIdx = 0;
         transforms = new Transform[specCount * 2];
         for ( int i = 0; i < specCount * 2; i++ )
@@ -30,10 +33,17 @@ public class LineSpectrum : BaseSpectrum
         var halfOffset = Offset * .5f;
         for ( int i = 0; i < specCount; i++ )
         {
-            index = isReverse ? specCount - i - 1 : i;
-            float value = ( _values[0][index] + _values[1][index] ) *.5f;
-            value = ( value / Highest ) * Power;
-            float scale = Mathf.Lerp( transforms[i].localScale.y, value, lerpOffset );
+            index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
+            float value = ( ( _values[0][index] + _values[1][index] ) *.5f );
+            //value = ( value / Highest ) * Power;
+
+            if ( cached[i] < value )
+                 cached[i] = value;
+
+            if ( cached[i] > value )
+                 cached[i] = Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, decrease, cached[i] ) );
+            //cached[i] = cached[i] < value ? value : Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, decrease, cached[i] ) );
+            float scale = Mathf.Lerp( transforms[i].localScale.y, cached[i] * Power, lerpOffset );
 
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];

@@ -11107,16 +11107,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visualizer: {fileID: 1923945050}
-  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
+  prefab: {fileID: 2841630171828651903, guid: 3e958ed5e751951429ddfb30c7c72f04, type: 3}
   isGradationColor: 1
+  gradationColorAlpha: 1
   color: {r: 1, g: 1, b: 1, a: 0.14901961}
   sortingOrder: 3
   lerpOffset: 0.32
-  specCount: 125
-  specPower: 0.75
-  specWidth: 4
-  specBlank: 4
+  specStartIndex: 20
+  specCount: 200
+  specPower: 2
+  specWidth: 3.8
+  specBlank: 1
   isReverse: 1
+  decrease: 0.005
 --- !u!1 &1118418892
 GameObject:
   m_ObjectHideFlags: 0

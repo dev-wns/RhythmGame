@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class AudioVisualizer : MonoBehaviour
 {
-    private const int SpectrumRange = 128;
+    private const int SpectrumRange = 512;
     private float[][] spectrums;
 
     [Header("Particle")]
@@ -21,7 +21,7 @@ public class AudioVisualizer : MonoBehaviour
     [Range(1, SpectrumRange)]
     public int bassRange;
 
-    public float Highest { get; private set; }
+    //public float Highest { get; private set; }
     public float Average { get; private set; }
     public float Bass    { get; private set; }
     public Action<float[][]> OnUpdateSpectrums;
@@ -42,7 +42,7 @@ public class AudioVisualizer : MonoBehaviour
         hasParticle = true;
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual void Update()
     {
         if ( SoundManager.Inst.IsLoad ) return;
 
@@ -62,8 +62,8 @@ public class AudioVisualizer : MonoBehaviour
         for ( int i = 0; i < SpectrumRange; i++ )
         {
             float value = ( spectrums[0][i] + spectrums[1][i] ) *.5f;
-            if ( value > Highest )
-                 Highest = value;
+            //if ( value > Highest )
+            //     Highest = value;
 
             if ( i < bassRange )
                  sumValue += value;

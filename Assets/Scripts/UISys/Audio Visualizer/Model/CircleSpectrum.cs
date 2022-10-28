@@ -44,10 +44,10 @@ public class CircleSpectrum : BaseSpectrum
         for ( int i = 0; i < specCount; i++ )
         {
             float value = ( _values[0][i] + _values[1][i] ) *.5f;
-            value = ( value / Highest ) * Power;
+            //value = ( value / Highest ) * Power;
 
             float y = transforms[i].localScale.y;
-            float scale = Mathf.Lerp( y, value, lerpOffset );
+            float scale = Mathf.Lerp( y, value * Power, lerpOffset );
 
             Transform left  = transforms[i];
             Transform right = transforms[( specCount * 2 ) - 1 - i];
