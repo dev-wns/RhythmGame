@@ -48,7 +48,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         yield return StartCoroutine( FadeOut() );
 
         SoundManager.Inst.AllStop();
-        SoundManager.Inst.AllRemoveDSP();
+        //SoundManager.Inst.AllRemoveDSP();
         SoundManager.Inst.PitchReset();
         SceneManager.LoadScene( ( int )_type );
     }

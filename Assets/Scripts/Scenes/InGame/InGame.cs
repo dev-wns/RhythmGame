@@ -23,11 +23,6 @@ public class InGame : Scene
         base.Awake();
 
         NowPlaying.Inst.ParseChart();
-
-        FMOD.DSP pitchShift;
-        SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.PITCHSHIFT, out pitchShift );
-        SoundManager.Inst.AddDSP( in pitchShift, ChannelType.KeySound );
-        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.KeySound );
     }
 
     protected async override void Start()
@@ -39,6 +34,7 @@ public class InGame : Scene
 
         await LoadkeySoundAsyncTask;
 
+        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.KeySound );
         StartCoroutine( Play() );
     }
 

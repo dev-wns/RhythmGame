@@ -29,7 +29,7 @@ public class SoundManager : Singleton<SoundManager>
     private Tweener volumeTweener;
     private int curDriverIndex;
     private bool hasAccurateFlag;
-    public event Action OnReLoad, OnRelease;
+    public event Action OnReLoad;
     public struct SoundDriver : IEquatable<SoundDriver>
     #region SoundDriver Body
     {
@@ -257,9 +257,7 @@ public class SoundManager : Singleton<SoundManager>
         }
 
         // DSP
-        OnRelease?.Invoke();
         AllRemoveDSP();
-
         foreach ( var dsp in dsps.Values )
         {
             ErrorCheck( dsp.release() );
@@ -530,7 +528,6 @@ public class SoundManager : Singleton<SoundManager>
     }
     #endregion
     #region DSP
-
     public bool GetDSP( FMOD.DSP_TYPE _type, out FMOD.DSP _dsp )
     {
         if ( !dsps.ContainsKey( _type ) )
@@ -544,7 +541,7 @@ public class SoundManager : Singleton<SoundManager>
         return true;
     }
 
-    public void AddDSP( in FMOD.DSP _dsp, ChannelType _type )
+    private void AddDSP( FMOD.DSP _dsp, ChannelType _type )
     {
         if ( !_dsp.hasHandle() )
             return;
@@ -555,57 +552,39 @@ public class SoundManager : Singleton<SoundManager>
     public void RemoveDSP( FMOD.DSP _dsp, ChannelType _type )
     {
         if ( !_dsp.hasHandle() )
-             return;
+            return;
 
         ErrorCheck( groups[_type].removeDSP( _dsp ) );
     }
 
-    public void AllRemoveDSP()
+    private void AllRemoveDSP()
     {
-        for ( int i = 0; i < ( int )ChannelType.Count; i++ )
-        {
-            int numDSP = 0;
-            ErrorCheck( groups[( ChannelType )i].getNumDSPs( out numDSP ) );
-            for ( int j = 1; j < numDSP; j++ )
-            {
-                FMOD.DSP dsp;
-                ErrorCheck( groups[( ChannelType )i].getDSP( j, out dsp ) );
-                ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
-            }
-        }
-    }
+        RemoveDSP( dsps[FMOD.DSP_TYPE.FFT], ChannelType.BGM );
+        RemoveDSP( dsps[FMOD.DSP_TYPE.PITCHSHIFT], ChannelType.BGM );
+        RemoveDSP( dsps[FMOD.DSP_TYPE.PITCHSHIFT], ChannelType.KeySound );
 
-    public void PrintDSPCount()
-    {
-        for ( int i = 0; i < ( int )ChannelType.Count; i++ )
-        {
-            int numDSP = 0;
-            ErrorCheck( groups[( ChannelType )i].getNumDSPs( out numDSP ) );
-
-            Debug.Log( $"{( ChannelType )i} DSP : {numDSP}" );
-        }
-    }
-
-    public void DeleteDSP( ref FMOD.DSP _dsp )
-    {
-        for ( int i = 0; i < ( int )ChannelType.Count; i++ )
-        {
-            groups[( ChannelType )i].removeDSP( _dsp );
-        }
-
-        ErrorCheck( _dsp.release() );
-        _dsp.clearHandle();
+        //for ( int i = 0; i < ( int )ChannelType.Count; i++ )
+        //{
+        //    int numDSP = 0;
+        //    ErrorCheck( groups[( ChannelType )i].getNumDSPs( out numDSP ) );
+        //    for ( int j = 1; j < numDSP; j++ )
+        //    {
+        //        FMOD.DSP dsp;
+        //        ErrorCheck( groups[( ChannelType )i].getDSP( j, out dsp ) );
+        //        ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
+        //    }
+        //}
     }
 
     #region DSP Create
-    public void CreateDPS()
+    private void CreateDPS()
     {
         CreateMultiBandDSP();
         CreatePitchShiftDSP();
         CreateFFTWindow();
     }
 
-    public void CreateFFTWindow()
+    private void CreateFFTWindow()
     {
         if ( dsps.ContainsKey( FMOD.DSP_TYPE.FFT ) )
              return;
@@ -614,8 +593,8 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp ) );
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
-
         dsps.Add( FMOD.DSP_TYPE.FFT, dsp );
+        
         AddDSP( dsp, ChannelType.BGM );
     }
 
@@ -628,8 +607,10 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.PITCHSHIFT, out dsp ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.MAXCHANNELS, 0 ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.FFTSIZE, 1024 ) );
-
         dsps.Add( FMOD.DSP_TYPE.PITCHSHIFT, dsp );
+
+        AddDSP( dsp, ChannelType.BGM );
+        AddDSP( dsp, ChannelType.KeySound );
     }
 
     /// A ~ E  5 bands 
@@ -697,7 +678,7 @@ public class SoundManager : Singleton<SoundManager>
             return;
 
         float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f    / GameSetting.CurrentPitch :
-                       GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.15f / GameSetting.CurrentPitch : 1f;
+                       GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.1f  / GameSetting.CurrentPitch : 1f;
 
         ErrorCheck( dsps[FMOD.DSP_TYPE.PITCHSHIFT].setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.PITCH, offset ) );
     }

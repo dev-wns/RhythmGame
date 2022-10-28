@@ -11113,9 +11113,9 @@ MonoBehaviour:
   color: {r: 1, g: 1, b: 1, a: 0.14901961}
   sortingOrder: 3
   lerpOffset: 0.32
-  specStartIndex: 7
+  specStartIndex: 8
   specCount: 200
-  specPower: 2.5
+  specPower: 2.25
   specWidth: 3.8
   specBlank: 1
   isReverse: 1
@@ -18832,9 +18832,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particle: {fileID: 0}
   particlePower: 0
-  hasBass: 1
+  hasBass: 0
   bassPower: 0
-  bassRange: 0
+  bassRange: 1
 --- !u!4 &1923945051
 Transform:
   m_ObjectHideFlags: 0

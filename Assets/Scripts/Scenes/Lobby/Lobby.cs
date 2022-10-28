@@ -54,8 +54,5 @@ public class Lobby : Scene
             playback = 0;
     }
 
-    public override void KeyBind()
-    {
-  
-    }
+    public override void KeyBind() { }
 }

@@ -17,10 +17,11 @@ public class FreeStyle : Scene
         if ( judge ) Destroy( judge );
 
         OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed:F1}";
+    }
 
-        FMOD.DSP pitchShift;
-        SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.PITCHSHIFT, out pitchShift );
-        SoundManager.Inst.AddDSP( in pitchShift, ChannelType.BGM );
+    protected override void Start()
+    {
+        base.Start();
         SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
     }
 
