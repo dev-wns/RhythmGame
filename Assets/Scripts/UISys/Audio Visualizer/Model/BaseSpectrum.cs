@@ -16,9 +16,13 @@ public abstract class BaseSpectrum : MonoBehaviour
 
     [Range(0, 100)]
     public int   specStartIndex;
+    [Min(0f)]
     public int   specCount;
+    [Min(0f)]
     public float specPower;
+    [Min(0f)]
     public float specWidth;
+    [Min(0f)]
     public float specBlank;
 
     protected float Offset => specWidth + specBlank;

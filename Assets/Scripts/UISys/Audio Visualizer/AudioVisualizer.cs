@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class AudioVisualizer : MonoBehaviour
 {
-    private const int SpectrumRange = 512;
     private float[][] spectrums;
 
     [Header("Particle")]
@@ -16,12 +15,12 @@ public class AudioVisualizer : MonoBehaviour
     private bool hasParticle;
 
     [Header("Bass")]
+    public bool hasBass;
     [Min(0f)]
     public float bassPower = 1f;
-    [Range(1, SpectrumRange)]
+    [Range(1, 256)]
     public int bassRange;
 
-    //public float Highest { get; private set; }
     public float Average { get; private set; }
     public float Bass    { get; private set; }
     public Action<float[][]> OnUpdateSpectrums;
@@ -33,6 +32,7 @@ public class AudioVisualizer : MonoBehaviour
             mainModule  = particle.main;
             StartCoroutine( ParticleInit() );
         }
+        StartCoroutine( FixedSpectrumUpdate() );
     }
 
     protected IEnumerator ParticleInit()
@@ -42,43 +42,81 @@ public class AudioVisualizer : MonoBehaviour
         hasParticle = true;
     }
 
-    protected virtual void Update()
+    private IEnumerator FixedSpectrumUpdate()
     {
-        if ( SoundManager.Inst.IsLoad ) return;
-
-        uint length;
-        IntPtr data;
-        FMOD.DSP fftWindowDSP;
-        if ( !SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fftWindowDSP ) )
+        float targetFrame = 1f / 144f;
+        while ( true )
         {
-            Debug.LogWarning( "FFTWindowData is not Load" );
-            return;
+            yield return YieldCache.WaitForSeconds( targetFrame );
+            if ( SoundManager.Inst.IsLoad )
+                 continue;
+
+            uint length;
+            IntPtr data;
+            FMOD.DSP fftWindowDSP;
+            if ( !SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fftWindowDSP ) )
+            {
+                Debug.LogWarning( "FFTWindowData is not Load" );
+                continue;
+            }
+            fftWindowDSP.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
+            FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
+            spectrums = fftData.spectrum;
+
+            float bassAmount = 0f;
+            if ( hasBass )
+            {
+                float sumValue = 0f;
+                for ( int i = 0; i < bassRange; i++ )
+                {
+                    sumValue += ( spectrums[0][i] + spectrums[1][i] ) * .5f;
+                }
+                Average = sumValue / bassRange;
+
+                bassAmount = Average * bassPower;
+                Bass = 1f + bassAmount;
+            }
+
+            if ( hasParticle )
+            {
+                mainModule.simulationSpeed = bassAmount * particlePower;
+            }
+
+            OnUpdateSpectrums?.Invoke( spectrums );
         }
-        fftWindowDSP.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
-        FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
-        spectrums = fftData.spectrum;
-
-        float sumValue = 0f;
-        for ( int i = 0; i < SpectrumRange; i++ )
-        {
-            float value = ( spectrums[0][i] + spectrums[1][i] ) *.5f;
-            //if ( value > Highest )
-            //     Highest = value;
-
-            if ( i < bassRange )
-                 sumValue += value;
-        }
-
-        Average = sumValue / SpectrumRange;
-
-        float bassAmount = Average * bassPower;
-        Bass = 1f + bassAmount;
-
-        if ( hasParticle )
-        {
-            mainModule.simulationSpeed = bassAmount * particlePower;
-        }
-
-        OnUpdateSpectrums?.Invoke( spectrums );
     }
+
+    //protected virtual void Update()
+    //{
+    //    if ( SoundManager.Inst.IsLoad ) return;
+
+    //    uint length;
+    //    IntPtr data;
+    //    FMOD.DSP fftWindowDSP;
+    //    if ( !SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fftWindowDSP ) )
+    //    {
+    //        Debug.LogWarning( "FFTWindowData is not Load" );
+    //        return;
+    //    }
+    //    fftWindowDSP.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
+    //    FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
+    //    spectrums = fftData.spectrum;
+
+    //    float sumValue = 0f;
+    //    for ( int i = 0; i < bassRange; i++ )
+    //    {
+    //        sumValue += ( spectrums[0][i] + spectrums[1][i] ) * .5f;
+    //    }
+    //    Average = sumValue / bassRange;
+
+    //    float bassAmount = Average * bassPower;
+    //    Bass = 1f + bassAmount;
+
+    //    if ( hasParticle )
+    //    {
+    //        mainModule.simulationSpeed = bassAmount * particlePower;
+    //    }
+
+    //    OnUpdateSpectrums?.Invoke( spectrums );
+    //}
 }

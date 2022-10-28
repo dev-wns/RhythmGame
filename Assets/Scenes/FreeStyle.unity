@@ -11113,13 +11113,13 @@ MonoBehaviour:
   color: {r: 1, g: 1, b: 1, a: 0.14901961}
   sortingOrder: 3
   lerpOffset: 0.32
-  specStartIndex: 20
+  specStartIndex: 7
   specCount: 200
-  specPower: 2
+  specPower: 2.5
   specWidth: 3.8
   specBlank: 1
   isReverse: 1
-  decrease: 0.005
+  decrease: 0.15
 --- !u!1 &1118418892
 GameObject:
   m_ObjectHideFlags: 0
@@ -18832,6 +18832,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particle: {fileID: 0}
   particlePower: 0
+  hasBass: 1
   bassPower: 0
   bassRange: 0
 --- !u!4 &1923945051

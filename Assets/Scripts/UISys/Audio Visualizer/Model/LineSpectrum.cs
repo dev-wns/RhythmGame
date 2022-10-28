@@ -5,14 +5,15 @@ using UnityEngine;
 public class LineSpectrum : BaseSpectrum
 {
     public bool isReverse;
-    [Range(0f,.1f)]
+    [Range(0f, 1f)]
     public float decrease;
     private float[] cached;
+
     protected override void CreateSpectrumModel()
     {
-        cached = new float[specCount * 2];
-        int symmetryColorIdx = 0;
+        cached     = new float[specCount * 2];
         transforms = new Transform[specCount * 2];
+        int symmetryColorIdx = 0;
         for ( int i = 0; i < specCount * 2; i++ )
         {
             Transform obj = Instantiate( prefab, this.transform );
@@ -34,15 +35,13 @@ public class LineSpectrum : BaseSpectrum
         for ( int i = 0; i < specCount; i++ )
         {
             index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
-            float value = ( ( _values[0][index] + _values[1][index] ) *.5f );
-            //value = ( value / Highest ) * Power;
+            float value  = ( _values[0][index] + _values[1][index] ) *.5f;
 
             if ( cached[i] < value )
                  cached[i] = value;
 
             if ( cached[i] > value )
-                 cached[i] = Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, decrease, cached[i] ) );
-            //cached[i] = cached[i] < value ? value : Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, decrease, cached[i] ) );
+                 cached[i] = Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, decrease, Global.Math.Abs( value - cached[i] ) ) );
             float scale = Mathf.Lerp( transforms[i].localScale.y, cached[i] * Power, lerpOffset );
 
             Transform left  = transforms[i];
@@ -53,9 +52,8 @@ public class LineSpectrum : BaseSpectrum
 
             float posX = i == 0 ? halfOffset * ( i + 1 ) : ( Offset * ( i + 1 ) ) - halfOffset;
             posX += transform.position.x;
-            left.position = new Vector3( -posX, transform.position.y, transform.position.z );
-            right.position = new Vector3( posX, transform.position.y, transform.position.z );
+            left.position  = new Vector3( -posX, transform.position.y, transform.position.z );
+            right.position = new Vector3(  posX, transform.position.y, transform.position.z );
         }
-        
     }
 }
