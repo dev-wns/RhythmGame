@@ -33,7 +33,7 @@ public class LaneSystem : MonoBehaviour
         random = new System.Random( ( int )System.DateTime.Now.Ticks );
     }
 
-    private void Initialize( in Chart _chart )
+    private void Initialize( Chart _chart )
     {
         if ( !NowPlaying.Inst.CurrentSong.isOnlyKeySound )
         {
@@ -70,7 +70,7 @@ public class LaneSystem : MonoBehaviour
         }
     }
 
-    private void CreateNotes( in Chart _chart )
+    private void CreateNotes( Chart _chart )
     {
         var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
 

@@ -19,16 +19,14 @@ public class FreeStyle : Scene
         OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed:F1}";
     }
 
-    protected override void Start()
+    public override void Connect()
     {
-        base.Start();
-
         SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
         SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }
 
-    private void OnDestroy()
+    public override void Disconnect()
     {
         SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );

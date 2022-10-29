@@ -53,7 +53,7 @@ public class MeasureSystem : MonoBehaviour
 
     public void Despawn( MeasureRenderer _obj ) => mPool.Despawn( _obj );
 
-    private void Initialize( in Chart _chart )
+    private void Initialize( Chart _chart )
     {
         List<MeasureTiming> timings = new List<MeasureTiming>();
         for ( int i = 0; i < _chart.timings.Count; i++ )

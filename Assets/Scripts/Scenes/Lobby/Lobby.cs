@@ -24,7 +24,23 @@ public class Lobby : Scene
         isStart = true;
     }
 
-    private void OnDestroy()
+    protected override void Update()
+    {
+        base.Update();
+        if ( !isStart )
+            return;
+
+        playback += Time.deltaTime * 1000f;
+        if ( playback >= soundLength )
+            playback = 0;
+    }
+
+    public override void Connect() 
+    {
+        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM ); 
+    }
+
+    public override void Disconnect()
     {
         SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
         SoundManager.Inst.OnReLoad -= SoundReStart;
@@ -48,16 +64,6 @@ public class Lobby : Scene
         SoundManager.Inst.Position = ( uint )playback;
         soundLength = SoundManager.Inst.Length;
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
-    }
-
-    protected override void Update()
-    {
-        base.Update();
-        if ( !isStart ) return;
-
-        playback += Time.deltaTime * 1000f;
-        if( playback >= soundLength )
-            playback = 0;
     }
 
     public override void KeyBind() { }

@@ -76,7 +76,7 @@ public class BGASystem : MonoBehaviour
         RenderTexture.active = rt;
     }
 
-    private void Initialize( in Chart _chart )
+    private void Initialize( Chart _chart )
     {
         if ( GameSetting.BGAOpacity <= .0001f )
         {

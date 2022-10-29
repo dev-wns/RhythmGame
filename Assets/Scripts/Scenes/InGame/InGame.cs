@@ -8,9 +8,8 @@ public class InGame : Scene
 {
     public GameObject pauseCanvas;
 
-    public delegate void DelSystemInitialize( in Chart _chart );
-    public event DelSystemInitialize OnSystemInitialize;
-    public event DelSystemInitialize OnSystemInitializeThread;
+    public event Action<Chart> OnSystemInitialize;
+    public event Action<Chart> OnSystemInitializeThread;
 
     public event Action OnGameStart;
     public event Action OnReLoad;
@@ -34,16 +33,24 @@ public class InGame : Scene
 
         await LoadkeySoundAsyncTask;
 
-        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
-        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
-
         StartCoroutine( Play() );
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        SoundManager.Inst.KeyRelease();
+    }
+
+    public override void Connect()
+    {
+        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+    }
+
+    public override void Disconnect()
     {
         SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
-        SoundManager.Inst.KeyRelease();
     }
 
     private IEnumerator Play()
@@ -73,13 +80,8 @@ public class InGame : Scene
         pauseCanvas.SetActive( false );
         NowPlaying.Inst.Stop();
         SoundManager.Inst.AllStop();
-        //SoundManager.Inst.AllRemoveDSP();
 
         OnReLoad?.Invoke();
-
-        //FMOD.DSP pitchShift;
-        //SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.PITCHSHIFT, out pitchShift );
-        //SoundManager.Inst.AddDSP( in pitchShift, ChannelType.KeySound );
 
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();

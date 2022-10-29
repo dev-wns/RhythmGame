@@ -47,7 +47,7 @@ public class BpmChanger : MonoBehaviour
         layoutGroup.SetLayoutHorizontal();
     }
 
-    private void Initialize( in Chart _chart )
+    private void Initialize( Chart _chart )
     {
         timings = _chart.timings;
     }

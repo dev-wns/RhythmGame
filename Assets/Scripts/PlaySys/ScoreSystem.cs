@@ -50,7 +50,7 @@ public class ScoreSystem : MonoBehaviour
         }
     }
 
-    private void Initialize( in Chart _chart )
+    private void Initialize( Chart _chart )
     {
         int maxJudgeCount;
         if ( GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) )

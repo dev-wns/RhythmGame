@@ -9,7 +9,7 @@ using DG.Tweening;
 // Build Index
 public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
 [RequireComponent( typeof( SpriteRenderer ) )]
-public abstract class Scene : SceneKeyAction, IKeyBind
+public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
 {
     #region Variables
     private SpriteRenderer blackSprite;
@@ -33,6 +33,12 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     protected virtual void Start()
     {
         StartCoroutine( FadeIn() );
+        Connect();
+    }
+
+    protected virtual void OnDestroy()
+    {
+        Disconnect();
     }
     #endregion
 
@@ -102,6 +108,9 @@ public abstract class Scene : SceneKeyAction, IKeyBind
     }
     #endregion
     #region Effect
+    public abstract void Connect();
+
+    public abstract void Disconnect();
 
     private void CreateFadeSprite()
     {

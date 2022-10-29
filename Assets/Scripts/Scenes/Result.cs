@@ -31,8 +31,9 @@ public class Result : Scene
         isStart = true;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         Destroy( Judge );
     }
 
@@ -53,6 +54,10 @@ public class Result : Scene
             playback = SoundManager.Inst.Position;
         }
     }
+
+    public override void Connect() { }
+
+    public override void Disconnect() { }
 
     public override void KeyBind()
     {
