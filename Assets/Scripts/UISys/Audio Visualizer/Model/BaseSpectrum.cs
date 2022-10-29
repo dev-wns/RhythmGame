@@ -12,6 +12,7 @@ public abstract class BaseSpectrum : MonoBehaviour
     public Color color = Color.white;
     public int sortingOrder;
 
+    [Range(0f, 1f)]
     public float lerpOffset = .275f;
 
     [Range(0, 100)]

@@ -43,7 +43,6 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         StartCoroutine( SceneChange( _type ) );
     }
 
-
     private IEnumerator SceneChange( SceneType _type )
     {
         DOTween.KillAll();
@@ -52,7 +51,6 @@ public abstract class Scene : SceneKeyAction, IKeyBind
         yield return StartCoroutine( FadeOut() );
 
         SoundManager.Inst.AllStop();
-        SoundManager.Inst.AllRemoveDSP();
         SoundManager.Inst.PitchReset();
         SceneManager.LoadScene( ( int )_type );
     }

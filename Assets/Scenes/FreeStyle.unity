@@ -11115,11 +11115,11 @@ MonoBehaviour:
   lerpOffset: 0.32
   specStartIndex: 8
   specCount: 200
-  specPower: 1.5
+  specPower: 3
   specWidth: 3.8
   specBlank: 1
   isReverse: 1
-  decrease: 0.175
+  decrease: 0.12
 --- !u!1 &1118418892
 GameObject:
   m_ObjectHideFlags: 0

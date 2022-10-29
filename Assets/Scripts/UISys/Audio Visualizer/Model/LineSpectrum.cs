@@ -37,18 +37,15 @@ public class LineSpectrum : BaseSpectrum
             index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
             float value  = ( _values[0][index] + _values[1][index] ) *.5f;
 
-            if ( cached[i] < value )
-                 cached[i] = value;
-
-            if ( cached[i] > value )
-                 cached[i] = Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, decrease, Global.Math.Abs( value - cached[i] ) ) );
-            float scale = Mathf.Lerp( transforms[i].localScale.y, cached[i] * Power, lerpOffset );
+            float diffAbs = Global.Math.Abs( cached[i] - value );
+            if ( cached[i] < value ) cached[i] = value;
+            else                     cached[i] = Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, diffAbs, decrease ) );
 
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];
 
-            Vector3 newScale = new Vector3( specWidth, scale, 1f );
-            left.localScale = right.localScale = newScale;
+            float scale = Mathf.Lerp( transforms[i].localScale.y, cached[i] * Power, lerpOffset );
+            left.localScale = right.localScale = new Vector3( specWidth, scale, 1f );
 
             float posX = i == 0 ? halfOffset * ( i + 1 ) : ( Offset * ( i + 1 ) ) - halfOffset;
             posX += transform.position.x;

@@ -14,14 +14,19 @@ public class Lobby : Scene
     {
         base.Awake();
         SoundManager.Inst.OnReLoad += SoundReStart;
+    }
+
+    protected override void Start()
+    {
+        base.Start();
         SoundReStart();
-        
         StartCoroutine( LoadingEndCheck() );
         isStart = true;
     }
 
     private void OnDestroy()
     {
+        SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
         SoundManager.Inst.OnReLoad -= SoundReStart;
     }
 

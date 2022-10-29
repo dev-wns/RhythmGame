@@ -42,6 +42,7 @@ public class InGame : Scene
 
     private void OnDestroy()
     {
+        SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         SoundManager.Inst.KeyRelease();
     }
 

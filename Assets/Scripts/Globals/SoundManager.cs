@@ -570,20 +570,26 @@ public class SoundManager : Singleton<SoundManager>
     {
         if ( !dsps.ContainsKey( _dspType ) )
              return;
+
+        ErrorCheck( groups[_channelType].getNumDSPs( out int oldNum ) );
         ErrorCheck( groups[_channelType].removeDSP( dsps[_dspType] ) );
+        ErrorCheck( groups[_channelType].getNumDSPs( out int newNum ) );
+        Debug.Log( $"{NowPlaying.CurrentScene.GetType().Name} {_channelType} DSP Count : {oldNum} -> {newNum}" );
     }
 
     public void AllRemoveDSP()
     {
-        for ( int i = 0; i < ( int )ChannelType.Count; i++ )
+        for ( int i = 1; i < ( int )ChannelType.Count; i++ )
         {
+            ErrorCheck( groups[( ChannelType )i].getNumDSPs( out int oldNum ) );
             foreach ( var dsp in dsps.Values )
             {
+                //Debug.Log( dsp.disconnectAll() );
                 ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
             }
 
-            ErrorCheck( groups[( ChannelType )i].getNumDSPs( out int num ) );
-            Debug.Log( $"{( ChannelType )i} DSP Count : {num}" );
+            ErrorCheck( groups[( ChannelType )i].getNumDSPs( out int newNum ) );
+            Debug.Log( $"{( ChannelType )i} DSP Count : {oldNum} -> {newNum}" );
         }
     }
 
