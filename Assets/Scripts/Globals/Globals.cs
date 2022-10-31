@@ -30,17 +30,17 @@ namespace Global
         /// <param name="_screen"> The value is adjusted based on this value. </param>
         public static Vector3 GetScreenRatio( Texture2D _tex, Vector2 _screen )
         {
-            float width = _tex.width;
+            float width  = _tex.width;
             float height = _tex.height;
 
-            float offsetX = _screen.x / _tex.width;
-            width *= offsetX;
+            float offsetX = _screen.x / width;
+            width  *= offsetX;
             height *= offsetX;
 
             float offsetY = _screen.y / height;
             if ( offsetY > 1f )
             {
-                width *= offsetY;
+                width  *= offsetY;
                 height *= offsetY;
             }
 

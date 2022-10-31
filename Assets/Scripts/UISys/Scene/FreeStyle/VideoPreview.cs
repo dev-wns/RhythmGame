@@ -14,6 +14,7 @@ public class VideoPreview : MonoBehaviour
     public RenderTexture renderTexture;
     private Coroutine coroutine;
     private float playback;
+    public RectTransform previewObject;
 
     private void Awake()
     {
@@ -60,6 +61,8 @@ public class VideoPreview : MonoBehaviour
         yield return new WaitUntil( () => vp.isPrepared );
         
         image.enabled = true;
+
+        previewObject.sizeDelta = new Vector2( 752f, 423f );
         vp.playbackSpeed = GameSetting.CurrentPitch;
 
         float spb = ( float )( 60f / _song.medianBpm ) * 1000f;
@@ -68,8 +71,6 @@ public class VideoPreview : MonoBehaviour
                        _song.isOnlyKeySound   ? -spb                : 0f;
 
         vp.time = ( SoundManager.Inst.Position + offset ) * .001f;
-
-        Debug.Log( $" { _song.audioOffset}  { _song.videoOffset}  {offset}" );
         vp.Play();
     }
 

@@ -12,16 +12,19 @@ public class FadeBackground : MonoBehaviour
     private ImagePreview system;
     private Image image;
     private bool isDefault;
+    private WaitUntil waitAlphaZero;
 
     private void Awake()
     {
         image = GetComponent<Image>();
         rt    = transform as RectTransform;
+
+        waitAlphaZero = new WaitUntil( () => image.color.a < .0001f );
     }
 
-    private void OnDestroy() => SpriteRelease();
+    private void OnDestroy() => ClearSprite();
 
-    private void SpriteRelease()
+    private void ClearSprite()
     {
         if ( !isDefault && image.sprite )
         {
@@ -51,8 +54,8 @@ public class FadeBackground : MonoBehaviour
     private IEnumerator FadeAfterDespawn()
     {
         image.DOFade( 0f, fadeTime );
-        yield return new WaitUntil( () => image.color.a < .0001f );
-        SpriteRelease();
+        yield return waitAlphaZero;
+        ClearSprite();
         system.DeSpawn( this );
     }
 }

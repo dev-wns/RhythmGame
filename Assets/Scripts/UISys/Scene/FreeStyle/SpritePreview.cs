@@ -15,6 +15,7 @@ public class SpritePreview : MonoBehaviour
     private int startIndex;
     private double offset;
     private double previewTime;
+    public RectTransform previewObject;
 
     private void Awake()
     {
@@ -135,7 +136,10 @@ public class SpritePreview : MonoBehaviour
         while ( curIndex < sprites.Count )
         {
             if ( textures.ContainsKey( curSample.name ) )
-                 image.texture = textures[curSample.name];
+            {
+                image.texture = textures[curSample.name];
+                previewObject.sizeDelta = Global.Math.GetScreenRatio( textures[curSample.name], new Vector2( 752f, 423f ) );
+            }
 
             yield return waitSampleTime;
             while ( curSample.end < playback - offset )

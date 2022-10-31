@@ -3,26 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using DG.Tweening;
 
 public class ImagePreview : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
     public FadeBackground bgPrefab;
     public Sprite defaultSprite;
-    public RawImage previewImage;
+    public RectTransform previewObject;
+    private RawImage previewImage;
     private Texture2D prevTexture;
     private ObjectPool<FadeBackground> bgPool;
     private FadeBackground background;
-    private Coroutine backgroundLoad, previewLoad;
+    private Coroutine curLoadBG, curLoadPreview;
 
     private void Awake()
     {
         bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
         scroller.OnSelectSong += ChangeImage;
+
+        if ( !previewObject.TryGetComponent( out previewImage ) )
+             Debug.LogError( "Preview BGA object is not found." );
     }
 
     private void OnDestroy()
     {
+        StopAllCoroutines();
         ClearPreviewTexture();
     }
 
@@ -30,32 +36,32 @@ public class ImagePreview : MonoBehaviour
     {
         if ( prevTexture )
         {
-            bool isPrevTex = prevTexture;
+            if ( ReferenceEquals( prevTexture, defaultSprite.texture ) )
+                 return;
+
             DestroyImmediate( prevTexture );
-            bool isCurTex = prevTexture;
-            Debug.Log( $"{isPrevTex} -> {isCurTex}" );
         }
     }
 
     private void ChangeImage( Song _song )
     {
-        if ( !ReferenceEquals( backgroundLoad, null ) )
+        if ( !ReferenceEquals( curLoadBG, null ) )
         {
-            StopCoroutine( backgroundLoad );
-            backgroundLoad = null;
+            StopCoroutine( curLoadBG );
+            curLoadBG = null;
         }
-        backgroundLoad = StartCoroutine( LoadBackground( _song.imagePath ) );
+        curLoadBG = StartCoroutine( LoadBackground( _song.imagePath ) );
 
         if ( !_song.hasVideo && !_song.hasSprite )
         {
             ClearPreviewTexture();
-            if ( !ReferenceEquals( previewLoad, null ) )
+            if ( !ReferenceEquals( curLoadPreview, null ) )
             {
-                StopCoroutine( previewLoad );
-                previewLoad = null;
+                StopCoroutine( curLoadPreview );
+                curLoadPreview = null;
             }
 
-            previewLoad = StartCoroutine( LoadPreview( _song.imagePath ) );
+            curLoadPreview = StartCoroutine( LoadPreviewImage( _song.imagePath ) );
         }
     }
 
@@ -110,7 +116,7 @@ public class ImagePreview : MonoBehaviour
         //background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
     }
 
-    private IEnumerator LoadPreview( string _path )
+    private IEnumerator LoadPreviewImage( string _path )
     {
         bool isExist = System.IO.File.Exists( _path );
         if ( isExist )
@@ -147,8 +153,13 @@ public class ImagePreview : MonoBehaviour
         else
             prevTexture = defaultSprite.texture;
 
+        var texSize = Global.Math.GetScreenRatio( prevTexture, new Vector2( 752f, 423f ) );
+        previewObject.sizeDelta = texSize;
+
         previewImage.texture = prevTexture;
+        previewObject.localScale = new Vector3( 0f, 1f, 1f );
         previewImage.enabled = true;
+        previewObject.DOScaleX( 1f, .25f );
     }
 
     public void DeSpawn( FadeBackground _bg )
