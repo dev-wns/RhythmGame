@@ -83,6 +83,6 @@ public class ImagePreview : FreeStylePreview
         tf.sizeDelta = Global.Math.GetScreenRatio( prevTexture, sizeCache );
         previewImage.texture = prevTexture;
         previewImage.enabled = true;
-        PlayScaleEffect();
+        //PlayScaleEffect();
     }
 }

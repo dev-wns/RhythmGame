@@ -67,7 +67,7 @@ public class VideoPreview : FreeStylePreview
 
         tf.sizeDelta = sizeCache;
         previewImage.enabled = true;
-        PlayScaleEffect();
+        //PlayScaleEffect();
         vp.Play();
     }
 
