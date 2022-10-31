@@ -11,15 +11,16 @@ public class FadeBackground : MonoBehaviour
     private FadeBackgroundSystem system;
     private Image image;
     private bool isDefault;
-    private float fadeTime = 1f;
-    private WaitUntil waitAlphaZero;
-    private Coroutine coroutine;
+
+    private readonly float fadeTime = .25f;
+    private bool isPlay;
+    private float offset;
+
     private void Awake()
     {
-        image = GetComponent<Image>();
-        rt    = transform as RectTransform;
-
-        waitAlphaZero = new WaitUntil( () => image.color.a < .0001f );
+        image  = GetComponent<Image>();
+        rt     = transform as RectTransform;
+        offset = color.a / fadeTime;
     }
 
     private void OnDestroy() => ClearSprite();
@@ -36,26 +37,38 @@ public class FadeBackground : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if ( !isPlay )
+             return;
+
+        Color newColor = image.color;
+        newColor.a -= offset * Time.deltaTime;
+        image.color = newColor;
+
+        if ( image.color.a <= 0f )
+        {
+            isPlay = false;
+            ClearSprite();
+            system.DeSpawn( this );
+        }
+    }
+
     public void SetInfo( FadeBackgroundSystem _system, Sprite _sprite, bool _isDefault = true )
     {
+        ClearSprite();
+
         system = _system;
         isDefault = _isDefault;
         rt.sizeDelta = Global.Math.GetScreenRatio( _sprite.texture, new Vector2( Screen.width, Screen.height ) );
         rt.SetAsFirstSibling();
         image.color = color;
         image.sprite = _sprite;
+        isPlay = false;
     }
 
     public void Despawn()
     {
-        coroutine = StartCoroutine( FadeAfterDespawn() );
-    }
-
-    private IEnumerator FadeAfterDespawn()
-    {
-        image.DOFade( 0f, fadeTime );
-        yield return waitAlphaZero;
-        ClearSprite();
-        system.DeSpawn( this );
+        isPlay = true;
     }
 }
