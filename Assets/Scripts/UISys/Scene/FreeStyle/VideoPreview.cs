@@ -11,15 +11,15 @@ public class VideoPreview : FreeStylePreview
     public RenderTexture renderTexture;
     private VideoPlayer vp;
     private Coroutine coroutine;
-    private float playback;
+    private WaitUntil waitPrepared;
 
     protected override void Awake()
     {
         base.Awake();
         vp = GetComponent<VideoPlayer>();
         vp.targetTexture = renderTexture;
+        waitPrepared = new WaitUntil( () => vp.isPrepared );
 
-        scroller.OnPlaybackUpdate += ( float _playback ) => playback = _playback;
         pitchOption.OnPitchUpdate += PitchUpdate;
     }
 
@@ -56,10 +56,6 @@ public class VideoPreview : FreeStylePreview
         
         yield return new WaitUntil( () => vp.isPrepared );
 
-        previewImage.enabled = true;
-
-        tf.sizeDelta = new Vector2( 752f, 423f );
-        vp.playbackSpeed = GameSetting.CurrentPitch;
 
         float spb = ( float )( 60f / _song.medianBpm ) * 1000f;
         float offset = _song.videoOffset > 1f ? _song.videoOffset * .75f :
@@ -67,6 +63,11 @@ public class VideoPreview : FreeStylePreview
                        _song.isOnlyKeySound   ? -spb                : 0f;
 
         vp.time = ( SoundManager.Inst.Position + offset ) * .001f;
+        vp.playbackSpeed = GameSetting.CurrentPitch;
+
+        tf.sizeDelta = sizeCache;
+        previewImage.enabled = true;
+        PlayScaleEffect();
         vp.Play();
     }
 

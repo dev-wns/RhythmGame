@@ -128,14 +128,13 @@ public class SpritePreview : FreeStylePreview
         // Wait First Texture
         yield return new WaitUntil( () => textures.ContainsKey( curSample.name ) );
         previewImage.enabled = true;
+        tf.sizeDelta = Global.Math.GetScreenRatio( textures[curSample.name], sizeCache );
+        PlayScaleEffect();
 
         while ( curIndex < sprites.Count )
         {
             if ( textures.ContainsKey( curSample.name ) )
-            {
-                previewImage.texture = textures[curSample.name];
-                tf.sizeDelta = Global.Math.GetScreenRatio( textures[curSample.name], new Vector2( 752f, 423f ) );
-            }
+                 previewImage.texture = textures[curSample.name];
 
             yield return waitSampleTime;
             while ( curSample.end < playback - offset )

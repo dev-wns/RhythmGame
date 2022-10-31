@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using DG.Tweening;
 
 public class ImagePreview : FreeStylePreview
 {
     public Sprite defaultSprite;
     private Texture2D prevTexture;
-    
     private Coroutine coroutine;
 
     private void OnDestroy()
@@ -81,12 +79,10 @@ public class ImagePreview : FreeStylePreview
         else
             prevTexture = defaultSprite.texture;
 
-        var texSize = Global.Math.GetScreenRatio( prevTexture, sizeCache );
-        tf.sizeDelta = texSize;
 
+        tf.sizeDelta = Global.Math.GetScreenRatio( prevTexture, sizeCache );
         previewImage.texture = prevTexture;
-        tf.localScale = new Vector3( 0f, 1f, 1f );
         previewImage.enabled = true;
-        tf.DOScaleX( 1f, .25f );
+        PlayScaleEffect();
     }
 }
