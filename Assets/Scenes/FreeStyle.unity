@@ -13404,7 +13404,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 2
+  m_PixelsPerUnitMultiplier: 2.5
 --- !u!222 &1344341810
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16228,8 +16228,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -500, y: 155}
-  m_SizeDelta: {x: 750, y: 400}
+  m_AnchoredPosition: {x: -500, y: 170}
+  m_SizeDelta: {x: 750, y: 450}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1604240924
 CanvasRenderer:
