@@ -71,6 +71,8 @@ public class ImagePreview : MonoBehaviour
         }
         else sprite = defaultSprite;
 
+        previewImage.enabled = true;
+
         background?.Despawn();
         background = bgPool.Spawn();
         background.SetInfo( this, sprite, !isExist );
