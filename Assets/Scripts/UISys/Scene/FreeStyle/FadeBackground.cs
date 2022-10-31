@@ -9,7 +9,7 @@ public class FadeBackground : MonoBehaviour
     public float fadeTime = .25f;
     public Color color;
     private RectTransform rt;
-    private ImagePreview system;
+    private FadeBackgroundSystem system;
     private Image image;
     private bool isDefault;
     private WaitUntil waitAlphaZero;
@@ -36,7 +36,7 @@ public class FadeBackground : MonoBehaviour
         }
     }
 
-    public void SetInfo( ImagePreview _system, Sprite _sprite, bool _isDefault = true )
+    public void SetInfo( FadeBackgroundSystem _system, Sprite _sprite, bool _isDefault = true )
     {
         system = _system;
         isDefault = _isDefault;

@@ -3,41 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using DG.Tweening;
 
-public class ImagePreview : MonoBehaviour
+public class FadeBackgroundSystem : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
+    public FadeBackground bgPrefab;
     public Sprite defaultSprite;
-    public RectTransform previewObject;
-    private RawImage previewImage;
-    private Texture2D prevTexture;
-    
+    private ObjectPool<FadeBackground> bgPool;
+    private FadeBackground background;
     private Coroutine coroutine;
 
     private void Awake()
     {
+        bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
         scroller.OnSelectSong += ChangeImage;
-
-        if ( !previewObject.TryGetComponent( out previewImage ) )
-             Debug.LogError( "Preview BGA object is not found." );
     }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
-        ClearPreviewTexture();
-    }
-
-    private void ClearPreviewTexture()
-    {
-        if ( prevTexture )
-        {
-            if ( ReferenceEquals( prevTexture, defaultSprite.texture ) )
-                 return;
-
-            DestroyImmediate( prevTexture );
-        }
     }
 
     private void ChangeImage( Song _song )
@@ -47,16 +31,12 @@ public class ImagePreview : MonoBehaviour
             StopCoroutine( coroutine );
             coroutine = null;
         }
-
-        if ( !_song.hasVideo && !_song.hasSprite )
-        {
-            ClearPreviewTexture();
-            coroutine = StartCoroutine( LoadPreviewImage( _song.imagePath ) );
-        }
+        coroutine = StartCoroutine( LoadBackground( _song.imagePath ) );
     }
 
-    private IEnumerator LoadPreviewImage( string _path )
+    private IEnumerator LoadBackground( string _path )
     {
+        Sprite sprite;
         bool isExist = System.IO.File.Exists( _path );
         if ( isExist )
         {
@@ -65,7 +45,8 @@ public class ImagePreview : MonoBehaviour
             {
                 BMPLoader loader = new BMPLoader();
                 BMPImage img = loader.LoadBMP( _path );
-                prevTexture = img.ToTexture2D();
+                Texture2D tex = img.ToTexture2D();
+                sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
             }
             else
             {
@@ -84,20 +65,29 @@ public class ImagePreview : MonoBehaviour
                             throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
                         }
 
-                        prevTexture = handler.texture;
+                        Texture2D tex = handler.texture;
+                        sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
                     }
                 }
             }
         }
         else
-            prevTexture = defaultSprite.texture;
+            sprite = defaultSprite;
 
-        var texSize = Global.Math.GetScreenRatio( prevTexture, new Vector2( 752f, 423f ) );
-        previewObject.sizeDelta = texSize;
+        background?.Despawn();
+        background = bgPool.Spawn();
+        background.SetInfo( this, sprite, !isExist );
 
-        previewImage.texture = prevTexture;
-        previewObject.localScale = new Vector3( 0f, 1f, 1f );
-        previewImage.enabled = true;
-        previewObject.DOScaleX( 1f, .25f );
+        // 원시 버젼 메모리 재할당이 큼
+        //Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
+        //byte[] binaryData = File.ReadAllBytes( _path );
+
+        //while ( !tex.LoadImage( binaryData ) ) yield return null;
+        //background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+    }
+
+    public void DeSpawn( FadeBackground _bg )
+    {
+        bgPool.Despawn( _bg );
     }
 }
