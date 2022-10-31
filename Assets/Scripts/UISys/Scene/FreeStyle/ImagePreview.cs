@@ -5,23 +5,12 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using DG.Tweening;
 
-public class ImagePreview : MonoBehaviour
+public class ImagePreview : FreeStylePreview
 {
-    public FreeStyleMainScroll scroller;
     public Sprite defaultSprite;
-    public RectTransform previewObject;
-    private RawImage previewImage;
     private Texture2D prevTexture;
     
     private Coroutine coroutine;
-
-    private void Awake()
-    {
-        scroller.OnSelectSong += ChangeImage;
-
-        if ( !previewObject.TryGetComponent( out previewImage ) )
-             Debug.LogError( "Preview BGA object is not found." );
-    }
 
     private void OnDestroy()
     {
@@ -40,7 +29,7 @@ public class ImagePreview : MonoBehaviour
         }
     }
 
-    private void ChangeImage( Song _song )
+    protected override void UpdatePreview( Song _song )
     {
         if ( !ReferenceEquals( coroutine, null ) )
         {
@@ -92,12 +81,12 @@ public class ImagePreview : MonoBehaviour
         else
             prevTexture = defaultSprite.texture;
 
-        var texSize = Global.Math.GetScreenRatio( prevTexture, new Vector2( 752f, 423f ) );
-        previewObject.sizeDelta = texSize;
+        var texSize = Global.Math.GetScreenRatio( prevTexture, sizeCache );
+        tf.sizeDelta = texSize;
 
         previewImage.texture = prevTexture;
-        previewObject.localScale = new Vector3( 0f, 1f, 1f );
+        tf.localScale = new Vector3( 0f, 1f, 1f );
         previewImage.enabled = true;
-        previewObject.DOScaleX( 1f, .25f );
+        tf.DOScaleX( 1f, .25f );
     }
 }

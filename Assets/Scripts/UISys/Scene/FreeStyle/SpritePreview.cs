@@ -5,22 +5,18 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.IO;
 
-public class SpritePreview : MonoBehaviour
+public class SpritePreview : FreeStylePreview
 {
-    public FreeStyleMainScroll scroller;
-    private RawImage image;
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
     private float playback;
     private int startIndex;
     private double offset;
     private double previewTime;
-    public RectTransform previewObject;
 
-    private void Awake()
+    protected override void Awake()
     {
-        image = GetComponent<RawImage>();
-        scroller.OnSelectSong += UpdateSpriteSample;
+        base.Awake();
         scroller.OnPlaybackUpdate += ( float _playback ) => playback = _playback;
     }
 
@@ -40,13 +36,13 @@ public class SpritePreview : MonoBehaviour
         textures.Clear();
     }
 
-    private void UpdateSpriteSample( Song _song )
+    protected override void UpdatePreview( Song _song )
     {
         Clear();
 
         if ( !_song.hasVideo && _song.hasSprite )
         {
-            image.enabled = false;
+            previewImage.enabled = false;
             previewTime = _song.previewTime <= 0 ? _song.totalTime * .314f : _song.previewTime;
             using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
             {
@@ -131,14 +127,14 @@ public class SpritePreview : MonoBehaviour
 
         // Wait First Texture
         yield return new WaitUntil( () => textures.ContainsKey( curSample.name ) );
-        image.enabled = true;
+        previewImage.enabled = true;
 
         while ( curIndex < sprites.Count )
         {
             if ( textures.ContainsKey( curSample.name ) )
             {
-                image.texture = textures[curSample.name];
-                previewObject.sizeDelta = Global.Math.GetScreenRatio( textures[curSample.name], new Vector2( 752f, 423f ) );
+                previewImage.texture = textures[curSample.name];
+                tf.sizeDelta = Global.Math.GetScreenRatio( textures[curSample.name], new Vector2( 752f, 423f ) );
             }
 
             yield return waitSampleTime;

@@ -5,29 +5,25 @@ using UnityEngine.Video;
 using UnityEngine.UI;
 using System.IO;
 
-public class VideoPreview : MonoBehaviour
+public class VideoPreview : FreeStylePreview
 {
-    public FreeStyleMainScroll scroller;
     public SoundPitchOption pitchOption;
-    private VideoPlayer vp;
-    private RawImage image;
     public RenderTexture renderTexture;
+    private VideoPlayer vp;
     private Coroutine coroutine;
     private float playback;
-    public RectTransform previewObject;
 
-    private void Awake()
+    protected override void Awake()
     {
-        image = GetComponent<RawImage>();
+        base.Awake();
         vp = GetComponent<VideoPlayer>();
         vp.targetTexture = renderTexture;
 
-        scroller.OnSelectSong += UpdateVideoSample;
         scroller.OnPlaybackUpdate += ( float _playback ) => playback = _playback;
         pitchOption.OnPitchUpdate += PitchUpdate;
     }
 
-    private void UpdateVideoSample( Song _song )
+    protected override void UpdatePreview( Song _song )
     {
         vp.Stop();
         if ( coroutine != null )
@@ -38,8 +34,8 @@ public class VideoPreview : MonoBehaviour
 
         if ( _song.hasVideo )
         {
-            image.enabled = false;
-            image.texture = renderTexture;
+            previewImage.enabled = false;
+            previewImage.texture = renderTexture;
             coroutine  = StartCoroutine( LoadVideo( _song ) );
         }
     }
@@ -59,10 +55,10 @@ public class VideoPreview : MonoBehaviour
         vp.Prepare();
         
         yield return new WaitUntil( () => vp.isPrepared );
-        
-        image.enabled = true;
 
-        previewObject.sizeDelta = new Vector2( 752f, 423f );
+        previewImage.enabled = true;
+
+        tf.sizeDelta = new Vector2( 752f, 423f );
         vp.playbackSpeed = GameSetting.CurrentPitch;
 
         float spb = ( float )( 60f / _song.medianBpm ) * 1000f;

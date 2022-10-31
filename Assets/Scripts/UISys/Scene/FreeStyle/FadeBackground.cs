@@ -6,14 +6,14 @@ using DG.Tweening;
 
 public class FadeBackground : MonoBehaviour
 {
-    public float fadeTime = .25f;
     public Color color;
     private RectTransform rt;
     private FadeBackgroundSystem system;
     private Image image;
     private bool isDefault;
+    private float fadeTime = 1f;
     private WaitUntil waitAlphaZero;
-
+    private Coroutine coroutine;
     private void Awake()
     {
         image = GetComponent<Image>();
@@ -48,7 +48,7 @@ public class FadeBackground : MonoBehaviour
 
     public void Despawn()
     {
-        StartCoroutine( FadeAfterDespawn() );
+        coroutine = StartCoroutine( FadeAfterDespawn() );
     }
 
     private IEnumerator FadeAfterDespawn()
