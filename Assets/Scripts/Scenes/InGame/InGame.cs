@@ -77,9 +77,13 @@ public class InGame : Scene
         ChangeAction( ActionType.Main );
         yield return StartCoroutine( FadeOut() );
 
+
         pauseCanvas.SetActive( false );
         NowPlaying.Inst.Stop();
         SoundManager.Inst.AllStop();
+
+        Disconnect();
+        Connect();
 
         OnReLoad?.Invoke();
 
