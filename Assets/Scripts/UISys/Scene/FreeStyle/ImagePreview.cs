@@ -10,9 +10,10 @@ public class ImagePreview : MonoBehaviour
     public FadeBackground bgPrefab;
     public Sprite defaultSprite;
     public RawImage previewImage;
+    private Texture2D prevTexture;
     private ObjectPool<FadeBackground> bgPool;
     private FadeBackground background;
-    private Coroutine coroutine;
+    private Coroutine backgroundLoad, previewLoad;
 
     private void Awake()
     {
@@ -20,19 +21,45 @@ public class ImagePreview : MonoBehaviour
         scroller.OnSelectSong += ChangeImage;
     }
 
-    private void ChangeImage( Song _song )
+    private void OnDestroy()
     {
-        if ( !ReferenceEquals( coroutine, null ) )
-        {
-            StopCoroutine( coroutine );
-            coroutine = null;
-        }
-
-        bool isImageType = !_song.hasVideo && !_song.hasSprite;
-        coroutine = StartCoroutine( LoadBackground( _song.imagePath, isImageType ) );
+        ClearPreviewTexture();
     }
 
-    private IEnumerator LoadBackground( string _path, bool _isImageType )
+    private void ClearPreviewTexture()
+    {
+        if ( prevTexture )
+        {
+            bool isPrevTex = prevTexture;
+            DestroyImmediate( prevTexture );
+            bool isCurTex = prevTexture;
+            Debug.Log( $"{isPrevTex} -> {isCurTex}" );
+        }
+    }
+
+    private void ChangeImage( Song _song )
+    {
+        if ( !ReferenceEquals( backgroundLoad, null ) )
+        {
+            StopCoroutine( backgroundLoad );
+            backgroundLoad = null;
+        }
+        backgroundLoad = StartCoroutine( LoadBackground( _song.imagePath ) );
+
+        if ( !_song.hasVideo && !_song.hasSprite )
+        {
+            ClearPreviewTexture();
+            if ( !ReferenceEquals( previewLoad, null ) )
+            {
+                StopCoroutine( previewLoad );
+                previewLoad = null;
+            }
+
+            previewLoad = StartCoroutine( LoadPreview( _song.imagePath ) );
+        }
+    }
+
+    private IEnumerator LoadBackground( string _path )
     {
         Sprite sprite;
         bool isExist = System.IO.File.Exists( _path );
@@ -71,17 +98,9 @@ public class ImagePreview : MonoBehaviour
         }
         else sprite = defaultSprite;
 
-        previewImage.enabled = true;
-
         background?.Despawn();
         background = bgPool.Spawn();
         background.SetInfo( this, sprite, !isExist );
-
-        if ( _isImageType )
-        {
-            //previewImage.enabled = true;
-            previewImage.texture = sprite.texture;
-        }
 
         // 원시 버젼 메모리 재할당이 큼
         //Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );
@@ -89,6 +108,47 @@ public class ImagePreview : MonoBehaviour
 
         //while ( !tex.LoadImage( binaryData ) ) yield return null;
         //background = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+    }
+
+    private IEnumerator LoadPreview( string _path )
+    {
+        bool isExist = System.IO.File.Exists( _path );
+        if ( isExist )
+        {
+            var ext = System.IO.Path.GetExtension( _path );
+            if ( ext.Contains( ".bmp" ) )
+            {
+                BMPLoader loader = new BMPLoader();
+                BMPImage img = loader.LoadBMP( _path );
+                prevTexture = img.ToTexture2D();
+            }
+            else
+            {
+                using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path ) )
+                {
+                    www.method = UnityWebRequest.kHttpVerbGET;
+                    using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
+                    {
+                        www.downloadHandler = handler;
+                        yield return www.SendWebRequest();
+
+                        if ( www.result == UnityWebRequest.Result.ConnectionError ||
+                             www.result == UnityWebRequest.Result.ProtocolError )
+                        {
+                            Debug.LogError( $"UnityWebRequest Error : {www.error}" );
+                            throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
+                        }
+
+                        prevTexture = handler.texture;
+                    }
+                }
+            }
+        }
+        else
+            prevTexture = defaultSprite.texture;
+
+        previewImage.texture = prevTexture;
+        previewImage.enabled = true;
     }
 
     public void DeSpawn( FadeBackground _bg )
