@@ -11115,9 +11115,9 @@ MonoBehaviour:
   lerpOffset: 0.32
   specStartIndex: 8
   specCount: 200
-  specPower: 2.5
-  specWidth: 3.8
-  specBlank: 1
+  specPower: 3
+  specWidth: 4.3
+  specBlank: 0.5
   isReverse: 1
   decrease: 0.175
 --- !u!1 &1118418892
@@ -18399,7 +18399,7 @@ Camera:
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0
-  m_AllowMSAA: 0
+  m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 0

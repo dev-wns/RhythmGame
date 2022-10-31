@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.UI;
+using System.IO;
 
 public class VideoPreview : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class VideoPreview : MonoBehaviour
     private RawImage image;
     public RenderTexture renderTexture;
     private Coroutine coroutine;
-    private double playback;
+    private float playback;
 
     private void Awake()
     {
@@ -21,7 +22,7 @@ public class VideoPreview : MonoBehaviour
         vp.targetTexture = renderTexture;
 
         scroller.OnSelectSong += UpdateVideoSample;
-        scroller.OnPlaybackUpdate += ( double _playback ) => playback = _playback;
+        scroller.OnPlaybackUpdate += ( float _playback ) => playback = _playback;
         pitchOption.OnPitchUpdate += PitchUpdate;
     }
 
@@ -38,7 +39,7 @@ public class VideoPreview : MonoBehaviour
         {
             image.enabled = false;
             image.texture = renderTexture;
-            coroutine = StartCoroutine( LoadVideo( _song.audioOffset * .69f, _song.videoPath ) );
+            coroutine  = StartCoroutine( LoadVideo( _song ) );
         }
     }
 
@@ -50,17 +51,25 @@ public class VideoPreview : MonoBehaviour
         vp.playbackSpeed = GameSetting.CurrentPitch;
     }
 
-    private IEnumerator LoadVideo( float _offset, string _path )
+    private IEnumerator LoadVideo( Song _song )
     {
         ClearRenderTexture();
-        vp.url = @$"{_path}";
+        vp.url = @$"{_song.videoPath}";
         vp.Prepare();
-
+        
         yield return new WaitUntil( () => vp.isPrepared );
-
+        
         image.enabled = true;
         vp.playbackSpeed = GameSetting.CurrentPitch;
-        vp.time = ( playback + _offset ) * .001f;
+
+        float spb = ( float )( 60f / _song.medianBpm ) * 1000f;
+        float offset = _song.videoOffset > 1f ? _song.videoOffset * .75f :
+                       _song.audioOffset > 1f ? _song.audioOffset * .75f :
+                       _song.isOnlyKeySound   ? -spb                : 0f;
+
+        vp.time = ( SoundManager.Inst.Position + offset ) * .001f;
+
+        Debug.Log( $" { _song.audioOffset}  { _song.videoOffset}  {offset}" );
         vp.Play();
     }
 

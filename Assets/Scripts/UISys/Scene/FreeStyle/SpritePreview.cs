@@ -11,15 +11,16 @@ public class SpritePreview : MonoBehaviour
     private RawImage image;
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
-    private double playback;
+    private float playback;
     private int startIndex;
     private double offset;
     private double previewTime;
+
     private void Awake()
     {
         image = GetComponent<RawImage>();
         scroller.OnSelectSong += UpdateSpriteSample;
-        scroller.OnPlaybackUpdate += ( double _playback ) => playback = _playback;
+        scroller.OnPlaybackUpdate += ( float _playback ) => playback = _playback;
     }
 
     private void OnDestroy()

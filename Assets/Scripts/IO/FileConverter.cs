@@ -429,7 +429,7 @@ public class FileConverter : FileReader
             //}
             #endregion
             Dispose();
-            Debug.LogError( $"{_error} : {_error.Message}" );
+            Debug.LogError( $"{_error.Message}  {path}" );
         }
     }
 
