@@ -73,12 +73,12 @@ public class SpritePreview : MonoBehaviour
                     sprites.Add( sprite );
                 }
             }
-            StartCoroutine( LoadTexture( _song, previewTime ) );
+            StartCoroutine( LoadTexture( _song ) );
             StartCoroutine( UpdatePreviewImage() );
         }
     }
 
-    private IEnumerator LoadTexture( Song _song, double _previewTime )
+    private IEnumerator LoadTexture( Song _song )
     {
         var dir = Path.GetDirectoryName( _song.filePath );
         for ( int i = startIndex; i < sprites.Count; i++ )
@@ -134,13 +134,18 @@ public class SpritePreview : MonoBehaviour
 
         while ( curIndex < sprites.Count )
         {
-            curSample = sprites[curIndex];
-
             if ( textures.ContainsKey( curSample.name ) )
                  image.texture = textures[curSample.name];
 
             yield return waitSampleTime;
-            curIndex += 1;
+            while ( curSample.end < playback - offset )
+            {
+                curIndex += 1;
+                if ( curIndex < sprites.Count )
+                     curSample = sprites[curIndex];
+
+                yield return null;
+            }
         }
     }
 }
