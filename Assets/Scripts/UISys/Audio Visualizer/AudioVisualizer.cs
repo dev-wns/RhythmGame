@@ -42,6 +42,7 @@ public class AudioVisualizer : MonoBehaviour
         hasParticle = true;
     }
 
+    public float bass;
     private IEnumerator FixedSpectrumUpdate()
     {
         float targetFrame = 1f / 144f;
@@ -73,6 +74,7 @@ public class AudioVisualizer : MonoBehaviour
 
                     bassAmount = Average * bassPower;
                     Bass = 1f + bassAmount;
+                    bass = Bass;
                 }
 
                 if ( hasParticle )

@@ -17679,10 +17679,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particle: {fileID: 1991919314}
-  particlePower: 50
-  hasBass: 0
-  bassPower: 10
+  particlePower: 25
+  hasBass: 1
+  bassPower: 2
   bassRange: 16
+  bass: 0
 --- !u!1 &2142128133
 GameObject:
   m_ObjectHideFlags: 0
