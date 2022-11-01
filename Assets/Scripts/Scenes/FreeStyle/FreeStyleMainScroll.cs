@@ -34,7 +34,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private readonly uint waitPreviewTime = 500;
     
     public event Action<Song> OnSelectSong;
-    public event Action<float/* time */> OnPlaybackUpdate;
+    public event Action OnSoundRestart;
     
 
     private void Awake()
@@ -97,16 +97,18 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void Start()
     {
         curNode.Value.rt.DOAnchorPosX( -100f, .5f );
-        UpdateSong( true );
+        UpdateSong();
     }
 
     private void Update()
     {
-        OnPlaybackUpdate?.Invoke( playback );
         playback += Time.deltaTime * 1000f * GameSetting.CurrentPitch;
         if ( curSong.totalTime + waitPreviewTime < playback )
         {
-            UpdateSong( false );
+            SoundManager.Inst.Stop( ChannelType.BGM );
+            SoundManager.Inst.Play( true );
+            Play();
+            OnSoundRestart?.Invoke();
         }
     }
 
@@ -144,7 +146,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         curPos -= size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        UpdateSong( true );
+        UpdateSong();
     }
 
     public override void NextMove()
@@ -181,7 +183,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         curPos += size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        UpdateSong( true );
+        UpdateSong();
     }
 
     private void UpdateScrollBar()
@@ -192,23 +194,25 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
              curText.text = ( CurrentIndex + 1 ).ToString();
     }
 
-    private void UpdateSong( bool _isUpdateScroll )
+    private void Play()
     {
-        if ( _isUpdateScroll )
-            UpdateScrollBar();
+        SoundManager.Inst.Play( false );
+        SoundManager.Inst.FadeIn( 1f );
+        SoundManager.Inst.Position = ( uint )curSong.previewTime;
+        playback = curSong.previewTime;
+    }
 
+    private void UpdateSong()
+    {
+        UpdateScrollBar();
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
 
         SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
-        SoundManager.Inst.Play( false );
-        SoundManager.Inst.FadeIn( 1f );
-
-        curSong.totalTime = ( int )SoundManager.Inst.Length;
-        curSong.previewTime        = ( int )GetPreviewTime( curSong.previewTime );
-        SoundManager.Inst.Position = ( uint )curSong.previewTime;
-        playback                   = curSong.previewTime;
-
+        curSong.totalTime   = ( int )SoundManager.Inst.Length;
+        curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
+        
+        Play();
         OnSelectSong( curSong );
     }
 

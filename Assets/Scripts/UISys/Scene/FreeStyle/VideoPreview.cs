@@ -12,6 +12,7 @@ public class VideoPreview : FreeStylePreview
     private VideoPlayer vp;
     private Coroutine coroutine;
     private WaitUntil waitPrepared;
+    private float startTime;
 
     protected override void Awake()
     {
@@ -21,6 +22,13 @@ public class VideoPreview : FreeStylePreview
         waitPrepared = new WaitUntil( () => vp.isPrepared );
 
         pitchOption.OnPitchUpdate += PitchUpdate;
+    }
+
+    protected override void Restart()
+    {
+        vp.Stop();
+        vp.time = startTime;
+        vp.Play();
     }
 
     protected override void UpdatePreview( Song _song )
@@ -54,15 +62,14 @@ public class VideoPreview : FreeStylePreview
         vp.url = @$"{_song.videoPath}";
         vp.Prepare();
         
-        yield return new WaitUntil( () => vp.isPrepared );
-
+        yield return waitPrepared;
 
         float spb = ( float )( 60f / _song.medianBpm ) * 1000f;
         float offset = _song.videoOffset > 1f ? _song.videoOffset * .75f :
                        _song.audioOffset > 1f ? _song.audioOffset * .75f :
                        _song.isOnlyKeySound   ? -spb                : 0f;
 
-        vp.time = ( SoundManager.Inst.Position + offset ) * .001f;
+        vp.time = startTime = ( SoundManager.Inst.Position + offset ) * .001f;
         vp.playbackSpeed = GameSetting.CurrentPitch;
 
         tf.sizeDelta = sizeCache;

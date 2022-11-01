@@ -27,6 +27,8 @@ public class ImagePreview : FreeStylePreview
         }
     }
 
+    protected override void Restart() { }
+
     protected override void UpdatePreview( Song _song )
     {
         if ( !ReferenceEquals( coroutine, null ) )

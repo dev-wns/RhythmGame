@@ -9,16 +9,10 @@ public class SpritePreview : FreeStylePreview
 {
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
-    private float playback;
     private int startIndex;
     private double offset;
     private double previewTime;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        scroller.OnPlaybackUpdate += ( float _playback ) => playback = _playback;
-    }
+    private Coroutine updatePreview;
 
     private void OnDestroy()
     {
@@ -28,12 +22,24 @@ public class SpritePreview : FreeStylePreview
     private void Clear()
     {
         StopAllCoroutines();
+        updatePreview = null;
         sprites.Clear();
         foreach ( Texture2D texture in textures.Values )
         {
             DestroyImmediate( texture );
         }
         textures.Clear();
+    }
+
+    protected override void Restart()
+    {
+        if ( !ReferenceEquals( updatePreview, null ) )
+        {
+            StopCoroutine( updatePreview );
+            updatePreview = null;
+        }
+
+        updatePreview = StartCoroutine( UpdatePreviewImage() );
     }
 
     protected override void UpdatePreview( Song _song )
@@ -70,13 +76,21 @@ public class SpritePreview : FreeStylePreview
                     sprites.Add( sprite );
                 }
             }
+
             StartCoroutine( LoadTexture( _song ) );
-            StartCoroutine( UpdatePreviewImage() );
+
+            if ( !ReferenceEquals( updatePreview, null ) )
+            {
+                StopCoroutine( updatePreview );
+                updatePreview = null;
+            }
+            updatePreview = StartCoroutine( UpdatePreviewImage() );
         }
     }
 
     private IEnumerator LoadTexture( Song _song )
     {
+        float frameRate = 1f / 60f;
         var dir = Path.GetDirectoryName( _song.filePath );
         for ( int i = startIndex; i < sprites.Count; i++ )
         {
@@ -111,7 +125,7 @@ public class SpritePreview : FreeStylePreview
                     }
                 }
                 textures.Add( sprites[i].name, tex );
-                yield return null;
+                yield return YieldCache.WaitForSeconds( frameRate );
             }
         }
     }
@@ -123,28 +137,27 @@ public class SpritePreview : FreeStylePreview
         if ( curIndex < sprites.Count )
              curSample = sprites[curIndex];
 
-        WaitUntil waitSampleTime = new WaitUntil( () => curSample.start < playback - offset );
+        WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= SoundManager.Inst.Position - offset );
+        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= SoundManager.Inst.Position - offset );
+        yield return waitSampleStart;
 
         // Wait First Texture
         yield return new WaitUntil( () => textures.ContainsKey( curSample.name ) );
         tf.sizeDelta = Global.Math.GetScreenRatio( textures[curSample.name], sizeCache );
         previewImage.enabled = true;
-        //PlayScaleEffect();
 
         while ( curIndex < sprites.Count )
         {
+            yield return waitSampleStart;
+
             if ( textures.ContainsKey( curSample.name ) )
-                 previewImage.texture = textures[curSample.name];
-
-            yield return waitSampleTime;
-            while ( curSample.end < playback - offset )
             {
-                curIndex += 1;
-                if ( curIndex < sprites.Count )
-                     curSample = sprites[curIndex];
-
-                yield return null;
+                previewImage.texture = textures[curSample.name];
             }
+
+            yield return waitSampleEnd;
+            if ( ++curIndex < sprites.Count )
+                 curSample = sprites[curIndex];
         }
     }
 }

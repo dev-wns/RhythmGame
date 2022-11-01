@@ -16,6 +16,7 @@ public abstract class FreeStylePreview : MonoBehaviour
     protected virtual void Awake()
     {
         scroller.OnSelectSong += UpdatePreview;
+        scroller.OnSoundRestart += Restart;
         if ( !TryGetComponent( out previewImage ) )
              Debug.LogError( "PreviewBGA RawImage Component is not found." );
 
@@ -48,4 +49,6 @@ public abstract class FreeStylePreview : MonoBehaviour
     }
 
     protected abstract void UpdatePreview( Song _song );
+
+    protected abstract void Restart();
 }

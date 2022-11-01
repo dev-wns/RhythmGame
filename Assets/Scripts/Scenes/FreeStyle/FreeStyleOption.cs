@@ -13,7 +13,6 @@ public class FreeStyleOption : SceneScrollOption
 
         if ( !TryGetComponent( out group ) )
             Debug.LogError( $"FreeStyle Option CanvasGroup is null" );
-
     }
 
     private void Back()
