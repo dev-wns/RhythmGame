@@ -9,8 +9,9 @@ public class SongPreview : MonoBehaviour
     public SoundPitchOption pitchOption;
 
     [Header("Line 0")]
-    public TextMeshProUGUI backgroundType;
-    public TextMeshProUGUI hasKeySound;
+    public TextMeshProUGUI scrollSpeed;
+    public TextMeshProUGUI soundSpeed;
+    public TextMeshProUGUI random;
 
     [Header("Line 1")]
     public TextMeshProUGUI noteCount;
@@ -18,10 +19,10 @@ public class SongPreview : MonoBehaviour
     public TextMeshProUGUI time;
     public TextMeshProUGUI bpm;
 
-    [Header( "Line 2" )]
-    public TextMeshProUGUI scrollSpeed;
-    public TextMeshProUGUI soundSpeed;
-    public TextMeshProUGUI random;
+    [Header("Line 2")]
+    public TextMeshProUGUI backgroundType;
+    public TextMeshProUGUI keyCount;
+    public TextMeshProUGUI hasKeySound;
 
 
     private void Awake()
@@ -39,6 +40,7 @@ public class SongPreview : MonoBehaviour
 
 
         noteCount.text   = _song.noteCount.ToString();
+        keyCount.text    = _song.keyCount.ToString();
         sliderCount.text = _song.sliderCount.ToString();
 
         scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";

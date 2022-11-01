@@ -28,6 +28,7 @@ public struct Song
     public int totalTime;
     public int previewTime;
 
+    public int keyCount;
     public int noteCount;
     public int sliderCount;
 
@@ -260,10 +261,9 @@ public class FileConverter : FileReader
             }
 
             // [Metadata] ~ [Difficulty]
-            int keyCount = 0;
             while ( ReadLine() != "[Events]" )
             {
-                if ( Contains( "CircleSize" ) ) keyCount = int.Parse( Split( ':' ) );
+                if ( Contains( "CircleSize" ) ) song.keyCount = int.Parse( Split( ':' ) );
             }
 
             // 키음만으로 재생되는 노래는 프리뷰 음악이 대부분 없다.
@@ -354,11 +354,12 @@ public class FileConverter : FileReader
                 else                      timings.Add( new Timing( time, BPM, beatLengthAbs, isUninherited ) );
             }
             #endregion
-            #region Note
+#region Note
             notes?.Clear();
             bool isCheckKeySoundOnce = false;
-            DeleteKey deleteKey = new DeleteKey( keyCount );
-            while ( ReadLineEndOfStream() ) {
+            //DeleteKey deleteKey = new DeleteKey( keyCount );
+            while ( ReadLineEndOfStream() ) 
+            {
                 string[] splitDatas = line.Split( ',' );
                 string[] objParams = splitDatas[5].Split( ':' );
                 double noteTime    = double.Parse( splitDatas[2] );
@@ -367,14 +368,16 @@ public class FileConverter : FileReader
                      sliderTime = double.Parse( objParams[0] );
 
                 // 잘린 노트의 키음은 자동으로 재생되는 KeySample로 만들어 준다.
-                int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * keyCount / 512 );
-                int finalLane     = deleteKey.FinalKey( originLane );
+                // int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * keyCount / 512 );
+                // int finalLane     = deleteKey.FinalKey( originLane );
+                int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * song.keyCount / 512 );
                 KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], 
                                                   float.Parse( objParams[objParams.Length - 2] ) );
-                if ( deleteKey[originLane] ) {
-                    samples.Add( keySound );
-                }
-                else {
+                //if ( deleteKey[originLane] ) {
+                //    samples.Add( keySound );
+                //}
+                //else
+                //{
                     if ( sliderTime > 0d ) {
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
@@ -384,7 +387,7 @@ public class FileConverter : FileReader
                         song.noteCount++;
                     }
 
-                    int lane = keyCount == 4 ? finalLane + 1 : finalLane;
+                    //int lane = keyCount == 4 ? finalLane + 1 : finalLane;
                     notes.Add( new Note( lane, noteTime, sliderTime, keySound ) );
 
                     if ( !isCheckKeySoundOnce )
@@ -395,7 +398,7 @@ public class FileConverter : FileReader
                             isCheckKeySoundOnce = true;
                         }
                     }
-                }
+                //}
             }
             // BMS2Osu로 뽑은 파일은 Pixel값 기준으로 정렬되어 있기 때문에 시간 순으로 다시 정렬해준다.
             samples.Sort( delegate ( KeySound _A, KeySound _B )
@@ -413,7 +416,7 @@ public class FileConverter : FileReader
                 else                          return 0;
             } );
 
-            #endregion
+#endregion
             song.medianBpm = GetMedianBpm();
             Write( in song );
         }
@@ -474,6 +477,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"PreviewTime: {_song.previewTime}" );
                     writer.WriteLine( $"TotalTime: {_song.totalTime}" );
 
+                    writer.WriteLine( $"KeyCount: {_song.keyCount}" );
                     writer.WriteLine( $"NumNote: {_song.noteCount}" );
                     writer.WriteLine( $"NumSlider: {_song.sliderCount}" );
 
