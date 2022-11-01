@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class LaneSystem : MonoBehaviour
 {
+    public GameObject prefab;
     private InGame scene;
     private KeySampleSystem keySampleSystem;
     private List<Lane> lanes = new List<Lane>();
-
     private System.Random random;
 
     private void Awake()

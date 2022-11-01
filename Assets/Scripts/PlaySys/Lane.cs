@@ -13,8 +13,9 @@ public class Lane : MonoBehaviour
     public event Action<int/*Lane Key*/> OnLaneInitialize;
 
     public SpriteRenderer keyImage;
+    public SpriteRenderer laneEffect;
+
     public Sprite keyDefaultSprite, keyPressSprite;
-    private SpriteRenderer rdr;
     private Color color;
 
     private readonly float StartFadeAlpha = .5f;
@@ -27,7 +28,6 @@ public class Lane : MonoBehaviour
     {
         NoteSys  = GetComponent<NoteSystem>();
         InputSys = GetComponent<InputSystem>();
-        rdr      = GetComponent<SpriteRenderer>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.LaneEffect ) != 0 )
              InputSys.OnInputEvent += LaneEffect;
@@ -44,7 +44,7 @@ public class Lane : MonoBehaviour
         isEnabled = _isEnable;
         if ( isEnabled )
         {
-            rdr.color = color;
+            laneEffect.color = color;
             fadeAlpha = StartFadeAlpha;
         }
     }
@@ -59,7 +59,7 @@ public class Lane : MonoBehaviour
             fadeAlpha -= fadeOffset * Time.deltaTime;
             Color newColor = color;
             newColor.a = fadeAlpha;
-            rdr.color = newColor;
+            laneEffect.color = newColor;
         }
     }
 
@@ -75,9 +75,26 @@ public class Lane : MonoBehaviour
     public void UpdatePosition( int _key )
     {
         transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 90f );
-        transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .13f ), 1f );
 
-        keyImage.transform.position   = new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
-        keyImage.transform.localScale = new Vector3( transform.localScale.x + GameSetting.NoteBlank, keyImage.transform.localScale.y );
+        Vector3 scale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .13f ), 1f );
+        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) )
+        {
+            laneEffect.transform.position = transform.position;
+            laneEffect.transform.localScale = scale;
+        }
+        else
+        {
+            keyImage.gameObject.SetActive( false );
+        }
+
+        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) )
+        {
+            keyImage.transform.position = new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
+            keyImage.transform.localScale = new Vector3( scale.x + GameSetting.NoteBlank, keyImage.transform.localScale.y );
+        }
+        else
+        {
+            keyImage.gameObject.SetActive( false );
+        }
     }
 }

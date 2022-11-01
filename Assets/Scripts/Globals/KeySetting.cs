@@ -7,14 +7,11 @@ public enum GameKeyAction : int
     _0, _1, _2, _3, _4, _5, Count // InGame Input Keys
 };
 
+public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8 };
 public class KeySetting : Singleton<KeySetting>
 {
     public Dictionary<KeyCode, string/*keyCode to string*/> AvailableKeys = new Dictionary<KeyCode, string>();
-    public Dictionary<GameKeyAction, KeyCode> Keys = new Dictionary<GameKeyAction, KeyCode>();
-    private readonly KeyCode[] defaultKeys = new KeyCode[]
-    {
-        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote,
-    };
+    public Dictionary<GameKeyCount, KeyCode[]> Keys = new Dictionary<GameKeyCount, KeyCode[]>();
 
     public bool IsAvailableKey( KeyCode _key ) => AvailableKeys.ContainsKey( _key );
 
@@ -23,10 +20,27 @@ public class KeySetting : Singleton<KeySetting>
         base.Awake();
 
         AvailableKeyBind();
-        for ( int i = 0; i < defaultKeys.Length; i++ )
+
+        InitializeKey( GameKeyCount._4, new KeyCode[] { KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon } );
+        InitializeKey( GameKeyCount._6, new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote } );
+        InitializeKey( GameKeyCount._7, new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.Space, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote, } );
+    }
+
+    private void InitializeKey( GameKeyCount _key, KeyCode[] _code )
+    {
+        int count = ( int )_key;
+        if ( count != _code.Length )
         {
-            Keys.Add( ( GameKeyAction )i, defaultKeys[i] );
+            Debug.LogError( "key count and length do not match. " );
+            return;
         }
+        if ( Keys.ContainsKey( _key ) )
+        {
+            Debug.LogWarning( "The key already exists." );
+            return;
+        }
+
+        Keys.Add( _key, _code );
     }
 
     public string KeyCodeToString( KeyCode _code ) =>

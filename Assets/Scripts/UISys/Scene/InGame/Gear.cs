@@ -9,7 +9,6 @@ public class Gear : MonoBehaviour
     public Transform judge;
     public Transform panel;
     public Transform sideLeft, sideRight;
-    public GameObject keyUI;
 
     private void Awake()
     {
@@ -27,7 +26,6 @@ public class Gear : MonoBehaviour
 
     private void UpdatePosition()
     {
-        keyUI.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) );
         judge.position   = new Vector2( 0f, GameSetting.JudgePos );
         judge.localScale = new Vector3( GameSetting.GearWidth, judge.localScale.y );
     }

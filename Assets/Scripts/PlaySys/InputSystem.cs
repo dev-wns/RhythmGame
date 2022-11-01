@@ -18,7 +18,7 @@ public class InputSystem : MonoBehaviour
     public event Action<NoteType, bool/*Key Up*/> OnHitNote;
     public event Action<bool/*Key Down*/>         OnInputEvent;
 
-    private GameKeyAction key;
+    private KeyCode key;
     private KeySound curSound;
     private bool isAuto, isReady;
 
@@ -52,6 +52,7 @@ public class InputSystem : MonoBehaviour
         isAuto  = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
         rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
     }
+
     private void Update()
     {
         if ( !isReady ) return;
@@ -74,12 +75,12 @@ public class InputSystem : MonoBehaviour
         }
         else
         {
-            if ( Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
+            if ( Input.GetKeyDown( key ) )
             {
                 OnInputEvent?.Invoke( true );
                 SoundManager.Inst.Play( curSound );
             }
-            else if ( Input.GetKeyUp( KeySetting.Inst.Keys[key] ) )
+            else if ( Input.GetKeyUp( key ) )
             {
                 OnInputEvent?.Invoke( false );
             }
@@ -107,7 +108,7 @@ public class InputSystem : MonoBehaviour
     #region Event
     public void Initialize( int _key )
     {
-        key = ( GameKeyAction )_key; 
+        key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.Inst.CurrentSong.keyCount][_key];
         isReady = true;
     }
 
@@ -218,7 +219,7 @@ public class InputSystem : MonoBehaviour
             }
         }
         else {
-            if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
+            if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( key ) )
             {
                 OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
@@ -279,7 +280,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( !curNote.IsPressed )
             {
-                if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( KeySetting.Inst.Keys[key] ) )
+                if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( key ) )
                 {
                     curNote.IsPressed = true;
                     OnHitNote?.Invoke( NoteType.Slider, false );
@@ -299,7 +300,7 @@ public class InputSystem : MonoBehaviour
             }
             else
             {
-                if ( Input.GetKey( KeySetting.Inst.Keys[key] ) )
+                if ( Input.GetKey( key ) )
                 {
                     if ( endDiff <= 0d )
                     {
@@ -318,7 +319,7 @@ public class InputSystem : MonoBehaviour
                     }
                 }
 
-                if ( Input.GetKeyUp( KeySetting.Inst.Keys[key] ) )
+                if ( Input.GetKeyUp( key ) )
                 {
                     OnHitNote?.Invoke( NoteType.Slider, true );
 

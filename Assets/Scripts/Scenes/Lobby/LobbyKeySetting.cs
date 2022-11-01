@@ -28,7 +28,7 @@ public class LobbyKeySetting : SceneOptionBase
         {
             for ( int i = 0; i < tracks.Count; i++ )
             {
-                if ( KeySetting.Inst.Keys[( GameKeyAction )i] == _key )
+                if ( KeySetting.Inst.Keys[( GameKeyCount )6][i] == _key )
                      tracks[i].Change( KeyCode.None );
             }
 
