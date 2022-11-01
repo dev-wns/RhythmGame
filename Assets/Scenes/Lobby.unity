@@ -3736,10 +3736,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visualizer: {fileID: 2136235396}
-  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
-  isGradationColor: 1
   gradationColorAlpha: 1
   color: {r: 1, g: 1, b: 1, a: 1}
+  isGradationColor: 1
+  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
   sortingOrder: 1
   lerpOffset: 0.25
   specStartIndex: 0
@@ -11530,10 +11530,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visualizer: {fileID: 2136235396}
-  prefab: {fileID: 2841630171828651903, guid: 3e958ed5e751951429ddfb30c7c72f04, type: 3}
-  isGradationColor: 1
   gradationColorAlpha: 1
   color: {r: 1, g: 1, b: 1, a: 1}
+  isGradationColor: 1
+  prefab: {fileID: 2841630171828651903, guid: 3e958ed5e751951429ddfb30c7c72f04, type: 3}
   sortingOrder: 1
   lerpOffset: 0.275
   specStartIndex: 0
@@ -11541,9 +11541,9 @@ MonoBehaviour:
   specPower: 5
   specWidth: 5
   specBlank: 5
+  decrease: 0
   isReverse: 0
   isPositionUpdate: 0
-  decrease: 0
 --- !u!1 &1802681728
 GameObject:
   m_ObjectHideFlags: 0
@@ -12350,6 +12350,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1991919315}
+  - component: {fileID: 1991919316}
   - component: {fileID: 1991919314}
   - component: {fileID: 1991919313}
   m_Layer: 6
@@ -17145,6 +17146,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &1991919316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991919312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae792c556a17184ea087cc26621f40a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualizer: {fileID: 2136235396}
+  power: 15
 --- !u!1 &2014053776
 GameObject:
   m_ObjectHideFlags: 0
@@ -17679,12 +17694,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particle: {fileID: 1991919314}
-  particlePower: 25
   hasBass: 1
+  bassIncrease: 0.5
+  bassDecrease: 0.175
   bassPower: 2
   bassRange: 16
-  bassDecrease: 0.15
 --- !u!1 &2142128133
 GameObject:
   m_ObjectHideFlags: 0

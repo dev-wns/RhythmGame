@@ -24,7 +24,6 @@ public abstract class BaseSpectrum : MonoBehaviour
 
     protected float Offset => specWidth + specBlank;
     protected float Power  => specPower * AdditionalPower;
-    protected float Bass    => visualizer.Bass;
 
     protected Transform[] transforms; // 생성된 모델 안의 Transform
     private readonly float AdditionalPower = 1000f;

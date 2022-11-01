@@ -8,14 +8,20 @@ public class CircleSpectrum : BaseSpectrum
     public Transform centerImage;
     [Min(0f)] public float radius;
     [Min(0f)] public float distance;
-    private bool hasCenterImage;
     private float imageScale;
+    private float bassAmount = 1f;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        if ( visualizer.hasBass )
+             visualizer.OnUpdateBass += UpdateBass;
+    }
 
     protected override void CreateSpectrumModel()
     {
         if ( centerImage )
         {
-            hasCenterImage = true;
             imageScale = radius - distance;
             centerImage.localScale = new Vector3( imageScale, imageScale, imageScale );
         }
@@ -49,15 +55,16 @@ public class CircleSpectrum : BaseSpectrum
             Vector3 newScale = new Vector3( specWidth, scale, 1f );
             left.localScale = right.localScale = newScale;
 
-            float bassValue = radius * .5f * Bass;
+            float bassValue = radius * .5f * bassAmount;
             left.position   = left.up  * bassValue;
             right.position  = right.up * bassValue;
         }
+    }
 
-        if ( hasCenterImage )
-        {
-            float newImageScale = imageScale * Bass;
-            centerImage.localScale = new Vector3( newImageScale, newImageScale, newImageScale );
-        }
+    protected void UpdateBass( float _amount )
+    {
+        bassAmount = 1f + _amount;
+        float newImageScale = imageScale * bassAmount;
+        centerImage.localScale = new Vector3( newImageScale, newImageScale, newImageScale );
     }
 }

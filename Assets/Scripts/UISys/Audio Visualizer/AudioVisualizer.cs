@@ -7,37 +7,20 @@ public class AudioVisualizer : MonoBehaviour
 {
     private float[][] spectrums;
 
-    [Header("Particle")]
-    public  ParticleSystem particle;
-    private ParticleSystem.MainModule mainModule;
-    private bool hasParticle;
-    [Min(0f)] public float particlePower = 1f;
-
     [Header("Bass")]
     public bool hasBass;
     private float bassCached;
+    [Range(0f, 1f)] public float bassIncrease;
     [Range(0f, 1f)] public float bassDecrease;
     [Min(0f)]       public float bassPower = 1f;
     [Range(1, 256)] public int   bassRange;
 
-    public float Bass    { get; private set; }
     public Action<float[][]> OnUpdateSpectrums;
+    public Action<float> OnUpdateBass;
 
     protected virtual void Awake()
     {
-        if ( particle )
-        {
-            mainModule  = particle.main;
-            StartCoroutine( ParticleInit() );
-        }
         StartCoroutine( FixedSpectrumUpdate() );
-    }
-
-    protected IEnumerator ParticleInit()
-    {
-        mainModule.simulationSpeed = 1000;
-        yield return YieldCache.WaitForSeconds( .1f );
-        hasParticle = true;
     }
 
     private IEnumerator FixedSpectrumUpdate()
@@ -69,14 +52,10 @@ public class AudioVisualizer : MonoBehaviour
                     bassAmount = ( sumValue / bassRange ) * bassPower;
 
                     float diffAbs = Global.Math.Abs( bassCached - bassAmount );
-                    if ( bassCached < bassAmount ) bassCached = bassAmount;
+                    if ( bassCached < bassAmount ) bassCached = Mathf.Clamp01( bassCached + Mathf.Lerp( 0f, diffAbs, bassIncrease ) );
                     else                           bassCached = Mathf.Clamp01( bassCached - Mathf.Lerp( 0f, diffAbs, bassDecrease ) );
-                    Bass = 1f + bassCached;
-                }
 
-                if ( hasParticle )
-                {
-                    mainModule.simulationSpeed = bassAmount * particlePower;
+                    OnUpdateBass?.Invoke( bassCached );
                 }
 
                 OnUpdateSpectrums?.Invoke( spectrums );
