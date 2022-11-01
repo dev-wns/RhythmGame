@@ -5,27 +5,40 @@ using UnityEngine;
 
 public class LaneSystem : MonoBehaviour
 {
-    public GameObject prefab;
+    public Lane prefab;
     private InGame scene;
     private KeySampleSystem keySampleSystem;
     private List<Lane> lanes = new List<Lane>();
     private System.Random random;
 
+
+    private int keyCount;
     private void Awake()
     {
+        keyCount = NowPlaying.Inst.CurrentSong.keyCount == 8 ? 7 : NowPlaying.Inst.CurrentSong.keyCount;
+
         keySampleSystem = GetComponent<KeySampleSystem>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitializeThread += Initialize;
         scene.OnGameStart += () =>
         {
-            for ( int i = 0; i < ( int )GameKeyAction.Count; i++ )
+            for ( int i = 0; i < keyCount; i++ )
             {
                 lanes[i].SetLane( i );
             }
         };
 
         lanes.AddRange( GetComponentsInChildren<Lane>() );
-        for ( int i = 0; i < ( int )GameKeyAction.Count; i++ )
+        if ( lanes.Count < keyCount )
+        {
+            int addCount = keyCount - lanes.Count;
+            for ( int i = 0; i < addCount; i++ )
+            {
+                lanes.Add( Instantiate( prefab, transform ) );
+            }
+        }
+
+        for ( int i = 0; i < keyCount; i++ )
         {
             lanes[i].UpdatePosition( i );
         }

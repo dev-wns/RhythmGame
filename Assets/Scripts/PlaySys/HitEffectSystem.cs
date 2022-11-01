@@ -5,8 +5,7 @@ using UnityEngine.UI;
 
 public class HitEffectSystem : MonoBehaviour
 {
-    public Lane lane;
-
+    private Lane lane;
     private NoteType type;
 
     private float time;
@@ -24,6 +23,7 @@ public class HitEffectSystem : MonoBehaviour
 
     protected void Awake()
     {
+        lane = GetComponentInParent<Lane>();
         rdr = GetComponent<SpriteRenderer>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
@@ -35,8 +35,6 @@ public class HitEffectSystem : MonoBehaviour
 
             rdr.enabled = true;
             rdr.color = Color.clear;
-
-            //StartCoroutine( Process() );
         }
         else
         {
@@ -115,46 +113,6 @@ public class HitEffectSystem : MonoBehaviour
             break;
         }
     }
-
-    //private IEnumerator Process()
-    //{
-    //    WaitUntil waitPlay = new WaitUntil( () => isPlay );
-    //    while ( true )
-    //    {
-    //        yield return waitPlay;
-
-    //        switch ( type )
-    //        {
-    //            case NoteType.Default:
-    //            {
-    //                rdr.sprite = spritesN[curIndex];
-    //                yield return YieldCache.WaitForSeconds( timeN );
-
-    //                if ( curIndex < spritesN.Count - 1 ) curIndex++;
-    //                else                                 Stop();
-    //            }
-    //            break;
-
-    //            case NoteType.Slider:
-    //            {
-    //                rdr.sprite = spritesL[curIndex];
-    //                yield return YieldCache.WaitForSeconds( timeL );
-
-    //                if ( curIndex < spritesL.Count - 1 ) curIndex++;
-    //                else
-    //                {
-    //                    if ( isKeyUp ) Stop();
-    //                    else
-    //                    {
-    //                        curIndex = 0;
-    //                        Play();
-    //                    }
-    //                }
-    //            }
-    //            break;
-    //        }
-    //    }
-    //}
 
     private void Play()
     {
