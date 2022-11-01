@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class LineSpectrum : BaseSpectrum
 {
+    private float[] cached;
+
+    [Header("Line")]
+    [Range(0f, 1f)] public float decrease;
     public bool isReverse;
     public bool isPositionUpdate;
-    [Range(0f, 1f)]
-    public float decrease;
-    private float[] cached;
 
     protected override void CreateSpectrumModel()
     {

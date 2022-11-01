@@ -10,18 +10,16 @@ public class AudioVisualizer : MonoBehaviour
     [Header("Particle")]
     public  ParticleSystem particle;
     private ParticleSystem.MainModule mainModule;
-    [Min(0f)]
-    public float particlePower = 1f;
     private bool hasParticle;
+    [Min(0f)] public float particlePower = 1f;
 
     [Header("Bass")]
     public bool hasBass;
-    [Min(0f)]
-    public float bassPower = 1f;
-    [Range(1, 256)]
-    public int bassRange;
+    private float bassCached;
+    [Range(0f, 1f)] public float bassDecrease;
+    [Min(0f)]       public float bassPower = 1f;
+    [Range(1, 256)] public int   bassRange;
 
-    public float Average { get; private set; }
     public float Bass    { get; private set; }
     public Action<float[][]> OnUpdateSpectrums;
 
@@ -42,7 +40,6 @@ public class AudioVisualizer : MonoBehaviour
         hasParticle = true;
     }
 
-    public float bass;
     private IEnumerator FixedSpectrumUpdate()
     {
         float targetFrame = 1f / 144f;
@@ -61,7 +58,6 @@ public class AudioVisualizer : MonoBehaviour
             spectrums = fftData.spectrum;
             if ( fftData.spectrum.Length > 0 )
             {
-
                 float bassAmount = 0f;
                 if ( hasBass )
                 {
@@ -70,11 +66,12 @@ public class AudioVisualizer : MonoBehaviour
                     {
                         sumValue += ( spectrums[0][i] + spectrums[1][i] ) * .5f;
                     }
-                    Average = sumValue / bassRange;
+                    bassAmount = ( sumValue / bassRange ) * bassPower;
 
-                    bassAmount = Average * bassPower;
-                    Bass = 1f + bassAmount;
-                    bass = Bass;
+                    float diffAbs = Global.Math.Abs( bassCached - bassAmount );
+                    if ( bassCached < bassAmount ) bassCached = bassAmount;
+                    else                           bassCached = Mathf.Clamp01( bassCached - Mathf.Lerp( 0f, diffAbs, bassDecrease ) );
+                    Bass = 1f + bassCached;
                 }
 
                 if ( hasParticle )
@@ -86,38 +83,4 @@ public class AudioVisualizer : MonoBehaviour
             }
         }
     }
-
-    //protected virtual void Update()
-    //{
-    //    if ( SoundManager.Inst.IsLoad ) return;
-
-    //    uint length;
-    //    IntPtr data;
-    //    FMOD.DSP fftWindowDSP;
-    //    if ( !SoundManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fftWindowDSP ) )
-    //    {
-    //        Debug.LogWarning( "FFTWindowData is not Load" );
-    //        return;
-    //    }
-    //    fftWindowDSP.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out data, out length );
-    //    FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
-    //    spectrums = fftData.spectrum;
-
-    //    float sumValue = 0f;
-    //    for ( int i = 0; i < bassRange; i++ )
-    //    {
-    //        sumValue += ( spectrums[0][i] + spectrums[1][i] ) * .5f;
-    //    }
-    //    Average = sumValue / bassRange;
-
-    //    float bassAmount = Average * bassPower;
-    //    Bass = 1f + bassAmount;
-
-    //    if ( hasParticle )
-    //    {
-    //        mainModule.simulationSpeed = bassAmount * particlePower;
-    //    }
-
-    //    OnUpdateSpectrums?.Invoke( spectrums );
-    //}
 }

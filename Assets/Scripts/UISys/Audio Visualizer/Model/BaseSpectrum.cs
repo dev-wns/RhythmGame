@@ -4,32 +4,26 @@ using UnityEngine;
 
 public abstract class BaseSpectrum : MonoBehaviour
 {
+    [Header("Base")]
     public AudioVisualizer visualizer;
-    public Transform prefab;
-    public bool isGradationColor;
-    [Range(0f,1f)]
-    public float gradationColorAlpha = 1f;
+
+    [Header("Color")]
+    [Range(0f,1f)] public float gradationColorAlpha = 1f;
     public Color color = Color.white;
+    public bool isGradationColor;
+
+    [Header("Spectrum")]
+    public Transform prefab;
     public int sortingOrder;
-
-    [Range(0f, 1f)]
-    public float lerpOffset = .275f;
-
-    [Range(0, 100)]
-    public int   specStartIndex;
-    [Min(0f)]
-    public int   specCount;
-    [Min(0f)]
-    public float specPower;
-    [Min(0f)]
-    public float specWidth;
-    [Min(0f)]
-    public float specBlank;
+    [Range(0f, 1f)] public float lerpOffset = .275f;
+    [Range(0, 100)] public int   specStartIndex;
+    [Min(0f)]       public int   specCount;
+    [Min(0f)]       public float specPower;
+    [Min(0f)]       public float specWidth;
+    [Min(0f)]       public float specBlank;
 
     protected float Offset => specWidth + specBlank;
     protected float Power  => specPower * AdditionalPower;
-    //protected float Highest => visualizer.Highest;
-    protected float Average => visualizer.Average;
     protected float Bass    => visualizer.Bass;
 
     protected Transform[] transforms; // 생성된 모델 안의 Transform

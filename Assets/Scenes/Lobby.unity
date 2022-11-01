@@ -3741,10 +3741,10 @@ MonoBehaviour:
   gradationColorAlpha: 1
   color: {r: 1, g: 1, b: 1, a: 1}
   sortingOrder: 1
-  lerpOffset: 0.275
+  lerpOffset: 0.25
   specStartIndex: 0
   specCount: 128
-  specPower: 0.5
+  specPower: 1
   specWidth: 5
   specBlank: 5
   centerImage: {fileID: 233053820}
@@ -11542,6 +11542,7 @@ MonoBehaviour:
   specWidth: 5
   specBlank: 5
   isReverse: 0
+  isPositionUpdate: 0
   decrease: 0
 --- !u!1 &1802681728
 GameObject:
@@ -17683,7 +17684,7 @@ MonoBehaviour:
   hasBass: 1
   bassPower: 2
   bassRange: 16
-  bass: 0
+  bassDecrease: 0.15
 --- !u!1 &2142128133
 GameObject:
   m_ObjectHideFlags: 0

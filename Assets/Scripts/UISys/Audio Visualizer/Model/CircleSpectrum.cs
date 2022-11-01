@@ -4,13 +4,10 @@ using UnityEngine;
 
 public class CircleSpectrum : BaseSpectrum
 {
+    [Header("Center Image")]
     public Transform centerImage;
-
-    [Min(0f)]
-    public float radius;
-    [Min(0f)]
-    public float distance;
-
+    [Min(0f)] public float radius;
+    [Min(0f)] public float distance;
     private bool hasCenterImage;
     private float imageScale;
 
@@ -44,17 +41,13 @@ public class CircleSpectrum : BaseSpectrum
         for ( int i = 0; i < specCount; i++ )
         {
             float value = ( _values[0][i] + _values[1][i] ) *.5f;
-            //value = ( value / Highest ) * Power;
-
-            float y = transforms[i].localScale.y;
-            float scale = Mathf.Lerp( y, value * Power, lerpOffset );
+            float scale = Mathf.Lerp( transforms[i].localScale.y, value * Power, lerpOffset );
 
             Transform left  = transforms[i];
             Transform right = transforms[( specCount * 2 ) - 1 - i];
 
             Vector3 newScale = new Vector3( specWidth, scale, 1f );
             left.localScale = right.localScale = newScale;
-
 
             float bassValue = radius * .5f * Bass;
             left.position   = left.up  * bassValue;
