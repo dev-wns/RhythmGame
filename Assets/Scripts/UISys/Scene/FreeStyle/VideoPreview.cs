@@ -24,11 +24,14 @@ public class VideoPreview : FreeStylePreview
         pitchOption.OnPitchUpdate += PitchUpdate;
     }
 
-    protected override void Restart()
+    protected override void Restart( Song _song )
     {
-        vp.Stop();
-        vp.time = startTime;
-        vp.Play();
+        if ( _song.hasVideo )
+        {
+            vp.Stop();
+            vp.time = startTime;
+            vp.Play();
+        }
     }
 
     protected override void UpdatePreview( Song _song )

@@ -27,7 +27,7 @@ public class ImagePreview : FreeStylePreview
         }
     }
 
-    protected override void Restart() { }
+    protected override void Restart( Song _song ) { }
 
     protected override void UpdatePreview( Song _song )
     {

@@ -50,5 +50,5 @@ public abstract class FreeStylePreview : MonoBehaviour
 
     protected abstract void UpdatePreview( Song _song );
 
-    protected abstract void Restart();
+    protected abstract void Restart( Song _song );
 }

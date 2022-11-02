@@ -34,7 +34,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private readonly uint waitPreviewTime = 500;
     
     public event Action<Song> OnSelectSong;
-    public event Action OnSoundRestart;
+    public event Action<Song> OnSoundRestart;
     
 
     private void Awake()
@@ -108,7 +108,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
             SoundManager.Inst.Stop( ChannelType.BGM );
             SoundManager.Inst.Play( true );
             Play();
-            OnSoundRestart?.Invoke();
+            OnSoundRestart?.Invoke( curSong );
         }
     }
 

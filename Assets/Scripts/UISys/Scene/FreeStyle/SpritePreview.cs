@@ -23,15 +23,16 @@ public class SpritePreview : FreeStylePreview
     {
         StopAllCoroutines();
         updatePreview = null;
-        sprites.Clear();
+
         foreach ( Texture2D texture in textures.Values )
         {
             DestroyImmediate( texture );
         }
         textures.Clear();
+        sprites.Clear();
     }
 
-    protected override void Restart()
+    protected override void Restart( Song _song )
     {
         if ( !ReferenceEquals( updatePreview, null ) )
         {
@@ -39,7 +40,10 @@ public class SpritePreview : FreeStylePreview
             updatePreview = null;
         }
 
-        updatePreview = StartCoroutine( UpdatePreviewImage() );
+        if ( !_song.hasVideo && _song.hasSprite )
+        {
+            updatePreview = StartCoroutine( UpdatePreviewImage() );
+        }
     }
 
     protected override void UpdatePreview( Song _song )
@@ -78,12 +82,6 @@ public class SpritePreview : FreeStylePreview
             }
 
             StartCoroutine( LoadTexture( _song ) );
-
-            if ( !ReferenceEquals( updatePreview, null ) )
-            {
-                StopCoroutine( updatePreview );
-                updatePreview = null;
-            }
             updatePreview = StartCoroutine( UpdatePreviewImage() );
         }
     }
