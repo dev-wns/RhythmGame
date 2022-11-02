@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
@@ -107,11 +108,15 @@ public class LaneSystem : MonoBehaviour
                 {
                     Note newNote = notes[i];
                     newNote.lane = isEightKey ? newNote.lane - 1 : newNote.lane;
-                    if ( newNote.lane < 0 && newNote.keySound.hasSound )
+                    if ( newNote.lane < 0 )
                     {
                         KeySound newSound = new KeySound( newNote.time, newNote.keySound.name, newNote.keySound.volume );
-                        SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newSound.name ), out newSound.sound );
-                        keySampleSystem.AddSample( newSound );
+                        if ( File.Exists( Path.Combine( dir, newSound.name ) ) )
+                        {
+                            newSound.hasSound = true;
+                            SoundManager.Inst.LoadKeySound( Path.Combine( dir, newSound.name ), out newSound.sound );
+                            keySampleSystem.AddSample( newSound );
+                        }
                         continue;
                     }
 
@@ -122,8 +127,8 @@ public class LaneSystem : MonoBehaviour
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                     if ( newNote.keySound.hasSound )
-                         SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
-
+                         SoundManager.Inst.LoadKeySound( Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+                        
                     lanes[newNote.lane].NoteSys.AddNote( in newNote );
                 }
                 break;
