@@ -10,7 +10,7 @@ public class NoteSystem : MonoBehaviour
     private Lane lane;
 
     private ObjectPool<NoteRenderer> nPool;
-    public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */;
+    public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */, noteMedian;
 
     private List<Note> notes = new List<Note>();
     private Note curNote;
@@ -22,7 +22,21 @@ public class NoteSystem : MonoBehaviour
         lane = GetComponent<Lane>();
         lane.OnLaneInitialize += ( int _key ) =>
         {
-            nPool ??= new ObjectPool<NoteRenderer>( _key == 1 || _key == 4 ? note2 : note1, 5 );
+            NoteRenderer skin = note1;
+            if ( NowPlaying.Inst.KeyCount == 4 )
+            {
+                skin = _key == 1 || _key == 2 ? note2 : note1;
+            }
+            else if ( NowPlaying.Inst.KeyCount == 6 )
+            {
+                skin = _key == 1 || _key == 4 ? note2 : note1;
+            }
+            else if ( NowPlaying.Inst.KeyCount == 7 )
+            {
+                skin = _key == 1 || _key == 5 ? note2 : 
+                                    _key == 3 ? noteMedian : note1;
+            }
+            nPool ??= new ObjectPool<NoteRenderer>( skin, 5 );
         };
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();

@@ -51,7 +51,6 @@ public class Lane : MonoBehaviour
 
     private void KeyEffect( bool _isEnable ) => keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
 
-
     private void Update()
     {
         if ( !isEnabled && fadeAlpha > 0 )
@@ -68,8 +67,21 @@ public class Lane : MonoBehaviour
         Key = _key;
         UpdatePosition( _key );
         OnLaneInitialize?.Invoke( Key );
-
-        color = _key == 1 || _key == 4 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
+        
+        if ( NowPlaying.Inst.KeyCount == 4 )
+        {
+            color = _key == 1 || _key == 2 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
+        }
+        else if ( NowPlaying.Inst.KeyCount == 6 )
+        {
+            color = _key == 1 || _key == 4 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
+        }
+        else if ( NowPlaying.Inst.KeyCount == 7 )
+        {
+            color = _key == 1 || _key == 5 ? new Color( 0, 0, 1, StartFadeAlpha ) :
+                                 _key == 3 ? new Color( 1, 1, 0, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
+        }
+        //color = _key == 1 || _key == 4 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
     }
 
     public void UpdatePosition( int _key )
