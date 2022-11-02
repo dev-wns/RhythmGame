@@ -17,7 +17,7 @@ public class KeySampleSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnGameStart += () => StartCoroutine( Process() );
+        scene.OnGameStart += GameStart;
         scene.OnReLoad += ReLoad;
     }
 
@@ -26,6 +26,22 @@ public class KeySampleSystem : MonoBehaviour
         StopAllCoroutines();
         curIndex = 0;
         curTime = 0f;
+    }
+
+    private void GameStart()
+    {
+        StartCoroutine( Process() );
+    }
+
+    public void SortSamples()
+    {
+        samples.Sort( delegate ( KeySound _A, KeySound _B )
+        {
+            if ( _A.time > _B.time )      return 1;
+            else if ( _A.time < _B.time ) return -1;
+            else                          return 0;
+
+        } );
     }
 
     public void AddSample( in KeySound _sample )

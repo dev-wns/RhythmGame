@@ -65,9 +65,10 @@ public class LaneSystem : MonoBehaviour
                 SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, sample.name ), out sample.sound );
             keySampleSystem.AddSample( sample );
         }
-        NowPlaying.Inst.IsLoadKeySound = true;
 
         CreateNotes( _chart );
+        keySampleSystem.SortSamples();
+        NowPlaying.Inst.IsLoadKeySound = true;
     }
 
     private void LaneSwap( int _min, int _max, int _swapCount = 6 )
@@ -92,6 +93,7 @@ public class LaneSystem : MonoBehaviour
         BitArray isUsedColumn = new BitArray( 6 );
         double prevTime = 0d;
 
+        bool isEightKey = NowPlaying.Inst.OriginKeyCount == 8;
         for ( int i = 0; i < notes.Count; i++ )
         {
             bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
@@ -104,6 +106,14 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Half_Random:
                 {
                     Note newNote = notes[i];
+                    newNote.lane = isEightKey ? newNote.lane - 1 : newNote.lane;
+                    if ( newNote.lane < 0 && newNote.keySound.hasSound )
+                    {
+                        KeySound newSound = new KeySound( newNote.time, newNote.keySound.name, newNote.keySound.volume );
+                        SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newSound.name ), out newSound.sound );
+                        keySampleSystem.AddSample( newSound );
+                        continue;
+                    }
 
                     if ( hasNoSlider )
                          newNote.isSlider = false;

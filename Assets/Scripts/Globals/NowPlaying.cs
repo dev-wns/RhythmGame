@@ -34,6 +34,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public bool IsParseSong    { get; private set; }
     public bool IsLoadBGA      { get; set; }
     public bool IsLoadKeySound { get; set; }
+    public int OriginKeyCount => CurrentSong.keyCount;
     public int KeyCount => CurrentSong.keyCount == 8 ? 7 : CurrentSong.keyCount;
     #endregion
 

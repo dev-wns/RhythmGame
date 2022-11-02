@@ -49,7 +49,7 @@ public class Lane : MonoBehaviour
         }
     }
 
-    private void KeyEffect( bool _isEnable )=> keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
+    private void KeyEffect( bool _isEnable ) => keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
 
 
     private void Update()
@@ -74,7 +74,7 @@ public class Lane : MonoBehaviour
 
     public void UpdatePosition( int _key )
     {
-        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 90f );
+        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 0f );
         
         Vector3 scale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .13f ), 1f );
         if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) )
