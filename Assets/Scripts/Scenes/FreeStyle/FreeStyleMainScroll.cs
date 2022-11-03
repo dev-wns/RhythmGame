@@ -220,6 +220,8 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private void SelectChart()
     {
+        GameSetting.NoteSizeMultiplier = NowPlaying.Inst.CurrentSong.keyCount == 4 ? 1.25f : 1f;
+        Debug.Log( GameSetting.NoteSizeMultiplier );
         SoundManager.Inst.Play( SoundSfxType.MainClick );
         scene.LoadScene( SceneType.Game );
     }

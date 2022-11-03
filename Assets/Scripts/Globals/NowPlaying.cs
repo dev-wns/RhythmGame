@@ -104,7 +104,6 @@ public class NowPlaying : Singleton<NowPlaying>
             else 
             {
                 CurrentChart = chart;
-                GameSetting.NoteSizeMultiplier = CurrentSong.keyCount == 4 ? 1.25f : 1f;
             }
         }
     }

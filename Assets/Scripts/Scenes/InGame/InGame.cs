@@ -20,7 +20,6 @@ public class InGame : Scene
     protected override void Awake()
     {
         base.Awake();
-
         NowPlaying.Inst.ParseChart();
     }
 
