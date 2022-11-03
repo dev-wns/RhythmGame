@@ -375,7 +375,6 @@ public class SoundManager : Singleton<SoundManager>
         {
             ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out _sound ) );
             keySounds.Add( name, _sound );
-            ++TotalKeySoundCount;
         }
         //   if ( !System.IO.File.Exists( @_path ) )
         else
