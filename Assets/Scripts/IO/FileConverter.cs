@@ -162,8 +162,8 @@ public class FileConverter : FileReader
         public DeleteKey( int _bitCount )
         {
             bits = new BitArray( _bitCount );
-            int[] deleteKeys = ( _bitCount == 7 ) ? new int[] { 3, }   :
-                               ( _bitCount == 8 ) ? new int[] { 0, 4 } :
+            int[] deleteKeys = //( _bitCount == 7 ) ? new int[] { 3, }   :
+                               ( _bitCount == 8 ) ? new int[] { 0, } : //{ 0, 4 } :
                                                     new int[] { -1, };
 
             int finalLane = -1;
@@ -357,7 +357,7 @@ public class FileConverter : FileReader
 #region Note
             notes?.Clear();
             bool isCheckKeySoundOnce = false;
-            //DeleteKey deleteKey = new DeleteKey( keyCount );
+            DeleteKey deleteKey = new DeleteKey( song.keyCount );
             while ( ReadLineEndOfStream() ) 
             {
                 string[] splitDatas = line.Split( ',' );
@@ -368,16 +368,16 @@ public class FileConverter : FileReader
                      sliderTime = double.Parse( objParams[0] );
 
                 // 잘린 노트의 키음은 자동으로 재생되는 KeySample로 만들어 준다.
-                // int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * keyCount / 512 );
-                // int finalLane     = deleteKey.FinalKey( originLane );
-                int lane = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * song.keyCount / 512 );
+                int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * song.keyCount / 512 );
+                int finalLane     = deleteKey.FinalKey( originLane );
                 KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], 
                                                   float.Parse( objParams[objParams.Length - 2] ) );
-                //if ( deleteKey[originLane] ) {
-                //    samples.Add( keySound );
-                //}
-                //else
-                //{
+                if ( deleteKey[originLane] )
+                {
+                    samples.Add( keySound );
+                }
+                else
+                {
                     if ( sliderTime > 0d ) {
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
@@ -387,8 +387,7 @@ public class FileConverter : FileReader
                         song.noteCount++;
                     }
 
-                    //int lane = keyCount == 4 ? finalLane + 1 : finalLane;
-                    notes.Add( new Note( lane, noteTime, sliderTime, keySound ) );
+                    notes.Add( new Note( finalLane, noteTime, sliderTime, keySound ) );
 
                     if ( !isCheckKeySoundOnce )
                     {
@@ -398,8 +397,9 @@ public class FileConverter : FileReader
                             isCheckKeySoundOnce = true;
                         }
                     }
-                //}
+                }
             }
+
             // BMS2Osu로 뽑은 파일은 Pixel값 기준으로 정렬되어 있기 때문에 시간 순으로 다시 정렬해준다.
             samples.Sort( delegate ( KeySound _A, KeySound _B )
             {

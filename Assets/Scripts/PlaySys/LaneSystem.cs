@@ -107,19 +107,6 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Half_Random:
                 {
                     Note newNote = notes[i];
-                    newNote.lane = isEightKey ? newNote.lane - 1 : newNote.lane;
-                    if ( newNote.lane < 0 )
-                    {
-                        KeySound newSound = new KeySound( newNote.time, newNote.keySound.name, newNote.keySound.volume );
-                        if ( File.Exists( Path.Combine( dir, newSound.name ) ) )
-                        {
-                            newSound.hasSound = true;
-                            SoundManager.Inst.LoadKeySound( Path.Combine( dir, newSound.name ), out newSound.sound );
-                            keySampleSystem.AddSample( newSound );
-                        }
-                        continue;
-                    }
-
                     if ( hasNoSlider )
                          newNote.isSlider = false;
 

@@ -30,7 +30,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private CustomVerticalLayoutGroup group;
 
     private Song curSong;
-    public static float playback;
+    private float playback;
     private readonly uint waitPreviewTime = 500;
     
     public event Action<Song> OnSelectSong;
@@ -102,8 +102,8 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private void Update()
     {
-        playback += Time.deltaTime * 1000f * GameSetting.CurrentPitch;
-        if ( curSong.totalTime + waitPreviewTime < playback )
+        playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
+        if ( ( curSong.totalTime + waitPreviewTime < playback ) )
         {
             SoundManager.Inst.Stop( ChannelType.BGM );
             SoundManager.Inst.Play( true );
