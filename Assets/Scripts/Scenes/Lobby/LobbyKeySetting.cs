@@ -6,8 +6,19 @@ using TMPro;
 public class LobbyKeySetting : SceneOptionBase
 {
     public GameObject keySettingCanvas;
+    public TextMeshProUGUI KeyCountText;
+    private CustomHorizontalLayoutGroup layoutGroup;
     private List<KeySettingOption> tracks = new List<KeySettingOption>();
     private KeyCode curKeyCode;
+    private GameKeyCount[] changeKeyCounts = new GameKeyCount[] {GameKeyCount._4,  GameKeyCount._6, GameKeyCount._7};
+    private GameKeyCount curKeyCount;
+    private int curKeyIndex;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
+    }
 
     protected override void CreateOptions()
     {
@@ -20,20 +31,44 @@ public class LobbyKeySetting : SceneOptionBase
     private void OnEnable()
     {
         CurrentScene.ChangeAction( ActionType.SubOption );
+        curKeyIndex = -1;
+        ChangeButtonCount();
+    }
+
+    private void ChangeButtonCount()
+    {
+        curKeyIndex = curKeyIndex + 1 < changeKeyCounts.Length ? curKeyIndex + 1 : 0;
+        curKeyCount = changeKeyCounts[curKeyIndex];
+        Length = KeySetting.Inst.Keys[curKeyCount].Length;
+        for ( int i = 0; i < 7; i++ )
+        {
+            tracks[i].KeyRemove();
+            tracks[i].ActiveOutline( false );
+            bool isActive = i < Length;
+            tracks[i].gameObject.SetActive( isActive );
+
+            if ( isActive )
+                 tracks[i].Change( curKeyCount, KeySetting.Inst.Keys[curKeyCount][i] );
+        }
+
+        Select( 0 );
+        tracks[0].ActiveOutline( true );
+        layoutGroup.SetLayoutHorizontal();
+        KeyCountText.text = $"{Length}K Setting";
     }
 
     private void Process( KeyCode _key )
     {
         if ( KeySetting.Inst.IsAvailableKey( _key ) )
         {
-            for ( int i = 0; i < tracks.Count; i++ )
+            for ( int i = 0; i < KeySetting.Inst.Keys[curKeyCount].Length; i++ )
             {
-                if ( KeySetting.Inst.Keys[( GameKeyCount )6][i] == _key )
-                     tracks[i].Change( KeyCode.None );
+                if ( KeySetting.Inst.Keys[curKeyCount][i] == _key )
+                     tracks[i].Change( curKeyCount, KeyCode.None );
             }
 
             SoundManager.Inst.Play( SoundSfxType.MenuSelect );
-            tracks[CurrentIndex].Change( _key );
+            tracks[CurrentIndex].Change( curKeyCount, _key );
 
             NextMove();
         }
@@ -46,6 +81,8 @@ public class LobbyKeySetting : SceneOptionBase
 
         CurrentScene.Bind( ActionType.SubOption, KeyCode.RightArrow, () => NextMove() );
         CurrentScene.Bind( ActionType.SubOption, KeyCode.RightArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
+
+        CurrentScene.Bind( ActionType.SubOption, KeyCode.Tab, () => ChangeButtonCount() );
 
         CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => CurrentScene.ChangeAction( ActionType.Option ) );
         CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );

@@ -49,6 +49,7 @@ public class KeySetting : Singleton<KeySetting>
     private void AvailableKeyBind()
     {
         AvailableKeys.Add( KeyCode.Numlock, "Numlock" );
+        AvailableKeys.Add( KeyCode.Space,   "Space" );
 
         AvailableKeys.Add( KeyCode.LeftShift, "LeftShift" );
         AvailableKeys.Add( KeyCode.LeftAlt, "LeftAlt" );

@@ -10,16 +10,11 @@ public class KeySettingOption : OptionButton
     public int lane;
     public TextMeshProUGUI keyText;
 
-    public void Change( KeyCode _key )
+    public void Change( GameKeyCount _keyCount, KeyCode _key )
     {
         curKeyCode = _key;
-        KeySetting.Inst.Keys[( GameKeyCount )6][lane] = curKeyCode;
-        keyText.text = KeySetting.Inst.KeyCodeToString( KeySetting.Inst.Keys[( GameKeyCount )6][lane] );
-    }
-
-    private void OnEnable()
-    {
-        Change( KeySetting.Inst.Keys[( GameKeyCount )6][lane] );
+        KeySetting.Inst.Keys[_keyCount][lane] = curKeyCode;
+        keyText.text = KeySetting.Inst.KeyCodeToString( KeySetting.Inst.Keys[_keyCount][lane] );
     }
 
     public override void Process()
