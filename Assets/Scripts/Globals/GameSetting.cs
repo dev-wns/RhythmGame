@@ -52,7 +52,7 @@ public class GameSetting
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static double OriginScrollSpeed = 9.1d; 
+    private static double OriginScrollSpeed = 7.3d; 
     public static double ScrollSpeed
     {
 
@@ -73,7 +73,7 @@ public class GameSetting
     /// 
     /// - B : 1당 변경되는 속도의 크기
     /// 값이 낮을수록 세밀한 조절 가능
-    public static double Weight => 1d + ( ScrollSpeed * ( 240d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) ) );
+    public static double Weight => 1.5d + ( ScrollSpeed * ( 240d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) ) );
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
