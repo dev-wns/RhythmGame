@@ -29,10 +29,16 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private LinkedListNode<SongInfomation> curNode, prevNode, nextNode;
     private CustomVerticalLayoutGroup group;
 
-    private Song curSong;
-    private float playback;
+    [Header("Time")]
+    private readonly float ScrollUpdateTime = .075f;
+    private readonly float KeyHoldWaitTime = .5f;
+    private readonly float KeyUpWaitTime = .2f;
+    private bool isKeyUp, isKeyPress;
+    private float keyUpTime, keyPressTime;
     private readonly uint waitPreviewTime = 500;
-    
+    private float playback;
+
+    private Song curSong;
     public event Action<Song> OnSelectSong;
     public event Action<Song> OnSoundRestart;
     
@@ -100,17 +106,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         UpdateSong();
     }
 
-    private void Update()
-    {
-        playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
-        if ( ( curSong.totalTime + waitPreviewTime < playback ) )
-        {
-            SoundManager.Inst.Stop( ChannelType.BGM );
-            SoundManager.Inst.Play( true );
-            Play();
-            OnSoundRestart?.Invoke( curSong );
-        }
-    }
+
 
     public override void PrevMove()
     {
@@ -146,7 +142,8 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         curPos -= size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        UpdateSong();
+        //UpdateSong();
+        UpdateScrollBar();
     }
 
     public override void NextMove()
@@ -183,7 +180,8 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         curPos += size;
         rt.DOAnchorPosY( curPos, .25f );
 
-        UpdateSong();
+        //UpdateSong();
+        UpdateScrollBar();
     }
 
     private void UpdateScrollBar()
@@ -204,7 +202,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private void UpdateSong()
     {
-        UpdateScrollBar();
+        //UpdateScrollBar();
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
 
@@ -227,20 +225,72 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private void ScrollDown()
     {
+        isKeyUp = false;
         SoundManager.Inst.Play( SoundSfxType.MainSelect );
         PrevMove();
     }
 
     private void ScrollUp()
     {
+        isKeyUp = false;
         SoundManager.Inst.Play( SoundSfxType.MainSelect );
         NextMove();
+    }
+
+    private void Update()
+    {
+        playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
+        if ( ( curSong.totalTime + waitPreviewTime < playback ) )
+        {
+            SoundManager.Inst.Stop( ChannelType.BGM );
+            SoundManager.Inst.Play( true );
+            Play();
+            OnSoundRestart?.Invoke( curSong );
+        }
+
+        if ( isKeyUp )
+        {
+            keyUpTime += Time.deltaTime;
+            if ( keyUpTime >= KeyUpWaitTime )
+            {
+                isKeyUp = false;
+                UpdateSong();
+            }
+        }
+    }
+
+    private void KeyHold( Action _action )
+    {
+        keyPressTime += Time.deltaTime;
+        if ( keyPressTime >= KeyHoldWaitTime )
+             isKeyPress = true;
+
+        if ( isKeyPress && keyPressTime >= ScrollUpdateTime )
+        {
+            keyPressTime = 0f;
+            _action?.Invoke();
+        }
+    }
+
+    private void KeyUp()
+    {
+        keyPressTime = keyUpTime = 0f;
+        isKeyPress = false;
+        isKeyUp = true;
     }
 
     public void KeyBind()
     {
         scene.Bind( ActionType.Main, KeyCode.Return,    SelectChart );
-        scene.Bind( ActionType.Main, KeyCode.UpArrow,   ScrollDown );
-        scene.Bind( ActionType.Main, KeyCode.DownArrow, ScrollUp );
+        //scene.Bind( ActionType.Main, KeyCode.UpArrow,   ScrollDown );
+        //scene.Bind( ActionType.Main, KeyCode.DownArrow, ScrollUp );
+
+        scene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow, ScrollDown );
+        scene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow, () => KeyHold( ScrollDown ) );
+        scene.Bind( ActionType.Main, InputType.Up,   KeyCode.UpArrow, KeyUp );
+
+        scene.Bind( ActionType.Main, InputType.Down, KeyCode.DownArrow, ScrollUp );
+        scene.Bind( ActionType.Main, InputType.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
+        scene.Bind( ActionType.Main, InputType.Up,   KeyCode.DownArrow, KeyUp );
     }
 }

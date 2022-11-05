@@ -88,7 +88,6 @@ public class SpritePreview : FreeStylePreview
 
     private IEnumerator LoadTexture( Song _song )
     {
-        float frameRate = 1f / 60f;
         var dir = Path.GetDirectoryName( _song.filePath );
         for ( int i = startIndex; i < sprites.Count; i++ )
         {
@@ -123,7 +122,7 @@ public class SpritePreview : FreeStylePreview
                     }
                 }
                 textures.Add( sprites[i].name, tex );
-                yield return YieldCache.WaitForSeconds( frameRate );
+                yield return null;
             }
         }
     }
