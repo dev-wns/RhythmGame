@@ -27,17 +27,24 @@ public class MeasureSystem : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowMeasure ) != 0 )
+        var sceneObj = GameObject.FindGameObjectWithTag( "Scene" );
+        if ( sceneObj.TryGetComponent( out scene ) )
         {
-            scene.OnSystemInitialize += Initialize;
-            scene.OnReLoad += ReLoad;
-            scene.OnGameStart += () => StartCoroutine( Process() );
-            scene.OnScrollChange += ScrollUpdate;
+            if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowMeasure ) != 0 )
+            {
+                scene.OnSystemInitialize += Initialize;
+                scene.OnReLoad += ReLoad;
+                scene.OnGameStart += () => StartCoroutine( Process() );
+                scene.OnScrollChange += UpdateScrollSpeed;
+            }
         }
 
         mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
-        ScrollUpdate();
+    }
+
+    private void Start()
+    {
+        UpdateScrollSpeed();
     }
 
     private void ReLoad()
@@ -47,9 +54,9 @@ public class MeasureSystem : MonoBehaviour
         curTime = 0d;
     }
 
-    private void OnDestroy() => scene.OnScrollChange -= ScrollUpdate;
+    private void OnDestroy() => scene.OnScrollChange -= UpdateScrollSpeed;
 
-    private void ScrollUpdate() => loadTime = GameSetting.PreLoadTime;
+    private void UpdateScrollSpeed() => loadTime = GameSetting.PreLoadTime;
 
     public void Despawn( MeasureRenderer _obj ) => mPool.Despawn( _obj );
 
@@ -63,7 +70,7 @@ public class MeasureSystem : MonoBehaviour
         }
         
         var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
-        double firstTime = _chart.notes[0].time;
+        double firstTime = NowPlaying.Inst.CurrentSong.isOnlyKeySound ? 0d : _chart.notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
             double spb      = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )

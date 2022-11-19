@@ -4,31 +4,26 @@ using UnityEngine;
 
 public class MeasureRenderer : MonoBehaviour
 {
-    private InGame game;
+    private InGame scene;
     private ObjectPool<MeasureRenderer> pool;
     private double time;
 
     private SpriteRenderer rdr;
-    private double weight;
 
     private void Awake()
     {
-        game = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        game.OnScrollChange += ScrollUpdate;
+        var sceneObj = GameObject.FindGameObjectWithTag( "Scene" );
+        if ( !sceneObj.TryGetComponent<InGame>( out scene ) )
+             Debug.LogError( "Game scene component not found." );
+
 
         rdr = GetComponent<SpriteRenderer>();
         transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
-
-        ScrollUpdate();
     }
-
-    private void OnDestroy() => game.OnScrollChange -= ScrollUpdate;
-
-    private void ScrollUpdate() => weight = GameSetting.Weight;
 
     private void LateUpdate()
     {
-        var pos = GameSetting.JudgePos + ( float )( ( time - NowPlaying.PlaybackChanged ) * weight );
+        var pos = GameSetting.JudgePos + ( float )( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight );
         transform.localPosition = new Vector2( 0, pos );
 
         if ( pos <= GameSetting.JudgePos )

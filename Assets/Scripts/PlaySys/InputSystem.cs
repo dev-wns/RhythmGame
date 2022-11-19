@@ -215,6 +215,7 @@ public class InputSystem : MonoBehaviour
                 OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
                 SoundManager.Inst.Play( curSound );
+                //SoundManager.Inst.Play( SoundSfxType.Clap );
                 SelectNextNote();
             }
         }
@@ -251,6 +252,7 @@ public class InputSystem : MonoBehaviour
                     curNote.IsPressed = true;
                     OnHitNote?.Invoke( NoteType.Slider, false );
                     SoundManager.Inst.Play( curSound );
+                    //SoundManager.Inst.Play( SoundSfxType.Clap );
                     judge.ResultUpdate( startDiff );
 
                     inputStartTime = curNote.Time;

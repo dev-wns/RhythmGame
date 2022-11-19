@@ -12,7 +12,7 @@ public class VideoPreview : FreeStylePreview
     private VideoPlayer vp;
     private Coroutine coroutine;
     private WaitUntil waitPrepared;
-    private float startTime;
+    private double startTime;
 
     protected override void Awake()
     {
@@ -28,7 +28,7 @@ public class VideoPreview : FreeStylePreview
     {
         if ( _song.hasVideo )
         {
-            vp.Stop();
+            vp.Pause();
             vp.time = startTime;
             vp.Play();
         }
@@ -72,7 +72,9 @@ public class VideoPreview : FreeStylePreview
                        _song.audioOffset > 1f ? _song.audioOffset * .75f :
                        _song.isOnlyKeySound   ? -spb                : 0f;
 
-        vp.time = startTime = ( SoundManager.Inst.Position + offset ) * .001f;
+        startTime = ( SoundManager.Inst.Position + offset ) * .001f;
+        vp.time = startTime;
+
         vp.playbackSpeed = GameSetting.CurrentPitch;
 
         tf.sizeDelta = sizeCache;

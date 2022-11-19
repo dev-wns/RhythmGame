@@ -24,7 +24,6 @@ public class NoteRenderer : MonoBehaviour
 
     private float column;
     private static readonly Color NoteFailColor = new Color( .25f, .25f, .25f, 1f );
-    private double weight;
     private double newTime;
 
     private void Awake()
@@ -64,10 +63,9 @@ public class NoteRenderer : MonoBehaviour
 
     private void ScrollUpdate()
     {
-        weight = GameSetting.Weight;
         if ( !IsSlider ) return;
 
-        double bodyLength = ( CalcSliderTime - CalcTime ) * weight;
+        double bodyLength = ( CalcSliderTime - CalcTime ) * GameSetting.Weight;
         bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
         
         var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
@@ -94,9 +92,9 @@ public class NoteRenderer : MonoBehaviour
             if ( transform.position.y <= GameSetting.JudgePos )
                  newTime = NowPlaying.PlaybackChanged;
 
-            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * weight ) );
+            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) );
 
-            double bodyLength = ( CalcSliderTime - newTime ) * weight;
+            double bodyLength = ( CalcSliderTime - newTime ) * GameSetting.Weight;
             bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
 
             var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
@@ -109,7 +107,7 @@ public class NoteRenderer : MonoBehaviour
         }
         else
         {
-            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * weight ) ) );
+            headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) ) );
         }
 
         transform.localPosition = headPos;

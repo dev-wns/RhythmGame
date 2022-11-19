@@ -24,9 +24,8 @@ public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
         CreateFadeSprite();
         Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
         
-        KeyBind();
-
         NowPlaying.CurrentScene = this;
+        KeyBind();
         ChangeAction( ActionType.Main );
     }
 

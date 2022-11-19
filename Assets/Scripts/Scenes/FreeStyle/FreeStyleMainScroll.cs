@@ -23,8 +23,8 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     public TextMeshProUGUI maxText;
     public TextMeshProUGUI curText;
 
-    [Header("Scene")]
-    private Scene scene;
+    public Scene CurrentScene { get; private set; }
+    [Header( "Scene" )]
     private LinkedList<SongInfomation> songs = new LinkedList<SongInfomation>();
     private LinkedListNode<SongInfomation> curNode, prevNode, nextNode;
     private CustomVerticalLayoutGroup group;
@@ -49,7 +49,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         rt = transform as RectTransform;
         curPos = rt.anchoredPosition.y;
 
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
+        CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
         KeyBind();
 
@@ -103,10 +103,9 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void Start()
     {
         curNode.Value.rt.DOAnchorPosX( -100f, .5f );
+        UpdateScrollBar();
         UpdateSong();
     }
-
-
 
     public override void PrevMove()
     {
@@ -206,7 +205,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
 
-        SoundManager.Inst.LoadBgm( curSong.audioPath, false, true, false );
+        SoundManager.Inst.Load( curSong.audioPath, false, true, true );
         curSong.totalTime   = ( int )SoundManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         
@@ -220,7 +219,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     {
         GameSetting.NoteSizeMultiplier = NowPlaying.Inst.CurrentSong.keyCount == 4 ? 1.25f : 1f;
         SoundManager.Inst.Play( SoundSfxType.MainClick );
-        scene.LoadScene( SceneType.Game );
+        CurrentScene.LoadScene( SceneType.Game );
     }
 
     private void ScrollDown()
@@ -281,16 +280,17 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     public void KeyBind()
     {
-        scene.Bind( ActionType.Main, KeyCode.Return,    SelectChart );
-        //scene.Bind( ActionType.Main, KeyCode.UpArrow,   ScrollDown );
-        //scene.Bind( ActionType.Main, KeyCode.DownArrow, ScrollUp );
+        CurrentScene.Bind( ActionType.Main, KeyCode.Return, SelectChart );
 
-        scene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow, ScrollDown );
-        scene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow, () => KeyHold( ScrollDown ) );
-        scene.Bind( ActionType.Main, InputType.Up,   KeyCode.UpArrow, KeyUp );
+        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow,   ScrollDown );
+        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.DownArrow, ScrollUp );
 
-        scene.Bind( ActionType.Main, InputType.Down, KeyCode.DownArrow, ScrollUp );
-        scene.Bind( ActionType.Main, InputType.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
-        scene.Bind( ActionType.Main, InputType.Up,   KeyCode.DownArrow, KeyUp );
+        // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
+        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
+        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
+
+        // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
+        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow,   KeyUp );
+        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.DownArrow, KeyUp );
     }
 }

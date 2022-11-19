@@ -3,16 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ActionType : byte
-{
-    Main, Option, SubOption, Pause, Exit,
-}
-
+public enum ActionType : byte { Main, Option, SubOption, Pause, Exit, }
 public abstract class SceneKeyAction : MonoBehaviour, IKeyBind
 {
     private Dictionary<ActionType, KeyAction> keyActions = new Dictionary<ActionType, KeyAction>();
     public ActionType CurrentAction { get; private set; }
-    public bool IsInputLock          { get; set; }
+    public bool IsInputLock         { get; set; }
 
     protected virtual void Update()
     {
@@ -21,53 +17,51 @@ public abstract class SceneKeyAction : MonoBehaviour, IKeyBind
 
         keyActions[CurrentAction].ActionCheck();
     }
-    public void Bind( ActionType _type, KeyCode _code, Action _action )
+    /// <summary> The input type is KeyDown </summary>
+    public void Bind( ActionType _actionType, KeyCode _keyCode, Action _action )
     {
-        if ( keyActions.ContainsKey( _type ) )
+        if ( keyActions.ContainsKey( _actionType ) )
         {
-            keyActions[_type].Bind( _code, InputType.Down, _action );
+            keyActions[_actionType].Bind( _keyCode, InputType.Down, _action );
         }
         else
         {
             KeyAction keyAction = new KeyAction();
-            keyAction.Bind( _code, InputType.Down, _action );
-            keyActions.Add( _type, keyAction );
+            keyAction.Bind( _keyCode, InputType.Down, _action );
+            keyActions.Add( _actionType, keyAction );
         }
     }
-    public void Bind( ActionType _type, InputType _keyType, KeyCode _code, Action _action )
-    {
-        if ( keyActions.ContainsKey( _type ) )
-        {
-            keyActions[_type].Bind( _code, _keyType, _action );
+    public void Bind( ActionType _actionType, InputType _inputType, KeyCode _keyCode, Action _action ) {
+        if ( keyActions.ContainsKey( _actionType ) ) {
+            keyActions[_actionType].Bind( _keyCode, _inputType, _action );
         }
-        else
-        {
+        else {
             KeyAction keyAction = new KeyAction();
-            keyAction.Bind( _code, _keyType, _action );
-            keyActions.Add( _type, keyAction );
+            keyAction.Bind( _keyCode, _inputType, _action );
+            keyActions.Add( _actionType, keyAction );
         }
     }
-    public void Remove( ActionType _type, KeyCode _code, Action _action )
+    public void Remove( ActionType _actionType, KeyCode _keyCode, Action _action )
     {
-        if ( !keyActions.ContainsKey( _type ) ) return;
+        if ( !keyActions.ContainsKey( _actionType ) ) return;
 
-        keyActions[_type].Remove( _code, InputType.Down, _action );
+        keyActions[_actionType].Remove( _keyCode, InputType.Down, _action );
     }
-    public void Remove( ActionType _type, InputType _keyType, KeyCode _code, Action _action )
+    public void Remove( ActionType _actionType, InputType _keyType, KeyCode _keyCode, Action _action )
     {
-        if ( !keyActions.ContainsKey( _type ) ) return;
+        if ( !keyActions.ContainsKey( _actionType ) ) return;
 
-        keyActions[_type].Remove( _code, _keyType, _action );
+        keyActions[_actionType].Remove( _keyCode, _keyType, _action );
     }
-    public void ChangeAction( ActionType _type )
+    public void ChangeAction( ActionType _actionType )
     {
-        if ( !keyActions.ContainsKey( _type ) )
+        if ( !keyActions.ContainsKey( _actionType ) )
         {
-            Debug.LogError( $"The bound key does not exist. {_type}" );
+            Debug.LogError( $"The bound key does not exist. {_actionType}" );
             return;
         }
 
-        CurrentAction = _type;
+        CurrentAction = _actionType;
     }
     public abstract void KeyBind();
 }

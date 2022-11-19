@@ -52,7 +52,7 @@ public class GameSetting
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static double OriginScrollSpeed = 8.7d; 
+    private static double OriginScrollSpeed = 9.1d; 
     public static double ScrollSpeed
     {
 
@@ -63,11 +63,12 @@ public class GameSetting
             OriginScrollSpeed = value;
         }
     }
-    
-    public static double Weight => 1.5d + ( ScrollSpeed * ( 240d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) ) );
+
+    public static double Weight => ScrollSpeed * 320d;//1.5d + ( ScrollSpeed * ( 240d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) ) );
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
+    public static readonly int DefaultSoundOffset = 50;
     public static int SoundOffset = 0;
 
     // Opacity Percentage ( 0 ~ 100 )
@@ -89,9 +90,9 @@ public class GameSetting
 
     // note
     public static float NoteSizeMultiplier = 1f;
-    public static float NoteWidth  => 80f * NoteSizeMultiplier; // 83f; // 75f
-    public static float NoteHeight => 80f * NoteSizeMultiplier; // 65f; // 90f; // 1.28125
-    public static float NoteBlank  = 0f; //7.5f;
+    public static float NoteWidth  => 90f * NoteSizeMultiplier; // 83f; // 75f
+    public static float NoteHeight => 110f * NoteSizeMultiplier; // 65f; // 90f; // 1.28125
+    public static float NoteBlank  = 5f; //7.5f;
     public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.Inst.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.Inst.KeyCount + 1 ) ) ) * .5f;
 
     // Gear

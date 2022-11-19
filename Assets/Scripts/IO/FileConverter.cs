@@ -332,6 +332,7 @@ public class FileConverter : FileReader
 #region Timing
             double uninheritedBeat = 0d;
             song.minBpm = int.MaxValue;
+            double prevBPM = 0;
             while ( ReadLine() != "[HitObjects]" )
             {
                 string[] splitDatas = line.Split( ',' );
@@ -348,6 +349,11 @@ public class FileConverter : FileReader
                 double BPM = 1d / beatLengthAbs * 60000d;
                 if ( song.minBpm > BPM ) song.minBpm = Mathf.RoundToInt( ( float )BPM );
                 if ( song.maxBpm < BPM ) song.maxBpm = Mathf.RoundToInt( ( float )BPM );
+
+                if ( Global.Math.Abs( prevBPM - BPM ) < .001d )
+                     continue;
+
+                prevBPM = BPM;
 
                 double time = double.Parse( splitDatas[0] );
                 if ( timings.Count == 0 ) timings.Add( new Timing( NowPlaying.WaitTime * 1000d, BPM, beatLengthAbs, isUninherited ) );

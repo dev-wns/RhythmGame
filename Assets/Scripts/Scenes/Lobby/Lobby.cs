@@ -13,7 +13,7 @@ public class Lobby : Scene
     protected override void Awake()
     {
         base.Awake();
-        SoundManager.Inst.OnReLoad += SoundReStart;
+        SoundManager.Inst.OnReload += SoundReStart;
     }
 
     protected override void Start()
@@ -43,7 +43,7 @@ public class Lobby : Scene
     public override void Disconnect()
     {
         SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
-        SoundManager.Inst.OnReLoad -= SoundReStart;
+        SoundManager.Inst.OnReload -= SoundReStart;
     }
 
     private IEnumerator LoadingEndCheck()
@@ -59,7 +59,7 @@ public class Lobby : Scene
     private void SoundReStart()
     {
         SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
-        SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
+        SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
         SoundManager.Inst.Play( true );
         SoundManager.Inst.Position = ( uint )playback;
         soundLength = SoundManager.Inst.Length;

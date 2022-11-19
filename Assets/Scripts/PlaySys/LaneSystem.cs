@@ -52,7 +52,7 @@ public class LaneSystem : MonoBehaviour
         if ( !NowPlaying.Inst.CurrentSong.isOnlyKeySound )
         {
             KeySound bgm = new KeySound( 0d, "BGM", 1f );
-            if ( SoundManager.Inst.LoadKeySound( NowPlaying.Inst.CurrentSong.audioPath, out bgm.sound ) )
+            if ( SoundManager.Inst.Load( NowPlaying.Inst.CurrentSong.audioPath, out bgm.sound ) )
                 bgm.hasSound = true;
 
             keySampleSystem.AddSample( bgm );
@@ -63,7 +63,7 @@ public class LaneSystem : MonoBehaviour
         {
             var sample = _chart.samples[i];
             if( sample.hasSound )
-                SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, sample.name ), out sample.sound );
+                SoundManager.Inst.Load( Path.Combine( dir, sample.name ), out sample.sound );
             keySampleSystem.AddSample( sample );
         }
 
@@ -114,7 +114,7 @@ public class LaneSystem : MonoBehaviour
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                     if ( newNote.keySound.hasSound )
-                         SoundManager.Inst.LoadKeySound( Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+                         SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
                         
                     lanes[newNote.lane].NoteSys.AddNote( in newNote );
                 }
@@ -151,7 +151,7 @@ public class LaneSystem : MonoBehaviour
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                     if ( newNote.keySound.hasSound )
-                         SoundManager.Inst.LoadKeySound( System.IO.Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
+                         SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
 
                     lanes[rand].NoteSys.AddNote( in newNote );
                 }

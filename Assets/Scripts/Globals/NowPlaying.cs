@@ -204,6 +204,7 @@ public class NowPlaying : Singleton<NowPlaying>
             double bpm  = timings[i].bpm;
 
             if ( time > _time ) break;
+            bpm = bpm / CurrentSong.medianBpm;
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }

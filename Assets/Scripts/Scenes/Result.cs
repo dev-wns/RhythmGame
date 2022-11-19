@@ -20,7 +20,7 @@ public class Result : Scene
         var obj = GameObject.FindGameObjectWithTag( "Judgement" );
         obj?.TryGetComponent( out Judge );
 
-        SoundManager.Inst.LoadBgm( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
+        SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
         SoundManager.Inst.Play( true );
         soundLength = SoundManager.Inst.Length;
         playback = SoundManager.Inst.Position = highlightPos;

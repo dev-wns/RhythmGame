@@ -9,11 +9,12 @@ public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SoundSfxType 
 { 
     MainSelect, MainClick, MainHover, Slider,
-    MenuSelect, MenuClick, MenuHover
+    MenuSelect, MenuClick, MenuHover,
+    Clap,
 }
 
 
-public enum ChannelType : byte { Master, BGM, SFX, Count, };
+public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
 public class SoundManager : Singleton<SoundManager>
 {
     #region variables
@@ -24,14 +25,12 @@ public class SoundManager : Singleton<SoundManager>
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
     private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>          dsps      = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
     private FMOD.System system;
-    private FMOD.Sound bgmSound;
-    private FMOD.Channel bgmChannel;
-    private Tweener volumeTweener;
+    private FMOD.Sound mainSound;
+    private FMOD.Channel mainChannel;
     private int curDriverIndex;
     private bool hasAccurateFlag;
-    public event Action OnReLoad, OnRelease;
+    public event Action OnReload, OnRelease;
     public struct SoundDriver : IEquatable<SoundDriver>
-    #region SoundDriver Body
     {
         public Guid guid;
         public int index;
@@ -43,20 +42,18 @@ public class SoundManager : Singleton<SoundManager>
         public override bool Equals( object _obj ) => Equals( ( SoundDriver )_obj );
         public override int GetHashCode() => base.GetHashCode();
     }
-    #endregion
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; } 
     /// <summary>
-    /// AccurateTime flag is required.
+    /// The accuratetime flag is required.
     /// </summary>
     public uint Length {
         get {
-            //if ( !hasAccurateFlag || !bgmSound.hasHandle() ) {
+            //if ( !hasAccurateFlag || !IsPlaying( ChannelType.BGM ) ) {
             //    Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
             //    return uint.MaxValue;
             //}
-            
-            uint length;
-            ErrorCheck( bgmSound.getLength( out length, FMOD.TIMEUNIT.MS ) );
+
+            ErrorCheck( mainSound.getLength( out uint length, FMOD.TIMEUNIT.MS ) );
             return length;
         }
     }
@@ -95,7 +92,7 @@ public class SoundManager : Singleton<SoundManager>
             }
 
             uint pos;
-            ErrorCheck( bgmChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( mainChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
             return pos;
         }
 
@@ -107,7 +104,7 @@ public class SoundManager : Singleton<SoundManager>
                 return;
             }
             
-            ErrorCheck( bgmChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( mainChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
         }
     }
     public int UseChannelCount
@@ -179,16 +176,17 @@ public class SoundManager : Singleton<SoundManager>
         CreateDPS();
 
         // Sfx Sound
-        LoadSfx( SoundSfxType.MainClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav" );
-        LoadSfx( SoundSfxType.MenuClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav" );
+        Load( SoundSfxType.MainClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav" );
+        Load( SoundSfxType.MenuClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav" );
         
-        LoadSfx( SoundSfxType.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
-        LoadSfx( SoundSfxType.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
+        Load( SoundSfxType.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
+        Load( SoundSfxType.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
 
-        LoadSfx( SoundSfxType.MainHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav" );
-        LoadSfx( SoundSfxType.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
+        Load( SoundSfxType.MainHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav" );
+        Load( SoundSfxType.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
 
-        LoadSfx( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
+        Load( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
+        Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
         // Logs
         //ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
@@ -206,6 +204,7 @@ public class SoundManager : Singleton<SoundManager>
         SetVolume( 1f, ChannelType.Master );
         SetVolume( .1f, ChannelType.BGM );
         SetVolume( .3f, ChannelType.SFX );
+        SetVolume( .05f, ChannelType.Clap );
         #endregion
     }
 
@@ -249,10 +248,10 @@ public class SoundManager : Singleton<SoundManager>
         }
         keySounds.Clear();
 
-        if ( bgmSound.hasHandle() )
+        if ( mainSound.hasHandle() )
         {
-            ErrorCheck( bgmSound.release() );
-            bgmSound.clearHandle();
+            ErrorCheck( mainSound.release() );
+            mainSound.clearHandle();
         }
 
 
@@ -300,7 +299,7 @@ public class SoundManager : Singleton<SoundManager>
         Release();
         Initialize();
 
-        OnReLoad?.Invoke();
+        OnReload?.Invoke();
         ErrorCheck( system.setDriver( prevDriverIndex ) );
         curDriverIndex = prevDriverIndex;
 
@@ -330,7 +329,8 @@ public class SoundManager : Singleton<SoundManager>
     }
     #endregion
     #region Load
-    public void LoadBgm( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
+    /// <summary> Load Main BGM </summary>
+    public void Load( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
     {
         hasAccurateFlag = _hasAccurateTime;
 
@@ -342,15 +342,16 @@ public class SoundManager : Singleton<SoundManager>
         FMOD.Sound sound;
         ErrorCheck( system.createSound( _path, mode, out sound ) );
 
-        if ( bgmSound.hasHandle() )
+        if ( mainSound.hasHandle() )
         {
-            ErrorCheck( bgmSound.release() );
-            bgmSound.clearHandle();
+            ErrorCheck( mainSound.release() );
+            mainSound.clearHandle();
         }
-        bgmSound = sound;
+        mainSound = sound;
     }
 
-    private void LoadSfx( SoundSfxType _type, string _path )
+    /// <summary> Load Interface SFX </summary>
+    private void Load( SoundSfxType _type, string _path )
     {
         if ( sfxSounds.ContainsKey( _type ) )
         {
@@ -363,7 +364,8 @@ public class SoundManager : Singleton<SoundManager>
         sfxSounds.Add( _type, sound );
     }
 
-    public bool LoadKeySound( string _path, out FMOD.Sound _sound )
+    /// <summary> Load KeySound </summary>
+    public bool Load( string _path, out FMOD.Sound _sound )
     {
         var name = System.IO.Path.GetFileName( _path );
         if ( keySounds.ContainsKey( name ) )
@@ -392,7 +394,7 @@ public class SoundManager : Singleton<SoundManager>
     /// <summary> Play Background Music </summary>
     public void Play( bool _isPause )
     {
-        if ( !bgmSound.hasHandle() )
+        if ( !mainSound.hasHandle() )
         {
             Debug.LogError( "Bgm is not loaded." );
             return;
@@ -402,7 +404,7 @@ public class SoundManager : Singleton<SoundManager>
         //ErrorCheck( groups[ChannelType.BGM].setPitch( _pitch ) );
 
         SetPaused( _isPause, ChannelType.BGM );
-        ErrorCheck( system.playSound( bgmSound, groups[ChannelType.BGM], false, out bgmChannel ) );
+        ErrorCheck( system.playSound( mainSound, groups[ChannelType.BGM], false, out mainChannel ) );
     }
 
     /// <summary> Play Sound Special Effects </summary>
@@ -414,7 +416,8 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX], false, out FMOD.Channel channel ) );
+        if ( _type == SoundSfxType.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
+        else                              ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
     }
 
     /// <summary> Play Key Sound Effects </summary>
@@ -434,6 +437,7 @@ public class SoundManager : Singleton<SoundManager>
     }
     #endregion
     #region Effect
+    private Tweener volumeTweener;
     public void FadeIn( float _duration )
     {
         volumeTweener?.Kill();
