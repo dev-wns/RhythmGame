@@ -15,6 +15,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public Song CurrentSong     { get; private set; }
     public Chart CurrentChart   { get; private set; }
     public int CurrentSongIndex { get; private set; }
+    private double medianBPM;
 
     #region Time
     private Timer timer = new Timer();
@@ -104,6 +105,7 @@ public class NowPlaying : Singleton<NowPlaying>
             else 
             {
                 CurrentChart = chart;
+                medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
             }
         }
     }
@@ -204,7 +206,7 @@ public class NowPlaying : Singleton<NowPlaying>
             double bpm  = timings[i].bpm;
 
             if ( time > _time ) break;
-            bpm = bpm / CurrentSong.medianBpm;
+            bpm = bpm / medianBPM;
             newTime += ( bpm - prevBpm ) * ( _time - time );
             prevBpm = bpm;
         }

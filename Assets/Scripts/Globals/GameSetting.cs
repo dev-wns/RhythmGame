@@ -52,7 +52,7 @@ public class GameSetting
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static double OriginScrollSpeed = 9.1d; 
+    private static double OriginScrollSpeed = 7.3d; 
     public static double ScrollSpeed
     {
 
@@ -91,7 +91,7 @@ public class GameSetting
     // note
     public static float NoteSizeMultiplier = 1f;
     public static float NoteWidth  => 90f * NoteSizeMultiplier; // 83f; // 75f
-    public static float NoteHeight => 110f * NoteSizeMultiplier; // 65f; // 90f; // 1.28125
+    public static float NoteHeight => 100f * NoteSizeMultiplier; // 65f; // 90f; // 1.28125
     public static float NoteBlank  = 5f; //7.5f;
     public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.Inst.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.Inst.KeyCount + 1 ) ) ) * .5f;
 
