@@ -230,9 +230,12 @@ public class FileConverter : FileReader
         string[] osuFiles = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
         for ( int i = 0; i < osuFiles.Length; i++ )
         {
-            Convert( osuFiles[i] );
+            var newPath = Path.ChangeExtension( osuFiles[i], "wns" );
+            if ( !File.Exists( newPath ) )
+                Convert( osuFiles[i] );
         }
     }
+
     private void Convert( string _path ) 
     {
         try 

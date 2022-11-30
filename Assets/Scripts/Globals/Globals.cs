@@ -7,6 +7,7 @@ namespace Global
     public static class Math
     {
         public static float Lerp( float _start, float _end, float _t ) => _start + ( _end - _start ) * _t;
+        public static double Lerp( double _start, double _end, double _t ) => _start + ( _end - _start ) * _t;
         public static double Abs( double _value )     => _value >= 0d ? _value : -_value;
         public static float Abs( float _value )       => _value >= 0f ? _value : -_value;
         public static int Abs( int _value )           => _value >= 0  ? _value : -_value;

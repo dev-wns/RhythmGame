@@ -53,7 +53,8 @@ public class HitCountSystem : MonoBehaviour
 
     private void AddCount( HitResult _type )
     {
-        if ( type != _type ) return;
+        HitResult resultType = _type == HitResult.Maximum ? HitResult.Perfect : _type;
+        if ( type != resultType ) return;
         curCount++;
 
         curNum = curCount == 0 ? 1 : Global.Math.Log10( curCount ) + 1;

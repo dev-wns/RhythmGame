@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public enum HitResult { None, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate, Combo, Score, Count }
+public enum HitResult { None, Maximum, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate, Combo, Score, Count }
 public struct HitData
 {
     public HitResult result;
@@ -21,10 +21,11 @@ public struct HitData
 
 public class Judgement : MonoBehaviour
 {
-    public const double Perfect      = .042d;           // .0421d;
-    public const double Great        = .022d + Perfect; //.064d;
-    public const double Good         = .015d + Great;   //.097d;
-    public const double Bad          = .013d + Good;    //.127d;
+    public const double Maximum      = .0165d;           
+    public const double Perfect      = .0225d + Maximum; 
+    public const double Great        = .022d + Perfect;  
+    public const double Good         = .015d + Great;    
+    public const double Bad          = .013d + Good;     
     public const double Miss         = .1f;
 
     public event Action<HitResult> OnJudge;
@@ -68,15 +69,16 @@ public class Judgement : MonoBehaviour
     public void ResultUpdate( double _diff )
     {
         double diff = _diff;
-        double diffAbs = Global.Math.Abs( diff );
+        double diffAbs = Math.Abs( diff );
         HitResult result;
 
-        if      ( diffAbs <= Perfect                    ) result = HitResult.Perfect;
-        else if ( diffAbs > Perfect && diffAbs <= Great ) result = HitResult.Great;
-        else if ( diffAbs > Great   && diffAbs <= Good  ) result = HitResult.Good;
-        else if ( diffAbs > Good    && diffAbs <= Bad   ) result = HitResult.Bad;
-        else if ( diff    < -Bad                        ) result = HitResult.Miss;
-        else                                              result = HitResult.None;
+        if ( diffAbs <= Maximum )                           result = HitResult.Maximum;
+        else if ( diffAbs > Maximum && diffAbs <= Perfect ) result = HitResult.Perfect;
+        else if ( diffAbs > Perfect && diffAbs <= Great   ) result = HitResult.Great;
+        else if ( diffAbs > Great   && diffAbs <= Good    ) result = HitResult.Good;
+        else if ( diffAbs > Good    && diffAbs <= Bad     ) result = HitResult.Bad;
+        else if ( diff    < -Bad                          ) result = HitResult.Miss;
+        else                                                result = HitResult.None;
 
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
@@ -85,6 +87,7 @@ public class Judgement : MonoBehaviour
         }
 
         OnJudge?.Invoke( result );
+
         hitDatas.Add( new HitData( result, NowPlaying.Playback, diff ) );
     }
 

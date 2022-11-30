@@ -69,7 +69,6 @@ public class ScoreSystem : MonoBehaviour
 
     private void ScoreUpdate( HitResult _type )
     {
-
         switch ( _type )
         {
             case HitResult.None:
@@ -77,10 +76,11 @@ public class ScoreSystem : MonoBehaviour
             case HitResult.Slow:
             return;
 
-            case HitResult.Perfect: targetScore += maxScore;        break;
-            case HitResult.Great:   targetScore += maxScore * .87d; break;
-            case HitResult.Good:    targetScore += maxScore * .63d; break;
-            case HitResult.Bad:     targetScore += maxScore * .41d; break;
+            case HitResult.Maximum: targetScore += maxScore;        break;
+            case HitResult.Perfect: targetScore += maxScore * .92d; break;
+            case HitResult.Great:   targetScore += maxScore * .76d; break;
+            case HitResult.Good:    targetScore += maxScore * .51d; break;
+            case HitResult.Bad:     targetScore += maxScore * .35d; break;
             case HitResult.Miss:    targetScore += 0d;              break;
         }
 

@@ -24,7 +24,6 @@ public class InputSystem : MonoBehaviour
 
     #region AutoPlay
     private NoteType autoNoteType;
-    private double curAutoTime, prevAutoTime;
     private double autoPressTime;
     private float inputAutoTime;
     private float rand;
@@ -132,7 +131,6 @@ public class InputSystem : MonoBehaviour
 
         judge.ReLoad();
 
-        curAutoTime = prevAutoTime = 0;
         autoPressTime = 0;
         inputAutoTime = 0;
     }
@@ -180,16 +178,15 @@ public class InputSystem : MonoBehaviour
             curNote = notes.Dequeue();
             curSound = curNote.Sound;
 
-            curAutoTime = curNote.Time;
-            double offset = curAutoTime - prevAutoTime;
-            autoPressTime = offset > .1d ? .065d : offset * .5d;
+            double nextAutoTime = notes.Count > 0 ? notes.Peek().Time : curNote.Time + .0651d;
+
+            double offset = Global.Math.Abs( nextAutoTime - curNote.Time );
+            autoPressTime = offset > .065d ? .065d : Global.Math.Lerp( 0.01d, offset, .5d );
         }
     }
 
     private void SelectNextNote( bool _isDespawn = true )
     {
-        prevAutoTime = curNote.Time;
-
         if ( _isDespawn )
         {
             curNote.gameObject.SetActive( false );
@@ -223,7 +220,7 @@ public class InputSystem : MonoBehaviour
             if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( key ) )
             {
                 OnHitNote?.Invoke( NoteType.Default, false );
-                judge.ResultUpdate( startDiff );
+                judge.ResultUpdate( 0d );
                 SelectNextNote();
                 return;
             }
@@ -253,7 +250,7 @@ public class InputSystem : MonoBehaviour
                     OnHitNote?.Invoke( NoteType.Slider, false );
                     SoundManager.Inst.Play( curSound );
                     //SoundManager.Inst.Play( SoundSfxType.Clap );
-                    judge.ResultUpdate( startDiff );
+                    judge.ResultUpdate( 0d );
 
                     inputStartTime = curNote.Time;
                 }
@@ -266,7 +263,7 @@ public class InputSystem : MonoBehaviour
                     OnInputEvent?.Invoke( false );
 
                     OnHitNote?.Invoke( NoteType.Slider, true );
-                    judge.ResultUpdate( endDiff );
+                    judge.ResultUpdate( 0d );
                     SelectNextNote();
                 }
 

@@ -18,8 +18,8 @@ public class Lane : MonoBehaviour
     public Sprite keyDefaultSprite, keyPressSprite;
     private Color color;
 
-    private readonly float StartFadeAlpha = .5f;
-    private readonly float FadeDuration = .05f;
+    private readonly float StartFadeAlpha = 1f;
+    private readonly float FadeDuration = .15f;
     private float fadeOffset;
     private float fadeAlpha;
     private bool isEnabled;
@@ -70,16 +70,16 @@ public class Lane : MonoBehaviour
         
         if ( NowPlaying.Inst.KeyCount == 4 )
         {
-            color = _key == 1 || _key == 2 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
+            color = _key == 1 || _key == 2 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
         }
         else if ( NowPlaying.Inst.KeyCount == 6 )
         {
-            color = _key == 1 || _key == 4 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
+            color = _key == 1 || _key == 4 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
         }
         else if ( NowPlaying.Inst.KeyCount == 7 )
         {
-            color = _key == 1 || _key == 5 ? new Color( 0, 0, 1, StartFadeAlpha ) :
-                                 _key == 3 ? new Color( .75f, .75f, 0, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
+            color = _key == 1 || _key == 5 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) :
+                                 _key == 3 ? new Color( 1f, 1f, 0f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
         }
         //color = _key == 1 || _key == 4 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
     }
@@ -91,7 +91,7 @@ public class Lane : MonoBehaviour
         if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) )
         {
             laneEffect.transform.position = transform.position;
-            laneEffect.transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .075f ), 1f );
+            laneEffect.transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .025f ), 1f );
         }
         else
         {

@@ -61,6 +61,7 @@ public class RateSystem : MonoBehaviour
             case HitResult.Slow: 
             return;
 
+            case HitResult.Maximum:
             case HitResult.Perfect: curRate += 10000d; break; 
             case HitResult.Great:   curRate += 9000d;  break; 
             case HitResult.Good:    curRate += 8000d;  break; 

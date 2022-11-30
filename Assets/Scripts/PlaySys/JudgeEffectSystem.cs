@@ -47,6 +47,7 @@ public class JudgeEffectSystem : MonoBehaviour
             switch ( _type )
             {
                 case HitResult.None:                                 return;
+                case HitResult.Maximum:
                 case HitResult.Perfect:     rdr.sprite = sprites[4]; break;
                 case HitResult.Great:       rdr.sprite = sprites[3]; break;
                 case HitResult.Good:        rdr.sprite = sprites[2]; break;

@@ -1,10 +1,13 @@
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class JudgeGraph : MonoBehaviour
 {
+    public TextMeshProUGUI minText, maxText;
     private LineRenderer rdr;
     private List<Vector3> positions = new List<Vector3>();
     private const float StartPosX = -875f;
@@ -13,58 +16,66 @@ public class JudgeGraph : MonoBehaviour
 
     private void Awake()
     {
+        //List<HitData> hitDatas = new List<HitData>();
+        //double time = 0d;
+        //for ( int i = 0; i < 10000; i++ )
+        //{
+        //    double diff = UnityEngine.Random.Range( (float)-Judgement.Bad, (float)Judgement.Bad );
+        //    double diffAbs = Global.Math.Abs( diff );
+        //    //double diff = UnityEngine.Random.Range( -.005f, .005f );
+
+        //    time += 1d;
+
+        //    //hitDatas.Add( new HitData( HitResult.None, time, ( double )diff ) );
+        //    hitDatas.Add( new HitData( HitResult.None, time, 0d ) );
+        //}
+        //rdr = GetComponent<LineRenderer>();
+
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
         Judgement judge = scene.Judge;
         if ( judge == null || !TryGetComponent( out rdr ) )
             return;
+        var hitDatas    = judge.hitDatas;
 
-        var hitDatas   = judge.hitDatas;
-        hitDatas.Sort( delegate ( HitData A, HitData B )
-        {
-            if ( A.time > B.time )      return 1;
-            else if ( A.time < B.time ) return -1;
-            else                        return 0;
-        } );
-
-        RectTransform rt = transform as RectTransform;
-        var posY = rt.anchoredPosition.y;
-
+        var posY        = ( transform as RectTransform ).anchoredPosition.y;
         float posOffset = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 1 );
-        int divideCount = ( int )( hitDatas.Count / ( TotalJudge + 2 ) );
-        int curCount = 0;
-        List<double> diffs = new List<double>();
-        positions.Add( new Vector3( StartPosX, posY + 100f, 0f ) );
-        for ( int i = 0; i < hitDatas.Count; i++ )
+        int divideCount = ( int )( hitDatas.Count / TotalJudge );
+        List<double> deviations = new List<double>();
+
+        positions.Add( new Vector3( StartPosX, posY , 0f ) );
+        for ( int i = 0; i < TotalJudge; i++ )
         {
-            var diffAbs = Global.Math.Abs( hitDatas[i].diff );
-            if ( hitDatas[i].result != HitResult.Perfect )
+            var diffRange = hitDatas.GetRange( i * divideCount, divideCount );
+            deviations.Add( diffRange.Sum( d => d.diff ) / diffRange.Count );
+        }
+
+        bool canDivide = false;
+        double minDeviationAbs = Global.Math.Abs( deviations.Min() );
+        double maxDeviationAbs = Global.Math.Abs( deviations.Max() );
+        double deviationAverage = minDeviationAbs < maxDeviationAbs ? maxDeviationAbs : minDeviationAbs;
+        for ( int i = 0; i < deviations.Count; i++ )
+        {
+            canDivide = deviationAverage > double.Epsilon && Global.Math.Abs( deviations[i] ) > double.Epsilon;
+            if ( canDivide )
             {
-                float t    = ( float )diffAbs * ( float )( 1d / Judgement.Miss );
-                var weight = Mathf.Lerp( 1f, 2000f, 1f - Mathf.Cos( t * Mathf.PI * 0.5f ) );
-                diffs.Add( diffAbs * weight );
+                float devideAverage = ( float )( deviations[i] / deviationAverage );
+                float averageMilliseconds = ( int )( devideAverage * 1000f );
+                float result = averageMilliseconds < 5 ? 0f : devideAverage;
+                Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), posY + ( ( float )result * 100f ), 0 );
+                positions.Add( newPos );
             }
-
-            if ( divideCount == ++curCount )
+            else
             {
-                if ( TotalJudge <= positions.Count - 1 )
-                    break;
-
-                if ( diffs.Count == 0 )
-                {
-                    positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), posY + 100f, 0 ) );
-                }
-                else
-                {
-                    float average  = ( float )diffs.Average();
-                    Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), posY + Global.Math.Clamp( 100f - average, -100f, 100f ), 0 );
-                    positions.Add( newPos );
-                }
-
-                curCount = 0;
-                diffs.Clear();
+                Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), posY, 0 );
+                positions.Add( newPos );
             }
         }
-        positions.Add( new Vector3( EndPosX, posY + 100f, 0f ) );
+        positions.Add( new Vector3( EndPosX, posY , 0f ) );
+
+        int deviationMilliseconds = ( int )( deviationAverage * 1000d );
+        int maxDeviationAverage   = canDivide && deviationMilliseconds > 5 ? deviationMilliseconds : 1;
+        minText.text = $"{-maxDeviationAverage} ms";
+        maxText.text = $"{maxDeviationAverage} ms";
     }
 
     private void Start()
@@ -80,10 +91,13 @@ public class JudgeGraph : MonoBehaviour
         {
             Vector3 newVector = positions[i - 1];
             rdr.positionCount = i + 1;
+            float time = 0f;
             while ( Vector3.Distance( newVector, positions[i] ) > .00001f )
             {
-                newVector = Vector3.MoveTowards( newVector, positions[i], Time.deltaTime * TotalJudge * 10 );
+                newVector = Vector3.Lerp( newVector, positions[i], time );
                 rdr.SetPosition( i, newVector );
+
+                time += Time.deltaTime * 75;
                 yield return null;
             }
 

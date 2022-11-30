@@ -78,6 +78,7 @@ public class ComboSystem : MonoBehaviour
             return;
 
             case HitResult.None:
+            case HitResult.Maximum:
             case HitResult.Perfect:
             case HitResult.Great:
             case HitResult.Good:

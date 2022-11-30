@@ -54,8 +54,10 @@ public class NoteRenderer : MonoBehaviour
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
         newTime = note.calcTime;
 
-        ScrollUpdate();head.color = body.color = tail.color = Color.white;
-        body.enabled = IsSlider ? true : false;
+        ScrollUpdate();
+        head.color = body.color = tail.color = Color.white;
+        head.enabled = !IsSlider;
+        body.enabled = IsSlider;
         head.color = body.color = tail.color = Color.white;
     }
 
@@ -65,22 +67,26 @@ public class NoteRenderer : MonoBehaviour
     {
         if ( !IsSlider ) return;
 
-        double bodyLength = ( CalcSliderTime - CalcTime ) * GameSetting.Weight;
-        bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
-        
-        var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
-        bodyTf.localScale = bodyScale < 0 ? new Vector2( GameSetting.NoteWidth, 0f ) :
-                                            new Vector2( GameSetting.NoteWidth, bodyScale );
-
-        var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
-        tailTf.localPosition = tailPos < GameSetting.NoteHeight * BodyPositionOffset ? new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset ) :
-                                                                        new Vector2( 0f, tailPos );
+        bodyTf.localPosition = Vector2.zero;
+        SliderUpdate( CalcTime, CalcSliderTime );
     }
 
     public void Despawn()
     {
         IsPressed = false;
         system.Despawn( this );
+    }
+
+    private void SliderUpdate( double _time, double _sliderTime )
+    {
+        double bodyLength = ( _sliderTime - _time ) * GameSetting.Weight;
+        var bodyScale = ( float )( bodyLength * BodyScaleOffset );
+        bodyTf.localScale = bodyScale < 0 ? new Vector2( GameSetting.NoteWidth, 0f ) :
+                                            new Vector2( GameSetting.NoteWidth, bodyScale );
+
+        var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
+        tailTf.localPosition = tailPos < GameSetting.NoteHeight * BodyPositionOffset ? new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset ) :
+                                                                                       new Vector2( 0f, tailPos );
     }
 
     private void LateUpdate()
@@ -93,17 +99,7 @@ public class NoteRenderer : MonoBehaviour
                  newTime = NowPlaying.PlaybackChanged;
 
             headPos = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) );
-
-            double bodyLength = ( CalcSliderTime - newTime ) * GameSetting.Weight;
-            bodyTf.localPosition = new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset );
-
-            var bodyScale = ( float )( ( bodyLength * BodyScaleOffset ) - ( GameSetting.NoteHeight * 2f ) );
-            bodyTf.localScale = bodyScale < 0 ? new Vector2( GameSetting.NoteWidth, 0f ) :
-                                                new Vector2( GameSetting.NoteWidth, bodyScale );
-
-            var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
-            tailTf.localPosition = tailPos < GameSetting.NoteHeight * BodyPositionOffset ? new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset ) :
-                                                                            new Vector2( 0f, tailPos );
+            SliderUpdate( newTime, CalcSliderTime );
         }
         else
         {
