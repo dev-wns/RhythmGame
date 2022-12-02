@@ -14,7 +14,7 @@ public class HitEffectSystem : MonoBehaviour
     public List<Sprite> spritesL = new List<Sprite>();
     private float offsetL;
 
-    private float lifeTime = .12f;
+    private readonly float HitEffectFramePerSecond = 1f / 80f;
 
     private SpriteRenderer rdr;
     private int curIndex = 0;
@@ -30,8 +30,8 @@ public class HitEffectSystem : MonoBehaviour
         {
             lane.OnLaneInitialize += Initialize;
 
-            offsetN = lifeTime / spritesN.Count;
-            offsetL = lifeTime / spritesL.Count;
+            offsetN = HitEffectFramePerSecond; // lifeTime / spritesN.Count;
+            offsetL = HitEffectFramePerSecond; // lifeTime / spritesL.Count;
 
             rdr.enabled = true;
             rdr.color = Color.clear;

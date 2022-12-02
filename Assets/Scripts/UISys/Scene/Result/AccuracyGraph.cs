@@ -1,11 +1,10 @@
-using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class JudgeGraph : MonoBehaviour
+public class AccuracyGraph : MonoBehaviour
 {
     public TextMeshProUGUI minText, maxText;
     private LineRenderer rdr;
@@ -26,8 +25,8 @@ public class JudgeGraph : MonoBehaviour
 
         //    time += 1d;
 
-        //    //hitDatas.Add( new HitData( HitResult.None, time, ( double )diff ) );
-        //    hitDatas.Add( new HitData( HitResult.None, time, 0d ) );
+        //    hitDatas.Add( new HitData( HitResult.None, time, ( double )diff ) );
+        //    //hitDatas.Add( new HitData( HitResult.None, time, 0d ) );
         //}
         //rdr = GetComponent<LineRenderer>();
 
@@ -35,14 +34,14 @@ public class JudgeGraph : MonoBehaviour
         Judgement judge = scene.Judge;
         if ( judge == null || !TryGetComponent( out rdr ) )
             return;
-        var hitDatas    = judge.hitDatas;
 
+        var hitDatas    = judge.hitDatas;
         var posY        = ( transform as RectTransform ).anchoredPosition.y;
         float posOffset = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 1 );
         int divideCount = ( int )( hitDatas.Count / TotalJudge );
         List<double> deviations = new List<double>();
 
-        positions.Add( new Vector3( StartPosX, posY , 0f ) );
+        positions.Add( new Vector3( StartPosX, posY, 0f ) );
         for ( int i = 0; i < TotalJudge; i++ )
         {
             var diffRange = hitDatas.GetRange( i * divideCount, divideCount );
@@ -59,8 +58,8 @@ public class JudgeGraph : MonoBehaviour
             if ( canDivide )
             {
                 float devideAverage = ( float )( deviations[i] / deviationAverage );
-                float averageMilliseconds = ( int )( devideAverage * 1000f );
-                float result = averageMilliseconds < 5 ? 0f : devideAverage;
+                int averageMilliseconds = ( int )Global.Math.Abs( deviations[i] * 1000f );
+                float result = averageMilliseconds <= 3 ? 0f : devideAverage;
                 Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), posY + ( ( float )result * 100f ), 0 );
                 positions.Add( newPos );
             }
@@ -70,10 +69,10 @@ public class JudgeGraph : MonoBehaviour
                 positions.Add( newPos );
             }
         }
-        positions.Add( new Vector3( EndPosX, posY , 0f ) );
+        positions.Add( new Vector3( EndPosX, posY, 0f ) );
 
-        int deviationMilliseconds = ( int )( deviationAverage * 1000d );
-        int maxDeviationAverage   = canDivide && deviationMilliseconds > 5 ? deviationMilliseconds : 1;
+        int deviationMilliseconds = ( int )Global.Math.Abs( deviationAverage * 1000d );
+        int maxDeviationAverage   = canDivide && deviationMilliseconds >= 3 ? deviationMilliseconds : 1;
         minText.text = $"{-maxDeviationAverage} ms";
         maxText.text = $"{maxDeviationAverage} ms";
     }

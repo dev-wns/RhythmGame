@@ -117,7 +117,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
     public bool IsLoad { get; private set; }
-    public float volume { get; private set; }
+    public float Volume { get; private set; }
     #endregion
     #endregion
     #region System
@@ -442,39 +442,39 @@ public class SoundManager : Singleton<SoundManager>
     {
         volumeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), Volume, _duration );
     }
     
     public void FadeIn( float _startValue, float _duration )
     {
         volumeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        volumeTweener = DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration );
+        volumeTweener = DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), Volume, _duration );
     }
 
     public void FadeIn( float _duration, Action _callback )
     {
         volumeTweener?.Kill();
         ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
+        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), Volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
     }
 
     public void FadeOut( float _duration )
     {
         volumeTweener?.Kill();
-        volumeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
+        volumeTweener = DOTween.To( () => Volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
     }
 
     public void FadeOut( float _endValue, float _duration )
     {
         volumeTweener?.Kill();
-        volumeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
+        volumeTweener = DOTween.To( () => Volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
     }
 
     public void FadeOut( float _duration, Action _callback )
     {
         volumeTweener?.Kill();
-        volumeTweener = DOTween.To( () => volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
+        volumeTweener = DOTween.To( () => Volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
     }
 
     #endregion
@@ -514,7 +514,7 @@ public class SoundManager : Singleton<SoundManager>
         float chlVolume = _value;
         if ( _value < 0f ) chlVolume = 0f;
         if ( _value > 1f ) chlVolume = 1f;
-        if ( _type == ChannelType.BGM ) volume = chlVolume;
+        if ( _type == ChannelType.BGM ) Volume = chlVolume;
 
         ErrorCheck( groups[_type].setVolume( chlVolume ) );
     }
