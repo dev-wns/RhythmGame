@@ -41,7 +41,8 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private Song curSong;
     public event Action<Song> OnSelectSong;
     public event Action<Song> OnSoundRestart;
-    
+
+    private Coroutine updateCoroutine;
 
     private void Awake()
     {
@@ -104,6 +105,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     {
         curNode.Value.rt.DOAnchorPosX( -100f, .5f );
         UpdateScrollBar();
+
         UpdateSong();
     }
 
@@ -194,23 +196,37 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void Play()
     {
         SoundManager.Inst.Play( false );
-        SoundManager.Inst.FadeIn( 1f );
         SoundManager.Inst.Position = ( uint )curSong.previewTime;
         playback = curSong.previewTime;
     }
 
     private void UpdateSong()
     {
+        if ( !ReferenceEquals( updateCoroutine, null ) )
+        {
+            StopCoroutine( updateCoroutine );
+            updateCoroutine = null;
+        }
+        updateCoroutine = StartCoroutine( UpdateSongProcess() );
+    }
+
+    private IEnumerator UpdateSongProcess()
+    {
         //UpdateScrollBar();
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.Inst.CurrentSong;
+
+        //SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), 0f, .25f );
+        //yield return YieldCache.WaitForSeconds( .3f );
 
         SoundManager.Inst.Load( curSong.audioPath, false, true, true );
         curSong.totalTime   = ( int )SoundManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         
         Play();
+        SoundManager.Inst.FadeVolume( 0f, SoundManager.Inst.Volume, .5f );
         OnSelectSong( curSong );
+        yield return null;
     }
 
     private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( curSong.totalTime * .314f ) : ( uint )_time;

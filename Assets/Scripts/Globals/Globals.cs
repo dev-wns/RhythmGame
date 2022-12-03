@@ -19,6 +19,12 @@ namespace Global
                    _value > _max ? _max :
                    _value;
         }
+        public static double Clamp( double _value, double _min, double _max )
+        {
+            return _value < _min ? _min :
+                   _value > _max ? _max :
+                   _value;
+        }
         public static int Log10( double _value )
         {
             return ( _value >= 10000000u ) ? 7 : ( _value >= 1000000u ) ? 6 :

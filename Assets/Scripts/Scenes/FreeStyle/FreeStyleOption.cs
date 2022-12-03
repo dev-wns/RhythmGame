@@ -23,7 +23,8 @@ public class FreeStyleOption : SceneScrollOption
 
         CurrentScene.ChangeAction( ActionType.Main );
         SoundManager.Inst.Play( SoundSfxType.MenuHover );
-        SoundManager.Inst.FadeIn( SoundManager.Inst.GetVolume( ChannelType.BGM ) * .5f, .5f );
+        // SoundManager.Inst.FadeIn( SoundManager.Inst.Volume * .5f, .5f );
+        SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
     }
 
     private void ScrollDown()

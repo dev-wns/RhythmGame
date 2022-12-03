@@ -342,8 +342,16 @@ public class SoundManager : Singleton<SoundManager>
         FMOD.Sound sound;
         ErrorCheck( system.createSound( _path, mode, out sound ) );
 
+        
+
         if ( mainSound.hasHandle() )
         {
+            if ( mainChannel.hasHandle() )
+            {
+                mainChannel.stop();
+                mainChannel.clearHandle();
+            }
+
             ErrorCheck( mainSound.release() );
             mainSound.clearHandle();
         }
@@ -400,11 +408,37 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        //Stop( ChannelType.BGM );
-        //ErrorCheck( groups[ChannelType.BGM].setPitch( _pitch ) );
-
         SetPaused( _isPause, ChannelType.BGM );
+        //ErrorCheck( mainChannel.isPlaying( out bool isPlaying ) );
+        //if ( isPlaying )
+        //{
+        //    FMOD.Channel channel = mainChannel;
+        //    StartCoroutine( Fade( 1f, 0f, 5f, channel ) );
+        //}
+
         ErrorCheck( system.playSound( mainSound, groups[ChannelType.BGM], false, out mainChannel ) );
+    }
+
+    private IEnumerator Fade( float _start, float _end, float _t, FMOD.Channel _channel )
+    {
+        if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
+        {
+            ErrorCheck( groups[ChannelType.BGM].setVolume( _end ) );
+            yield break;
+        }
+
+        float elapsedVolume = _start;
+        float offset = _end - _start;
+        ErrorCheck( _channel.setVolume( _start ) );
+        while ( _start < _end ? elapsedVolume < _end :
+                                elapsedVolume > _end )
+        {
+            elapsedVolume += ( offset * Time.deltaTime ) / _t;
+            ErrorCheck( _channel.setVolume( elapsedVolume ) );
+            yield return null;
+        }
+
+        ErrorCheck( _channel.stop() );
     }
 
     /// <summary> Play Sound Special Effects </summary>
@@ -437,44 +471,44 @@ public class SoundManager : Singleton<SoundManager>
     }
     #endregion
     #region Effect
-    private Tweener volumeTweener;
-    public void FadeIn( float _duration )
+
+    private Coroutine volumeEffectCoroutine;
+
+    /// <summary>
+    /// FadeIn when _end is greater than _start. <br/>
+    /// FadeOut in the opposite case.
+    /// </summary>
+    public void FadeVolume( float _start, float _end, float _t )
     {
-        volumeTweener?.Kill();
-        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), Volume, _duration );
-    }
-    
-    public void FadeIn( float _startValue, float _duration )
-    {
-        volumeTweener?.Kill();
-        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        volumeTweener = DOTween.To( () => _startValue, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), Volume, _duration );
+        if ( !ReferenceEquals( volumeEffectCoroutine, null ) )
+        {
+            StopCoroutine( volumeEffectCoroutine );
+            volumeEffectCoroutine = null;
+        }
+
+        volumeEffectCoroutine = StartCoroutine( Fade( _start, _end, _t ) );
     }
 
-    public void FadeIn( float _duration, Action _callback )
+    private IEnumerator Fade( float _start, float _end, float _t )
     {
-        volumeTweener?.Kill();
-        ErrorCheck( groups[ChannelType.BGM].setVolume( 0f ) );
-        volumeTweener = DOTween.To( () => 0f, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), Volume, _duration ).OnComplete( () => { _callback.Invoke(); } );
-    }
+        if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
+        {
+            ErrorCheck( groups[ChannelType.BGM].setVolume( _end ) );
+            yield break;
+        }
 
-    public void FadeOut( float _duration )
-    {
-        volumeTweener?.Kill();
-        volumeTweener = DOTween.To( () => Volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration );
-    }
+        float elapsedVolume = _start;
+        float offset = _end - _start;
+        ErrorCheck( groups[ChannelType.BGM].setVolume( _start ) );
+        while ( _start < _end ? elapsedVolume < _end :
+                                elapsedVolume > _end )
+        {
+            elapsedVolume += ( offset * Time.deltaTime ) / _t;
+            ErrorCheck( groups[ChannelType.BGM].setVolume( elapsedVolume ) );
+            yield return null;
+        }
 
-    public void FadeOut( float _endValue, float _duration )
-    {
-        volumeTweener?.Kill();
-        volumeTweener = DOTween.To( () => Volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), _endValue, _duration );
-    }
-
-    public void FadeOut( float _duration, Action _callback )
-    {
-        volumeTweener?.Kill();
-        volumeTweener = DOTween.To( () => Volume, x => ErrorCheck( groups[ChannelType.BGM].setVolume( x ) ), 0f, _duration ).OnComplete( () => { _callback.Invoke(); } );
+        ErrorCheck( groups[ChannelType.BGM].setVolume( _end ) );
     }
 
     #endregion
@@ -577,7 +611,6 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( groups[_channelType].getNumDSPs( out int oldNum ) );
         ErrorCheck( groups[_channelType].removeDSP( dsps[_dspType] ) );
         ErrorCheck( groups[_channelType].getNumDSPs( out int newNum ) );
-        Debug.Log( $"{NowPlaying.CurrentScene.GetType().Name} {_channelType} DSP Count : {oldNum} -> {newNum}" );
     }
 
     public void AllRemoveDSP()

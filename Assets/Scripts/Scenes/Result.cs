@@ -25,7 +25,8 @@ public class Result : Scene
         soundLength = SoundManager.Inst.Length;
         playback = SoundManager.Inst.Position = highlightPos;
 
-        SoundManager.Inst.FadeIn( 2f );
+        //SoundManager.Inst.FadeIn( 2f );
+        SoundManager.Inst.FadeVolume( 0f, SoundManager.Inst.Volume, 2f );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         isStart = true;

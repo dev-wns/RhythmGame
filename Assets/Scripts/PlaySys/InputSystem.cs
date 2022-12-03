@@ -24,8 +24,8 @@ public class InputSystem : MonoBehaviour
 
     #region AutoPlay
     private NoteType autoNoteType;
-    private double autoPressTime;
-    private float inputAutoTime;
+    private double autoEffectDuration;
+    private float autoHoldTime;
     private float rand;
     #endregion
     #region Time
@@ -52,7 +52,7 @@ public class InputSystem : MonoBehaviour
         rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if ( !isReady ) return;
 
@@ -68,8 +68,8 @@ public class InputSystem : MonoBehaviour
 
         if ( isAuto )
         {
-            inputAutoTime += Time.deltaTime;
-            if ( autoNoteType == NoteType.Default && inputAutoTime > autoPressTime )
+            autoHoldTime += Time.deltaTime;
+            if ( autoNoteType == NoteType.Default && autoHoldTime > autoEffectDuration )
                  OnInputEvent?.Invoke( false );
         }
         else
@@ -131,9 +131,10 @@ public class InputSystem : MonoBehaviour
 
         judge.ReLoad();
 
-        autoPressTime = 0;
-        inputAutoTime = 0;
+        autoEffectDuration = 0;
+        autoHoldTime = 0;
     }
+
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
     /// </summary>
@@ -179,9 +180,8 @@ public class InputSystem : MonoBehaviour
             curSound = curNote.Sound;
 
             double nextAutoTime = notes.Count > 0 ? notes.Peek().Time : curNote.Time + .0651d;
-
             double offset = Global.Math.Abs( nextAutoTime - curNote.Time );
-            autoPressTime = offset > .065d ? .065d : Global.Math.Lerp( 0.01d, offset, .5d );
+            autoEffectDuration = offset > .065d ? .065d : Global.Math.Lerp( 0.01d, offset, .5d );
         }
     }
 
@@ -206,13 +206,12 @@ public class InputSystem : MonoBehaviour
             {
                 rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
                 autoNoteType = NoteType.Default;
-                inputAutoTime = 0f;
+                autoHoldTime = 0f;
                 OnInputEvent?.Invoke( true );
 
                 OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff );
                 SoundManager.Inst.Play( curSound );
-                //SoundManager.Inst.Play( SoundSfxType.Clap );
                 SelectNextNote();
             }
         }
@@ -243,7 +242,7 @@ public class InputSystem : MonoBehaviour
                 if ( startDiff <= 0d )
                 {
                     autoNoteType = NoteType.Slider;
-                    inputAutoTime = 0f;
+                    autoHoldTime = 0f;
                     OnInputEvent?.Invoke( true );
 
                     curNote.IsPressed = true;
@@ -259,7 +258,7 @@ public class InputSystem : MonoBehaviour
             {
                 if ( endDiff <= 0d )
                 {
-                    inputAutoTime = 0f;
+                    autoHoldTime = 0f;
                     OnInputEvent?.Invoke( false );
 
                     OnHitNote?.Invoke( NoteType.Slider, true );

@@ -27,6 +27,8 @@ public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
         NowPlaying.CurrentScene = this;
         KeyBind();
         ChangeAction( ActionType.Main );
+
+        SoundManager.Inst.SetVolume( SoundManager.Inst.Volume, ChannelType.BGM );
     }
 
     protected virtual void Start()
