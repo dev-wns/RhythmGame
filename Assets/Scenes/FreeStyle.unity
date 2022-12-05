@@ -11620,7 +11620,7 @@ MonoBehaviour:
   lerpOffset: 0.32
   specStartIndex: 8
   specCount: 200
-  specPower: 3
+  specPower: 3.2
   specWidth: 4.3
   specBlank: 0.5
   decrease: 0.175

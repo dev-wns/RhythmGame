@@ -56,7 +56,7 @@ public class NoteRenderer : MonoBehaviour
 
         ScrollUpdate();
         head.color = body.color = tail.color = Color.white;
-        head.enabled = !IsSlider;
+        //head.enabled = !IsSlider;
         body.enabled = IsSlider;
         head.color = body.color = tail.color = Color.white;
     }

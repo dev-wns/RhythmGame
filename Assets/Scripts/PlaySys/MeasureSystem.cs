@@ -62,24 +62,16 @@ public class MeasureSystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
-        List<MeasureTiming> timings = new List<MeasureTiming>();
-        for ( int i = 0; i < _chart.timings.Count; i++ )
-        {
-            if ( _chart.timings[i].isUninherited == 1 )
-                timings.Add( new MeasureTiming( _chart.timings[i] ) );
-        }
-        
+        var timings = _chart.uninheritedTimings;
         var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
-        double firstTime = NowPlaying.Inst.CurrentSong.isOnlyKeySound ? 0d : _chart.notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
             double spb      = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
-            double time     = ( i == 0 ) ? firstTime - ( ( int )( firstTime / spb ) * spb ) : timings[i].time;
+            double time     = timings[i].time;
             double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime * 0.001d ) + 10d : timings[i + 1].time;
 
-            measures.Add( NowPlaying.Inst.GetChangedTime( time ) );
-            int maxCount = ( int )( ( nextTime - time ) / spb );
-            for ( int j = 1; j < maxCount; j++ )
+            int maxCount =  Mathf.CeilToInt( ( float )( Global.Math.Abs( nextTime - time ) / spb ) );
+            for ( int j = 0; j < maxCount; j++ )
             {
                 measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * spb ) ) ) );
             }

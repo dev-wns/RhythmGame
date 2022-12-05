@@ -61,7 +61,7 @@ public class InGame : Scene
 
         OnGameStart?.Invoke();
         IsInputLock = false;
-        StartCoroutine( NowPlaying.Inst.Play() );
+        NowPlaying.Inst.Play();
     }
 
     public void BackToLobby()
@@ -88,7 +88,7 @@ public class InGame : Scene
 
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();
-        yield return StartCoroutine( NowPlaying.Inst.Play() );
+        NowPlaying.Inst.Play();
     }
 
     public void Restart() => StartCoroutine( RestartProcess() );

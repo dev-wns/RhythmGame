@@ -20,7 +20,8 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Time
     private Timer timer = new Timer();
     private double startTime, saveTime, totalTime;
-    public static readonly double WaitTime = -1.25d;
+    public  static readonly double StartWaitTime = -3d;
+    private static readonly double PauseWaitTime = -1.5d;
     public static double Playback        { get; private set; }
     public static double PlaybackChanged { get; private set; }
     #endregion
@@ -106,29 +107,29 @@ public class NowPlaying : Singleton<NowPlaying>
             {
                 CurrentChart = chart;
                 medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
+
+                //StartWaitTime = chart.uninheritedTimings[0].time;
+                //Playback = StartWaitTime;
             }
         }
     }
 
     #endregion
     #region Sound Process
-    public IEnumerator Play()
+    public void Play()
     {
         startTime = timer.CurrentTime;
-        saveTime = WaitTime;
+        saveTime = StartWaitTime;
         IsStart = true;
 
         OnStart?.Invoke();
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
-
-        yield return new WaitUntil( () => Playback >= 5d );
-        Playback = 0d;
     }
 
     public void Stop()
     {
         StopAllCoroutines();
-        Playback = WaitTime;
+        Playback = StartWaitTime;
         saveTime = 0d;
         PlaybackChanged = 0d;
 
@@ -152,7 +153,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
             OnPause?.Invoke( true );
-            saveTime = Playback >= 0d ? WaitTime + Playback : 0d;
+            saveTime = Playback >= 0d ? PauseWaitTime + Playback : 0d;
         }
         else
         {
@@ -176,7 +177,7 @@ public class NowPlaying : Singleton<NowPlaying>
         startTime = timer.CurrentTime;
         IsStart   = true;
 
-        yield return new WaitUntil( () => Playback >= saveTime - WaitTime );
+        yield return new WaitUntil( () => Playback >= saveTime - PauseWaitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         OnPause?.Invoke( false );
 

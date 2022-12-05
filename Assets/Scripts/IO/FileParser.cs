@@ -115,8 +115,10 @@ public class FileParser : FileReader
             while ( ReadLine() != "[Timings]" )
             { }
             
-            #region Timings
+#region Timings
             List<Timing> timings = new List<Timing>();
+            List<Timing> uninheritedTimings = new List<Timing>();
+
             while ( ReadLine() != "[Sprites]" )
             {
                 Timing timing = new Timing();
@@ -125,14 +127,25 @@ public class FileParser : FileReader
                 timing.time          = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
                 timing.beatLength    = double.Parse( split[1] );
                 timing.bpm           = ( 1d / timing.beatLength * 60000d ) * GameSetting.CurrentPitch;
-                timing.isUninherited = int.Parse( split[2] );
+                if ( int.Parse( split[2] ) == 1 )
+                {
+                    if ( uninheritedTimings.Count == 0 )
+                    {
+                        double spb = ( 60d / timing.bpm );
+                        int count = Mathf.CeilToInt( ( float )( ( Global.Math.Abs( NowPlaying.StartWaitTime ) + timing.time ) / spb ) );
+                        timing.time -= count * spb;
+                        Debug.Log( $"Count : {count}  SPB : {spb}  Time : {timing.time}" );
+                    }
+
+                    uninheritedTimings.Add( timing );
+                }
 
                 timings.Add( timing );
             }
 
-            if ( timings.Count == 0 )
-                 throw new Exception( "Timing Parsing Error" );
+            
 
+            _chart.uninheritedTimings = new ReadOnlyCollection<Timing>( uninheritedTimings );
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
 #endregion
             
