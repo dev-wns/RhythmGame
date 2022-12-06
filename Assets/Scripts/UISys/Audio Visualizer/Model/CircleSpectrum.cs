@@ -6,6 +6,7 @@ public class CircleSpectrum : BaseSpectrum
 {
     [Header("Center Image")]
     public Transform centerImage;
+    [Range(0f, 1f)] public float lerpOffset = .275f;
     [Min(0f)] public float radius;
     [Min(0f)] public float distance;
     private float imageScale;
@@ -52,7 +53,7 @@ public class CircleSpectrum : BaseSpectrum
             Transform left  = transforms[i];
             Transform right = transforms[( specCount * 2 ) - 1 - i];
 
-            Vector3 newScale = new Vector3( specWidth, scale, 1f );
+            Vector3 newScale = new Vector3( specWidth, value * Power, 1f );
             left.localScale = right.localScale = newScale;
 
             float bassValue = radius * .5f * bassAmount;

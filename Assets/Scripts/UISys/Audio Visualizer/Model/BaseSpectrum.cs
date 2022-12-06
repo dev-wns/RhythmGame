@@ -15,7 +15,6 @@ public abstract class BaseSpectrum : MonoBehaviour
     [Header("Spectrum")]
     public Transform prefab;
     public int sortingOrder;
-    [Range(0f, 1f)] public float lerpOffset = .275f;
     [Range(0, 100)] public int   specStartIndex;
     [Min(0f)]       public int   specCount;
     [Min(0f)]       public float specPower;

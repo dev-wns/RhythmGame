@@ -11617,13 +11617,12 @@ MonoBehaviour:
   isGradationColor: 1
   prefab: {fileID: 2841630171828651903, guid: 3e958ed5e751951429ddfb30c7c72f04, type: 3}
   sortingOrder: 4
-  lerpOffset: 0.32
   specStartIndex: 8
   specCount: 200
-  specPower: 3.2
+  specPower: 3
   specWidth: 4.3
   specBlank: 0.5
-  decrease: 0.175
+  lerpPower: 13.25
   isReverse: 1
   isPositionUpdate: 0
 --- !u!1 &1118418892

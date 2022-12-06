@@ -6,14 +6,14 @@ public class LineSpectrum : BaseSpectrum
 {
     private float[] cached;
 
-    [Header("Line")]
-    [Range(0f, 1f)] public float decrease;
+    [Range(0f, 50f)] 
+    public float lerpPower;
     public bool isReverse;
     public bool isPositionUpdate;
 
     protected override void CreateSpectrumModel()
     {
-        cached     = new float[specCount * 2];
+        cached     = new float[specCount];
         transforms = new Transform[specCount * 2];
         int symmetryColorIdx = 0;
 
@@ -36,21 +36,28 @@ public class LineSpectrum : BaseSpectrum
 
     protected override void UpdateSpectrums( float[][] _values )
     {
-        int index;
         for ( int i = 0; i < specCount; i++ )
         {
-            index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
+            int index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
             float value  = ( _values[0][index] + _values[1][index] ) * .5f;
 
             float diffAbs = Global.Math.Abs( cached[i] - value );
-            if ( cached[i] < value ) cached[i] = value;
-            else                     cached[i] = Mathf.Clamp01( cached[i] - Mathf.Lerp( 0f, diffAbs, decrease ) );
+            if ( cached[i] > value )
+            {
+                cached[i] = Mathf.Clamp01( cached[i] - ( Mathf.Lerp( 0f, 1f, diffAbs * lerpPower * Time.deltaTime ) ) );
+                if ( cached[i] < value )
+                     cached[i] = value;
+            }
+            else
+            {
+                cached[i] = Mathf.Clamp01( cached[i] + ( Mathf.Lerp( 0f, 2.5f, diffAbs * lerpPower * Time.deltaTime ) ) );
+                if ( cached[i] > value )
+                     cached[i] = value;
+            }
 
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];
-
-            float scale     = Mathf.Lerp( transforms[i].localScale.y, cached[i] * Power, lerpOffset );
-            left.localScale = right.localScale = new Vector3( specWidth, scale, 1f );
+            left.localScale = right.localScale = new Vector3( specWidth, cached[i] * Power, 1f );
 
             if ( isPositionUpdate )
             {
