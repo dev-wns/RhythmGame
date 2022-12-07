@@ -38,23 +38,18 @@ public class LineSpectrum : BaseSpectrum
     {
         for ( int i = 0; i < specCount; i++ )
         {
+            // 인스펙터 상의 스펙트럼 시작위치부터 값을 받아온다.
             int index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
+
+            // 스테레오( 0 : Left, 1 : Right ) 스펙트럼 값 평균.
             float value  = ( _values[0][index] + _values[1][index] ) * .5f;
 
+            // 현재 값과 스펙트럼 값의 차이가 클수록 빠르게 변화하도록 한다.
             float diffAbs = Global.Math.Abs( cached[i] - value );
-            if ( cached[i] > value )
-            {
-                cached[i] = Mathf.Clamp01( cached[i] - ( Mathf.Lerp( 0f, 1f, diffAbs * lerpPower * Time.deltaTime ) ) );
-                if ( cached[i] < value )
-                     cached[i] = value;
-            }
-            else
-            {
-                cached[i] = Mathf.Clamp01( cached[i] + ( Mathf.Lerp( 0f, 2.5f, diffAbs * lerpPower * Time.deltaTime ) ) );
-                if ( cached[i] > value )
-                     cached[i] = value;
-            }
+            float amount  = Global.Math.Lerp( 0f, 1f, diffAbs * lerpPower * Time.deltaTime );
+            cached[i] += cached[i] < value ? amount * 2.5f : -amount;
 
+            // 계산된 값으로 스케일 조절.
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];
             left.localScale = right.localScale = new Vector3( specWidth, cached[i] * Power, 1f );
