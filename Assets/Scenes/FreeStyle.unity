@@ -11622,7 +11622,8 @@ MonoBehaviour:
   specPower: 3
   specWidth: 4.3
   specBlank: 0.5
-  lerpPower: 13.25
+  decreaseLerpPower: 13.5
+  increasePower: 5
   isReverse: 1
   isPositionUpdate: 0
 --- !u!1 &1118418892

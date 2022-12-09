@@ -7,7 +7,8 @@ public class LineSpectrum : BaseSpectrum
     private float[] cached;
 
     [Range(0f, 50f)] 
-    public float lerpPower;
+    public float decreaseLerpPower;
+    public float increasePower;
     public bool isReverse;
     public bool isPositionUpdate;
 
@@ -46,8 +47,8 @@ public class LineSpectrum : BaseSpectrum
 
             // 현재 값과 스펙트럼 값의 차이가 클수록 빠르게 변화하도록 한다.
             float diffAbs = Global.Math.Abs( cached[i] - value );
-            float amount  = Global.Math.Lerp( 0f, 1f, diffAbs * lerpPower * Time.deltaTime );
-            cached[i] += cached[i] < value ? amount * 2.5f : -amount;
+            float amount  = Global.Math.Lerp( 0f, 1f, diffAbs * decreaseLerpPower * Time.deltaTime );
+            cached[i] += cached[i] < value ? amount * increasePower : -amount;
 
             // 계산된 값으로 스케일 조절.
             Transform left  = transforms[i];
