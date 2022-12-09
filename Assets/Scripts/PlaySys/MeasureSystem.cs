@@ -66,14 +66,15 @@ public class MeasureSystem : MonoBehaviour
         var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
         for ( int i = 0; i < timings.Count; i++ )
         {
-            double spb      = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
+            double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
             double time     = timings[i].time;
             double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime * 0.001d ) + 10d : timings[i + 1].time;
 
-            int maxCount =  Mathf.CeilToInt( ( float )( Global.Math.Abs( nextTime - time ) / spb ) );
+            int maxCount =  Mathf.FloorToInt( ( float )( Global.Math.Abs( nextTime - time ) / spb ) );
+            measures.Add( NowPlaying.Inst.GetChangedTime( time ) );
             for ( int j = 0; j < maxCount; j++ )
             {
-                measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( j * spb ) ) ) );
+                measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( ( j + 1 ) * spb ) ) ) );
             }
         }
     }

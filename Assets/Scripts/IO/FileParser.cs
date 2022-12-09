@@ -131,10 +131,10 @@ public class FileParser : FileReader
                 {
                     if ( uninheritedTimings.Count == 0 )
                     {
-                        double spb = ( 60d / timing.bpm );
+                        double spb = ( 60d / timing.bpm ) * 4d;
                         int count = Mathf.CeilToInt( ( float )( ( Global.Math.Abs( NowPlaying.StartWaitTime ) + timing.time ) / spb ) );
                         timing.time -= count * spb;
-                        Debug.Log( $"Count : {count}  SPB : {spb}  Time : {timing.time}" );
+                        Debug.Log( $"Count : {count}  SPB(4/4) : {spb}  Time : {timing.time}" );
                     }
 
                     uninheritedTimings.Add( timing );
