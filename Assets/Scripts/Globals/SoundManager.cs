@@ -15,6 +15,17 @@ public enum SoundSfxType
 
 
 public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
+public struct Music
+{
+    public FMOD.Sound sound;
+    public FMOD.Channel channel;
+    public Music( FMOD.Sound _sound, FMOD.Channel _channel )
+    {
+        sound = _sound;
+        channel = _channel;
+    }
+}
+
 public class SoundManager : Singleton<SoundManager>
 {
     #region variables
@@ -25,10 +36,9 @@ public class SoundManager : Singleton<SoundManager>
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
     private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>          dsps      = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
     private FMOD.System system;
-    private FMOD.Sound mainSound;
-    private FMOD.Channel mainChannel;
+    public FMOD.Sound MainSound { get; private set; }
+    public FMOD.Channel MainChannel { get; private set; }
     private int curDriverIndex;
-    private bool hasAccurateFlag;
     public event Action OnReload, OnRelease;
     public struct SoundDriver : IEquatable<SoundDriver>
     {
@@ -53,7 +63,7 @@ public class SoundManager : Singleton<SoundManager>
             //    return uint.MaxValue;
             //}
 
-            ErrorCheck( mainSound.getLength( out uint length, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( MainSound.getLength( out uint length, FMOD.TIMEUNIT.MS ) );
             return length;
         }
     }
@@ -92,7 +102,7 @@ public class SoundManager : Singleton<SoundManager>
             }
 
             uint pos;
-            ErrorCheck( mainChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( MainChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
             return pos;
         }
 
@@ -104,15 +114,14 @@ public class SoundManager : Singleton<SoundManager>
                 return;
             }
             
-            ErrorCheck( mainChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( MainChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
         }
     }
     public int UseChannelCount
     {
         get
         {
-            int channels = 0;
-            ErrorCheck( system.getChannelsPlaying( out channels ) );
+            ErrorCheck( system.getChannelsPlaying( out int channels ) );
             return channels;
         }
     }
@@ -248,10 +257,10 @@ public class SoundManager : Singleton<SoundManager>
         }
         keySounds.Clear();
 
-        if ( mainSound.hasHandle() )
+        if ( MainSound.hasHandle() )
         {
-            ErrorCheck( mainSound.release() );
-            mainSound.clearHandle();
+            ErrorCheck( MainSound.release() );
+            MainSound.clearHandle();
         }
 
 
@@ -259,12 +268,9 @@ public class SoundManager : Singleton<SoundManager>
         OnRelease?.Invoke();
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
         {
-            //ErrorCheck( groups[( ChannelType )i].getNumDSPs( out int numDSP ) );
             foreach ( var dsp in dsps.Values )
             {
-                //ErrorCheck( groups[( ChannelType )i].getDSPIndex( dsp, out int index ) );
-                //if ( index > 0 )
-                    ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
+                ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
             }
 
             ErrorCheck( groups[( ChannelType )i].release() );
@@ -315,8 +321,7 @@ public class SoundManager : Singleton<SoundManager>
 
     private void Update()
     {
-        if ( !IsLoad ) 
-             system.update();
+        if ( !IsLoad ) system.update();
     }
 
     private void OnDestroy()
@@ -330,32 +335,14 @@ public class SoundManager : Singleton<SoundManager>
     #endregion
     #region Load
     /// <summary> Load Main BGM </summary>
-    public void Load( string _path, bool _isLoop, bool _isStream, bool _hasAccurateTime )
+    public void Load( string _path, bool _isLoop, bool _isStream )
     {
-        hasAccurateFlag = _hasAccurateTime;
+        FMOD.MODE mode = _isStream ? FMOD.MODE.CREATESTREAM : FMOD.MODE.CREATESAMPLE;
+        mode           = _isLoop   ? mode |= FMOD.MODE.LOOP_NORMAL  : mode |= FMOD.MODE.LOOP_OFF;
+        mode           |=  FMOD.MODE.ACCURATETIME;
 
-        FMOD.MODE mode = FMOD.MODE.CREATESAMPLE;
-        mode = _hasAccurateTime ? mode |= FMOD.MODE.ACCURATETIME : mode;
-        mode = _isLoop          ? mode |= FMOD.MODE.LOOP_NORMAL  : mode |= FMOD.MODE.LOOP_OFF;
-        mode = _isStream        ? mode |= ( mode &= ~FMOD.MODE.CREATESAMPLE ) | FMOD.MODE.CREATESTREAM | FMOD.MODE.LOWMEM : mode;
-
-        FMOD.Sound sound;
-        ErrorCheck( system.createSound( _path, mode, out sound ) );
-
-        
-
-        if ( mainSound.hasHandle() )
-        {
-            if ( mainChannel.hasHandle() )
-            {
-                mainChannel.stop();
-                mainChannel.clearHandle();
-            }
-
-            ErrorCheck( mainSound.release() );
-            mainSound.clearHandle();
-        }
-        mainSound = sound;
+        ErrorCheck( system.createSound( _path, mode, out FMOD.Sound sound ) );
+        MainSound = sound;
     }
 
     /// <summary> Load Interface SFX </summary>
@@ -367,8 +354,7 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        FMOD.Sound sound;
-        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out sound ) );
+        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out FMOD.Sound sound ) );
         sfxSounds.Add( _type, sound );
     }
 
@@ -400,45 +386,16 @@ public class SoundManager : Singleton<SoundManager>
     #region Play
 
     /// <summary> Play Background Music </summary>
-    public void Play( bool _isPause )
+    public void Play()
     {
-        if ( !mainSound.hasHandle() )
+        if ( !MainSound.hasHandle() )
         {
             Debug.LogError( "Bgm is not loaded." );
             return;
         }
 
-        SetPaused( _isPause, ChannelType.BGM );
-        //ErrorCheck( mainChannel.isPlaying( out bool isPlaying ) );
-        //if ( isPlaying )
-        //{
-        //    FMOD.Channel channel = mainChannel;
-        //    StartCoroutine( Fade( 1f, 0f, 5f, channel ) );
-        //}
-
-        ErrorCheck( system.playSound( mainSound, groups[ChannelType.BGM], false, out mainChannel ) );
-    }
-
-    private IEnumerator Fade( float _start, float _end, float _t, FMOD.Channel _channel )
-    {
-        if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
-        {
-            ErrorCheck( groups[ChannelType.BGM].setVolume( _end ) );
-            yield break;
-        }
-
-        float elapsedVolume = _start;
-        float offset = _end - _start;
-        ErrorCheck( _channel.setVolume( _start ) );
-        while ( _start < _end ? elapsedVolume < _end :
-                                elapsedVolume > _end )
-        {
-            elapsedVolume += ( offset * Time.deltaTime ) / _t;
-            ErrorCheck( _channel.setVolume( elapsedVolume ) );
-            yield return null;
-        }
-
-        ErrorCheck( _channel.stop() );
+        ErrorCheck( system.playSound( MainSound, groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
+        MainChannel = channel;
     }
 
     /// <summary> Play Sound Special Effects </summary>
@@ -489,6 +446,38 @@ public class SoundManager : Singleton<SoundManager>
         volumeEffectCoroutine = StartCoroutine( Fade( _start, _end, _t ) );
     }
 
+    public void FadeVolume( Music _music, float _start, float _end, float _t, Action _OnCompleted = null )
+    {
+        StartCoroutine( Fade( _music, _start, _end, _t, _OnCompleted ) );
+    }
+
+    public IEnumerator Fade( Music _music, float _start, float _end, float _t, Action _OnCompleted )
+    {
+        _music.channel.isPlaying( out bool isPlaying );
+        if ( !isPlaying ) yield break;
+
+        if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
+        {
+            ErrorCheck( _music.channel.setVolume( _end ) );
+            yield break;
+        }
+
+        float elapsedVolume = _start;
+        float offset = _end - _start;
+        ErrorCheck( _music.channel.setVolume( _start ) );
+        while ( _start < _end ? elapsedVolume < _end :
+                                elapsedVolume > _end )
+        {
+            elapsedVolume += ( offset * Time.deltaTime ) / _t;
+            ErrorCheck( _music.channel.setVolume( elapsedVolume ) );
+            yield return null;
+        }
+
+        ErrorCheck( _music.channel.setVolume( _end ) );
+        _OnCompleted?.Invoke();
+    }
+
+    /// <summary> BGM ChannelGroup Volume Fade </summary>
     private IEnumerator Fade( float _start, float _end, float _t )
     {
         if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
@@ -553,7 +542,14 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( groups[_type].setVolume( chlVolume ) );
     }
 
-    public void Stop( ChannelType _type ) => ErrorCheck( groups[_type].stop() );
+    public void Stop( Music _music )
+    {
+        // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
+        // isPlaying이 INVALID_HANDLE을 반환할때 false와 동일하게 취급한다.
+        _music.channel.isPlaying( out bool isPlaying );
+        if ( isPlaying ) ErrorCheck( _music.channel.stop() );
+        _music.sound.release();
+    }
 
     public void AllStop()
     {
@@ -562,6 +558,10 @@ public class SoundManager : Singleton<SoundManager>
             if ( IsPlaying( group.Key ) )
                 ErrorCheck( group.Value.stop() );
         }
+
+        MainChannel.isPlaying( out bool isPlaying );
+        if ( isPlaying ) ErrorCheck( MainChannel.stop() );
+        MainSound.release();
     }
     #endregion
     #region DSP
@@ -608,9 +608,7 @@ public class SoundManager : Singleton<SoundManager>
         if ( !dsps.ContainsKey( _dspType ) )
              return;
 
-        ErrorCheck( groups[_channelType].getNumDSPs( out int oldNum ) );
         ErrorCheck( groups[_channelType].removeDSP( dsps[_dspType] ) );
-        ErrorCheck( groups[_channelType].getNumDSPs( out int newNum ) );
     }
 
     public void AllRemoveDSP()
@@ -620,7 +618,6 @@ public class SoundManager : Singleton<SoundManager>
             ErrorCheck( groups[( ChannelType )i].getNumDSPs( out int oldNum ) );
             foreach ( var dsp in dsps.Values )
             {
-                //Debug.Log( dsp.disconnectAll() );
                 ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
             }
 

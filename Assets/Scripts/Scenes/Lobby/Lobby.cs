@@ -27,12 +27,9 @@ public class Lobby : Scene
     protected override void Update()
     {
         base.Update();
-        if ( !isStart )
-            return;
+        if ( !isStart ) return;
 
-        playback += Time.deltaTime * 1000f;
-        if ( playback >= soundLength )
-            playback = 0;
+        playback = playback < soundLength ? playback += Time.deltaTime * 1000f : 0;
     }
 
     public override void Connect() 
@@ -59,11 +56,12 @@ public class Lobby : Scene
     private void SoundReStart()
     {
         SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
-        SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false, true );
-        SoundManager.Inst.Play( true );
+        SoundManager.Inst.Stop( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ) );
+
+        SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false );
+        SoundManager.Inst.Play();
         SoundManager.Inst.Position = ( uint )playback;
         soundLength = SoundManager.Inst.Length;
-        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
     }
 
     public override void KeyBind() { }

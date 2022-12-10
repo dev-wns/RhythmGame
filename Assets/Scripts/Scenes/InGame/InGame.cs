@@ -66,8 +66,7 @@ public class InGame : Scene
 
     public void BackToLobby()
     {
-        var judge = GameObject.FindGameObjectWithTag( "Judgement" );
-        Destroy( judge );
+        //Destroy( GameObject.FindGameObjectWithTag( "Judgement" ) );
         LoadScene( SceneType.FreeStyle );
     }
 
