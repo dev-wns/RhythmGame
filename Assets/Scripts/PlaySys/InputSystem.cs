@@ -13,7 +13,6 @@ public class InputSystem : MonoBehaviour
     #endregion
     private Queue<NoteRenderer> notes           = new Queue<NoteRenderer>();
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
-    private Queue<KeySound> sounds              = new Queue<KeySound>();
     private NoteRenderer curNote;
 
     public event Action<NoteType, bool/*Key Up*/> OnHitNote;
@@ -40,7 +39,7 @@ public class InputSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        //scene.OnGameStart       += () => StartCoroutine( KeySoundProcess() );
+        //scene.OnGameStart += () => isReady = true;
         scene.OnReLoad          += ReLoad;
         NowPlaying.Inst.OnPause += Pause;
 
@@ -136,11 +135,9 @@ public class InputSystem : MonoBehaviour
             note.Despawn();
         }
 
-        curNote?.Despawn();
-        curNote = null;
-
         judge.ReLoad();
-
+        shouldFindNextNote = true;
+        curSound = new KeySound();
         autoEffectDuration = 0;
         autoHoldTime = 0;
     }
@@ -153,7 +150,7 @@ public class InputSystem : MonoBehaviour
         isReady = !_isPause;
         OnInputEvent?.Invoke( false );
 
-        if ( !_isPause || curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
+        if ( !_isPause || !curNote.IsSlider || !curNote.IsPressed ) 
              return;
 
         if ( isAuto )
