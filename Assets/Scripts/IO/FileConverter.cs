@@ -89,16 +89,16 @@ public struct KeySound
     public string name;
     public float volume;
     public double time;
-    public FMOD.Sound sound;
-    public bool hasSound;
+    //public FMOD.Sound sound;
+    //public bool hasSound;
 
     public KeySound( double _time, string _name, float _volume )
     {
         time = _time;
         volume = _volume < .1f ? 100f : _volume;
         name = _name;
-        sound = new FMOD.Sound();
-        hasSound = false;
+        //sound = new FMOD.Sound();
+        //hasSound = false;
     }
 
     public KeySound( Note _note )
@@ -106,8 +106,8 @@ public struct KeySound
         name = _note.keySound.name;
         volume = _note.keySound.volume < .1f ? 100f : _note.keySound.volume;
         time = _note.keySound.time;
-        sound = new FMOD.Sound();
-        hasSound = false;
+        //sound = new FMOD.Sound();
+        //hasSound = false;
     }
 }
 

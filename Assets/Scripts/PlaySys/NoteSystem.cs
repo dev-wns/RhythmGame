@@ -79,7 +79,7 @@ public class NoteSystem : MonoBehaviour
             NoteRenderer note = nPool.Spawn();
             note.SetInfo( lane.Key, this, in curNote );
 
-            lane.InputSys.Enqueue( note );
+            lane.InputSys.AddNote( note );
 
             if ( ++curIndex < notes.Count )
                  curNote = notes[curIndex];

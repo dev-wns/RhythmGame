@@ -51,20 +51,17 @@ public class LaneSystem : MonoBehaviour
     {
         if ( !NowPlaying.Inst.CurrentSong.isOnlyKeySound )
         {
-            KeySound bgm = new KeySound( 0d, "BGM", 1f );
-            if ( SoundManager.Inst.Load( NowPlaying.Inst.CurrentSong.audioPath, out bgm.sound ) )
-                bgm.hasSound = true;
-
-            keySampleSystem.AddSample( bgm );
+            if ( SoundManager.Inst.Load( NowPlaying.Inst.CurrentSong.audioPath ) )
+                 keySampleSystem.AddSample( new KeySound( 0d, Path.GetFileName( NowPlaying.Inst.CurrentSong.audioPath ), 1f ) );
         }
 
-        var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
+        var dir = Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
         for ( int i = 0; i < _chart.samples.Count; i++ )
         {
             var sample = _chart.samples[i];
-            if( sample.hasSound )
-                SoundManager.Inst.Load( Path.Combine( dir, sample.name ), out sample.sound );
-            keySampleSystem.AddSample( sample );
+                
+            if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) );
+                 keySampleSystem.AddSample( sample );
         }
 
         CreateNotes( _chart );
@@ -113,9 +110,8 @@ public class LaneSystem : MonoBehaviour
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
-                    if ( newNote.keySound.hasSound )
-                         SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
-                        
+                    SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
+
                     lanes[newNote.lane].NoteSys.AddNote( in newNote );
                 }
                 break;
@@ -150,9 +146,7 @@ public class LaneSystem : MonoBehaviour
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
-                    if ( newNote.keySound.hasSound )
-                         SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ), out newNote.keySound.sound );
-
+                    SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     lanes[rand].NoteSys.AddNote( in newNote );
                 }
                 break;

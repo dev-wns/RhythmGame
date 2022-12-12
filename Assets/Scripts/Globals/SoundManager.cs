@@ -359,24 +359,24 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary> Load KeySound </summary>
-    public bool Load( string _path, out FMOD.Sound _sound )
+    public bool Load( string _path )
     {
         var name = System.IO.Path.GetFileName( _path );
         if ( keySounds.ContainsKey( name ) )
         {
             ++TotalKeySoundCount;
-            _sound = keySounds[name];
+            //_sound = keySounds[name];
         }
         else if ( System.IO.File.Exists( @_path ) )
         {
-            ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out _sound ) );
-            keySounds.Add( name, _sound );
+            ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out FMOD.Sound sound ) );
+            keySounds.Add( name, sound );
         }
         //   if ( !System.IO.File.Exists( @_path ) )
         else
         {
             // throw new Exception( $"File Exists  {_path}" );
-            _sound = new FMOD.Sound();
+            //_sound = new FMOD.Sound();
             return false;
         }
 
@@ -412,19 +412,16 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary> Play Key Sound Effects </summary>
-    public void Play( KeySound _keySound )
+    public void Play( KeySound _sound )
     {
-        if ( !_keySound.hasSound ) return;
-
-        if ( !_keySound.sound.hasHandle() )
+        if ( !keySounds.ContainsKey( _sound.name ) )
         {
             //Debug.LogWarning( $"keySound[{_keySound.name}] is not loaded." );
             return;
         }
         
-        FMOD.Channel channel;
-        ErrorCheck( system.playSound( _keySound.sound, groups[ChannelType.BGM], false, out channel ) );
-        ErrorCheck( channel.setVolume( _keySound.volume ) );
+        ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
+        ErrorCheck( channel.setVolume( _sound.volume ) );
     }
     #endregion
     #region Effect

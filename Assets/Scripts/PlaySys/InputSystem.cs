@@ -13,6 +13,7 @@ public class InputSystem : MonoBehaviour
     #endregion
     private Queue<NoteRenderer> notes           = new Queue<NoteRenderer>();
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
+    private Queue<KeySound> sounds              = new Queue<KeySound>();
     private NoteRenderer curNote;
 
     public event Action<NoteType, bool/*Key Up*/> OnHitNote;
@@ -20,7 +21,7 @@ public class InputSystem : MonoBehaviour
 
     private KeyCode key;
     private KeySound curSound;
-    private bool isAuto, isReady;
+    private bool isAuto, isReady, shouldFindNextNote = true;
 
     #region AutoPlay
     private NoteType autoNoteType;
@@ -35,10 +36,11 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Unity Event Function
+
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnGameStart       += () => StartCoroutine( NoteSelect() );
+        //scene.OnGameStart       += () => StartCoroutine( KeySoundProcess() );
         scene.OnReLoad          += ReLoad;
         NowPlaying.Inst.OnPause += Pause;
 
@@ -56,14 +58,17 @@ public class InputSystem : MonoBehaviour
     {
         if ( !isReady ) return;
 
-        if ( sliderMissQueue.Count > 0 )
+        if ( shouldFindNextNote && notes.Count > 0 )
         {
-            var note = sliderMissQueue.Peek();
-            if ( judge.IsMiss( note.SliderTime - NowPlaying.Playback ) )
-            {
-                note.Despawn();
-                sliderMissQueue.Dequeue();
-            }
+            curNote = notes.Peek();
+            curSound = curNote.Sound;
+            shouldFindNextNote = false;
+        }
+
+        if ( !shouldFindNextNote )
+        {
+            if ( curNote.IsSlider ) CheckSlider();
+            else                    CheckNote();
         }
 
         if ( isAuto )
@@ -85,10 +90,14 @@ public class InputSystem : MonoBehaviour
             }
         }
 
-        if ( curNote != null )
+        if ( sliderMissQueue.Count > 0 )
         {
-            if ( curNote.IsSlider ) CheckSlider();
-            else                    CheckNote();
+            var note = sliderMissQueue.Peek();
+            if ( judge.IsMiss( note.SliderTime - NowPlaying.Playback ) )
+            {
+                note.Despawn();
+                sliderMissQueue.Dequeue();
+            }
         }
     }
 
@@ -100,7 +109,8 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Initialize
-    public void Enqueue( NoteRenderer _note ) => notes.Enqueue( _note );
+    public void AddNote( NoteRenderer _note ) => notes.Enqueue( _note );
+
     public void SetSound( in KeySound _sound ) => curSound = _sound;
     #endregion
 
@@ -170,20 +180,20 @@ public class InputSystem : MonoBehaviour
     /// Find the next note in the current lane.
     /// </summary>
     /// <returns></returns>
-    private IEnumerator NoteSelect()
-    {
-        var WaitNote = new WaitUntil( () => curNote == null && notes.Count > 0 );
-        while ( true )
-        {
-            yield return WaitNote;
-            curNote = notes.Dequeue();
-            curSound = curNote.Sound;
+    //private IEnumerator NoteSelect()
+    //{
+    //    var WaitNote = new WaitUntil( () => curNote == null && notes.Count > 0 );
+    //    while ( true )
+    //    {
+    //        yield return WaitNote;
+    //        curNote = notes.Dequeue();
+    //        curSound = curNote.Sound;
 
-            double nextAutoTime = notes.Count > 0 ? notes.Peek().Time : curNote.Time + .0651d;
-            double offset = Global.Math.Abs( nextAutoTime - curNote.Time );
-            autoEffectDuration = offset > .065d ? .065d : Global.Math.Lerp( 0.01d, offset, .5d );
-        }
-    }
+    //        double nextAutoTime = notes.Count > 0 ? notes.Peek().Time : curNote.Time + .0651d;
+    //        double offset = Global.Math.Abs( nextAutoTime - curNote.Time );
+    //        autoEffectDuration = offset > .065d ? .065d : Global.Math.Lerp( 0.01d, offset, .5d );
+    //    }
+    //}
 
     private void SelectNextNote( bool _isDespawn = true )
     {
@@ -192,7 +202,17 @@ public class InputSystem : MonoBehaviour
             curNote.gameObject.SetActive( false );
             curNote.Despawn();
         }
-        curNote = null;
+
+        notes.Dequeue();
+        shouldFindNextNote = true;
+
+        autoEffectDuration = .065d;
+        if ( isAuto && notes.Count > 0 )
+        {
+            double nextAutoTime = notes.Count > 0 ? notes.Peek().Time : curNote.Time + .0651d;
+            double offset = Global.Math.Abs( nextAutoTime - curNote.Time );
+            autoEffectDuration = offset > .065d ? .065d : Global.Math.Lerp( 0.01d, offset, .5d );
+        }
     }
 
     private void CheckNote()

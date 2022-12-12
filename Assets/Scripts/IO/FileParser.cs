@@ -175,8 +175,8 @@ public class FileParser : FileReader
                 sample.time = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
                 sample.volume = float.Parse( split[1] ) * .01f;
                 sample.name = split[2];
-                sample.sound = new FMOD.Sound();
-                sample.hasSound = sample.name == string.Empty ? false : true;
+                //sample.sound = new FMOD.Sound();
+                //sample.hasSound = sample.name == string.Empty ? false : true;
 
                 keySounds.Add( sample );
             }
@@ -198,7 +198,7 @@ public class FileParser : FileReader
                 var keySoundSplit = split[3].Split( ':' );
                 note.keySound.volume   = float.Parse( keySoundSplit[0] ) * .01f;
                 note.keySound.name     = keySoundSplit[1];
-                note.keySound.hasSound = note.keySound.name == string.Empty ? false : true;
+                //note.keySound.hasSound = note.keySound.name == string.Empty ? false : true;
 
                 notes.Add( note );
             }
