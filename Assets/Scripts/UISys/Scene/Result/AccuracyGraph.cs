@@ -6,7 +6,7 @@ using TMPro;
 
 public class AccuracyGraph : MonoBehaviour
 {
-    public TextMeshProUGUI minText, maxText;
+    public TextMeshProUGUI accuracyRangeText;
     private LineRenderer rdr;
     private List<Vector3> positions = new List<Vector3>();
     private const float StartPosX = -875f;
@@ -71,10 +71,12 @@ public class AccuracyGraph : MonoBehaviour
         }
         positions.Add( new Vector3( EndPosX, posY, 0f ) );
 
-        int deviationMilliseconds = ( int )Global.Math.Abs( deviationAverage * 1000d );
-        int maxDeviationAverage   = canDivide && deviationMilliseconds >= 3 ? deviationMilliseconds : 1;
-        minText.text = $"{-maxDeviationAverage} ms";
-        maxText.text = $"{maxDeviationAverage} ms";
+        int minDeviationMilliseconds = ( int )Global.Math.Abs( minDeviationAbs * 1000d );
+        int minDeviationAverage      = minDeviationMilliseconds <= 3 ? 1 : minDeviationMilliseconds;
+
+        int maxDeviationMilliseconds = ( int )Global.Math.Abs( maxDeviationAbs * 1000d );
+        int maxDeviationAverage      = maxDeviationMilliseconds <= 3 ? 1 : maxDeviationMilliseconds;
+        accuracyRangeText.text = $"{-minDeviationAverage} ms ~ {maxDeviationAverage} ms";
     }
 
     private void Start()
