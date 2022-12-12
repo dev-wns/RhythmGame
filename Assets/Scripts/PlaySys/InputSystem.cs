@@ -219,7 +219,7 @@ public class InputSystem : MonoBehaviour
             if ( judge.CanBeHit( startDiff ) && Input.GetKeyDown( key ) )
             {
                 OnHitNote?.Invoke( NoteType.Default, false );
-                judge.ResultUpdate( 0d );
+                judge.ResultUpdate( startDiff );
                 SelectNextNote();
                 return;
             }
