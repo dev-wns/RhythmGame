@@ -6768,6 +6768,7 @@ MonoBehaviour:
   score: {fileID: 203582327}
   rate: {fileID: 1204265906}
   rank: {fileID: 893710554}
+  date: {fileID: 477232498}
   defaultOrigin: {fileID: 0}
   originBg: {fileID: 209727160}
 --- !u!1 &1802724669

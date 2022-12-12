@@ -32,6 +32,9 @@ public class ResultInfomation : MonoBehaviour
     [Header( "Rank" )]
     public Image rank;
 
+    [Header( "Today" )]
+    public TextMeshProUGUI date;
+
     [Header( "Background" )]
     public Sprite defaultOrigin;
     public Image originBg;
@@ -128,6 +131,9 @@ public class ResultInfomation : MonoBehaviour
                       scoreValue >= 850000 ? rankAtlas.GetSprite( "Ranking-B" ) :
                       scoreValue >= 800000 ? rankAtlas.GetSprite( "Ranking-C" ) :
                                              rankAtlas.GetSprite( "Ranking-D" );
+
+        // Date
+        date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
         // Background
         StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );

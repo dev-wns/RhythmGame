@@ -15802,6 +15802,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3743920d8b8b59d42b080d601451a042, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  visualizer: {fileID: 1923945050}
   prefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779, type: 3}
   scrollbar: {fileID: 1127617689}
   maxShowCount: 15
