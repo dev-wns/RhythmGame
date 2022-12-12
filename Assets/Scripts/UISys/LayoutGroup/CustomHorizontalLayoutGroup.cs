@@ -25,7 +25,7 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
         float childrenWidthOffset = childrenMaxWidth * anchor.x;
         float firstArgHalf        = rectChildren[0].sizeDelta.x * .5f;
 
-        float widthOffset  = firstArgHalf - childrenWidthOffset - maxSpacing;
+        float widthOffset  = firstArgHalf - childrenWidthOffset - maxSpacing + ( spacing * .5f );
         float heightOffset = -rectChildren[0].sizeDelta.y * ( anchor.y - .5f );
         for ( int i = 0; i < rectChildren.Count; i++ )
         {

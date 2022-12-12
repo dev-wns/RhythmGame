@@ -32,7 +32,7 @@ public class CustomVerticalLayoutGroup : CustomLayoutGroup
         float firstArgHalf         = rectChildren[0].sizeDelta.y * .5f;
 
         float widthOffset  = -rectChildren[0].sizeDelta.x * ( anchor.x - .5f );
-        float heightOffset = firstArgHalf - childrenHeightOffset - maxSpacing;
+        float heightOffset = firstArgHalf - childrenHeightOffset - maxSpacing + ( spacing * .5f );
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
             var child = rectChildren[i];

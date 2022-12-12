@@ -60,7 +60,7 @@ public class LaneSystem : MonoBehaviour
         {
             var sample = _chart.samples[i];
                 
-            if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) );
+            if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
                  keySampleSystem.AddSample( sample );
         }
 

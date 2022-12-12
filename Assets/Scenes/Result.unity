@@ -2065,7 +2065,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spacing: 22
   padding:
-    left: 11
+    left: 0
     right: 0
     top: 0
     bottom: 0
@@ -3635,7 +3635,7 @@ MonoBehaviour:
   spacing: -30
   padding:
     left: 0
-    right: 15
+    right: 0
     top: 0
     bottom: 0
   childAlignment: 4
@@ -4491,7 +4491,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spacing: 50
   padding:
-    left: 25
+    left: 0
     right: 0
     top: 0
     bottom: 0
@@ -4591,7 +4591,7 @@ MonoBehaviour:
   spacing: -30
   padding:
     left: 0
-    right: 15
+    right: 0
     top: 0
     bottom: 0
   childAlignment: 4
@@ -5062,7 +5062,7 @@ MonoBehaviour:
     left: 0
     right: 0
     top: 0
-    bottom: 3
+    bottom: 0
   childAlignment: 4
   rectChildren:
   - {fileID: 76846598}
@@ -7108,7 +7108,7 @@ MonoBehaviour:
     left: 0
     right: 0
     top: 0
-    bottom: 3
+    bottom: 0
   childAlignment: 4
   rectChildren:
   - {fileID: 1278749581}
@@ -7439,7 +7439,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spacing: 50
   padding:
-    left: 25
+    left: 0
     right: 0
     top: 0
     bottom: 0
