@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MeasureRenderer : MonoBehaviour
 {
-    private InGame scene;
     private ObjectPool<MeasureRenderer> pool;
     private double time;
 
@@ -12,21 +11,14 @@ public class MeasureRenderer : MonoBehaviour
 
     private void Awake()
     {
-        var sceneObj = GameObject.FindGameObjectWithTag( "Scene" );
-        if ( !sceneObj.TryGetComponent<InGame>( out scene ) )
-             Debug.LogError( "Game scene component not found." );
-
-
         rdr = GetComponent<SpriteRenderer>();
         transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
     }
 
     private void LateUpdate()
     {
-        var pos = GameSetting.JudgePos + ( float )( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight );
-        transform.localPosition = new Vector2( 0, pos );
-
-        if ( pos <= GameSetting.JudgePos )
+        transform.localPosition = new Vector2( 0, GameSetting.JudgePos + ( float )( ( time - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) );
+        if ( transform.localPosition.y <= GameSetting.JudgePos )
         {
             rdr.enabled = false;
             pool.Despawn( this );

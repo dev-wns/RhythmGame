@@ -15,7 +15,7 @@ public class FadeBackgroundSystem : MonoBehaviour
 
     private void Awake()
     {
-        bgPool = new ObjectPool<FadeBackground>( bgPrefab, 20 );
+        bgPool = new ObjectPool<FadeBackground>( bgPrefab, 5 );
         scroller.OnSelectSong += ChangeImage;
     }
 

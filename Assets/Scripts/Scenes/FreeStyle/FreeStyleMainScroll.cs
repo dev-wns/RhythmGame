@@ -8,12 +8,11 @@ using System;
 public class FreeStyleMainScroll : ScrollBase, IKeyBind
 {
     public SongInfomation prefab;
-    private RectTransform rt;
+    private RectTransform rt => transform as RectTransform;
 
     [Header("Scroll")]
     public ScrollBar scrollbar;
     public int maxShowCount = 7;
-    public int extraCount   = 8;
     
     private int median;
     private float curPos;
@@ -26,7 +25,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     public Scene CurrentScene { get; private set; }
     [Header( "Scene" )]
     private LinkedList<SongInfomation> songs = new LinkedList<SongInfomation>();
-    private LinkedListNode<SongInfomation> curNode, prevNode, nextNode;
+    private LinkedListNode<SongInfomation> curNode;
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
@@ -36,6 +35,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private bool isKeyUp, isKeyPress;
     private float keyUpTime, keyPressTime;
     private readonly uint waitPreviewTime = 500;
+    private float prefabOriginPosX;
     private float playback;
 
     private Song curSong;
@@ -45,14 +45,13 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void Awake()
     {
         IsLoop = true;
-        rt = transform as RectTransform;
         curPos = rt.anchoredPosition.y;
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
         KeyBind();
 
-        median = Mathf.FloorToInt( ( maxShowCount + extraCount ) / 2f );
+        median = Mathf.FloorToInt( maxShowCount / 2f );
 
         // 객체 할당
         scrollbar.Initialize( NowPlaying.Inst.Songs.Count );
@@ -61,11 +60,10 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
                     NowPlaying.Inst.CurrentSongIndex - median + Length :
                     NowPlaying.Inst.CurrentSongIndex - median;
 
-        for ( int i = 0; i < maxShowCount + extraCount; i++ )
+        for ( int i = 0; i < maxShowCount; i++ )
         {
             if ( count > Length - 1 ) count = 0;
             var song = Instantiate( prefab, transform );
-            song.Initialize();
             song.SetInfo( NowPlaying.Inst.Songs[count++] );
             songs.AddLast( song );
         }
@@ -75,6 +73,9 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         group.Initialize();
         group.SetLayoutVertical();
 
+        if ( songs.Count > 0 )
+             prefabOriginPosX = songs.First.Value.rt.anchoredPosition.x;
+
         // 중앙 위치에 있는 객체
         curNode = songs.First;
         for ( int i = 0; i < median; i++ )
@@ -83,25 +84,13 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
         }
         size = curNode.Value.rt.sizeDelta.y + group.spacing;
 
-        // Active 조절기준이 될 객체
-        prevNode = songs.First;
-        nextNode = songs.Last;
-        int extraHalf = Mathf.FloorToInt( extraCount / 2f );
-        for ( int i = 0; i < extraHalf; i++ )
-        {
-            prevNode.Value.gameObject.SetActive( false );
-            nextNode.Value.gameObject.SetActive( false );
-            prevNode = prevNode.Next;
-            nextNode = nextNode.Previous;
-        }
-
         // Count Text
         if ( maxText ) maxText.text = Length.ToString();
     }
 
     private void Start()
     {
-        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 100f, .5f );
         UpdateScrollBar();
 
         UpdateSong();
@@ -121,27 +110,19 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
                         CurrentIndex - median + Length :
                         CurrentIndex - median;
         last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
-        
-        // 활성화
-        nextNode.Value.gameObject.SetActive( false );
-        nextNode = nextNode.Previous;
-
-        prevNode = prevNode.Previous;
-        prevNode.Value.gameObject.SetActive( true );
 
         // 노드 이동
         songs.RemoveLast();
         songs.AddFirst( last );
-      
+
         // 위치 갱신
-        curNode.Value.rt.DOAnchorPosX( 0f, .5f );
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX, .5f );
         curNode = curNode.Previous;
-        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 100f, .5f );
 
         curPos -= size;
-        rt.DOAnchorPosY( curPos, .25f );
+        rt.DOAnchorPosY( curPos, .3f );
 
-        //UpdateSong();
         UpdateScrollBar();
     }
 
@@ -160,26 +141,18 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
                         CurrentIndex + median;
         first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
-        // 활성화
-        prevNode.Value.gameObject.SetActive( false );
-        prevNode = prevNode.Next;
-
-        nextNode = nextNode.Next;
-        nextNode.Value.gameObject.SetActive( true );
-
         // 노드 이동
         songs.RemoveFirst();
         songs.AddLast( first );
 
         // 위치 갱신
-        curNode.Value.rt.DOAnchorPosX( 0f, .5f );
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX, .5f );
         curNode = curNode.Next;
-        curNode.Value.rt.DOAnchorPosX( -100f, .5f );
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 100f, .5f );
 
         curPos += size;
-        rt.DOAnchorPosY( curPos, .25f );
+        rt.DOAnchorPosY( curPos, .3f );
 
-        //UpdateSong();
         UpdateScrollBar();
     }
 
@@ -216,6 +189,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void SelectChart()
     {
         GameSetting.NoteSizeMultiplier = NowPlaying.Inst.CurrentSong.keyCount == 4 ? 1.25f : 1f;
+
         SoundManager.Inst.Play( SoundSfxType.MainClick );
         CurrentScene.LoadScene( SceneType.Game );
     }

@@ -150,7 +150,7 @@ public class InputSystem : MonoBehaviour
         isReady = !_isPause;
         OnInputEvent?.Invoke( false );
 
-        if ( !_isPause || !curNote.IsSlider || !curNote.IsPressed ) 
+        if ( !_isPause || curNote == null || !curNote.IsSlider || !curNote.IsPressed ) 
              return;
 
         if ( isAuto )
