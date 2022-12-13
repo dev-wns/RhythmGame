@@ -243,6 +243,9 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
             SoundManager.Inst.Position = ( uint )curSong.previewTime;
             playback = curSong.previewTime;
             OnSoundRestart?.Invoke( curSong );
+
+            Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
+            SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
         }
 
         if ( isKeyUp )

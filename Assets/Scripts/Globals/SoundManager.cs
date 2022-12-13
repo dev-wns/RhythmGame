@@ -448,11 +448,16 @@ public class SoundManager : Singleton<SoundManager>
         StartCoroutine( Fade( _music, _start, _end, _t, _OnCompleted ) );
     }
 
+
     public IEnumerator Fade( Music _music, float _start, float _end, float _t, Action _OnCompleted )
     {
+        // 플레이 중이 아니면 Channel의 대부분의 함수는 사용할 수 없다.
+        // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
+        // isPlaying이 INVALID_HANDLE을 반환할때 false와 동일하게 취급한다.
         _music.channel.isPlaying( out bool isPlaying );
         if ( !isPlaying ) yield break;
 
+        // 같은 값일 때 계산 없이 종료.
         if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
         {
             ErrorCheck( _music.channel.setVolume( _end ) );
@@ -462,15 +467,18 @@ public class SoundManager : Singleton<SoundManager>
         float elapsedVolume = _start;
         float offset = _end - _start;
         ErrorCheck( _music.channel.setVolume( _start ) );
-        while ( _start < _end ? elapsedVolume < _end :
-                                elapsedVolume > _end )
+        while ( _start < _end ? elapsedVolume < _end : // FADEIN
+                                elapsedVolume > _end ) // FADEOUT
         {
+            // _start 초기화 후 다음 프레임 부터 증가.
+            yield return YieldCache.WaitForEndOfFrame;
             elapsedVolume += ( offset * Time.deltaTime ) / _t;
             ErrorCheck( _music.channel.setVolume( elapsedVolume ) );
-            yield return null;
         }
 
+        // 볼륨이 _end 보다 크기 때문에 ( 페이드인 기준 ) 프레임 넘어가기 전 _end 값으로 초기화.
         ErrorCheck( _music.channel.setVolume( _end ) );
+        yield return YieldCache.WaitForEndOfFrame;
         _OnCompleted?.Invoke();
     }
 
@@ -541,8 +549,6 @@ public class SoundManager : Singleton<SoundManager>
 
     public void Stop( Music _music )
     {
-        // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
-        // isPlaying이 INVALID_HANDLE을 반환할때 false와 동일하게 취급한다.
         _music.channel.isPlaying( out bool isPlaying );
         if ( isPlaying ) ErrorCheck( _music.channel.stop() );
         _music.sound.release();
