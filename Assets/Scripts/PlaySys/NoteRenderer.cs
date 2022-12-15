@@ -28,7 +28,7 @@ public class NoteRenderer : MonoBehaviour
         headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
 
         bodyTf = body.transform;
-        bodyTf.transform.position = new Vector2( 0, GameSetting.NoteWidth * .5f );
+        bodyTf.transform.position = new Vector2( 0, GameSetting.NoteHeight * .5f );
 
         tailTf = tail.transform;
         tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
@@ -63,11 +63,11 @@ public class NoteRenderer : MonoBehaviour
             if ( IsPressed ) 
                  newTime = NowPlaying.PlaybackChanged;
 
-            double bodyLength = ( ( CalcSliderTime - newTime ) * GameSetting.Weight ) - GameSetting.NoteWidth;
+            double bodyLength = ( ( CalcSliderTime - newTime ) * GameSetting.Weight ) - GameSetting.NoteHeight;
             bodyTf.localScale = bodyLength < 0 ? new Vector2( GameSetting.NoteBodyWidth, 0f ) :
                                                  new Vector2( GameSetting.NoteBodyWidth, ( float )bodyLength );
 
-            tailTf.localPosition = bodyLength < 0 ? Vector2.zero : new Vector2( 0f, ( float )( bodyLength + ( GameSetting.NoteWidth * .5f ) ) );
+            tailTf.localPosition = bodyLength < 0 ? Vector2.zero : new Vector2( 0f, ( float )( bodyLength ) );
         }
 
         transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) );
