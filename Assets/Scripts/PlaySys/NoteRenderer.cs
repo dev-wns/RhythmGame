@@ -30,11 +30,8 @@ public class NoteRenderer : MonoBehaviour
         bodyTf = body.transform;
         bodyTf.transform.position = new Vector2( 0, GameSetting.NoteWidth * .5f );
 
-        // tailTf = tail.transform;
-        // tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
-        // tail.enabled = false;
-        tail.gameObject.SetActive( false );
-
+        tailTf = tail.transform;
+        tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
     }
 
     public void SetInfo( int _lane, NoteSystem _system, in Note _note )
@@ -45,8 +42,8 @@ public class NoteRenderer : MonoBehaviour
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
         newTime = note.calcTime;
 
-        body.enabled = IsSlider;
-        head.color = tail.color = Color.white;
+        body.enabled = tail.enabled = IsSlider;
+        head.color   = tail.color   = Color.white;
         body.color = Color.gray;
     }
 
@@ -66,13 +63,11 @@ public class NoteRenderer : MonoBehaviour
             if ( IsPressed ) 
                  newTime = NowPlaying.PlaybackChanged;
 
-            double bodyLength = ( ( CalcSliderTime - newTime ) * GameSetting.Weight ) - ( GameSetting.NoteWidth * .5f );
+            double bodyLength = ( ( CalcSliderTime - newTime ) * GameSetting.Weight ) - GameSetting.NoteWidth;
             bodyTf.localScale = bodyLength < 0 ? new Vector2( GameSetting.NoteBodyWidth, 0f ) :
                                                  new Vector2( GameSetting.NoteBodyWidth, ( float )bodyLength );
 
-            //var tailPos = ( float )bodyLength - ( GameSetting.NoteHeight * BodyPositionOffset );
-            //tailTf.localPosition = tailPos < GameSetting.NoteHeight * BodyPositionOffset ? new Vector2( 0f, GameSetting.NoteHeight * BodyPositionOffset ) :
-            //                                                                               new Vector2( 0f, tailPos );
+            tailTf.localPosition = bodyLength < 0 ? Vector2.zero : new Vector2( 0f, ( float )( bodyLength + ( GameSetting.NoteWidth * .5f ) ) );
         }
 
         transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) );
