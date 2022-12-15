@@ -14880,15 +14880,16 @@ MonoBehaviour:
   gradationColorAlpha: 1
   color: {r: 1, g: 1, b: 1, a: 0.14901961}
   isGradationColor: 1
-  prefab: {fileID: 2841630171828651903, guid: 3e958ed5e751951429ddfb30c7c72f04, type: 3}
+  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
   sortingOrder: 4
   specStartIndex: 8
   specCount: 200
-  specPower: 3
+  specPower: 1.75
   specWidth: 4.3
   specBlank: 0.5
-  decreaseLerpPower: 13.5
+  decreaseLerpPower: 15
   increasePower: 5
+  IsNormalized: 1
   isReverse: 1
   isPositionUpdate: 0
 --- !u!1 &1118418892
@@ -20262,7 +20263,6 @@ MonoBehaviour:
   prefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779, type: 3}
   scrollbar: {fileID: 1127617689}
   maxShowCount: 15
-  extraCount: 4
   maxText: {fileID: 204352445}
   curText: {fileID: 164019667}
 --- !u!114 &1575546729
@@ -25101,11 +25101,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hasBass: 0
-  bassIncrease: 0
-  bassDecrease: 0
-  bassPower: 0
-  bassRange: 1
+  hasBass: 1
+  bassIncrease: 1
+  bassDecrease: 1
+  bassPower: 20
+  bassRange: 16
 --- !u!4 &1923945051
 Transform:
   m_ObjectHideFlags: 0
@@ -26222,6 +26222,99 @@ RectTransform:
   m_AnchoredPosition: {x: -85, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &2020652871
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2020652872}
+  - component: {fileID: 2020652874}
+  - component: {fileID: 2020652875}
+  - component: {fileID: 2020652873}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2020652872
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020652871}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2068238576}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 2048, y: 1384}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2020652873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020652871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: d4392e4c1c685e54882a2155796ba5e3, type: 3}
+  m_Type: 2
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 2.5
+--- !u!222 &2020652874
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020652871}
+  m_CullTransparentMesh: 1
+--- !u!114 &2020652875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020652871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a630a1099f679634eba270104212c349, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualizer: {fileID: 1923945050}
+  minAmount: 0.05
+  decrease: 0
+  decreasePower: 5
+  increasePower: 12
 --- !u!1 &2037650843
 GameObject:
   m_ObjectHideFlags: 0
@@ -26719,6 +26812,7 @@ RectTransform:
   m_Children:
   - {fileID: 1969700156}
   - {fileID: 499860227}
+  - {fileID: 2020652872}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -64,7 +64,7 @@ public class GameSetting
         }
     }
 
-    public static double Weight => ScrollSpeed * 320d;//1.5d + ( ScrollSpeed * ( 240d / ( NowPlaying.Inst.CurrentSong.medianBpm * CurrentPitch ) ) );
+    public static double Weight => ScrollSpeed * 320d;
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
@@ -90,9 +90,10 @@ public class GameSetting
 
     // note
     public static float NoteSizeMultiplier = 1f;
-    public static float NoteWidth  => 90f * NoteSizeMultiplier; // 83f; // 75f
-    public static float NoteHeight => 100f * NoteSizeMultiplier; // 65f; // 90f; // 1.28125
-    public static float NoteBlank  = 5f; //7.5f;
+    public static float NoteWidth  => 100f * NoteSizeMultiplier;
+    public static float NoteBodyWidth => 95f * NoteSizeMultiplier;
+    public static float NoteHeight => 65f * NoteSizeMultiplier;
+    public static float NoteBlank  = 0f;
     public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.Inst.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.Inst.KeyCount + 1 ) ) ) * .5f;
 
     // Gear

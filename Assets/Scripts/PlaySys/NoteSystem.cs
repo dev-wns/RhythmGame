@@ -15,7 +15,6 @@ public class NoteSystem : MonoBehaviour
     private List<Note> notes = new List<Note>();
     private Note curNote;
     private int curIndex;
-    private double loadTime;
 
     private void Awake()
     {
@@ -42,9 +41,6 @@ public class NoteSystem : MonoBehaviour
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         CurrentScene.OnGameStart    += () => StartCoroutine( Process() );
         CurrentScene.OnReLoad       += ReLoad;
-        CurrentScene.OnScrollChange += ScrollUpdate;
-
-        ScrollUpdate();
     }
 
     private void ReLoad()
@@ -54,10 +50,6 @@ public class NoteSystem : MonoBehaviour
         curNote = notes[curIndex];
         lane.InputSys.SetSound( curNote.keySound );
     }
-
-    private void OnDestroy() => CurrentScene.OnScrollChange -= ScrollUpdate;
-
-    public void ScrollUpdate() => loadTime = GameSetting.PreLoadTime;
 
     public void AddNote( in Note _note ) => notes.Add( _note );
 
@@ -71,7 +63,7 @@ public class NoteSystem : MonoBehaviour
             lane.InputSys.SetSound( curNote.keySound );
         }
 
-        WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + loadTime );
+        WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
         while ( curIndex < notes.Count )
         {
             yield return waitNextNote;

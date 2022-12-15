@@ -13,6 +13,12 @@ namespace Global
         public static int Abs( int _value )           => _value >= 0  ? _value : -_value;
         public static double Round( double _value )   => _value - ( int )_value >= .5d ? ( int )_value + 1d : ( int )_value;
         public static float Round( float _value )     => _value - ( int )_value >= .5f ? ( int )_value + 1f : ( int )_value;
+        public static int Clamp( int _value, int _min, int _max )
+        {
+            return _value < _min ? _min :
+                   _value > _max ? _max :
+                   _value;
+        }
         public static float Clamp( float _value, float _min, float _max )
         {
             return _value < _min ? _min :

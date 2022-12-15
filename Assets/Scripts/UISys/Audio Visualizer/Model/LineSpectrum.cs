@@ -6,9 +6,16 @@ public class LineSpectrum : BaseSpectrum
 {
     private float[] cached;
 
+    [Header("Speed Control")]
     [Range(0f, 50f)] 
     public float decreaseLerpPower;
     public float increasePower;
+
+    [Header("Normalize")]
+    public bool IsNormalized;
+    public readonly int NormalizedRange = 2;
+
+    [Header("Etc.")]
     public bool isReverse;
     public bool isPositionUpdate;
 
@@ -43,9 +50,19 @@ public class LineSpectrum : BaseSpectrum
             int index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
 
             // 스테레오( 0 : Left, 1 : Right ) 스펙트럼 값 평균.
-            float value  = ( _values[0][index] + _values[1][index] ) * .5f;
+            float value = ( _values[0][index] + _values[1][index] ) * .5f;
+            if ( IsNormalized )
+            {
+                float sumValue = 0f;
+                int start = Global.Math.Clamp( index - NormalizedRange, 0, 4096 );
+                int end   = Global.Math.Clamp( index + NormalizedRange, 0, 4096 );
+                for ( int idx = start; idx <= end; idx++ )
+                      sumValue += ( _values[0][idx] + _values[1][idx] ) * .5f;
 
-            // 현재 값과 스펙트럼 값의 차이가 클수록 빠르게 변화하도록 한다.
+                value = sumValue / ( end - start + 1 );
+            }
+
+            // 이전 값과의 차이가 클수록 빠르게 변화하도록 한다.
             float diffAbs = Global.Math.Abs( cached[i] - value );
             float amount  = Global.Math.Lerp( 0f, 1f, diffAbs * decreaseLerpPower * Time.deltaTime );
             cached[i] += cached[i] < value ? amount * increasePower : -amount;

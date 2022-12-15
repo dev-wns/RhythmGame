@@ -11,7 +11,6 @@ public class MeasureSystem : MonoBehaviour
     private List<double /* JudgeLine hit time */> measures = new List<double>();
     private int curIndex;
     private double curTime;
-    private double loadTime;
     private static readonly int Beat = 4;
 
     private class MeasureTiming
@@ -35,16 +34,10 @@ public class MeasureSystem : MonoBehaviour
                 scene.OnSystemInitialize += Initialize;
                 scene.OnReLoad += ReLoad;
                 scene.OnGameStart += () => StartCoroutine( Process() );
-                scene.OnScrollChange += UpdateScrollSpeed;
             }
         }
 
         mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
-    }
-
-    private void Start()
-    {
-        UpdateScrollSpeed();
     }
 
     private void ReLoad()
@@ -53,10 +46,6 @@ public class MeasureSystem : MonoBehaviour
         curIndex = 0;
         curTime = 0d;
     }
-
-    private void OnDestroy() => scene.OnScrollChange -= UpdateScrollSpeed;
-
-    private void UpdateScrollSpeed() => loadTime = GameSetting.PreLoadTime;
 
     public void Despawn( MeasureRenderer _obj ) => mPool.Despawn( _obj );
 
@@ -84,7 +73,7 @@ public class MeasureSystem : MonoBehaviour
         if ( measures.Count > 0 )
              curTime = measures[curIndex];
         
-        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + loadTime );
+        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
         while ( curIndex < measures.Count )
         {
             yield return waitNextMeasure;
