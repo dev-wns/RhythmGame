@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
-public class FrequencyBandImage : MonoBehaviour
+public class FreqBandImage : MonoBehaviour
 {
     private Image image;
     private float cached;
@@ -14,8 +14,6 @@ public class FrequencyBandImage : MonoBehaviour
     public FrequencyBand freqBand;
     [Range(0, 9)]
     public int bandIndex;
-    [Range(1f, 100f)]
-    public float power;
 
     [Range(0f, 50f)]
     public float decrease;
@@ -39,7 +37,7 @@ public class FrequencyBandImage : MonoBehaviour
 
     private void UpdateImage( float[] _values )
     {
-        float amount  = _values[bandIndex] * power;
+        float amount  = _values[bandIndex];
         float diffAbs = Global.Math.Abs( cached - amount );
         float value   = ( diffAbs * decrease ) * Time.deltaTime;
         cached += cached < amount ? value * increase : -value;

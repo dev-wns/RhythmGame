@@ -198,8 +198,8 @@ public class SoundManager : Singleton<SoundManager>
         Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
         // Logs
-        //ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
-        //Debug.Log( $"SampleRate : {sampleRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
+        ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
+        Debug.Log( $"SampleRate : {sampleRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
         //int softwareChannels;
         //ErrorCheck( system.getSoftwareChannels( out softwareChannels ) );
         //Debug.Log( $"SoftwareChannel {softwareChannels}" );
