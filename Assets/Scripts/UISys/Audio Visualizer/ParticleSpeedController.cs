@@ -30,6 +30,6 @@ public class ParticleSpeedController : MonoBehaviour
     {
         mainModule.simulationSpeed = 1000;
         yield return YieldCache.WaitForSeconds( .1f );
-        visualizer.OnUpdateBass += SpeedUpdate;
+        //visualizer.OnUpdateBass += SpeedUpdate;
     }
 }

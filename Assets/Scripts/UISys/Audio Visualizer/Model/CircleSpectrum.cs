@@ -15,8 +15,8 @@ public class CircleSpectrum : BaseSpectrum
     protected override void Awake()
     {
         base.Awake();
-        if ( visualizer.hasBass )
-             visualizer.OnUpdateBass += UpdateBass;
+        //if ( visualizer.hasBass )
+        //     visualizer.OnUpdateBass += UpdateBass;
     }
 
     protected override void CreateSpectrumModel()

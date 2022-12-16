@@ -64,7 +64,7 @@ public class LineSpectrum : BaseSpectrum
 
             // 이전 값과의 차이가 클수록 빠르게 변화하도록 한다.
             float diffAbs = Global.Math.Abs( cached[i] - value );
-            float amount  = Global.Math.Lerp( 0f, 1f, diffAbs * decreaseLerpPower * Time.deltaTime );
+            float amount  = ( diffAbs * decreaseLerpPower ) * Time.deltaTime;
             cached[i] += cached[i] < value ? amount * increasePower : -amount;
 
             // 계산된 값으로 스케일 조절.
