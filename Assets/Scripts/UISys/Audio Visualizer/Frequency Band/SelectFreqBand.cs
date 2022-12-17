@@ -26,8 +26,6 @@ public class SelectFreqBand : FrequencyBand
     protected override void Initialize()
     {
         freqBand       = new float[1];
-        bandBuffer     = new float[1];
-        bufferDecrease = new float[1];
     }
 
     protected override void UpdateFreqBand( float[][] _values )
@@ -36,40 +34,16 @@ public class SelectFreqBand : FrequencyBand
         if ( range <= 0 ) return;
 
         float sum = 0f;
+        int count = 1;
         for ( int i = start; i < end; i++ )
         {
-            sum += ( _values[0][i] + _values[1][i] ) * .5f;
+            sum += ( ( _values[0][i] + _values[1][i] ) * .5f ) * count++;
         }
         freqBand[0] = ( sum / range ) * power;
 
         startHz = start * hzPerFFTSize;
         endHz   = end   * hzPerFFTSize;
 
-        switch ( type )
-        {
-            case FreqType.FreqBand:
-            OnUpdateBand?.Invoke( freqBand );
-            break;
-
-            case FreqType.BandBuffer:
-            UpdateBandBuffer();
-            OnUpdateBand?.Invoke( bandBuffer );
-            break;
-        }
-    }
-
-    private void UpdateBandBuffer()
-    {
-        if ( bandBuffer[0] < freqBand[0] )
-        {
-            bandBuffer[0] = freqBand[0];
-            bufferDecrease[0] = .001f;
-        }
-
-        if ( bandBuffer[0] > freqBand[0] )
-        {
-            bandBuffer[0] -= bufferDecrease[0];
-            bufferDecrease[0] *= 1.1f;
-        }
+        OnUpdateBand?.Invoke( freqBand );
     }
 }

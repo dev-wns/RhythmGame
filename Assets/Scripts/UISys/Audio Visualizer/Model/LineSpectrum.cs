@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class LineSpectrum : BaseSpectrum
 {
-    private float[] cached;
+    private float[] buffer;
 
     [Header("Speed Control")]
     [Range(0f, 50f)] 
-    public float decreaseLerpPower;
-    public float increasePower;
+    public float decreasePower;
 
     [Header("Normalize")]
     public bool IsNormalized;
@@ -21,7 +20,7 @@ public class LineSpectrum : BaseSpectrum
 
     protected override void CreateSpectrumModel()
     {
-        cached     = new float[specCount];
+        buffer     = new float[specCount];
         transforms = new Transform[specCount * 2];
         int symmetryColorIdx = 0;
 
@@ -63,14 +62,12 @@ public class LineSpectrum : BaseSpectrum
             }
 
             // 이전 값과의 차이가 클수록 빠르게 변화하도록 한다.
-            float diffAbs = Global.Math.Abs( cached[i] - value );
-            float amount  = ( diffAbs * decreaseLerpPower ) * Time.deltaTime;
-            cached[i] += cached[i] < value ? amount * increasePower : -amount;
+            buffer[i] = buffer[i] < value ? value : Mathf.Lerp( buffer[i], value, decreasePower * Time.deltaTime );
 
             // 계산된 값으로 스케일 조절.
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];
-            left.localScale = right.localScale = new Vector3( specWidth, cached[i] * Power, 1f );
+            left.localScale = right.localScale = new Vector3( specWidth, buffer[i] * Power, 1f );
 
             if ( isPositionUpdate )
             {

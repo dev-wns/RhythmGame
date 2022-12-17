@@ -7,15 +7,8 @@ public abstract class FrequencyBand : MonoBehaviour
 {
     public AudioVisualizer visuzlizer;
     
-    public enum FreqType { FreqBand, BandBuffer, }
-    public FreqType type = FreqType.FreqBand;
-
     [Header( "Band" )]
     protected float[] freqBand;
-    protected float[] bandBuffer;
-    protected float[] bufferDecrease;
-
-    [Range(1f, 100f)]
     public float power;
 
     public Action<float[]> OnUpdateBand;

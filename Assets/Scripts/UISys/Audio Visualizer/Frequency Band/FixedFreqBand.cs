@@ -13,8 +13,6 @@ public class FixedFreqBand : FrequencyBand
     protected override void Initialize()
     {
         freqBand       = new float[MaxFreqBand];
-        bandBuffer     = new float[MaxFreqBand];
-        bufferDecrease = new float[MaxFreqBand];
     }
 
     /* 48000 / 4096 : 11.71875 Hertz
@@ -53,34 +51,6 @@ public class FixedFreqBand : FrequencyBand
             freqBand[i] = ( sum / sampleCount ) * power;
         }
 
-        switch ( type )
-        {
-            case FreqType.FreqBand:
-            OnUpdateBand?.Invoke( freqBand );
-            break;
-
-            case FreqType.BandBuffer:
-            UpdateBandBuffer();
-            OnUpdateBand?.Invoke( bandBuffer );
-            break;
-        }
-    }
-
-    private void UpdateBandBuffer()
-    {
-        for ( int i = 0; i < bandRange; i++ )
-        {
-            if ( bandBuffer[i] < freqBand[i] )
-            {
-                bandBuffer[i] = freqBand[i];
-                bufferDecrease[i] = .001f;
-            }
-
-            if ( bandBuffer[i] > freqBand[i] )
-            {
-                bandBuffer[i] -= bufferDecrease[i];
-                bufferDecrease[i] *= 1.1f;
-            }
-        }
+        OnUpdateBand?.Invoke( freqBand );
     }
 }
