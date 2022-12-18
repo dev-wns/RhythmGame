@@ -11052,11 +11052,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visuzlizer: {fileID: 1923945052}
-  power: 10
+  power: 1250
   freqCount: 12
   startIndex: 40
   multipleCount: 12
-  multiplePower: 0
 --- !u!4 &746346382
 Transform:
   m_ObjectHideFlags: 0

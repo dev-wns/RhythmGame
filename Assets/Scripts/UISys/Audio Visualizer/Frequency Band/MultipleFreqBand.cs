@@ -8,7 +8,6 @@ public class MultipleFreqBand : FrequencyBand
     [Range(1, 100)] public int   freqCount;
     [Range(1, 100)] public int   startIndex;
     [Range(1, 100)] public int   multipleCount;
-    [Range(0f, 1f)] public float multiplePower;
     public float Average { get; private set; }
 
     protected override void Initialize()
@@ -25,7 +24,7 @@ public class MultipleFreqBand : FrequencyBand
             for ( int j = 0; j < multipleCount; j++ )
             {
                 int index = startIndex + ( i * multipleCount ) + j;
-                sum += ( ( _values[0][index] + _values[1][index] ) * .5f ) * index;
+                sum += ( _values[0][index] + _values[1][index] ) * .5f;
             }
             freqBand[i] = ( sum / multipleCount ) * power;
             Average += freqBand[i];

@@ -55,10 +55,9 @@ public class FreqSpark : MonoBehaviour
 
     private void UpdateLineRenderer( float[] _values )
     {
-        float offset = freqBand.Average / Mathf.PI;
         for ( int i = 0; i < freqCount; i++ )
         {
-            float value = Global.Math.Clamp( _values[i] - offset, 0f, 1000f );
+            float value = Global.Math.Clamp( _values[i] - freqBand.Average, 0f, 45f );
 
             bandBuffer[i] = bandBuffer[i] < value ?
                             value : Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
