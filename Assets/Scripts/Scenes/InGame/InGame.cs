@@ -27,8 +27,8 @@ public class InGame : Scene
     {
         base.Start();
         IsInputLock = true;
-        OnSystemInitialize( NowPlaying.Inst.CurrentChart );
-        Task LoadkeySoundAsyncTask = Task.Run( () => OnSystemInitializeThread( NowPlaying.Inst.CurrentChart ) );
+        OnSystemInitialize( NowPlaying.CurrentChart );
+        Task LoadkeySoundAsyncTask = Task.Run( () => OnSystemInitializeThread( NowPlaying.CurrentChart ) );
 
         await LoadkeySoundAsyncTask;
 

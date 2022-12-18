@@ -16,7 +16,7 @@ public class LaneSystem : MonoBehaviour
     private int keyCount;
     private void Awake()
     {
-        keyCount = NowPlaying.Inst.CurrentSong.keyCount == 8 ? 7 : NowPlaying.Inst.CurrentSong.keyCount;
+        keyCount = NowPlaying.CurrentSong.keyCount == 8 ? 7 : NowPlaying.CurrentSong.keyCount;
 
         keySampleSystem = GetComponent<KeySampleSystem>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
@@ -49,13 +49,13 @@ public class LaneSystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
-        if ( !NowPlaying.Inst.CurrentSong.isOnlyKeySound )
+        if ( !NowPlaying.CurrentSong.isOnlyKeySound )
         {
-            if ( SoundManager.Inst.Load( NowPlaying.Inst.CurrentSong.audioPath ) )
-                 keySampleSystem.AddSample( new KeySound( 0d, Path.GetFileName( NowPlaying.Inst.CurrentSong.audioPath ), 1f ) );
+            if ( SoundManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
+                 keySampleSystem.AddSample( new KeySound( 0d, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
         }
 
-        var dir = Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
+        var dir = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         for ( int i = 0; i < _chart.samples.Count; i++ )
         {
             var sample = _chart.samples[i];
@@ -84,7 +84,7 @@ public class LaneSystem : MonoBehaviour
 
     private void CreateNotes( Chart _chart )
     {
-        var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
+        var dir = System.IO.Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
 
         var notes = _chart.notes;
         double[] sliderTimes = new double[6];

@@ -52,7 +52,7 @@ public class MeasureSystem : MonoBehaviour
     private void Initialize( Chart _chart )
     {
         var timings = _chart.uninheritedTimings;
-        var totalTime = NowPlaying.Inst.CurrentSong.totalTime;
+        var totalTime = NowPlaying.CurrentSong.totalTime;
         for ( int i = 0; i < timings.Count; i++ )
         {
             double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )

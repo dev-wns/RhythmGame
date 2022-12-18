@@ -95,7 +95,7 @@ public class ResultInfomation : MonoBehaviour
         Judgement judge = scene.Judge;
         if ( judge == null ) return;
 
-        var song = NowPlaying.Inst.CurrentSong;
+        var song = NowPlaying.CurrentSong;
         // Song Infomation
         title.text = song.title;
         artist.text = song.artist;
@@ -136,7 +136,7 @@ public class ResultInfomation : MonoBehaviour
         date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
         // Background
-        StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+        StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
 
         StartCoroutine( ProgressEffect( judge ) );
     }

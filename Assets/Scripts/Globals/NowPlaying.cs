@@ -12,8 +12,8 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Variables
     public static Scene CurrentScene;
     public ReadOnlyCollection<Song> Songs { get; private set; } = new ReadOnlyCollection<Song>( new List<Song>() );
-    public Song CurrentSong     { get; private set; }
-    public Chart CurrentChart   { get; private set; }
+    public static Song CurrentSong     { get; private set; }
+    public static Chart CurrentChart   { get; private set; }
     public int CurrentSongIndex { get; private set; }
     private double medianBPM;
 
@@ -37,7 +37,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public bool IsLoadBGA      { get; set; }
     public bool IsLoadKeySound { get; set; }
     public int OriginKeyCount => CurrentSong.keyCount;
-    public int KeyCount => CurrentSong.keyCount == 8 ? 7 : CurrentSong.keyCount;
     #endregion
 
     #region Unity Callback

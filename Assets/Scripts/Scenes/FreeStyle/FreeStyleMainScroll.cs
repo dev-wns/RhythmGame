@@ -167,7 +167,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
     private void UpdateSong()
     {
         NowPlaying.Inst.UpdateSong( CurrentIndex );
-        curSong = NowPlaying.Inst.CurrentSong;
+        curSong = NowPlaying.CurrentSong;
 
         Music prevMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
         SoundManager.Inst.FadeVolume( prevMusic, 1f, 0f, .5f, () => SoundManager.Inst.Stop( prevMusic ) );
@@ -188,7 +188,7 @@ public class FreeStyleMainScroll : ScrollBase, IKeyBind
 
     private void SelectChart()
     {
-        GameSetting.NoteSizeMultiplier = NowPlaying.Inst.CurrentSong.keyCount == 4 ? 1.25f : 1f;
+        GameSetting.NoteSizeMultiplier = NowPlaying.CurrentSong.keyCount == 4 ? 1.25f : 1f;
 
         SoundManager.Inst.Play( SoundSfxType.MainClick );
         CurrentScene.LoadScene( SceneType.Game );

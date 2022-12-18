@@ -116,7 +116,7 @@ public class InputSystem : MonoBehaviour
     #region Event
     public void Initialize( int _key )
     {
-        key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.Inst.KeyCount][_key];
+        key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.CurrentSong.keyCount][_key];
         isReady = true;
     }
 

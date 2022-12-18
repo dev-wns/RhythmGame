@@ -59,8 +59,8 @@ public class ScoreSystem : MonoBehaviour
         }
         else
         {
-            maxJudgeCount = NowPlaying.Inst.CurrentSong.noteCount +
-                          ( NowPlaying.Inst.CurrentSong.sliderCount * 2 );
+            maxJudgeCount = NowPlaying.CurrentSong.noteCount +
+                          ( NowPlaying.CurrentSong.sliderCount * 2 );
         }
 
         maxScore = 1000000d / maxJudgeCount;

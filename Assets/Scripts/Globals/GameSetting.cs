@@ -94,11 +94,11 @@ public class GameSetting
     public static float NoteBodyWidth => 95f * NoteSizeMultiplier;
     public static float NoteHeight => 65f * NoteSizeMultiplier;
     public static float NoteBlank  = 0f;
-    public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.Inst.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.Inst.KeyCount + 1 ) ) ) * .5f;
+    public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.CurrentSong.keyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) ) * .5f;
 
     // Gear
-    public static float GearStartPos => ( -( ( NoteWidth * NowPlaying.Inst.KeyCount ) + ( NoteBlank * ( NowPlaying.Inst.KeyCount + 1 ) ) ) * .5f );
-    public static float GearWidth    => ( ( NoteWidth * NowPlaying.Inst.KeyCount ) + ( NoteBlank * ( NowPlaying.Inst.KeyCount + 1 ) ) );
+    public static float GearStartPos => ( -( ( NoteWidth * NowPlaying.CurrentSong.keyCount ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) ) * .5f );
+    public static float GearWidth    => ( ( NoteWidth * NowPlaying.CurrentSong.keyCount ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) );
 
     // Pitch
     private static int pitch = 100;

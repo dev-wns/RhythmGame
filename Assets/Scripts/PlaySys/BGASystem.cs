@@ -84,9 +84,9 @@ public class BGASystem : MonoBehaviour
             return;
         }
 
-        type = NowPlaying.Inst.CurrentSong.hasVideo ? BackgroundType.Video  :
-               _chart.sprites.Count > 0             ? BackgroundType.Sprite : 
-                                                      BackgroundType.Image;
+        type = NowPlaying.CurrentSong.hasVideo ? BackgroundType.Video  :
+               _chart.sprites.Count > 0        ? BackgroundType.Sprite : 
+                                                 BackgroundType.Image;
         switch ( type )
         {
             case BackgroundType.Video:
@@ -103,7 +103,7 @@ public class BGASystem : MonoBehaviour
             break;
 
             case BackgroundType.Image:
-                StartCoroutine( LoadBackground( NowPlaying.Inst.CurrentSong.imagePath ) );
+                StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
             break;
         }
         gameDebug?.SetBackgroundType( type );
@@ -117,7 +117,7 @@ public class BGASystem : MonoBehaviour
 
     private IEnumerator WaitVideo()
     {
-        yield return new WaitUntil( () => NowPlaying.Playback >= NowPlaying.Inst.CurrentSong.videoOffset * .001d );
+        yield return new WaitUntil( () => NowPlaying.Playback >= NowPlaying.CurrentSong.videoOffset * .001d );
         vp.Play();
     }
 
@@ -156,7 +156,7 @@ public class BGASystem : MonoBehaviour
     {
         vp.enabled = true;
         vp.playbackSpeed = GameSetting.CurrentPitch;
-        vp.url = @$"{NowPlaying.Inst.CurrentSong.videoPath}";
+        vp.url = @$"{NowPlaying.CurrentSong.videoPath}";
         vp.targetTexture = renderTexture;
         background.texture = renderTexture;
         background.color = color;
@@ -230,7 +230,7 @@ public class BGASystem : MonoBehaviour
 
     public IEnumerator LoadSamples( ReadOnlyCollection<SpriteSample> _samples )
     {
-        var dir = System.IO.Path.GetDirectoryName( NowPlaying.Inst.CurrentSong.filePath );
+        var dir = System.IO.Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         for ( int i = 0; i < _samples.Count; i++ )
         {
             if ( textures.ContainsKey( _samples[i].name ) )

@@ -231,7 +231,7 @@ public class FileConverter : FileReader
         {
             var newPath = Path.ChangeExtension( osuFiles[i], "wns" );
             if ( !File.Exists( newPath ) )
-                Convert( osuFiles[i] );
+                 Convert( osuFiles[i] );
         }
     }
 

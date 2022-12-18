@@ -54,7 +54,7 @@ public class SongPreview : MonoBehaviour
 
     private void PitchUpdate( float _pitch )
     {
-        Song song = NowPlaying.Inst.CurrentSong;
+        Song song = NowPlaying.CurrentSong;
         int second = ( int )( ( song.totalTime * .001f ) / _pitch );
         int minute = second / 60;
         second = second % 60;

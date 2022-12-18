@@ -22,15 +22,15 @@ public class NoteSystem : MonoBehaviour
         lane.OnLaneInitialize += ( int _key ) =>
         {
             NoteRenderer skin = note1;
-            if ( NowPlaying.Inst.KeyCount == 4 )
+            if ( NowPlaying.CurrentSong.keyCount == 4 )
             {
                 skin = _key == 1 || _key == 2 ? note2 : note1;
             }
-            else if ( NowPlaying.Inst.KeyCount == 6 )
+            else if ( NowPlaying.CurrentSong.keyCount == 6 )
             {
                 skin = _key == 1 || _key == 4 ? note2 : note1;
             }
-            else if ( NowPlaying.Inst.KeyCount == 7 )
+            else if ( NowPlaying.CurrentSong.keyCount == 7 )
             {
                 skin = _key == 1 || _key == 5 ? note2 : 
                                     _key == 3 ? noteMedian : note1;

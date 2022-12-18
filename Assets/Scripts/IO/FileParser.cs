@@ -78,7 +78,11 @@ public class FileParser : FileReader
                 if ( Contains( "PreviewTime:" ) ) _song.previewTime = int.Parse( Split( ':' ) );
                 if ( Contains( "TotalTime:" ) )   _song.totalTime   = int.Parse( Split( ':' ) );
 
-                if ( Contains( "KeyCount:" ) )  _song.keyCount    = int.Parse( Split( ':' ) );
+                if ( Contains( "KeyCount:" ) )
+                {
+                    _song.keyCount = int.Parse( Split( ':' ) );
+                    _song.keyCount = _song.keyCount == 8 ? 7 : _song.keyCount;
+                }
                 if ( Contains( "NumNote:" ) )   _song.noteCount   = int.Parse( Split( ':' ) );
                 if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( Split( ':' ) );
 
