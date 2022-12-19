@@ -4,7 +4,7 @@ using DG.Tweening;
 
 public class FreeStyle : Scene
 {
-    public OptionController    gameSetting, systemSetting;
+    public OptionController    gameSetting, systemSetting, exitContoller;
     public FreeStyleKeySetting keySetting;
     public TextMeshProUGUI speedText;
 
@@ -31,6 +31,10 @@ public class FreeStyle : Scene
         SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }
 
+    public void Quit() => Application.Quit();
+
+    public void ExitCancel() => DisableOption( ActionType.Main, exitContoller );
+
     private void MoveToPrevOption( OptionController _controller )
     {
         _controller.PrevMove();
@@ -41,40 +45,6 @@ public class FreeStyle : Scene
     {
         _controller.NextMove();
         SoundManager.Inst.Play( SoundSfxType.MenuSelect );
-    }
-
-    private void EnableOption( ActionType _changeType, OptionController _controller )
-    {
-        GameObject root = _controller.transform.root.gameObject;
-        root.SetActive( true );
-        if ( root.TryGetComponent( out CanvasGroup group ) )
-        {
-            group.alpha = 0f;
-            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.OptionFadeDuration );
-        }
-
-        ChangeAction( _changeType );
-        SoundManager.Inst.Play( SoundSfxType.MenuClick );
-        SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume * .5f, .5f );
-    }
-
-    private void DisableOption( ActionType _changeType, OptionController _controller )
-    {
-        DOTween.Clear();
-        GameObject root = _controller.transform.root.gameObject;
-        if ( root.TryGetComponent( out CanvasGroup group ) )
-        {
-            group.alpha = 1f;
-            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.OptionFadeDuration ).OnComplete( () => root.SetActive( false ) );
-        }
-        else
-        {
-            root.SetActive( false );
-        }
-
-        ChangeAction( _changeType );
-        SoundManager.Inst.Play( SoundSfxType.MenuHover );
-        SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
     }
 
     public override void KeyBind()
@@ -112,5 +82,11 @@ public class FreeStyle : Scene
         Bind( ActionType.KeySetting, KeyCode.RightArrow, () => { MoveToNextOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.Tab,                keySetting.ChangeButtonCount );
+
+        // Exit
+        Bind( ActionType.Main, KeyCode.Escape,     () => { EnableOption(  ActionType.Exit, exitContoller ); } );
+        Bind( ActionType.Exit, KeyCode.Escape,             ExitCancel );
+        Bind( ActionType.Exit, KeyCode.RightArrow, () => { MoveToNextOption( exitContoller ); } );
+        Bind( ActionType.Exit, KeyCode.LeftArrow,  () => { MoveToPrevOption( exitContoller ); } );
     }
 }

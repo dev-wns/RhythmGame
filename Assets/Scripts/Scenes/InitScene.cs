@@ -45,13 +45,7 @@ public class InitScene : Scene
         //}
 
         fadeImage.enabled = false;
-        LoadScene( SceneType.Lobby );
-    }
-
-    protected override void Awake()
-    {
-        base.Awake();
-        NowPlaying NP = NowPlaying.Inst;
+        LoadScene( SceneType.FreeStyle );
     }
 
     protected override void Start()

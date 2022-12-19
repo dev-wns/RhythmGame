@@ -21,17 +21,15 @@ public class ScrollHide : ScrollOption
 
     protected virtual void Start()
     {
+        if ( numMaxActive == 0 )
+             numMaxActive = options.Count;
+
         int minIndex = CurrentIndex - activeIndex;
         int maxIndex = CurrentIndex + Global.Math.Abs( activeIndex - numMaxActive );
         for ( int i = 0; i < options.Count; i++ )
         {
-            var rt = options[i].transform as RectTransform;
-
-            rt.anchorMin = new Vector2( .5f, 1f );
-            rt.anchorMax = new Vector2( .5f, 1f );
-
             if ( i < minIndex || i > maxIndex - 1 )
-                options[i].gameObject.SetActive( false );
+                 options[i].gameObject.SetActive( false );
         }
     }
 
