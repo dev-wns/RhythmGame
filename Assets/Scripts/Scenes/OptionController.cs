@@ -3,19 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public abstract class SceneScrollOption : ScrollHide, IKeyBind
+public class OptionController : ScrollHide
 {
-    protected Scene CurrentScene { get; private set; }
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        GameObject scene = GameObject.FindGameObjectWithTag( "Scene" );
-        CurrentScene = scene.GetComponent<Scene>();
-        KeyBind();
-    }
-
     protected override void Start()
     {
         base.Start();
@@ -70,6 +59,4 @@ public abstract class SceneScrollOption : ScrollHide, IKeyBind
             CurrentOption.ActiveOutline( true );
         }
     }
-
-    public abstract void KeyBind();
 }
