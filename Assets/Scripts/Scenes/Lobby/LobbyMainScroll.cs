@@ -74,7 +74,7 @@ public class LobbyMainScroll : ScrollOption, IKeyBind
         optionGroup.alpha = 0f;
         optionCanvas.SetActive( true );
         DOTween.To( () => 0f, x => optionGroup.alpha = x, 1f, Global.Const.OptionFadeDuration );
-        scene.ChangeAction( ActionType.Option );
+        scene.ChangeAction( ActionType.SystemOption );
         SoundManager.Inst.Play( SoundSfxType.MenuClick );
     }
 

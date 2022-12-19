@@ -100,7 +100,7 @@ public class InGame : Scene
             {
                 pauseCanvas.SetActive( true );
                 SoundManager.Inst.Play( SoundSfxType.MenuClick );
-                ChangeAction( ActionType.Option );
+                ChangeAction( ActionType.Pause );
             }
             else
             {
@@ -119,8 +119,8 @@ public class InGame : Scene
 
     public override void KeyBind()
     {
-        Bind( ActionType.Option, KeyCode.Escape, () => Pause( false ) );
-        Bind( ActionType.Main,   KeyCode.Escape, () => Pause( true ) );
+        Bind( ActionType.Pause, KeyCode.Escape, () => Pause( false ) );
+        Bind( ActionType.Main,  KeyCode.Escape, () => Pause( true ) );
 
         Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );

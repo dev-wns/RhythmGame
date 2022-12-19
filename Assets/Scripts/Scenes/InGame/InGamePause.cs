@@ -46,10 +46,10 @@ public class InGamePause : ScrollOption, IKeyBind
 
     public void KeyBind()
     {
-        scene.Bind( ActionType.Option, KeyCode.UpArrow, () => PrevMove() );
-        scene.Bind( ActionType.Option, KeyCode.DownArrow, () => NextMove() );
+        scene.Bind( ActionType.Pause, KeyCode.UpArrow,   () => PrevMove() );
+        scene.Bind( ActionType.Pause, KeyCode.DownArrow, () => NextMove() );
 
-        scene.Bind( ActionType.Option, KeyCode.Return, () => CurrentOption.Process() );
-        scene.Bind( ActionType.Option, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
+        scene.Bind( ActionType.Pause, KeyCode.Return, () => CurrentOption.Process() );
+        scene.Bind( ActionType.Pause, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
     }
 }

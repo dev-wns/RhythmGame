@@ -41,9 +41,9 @@ public class FreeStyleOption : SceneScrollOption
 
     public override void KeyBind()
     {
-        CurrentScene.Bind( ActionType.Option, KeyCode.UpArrow,   ScrollDown );
-        CurrentScene.Bind( ActionType.Option, KeyCode.DownArrow, ScrollUp );
-        CurrentScene.Bind( ActionType.Option, KeyCode.Escape,    Back );
-        CurrentScene.Bind( ActionType.Option, KeyCode.Space,     Back );
+        CurrentScene.Bind( ActionType.GameOption, KeyCode.UpArrow,   ScrollDown );
+        CurrentScene.Bind( ActionType.GameOption, KeyCode.DownArrow, ScrollUp );
+        CurrentScene.Bind( ActionType.GameOption, KeyCode.Escape,    Back );
+        CurrentScene.Bind( ActionType.GameOption, KeyCode.Space,     Back );
     }
 }

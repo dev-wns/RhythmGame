@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
 {
     [Header( "Type" )]
-    public ActionType actionType = ActionType.Option;
+    public ActionType actionType = ActionType.Main;
     public OptionType type { get; protected set; }
 
     protected Scene CurrentScene { get; private set; }

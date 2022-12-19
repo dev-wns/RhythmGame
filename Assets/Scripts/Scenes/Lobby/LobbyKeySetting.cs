@@ -30,7 +30,7 @@ public class LobbyKeySetting : SceneOptionBase
 
     private void OnEnable()
     {
-        CurrentScene.ChangeAction( ActionType.SubOption );
+        CurrentScene.ChangeAction( ActionType.KeySetting );
         curKeyIndex = -1;
         ChangeButtonCount();
     }
@@ -76,17 +76,17 @@ public class LobbyKeySetting : SceneOptionBase
 
     public override void KeyBind()
     {
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.LeftArrow, () => PrevMove() );
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.LeftArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.LeftArrow, () => PrevMove() );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.LeftArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.RightArrow, () => NextMove() );
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.RightArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.RightArrow, () => NextMove() );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.RightArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
 
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.Tab, () => ChangeButtonCount() );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Tab, () => ChangeButtonCount() );
 
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => CurrentScene.ChangeAction( ActionType.Option ) );
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
-        CurrentScene.Bind( ActionType.SubOption, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Escape, () => CurrentScene.ChangeAction( ActionType.SystemOption ) );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
+        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
     }
 
     private void Update()

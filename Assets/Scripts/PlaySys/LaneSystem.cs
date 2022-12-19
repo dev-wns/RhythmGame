@@ -12,13 +12,12 @@ public class LaneSystem : MonoBehaviour
     private KeySampleSystem keySampleSystem;
     private List<Lane> lanes = new List<Lane>();
     private System.Random random;
-
     private readonly int MinimumSwapCount = 5;
-
     private int keyCount;
+
     private void Awake()
     {
-        keyCount = NowPlaying.CurrentSong.keyCount == 8 ? 7 : NowPlaying.CurrentSong.keyCount;
+        keyCount = NowPlaying.CurrentSong.keyCount;
 
         keySampleSystem = GetComponent<KeySampleSystem>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
@@ -45,8 +44,6 @@ public class LaneSystem : MonoBehaviour
         {
             lanes[i].UpdatePosition( i );
         }
-
-        random = new System.Random( ( int )System.DateTime.Now.Ticks );
     }
 
     private void Initialize( Chart _chart )
@@ -61,7 +58,6 @@ public class LaneSystem : MonoBehaviour
         for ( int i = 0; i < _chart.samples.Count; i++ )
         {
             var sample = _chart.samples[i];
-                
             if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
                  keySampleSystem.AddSample( sample );
         }
@@ -71,25 +67,12 @@ public class LaneSystem : MonoBehaviour
         NowPlaying.Inst.IsLoadKeySound = true;
     }
 
-    private void LaneSwap( int _min, int _max, int _swapCount )
-    {
-        for ( int i = 0; i < _swapCount; i++ )
-        {
-            var randA = random.Next( _min, _max );
-            var randB = random.Next( _min, _max );
-
-            var tmp      = lanes[randA];
-            lanes[randA] = lanes[randB];
-            lanes[randB] = tmp;
-        }
-    }
-
     private void CreateNotes( Chart _chart )
     {
         var notes        = _chart.notes;
         string dir       = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        int keyCount     = NowPlaying.CurrentSong.keyCount;
+        random           = new System.Random( ( int )System.DateTime.Now.Ticks );
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
@@ -112,8 +95,7 @@ public class LaneSystem : MonoBehaviour
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     lanes[newNote.lane].NoteSys.AddNote( in newNote );
-                }
-                break;
+                } break;
 
                 case GameRandom.Max_Random:
                 {
@@ -141,8 +123,7 @@ public class LaneSystem : MonoBehaviour
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     lanes[selectLane].NoteSys.AddNote( in newNote );
-                }
-                break;
+                } break;
             }
         }
 
@@ -159,9 +140,22 @@ public class LaneSystem : MonoBehaviour
 
             case GameRandom.Half_Random:
             int keyCountHalf = Mathf.FloorToInt( keyCount * .5f );
-            LaneSwap( 0, keyCountHalf, MinimumSwapCount );
-            LaneSwap( keyCountHalf + 1, keyCount, MinimumSwapCount );
+            LaneSwap( 0,                keyCountHalf, MinimumSwapCount );
+            LaneSwap( keyCountHalf + 1, keyCount,     MinimumSwapCount );
             break;
+        }
+    }
+
+    private void LaneSwap( int _min, int _max, int _swapCount )
+    {
+        for ( int i = 0; i < _swapCount; i++ )
+        {
+            var randA = random.Next( _min, _max );
+            var randB = random.Next( _min, _max );
+
+            var tmp      = lanes[randA];
+            lanes[randA] = lanes[randB];
+            lanes[randB] = tmp;
         }
     }
 }
