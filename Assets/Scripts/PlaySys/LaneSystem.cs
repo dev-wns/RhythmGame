@@ -1,3 +1,4 @@
+using System.Linq;
 using System.IO;
 using System.Threading;
 using System.Collections;
@@ -12,6 +13,7 @@ public class LaneSystem : MonoBehaviour
     private List<Lane> lanes = new List<Lane>();
     private System.Random random;
 
+    private readonly int MinimumSwapCount = 5;
 
     private int keyCount;
     private void Awake()
@@ -69,7 +71,7 @@ public class LaneSystem : MonoBehaviour
         NowPlaying.Inst.IsLoadKeySound = true;
     }
 
-    private void LaneSwap( int _min, int _max, int _swapCount = 6 )
+    private void LaneSwap( int _min, int _max, int _swapCount )
     {
         for ( int i = 0; i < _swapCount; i++ )
         {
@@ -84,17 +86,19 @@ public class LaneSystem : MonoBehaviour
 
     private void CreateNotes( Chart _chart )
     {
-        var dir = System.IO.Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
+        var notes        = _chart.notes;
+        string dir       = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
+        bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        int keyCount     = NowPlaying.CurrentSong.keyCount;
 
-        var notes = _chart.notes;
-        double[] sliderTimes = new double[6];
-        BitArray isUsedColumn = new BitArray( 6 );
-        double prevTime = 0d;
-
-        bool isEightKey = NowPlaying.Inst.OriginKeyCount == 8;
+        List<int/* lane */> emptyLanes = new List<int>( keyCount );
+        double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
+        double secondPer16Beats        = ( 60d / ( NowPlaying.CurrentSong.medianBpm + 1/* 최소오차 */ ) ) * .25d; // 4/16
         for ( int i = 0; i < notes.Count; i++ )
         {
-            bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+            Note newNote = notes[i];
+            if ( hasNoSlider ) 
+                 newNote.isSlider = false;
 
             switch ( GameSetting.CurrentRandom )
             {
@@ -103,51 +107,40 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    Note newNote = notes[i];
-                    if ( hasNoSlider )
-                         newNote.isSlider = false;
-
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
-
                     lanes[newNote.lane].NoteSys.AddNote( in newNote );
                 }
                 break;
 
                 case GameRandom.Max_Random:
                 {
-                    if ( prevTime < notes[i].time )
+                    emptyLanes.Clear();
+                    for ( int j = 0; j < keyCount; j++ ) // 32비트 빠른계단, 즈레 보정
                     {
-                        for ( int j = 0; j < 6; j++ )
+                        if ( secondPer16Beats < ( newNote.time - prevTimes[j] ) )
+                             emptyLanes.Add( j );
+                    }
+
+                    if ( emptyLanes.Count == 0 ) // 보정할 수 없을때 남은 자리 찾기
+                    {
+                        for ( int j = 0; j < keyCount; j++ )
                         {
-                            if ( sliderTimes[j] < notes[i].time )
-                                 isUsedColumn[j] = false;
+                            if ( prevTimes[j] < newNote.time )
+                                 emptyLanes.Add( j );
                         }
                     }
 
-                    var rand = random.Next( 0, 6 );
-                    while ( isUsedColumn[rand] || sliderTimes[rand] > notes[i].time )
-                    {
-                        rand = random.Next( 0, 6 );
-                    }
-
-                    isUsedColumn[rand] = true;
-                    prevTime = notes[i].time;
-
-                    if ( notes[i].isSlider )
-                         sliderTimes[rand] = notes[i].sliderTime;
-
-                    Note newNote = notes[i];
-                    if ( hasNoSlider )
-                         newNote.isSlider = false;
+                    int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
+                    prevTimes[selectLane] = newNote.isSlider ? newNote.sliderTime : newNote.time;
 
                     newNote.calcTime       = NowPlaying.Inst.GetChangedTime( newNote.time );
                     newNote.calcSliderTime = NowPlaying.Inst.GetChangedTime( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
-                    lanes[rand].NoteSys.AddNote( in newNote );
+                    lanes[selectLane].NoteSys.AddNote( in newNote );
                 }
                 break;
             }
@@ -161,12 +154,13 @@ public class LaneSystem : MonoBehaviour
             break;
 
             case GameRandom.Basic_Random:
-            LaneSwap( 0, 5 );
+            LaneSwap( 0, keyCount, MinimumSwapCount );
             break;
 
             case GameRandom.Half_Random:
-            LaneSwap( 0, 2 );
-            LaneSwap( 3, 5 );
+            int keyCountHalf = Mathf.FloorToInt( keyCount * .5f );
+            LaneSwap( 0, keyCountHalf, MinimumSwapCount );
+            LaneSwap( keyCountHalf + 1, keyCount, MinimumSwapCount );
             break;
         }
     }
