@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class LobbyKeySetting : SceneOptionBase
+public class LobbyKeySetting : OptionController
 {
-    public GameObject keySettingCanvas;
     public TextMeshProUGUI KeyCountText;
     private CustomHorizontalLayoutGroup layoutGroup;
     private List<KeySettingOption> tracks = new List<KeySettingOption>();
     private KeyCode curKeyCode;
-    private GameKeyCount[] changeKeyCounts = new GameKeyCount[] {GameKeyCount._4,  GameKeyCount._6, GameKeyCount._7};
+    private GameKeyCount[] changeKeyCount = new GameKeyCount[] {GameKeyCount._4,  GameKeyCount._6, GameKeyCount._7};
     private GameKeyCount curKeyCount;
     private int curKeyIndex;
 
@@ -30,31 +29,41 @@ public class LobbyKeySetting : SceneOptionBase
 
     private void OnEnable()
     {
-        CurrentScene.ChangeAction( ActionType.KeySetting );
-        curKeyIndex = -1;
-        ChangeButtonCount();
+        Initialize( 0 );
     }
 
-    private void ChangeButtonCount()
+    private void Initialize( int _curIndex )
     {
-        curKeyIndex = curKeyIndex + 1 < changeKeyCounts.Length ? curKeyIndex + 1 : 0;
-        curKeyCount = changeKeyCounts[curKeyIndex];
+        curKeyIndex = _curIndex;
+        curKeyCount = changeKeyCount[curKeyIndex];
+
         Length = KeySetting.Inst.Keys[curKeyCount].Length;
         for ( int i = 0; i < 7; i++ )
         {
             tracks[i].KeyRemove();
             tracks[i].ActiveOutline( false );
-            bool isActive = i < Length;
-            tracks[i].gameObject.SetActive( isActive );
-
-            if ( isActive )
-                 tracks[i].Change( curKeyCount, KeySetting.Inst.Keys[curKeyCount][i] );
+            if ( i < Length )
+            {
+                tracks[i].gameObject.SetActive( true );
+                tracks[i].Change( curKeyCount, KeySetting.Inst.Keys[curKeyCount][i] );
+            }
+            else
+            {
+                tracks[i].gameObject.SetActive( false );
+            }
         }
 
         Select( 0 );
         tracks[0].ActiveOutline( true );
         layoutGroup.SetLayoutHorizontal();
         KeyCountText.text = $"{Length}K Setting";
+    }
+
+
+    public void ChangeButtonCount()
+    {
+        SoundManager.Inst.Play( SoundSfxType.MenuClick );
+        Initialize( curKeyIndex + 1 < changeKeyCount.Length ? curKeyIndex + 1 : 0 );
     }
 
     private void Process( KeyCode _key )
@@ -72,21 +81,6 @@ public class LobbyKeySetting : SceneOptionBase
 
             NextMove();
         }
-    }
-
-    public override void KeyBind()
-    {
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.LeftArrow, () => PrevMove() );
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.LeftArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
-
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.RightArrow, () => NextMove() );
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.RightArrow, () => SoundManager.Inst.Play( SoundSfxType.MenuSelect ) );
-
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Tab, () => ChangeButtonCount() );
-
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Escape, () => CurrentScene.ChangeAction( ActionType.SystemOption ) );
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Escape, () => keySettingCanvas.SetActive( false ) );
-        CurrentScene.Bind( ActionType.KeySetting, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MenuHover ) );
     }
 
     private void Update()

@@ -4,7 +4,8 @@ using DG.Tweening;
 
 public class FreeStyle : Scene
 {
-    public OptionController gameOption, systemOption;
+    public OptionController gameSetting, systemSetting;
+    public LobbyKeySetting keySetting;
     public TextMeshProUGUI speedText;
 
     protected override void Awake()
@@ -30,14 +31,22 @@ public class FreeStyle : Scene
         SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }
 
+    private void ChangeKeySettingCount()
+    {
 
-    private void ScrollDown( OptionController _controller )
+        if ( keySetting.TryGetComponent( out LobbyKeySetting baseKeySetting ) )
+        {
+            baseKeySetting.ChangeButtonCount();
+        }
+    }
+
+    private void MoveToPrevOption( OptionController _controller )
     {
         _controller.PrevMove();
         SoundManager.Inst.Play( SoundSfxType.MenuSelect );
     }
 
-    private void ScrollUp( OptionController _controller )
+    private void MoveToNextOption( OptionController _controller )
     {
         _controller.NextMove();
         SoundManager.Inst.Play( SoundSfxType.MenuSelect );
@@ -91,18 +100,24 @@ public class FreeStyle : Scene
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
         Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
 
-        // GameOption
-        Bind( ActionType.Main,       KeyCode.Space,     () => { EnableOption(  ActionType.GameOption, gameOption ); } );
-        Bind( ActionType.GameOption, KeyCode.Escape,    () => { DisableOption( ActionType.Main,       gameOption ); } );
-        Bind( ActionType.GameOption, KeyCode.Space,     () => { DisableOption( ActionType.Main,       gameOption ); } );
-        Bind( ActionType.GameOption, KeyCode.DownArrow, () => { ScrollUp(   gameOption ); } );
-        Bind( ActionType.GameOption, KeyCode.UpArrow,   () => { ScrollDown( gameOption ); } );
+        // GameSetting
+        Bind( ActionType.Main,       KeyCode.Space,     () => { EnableOption(  ActionType.GameOption, gameSetting ); } );
+        Bind( ActionType.GameOption, KeyCode.Escape,    () => { DisableOption( ActionType.Main,       gameSetting ); } );
+        Bind( ActionType.GameOption, KeyCode.Space,     () => { DisableOption( ActionType.Main,       gameSetting ); } );
+        Bind( ActionType.GameOption, KeyCode.DownArrow, () => { MoveToNextOption( gameSetting ); } );
+        Bind( ActionType.GameOption, KeyCode.UpArrow,   () => { MoveToPrevOption( gameSetting ); } );
 
-        // SystemOption
-        Bind( ActionType.Main,         KeyCode.F10,       () => { EnableOption(  ActionType.SystemOption, systemOption ); } );
-        Bind( ActionType.SystemOption, KeyCode.Escape,    () => { DisableOption( ActionType.Main,         systemOption ); } );
-        Bind( ActionType.SystemOption, KeyCode.Space,     () => { DisableOption( ActionType.Main,         systemOption ); } );
-        Bind( ActionType.SystemOption, KeyCode.DownArrow, () => { ScrollUp(   systemOption ); } );
-        Bind( ActionType.SystemOption, KeyCode.UpArrow,   () => { ScrollDown( systemOption ); } );
+        // SystemSetting
+        Bind( ActionType.Main,         KeyCode.F10,       () => { EnableOption(  ActionType.SystemOption, systemSetting ); } );
+        Bind( ActionType.SystemOption, KeyCode.Escape,    () => { DisableOption( ActionType.Main,         systemSetting ); } );
+        Bind( ActionType.SystemOption, KeyCode.DownArrow, () => { MoveToNextOption( systemSetting ); } );
+        Bind( ActionType.SystemOption, KeyCode.UpArrow,   () => { MoveToPrevOption( systemSetting ); } );
+
+        // KeySetting
+        Bind( ActionType.Main,       KeyCode.F11,        () => { EnableOption(  ActionType.KeySetting, keySetting ); } );
+        Bind( ActionType.KeySetting, KeyCode.Escape,     () => { DisableOption( ActionType.Main,       keySetting ); } );
+        Bind( ActionType.KeySetting, KeyCode.RightArrow, () => { MoveToNextOption( keySetting ); } );
+        Bind( ActionType.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
+        Bind( ActionType.KeySetting, KeyCode.Tab,                keySetting.ChangeButtonCount );
     }
 }
