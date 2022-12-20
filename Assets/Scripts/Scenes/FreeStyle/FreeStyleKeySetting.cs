@@ -5,6 +5,7 @@ using TMPro;
 
 public class FreeStyleKeySetting : OptionController
 {
+    [Header("KeySetting")]
     public TextMeshProUGUI KeyCountText;
     private CustomHorizontalLayoutGroup layoutGroup;
     private List<KeySettingOption> tracks = new List<KeySettingOption>();
@@ -16,21 +17,19 @@ public class FreeStyleKeySetting : OptionController
     protected override void Awake()
     {
         base.Awake();
-        layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
-    }
+        if ( !contents.TryGetComponent( out layoutGroup ) )
+             Debug.LogError( $"There is no LayoutGroup in the keySetting contents." );
 
-    protected override void CreateOptions()
-    {
         foreach ( var option in options )
         {
-            tracks.Add( option.GetComponent<KeySettingOption>() );
+            if ( option.TryGetComponent( out KeySettingOption keyOption ) )
+                 tracks.Add( keyOption );
+            else
+                 Debug.LogWarning( $"The {option.name} does not have KeySettingOption component." );
         }
     }
 
-    private void OnEnable()
-    {
-        Initialize( 0 );
-    }
+    private void OnEnable() => Initialize( 0 );
 
     private void Initialize( int _curIndex )
     {
@@ -40,7 +39,6 @@ public class FreeStyleKeySetting : OptionController
         Length = KeySetting.Inst.Keys[curKeyCount].Length;
         for ( int i = 0; i < 7; i++ )
         {
-            tracks[i].KeyRemove();
             tracks[i].ActiveOutline( false );
             if ( i < Length )
             {
@@ -83,8 +81,10 @@ public class FreeStyleKeySetting : OptionController
         }
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         foreach ( var key in KeySetting.Inst.AvailableKeys )
         {
             var keyCode = key.Key;

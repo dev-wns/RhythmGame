@@ -9,7 +9,7 @@ using DG.Tweening;
 // Build Index
 public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
 [RequireComponent( typeof( SpriteRenderer ) )]
-public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
+public abstract class Scene : SceneKeyAction
 {
     #region Variables
     private SpriteRenderer blackSprite;
@@ -44,7 +44,7 @@ public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
     }
     #endregion
 
-    #region Load
+    #region Scene Load
     public void LoadScene( SceneType _type )
     {
         StopAllCoroutines();
@@ -62,8 +62,22 @@ public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
         SoundManager.Inst.PitchReset();
         SceneManager.LoadScene( ( int )_type );
     }
+    #endregion
 
-    protected void EnableOption( ActionType _changeType, OptionController _controller )
+    #region Option Control
+    protected void MoveToPrevOption( OptionController _controller )
+    {
+        _controller.PrevMove();
+        SoundManager.Inst.Play( SoundSfxType.MenuSelect );
+    }
+
+    protected void MoveToNextOption( OptionController _controller )
+    {
+        _controller.NextMove();
+        SoundManager.Inst.Play( SoundSfxType.MenuSelect );
+    }
+
+    protected void EnableCanvas( ActionType _changeType, OptionController _controller )
     {
         GameObject root = _controller.transform.root.gameObject;
         root.SetActive( true );
@@ -78,9 +92,8 @@ public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
         SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume * .5f, .5f );
     }
 
-    protected void DisableOption( ActionType _changeType, OptionController _controller )
+    protected void DisableCanvas( ActionType _changeType, OptionController _controller )
     {
-        DOTween.Clear();
         GameObject root = _controller.transform.root.gameObject;
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
@@ -143,11 +156,8 @@ public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
         OnScrollChange?.Invoke();
     }
     #endregion
+
     #region Effect
-    public abstract void Connect();
-
-    public abstract void Disconnect();
-
     private void CreateFadeSprite()
     {
         //gameObject.layer = 6; // 3d
@@ -179,5 +189,11 @@ public abstract class Scene : SceneKeyAction, IKeyBind, IDSPControl
         blackSprite.DOFade( 1f, FadeTime );
         yield return YieldCache.WaitForSeconds( FadeTime + .1f );
     }
+    #endregion
+
+    #region Etc.
+    public abstract void Connect();
+
+    public abstract void Disconnect();
     #endregion
 }

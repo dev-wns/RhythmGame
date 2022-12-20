@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 public class InGame : Scene
 {
-    public GameObject pauseCanvas;
+    public InGamePause pause;
+    //public GameObject pauseCanvas;
 
     public event Action<Chart> OnSystemInitialize;
     public event Action<Chart> OnSystemInitializeThread;
@@ -69,14 +70,14 @@ public class InGame : Scene
         //Destroy( GameObject.FindGameObjectWithTag( "Judgement" ) );
         LoadScene( SceneType.FreeStyle );
     }
+    public void Restart() => StartCoroutine( RestartProcess() );
 
     protected IEnumerator RestartProcess()
     {
-        ChangeAction( ActionType.Main );
+        IsInputLock = true;
         yield return StartCoroutine( FadeOut() );
 
-
-        pauseCanvas.SetActive( false );
+        DisableCanvas( ActionType.Main, pause );
         NowPlaying.Inst.Stop();
         SoundManager.Inst.AllStop();
 
@@ -88,9 +89,8 @@ public class InGame : Scene
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();
         NowPlaying.Inst.Play();
+        IsInputLock = false;
     }
-
-    public void Restart() => StartCoroutine( RestartProcess() );
 
     public void Pause( bool _isPuase )
     {
@@ -98,9 +98,7 @@ public class InGame : Scene
         {
             if ( NowPlaying.Inst.Pause( true ) )
             {
-                pauseCanvas.SetActive( true );
-                SoundManager.Inst.Play( SoundSfxType.MenuClick );
-                ChangeAction( ActionType.Pause );
+                EnableCanvas( ActionType.Pause, pause );
             }
             else
             {
@@ -111,17 +109,13 @@ public class InGame : Scene
         else
         {
             NowPlaying.Inst.Pause( false );
-            pauseCanvas.SetActive( false );
-            SoundManager.Inst.Play( SoundSfxType.MenuHover );
-            ChangeAction( ActionType.Main );
+            DisableCanvas( ActionType.Main, pause );
         }
     }
 
     public override void KeyBind()
     {
-        Bind( ActionType.Pause, KeyCode.Escape, () => Pause( false ) );
-        Bind( ActionType.Main,  KeyCode.Escape, () => Pause( true ) );
-
+        // Main
         Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
         Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
@@ -130,6 +124,13 @@ public class InGame : Scene
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
         Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
 
+        // Pause
+        Bind( ActionType.Main,  KeyCode.Escape,    () => { Pause( true  ); } );
+        Bind( ActionType.Pause, KeyCode.Escape,    () => { Pause( false ); } );
+        Bind( ActionType.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
+        Bind( ActionType.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
+
+        // Etc.
         Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
     }
 }

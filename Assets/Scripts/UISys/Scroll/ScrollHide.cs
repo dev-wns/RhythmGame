@@ -5,22 +5,14 @@ using UnityEngine;
 public class ScrollHide : ScrollOption
 {
     [Header( "ScrollHide" )]
+    public bool isHideOption = true;
     public int numMaxActive;
     private int activeIndex; // 0 ~ maxActiveNumber
 
-    protected override void CreateOptions()
-    {
-        if ( options.Count == 0 )
-        {
-            for ( int i = 0; i < content.childCount; i++ )
-            {
-                options.Add( content.GetChild( i ).GetComponent<OptionBase>() );
-            }
-        }
-    }
-
     protected virtual void Start()
     {
+        if ( !isHideOption ) return;
+
         if ( numMaxActive == 0 )
              numMaxActive = options.Count;
 
@@ -36,6 +28,7 @@ public class ScrollHide : ScrollOption
     protected override void Select( int _pos )
     {
         base.Select( _pos );
+        if ( !isHideOption ) return;
 
         activeIndex = _pos < numMaxActive ? _pos : numMaxActive - 1;
     }
@@ -43,7 +36,8 @@ public class ScrollHide : ScrollOption
     public override void PrevMove()
     {
         base.PrevMove();
-        if ( !IsLoop && IsDuplicate ) return;
+        if ( !isHideOption || ( !IsLoop && IsDuplicate ) )
+             return;
 
         if ( activeIndex == 0 )
         {
@@ -56,7 +50,8 @@ public class ScrollHide : ScrollOption
     public override void NextMove()
     {
         base.NextMove();
-        if ( !IsLoop && IsDuplicate ) return;
+        if ( !isHideOption || ( !IsLoop && IsDuplicate ) ) 
+             return;
 
         if ( activeIndex + 1 >= numMaxActive )
         {

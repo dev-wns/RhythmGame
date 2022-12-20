@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum ActionType : byte { Main, GameOption, SystemOption, KeySetting, Pause, Exit, }
-public abstract class SceneKeyAction : MonoBehaviour, IKeyBind
+public abstract class SceneKeyAction : MonoBehaviour
 {
     private Dictionary<ActionType, KeyAction> keyActions = new Dictionary<ActionType, KeyAction>();
     public ActionType CurrentAction { get; private set; }

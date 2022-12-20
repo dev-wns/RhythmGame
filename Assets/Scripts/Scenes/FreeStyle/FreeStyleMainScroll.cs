@@ -5,7 +5,7 @@ using DG.Tweening;
 using TMPro;
 using System;
 
-public class FreeStyleMainScroll : ScrollBase, IKeyBind
+public class FreeStyleMainScroll : ScrollBase
 {
     public SongInfomation prefab;
     private RectTransform rt => transform as RectTransform;

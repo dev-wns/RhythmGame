@@ -2,17 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InGamePause : ScrollOption, IKeyBind
+public class InGamePause : OptionController
 {
     public RectTransform selectUI;
-
-    private InGame scene;
 
     protected override void Awake()
     {
         base.Awake();
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        KeyBind();
         IsLoop = true;
     }
 
@@ -44,12 +40,12 @@ public class InGamePause : ScrollOption, IKeyBind
         SoundManager.Inst.Play( SoundSfxType.MenuSelect );
     }
 
-    public void KeyBind()
-    {
-        scene.Bind( ActionType.Pause, KeyCode.UpArrow,   () => PrevMove() );
-        scene.Bind( ActionType.Pause, KeyCode.DownArrow, () => NextMove() );
+    //public void KeyBind()
+    //{
+    //    scene.Bind( ActionType.Pause, KeyCode.UpArrow,   () => PrevMove() );
+    //    scene.Bind( ActionType.Pause, KeyCode.DownArrow, () => NextMove() );
 
-        scene.Bind( ActionType.Pause, KeyCode.Return, () => CurrentOption.Process() );
-        scene.Bind( ActionType.Pause, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
-    }
+    //    scene.Bind( ActionType.Pause, KeyCode.Return, () => CurrentOption.Process() );
+    //    scene.Bind( ActionType.Pause, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
+    //}
 }

@@ -6,25 +6,24 @@ using UnityEngine.UI;
 public class ScrollOption : ScrollBase
 {
     [Header( "ScrollOption" )]
-    public List<OptionBase> options;
-
-    private ScrollRect scrollRect { get; set; }
-    protected RectTransform content;
-
+    public RectTransform contents;
+    [SerializeField] protected List<OptionBase> options = new List<OptionBase>();
     protected OptionBase CurrentOption { get; private set; }
     protected OptionBase PreviousOption { get; private set; }
 
     protected virtual void Awake()
     {
-        scrollRect ??= GetComponent<ScrollRect>();
-        if ( scrollRect ) content = scrollRect.content;
-
-        CreateOptions();
+        for ( int i = 0; i < contents.childCount; i++ )
+        {
+            var option = contents.GetChild( i );
+            if ( option.TryGetComponent( out OptionBase optionBase ) )
+                 options.Add( optionBase );
+            else
+                Debug.LogWarning( $"The {option.name} does not have OptionBase component." );
+        }
         Length = options.Count;
         Select( 0 );
     }
-
-    protected virtual void CreateOptions() { }
 
     protected override void Select( int _pos )
     {

@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class ScrollBase : MonoBehaviour
 {
-    public bool IsDuplicate { get; private set; }
-    public bool IsLoop { get; set; } = false;
-
-    public int CurrentIndex  { get; protected set; }
-    public int PreviousIndex { get; protected set; }
-    public int Length  { get; protected set; }
+    public bool IsDuplicate   { get; private set; }
+    public bool IsLoop        { get; set; } = false;
+    public int  Length        { get; set; }
+    public int  CurrentIndex  { get; set; }
+    public int  PreviousIndex { get; set; }
 
     protected virtual void Select( int _pos )
     {

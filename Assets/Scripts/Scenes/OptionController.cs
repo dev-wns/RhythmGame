@@ -11,11 +11,10 @@ public class OptionController : ScrollHide
 
         OptionProcess();
         while ( CurrentOption.type == OptionType.Title )
-        {
-            base.NextMove();
-            OptionProcess();
-        }
+                NextMove();
     }
+
+    protected virtual void Update() => CurrentOption?.InputProcess();
 
     public override void PrevMove()
     {
@@ -47,16 +46,7 @@ public class OptionController : ScrollHide
 
     private void OptionProcess()
     {
-        if ( PreviousOption != null )
-        {
-            PreviousOption.KeyRemove();
-            PreviousOption.ActiveOutline( false );
-        }
-
-        if ( CurrentOption != null )
-        {
-            CurrentOption.KeyBind();
-            CurrentOption.ActiveOutline( true );
-        }
+        PreviousOption?.ActiveOutline( false );
+        CurrentOption?.ActiveOutline( true );
     }
 }

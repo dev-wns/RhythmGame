@@ -3,19 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
+public enum OptionType { Title, Button, Slider, Text }
+public interface IOption
 {
-    [Header( "Type" )]
+    public OptionType type { get; }
+    public void Process();
+}
+
+public abstract class OptionBase : MonoBehaviour, IOption
+{
+    [Header( "Option Base" )]
     public ActionType actionType = ActionType.Main;
     public OptionType type { get; protected set; }
 
-    protected Scene CurrentScene { get; private set; }
     private GameObject outline;
 
     protected virtual void Awake()
     {
-        CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-
         var outlineTf = transform.Find( "Outline" );
         if ( outlineTf )
         {
@@ -31,14 +35,5 @@ public abstract class OptionBase : MonoBehaviour, IOption, IKeyControl
     }
 
     public abstract void Process();
-
-    public virtual void KeyBind()
-    {
-        CurrentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-    }
-
-    public virtual void KeyRemove()
-    {
-        CurrentScene ??= GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-    }
+    public abstract void InputProcess();
 }
