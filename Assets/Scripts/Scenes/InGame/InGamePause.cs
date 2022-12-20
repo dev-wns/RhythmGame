@@ -39,13 +39,4 @@ public class InGamePause : OptionController
         MoveSelectPosition();
         SoundManager.Inst.Play( SoundSfxType.MenuSelect );
     }
-
-    //public void KeyBind()
-    //{
-    //    scene.Bind( ActionType.Pause, KeyCode.UpArrow,   () => PrevMove() );
-    //    scene.Bind( ActionType.Pause, KeyCode.DownArrow, () => NextMove() );
-
-    //    scene.Bind( ActionType.Pause, KeyCode.Return, () => CurrentOption.Process() );
-    //    scene.Bind( ActionType.Pause, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MenuClick ) );
-    //}
 }

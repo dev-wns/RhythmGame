@@ -23,7 +23,8 @@ public class ScrollBase : MonoBehaviour
         {
             if ( IsLoop )
             {
-                CurrentIndex = Length - 1;
+                PreviousIndex = CurrentIndex;
+                CurrentIndex  = Length - 1;
                 return;
             }
 
@@ -41,7 +42,8 @@ public class ScrollBase : MonoBehaviour
         {
             if ( IsLoop )
             {
-                CurrentIndex = 0;
+                PreviousIndex = CurrentIndex;
+                CurrentIndex  = 0;
                 return;
             }
 

@@ -54,7 +54,8 @@ public abstract class OptionText : OptionBase
             _action?.Invoke();
             SoundManager.Inst.Play( SoundSfxType.Slider );
             ChangeText( texts[CurrentIndex] );
-            if ( isReturnProcess )
+
+            if ( !isReturnProcess )
                  Process();
         }
     }

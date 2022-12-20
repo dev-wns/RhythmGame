@@ -17,6 +17,7 @@ public class FreeStyleKeySetting : OptionController
     protected override void Awake()
     {
         base.Awake();
+        IsLoop = true;
         if ( !contents.TryGetComponent( out layoutGroup ) )
              Debug.LogError( $"There is no LayoutGroup in the keySetting contents." );
 
