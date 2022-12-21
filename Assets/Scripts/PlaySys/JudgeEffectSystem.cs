@@ -2,42 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
+[RequireComponent(typeof(EffectSystem))]
 public class JudgeEffectSystem : MonoBehaviour
 {
     public List<Sprite> sprites = new List<Sprite>();
     private Judgement judge;
     private SpriteRenderer rdr;
-    private Sequence sequence;
-    private Transform tf;
-    private Vector2 sclCache;
+    private EffectSystem effectSys;
+    private Vector2 endScale;
 
     private HitResult prevType = HitResult.None;
 
     private void Awake()
     {
-        tf = transform as RectTransform;
         rdr = GetComponent<SpriteRenderer>();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += HitEffect;
 
-        sclCache = tf.localScale;
-    }
+        effectSys = GetComponent<EffectSystem>();
 
-    private void Start()
-    {
-        sequence = DOTween.Sequence();
+        endScale = transform.localScale;
 
-        sequence.Pause().SetAutoKill( false );
-        sequence.Append( tf.DOScale( sclCache, .1f ) );
-        sequence.AppendInterval( .5f );
-        sequence.Append( rdr.DOFade( 0f, .5f ) );
-    }
-
-    private void OnDestroy()
-    {
-        sequence?.Kill();
+        effectSys.Append( transform.DoScale( endScale, .1f ) ).
+                  AppendInterval( .5f ).
+                  Append( rdr.DoFade( 0f, .5f ) );
     }
 
     private void HitEffect( HitResult _type )
@@ -58,7 +47,7 @@ public class JudgeEffectSystem : MonoBehaviour
         }
 
         rdr.color = Color.white;
-        tf.localScale = sclCache * .75f;
-        sequence.Restart();
+        transform.localScale = endScale * .75f;
+        effectSys.Restart();
     }
 }

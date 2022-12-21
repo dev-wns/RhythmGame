@@ -2,27 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
+[RequireComponent( typeof( EffectSystem ) )]
 public class ComboSystem : MonoBehaviour
 {
-    public List<Sprite> sprites = new List<Sprite>();
     private InGame scene;
-    private List<SpriteRenderer> images = new List<SpriteRenderer>();
+
+    [Header("ComboSystem")]
+    public  List<Sprite>         sprites = new List<Sprite>();
+    private List<SpriteRenderer> images  = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
     private int maxCombo;
     private int prevCombo = -1, curCombo;
     private int prevNum, curNum;
-    private Sequence sequence;
 
-    private Transform tf;
-    private Vector2 posCache;
+    [Header("Effect")]
+    private EffectSystem effectSys;
+    private Vector3 startPos;
 
     private void Awake()
     {
-        tf = transform;
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
+        effectSys   = GetComponent<EffectSystem>();
 
         images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
         images.Reverse();
@@ -33,8 +35,17 @@ public class ComboSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
 
-        posCache = tf.position;
         NowPlaying.Inst.OnResult += Result;
+
+        startPos = transform.position;
+        effectSys.Append( transform.DoMoveY( startPos.y + 35f, .1f ) ).
+                  AppendInterval( .5f ).
+                  Append( images.DoFade( 1f, 0f, .5f ) );
+    }
+
+    private void OnDestroy()
+    {
+        NowPlaying.Inst.OnResult -= Result;
     }
 
     private void Result() => judge.SetResult( HitResult.Combo, maxCombo );
@@ -46,27 +57,15 @@ public class ComboSystem : MonoBehaviour
         prevCombo = -1; 
         curCombo = 0;
 
+        transform.position = startPos;
         images[0].gameObject.SetActive( true );
         images[0].sprite = sprites[0];
         for ( int i = 1; i < images.Count; i++ )
         {
+            images[i].color = Color.white;
             images[i].gameObject.SetActive( false );
         }
         layoutGroup.SetLayoutHorizontal();
-    }
-
-    private void Start()
-    {
-        sequence = DOTween.Sequence();
-
-        sequence.Pause().SetAutoKill( false );
-        sequence.Append( tf.DOMoveY( posCache.y + 25f, .1f) );
-    }
-
-    private void OnDestroy()
-    {
-        sequence?.Kill();
-        NowPlaying.Inst.OnResult -= Result;
     }
 
     private void ComboUpdate( HitResult _type )
@@ -124,14 +123,14 @@ public class ComboSystem : MonoBehaviour
                 calcPrevCombo *= .1f;
             }
 
-            tf.position = posCache;
-            sequence.Restart();
+            transform.position = startPos;
+            effectSys.Restart();
         }
 
         if ( prevNum != curNum )
              layoutGroup.SetLayoutHorizontal();
 
         prevCombo = curCombo;
-        prevNum = curNum;
+        prevNum   = curNum;
     }
 }

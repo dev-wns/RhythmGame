@@ -7,7 +7,6 @@ public enum InputType { Down, Hold, Up, }
 public class KeyAction
 {
     private Dictionary<KeyCode, Dictionary<InputType, Action>> keyActions = new Dictionary<KeyCode, Dictionary<InputType, Action>>();
-
     public void ActionCheck()
     {
         foreach ( var code in keyActions.Keys )
@@ -17,8 +16,8 @@ public class KeyAction
                 switch ( type )
                 {
                     case InputType.Down: { if ( Input.GetKeyDown( code ) ) { keyActions[code][type]?.Invoke(); } } break;
-                    case InputType.Hold: { if ( Input.GetKey( code ) )     { keyActions[code][type]?.Invoke(); } } break;
-                    case InputType.Up:   { if ( Input.GetKeyUp( code ) )   { keyActions[code][type]?.Invoke(); } } break;
+                    case InputType.Hold: { if ( Input.GetKey(     code ) ) { keyActions[code][type]?.Invoke(); } } break;
+                    case InputType.Up:   { if ( Input.GetKeyUp(   code ) ) { keyActions[code][type]?.Invoke(); } } break;
                 }
             }
         }
@@ -42,11 +41,28 @@ public class KeyAction
 
     public void Bind( KeyCode _code, InputType _type, Action _action )
     {
-        if ( _action == null || IsDuplicate( _code, _type, _action ) ) 
+        //if ( _action == null || IsDuplicate( _code, _type, _action ) ) 
+        //     return;
+
+        //KeyAlloc( _code );
+        //keyActions[_code][_type] += _action;
+
+        if ( _action == null )
              return;
-       
-        KeyAlloc( _code );
-        keyActions[_code][_type] += _action;
+
+        if ( keyActions.ContainsKey( _code ) )
+        {
+            if ( keyActions[_code].ContainsKey( _type ) )
+                 keyActions[_code][_type] += _action;
+            else
+                 keyActions[_code].Add( _type, _action );
+        }
+        else
+        {
+            var typeAction = new Dictionary<InputType, Action>();
+            typeAction.Add( _type, _action );
+            keyActions.Add( _code, typeAction );
+        }
     }
 
     private void KeyAlloc( KeyCode _code )

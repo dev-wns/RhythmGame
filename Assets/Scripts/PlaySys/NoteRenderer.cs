@@ -70,6 +70,6 @@ public class NoteRenderer : MonoBehaviour
             tailTf.localPosition = bodyLength < 0 ? Vector2.zero : new Vector2( 0f, ( float )( bodyLength ) );
         }
 
-        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) );
+        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackChanged ) * GameSetting.Weight ) );
     }
 }

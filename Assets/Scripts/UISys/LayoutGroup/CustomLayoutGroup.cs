@@ -57,6 +57,7 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
         }
     }
 
+#if UNITY_EDITOR
     protected virtual void Update()
     {
         // Editor Update
@@ -70,6 +71,7 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
             SetLayoutVertical();
         }
     }
+#endif
 
     public abstract void SetLayoutHorizontal();
     public abstract void SetLayoutVertical();

@@ -12,12 +12,14 @@ public abstract class SceneKeyAction : MonoBehaviour
 
     protected virtual void Update()
     {
-        if ( IsInputLock || !keyActions.ContainsKey( CurrentAction ) ) 
+        if ( IsInputLock || !keyActions.ContainsKey( CurrentAction ) )
              return;
 
         keyActions[CurrentAction].ActionCheck();
     }
     /// <summary> The input type is KeyDown </summary>
+    /// 
+
     public void Bind( ActionType _actionType, KeyCode _keyCode, Action _action )
     {
         if ( keyActions.ContainsKey( _actionType ) )

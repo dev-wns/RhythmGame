@@ -57,7 +57,8 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( !IsStart ) return;
 
-        Playback        = saveTime + ( timer.CurrentTime - startTime );
+        Playback += Time.deltaTime;
+        // saveTime + ( timer.CurrentTime - startTime );
         PlaybackChanged = GetChangedTime( Playback );
 
         if ( Playback >= totalTime + 3d )

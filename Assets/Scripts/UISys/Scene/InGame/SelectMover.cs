@@ -19,14 +19,14 @@ public class SelectMover : MonoBehaviour
         rightPos = right.position;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        float deltaTime = speed * Time.fixedDeltaTime;
+        float deltaTime = speed * Time.deltaTime;
         curValue += isReverse ? deltaTime : -deltaTime;
         isReverse = curValue <= 0f || curValue >= moveAmount ? !isReverse : isReverse;
 
 
-        left.position = new Vector2( leftPos.x - curValue, left.transform.position.y );
+        left.position  = new Vector2( leftPos.x  - curValue, left.transform.position.y  );
         right.position = new Vector2( rightPos.x + curValue, right.transform.position.y );
     }
 }

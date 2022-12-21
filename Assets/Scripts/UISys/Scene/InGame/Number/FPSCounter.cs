@@ -8,6 +8,7 @@ public class FPSCounter : MonoBehaviour
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
     private float deltaTime = 0f;
+    private int prevNum, curNum;
 
     private void Awake()
     {
@@ -36,8 +37,9 @@ public class FPSCounter : MonoBehaviour
 
             float fps = 1f / deltaTime;
             float calcFPS = fps;
-            int number = Global.Math.Log10( fps ) + 1;
-            for ( int i = 0; i < number; i++ )
+            curNum = Global.Math.Log10( fps ) + 1;
+
+            for ( int i = 0; i < curNum; i++ )
             {
                 if ( !images[i].gameObject.activeSelf )
                      images[i].gameObject.SetActive( true );
@@ -46,7 +48,10 @@ public class FPSCounter : MonoBehaviour
                 calcFPS *= .1f;
             }
 
-            layoutGroup.SetLayoutHorizontal();
+            if ( prevNum != curNum )
+                 layoutGroup.SetLayoutHorizontal();
+
+            prevNum = curNum;
         }
     }
 }
