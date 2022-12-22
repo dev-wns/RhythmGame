@@ -5,13 +5,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
 
-
 // Build Index
 public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
 {
     #region Variables
+    public static bool OnceTweenInit;
     private SpriteRenderer blackSprite;
     private readonly float FadeTime = .65f;
     #endregion
@@ -19,9 +19,16 @@ public abstract class Scene : SceneKeyAction
     #region Unity Callback
     protected virtual void Awake()
     {
+        if ( !OnceTweenInit )
+        {
+            DOTween.Init( true, false, LogBehaviour.Default ).SetCapacity( 50, 10 );
+            OnceTweenInit = true;
+            Debug.Log( "DOTween Init." );
+        }
         //Cursor.visible = false;
 
         CreateFadeSprite();
+
         Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
         
         NowPlaying.CurrentScene = this;
@@ -54,6 +61,9 @@ public abstract class Scene : SceneKeyAction
     private IEnumerator SceneChange( SceneType _type )
     {
         DOTween.KillAll();
+        DOTween.Clear();
+        DOTween.ClearCachedTweens();
+        
         IsInputLock = true;
 
         yield return StartCoroutine( FadeOut() );
@@ -177,6 +187,7 @@ public abstract class Scene : SceneKeyAction
     {
         blackSprite.color = Color.black;
         blackSprite.enabled = true;
+
         blackSprite.DOFade( 0f, FadeTime );
         yield return YieldCache.WaitForSeconds( FadeTime + .1f );
         blackSprite.enabled = false;

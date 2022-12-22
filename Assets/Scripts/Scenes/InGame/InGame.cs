@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using DG.Tweening;
 
 public class InGame : Scene
 {
     public InGamePause pause;
-    //public GameObject pauseCanvas;
 
     public event Action<Chart> OnSystemInitialize;
     public event Action<Chart> OnSystemInitializeThread;

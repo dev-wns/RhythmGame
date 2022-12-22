@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
-[RequireComponent(typeof(EffectSystem))]
 public class JudgeEffectSystem : MonoBehaviour
 {
     public List<Sprite> sprites = new List<Sprite>();
     private Judgement judge;
     private SpriteRenderer rdr;
-    private EffectSystem effectSys;
+    private Sequence sequence;
     private Vector2 endScale;
 
     private HitResult prevType = HitResult.None;
@@ -20,13 +20,20 @@ public class JudgeEffectSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += HitEffect;
 
-        effectSys = GetComponent<EffectSystem>();
-
         endScale = transform.localScale;
+    }
 
-        effectSys.Append( transform.DoScale( endScale, .1f ) ).
-                  AppendInterval( .5f ).
-                  Append( rdr.DoFade( 0f, .5f ) );
+    private void OnDestroy()
+    {
+        sequence?.Kill();
+    }
+
+    private void Start()
+    {
+        sequence = DOTween.Sequence().Pause().SetAutoKill( false );
+        sequence.Append( transform.DOScale( endScale, .1f ) ).
+                 AppendInterval( .5f ).
+                 Append( rdr.DOFade( 0f, .5f ) );
     }
 
     private void HitEffect( HitResult _type )
@@ -48,6 +55,6 @@ public class JudgeEffectSystem : MonoBehaviour
 
         rdr.color = Color.white;
         transform.localScale = endScale * .75f;
-        effectSys.Restart();
+        sequence.Restart();
     }
 }

@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using DG.Tweening;
 
-[RequireComponent( typeof( EffectSystem ) )]
 public class ComboSystem : MonoBehaviour
 {
     private InGame scene;
@@ -18,13 +17,13 @@ public class ComboSystem : MonoBehaviour
     private int prevNum, curNum;
 
     [Header("Effect")]
-    private EffectSystem effectSys;
+    // private Sequence sequence;
+    private Sequence sequence;
     private Vector3 startPos;
 
     private void Awake()
     {
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
-        effectSys   = GetComponent<EffectSystem>();
 
         images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
         images.Reverse();
@@ -37,14 +36,18 @@ public class ComboSystem : MonoBehaviour
 
         NowPlaying.Inst.OnResult += Result;
 
-        startPos = transform.position;
-        effectSys.Append( transform.DoMoveY( startPos.y + 35f, .1f ) ).
-                  AppendInterval( .5f ).
-                  Append( images.DoFade( 1f, 0f, .5f ) );
+        startPos = transform.localPosition;
+    }
+
+    private void Start()
+    {
+        sequence = DOTween.Sequence().Pause().SetAutoKill( false );
+        sequence.Append( transform.DOMoveY( startPos.y + 25f, .15f ) );
     }
 
     private void OnDestroy()
     {
+        sequence?.Kill();
         NowPlaying.Inst.OnResult -= Result;
     }
 
@@ -52,10 +55,10 @@ public class ComboSystem : MonoBehaviour
 
     private void ReLoad()
     {
-        maxCombo = 0;
-        prevNum = curNum = 0;
+        maxCombo  = 0;
+        prevNum   = curNum = 0;
         prevCombo = -1; 
-        curCombo = 0;
+        curCombo  = 0;
 
         transform.position = startPos;
         images[0].gameObject.SetActive( true );
@@ -124,7 +127,7 @@ public class ComboSystem : MonoBehaviour
             }
 
             transform.position = startPos;
-            effectSys.Restart();
+            sequence.Restart();
         }
 
         if ( prevNum != curNum )
