@@ -9,17 +9,17 @@ using UnityEngine.UI;
 [RequireComponent( typeof( RectTransform ) )]
 public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
 {
-    public int spacing;
+    public float spacing;
     [Serializable]
     protected struct RectOffset
     {
-        public int left, right, top, bottom;
+        public float left, right, top, bottom;
 
-        public RectOffset( int _left, int _right, int _top, int _bottom )
+        public RectOffset( float _left, float _right, float _top, float _bottom )
         {
-            left = _left;
-            right = _right;
-            top = _top;
+            left   = _left;
+            right  = _right;
+            top    = _top;
             bottom = _bottom;
         }
     }

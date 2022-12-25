@@ -59,11 +59,11 @@ public class MeasureSystem : MonoBehaviour
             double time     = timings[i].time;
             double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime * 0.001d ) + 10d : timings[i + 1].time;
 
-            int maxCount =  Mathf.FloorToInt( ( float )( Global.Math.Abs( nextTime - time ) / spb ) );
-            measures.Add( NowPlaying.Inst.GetChangedTime( time ) );
+            int maxCount =  Mathf.CeilToInt( ( float )( ( nextTime - time ) / spb ) );
+            //measures.Add( NowPlaying.Inst.GetIncludeBPMTime( time ) );
             for ( int j = 0; j < maxCount; j++ )
             {
-                measures.Add( NowPlaying.Inst.GetChangedTime( ( time + ( ( j + 1 ) * spb ) ) ) );
+                measures.Add( NowPlaying.Inst.GetIncludeBPMTime( time + ( j * spb ) ) );
             }
         }
     }
@@ -73,7 +73,7 @@ public class MeasureSystem : MonoBehaviour
         if ( measures.Count > 0 )
              curTime = measures[curIndex];
         
-        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackInBPM + GameSetting.PreLoadTime );
         while ( curIndex < measures.Count )
         {
             yield return waitNextMeasure;

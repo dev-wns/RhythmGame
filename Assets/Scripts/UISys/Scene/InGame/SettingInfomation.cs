@@ -5,6 +5,7 @@ using TMPro;
 
 public class SettingInfomation : MonoBehaviour
 {
+    [Header("Argument")]
     public TextMeshProUGUI scrollSpeed, pitch, random, auto, noSlider, noFail;
 
     private void Awake()

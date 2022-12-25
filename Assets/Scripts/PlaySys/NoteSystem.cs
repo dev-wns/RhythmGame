@@ -63,7 +63,7 @@ public class NoteSystem : MonoBehaviour
             lane.InputSys.SetSound( curNote.keySound );
         }
 
-        WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackChanged + GameSetting.PreLoadTime );
+        WaitUntil waitNextNote = new WaitUntil( () => curNote.calcTime <= NowPlaying.PlaybackInBPM + GameSetting.PreLoadTime );
         while ( curIndex < notes.Count )
         {
             yield return waitNextNote;

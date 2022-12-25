@@ -12,10 +12,12 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Variables
     public static Scene CurrentScene;
     public ReadOnlyCollection<Song> Songs { get; private set; } = new ReadOnlyCollection<Song>( new List<Song>() );
-    public static Song CurrentSong     { get; private set; }
+    public static Song  CurrentSong    { get; private set; }
     public static Chart CurrentChart   { get; private set; }
     public int CurrentSongIndex { get; private set; }
+
     private double medianBPM;
+    private int    timingIndex;
 
     #region Time
     private Timer timer = new Timer();
@@ -23,8 +25,10 @@ public class NowPlaying : Singleton<NowPlaying>
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
     public static double Playback        { get; private set; }
-    public static double PlaybackChanged { get; private set; }
+    public static double PlaybackInBPM   { get; private set; }
+    private       double playbackInBPMChache;
     #endregion
+
 
     #region Event
     public event Action                    OnResult;
@@ -36,7 +40,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public bool IsParseSong    { get; private set; }
     public bool IsLoadBGA      { get; set; }
     public bool IsLoadKeySound { get; set; }
-    public int OriginKeyCount => CurrentSong.keyCount;
     #endregion
 
     #region Unity Callback
@@ -59,7 +62,29 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Playback += Time.deltaTime;
         // saveTime + ( timer.CurrentTime - startTime );
-        PlaybackChanged = GetChangedTime( Playback );
+        //PlaybackInBPM = GetChangedTime( Playback );
+
+        var timings = CurrentChart.timings;
+        for ( int i = timingIndex; i < timings.Count; i++ )
+        {
+            double curTime = timings[i].time;
+            if ( Playback < curTime )
+                 break;
+
+            double curBPM  = timings[i].bpm;
+            if ( i + 1 < timings.Count )
+            {
+                double nextTime = timings[i + 1].time;
+                if ( nextTime < Playback )
+                {
+                    playbackInBPMChache += ( curBPM / medianBPM ) * ( nextTime - curTime );
+                    timingIndex += 1;
+                    continue;
+                }
+            }
+
+            PlaybackInBPM = playbackInBPMChache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
+        }
 
         if ( Playback >= totalTime + 3d )
         {
@@ -131,7 +156,9 @@ public class NowPlaying : Singleton<NowPlaying>
         StopAllCoroutines();
         Playback = StartWaitTime;
         saveTime = 0d;
-        PlaybackChanged = 0d;
+        PlaybackInBPM       = 0d;
+        playbackInBPMChache = 0d;
+        timingIndex = 0;
 
         IsStart        = false;
         IsLoadBGA      = false;
@@ -169,7 +196,10 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( Playback >= saveTime )
         {
             Playback -= Time.deltaTime * 2d;
-            PlaybackChanged = GetChangedTime( Playback );
+
+            Timing timing = CurrentChart.timings[timingIndex];
+            PlaybackInBPM = playbackInBPMChache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
+            //PlaybackInBPM = GetChangedTime( Playback );
 
             yield return null;
         }
@@ -196,7 +226,7 @@ public class NowPlaying : Singleton<NowPlaying>
     }
     #endregion
     /// <returns> Time including BPM. </returns>
-    public double GetChangedTime( double _time )
+    public double GetIncludeBPMTime( double _time )
     {
         var timings = CurrentChart.timings;
         double newTime = 0d;
