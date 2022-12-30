@@ -51,15 +51,15 @@ public class HitCountSystem : MonoBehaviour
         layoutGroup.SetLayoutHorizontal();
     }
 
-    private void AddCount( HitResult _type )
+    private void AddCount( HitResult _result, NoteType _type )
     {
-        HitResult resultType = _type == HitResult.Maximum ? HitResult.Perfect : _type;
+        HitResult resultType = _result == HitResult.Maximum ? HitResult.Perfect : _result;
         if ( type != resultType ) return;
         curCount++;
 
         curNum = curCount == 0 ? 1 : Global.Math.Log10( curCount ) + 1;
         float calcPrevCount = prevCount;
-        float calcCurCount = curCount;
+        float calcCurCount  = curCount;
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( ( int )calcPrevCount % 10 == ( int )calcCurCount % 10 )
@@ -69,7 +69,7 @@ public class HitCountSystem : MonoBehaviour
                  images[i].gameObject.SetActive( true );
 
             images[i].sprite = sprites[( int )calcCurCount % 10];
-            calcCurCount *= .1f;
+            calcCurCount  *= .1f;
             calcPrevCount *= .1f;
         }
 
@@ -77,6 +77,6 @@ public class HitCountSystem : MonoBehaviour
              layoutGroup.SetLayoutHorizontal();
 
         prevCount = curCount;
-        prevNum = curNum;
+        prevNum   = curNum;
     }
 }

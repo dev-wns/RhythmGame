@@ -67,9 +67,9 @@ public class ScoreSystem : MonoBehaviour
         StartCoroutine( Count() );
     }
 
-    private void ScoreUpdate( HitResult _type )
+    private void ScoreUpdate( HitResult _result, NoteType _type )
     {
-        switch ( _type )
+        switch ( _result )
         {
             case HitResult.None:
             case HitResult.Fast:

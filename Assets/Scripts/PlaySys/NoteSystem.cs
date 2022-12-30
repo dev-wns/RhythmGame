@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum NoteType { Default, Slider }
+public enum NoteType { None, Default, Slider }
 
 public class NoteSystem : MonoBehaviour
 {

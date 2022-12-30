@@ -36,11 +36,14 @@ public class JudgeEffectSystem : MonoBehaviour
                  Append( rdr.DOFade( 0f, .5f ) );
     }
 
-    private void HitEffect( HitResult _type )
+    private void HitEffect( HitResult _result, NoteType _type )
     {
-        if ( prevType != _type )
+        if ( _type == NoteType.Slider )
+             return;
+
+        if ( prevType != _result )
         {
-            switch ( _type )
+            switch ( _result )
             {
                 case HitResult.None:                                 return;
                 case HitResult.Maximum:
@@ -50,7 +53,7 @@ public class JudgeEffectSystem : MonoBehaviour
                 case HitResult.Bad:         rdr.sprite = sprites[1]; break;
                 case HitResult.Miss:        rdr.sprite = sprites[0]; break;
             }
-            prevType = _type;
+            prevType = _result;
         }
 
         rdr.color = Color.white;

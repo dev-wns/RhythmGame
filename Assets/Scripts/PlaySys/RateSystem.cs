@@ -50,11 +50,11 @@ public class RateSystem : MonoBehaviour
         layoutGroup.SetLayoutHorizontal();
     }
 
-    private void RateUpdate( HitResult _type )
+    private void RateUpdate( HitResult _result, NoteType _type )
     {
-        if ( _type == HitResult.None ) return;
+        if ( _result == HitResult.None ) return;
 
-        switch ( _type )
+        switch ( _result )
         {
             case HitResult.None:
             case HitResult.Fast:

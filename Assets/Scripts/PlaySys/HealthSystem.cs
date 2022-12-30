@@ -28,10 +28,10 @@ public class HealthSystem : MonoBehaviour
         curHealth = MaxHealth;
     }
 
-    private void HealthUpdate( HitResult _type )
+    private void HealthUpdate( HitResult _result, NoteType _type )
     {
         float offset = 0f;
-        switch ( _type )
+        switch ( _result )
         {
             case HitResult.Perfect:     offset = 5f;  break;
             case HitResult.Great:       offset = 3f;  break;

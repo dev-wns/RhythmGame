@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,10 +13,14 @@ public class Lane : MonoBehaviour
 
     public event Action<int/*Lane Key*/> OnLaneInitialize;
 
+    [Header("Gear Key")]
     public SpriteRenderer keyImage;
+    public Sprite keyDefaultSprite, keyPressSprite;
+    //public float gearKeySliceMultiplier;
+
+    [Header("Effect")]
     public SpriteRenderer laneEffect;
 
-    public Sprite keyDefaultSprite, keyPressSprite;
     private Color color;
 
     private readonly float StartFadeAlpha = 1f;
@@ -33,7 +38,11 @@ public class Lane : MonoBehaviour
              InputSys.OnInputEvent += LaneEffect;
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowGearKey ) != 0 )
-             InputSys.OnInputEvent += KeyEffect;
+        {
+            InputSys.OnInputEvent += KeyEffect;
+            keyImage.drawMode = SpriteDrawMode.Sliced;
+            keyImage.size     = new Vector2( 2, 1 );
+        }
 
         fadeOffset = StartFadeAlpha / FadeDuration;
     }
@@ -90,7 +99,7 @@ public class Lane : MonoBehaviour
         
         if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) )
         {
-            laneEffect.transform.position = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
+            laneEffect.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos + ( GameSetting.NoteHeight + GameSetting.NoteBlank ), transform.position.z );
             laneEffect.transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .025f ), 1f );
         }
         else
@@ -100,8 +109,11 @@ public class Lane : MonoBehaviour
 
         if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) )
         {
-            keyImage.transform.position = new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
-            keyImage.transform.localScale = new Vector3( GameSetting.NoteWidth + GameSetting.NoteBlank, keyImage.transform.localScale.y );
+            keyImage.transform.position = transform.position;
+            // new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
+            
+            keyImage.transform.localScale = new Vector3( GameSetting.NoteHeight + GameSetting.NoteBlank, GameSetting.NoteHeight + GameSetting.NoteBlank );
+            // new Vector3( GameSetting.NoteWidth + GameSetting.NoteBlank, keyImage.transform.localScale.y );
         }
         else
         {

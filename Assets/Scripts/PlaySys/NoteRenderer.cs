@@ -44,7 +44,8 @@ public class NoteRenderer : MonoBehaviour
 
         body.enabled = tail.enabled = IsSlider;
         head.color   = tail.color   = Color.white;
-        body.color = Color.gray;
+        //body.color = Color.gray;
+        body.color = Color.white;
     }
 
     public void SetBodyFail() => head.color = body.color = tail.color = NoteFailColor;

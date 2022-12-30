@@ -71,9 +71,9 @@ public class ComboSystem : MonoBehaviour
         layoutGroup.SetLayoutHorizontal();
     }
 
-    private void ComboUpdate( HitResult _type )
+    private void ComboUpdate( HitResult _result, NoteType _type )
     {
-        switch ( _type )
+        switch ( _result )
         {
             case HitResult.Fast:
             case HitResult.Slow:
