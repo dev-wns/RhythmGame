@@ -37,7 +37,7 @@ public class MeasureSystem : MonoBehaviour
             }
         }
 
-        mPool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
+        mPool = new ObjectPool<MeasureRenderer>( mPrefab, 1 );
     }
 
     private void ReLoad()
@@ -79,7 +79,7 @@ public class MeasureSystem : MonoBehaviour
             yield return waitNextMeasure;
 
             MeasureRenderer measure = mPool.Spawn();
-            measure.SetInfo( mPool, curTime );
+            measure.SetInfo( curTime );
 
             if ( ++curIndex < measures.Count )
                  curTime = measures[curIndex];

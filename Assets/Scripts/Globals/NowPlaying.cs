@@ -60,8 +60,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( !IsStart ) return;
 
-        Playback += Time.deltaTime;
-        // saveTime + ( timer.CurrentTime - startTime );
+        Playback = saveTime + ( timer.CurrentTime - startTime ) + StartWaitTime;
         //PlaybackInBPM = GetChangedTime( Playback );
 
         var timings = CurrentChart.timings;
@@ -144,8 +143,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Play()
     {
         startTime = timer.CurrentTime;
-        saveTime = StartWaitTime;
-        IsStart = true;
+        saveTime  = StartWaitTime;
+        IsStart   = true;
 
         OnStart?.Invoke();
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );

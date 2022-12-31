@@ -39,8 +39,8 @@ public class NoteSystem : MonoBehaviour
         };
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        CurrentScene.OnGameStart    += () => StartCoroutine( Process() );
-        CurrentScene.OnReLoad       += ReLoad;
+        CurrentScene.OnGameStart += () => StartCoroutine( Process() );
+        CurrentScene.OnReLoad    += ReLoad;
     }
 
     private void ReLoad()
@@ -52,8 +52,6 @@ public class NoteSystem : MonoBehaviour
     }
 
     public void AddNote( in Note _note ) => notes.Add( _note );
-
-    public void Despawn( NoteRenderer _note ) => nPool.Despawn( _note );
 
     private IEnumerator Process()
     {
@@ -69,7 +67,7 @@ public class NoteSystem : MonoBehaviour
             yield return waitNextNote;
          
             NoteRenderer note = nPool.Spawn();
-            note.SetInfo( lane.Key, this, in curNote );
+            note.SetInfo( lane.Key, in curNote );
 
             lane.InputSys.AddNote( note );
 

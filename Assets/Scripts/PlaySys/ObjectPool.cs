@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public interface IObjectPool<T> where T : MonoBehaviour
+{
+    public ObjectPool<T> pool { get; set; }
+}
+
 public class ObjectPool<T> where T : MonoBehaviour
 {
     private T prefab;
@@ -9,9 +14,9 @@ public class ObjectPool<T> where T : MonoBehaviour
     private Stack<T> pool = new Stack<T>();
     private int allocateCount;
 
-    public ObjectPool( T _prefab, int _allocate = 100 )
+    public ObjectPool( T _prefab, int _initializeCount, int _allocateCount = 1 )
     {
-        allocateCount = _allocate;
+        allocateCount = _allocateCount;
 
         if ( ReferenceEquals( _prefab, null ) )
         {
@@ -33,12 +38,16 @@ public class ObjectPool<T> where T : MonoBehaviour
         parentObj.name = string.Format( "{0} Pool", typeof( T ).Name );
 
         parent = parentObj.transform;
+        Allocate( _initializeCount );
     }
-    private void Allocate()
+    private void Allocate( int _allocateCount )
     {
-        for( int i = 0; i < allocateCount; i++ )
+        for( int i = 0; i < _allocateCount; i++ )
         {
             T obj = UnityEngine.GameObject.Instantiate( prefab, parent );
+            if ( obj.TryGetComponent( out IObjectPool<T> _base ) )
+                 _base.pool = this;
+
             obj.gameObject.SetActive( false );
             pool.Push( obj );
         }
@@ -46,7 +55,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     public T Spawn()
     {
         if ( pool.Count == 0 )
-             Allocate();
+             Allocate( allocateCount );
 
         T obj = pool.Pop();
         obj.gameObject.SetActive( true );

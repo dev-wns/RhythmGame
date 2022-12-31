@@ -91,7 +91,7 @@ public class GameSetting
     // note
     public static float NoteSizeMultiplier = 1f;
     public static float NoteWidth  => 102f * NoteSizeMultiplier;
-    public static float NoteBodyWidth => 97f * NoteSizeMultiplier;
+    public static float NoteBodyWidth => 98f * NoteSizeMultiplier;
     public static float NoteHeight => ( NoteWidth * .5f ) * NoteSizeMultiplier;
     public static float NoteBlank  = 2f;
     public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.CurrentSong.keyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) ) * .5f;

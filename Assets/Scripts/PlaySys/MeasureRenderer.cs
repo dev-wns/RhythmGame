@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeasureRenderer : MonoBehaviour
+public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
 {
-    private ObjectPool<MeasureRenderer> pool;
+    public ObjectPool<MeasureRenderer> pool { get; set; }
+
     private double time;
 
     private SpriteRenderer rdr;
@@ -25,10 +26,9 @@ public class MeasureRenderer : MonoBehaviour
         }
     }
 
-    public void SetInfo( ObjectPool<MeasureRenderer> _pool, double _time )
+    public void SetInfo( double _time )
     {
         rdr.enabled = true;
-        pool = _pool;
         time = _time;
     }
 }

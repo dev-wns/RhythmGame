@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NoteRenderer : MonoBehaviour
+public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 {
-    private NoteSystem system;
+    public ObjectPool<NoteRenderer> pool { get; set; }
 
     public SpriteRenderer head, body, tail;
     private Transform headTf, bodyTf, tailTf;
@@ -34,9 +34,9 @@ public class NoteRenderer : MonoBehaviour
         tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
     }
 
-    public void SetInfo( int _lane, NoteSystem _system, in Note _note )
+    public void SetInfo( int _lane, in Note _note )
     {
-        system  = _system;
+        //system  = _system;
         note    = _note;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
@@ -53,7 +53,8 @@ public class NoteRenderer : MonoBehaviour
     public void Despawn()
     {
         IsPressed = false;
-        system.Despawn( this );
+        pool.Despawn( this );
+        //system.Despawn( this );
     }
 
     private void LateUpdate()
