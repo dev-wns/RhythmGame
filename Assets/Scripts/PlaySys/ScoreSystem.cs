@@ -8,7 +8,11 @@ public class ScoreSystem : MonoBehaviour
 {
     private InGame scene;
     private Judgement judge;
+    
+    [Header("Sprite")]
+    public int sortingOrder;
 
+    [Header("ScoreSystem")]
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private double targetScore;
@@ -30,6 +34,9 @@ public class ScoreSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreUpdate;
         NowPlaying.Inst.OnResult += Result;
+
+        for ( int i = 0; i < images.Count; i++ )
+              images[i].sortingOrder = sortingOrder;
     }
 
     private void OnDestroy()

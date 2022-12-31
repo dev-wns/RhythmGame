@@ -57,7 +57,7 @@ public class JudgeEffectSystem : MonoBehaviour
         }
 
         rdr.color = Color.white;
-        transform.localScale = endScale * .75f;
+        transform.localScale = endScale * .5f;
         sequence.Restart();
     }
 }

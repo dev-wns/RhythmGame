@@ -73,16 +73,16 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 8
-  m_Sprite: {fileID: 0}
+  m_SortingOrder: 7
+  m_Sprite: {fileID: 21300000, guid: 391c9c7d766fb75448428b4723f5f188, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 2.56, y: 2.42}
+  m_DrawMode: 1
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &3506509254756183121
@@ -146,7 +146,7 @@ Transform:
   m_GameObject: {fileID: 3506509254848744140}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -1.9266666, z: 90}
-  m_LocalScale: {x: 72.5, y: 150, z: 1}
+  m_LocalScale: {x: 100, y: 1000, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3506509255338831058}
@@ -201,12 +201,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: ed7809b316d41e84290f9a18df486b57, type: 3}
+  m_Sprite: {fileID: 21300000, guid: db01fb15f7433b74c91f0074a3e1049f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 1, y: 9.3125}
+  m_DrawMode: 1
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -293,7 +293,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 6002ace928b4c714d8478dd3bfc52a6e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -357,7 +357,6 @@ MonoBehaviour:
   keyImage: {fileID: 3506509255272130537}
   keyDefaultSprite: {fileID: 21300000, guid: 6002ace928b4c714d8478dd3bfc52a6e, type: 3}
   keyPressSprite: {fileID: 21300000, guid: e4dfda527fa154e4db083bfeec9a2179, type: 3}
-  gearKeySliceMultiplier: 2
   laneEffect: {fileID: 3506509254848744130}
 --- !u!114 &3506509255338831056
 MonoBehaviour:

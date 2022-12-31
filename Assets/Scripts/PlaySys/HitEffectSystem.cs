@@ -24,7 +24,7 @@ public class HitEffectSystem : MonoBehaviour
     protected void Awake()
     {
         lane = GetComponentInParent<Lane>();
-        rdr = GetComponent<SpriteRenderer>();
+        rdr  = GetComponent<SpriteRenderer>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
         {
@@ -34,7 +34,7 @@ public class HitEffectSystem : MonoBehaviour
             offsetL = HitEffectFramePerSecond; // lifeTime / spritesL.Count;
 
             rdr.enabled = true;
-            rdr.color = Color.clear;
+            rdr.color   = Color.clear;
         }
         else
         {
@@ -52,7 +52,8 @@ public class HitEffectSystem : MonoBehaviour
         lane.InputSys.OnHitNote += HitEffect;
 
         UpdatePosition();
-        transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteWidth );
+        float size = GameSetting.NoteWidth * 2;
+        transform.localScale = new Vector2( size, size );
     }
 
     private void HitEffect( NoteType _type, bool _isKeyUp )
@@ -85,7 +86,7 @@ public class HitEffectSystem : MonoBehaviour
                     if ( curIndex < spritesN.Count - 1 ) rdr.sprite = spritesN[++curIndex];
                     else                                 Stop();
 
-                    time = Global.Math.Abs( time - offsetN );
+                    time     = Global.Math.Abs( time - offsetN );
                 }
             }
             break;
@@ -95,7 +96,9 @@ public class HitEffectSystem : MonoBehaviour
                 if ( time >= offsetL )
                 {
                     if ( curIndex < spritesL.Count - 1 )
+                    {
                         rdr.sprite = spritesL[++curIndex];
+                    }
                     else
                     {
                         if ( isKeyUp )

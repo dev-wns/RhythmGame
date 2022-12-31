@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class RateSystem : MonoBehaviour
 {
+    [Header("Sprite")]
+    public int sortingOrder;
+
+    [Header("RateSystem")]
     private InGame scene;
     private Judgement judge;
     private CustomHorizontalLayoutGroup layoutGroup;
@@ -25,6 +29,9 @@ public class RateSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateUpdate;
         NowPlaying.Inst.OnResult += Result;
+
+        for ( int i = 0; i < images.Count; i++ )
+              images[i].sortingOrder = sortingOrder;
     }
 
     private void OnDestroy()

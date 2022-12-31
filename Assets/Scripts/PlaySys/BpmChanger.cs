@@ -12,7 +12,11 @@ public class BpmChanger : MonoBehaviour
     private ReadOnlyCollection<Timing> timings;
     private int curIndex;
     private Timing curTiming;
+    
+    [Header("Sprite")]
+    public int sortingOrder;
 
+    [Header("BPM Changer")]
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
@@ -29,6 +33,9 @@ public class BpmChanger : MonoBehaviour
 
         images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
         images.Reverse();
+
+        for ( int i = 0; i < images.Count; i++ )
+              images[i].sortingOrder = sortingOrder;
     }
 
     private void ReLoad()

@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class HitCountSystem : MonoBehaviour
 {
+    [Header("Sprite")]
+    public int sortingOrder;
+
+    [Header("HitCountSystem")]
     public HitResult type;
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
@@ -28,6 +32,9 @@ public class HitCountSystem : MonoBehaviour
         judge.OnJudge += AddCount;
 
         NowPlaying.Inst.OnResult += Result;
+
+        for ( int i = 0; i < images.Count; i++ )
+              images[i].sortingOrder = sortingOrder;
     }
 
     private void OnDestroy()

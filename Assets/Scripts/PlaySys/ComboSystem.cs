@@ -6,6 +6,8 @@ using DG.Tweening;
 public class ComboSystem : MonoBehaviour
 {
     private InGame scene;
+    [Header("Sprite")]
+    public int sortingOrder;
 
     [Header("ComboSystem")]
     public  List<Sprite>         sprites = new List<Sprite>();
@@ -37,12 +39,15 @@ public class ComboSystem : MonoBehaviour
         NowPlaying.Inst.OnResult += Result;
 
         startPos = transform.localPosition;
+
+        for ( int i = 0; i < images.Count; i++ )
+              images[i].sortingOrder = sortingOrder;
     }
 
     private void Start()
     {
         sequence = DOTween.Sequence().Pause().SetAutoKill( false );
-        sequence.Append( transform.DOMoveY( startPos.y + 25f, .15f ) );
+        sequence.Append( transform.DOMoveY( startPos.y + 20f, .15f ) );
     }
 
     private void OnDestroy()

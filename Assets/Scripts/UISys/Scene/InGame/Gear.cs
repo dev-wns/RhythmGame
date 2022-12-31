@@ -10,7 +10,7 @@ public class Gear : MonoBehaviour
     public Transform panel;
     public Transform sideLeft, sideRight;
 
-    private void Awake()
+    private void Start()
     {
         UpdatePosition();
 

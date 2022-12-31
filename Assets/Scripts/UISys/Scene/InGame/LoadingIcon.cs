@@ -18,9 +18,6 @@ public class LoadingIcon : MonoBehaviour
     {
         InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnLoadEnd += IconDisable;
-
-        //icon?.SetActive( false );
-        //loadingText?.gameObject.SetActive( false );
     }
 
     private void Start()
@@ -34,11 +31,6 @@ public class LoadingIcon : MonoBehaviour
     private void IconDisable()
     {
         StopAllCoroutines();
-
-        icon.SetActive( false );
-        loadingText.gameObject.SetActive( false );
-
-        Destroy( this );
     }
 
     private IEnumerator ChangeText()

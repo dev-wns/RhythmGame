@@ -7,6 +7,7 @@ using DG.Tweening;
 
 public class InGame : Scene
 {
+    public GameObject loadingCanvas;
     public InGamePause pause;
 
     public event Action<Chart> OnSystemInitialize;
@@ -59,6 +60,7 @@ public class InGame : Scene
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         OnLoadEnd?.Invoke();
+        loadingCanvas.SetActive( false );
 
         OnGameStart?.Invoke();
         IsInputLock = false;

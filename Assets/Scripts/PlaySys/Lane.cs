@@ -95,12 +95,12 @@ public class Lane : MonoBehaviour
 
     public void UpdatePosition( int _key )
     {
-        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank, -340f/*JudgePos*/, 0f );
+        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 0f );
         
         if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) )
         {
-            laneEffect.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos + ( GameSetting.NoteHeight + GameSetting.NoteBlank ), transform.position.z );
-            laneEffect.transform.localScale = new Vector3( GameSetting.NoteWidth, ( Screen.height * .025f ), 1f );
+            laneEffect.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
+            laneEffect.transform.localScale = new Vector3( GameSetting.NoteWidth, 250f, 1f );
         }
         else
         {
