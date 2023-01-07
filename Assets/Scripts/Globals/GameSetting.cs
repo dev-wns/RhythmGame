@@ -52,7 +52,7 @@ public class GameSetting
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static double OriginScrollSpeed = 6.3d; 
+    private static double OriginScrollSpeed = 6.7d; 
     public static double ScrollSpeed
     {
 
@@ -85,14 +85,14 @@ public class GameSetting
     // Jugdement
     private static float DefaultJudgePos = -340f;
     public static float JudgePos => DefaultJudgePos + JudgeOffset;
-    public static float JudgeOffset = 0f;
+    public static float JudgeOffset = -100f;
     public static float JudgeHeight = 50f;
 
     // note
     public static float NoteSizeMultiplier = 1f;
     public static float NoteWidth  => 102f * NoteSizeMultiplier;
     public static float NoteBodyWidth => 98f * NoteSizeMultiplier;
-    public static float NoteHeight => ( NoteWidth * .5f ) * NoteSizeMultiplier;
+    public static float NoteHeight => ( NoteWidth * .45f ) * NoteSizeMultiplier;
     public static float NoteBlank  = 2f;
     public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.CurrentSong.keyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) ) * .5f;
 
@@ -108,5 +108,6 @@ public class GameSetting
     public static int PPU = 100; // pixel per unit
 
     // Debug
-    public static bool IsAutoRandom = false;
+    public static bool IsAutoRandom   = false;
+    public static bool IsNoteBodyGray = false;
 }

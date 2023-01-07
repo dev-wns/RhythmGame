@@ -19,7 +19,6 @@ public class ComboSystem : MonoBehaviour
     private int prevNum, curNum;
 
     [Header("Effect")]
-    // private Sequence sequence;
     private Sequence sequence;
     private Vector3 startPos;
 

@@ -27,6 +27,7 @@ public class InputSystem : MonoBehaviour
     private double autoEffectDuration;
     private float autoHoldTime;
     private float rand;
+    private bool isAutoTimeStart;
     #endregion
     #region Time
     private double inputStartTime;
@@ -72,9 +73,15 @@ public class InputSystem : MonoBehaviour
 
         if ( isAuto )
         {
-            autoHoldTime += Time.deltaTime;
-            if ( autoNoteType == NoteType.Default && autoHoldTime > autoEffectDuration )
-                 OnInputEvent?.Invoke( false );
+            if ( isAutoTimeStart )
+            {
+                autoHoldTime += Time.deltaTime;
+                if ( autoNoteType == NoteType.Default && autoHoldTime > autoEffectDuration )
+                {
+                    OnInputEvent?.Invoke( false );
+                    isAutoTimeStart = false;
+                }
+            }
         }
         else
         {
@@ -225,6 +232,7 @@ public class InputSystem : MonoBehaviour
                 autoNoteType = NoteType.Default;
                 autoHoldTime = 0f;
                 OnInputEvent?.Invoke( true );
+                isAutoTimeStart = true;
 
                 OnHitNote?.Invoke( NoteType.Default, false );
                 judge.ResultUpdate( startDiff, NoteType.Default );

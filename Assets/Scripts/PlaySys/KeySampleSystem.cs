@@ -54,9 +54,12 @@ public class KeySampleSystem : MonoBehaviour
         if ( samples.Count > 0 )
              curTime = samples[curIndex].time;
 
-        double offset = ( ( GameSetting.DefaultSoundOffset + GameSetting.SoundOffset ) * .001d );
-        WaitUntil waitNextSample = NowPlaying.CurrentSong.isOnlyKeySound ? new WaitUntil( () => curTime <= NowPlaying.Playback ) : 
-                                                                           new WaitUntil( () => curTime <= NowPlaying.Playback + offset );
+        // double offset = ( ( GameSetting.DefaultSoundOffset + GameSetting.SoundOffset ) * .001d );
+        // WaitUntil waitNextSample = NowPlaying.CurrentSong.isOnlyKeySound ? new WaitUntil( () => curTime <= NowPlaying.Playback ) : 
+        //                                                                    new WaitUntil( () => curTime <= NowPlaying.Playback + offset );
+
+        //double offset = GameSetting.SoundOffset * .001d;
+        WaitUntil waitNextSample = new WaitUntil( () => curTime <= NowPlaying.Playback );
 
         while ( curIndex < samples.Count )
         {
@@ -73,6 +76,8 @@ public class KeySampleSystem : MonoBehaviour
                 if ( curTime == samples[curIndex].time )
                 {
                     SoundManager.Inst.Play( samples[curIndex++] );
+                    if ( samples.Count == 1 )
+                         NowPlaying.Inst.UpdateSync();
                 }
                 else
                 {

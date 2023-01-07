@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using UnityEngine;
-using UnityEngine.UI;
+using DG.Tweening;
 
 public class Lane : MonoBehaviour
 {
@@ -16,7 +15,8 @@ public class Lane : MonoBehaviour
     [Header("Gear Key")]
     public SpriteRenderer keyImage;
     public Sprite keyDefaultSprite, keyPressSprite;
-    //public float gearKeySliceMultiplier;
+    private Sequence keyPress, keyUp;
+    private Vector2 startPos, endPos;
 
     [Header("Effect")]
     public SpriteRenderer laneEffect;
@@ -40,11 +40,18 @@ public class Lane : MonoBehaviour
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowGearKey ) != 0 )
         {
             InputSys.OnInputEvent += KeyEffect;
-            keyImage.drawMode = SpriteDrawMode.Sliced;
-            keyImage.size     = new Vector2( 2, 1 );
         }
 
         fadeOffset = StartFadeAlpha / FadeDuration;
+    }
+
+    private void Start()
+    {
+        keyUp = DOTween.Sequence().Pause().SetAutoKill( false );
+        keyUp.Append( keyImage.transform.DOMoveY( startPos.y, .03f ) );
+
+        keyPress = DOTween.Sequence().Pause().SetAutoKill( false );
+        keyPress.Append( keyImage.transform.DOMoveY( endPos.y, .03f ) );
     }
 
     private void LaneEffect( bool _isEnable )
@@ -58,7 +65,20 @@ public class Lane : MonoBehaviour
         }
     }
 
-    private void KeyEffect( bool _isEnable ) => keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
+    private void KeyEffect( bool _isEnable )
+    {
+        if ( _isEnable )
+        {
+            keyUp.Pause();
+            keyPress.Restart();
+        }
+        else
+        {
+            keyPress.Pause();
+            keyUp.Restart();
+        }
+        //keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
+    }
 
     private void Update()
     {
@@ -90,7 +110,6 @@ public class Lane : MonoBehaviour
             color = _key == 1 || _key == 5 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) :
                                  _key == 3 ? new Color( 1f, 1f, 0f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
         }
-        //color = _key == 1 || _key == 4 ? new Color( 0, 0, 1, StartFadeAlpha ) : new Color( 1, 0, 0, StartFadeAlpha );
     }
 
     public void UpdatePosition( int _key )
@@ -104,16 +123,16 @@ public class Lane : MonoBehaviour
         }
         else
         {
-            keyImage.gameObject.SetActive( false );
+            laneEffect.gameObject.SetActive( false );
         }
 
         if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) )
         {
-            keyImage.transform.position = transform.position;
-            // new Vector3( transform.position.x, keyImage.transform.position.y, keyImage.transform.position.z );
-            
-            keyImage.transform.localScale = new Vector3( GameSetting.NoteHeight + GameSetting.NoteBlank, GameSetting.NoteHeight + GameSetting.NoteBlank );
-            // new Vector3( GameSetting.NoteWidth + GameSetting.NoteBlank, keyImage.transform.localScale.y );
+            keyImage.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos - 75f, transform.position.z );
+            keyImage.transform.localScale = new Vector3( GameSetting.NoteWidth * .5f, 5f );
+
+            startPos = keyImage.transform.position;
+            endPos   = new Vector2( keyImage.transform.position.x, keyImage.transform.position.y - 25 );
         }
         else
         {

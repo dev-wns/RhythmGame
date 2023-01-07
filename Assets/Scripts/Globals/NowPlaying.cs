@@ -22,6 +22,7 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Time
     private Timer timer = new Timer();
     private double startTime, saveTime, totalTime;
+    private double soundOffset;
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
     public static double Playback        { get; private set; }
@@ -56,12 +57,17 @@ public class NowPlaying : Singleton<NowPlaying>
         #endif        
     }
     
+    public void UpdateSync()
+    {
+        startTime = timer.CurrentTime;
+        saveTime  = 0d;
+    }
+
     private void Update()
     {
         if ( !IsStart ) return;
 
-        Playback = saveTime + ( timer.CurrentTime - startTime ) + StartWaitTime;
-        //PlaybackInBPM = GetChangedTime( Playback );
+        Playback = saveTime + ( timer.CurrentTime - startTime ) + soundOffset;
 
         var timings = CurrentChart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
@@ -142,12 +148,13 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Sound Process
     public void Play()
     {
-        startTime = timer.CurrentTime;
-        saveTime  = StartWaitTime;
-        IsStart   = true;
-
         OnStart?.Invoke();
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+
+        startTime   = timer.CurrentTime;
+        saveTime    = StartWaitTime;
+        soundOffset = ( CurrentSong.audioOffset - GameSetting.SoundOffset ) * .001d;
+        IsStart     = true;
     }
 
     public void Stop()

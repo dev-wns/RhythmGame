@@ -133,6 +133,7 @@ public class InGame : Scene
         Bind( ActionType.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
 
         // Etc.
-        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
+        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom   = !GameSetting.IsAutoRandom );
+        Bind( ActionType.Main, InputType.Down, KeyCode.F2, () => GameSetting.IsNoteBodyGray = !GameSetting.IsNoteBodyGray );
     }
 }

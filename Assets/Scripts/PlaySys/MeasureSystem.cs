@@ -55,9 +55,12 @@ public class MeasureSystem : MonoBehaviour
         var totalTime = NowPlaying.CurrentSong.totalTime;
         for ( int i = 0; i < timings.Count; i++ )
         {
-            double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
             double time     = timings[i].time;
             double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime * 0.001d ) + 10d : timings[i + 1].time;
+            if ( Global.Math.Abs( ( nextTime - time ) / GameSetting.CurrentPitch ) < .002d ) // 50 ms 이상부터 판정선 생성
+                 continue;
+
+            double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
 
             int maxCount =  Mathf.CeilToInt( ( float )( ( nextTime - time ) / spb ) );
             //measures.Add( NowPlaying.Inst.GetIncludeBPMTime( time ) );
