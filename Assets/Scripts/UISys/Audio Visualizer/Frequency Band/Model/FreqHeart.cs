@@ -2,13 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 [RequireComponent( typeof( Image ) )]
 public class FreqHeart : MonoBehaviour
 {
+    public FreeStyleMainScroll mainScroll;
     private Image image;
     private Vector2 sizeCache;
     private RectTransform rt => transform as RectTransform;
+    private float startSize, endSize;
+
+    [Header( "BPM" )]
+    private double curBPM;
+    private float spb, spbHalf, spbQuarter;
+    private float time = 0f;
+    private bool isWaitTime = true;
 
     [Header( "Bands" )]
     public FrequencyBand freqBand;
@@ -17,13 +26,53 @@ public class FreqHeart : MonoBehaviour
     private float buffer;
     private Color color;
 
+
+
     private void Awake()
     {
-        image = GetComponent<Image>();
-        freqBand.OnUpdateBand += UpdateImage;
+        mainScroll.OnSelectSong += ChangeSong;
 
-        color = image.color;
+        image = GetComponent<Image>();
+        //freqBand.OnUpdateBand += UpdateImage;
+
+        color     = image.color;
         sizeCache = rt.sizeDelta;
+
+        startSize = rt.sizeDelta.x;
+        endSize   = rt.sizeDelta.x * 1.75f;
+    }
+
+    private void ChangeSong( Song _song )
+    {
+        curBPM = _song.medianBpm;
+        spb        = ( float )( 60d / curBPM );
+        spbHalf    = spb * .5f;
+        spbQuarter = spb * .25f;
+
+        time         = ( _song.previewTime * .001f ) - ( spb * Mathf.FloorToInt( ( _song.previewTime * .001f ) / spb ) );
+        isWaitTime   = false;
+        rt.sizeDelta = new Vector2( startSize, startSize );
+    }
+
+    private void Update()
+    {
+        time += Time.deltaTime;
+        if ( isWaitTime && spb < time )
+        {
+            time       -= spb;
+            isWaitTime = false;
+        }
+        else
+        {
+            float t    = Mathf.Cos( ( 1f + ( time / spbQuarter ) ) * .5f ); // 0 ~ 1
+            float size = Global.Math.Lerp( startSize, endSize, t );
+
+            size = Global.Math.Clamp( size, startSize, endSize );
+            rt.sizeDelta = new Vector2( size, size );
+
+            if ( spbHalf < time )
+                 isWaitTime = true;
+        }
     }
 
     private void UpdateImage( float[] _values )

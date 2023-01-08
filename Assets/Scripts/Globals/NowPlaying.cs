@@ -56,12 +56,6 @@ public class NowPlaying : Singleton<NowPlaying>
         await Task.CompletedTask;
         #endif        
     }
-    
-    public void UpdateSync()
-    {
-        startTime = timer.CurrentTime;
-        saveTime  = 0d;
-    }
 
     private void Update()
     {
@@ -161,7 +155,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         StopAllCoroutines();
         Playback = StartWaitTime;
-        saveTime = 0d;
+        saveTime = StartWaitTime;
         PlaybackInBPM       = 0d;
         playbackInBPMChache = 0d;
         timingIndex = 0;

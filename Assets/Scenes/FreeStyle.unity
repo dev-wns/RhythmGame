@@ -25343,6 +25343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 505002c8d196ad040995e8743a01c8b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainScroll: {fileID: 1575546728}
   freqBand: {fileID: 585922285}
   bandIndex: 0
   decreasePower: 17.5

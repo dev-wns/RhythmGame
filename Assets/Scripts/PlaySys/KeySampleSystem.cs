@@ -76,8 +76,6 @@ public class KeySampleSystem : MonoBehaviour
                 if ( curTime == samples[curIndex].time )
                 {
                     SoundManager.Inst.Play( samples[curIndex++] );
-                    if ( samples.Count == 1 )
-                         NowPlaying.Inst.UpdateSync();
                 }
                 else
                 {
