@@ -26,6 +26,9 @@ public class FreqSpark : MonoBehaviour
 
     public float decreasePower = 1f;
 
+    [Header("Etc")]
+    public bool isReverse;
+
     private void Awake()
     {
         freqBand.OnUpdateBand += UpdateLineRenderer;
@@ -62,9 +65,18 @@ public class FreqSpark : MonoBehaviour
             bandBuffer[i] = bandBuffer[i] < value ?
                             value : Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
 
-            int posIndex = ( i * 2 ) + 2;
-            positions[posIndex]     = new Vector3( positions[posIndex].x,     pos.y + bandBuffer[i] );
-            positions[posIndex + 1] = new Vector3( positions[posIndex + 1].x, pos.y - bandBuffer[i] );
+            if ( isReverse )
+            {
+                int posIndex = ( ( freqCount - 1 - i ) * 2 ) + 2;
+                positions[posIndex]     = new Vector3( positions[posIndex].x,     pos.y - bandBuffer[i] );
+                positions[posIndex + 1] = new Vector3( positions[posIndex + 1].x, pos.y + bandBuffer[i] );
+            }
+            else
+            {
+                int posIndex = ( i * 2 ) + 2;
+                positions[posIndex]     = new Vector3( positions[posIndex].x,     pos.y + bandBuffer[i] );
+                positions[posIndex + 1] = new Vector3( positions[posIndex + 1].x, pos.y - bandBuffer[i] );
+            }
         }
 
         rdr.SetPositions( positions );

@@ -4,52 +4,49 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-[RequireComponent( typeof( Image ) )]
-public class FreqHeart : MonoBehaviour
+public class HeartBeat : MonoBehaviour
 {
     public FreeStyleMainScroll mainScroll;
-    private Image image;
-    private Vector2 sizeCache;
+    public SoundPitchOption pitchOption;
     private RectTransform rt => transform as RectTransform;
     private float startSize, endSize;
 
     [Header( "BPM" )]
     private double curBPM;
+    private float previewTime;
     private float spb, spbHalf, spbQuarter;
     private float time = 0f;
     private bool isWaitTime = true;
 
-    [Header( "Bands" )]
-    public FrequencyBand freqBand;
-    [Range(0, 9)]    public int   bandIndex;
-    [Range(0f, 50f)] public float decreasePower;
-    private float buffer;
-    private Color color;
-
-
-
     private void Awake()
     {
-        mainScroll.OnSelectSong += ChangeSong;
-
-        image = GetComponent<Image>();
-        //freqBand.OnUpdateBand += UpdateImage;
-
-        color     = image.color;
-        sizeCache = rt.sizeDelta;
+        mainScroll.OnSelectSong   += UpdateSong;
+        mainScroll.OnSoundRestart += UpdateSong;
+        pitchOption.OnPitchUpdate += UpdatePitch;
 
         startSize = rt.sizeDelta.x;
         endSize   = rt.sizeDelta.x * 1.75f;
     }
 
-    private void ChangeSong( Song _song )
+    private void UpdatePitch( float _pitch )
     {
-        curBPM = _song.medianBpm;
-        spb        = ( float )( 60d / curBPM );
+        UpdateBPM( curBPM * _pitch );
+    }
+
+    private void UpdateSong( Song _song )
+    {
+        curBPM      = _song.medianBpm;
+        previewTime = _song.previewTime * .001f;
+        UpdateBPM( curBPM * GameSetting.CurrentPitch );
+    }
+
+    private void UpdateBPM( double _bpm )
+    {
+        spb        = ( float )( 60d / _bpm );
         spbHalf    = spb * .5f;
         spbQuarter = spb * .25f;
 
-        time         = ( _song.previewTime * .001f ) - ( spb * Mathf.FloorToInt( ( _song.previewTime * .001f ) / spb ) );
+        time         = previewTime - ( spb * Mathf.FloorToInt( previewTime / spb ) );
         isWaitTime   = false;
         rt.sizeDelta = new Vector2( startSize, startSize );
     }
@@ -73,16 +70,5 @@ public class FreqHeart : MonoBehaviour
             if ( spbHalf < time )
                  isWaitTime = true;
         }
-    }
-
-    private void UpdateImage( float[] _values )
-    {
-        buffer = buffer < _values[bandIndex] ? _values[bandIndex] :
-                                               Mathf.Lerp( buffer, _values[bandIndex], decreasePower * Time.deltaTime );
-
-        float final = Global.Math.Clamp( buffer - .3141592f, 0f, 1f );
-        color.a = .5f + final;
-        image.color  = color;
-        rt.sizeDelta = sizeCache * ( 1f + final );
     }
 }
