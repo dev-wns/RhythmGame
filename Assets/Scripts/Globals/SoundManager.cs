@@ -141,8 +141,20 @@ public class SoundManager : Singleton<SoundManager>
         FMOD.SPEAKERMODE mode;
         ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
         ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
+        ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
+        Debug.Log( $"SampleRate : {sampleRate}  Mode : {mode}  RawSpeakers : {numRawSpeakers}" );
+        
+        int softwareChannels;
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
+        ErrorCheck( system.getSoftwareChannels( out softwareChannels ) );
+        Debug.Log( $"SoftwareChannel {softwareChannels}" );
+        
         ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
+
+        uint bufferSize;
+        int numbuffers;
+        ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
+        Debug.Log( $"Buffers : {numbuffers}  BufferSize : {bufferSize}" );
 
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
@@ -166,6 +178,8 @@ public class SoundManager : Singleton<SoundManager>
             }
         }
         Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
+        ErrorCheck( system.getDriver( out curDriverIndex ) );
+        Debug.Log( $"Current Sound Device : {Drivers[curDriverIndex].name}" );
 
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
@@ -197,30 +211,20 @@ public class SoundManager : Singleton<SoundManager>
         Load( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
         Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
-        // Logs
-        ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
-        Debug.Log( $"SampleRate : {sampleRate} Mode : {mode} numRawSpeakers : {numRawSpeakers}" );
-        //int softwareChannels;
-        //ErrorCheck( system.getSoftwareChannels( out softwareChannels ) );
-        //Debug.Log( $"SoftwareChannel {softwareChannels}" );
-        //int numbuffers;
-        //ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
-        //Debug.Log( $"buffer size : {bufferSize} numbuffers : {numbuffers}" );
-        //ErrorCheck( system.getDriver( out curDriverIndex ) );
-        //Debug.Log( $"Current Sound Device : {SoundDrivers[curDriverIndex].name}" );
-
         // Details
         SetVolume( 1f, ChannelType.Master );
         SetVolume( .1f, ChannelType.BGM );
         SetVolume( .3f, ChannelType.SFX );
         SetVolume( .075f, ChannelType.Clap );
         #endregion
+
+        Debug.Log( "SoundManager initialization completed" );
     }
 
     public void KeyRelease()
     {
         TotalKeySoundCount = 0;
-
+        int prevCount = keySounds.Count;
         foreach ( var keySound in keySounds )
         {
             var sound = keySound.Value;
@@ -231,6 +235,8 @@ public class SoundManager : Singleton<SoundManager>
             }
         }
         keySounds.Clear();
+
+        Debug.Log( $"KeySound release.  {prevCount} -> {keySounds.Count}" );
     }
 
     public void Release()
@@ -291,7 +297,7 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( system.release() ); // 내부에서 close 함.
         system.clearHandle();
 
-        Debug.Log( "SoundManager Release" );
+        Debug.Log( "SoundManager release" );
     }
 
     public void ReLoad()
@@ -412,7 +418,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary> Play Key Sound Effects </summary>
-    public void Play( KeySound _sound )
+    public void Play( KeySound _sound, uint _offset = 0 )
     {
         if ( !keySounds.ContainsKey( _sound.name ) )
         {
@@ -421,6 +427,7 @@ public class SoundManager : Singleton<SoundManager>
         }
         
         ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
+        ErrorCheck( channel.setPosition( _offset, FMOD.TIMEUNIT.MS ) );
         ErrorCheck( channel.setVolume( _sound.volume ) );
     }
     #endregion
@@ -656,7 +663,7 @@ public class SoundManager : Singleton<SoundManager>
 
         FMOD.DSP dsp;
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.PITCHSHIFT, out dsp ) );
-        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.MAXCHANNELS, 8 ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.MAXCHANNELS, 2 ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.FFTSIZE, 1024 ) );
         dsps.Add( FMOD.DSP_TYPE.PITCHSHIFT, dsp );
     }

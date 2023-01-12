@@ -10,12 +10,15 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     private Transform headTf, bodyTf, tailTf;
     private Note note;
 
+    public float HeadPos => transform.position.y;
+    public float TailPos => transform.position.y + BodyLength;
     public double Time => note.time;
     public double CalcTime => note.calcTime;
     public double SliderTime => note.sliderTime;
     public double CalcSliderTime => note.calcSliderTime;
     public bool IsSlider => note.isSlider;
-    public bool IsPressed { get; set; }
+    public bool ShouldResizeSlider { get; set; }
+    public float BodyLength { get; private set; }
     public KeySound Sound => note.keySound;
 
     private float column;
@@ -37,7 +40,8 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public void SetInfo( int _lane, in Note _note )
     {
         //system  = _system;
-        note    = _note;
+        ShouldResizeSlider = false;
+        note      = _note;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
         newTime = note.calcTime;
@@ -51,9 +55,8 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 
     public void Despawn()
     {
-        IsPressed = false;
+        ShouldResizeSlider = false;
         pool.Despawn( this );
-        //system.Despawn( this );
     }
 
     private void LateUpdate()
@@ -61,14 +64,14 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
        // 롱노트 판정선에 붙기
         if ( IsSlider )
         {
-            if ( IsPressed ) 
+            if ( ShouldResizeSlider && Time < NowPlaying.Playback )
                  newTime = NowPlaying.PlaybackInBPM;
 
-            double bodyLength = ( ( CalcSliderTime - newTime ) * GameSetting.Weight ) - GameSetting.NoteHeight;
-            bodyTf.localScale = bodyLength < 0 ? new Vector2( GameSetting.NoteBodyWidth, 0f ) :
-                                                 new Vector2( GameSetting.NoteBodyWidth, ( float )bodyLength );
+            BodyLength = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight ) - GameSetting.NoteHeight;
+            bodyTf.localScale = BodyLength < 0 ? new Vector2( GameSetting.NoteBodyWidth, 0f ) :
+                                                 new Vector2( GameSetting.NoteBodyWidth, BodyLength );
 
-            tailTf.localPosition = bodyLength < 0 ? Vector2.zero : new Vector2( 0f, ( float )( bodyLength ) );
+            tailTf.localPosition = BodyLength < 0 ? Vector2.zero : new Vector2( 0f, BodyLength );
         }
 
         transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackInBPM ) * GameSetting.Weight ) );

@@ -20,14 +20,13 @@ public class Lane : MonoBehaviour
 
     [Header("Effect")]
     public SpriteRenderer laneEffect;
-
+    private bool ShouldPlayLaneEffect;
     private Color color;
 
     private readonly float StartFadeAlpha = 1f;
     private readonly float FadeDuration = .15f;
     private float fadeOffset;
     private float fadeAlpha;
-    private bool isEnabled;
 
     private void Awake()
     {
@@ -54,20 +53,22 @@ public class Lane : MonoBehaviour
         keyPress.Append( keyImage.transform.DOMoveY( endPos.y, .03f ) );
     }
 
-    private void LaneEffect( bool _isEnable )
+    private void LaneEffect( InputType _type )
     {
-        //laneEffect.color = _isEnable ? color : Color.clear;
-        isEnabled = _isEnable;
-        if ( isEnabled )
+        if ( _type == InputType.Down )
         {
             laneEffect.color = color;
             fadeAlpha = StartFadeAlpha;
         }
+        else if ( _type == InputType.Up )
+        {
+            ShouldPlayLaneEffect = true;
+        }
     }
 
-    private void KeyEffect( bool _isEnable )
+    private void KeyEffect( InputType _type )
     {
-        if ( _isEnable )
+        if ( _type == InputType.Down )
         {
             keyUp.Pause();
             keyPress.Restart();
@@ -77,17 +78,18 @@ public class Lane : MonoBehaviour
             keyPress.Pause();
             keyUp.Restart();
         }
-        //keyImage.sprite = _isEnable ? keyPressSprite : keyDefaultSprite;
     }
 
     private void Update()
     {
-        if ( !isEnabled && fadeAlpha > 0 )
+        if ( ShouldPlayLaneEffect )
         {
             fadeAlpha -= fadeOffset * Time.deltaTime;
             Color newColor = color;
             newColor.a = fadeAlpha;
             laneEffect.color = newColor;
+            if ( fadeAlpha < 0 )
+                 ShouldPlayLaneEffect = false;
         }
     }
 

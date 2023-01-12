@@ -46,12 +46,14 @@ public class InGame : Scene
     public override void Connect()
     {
         SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
-        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+        if ( GameSetting.CurrentPitchType != PitchType.None )
+             SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     public override void Disconnect()
     {
-        SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+        if ( GameSetting.CurrentPitchType != PitchType.None )
+             SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     private IEnumerator Play()

@@ -19,7 +19,7 @@ public class HitEffectSystem : MonoBehaviour
     private SpriteRenderer rdr;
     private int curIndex = 0;
     private bool isPlay;
-    private bool isKeyUp;
+    private InputType inputType;
 
     protected void Awake()
     {
@@ -33,12 +33,11 @@ public class HitEffectSystem : MonoBehaviour
             offsetN = HitEffectFramePerSecond; // lifeTime / spritesN.Count;
             offsetL = HitEffectFramePerSecond; // lifeTime / spritesL.Count;
 
-            rdr.enabled = true;
             rdr.color   = Color.clear;
         }
         else
         {
-            enabled = false;
+            gameObject.SetActive( false );
         }
     }
 
@@ -56,10 +55,10 @@ public class HitEffectSystem : MonoBehaviour
         transform.localScale = new Vector2( size, size );
     }
 
-    private void HitEffect( NoteType _type, bool _isKeyUp )
+    private void HitEffect( NoteType _type, InputType _inputType )
     {
         type = _type;
-        isKeyUp = _isKeyUp;
+        inputType = _inputType;
         curIndex = 0;
 
         switch ( type )
@@ -68,7 +67,8 @@ public class HitEffectSystem : MonoBehaviour
             case NoteType.Slider:  rdr.sprite = spritesL[0]; break;
         }
 
-        if ( !isKeyUp ) Play();
+        if ( inputType == InputType.Down ) 
+             Play();
     }
 
     private void Update()
@@ -101,8 +101,8 @@ public class HitEffectSystem : MonoBehaviour
                     }
                     else
                     {
-                        if ( isKeyUp )
-                            Stop();
+                        if ( inputType == InputType.Up )
+                             Stop();
                         else
                         {
                             curIndex = 0;

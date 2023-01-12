@@ -22,7 +22,6 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Time
     private Timer timer = new Timer();
     private double startTime, saveTime, totalTime;
-    private double soundOffset;
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
     public static double Playback        { get; private set; }
@@ -61,7 +60,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( !IsStart ) return;
 
-        Playback = saveTime + ( timer.CurrentTime - startTime ) + soundOffset;
+        Playback = saveTime + ( timer.CurrentTime - startTime );
 
         var timings = CurrentChart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
@@ -104,6 +103,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private void ParseSong()
     {
+        Timer perfomenceTimer = new Timer( true );
         ConvertSong();
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
         using ( FileParser parser = new FileParser() )
@@ -111,6 +111,7 @@ public class NowPlaying : Singleton<NowPlaying>
             ReadOnlyCollection<Song> songs;
             parser.ParseFileInDirectories( out songs );
             Songs = songs;
+            Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  TotalSongs : {Songs.Count}" );
         }
         IsParseSong = true;
         UpdateSong( 0 );
@@ -118,6 +119,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void ParseChart()
     {
+        Timer perfomenceTimer = new Timer( true );
         Stop();
         totalTime = CurrentSong.totalTime * .001d / GameSetting.CurrentPitch;
         using ( FileParser parser = new FileParser() )
@@ -126,14 +128,13 @@ public class NowPlaying : Singleton<NowPlaying>
             if ( !parser.TryParse( CurrentSong.filePath, out chart ) )
             {
                 CurrentScene.LoadScene( SceneType.FreeStyle );
+                Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
             }
             else 
             {
                 CurrentChart = chart;
                 medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
-
-                //StartWaitTime = chart.uninheritedTimings[0].time;
-                //Playback = StartWaitTime;
+                Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  CurrentChart : {CurrentSong.title}" );
             }
         }
     }
@@ -147,8 +148,8 @@ public class NowPlaying : Singleton<NowPlaying>
 
         startTime   = timer.CurrentTime;
         saveTime    = StartWaitTime;
-        soundOffset = ( CurrentSong.audioOffset - GameSetting.SoundOffset ) * .001d;
         IsStart     = true;
+        Debug.Log( $"Playback start." );
     }
 
     public void Stop()

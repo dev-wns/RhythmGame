@@ -64,7 +64,7 @@ public class Judgement : MonoBehaviour
 
     public bool CanBeHit( double _diff ) => Global.Math.Abs( _diff ) <= Bad;
     
-    public bool IsMiss( double _diff ) =>_diff < -Bad;
+    public bool IsMiss( double _diff ) => _diff < -Bad;
 
     public void ResultUpdate( double _diff, NoteType _type )
     {
@@ -91,11 +91,14 @@ public class Judgement : MonoBehaviour
         hitDatas.Add( new HitData( result, NowPlaying.Playback, diff ) );
     }
 
-    public void ResultUpdate( HitResult _result, NoteType _type )
+    public void ResultUpdate( HitResult _result, NoteType _type, int _count = 1 )
     {
         OnJudge?.Invoke( _result, _type );
 
-        if ( _result == HitResult.Miss )
-             hitDatas.Add( new HitData( HitResult.Miss, NowPlaying.Playback, Miss ) );
+        for ( int i = 0; i < _count; i++ )
+        {
+            if ( _result == HitResult.Miss )
+                 hitDatas.Add( new HitData( HitResult.Miss, NowPlaying.Playback, Miss ) );
+        }
     }
 }

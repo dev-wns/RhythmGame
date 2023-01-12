@@ -23,7 +23,7 @@ public abstract class Scene : SceneKeyAction
         {
             DOTween.Init( true, false, LogBehaviour.Default ).SetCapacity( 50, 10 );
             OnceTweenInit = true;
-            Debug.Log( "DOTween Init." );
+            //Debug.Log( "DOTween Init." );
         }
         //Cursor.visible = false;
 

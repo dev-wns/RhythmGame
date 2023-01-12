@@ -9,7 +9,14 @@ public class Timer
     public double elapsedMilliSeconds => System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTime;
 
     public void Start() => startTime = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-    public double End => elapsedMilliSeconds;
+    public uint End => ( uint )elapsedMilliSeconds;
 
     public double CurrentTime => System.DateTime.Now.TimeOfDay.TotalSeconds;
+
+    public Timer() { }
+    public Timer( bool _shouldStart )
+    {
+        if ( _shouldStart )
+             Start();
+    }
 }

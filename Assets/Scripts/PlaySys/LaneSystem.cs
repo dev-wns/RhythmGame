@@ -38,6 +38,7 @@ public class LaneSystem : MonoBehaviour
             {
                 lanes.Add( Instantiate( prefab, transform ) );
             }
+            Debug.Log( $"Make enough lanes. AddCount : {addCount}" );
         }
 
         for ( int i = 0; i < keyCount; i++ )
@@ -48,6 +49,7 @@ public class LaneSystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
+        Timer perfomenceTimer = new Timer( true );
         if ( !NowPlaying.CurrentSong.isOnlyKeySound )
         {
             if ( SoundManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
@@ -61,14 +63,17 @@ public class LaneSystem : MonoBehaviour
             if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
                  keySampleSystem.AddSample( sample );
         }
+        Debug.Log( $"BGM load completed ( {perfomenceTimer.End} ms ) TotalCount : {SoundManager.Inst.KeySoundCount}" );
 
         CreateNotes( _chart );
         keySampleSystem.SortSamples();
         NowPlaying.Inst.IsLoadKeySound = true;
+        Debug.Log( $"LaneSystem initialization completed ( {perfomenceTimer.End} ms )" );
     }
 
     private void CreateNotes( Chart _chart )
     {
+        Timer perfomenceTimer = new Timer( true );
         var notes        = _chart.notes;
         string dir       = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
@@ -144,6 +149,8 @@ public class LaneSystem : MonoBehaviour
             LaneSwap( keyCountHalf + 1, keyCount,     MinimumSwapCount );
             break;
         }
+
+        Debug.Log( $"Note distribution with KeySound has been completed. ( {perfomenceTimer.End} ms )  RandomType : {GameSetting.CurrentRandom}" );
     }
 
     private void LaneSwap( int _min, int _max, int _swapCount )

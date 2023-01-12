@@ -135,10 +135,11 @@ public class FileParser : FileReader
                 {
                     if ( uninheritedTimings.Count == 0 )
                     {
+                        double prevTime = timing.time;
                         double spb = ( 60d / timing.bpm ) * 4d;
                         int count = Mathf.CeilToInt( ( float )( ( Global.Math.Abs( NowPlaying.StartWaitTime ) + timing.time ) / spb ) );
                         timing.time -= count * spb;
-                        Debug.Log( $"Count : {count}  SPB(4/4) : {spb}  Time : {timing.time}" );
+                        Debug.Log( $"First BPM time adjustment.  SPB : {spb}  Time : {prevTime} -> {timing.time}" );
                     }
 
                     uninheritedTimings.Add( timing );
@@ -146,8 +147,6 @@ public class FileParser : FileReader
 
                 timings.Add( timing );
             }
-
-            
 
             _chart.uninheritedTimings = new ReadOnlyCollection<Timing>( uninheritedTimings );
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
