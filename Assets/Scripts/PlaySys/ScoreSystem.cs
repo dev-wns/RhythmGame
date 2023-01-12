@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using Newtonsoft.Json.Linq;
 
 public class ScoreSystem : MonoBehaviour
 {
@@ -105,22 +106,16 @@ public class ScoreSystem : MonoBehaviour
             if ( curScore >= targetScore )
                  curScore = targetScore;
 
-            ImageUpdate( curScore );
-            yield return null;
-        }
-    }
+            double calcScore = Global.Math.Round( curScore );
+            int num = Global.Math.Log10( calcScore ) + 1;
+            for ( int i = 0; i < images.Count; i++ )
+            {
+                if ( i == num )
+                    break;
 
-    private void ImageUpdate( double _value )
-    {
-        curScore = _value;
-        double calcScore = Global.Math.Round( _value );
-        int num = Global.Math.Log10( calcScore ) + 1;
-        for ( int i = 0; i < images.Count; i++ )
-        {
-            if ( i == num ) break;
-
-            images[i].sprite = sprites[( int )calcScore % 10];
-            calcScore *= .1d;
+                images[i].sprite = sprites[( int )calcScore % 10];
+                calcScore *= .1d;
+            }
         }
     }
 }
