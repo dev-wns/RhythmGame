@@ -315,7 +315,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3506509255338831058}
   - component: {fileID: 3506509255338831063}
-  - component: {fileID: 3506509255338831056}
   - component: {fileID: 3506509255338831057}
   m_Layer: 5
   m_Name: Lane
@@ -355,25 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyImage: {fileID: 3506509255272130537}
-  keyDefaultSprite: {fileID: 21300000, guid: 6002ace928b4c714d8478dd3bfc52a6e, type: 3}
-  keyPressSprite: {fileID: 21300000, guid: e4dfda527fa154e4db083bfeec9a2179, type: 3}
   laneEffect: {fileID: 3506509254848744130}
---- !u!114 &3506509255338831056
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3506509255338831059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03a14b6dc24764e48978bc860754d172, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  note1: {fileID: -7792808250688496138, guid: d758459a692b1a94faae221c13f2d4e7, type: 3}
-  note2: {fileID: -7792808250688496138, guid: dfb3cf77c8d02d448b08572886f4dc93, type: 3}
-  noteMedian: {fileID: -7792808250688496138, guid: 7b4e4efc4f28e174e926a6bf8a594a4a,
-    type: 3}
 --- !u!114 &3506509255338831057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,3 +367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b3a4a6abe54835469170575c4d4f221, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  note1: {fileID: -7792808250688496138, guid: d758459a692b1a94faae221c13f2d4e7, type: 3}
+  note2: {fileID: -7792808250688496138, guid: dfb3cf77c8d02d448b08572886f4dc93, type: 3}
+  noteMedian: {fileID: -7792808250688496138, guid: 7b4e4efc4f28e174e926a6bf8a594a4a,
+    type: 3}

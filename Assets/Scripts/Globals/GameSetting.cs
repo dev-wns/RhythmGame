@@ -37,7 +37,6 @@ public enum GameVisualFlag
     TouchEffect = 1 << 0,
     LaneEffect  = 1 << 1,
     ShowMeasure = 1 << 2,
-    ShowGearKey = 1 << 3,
 
     All         = int.MaxValue,
 }
@@ -68,7 +67,6 @@ public class GameSetting
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
-    public static readonly int DefaultSoundOffset = 50;
     public static int SoundOffset = 0;
 
     // Opacity Percentage ( 0 ~ 100 )

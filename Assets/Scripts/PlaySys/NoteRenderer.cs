@@ -9,7 +9,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public SpriteRenderer head, body, tail;
     private Transform headTf, bodyTf, tailTf;
     private Note note;
-
+    public int ID { get; private set; }
     public float HeadPos => transform.position.y;
     public float TailPos => transform.position.y + BodyLength;
     public double Time => note.time;
@@ -37,9 +37,10 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
     }
 
-    public void SetInfo( int _lane, in Note _note )
+    public void SetInfo( int _lane, in Note _note, int _id )
     {
         //system  = _system;
+        ID = _id;
         ShouldResizeSlider = false;
         note      = _note;
 

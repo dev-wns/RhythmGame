@@ -81,7 +81,7 @@ public class LaneSystem : MonoBehaviour
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
-        double secondPer16Beats        = ( 60d / ( NowPlaying.CurrentSong.medianBpm + 1/* 최소오차 */ ) ) * .25d; // 4/16
+        double secondPer16Beats        = ( 60d / ( NowPlaying.CurrentSong.medianBpm + 1/* 최소오차 */ ) ) * .25d/* 4/16 */;
         for ( int i = 0; i < notes.Count; i++ )
         {
             Note newNote = notes[i];
@@ -99,19 +99,19 @@ public class LaneSystem : MonoBehaviour
                     newNote.calcSliderTime = NowPlaying.Inst.GetIncludeBPMTime( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
-                    lanes[newNote.lane].NoteSys.AddNote( in newNote );
+                    lanes[newNote.lane].InputSys.AddNote( in newNote );
                 } break;
 
                 case GameRandom.Max_Random:
                 {
                     emptyLanes.Clear();
-                    for ( int j = 0; j < keyCount; j++ ) // 32비트 빠른계단, 즈레 보정
+                    for ( int j = 0; j < keyCount; j++ ) // 32비트 빠른계단, 즈레 등.. 보정
                     {
                         if ( secondPer16Beats < ( newNote.time - prevTimes[j] ) )
                              emptyLanes.Add( j );
                     }
 
-                    if ( emptyLanes.Count == 0 ) // 보정할 수 없을때 남은 자리 찾기
+                    if ( emptyLanes.Count == 0 ) // 보정할 수 없을 때 남은 자리 찾기
                     {
                         for ( int j = 0; j < keyCount; j++ )
                         {
@@ -127,7 +127,7 @@ public class LaneSystem : MonoBehaviour
                     newNote.calcSliderTime = NowPlaying.Inst.GetIncludeBPMTime( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
-                    lanes[selectLane].NoteSys.AddNote( in newNote );
+                    lanes[selectLane].InputSys.AddNote( in newNote );
                 } break;
             }
         }

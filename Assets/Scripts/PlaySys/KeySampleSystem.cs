@@ -13,6 +13,7 @@ public class KeySampleSystem : MonoBehaviour
     private List<KeySound> samples = new List<KeySound>();
     private int curIndex;
     private double curTime;
+    private readonly int DefaultSoundOffset = -50;
 
     private void Awake()
     {
@@ -54,7 +55,7 @@ public class KeySampleSystem : MonoBehaviour
         if ( samples.Count > 0 )
              curTime = samples[curIndex].time;
 
-        double offset = GameSetting.SoundOffset * .001d;
+        double offset = ( DefaultSoundOffset + GameSetting.SoundOffset ) * .001d;
         WaitUntil waitNextSample = new WaitUntil( () => curTime + offset < NowPlaying.Playback );
 
         while ( curIndex < samples.Count )

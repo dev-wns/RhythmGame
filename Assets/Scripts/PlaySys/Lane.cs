@@ -7,16 +7,9 @@ using DG.Tweening;
 public class Lane : MonoBehaviour
 {
     public int Key { get; private set; }
-    public NoteSystem  NoteSys  { get; private set; }
     public InputSystem InputSys { get; private set; }
 
     public event Action<int/*Lane Key*/> OnLaneInitialize;
-
-    [Header("Gear Key")]
-    public SpriteRenderer keyImage;
-    public Sprite keyDefaultSprite, keyPressSprite;
-    private Sequence keyPress, keyUp;
-    private Vector2 startPos, endPos;
 
     [Header("Effect")]
     public SpriteRenderer laneEffect;
@@ -24,33 +17,18 @@ public class Lane : MonoBehaviour
     private Color color;
 
     private readonly float StartFadeAlpha = 1f;
-    private readonly float FadeDuration = .15f;
+    private readonly float FadeDuration = .25f;
     private float fadeOffset;
     private float fadeAlpha;
 
     private void Awake()
     {
-        NoteSys  = GetComponent<NoteSystem>();
         InputSys = GetComponent<InputSystem>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.LaneEffect ) != 0 )
              InputSys.OnInputEvent += LaneEffect;
 
-        if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowGearKey ) != 0 )
-        {
-            InputSys.OnInputEvent += KeyEffect;
-        }
-
         fadeOffset = StartFadeAlpha / FadeDuration;
-    }
-
-    private void Start()
-    {
-        keyUp = DOTween.Sequence().Pause().SetAutoKill( false );
-        keyUp.Append( keyImage.transform.DOMoveY( startPos.y, .03f ) );
-
-        keyPress = DOTween.Sequence().Pause().SetAutoKill( false );
-        keyPress.Append( keyImage.transform.DOMoveY( endPos.y, .03f ) );
     }
 
     private void LaneEffect( InputType _type )
@@ -63,20 +41,6 @@ public class Lane : MonoBehaviour
         else if ( _type == InputType.Up )
         {
             ShouldPlayLaneEffect = true;
-        }
-    }
-
-    private void KeyEffect( InputType _type )
-    {
-        if ( _type == InputType.Down )
-        {
-            keyUp.Pause();
-            keyPress.Restart();
-        }
-        else
-        {
-            keyPress.Pause();
-            keyUp.Restart();
         }
     }
 
@@ -126,19 +90,6 @@ public class Lane : MonoBehaviour
         else
         {
             laneEffect.gameObject.SetActive( false );
-        }
-
-        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowGearKey ) )
-        {
-            keyImage.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos - 75f, transform.position.z );
-            keyImage.transform.localScale = new Vector3( GameSetting.NoteWidth * .5f, 5f );
-
-            startPos = keyImage.transform.position;
-            endPos   = new Vector2( keyImage.transform.position.x, keyImage.transform.position.y - 25 );
-        }
-        else
-        {
-            keyImage.gameObject.SetActive( false );
         }
     }
 }

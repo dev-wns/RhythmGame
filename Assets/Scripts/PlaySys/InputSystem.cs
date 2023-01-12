@@ -3,44 +3,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum NoteType { None, Default, Slider }
+
 public class InputSystem : MonoBehaviour
 {
-    public struct InputData
-    {
-        public InputType type;
-        public double time;
-
-        public InputData( InputType _type, double _time )
-        {
-            type = _type;
-            time = _time;
-        }
-    }
-
     #region Variables
     #region Objects
     private Lane lane;
     private InGame scene;
     private Judgement judge;
     #endregion
+
+    #region Note
+    private ObjectPool<NoteRenderer> notePool;
+    public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */, noteMedian;
+
+    private List<Note> noteDatas = new List<Note>();
+    private int noteSpawnIndex;
+    #endregion
+
     private Queue<NoteRenderer> notes           = new Queue<NoteRenderer>();
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
     private NoteRenderer curNote;
 
     public event Action<NoteType, InputType> OnHitNote;
-    public event Action<InputType>           OnInputEvent;
+    public event Action<InputType> OnInputEvent;
 
     private KeyCode key;
     private KeySound curSound;
     private bool isAuto, isReady, isPress;
 
-    #region AutoPlay
-    private NoteType autoNoteType;
-    private double autoEffectDuration;
-    private float autoHoldTime;
     private float rand;
-    private bool isAutoTimeStart;
-    #endregion
     #region Time
     private double inputStartTime;
     private double inputHoldTime;
@@ -61,15 +54,13 @@ public class InputSystem : MonoBehaviour
         lane  = GetComponent<Lane>(); 
         lane.OnLaneInitialize += Initialize;
 
-        isReady = false;
-        isAuto  = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
+        isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
         rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
     }
 
     private void LateUpdate()
     {
         if ( !isReady ) return;
-
 
         if ( isAuto )
         {
@@ -108,11 +99,19 @@ public class InputSystem : MonoBehaviour
     public void Initialize( int _key )
     {
         key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.CurrentSong.keyCount][_key];
+
+        NoteRenderer note = note1;
+        if ( NowPlaying.CurrentSong.keyCount == 4 )      note = _key == 1 || _key == 2 ? note2 : note1;
+        else if ( NowPlaying.CurrentSong.keyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
+        else if ( NowPlaying.CurrentSong.keyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
+        notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
+
         isReady = true;
     }
 
     private void StartProcess()
     {
+        StartCoroutine( NoteSpawn() );
         StartCoroutine( NoteSelect() );
         StartCoroutine( SliderMissCheck() );
     }
@@ -136,9 +135,11 @@ public class InputSystem : MonoBehaviour
         curNote  = null;
         isPress  = false;
         curSound = new KeySound();
-        autoEffectDuration = 0;
-        autoHoldTime       = 0;
+
+        noteSpawnIndex = 0;
     }
+
+    public void AddNote( in Note _note ) => noteDatas.Add( _note );
 
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
@@ -169,6 +170,29 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Note Process
+    private IEnumerator NoteSpawn()
+    {
+        Note curData = new Note();
+        if ( noteDatas.Count > 0 )
+        {
+            curData = noteDatas[noteSpawnIndex];
+            curSound = curData.keySound;
+        }
+
+        WaitUntil waitNextNote = new WaitUntil( () => curData.calcTime <= NowPlaying.PlaybackInBPM + GameSetting.PreLoadTime );
+        while ( noteSpawnIndex < noteDatas.Count )
+        {
+            yield return waitNextNote;
+
+            NoteRenderer note = notePool.Spawn();
+            note.SetInfo( lane.Key, in curData, noteSpawnIndex );
+            notes.Enqueue( note );
+
+            if ( ++noteSpawnIndex < noteDatas.Count )
+                 curData = noteDatas[noteSpawnIndex];
+        }
+    }
+
     /// <summary>
     /// Find the next note in the current lane.
     /// </summary>
@@ -181,10 +205,6 @@ public class InputSystem : MonoBehaviour
             yield return WaitNote;
             curNote  = notes.Dequeue();
             curSound = curNote.Sound;
-
-            double nextAutoTime = notes.Count > 0 ? notes.Peek().Time : curNote.Time + .0651d;
-            double offset       = Global.Math.Abs( nextAutoTime - curNote.Time );
-            autoEffectDuration  = offset > .065d ? .065d : Global.Math.Lerp( 0.01d, offset, .5d );
         }
     }
 
@@ -218,16 +238,6 @@ public class InputSystem : MonoBehaviour
 
     private void AutoCheckNote()
     {
-        if ( isAutoTimeStart )
-        {
-            autoHoldTime += Time.deltaTime;
-            if ( autoNoteType == NoteType.Default && autoHoldTime > autoEffectDuration )
-            {
-                OnInputEvent?.Invoke( InputType.Up );
-                isAutoTimeStart = false;
-            }
-        }
-
         if ( curNote == null ) return;
 
         double startDiff = curNote.Time - NowPlaying.Playback;
@@ -235,13 +245,11 @@ public class InputSystem : MonoBehaviour
 
         if ( !curNote.IsSlider )
         {
+            rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
             if ( GameSetting.IsAutoRandom ? startDiff < rand : startDiff < 0d )
             {
-                rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
-                autoNoteType = NoteType.Default;
-                autoHoldTime = 0f;
                 OnInputEvent?.Invoke( InputType.Down );
-                isAutoTimeStart = true;
+                OnInputEvent?.Invoke( InputType.Up );
 
                 OnHitNote?.Invoke( NoteType.Default, InputType.Down );
                 judge.ResultUpdate( startDiff, NoteType.Default );
@@ -255,8 +263,6 @@ public class InputSystem : MonoBehaviour
             {
                 if ( startDiff <= 0d )
                 {
-                    autoNoteType = NoteType.Slider;
-                    autoHoldTime = 0f;
                     OnInputEvent?.Invoke( InputType.Down );
 
                     isPress = curNote.ShouldResizeSlider = true;
@@ -271,7 +277,6 @@ public class InputSystem : MonoBehaviour
             {
                 if ( endDiff <= 0d )
                 {
-                    autoHoldTime = 0f;
                     OnInputEvent?.Invoke( InputType.Up );
 
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
@@ -344,10 +349,10 @@ public class InputSystem : MonoBehaviour
                 }
 
                 inputHoldTime = NowPlaying.Playback - inputStartTime;
-                if ( inputHoldTime > .1f )
+                if ( inputHoldTime > .1d )
                 {
                     judge.ResultUpdate( HitResult.None, NoteType.None );
-                    inputStartTime = NowPlaying.Playback - ( inputHoldTime - .1f );
+                    inputStartTime = NowPlaying.Playback - ( inputHoldTime - .1d );
                 }
                 
                 if ( Input.GetKeyUp( key ) )
