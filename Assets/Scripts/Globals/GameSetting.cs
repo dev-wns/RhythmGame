@@ -88,10 +88,10 @@ public class GameSetting
 
     // note
     public static float NoteSizeMultiplier = 1f;
-    public static float NoteWidth  => 112f * NoteSizeMultiplier;
-    public static float NoteBodyWidth => 108f * NoteSizeMultiplier;
-    public static float NoteHeight => ( NoteWidth * .5f ) * NoteSizeMultiplier;
-    public static float NoteBlank  = 2f;
+    public static float NoteWidth  => 111f * NoteSizeMultiplier;
+    public static float NoteBodyWidth => 107f * NoteSizeMultiplier;
+    public static float NoteHeight => 63f * NoteSizeMultiplier;
+    public static float NoteBlank  = 2.5f;
     public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.CurrentSong.keyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) ) * .5f;
 
     // Gear
