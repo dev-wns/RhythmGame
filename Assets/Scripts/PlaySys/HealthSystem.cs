@@ -7,10 +7,22 @@ public class HealthSystem : MonoBehaviour
 {
     private InGame scene;
     private Judgement judge;
-    private float curHealth;
-    public static readonly float MaxHealth = 100f;
+    public Transform helpTransform;
+
     public  event Action<float/* Health */> OnChangedHealth;
     private event Action OnFailed;
+
+    [Header("Health")]
+    public Transform healthBGTransform;
+    public SpriteRenderer healthRenderer;
+    private float curHealth;
+    public static readonly float MaxHealth = 100f;
+
+    [Header("Health Scaler")]
+    public float healthScalerSpeed = 1f;
+    private Vector2 healthTileCached;
+    private float healthTileOffset;
+    private float healthScaleTimer;
 
     private void Awake()
     {
@@ -21,6 +33,24 @@ public class HealthSystem : MonoBehaviour
         judge.OnJudge += HealthUpdate;
 
         curHealth = MaxHealth;
+    }
+
+    private void Start()
+    {
+        helpTransform.position            = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 5f,  ( -Screen.height * .5f ) + 50f, 0f );
+        healthBGTransform.position        = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 15f, ( -Screen.height * .5f ) + ( helpTransform.localScale.y * .5f ), 0f );
+        healthRenderer.transform.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 31f, ( -Screen.height * .5f ) + helpTransform.localScale.y, 0f );
+        healthTileCached = healthRenderer.size;
+        healthTileOffset = healthRenderer.size.y * .01f;
+    }
+
+    private void Update()
+    {
+        healthScaleTimer += Time.deltaTime * healthScalerSpeed;
+        float scaleOffset   = ( Mathf.Cos( healthScaleTimer ) + 1f ) *.5f; // 0 ~ 1
+        float curTileHeight =  curHealth * healthTileOffset;
+        float height        = curTileHeight - Global.Math.Lerp( curTileHeight * .035f, 0f, scaleOffset );
+        healthRenderer.size = new Vector2( healthTileCached.x, Global.Math.Clamp( height, 0f, healthTileCached.y ) );
     }
 
     private void ReLoad()
