@@ -62,6 +62,12 @@ public class InputSystem : MonoBehaviour
     {
         if ( !isReady ) return;
 
+        if ( curNote == null && notes.Count > 0 )
+        {
+            curNote  = notes.Dequeue();
+            curSound = curNote.Sound;
+        }
+
         if ( isAuto )
         {
             AutoCheckNote();
@@ -112,7 +118,6 @@ public class InputSystem : MonoBehaviour
     private void StartProcess()
     {
         StartCoroutine( NoteSpawn() );
-        StartCoroutine( NoteSelect() );
         StartCoroutine( SliderMissCheck() );
     }
 
@@ -193,21 +198,6 @@ public class InputSystem : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Find the next note in the current lane.
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator NoteSelect()
-    {
-        var WaitNote = new WaitUntil( () => curNote == null && notes.Count > 0 );
-        while ( true )
-        {
-            yield return WaitNote;
-            curNote  = notes.Dequeue();
-            curSound = curNote.Sound;
-        }
-    }
-
     private IEnumerator SliderMissCheck()
     {
         var WaitEnqueue  = new WaitUntil( () => sliderMissQueue.Count > 0 );
@@ -240,7 +230,7 @@ public class InputSystem : MonoBehaviour
     {
         if ( curNote == null ) return;
 
-        double startDiff = curNote.Time - NowPlaying.Playback;
+        double startDiff = curNote.Time       - NowPlaying.Playback;
         double endDiff   = curNote.SliderTime - NowPlaying.Playback;
 
         if ( !curNote.IsSlider )
