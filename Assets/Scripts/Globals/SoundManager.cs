@@ -418,7 +418,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary> Play Key Sound Effects </summary>
-    public void Play( KeySound _sound, uint _offset = 0 )
+    public void Play( KeySound _sound )
     {
         if ( !keySounds.ContainsKey( _sound.name ) )
         {
@@ -427,7 +427,6 @@ public class SoundManager : Singleton<SoundManager>
         }
         
         ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
-        ErrorCheck( channel.setPosition( _offset, FMOD.TIMEUNIT.MS ) );
         ErrorCheck( channel.setVolume( _sound.volume ) );
     }
     #endregion

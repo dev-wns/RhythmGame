@@ -24,9 +24,10 @@ public class NowPlaying : Singleton<NowPlaying>
     private double startTime, saveTime, totalTime;
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
-    public static double Playback        { get; private set; }
-    public static double PlaybackInBPM   { get; private set; }
-    private       double playbackInBPMChache;
+    public  static double Playback        { get; private set; }
+    public  static double PlaybackInBPM   { get; private set; }
+    private static double PlaybackInBPMChache;
+    private static double Sync;
     #endregion
 
 
@@ -60,7 +61,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( !IsStart ) return;
 
-        Playback = saveTime + ( timer.CurrentTime - startTime );
+        Playback = saveTime + ( timer.CurrentTime - startTime ) + Sync;
 
         var timings = CurrentChart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
@@ -75,16 +76,16 @@ public class NowPlaying : Singleton<NowPlaying>
                 double nextTime = timings[i + 1].time;
                 if ( nextTime < Playback )
                 {
-                    playbackInBPMChache += ( curBPM / medianBPM ) * ( nextTime - curTime );
+                    PlaybackInBPMChache += ( curBPM / medianBPM ) * ( nextTime - curTime );
                     timingIndex += 1;
                     continue;
                 }
             }
 
-            PlaybackInBPM = playbackInBPMChache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
+            PlaybackInBPM = PlaybackInBPMChache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
         }
 
-        if ( Playback >= totalTime + 3d )
+        if ( Playback >= totalTime + 5d )
         {
             Stop();
             OnResult?.Invoke();
@@ -141,6 +142,12 @@ public class NowPlaying : Singleton<NowPlaying>
 
     #endregion
     #region Sound Process
+    public void SoundSynchronized( double _time )
+    {
+        Sync = _time - Playback;
+        Debug.Log( $"Synchronized : {Sync} ms" );
+    }
+
     public void Play()
     {
         OnStart?.Invoke();
@@ -158,7 +165,7 @@ public class NowPlaying : Singleton<NowPlaying>
         Playback = StartWaitTime;
         saveTime = StartWaitTime;
         PlaybackInBPM       = 0d;
-        playbackInBPMChache = 0d;
+        PlaybackInBPMChache = 0d;
         timingIndex = 0;
 
         IsStart        = false;
@@ -179,9 +186,9 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             IsStart = false;
 
+            saveTime = Playback + PauseWaitTime;
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
             OnPause?.Invoke( true );
-            saveTime = Playback >= 0d ? PauseWaitTime + Playback : 0d;
         }
         else
         {
@@ -194,13 +201,11 @@ public class NowPlaying : Singleton<NowPlaying>
     private IEnumerator Continue()
     {
         CurrentScene.IsInputLock = true;
-        while ( Playback >= saveTime )
+        Timing timing = CurrentChart.timings[timingIndex];
+        while ( Playback > saveTime )
         {
-            Playback -= Time.deltaTime * 2d;
-
-            Timing timing = CurrentChart.timings[timingIndex];
-            PlaybackInBPM = playbackInBPMChache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
-            //PlaybackInBPM = GetChangedTime( Playback );
+            Playback     -= Time.deltaTime * 2d;
+            PlaybackInBPM = PlaybackInBPMChache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
 
             yield return null;
         }
@@ -208,11 +213,12 @@ public class NowPlaying : Singleton<NowPlaying>
         startTime = timer.CurrentTime;
         IsStart   = true;
 
-        yield return new WaitUntil( () => Playback >= saveTime - PauseWaitTime );
+        yield return new WaitUntil( () => Playback > saveTime - PauseWaitTime );
+        SoundSynchronized( saveTime - PauseWaitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
         OnPause?.Invoke( false );
 
-        yield return YieldCache.WaitForSeconds( 2f );
+        yield return YieldCache.WaitForSeconds( 3f );
         CurrentScene.IsInputLock = false;
     }
     #endregion

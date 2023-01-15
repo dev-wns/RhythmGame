@@ -13,6 +13,7 @@ public class KeySampleSystem : MonoBehaviour
     private List<KeySound> samples = new List<KeySound>();
     private int curIndex;
     private double curTime;
+    private double offset;
     private readonly int DefaultSoundOffset = -50;
 
     private void Awake()
@@ -26,11 +27,13 @@ public class KeySampleSystem : MonoBehaviour
     {
         StopAllCoroutines();
         curIndex = 0;
-        curTime = 0f;
+        curTime  = 0d;
+        offset   = 0d;
     }
 
     private void GameStart()
     {
+        offset = NowPlaying.CurrentSong.isOnlyKeySound && GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0d : ( DefaultSoundOffset + GameSetting.SoundOffset ) * .001d;
         StartCoroutine( Process() );
     }
 
@@ -50,6 +53,14 @@ public class KeySampleSystem : MonoBehaviour
         samples.Add( _sample );
     }
 
+    private IEnumerator FirstSync()
+    {
+        double time = samples[0].time + offset;
+        yield return new WaitUntil( () => time < NowPlaying.Playback );
+
+        NowPlaying.Inst.SoundSynchronized( time );
+    }
+
     private IEnumerator Process()
     {
         if ( samples.Count > 0 )
@@ -57,6 +68,8 @@ public class KeySampleSystem : MonoBehaviour
 
         double offset = NowPlaying.CurrentSong.isOnlyKeySound && GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0d : ( DefaultSoundOffset + GameSetting.SoundOffset ) * .001d;
         WaitUntil waitNextSample = new WaitUntil( () => curTime + offset < NowPlaying.Playback );
+
+        StartCoroutine( FirstSync() );
 
         while ( curIndex < samples.Count )
         {
@@ -71,9 +84,7 @@ public class KeySampleSystem : MonoBehaviour
             {
                 if ( Global.Math.Abs( curTime - samples[curIndex].time ) < double.Epsilon )
                 {
-                    SoundManager.Inst.Play( samples[curIndex++], ( uint )( System.Math.Round( Global.Math.Abs( NowPlaying.Playback - ( curTime + offset ) ) * 1000d * GameSetting.CurrentPitch )  ) );
-                    if ( samples.Count == 1 )
-                         Debug.Log( $"SoundOffset adjustment  {( uint )( System.Math.Round( Global.Math.Abs( NowPlaying.Playback - ( curTime + offset ) ) * 1000d * GameSetting.CurrentPitch )  )} ms" );
+                    SoundManager.Inst.Play( samples[curIndex++] );
                 }
                 else
                 {
