@@ -14,7 +14,10 @@ public class InGame : Scene
 
     public event Action OnGameStart;
     public event Action OnReLoad;
+    public event Action OnResult;
     public event Action OnLoadEnd;
+    public bool IsEnd { get; private set; }
+    private bool[] isHitLastNotes;
 
     private readonly float AdditionalLoadTime = 1f;
 
@@ -28,10 +31,13 @@ public class InGame : Scene
     {
         base.Start();
         IsInputLock = true;
-        OnSystemInitialize( NowPlaying.CurrentChart );
-        Task LoadkeySoundAsyncTask = Task.Run( () => OnSystemInitializeThread( NowPlaying.CurrentChart ) );
 
-        await LoadkeySoundAsyncTask;
+        isHitLastNotes = new bool[NowPlaying.CurrentSong.keyCount];
+        Debug.Log( $"HitLastNoteCount : {isHitLastNotes.Length}" );
+
+        OnSystemInitialize?.Invoke( NowPlaying.CurrentChart );
+        
+        await Task.Run( () => OnSystemInitializeThread?.Invoke( NowPlaying.CurrentChart ) );
 
         StartCoroutine( Play() );
     }
@@ -55,6 +61,42 @@ public class InGame : Scene
              SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
+    private void Stop()
+    {
+        NowPlaying.Inst.Stop();
+        IsEnd = false;
+        for ( int i = 0; i < isHitLastNotes.Length; i++ )
+        {
+            isHitLastNotes[i] = false;
+        }
+    }
+
+    public void HitLastNote( int _lane )
+    {
+        isHitLastNotes[_lane] = true;
+        bool isEnd = true;
+        for ( int i = 0; i < isHitLastNotes.Length; i++ )
+        {
+            isEnd &= isHitLastNotes[i];
+        }
+        IsEnd = isEnd;
+
+        if ( IsEnd )
+        {
+            StartCoroutine( GameEnd() );
+            Debug.Log( "GameEnd" );
+        }
+    }
+
+    private IEnumerator GameEnd()
+    {
+        yield return YieldCache.WaitForSeconds( 3f );
+
+        Stop();
+        OnResult?.Invoke();
+        LoadScene( SceneType.Result );
+    }
+
     private IEnumerator Play()
     {
         yield return new WaitUntil( () => NowPlaying.Inst.IsLoadKeySound && NowPlaying.Inst.IsLoadBGA );
@@ -73,6 +115,7 @@ public class InGame : Scene
         //Destroy( GameObject.FindGameObjectWithTag( "Judgement" ) );
         LoadScene( SceneType.FreeStyle );
     }
+
     public void Restart() => StartCoroutine( RestartProcess() );
 
     protected IEnumerator RestartProcess()
@@ -98,22 +141,24 @@ public class InGame : Scene
 
     public void Pause( bool _isPuase )
     {
-        if ( _isPuase )
+        if ( IsEnd )
         {
-            if ( NowPlaying.Inst.Pause( true ) )
+            Stop();
+            OnResult?.Invoke();
+            LoadScene( SceneType.Result );
+        }
+        else
+        {
+            if ( _isPuase )
             {
+                NowPlaying.Inst.Pause( true );
                 EnableCanvas( ActionType.Pause, pause );
             }
             else
             {
-                NowPlaying.Inst.Stop();
-                LoadScene( SceneType.Result );
+                NowPlaying.Inst.Pause( false );
+                DisableCanvas( ActionType.Main, pause );
             }
-        }
-        else
-        {
-            NowPlaying.Inst.Pause( false );
-            DisableCanvas( ActionType.Main, pause );
         }
     }
 
@@ -125,7 +170,6 @@ public class InGame : Scene
         yield return StartCoroutine( NowPlaying.Inst.GameOver() );
 
         EnableCanvas( ActionType.GameOver, gameOver, false );
-        //SoundManager.Inst.AllStop();
         IsInputLock = false;
     }
 

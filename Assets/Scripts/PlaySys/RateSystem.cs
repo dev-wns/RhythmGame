@@ -23,20 +23,15 @@ public class RateSystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += ReLoad;
+        scene.OnResult += Result;
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
         images.Reverse();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += RateUpdate;
-        NowPlaying.Inst.OnResult += Result;
 
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;
-    }
-
-    private void OnDestroy()
-    {
-        NowPlaying.Inst.OnResult -= Result;
     }
 
     private void Result() => judge.SetResult( HitResult.Rate, ( int )( curRate / curMaxCount ) );

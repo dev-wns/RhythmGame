@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,9 +18,9 @@ public class InputSystem : MonoBehaviour
     #region Note
     private ObjectPool<NoteRenderer> notePool;
     public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */, noteMedian;
-
     private List<Note> noteDatas = new List<Note>();
     private int noteSpawnIndex;
+    private double endNoteTime;
     #endregion
 
     private Queue<NoteRenderer> notes           = new Queue<NoteRenderer>();
@@ -95,12 +96,6 @@ public class InputSystem : MonoBehaviour
     }
     #endregion
 
-    #region Initialize
-    public void AddNote( NoteRenderer _note ) => notes.Enqueue( _note );
-
-    public void SetSound( in KeySound _sound ) => curSound = _sound;
-    #endregion
-
     #region Event
     public void Initialize( int _key )
     {
@@ -128,6 +123,7 @@ public class InputSystem : MonoBehaviour
             note.Despawn();
         }
 
+        curNote?.Despawn();
         while ( notes.Count > 0 )
         {
             var note = notes.Dequeue();
@@ -135,14 +131,17 @@ public class InputSystem : MonoBehaviour
         }
 
         judge.ReLoad();
-        curNote  = null;
-        isPress  = false;
-        curSound = new KeySound();
-
         noteSpawnIndex = 0;
+        curNote        = null;
+        isPress        = false;
+        curSound       = new KeySound();
     }
 
-    public void AddNote( in Note _note ) => noteDatas.Add( _note );
+    public void AddNote( in Note _note )
+    {
+        endNoteTime = endNoteTime < _note.time ? _note.time : endNoteTime;
+        noteDatas.Add( _note );
+    }
 
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
@@ -213,6 +212,9 @@ public class InputSystem : MonoBehaviour
 
     private void SelectNextNote( bool _isDespawn = true )
     {
+        if ( curNote.SpawnIndex == ( noteDatas.Count - 1 ) )
+             scene.HitLastNote( lane.Key );
+
         if ( _isDespawn )
         {
             curNote.gameObject.SetActive( false );

@@ -31,18 +31,13 @@ public class ScoreSystem : MonoBehaviour
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
         scene.OnReLoad += ReLoad;
+        scene.OnResult += Result;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreUpdate;
-        NowPlaying.Inst.OnResult += Result;
 
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;
-    }
-
-    private void OnDestroy()
-    {
-        NowPlaying.Inst.OnResult -= Result;
     }
 
     private void Result() => judge.SetResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );

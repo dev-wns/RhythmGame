@@ -31,15 +31,10 @@ public class HitCountSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += AddCount;
 
-        NowPlaying.Inst.OnResult += Result;
+        scene.OnResult += Result;
 
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;
-    }
-
-    private void OnDestroy()
-    {
-        NowPlaying.Inst.OnResult -= Result;
     }
 
     private void Result() => judge.SetResult( type, curCount );

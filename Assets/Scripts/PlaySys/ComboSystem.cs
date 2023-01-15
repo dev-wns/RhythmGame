@@ -33,14 +33,12 @@ public class ComboSystem : MonoBehaviour
 
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += ReLoad;
+        scene.OnResult += Result;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
 
-        NowPlaying.Inst.OnResult += Result;
-
         startPos = transform.localPosition;
-
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;
     }
@@ -55,7 +53,6 @@ public class ComboSystem : MonoBehaviour
     private void OnDestroy()
     {
         sequence?.Kill();
-        NowPlaying.Inst.OnResult -= Result;
     }
 
     private void Result() => judge.SetResult( HitResult.Combo, highestCombo );

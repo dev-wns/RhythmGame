@@ -81,7 +81,7 @@ public class LaneSystem : MonoBehaviour
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
-        double secondPer16Beats        = ( 60d / ( NowPlaying.CurrentSong.medianBpm + 1/* 최소오차 */ ) ) * .25d/* 4/16 */;
+        double secondPer16Beats        = ( 60d / NowPlaying.CurrentSong.medianBpm ) * .25d/* 4/16 */;
         for ( int i = 0; i < notes.Count; i++ )
         {
             Note newNote = notes[i];

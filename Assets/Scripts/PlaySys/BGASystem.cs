@@ -60,7 +60,6 @@ public class BGASystem : MonoBehaviour
     {
         StopAllCoroutines();
         ClearRenderTexture();
-        NowPlaying.Inst.OnStart -= PlayVideo;
         NowPlaying.Inst.OnPause -= OnPause;
 
         int prevCount = textures.Count;
@@ -95,7 +94,7 @@ public class BGASystem : MonoBehaviour
         {
             case BackgroundType.Video:
                 StartCoroutine( LoadVideo() );
-                NowPlaying.Inst.OnStart += PlayVideo;
+                scene.OnGameStart       += PlayVideo;
                 NowPlaying.Inst.OnPause += OnPause;
                 foreground.gameObject.SetActive( false );
             break;

@@ -17,11 +17,11 @@ public class NowPlaying : Singleton<NowPlaying>
     public int CurrentSongIndex { get; private set; }
 
     private double medianBPM;
-    private int    timingIndex;
+    private int timingIndex;
 
     #region Time
     private Timer timer = new Timer();
-    private double startTime, saveTime, totalTime;
+    private double startTime, saveTime;
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
     public  static double Playback        { get; private set; }
@@ -32,8 +32,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
 
     #region Event
-    public event Action                    OnResult;
-    public event Action                    OnStart;
     public event Action<bool/* isPause */> OnPause;
     #endregion
 
@@ -68,13 +66,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Playback = saveTime + ( timer.CurrentTime - startTime ) + Sync;
         UpdatePlayback();
-        
-        if ( Playback >= totalTime + 5d )
-        {
-            Stop();
-            OnResult?.Invoke();
-            CurrentScene?.LoadScene( SceneType.Result );
-        }
     }
 
     private void UpdatePlayback()
@@ -132,7 +123,6 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         Timer perfomenceTimer = new Timer( true );
         Stop();
-        totalTime = CurrentSong.totalTime * .001d / GameSetting.CurrentPitch;
         using ( FileParser parser = new FileParser() )
         {
             Chart chart;
@@ -143,8 +133,8 @@ public class NowPlaying : Singleton<NowPlaying>
             }
             else 
             {
-                CurrentChart = chart;
-                medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
+                CurrentChart     = chart;
+                medianBPM        = CurrentSong.medianBpm * GameSetting.CurrentPitch;
                 Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  CurrentChart : {CurrentSong.title}" );
             }
         }
@@ -160,7 +150,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Play()
     {
-        OnStart?.Invoke();
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         startTime       = timer.CurrentTime;
@@ -177,7 +166,7 @@ public class NowPlaying : Singleton<NowPlaying>
         saveTime = StartWaitTime;
         PlaybackInBPM       = 0d;
         PlaybackInBPMChache = 0d;
-        timingIndex = 0;
+        timingIndex         = 0;
 
         IsStart         = false;
         IsLoadBGA       = false;
@@ -207,14 +196,8 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     /// <returns>   FALSE : Playback is higher than the last note time. </returns>
-    public bool Pause( bool _isPause )
+    public void Pause( bool _isPause )
     {
-        if ( Playback >= totalTime )
-        {
-            OnResult?.Invoke();
-            return false;
-        }
-
         if ( _isPause )
         {
             IsGameInputLock = true;
@@ -229,8 +212,6 @@ public class NowPlaying : Singleton<NowPlaying>
             IsGameInputLock = false;
             StartCoroutine( Continue() );
         }
-
-        return true;
     }
 
     private IEnumerator Continue()
