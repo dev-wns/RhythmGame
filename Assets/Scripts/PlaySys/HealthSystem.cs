@@ -9,8 +9,6 @@ public class HealthSystem : MonoBehaviour
     private Judgement judge;
     public Transform helpTransform;
 
-    private event Action OnFailed;
-
     [Header("Health")]
     public Transform healthBGTransform;
     public SpriteRenderer healthRenderer;
@@ -72,15 +70,20 @@ public class HealthSystem : MonoBehaviour
 
     private IEnumerator SmoothHealthControl()
     {
-        while ( curHealth > 0f )
+        bool isNoFailed = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail );
+        while ( true )
         {
             curHealth += healthOffset * smoothHealthControlSpeed * Time.deltaTime;
             if ( healthOffset > 0f ? healthCached < curHealth :  healthCached > curHealth )
                  curHealth = healthCached;
+
+            if ( !isNoFailed && curHealth < 0f )
+            {
+                StartCoroutine( scene.GameOver() );
+                break;
+            }
             yield return null;
         }
-
-        OnFailed?.Invoke();
     }
 
     private void Initialize()

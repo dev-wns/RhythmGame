@@ -31,7 +31,7 @@ public class InputSystem : MonoBehaviour
 
     private KeyCode key;
     private KeySound curSound;
-    private bool isAuto, isReady, isPress;
+    private bool isAuto, isPress;
 
     private float rand;
     #region Time
@@ -60,7 +60,7 @@ public class InputSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( !isReady ) return;
+        if ( NowPlaying.IsGameInputLock ) return;
 
         if ( curNote == null && notes.Count > 0 )
         {
@@ -111,8 +111,6 @@ public class InputSystem : MonoBehaviour
         else if ( NowPlaying.CurrentSong.keyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
         else if ( NowPlaying.CurrentSong.keyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
         notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
-
-        isReady = true;
     }
 
     private void StartProcess()
@@ -151,7 +149,6 @@ public class InputSystem : MonoBehaviour
     /// </summary>
     private void Pause( bool _isPause )
     {
-        isReady = !_isPause;
         OnInputEvent?.Invoke( InputType.Up );
 
         if ( !_isPause || curNote == null || !curNote.IsSlider ) 

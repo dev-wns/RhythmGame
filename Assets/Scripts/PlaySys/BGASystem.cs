@@ -58,6 +58,7 @@ public class BGASystem : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopAllCoroutines();
         ClearRenderTexture();
         NowPlaying.Inst.OnStart -= PlayVideo;
         NowPlaying.Inst.OnPause -= OnPause;

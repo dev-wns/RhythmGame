@@ -3,12 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
-using DG.Tweening;
 
 public class InGame : Scene
 {
     public GameObject loadingCanvas;
-    public InGamePause pause;
+    public OptionController pause, gameOver;
 
     public event Action<Chart> OnSystemInitialize;
     public event Action<Chart> OnSystemInitializeThread;
@@ -82,6 +81,7 @@ public class InGame : Scene
         yield return StartCoroutine( FadeOut() );
 
         DisableCanvas( ActionType.Main, pause );
+        DisableCanvas( ActionType.Main, gameOver );
         NowPlaying.Inst.Stop();
         SoundManager.Inst.AllStop();
 
@@ -117,6 +117,18 @@ public class InGame : Scene
         }
     }
 
+    public IEnumerator GameOver()
+    {
+        IsInputLock = true;
+        ChangeAction( ActionType.GameOver );
+
+        yield return StartCoroutine( NowPlaying.Inst.GameOver() );
+
+        EnableCanvas( ActionType.GameOver, gameOver, false );
+        //SoundManager.Inst.AllStop();
+        IsInputLock = false;
+    }
+
     public override void KeyBind()
     {
         // Main
@@ -133,6 +145,10 @@ public class InGame : Scene
         Bind( ActionType.Pause, KeyCode.Escape,    () => { Pause( false ); } );
         Bind( ActionType.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
         Bind( ActionType.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
+
+        // GameOver
+        Bind( ActionType.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );
+        Bind( ActionType.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
 
         // Etc.
         Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom   = !GameSetting.IsAutoRandom );

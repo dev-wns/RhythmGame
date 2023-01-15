@@ -39,6 +39,7 @@ public class ResultInfomation : MonoBehaviour
     public Sprite defaultOrigin;
     public Image originBg;
     private Sprite spriteBg;
+    private Texture2D texture;
 
     private readonly float duration = .5f;
     private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = _value.ToString();
@@ -141,6 +142,15 @@ public class ResultInfomation : MonoBehaviour
         StartCoroutine( ProgressEffect( judge ) );
     }
 
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+        if ( texture != null )
+        {
+            DestroyImmediate( texture );
+            Debug.Log( "Destroy Texture" );
+        }
+    }
 
     private IEnumerator LoadBackground( string _path )
     {
@@ -151,14 +161,13 @@ public class ResultInfomation : MonoBehaviour
             yield break;
         }
 
-        Texture2D tex;
         var ext = System.IO.Path.GetExtension( _path );
         if ( ext.Contains( ".bmp" ) )
         {
             BMPLoader loader = new BMPLoader();
             BMPImage img = loader.LoadBMP( _path );
-            tex = img.ToTexture2D();
-            spriteBg = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+            texture = img.ToTexture2D();
+            spriteBg = Sprite.Create( texture, new Rect( 0, 0, texture.width, texture.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
         }
         else
         {
@@ -177,8 +186,8 @@ public class ResultInfomation : MonoBehaviour
                         throw new Exception( $"UnityWebRequest Error : {www.error}" );
                     }
 
-                    tex = handler.texture;
-                    spriteBg = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+                    texture = handler.texture;
+                    spriteBg = Sprite.Create( texture, new Rect( 0, 0, texture.width, texture.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
                 }
             }
         }

@@ -26,6 +26,7 @@ public abstract class Scene : SceneKeyAction
             //Debug.Log( "DOTween Init." );
         }
         //Cursor.visible = false;
+        QualitySettings.maxQueuedFrames = 0;
 
         CreateFadeSprite();
 
@@ -87,7 +88,7 @@ public abstract class Scene : SceneKeyAction
         SoundManager.Inst.Play( SoundSfxType.MenuSelect );
     }
 
-    protected void EnableCanvas( ActionType _changeType, OptionController _controller )
+    protected void EnableCanvas( ActionType _changeType, OptionController _controller, bool _isSfxPlay = true )
     {
         GameObject root = _controller.transform.root.gameObject;
         root.SetActive( true );
@@ -98,7 +99,8 @@ public abstract class Scene : SceneKeyAction
         }
 
         ChangeAction( _changeType );
-        SoundManager.Inst.Play( SoundSfxType.MenuClick );
+        if ( _isSfxPlay )
+             SoundManager.Inst.Play( SoundSfxType.MenuClick );
         SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume * .5f, .5f );
     }
 

@@ -43,11 +43,16 @@ public class NowPlaying : Singleton<NowPlaying>
     public bool IsLoadKeySound { get; set; }
     #endregion
 
+    #region Input
+    public static bool IsGameInputLock { get; set; }
+    #endregion
+
     #region Unity Callback
     protected override async void Awake()
     {
         base.Awake();
 
+        Stop();
 #if ASYNC_PARSE
         Task parseSongsAsyncTask = Task.Run( ParseSongs );
         await parseSongsAsyncTask;
@@ -62,13 +67,24 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( !IsStart ) return;
 
         Playback = saveTime + ( timer.CurrentTime - startTime ) + Sync;
+        UpdatePlayback();
+        
+        if ( Playback >= totalTime + 5d )
+        {
+            Stop();
+            OnResult?.Invoke();
+            CurrentScene?.LoadScene( SceneType.Result );
+        }
+    }
 
+    private void UpdatePlayback()
+    {
         var timings = CurrentChart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
         {
             double curTime = timings[i].time;
             if ( Playback < curTime )
-                 break;
+                break;
 
             double curBPM  = timings[i].bpm;
             if ( i + 1 < timings.Count )
@@ -84,15 +100,9 @@ public class NowPlaying : Singleton<NowPlaying>
 
             PlaybackInBPM = PlaybackInBPMChache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
         }
-
-        if ( Playback >= totalTime + 5d )
-        {
-            Stop();
-            OnResult?.Invoke();
-            CurrentScene?.LoadScene( SceneType.Result );
-        }
     }
     #endregion
+
     #region Parsing
     private void ConvertSong()
     {
@@ -153,9 +163,10 @@ public class NowPlaying : Singleton<NowPlaying>
         OnStart?.Invoke();
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
-        startTime   = timer.CurrentTime;
-        saveTime    = StartWaitTime;
-        IsStart     = true;
+        startTime       = timer.CurrentTime;
+        saveTime        = StartWaitTime;
+        IsStart         = true;
+        IsGameInputLock = false;
         Debug.Log( $"Playback start." );
     }
 
@@ -168,9 +179,31 @@ public class NowPlaying : Singleton<NowPlaying>
         PlaybackInBPMChache = 0d;
         timingIndex = 0;
 
-        IsStart        = false;
-        IsLoadBGA      = false;
-        IsLoadKeySound = false;
+        IsStart         = false;
+        IsLoadBGA       = false;
+        IsLoadKeySound  = false;
+        IsGameInputLock = true;
+    }
+
+    public IEnumerator GameOver()
+    {
+        IsGameInputLock = true;
+        IsStart         = false;
+        float slowTimeOffset = 1f / 3f;
+        float speed = 1f;
+        float pitchOffset = GameSetting.CurrentPitch * .3f;
+        while ( true )
+        {
+            Playback += speed * Time.deltaTime;
+            UpdatePlayback();
+
+            SoundManager.Inst.SetPitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ), ChannelType.BGM );
+            speed -= slowTimeOffset * Time.deltaTime;
+            if ( speed < 0f )
+                 break;
+
+            yield return null;
+        }
     }
 
     /// <returns>   FALSE : Playback is higher than the last note time. </returns>
@@ -184,7 +217,8 @@ public class NowPlaying : Singleton<NowPlaying>
 
         if ( _isPause )
         {
-            IsStart = false;
+            IsGameInputLock = true;
+            IsStart         = false;
 
             saveTime = Playback + PauseWaitTime;
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
@@ -192,6 +226,7 @@ public class NowPlaying : Singleton<NowPlaying>
         }
         else
         {
+            IsGameInputLock = false;
             StartCoroutine( Continue() );
         }
 
@@ -200,7 +235,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private IEnumerator Continue()
     {
-        CurrentScene.IsInputLock = true;
         Timing timing = CurrentChart.timings[timingIndex];
         while ( Playback > saveTime )
         {
@@ -222,6 +256,7 @@ public class NowPlaying : Singleton<NowPlaying>
         CurrentScene.IsInputLock = false;
     }
     #endregion
+
     #region Etc.
     public void UpdateSong( int _index )
     {
@@ -232,6 +267,7 @@ public class NowPlaying : Singleton<NowPlaying>
         CurrentSong      = Songs[_index];
     }
     #endregion
+
     /// <returns> Time including BPM. </returns>
     public double GetIncludeBPMTime( double _time )
     {

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class OptionController : ScrollHide
 {
+    public RectTransform selectUI;
+
     protected override void Start()
     {
         base.Start();
@@ -12,6 +14,16 @@ public class OptionController : ScrollHide
         OptionProcess();
         while ( CurrentOption.type == OptionType.Title )
                 NextMove();
+    }
+
+    private void SetSelectUIParent()
+    {
+        if ( selectUI == null )
+             return;
+
+        var option = CurrentOption.transform as RectTransform;
+        selectUI.SetParent( option );
+        selectUI.anchoredPosition = Vector2.zero;
     }
 
     protected virtual void Update() => CurrentOption?.InputProcess();
@@ -22,7 +34,6 @@ public class OptionController : ScrollHide
         if ( !IsLoop && IsDuplicate ) return;
 
         OptionProcess();
-
         if ( CurrentOption.type == OptionType.Title )
         {
             if ( CurrentIndex == 0 ) NextMove();
@@ -36,7 +47,6 @@ public class OptionController : ScrollHide
         if ( !IsLoop && IsDuplicate ) return;
 
         OptionProcess();
-
         if ( CurrentOption.type == OptionType.Title )
         {
             if ( CurrentIndex == Length ) PrevMove();
@@ -46,6 +56,7 @@ public class OptionController : ScrollHide
 
     private void OptionProcess()
     {
+        SetSelectUIParent();
         PreviousOption?.ActiveOutline( false );
         CurrentOption?.ActiveOutline( true );
     }

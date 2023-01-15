@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ActionType : byte { Main, GameOption, SystemOption, KeySetting, Pause, Exit, }
+public enum ActionType : byte { Main, GameOption, SystemOption, KeySetting, Pause, GameOver, Exit, }
 public abstract class SceneKeyAction : MonoBehaviour
 {
     private Dictionary<ActionType, KeyAction> keyActions = new Dictionary<ActionType, KeyAction>();
