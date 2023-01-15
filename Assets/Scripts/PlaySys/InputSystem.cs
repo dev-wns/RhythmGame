@@ -235,9 +235,9 @@ public class InputSystem : MonoBehaviour
 
         if ( !curNote.IsSlider )
         {
-            rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
             if ( GameSetting.IsAutoRandom ? startDiff < rand : startDiff < 0d )
             {
+                rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
                 OnInputEvent?.Invoke( InputType.Down );
                 OnInputEvent?.Invoke( InputType.Up );
 
