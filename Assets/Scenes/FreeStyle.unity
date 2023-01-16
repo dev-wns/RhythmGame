@@ -4195,12 +4195,12 @@ MonoBehaviour:
   actionType: 2
   slider: {fileID: 1786747929}
   valueText: {fileID: 1031619987}
-  increaseValue: 10
+  increaseValue: 5
   minValue: 0
   maxValue: 100
-  curValue: 0
-  prePos: 
-  postPos: 
+  curValue: 100
+  prePos: ' '
+  postPos: '%'
   groupType: 0
 --- !u!222 &208612232
 CanvasRenderer:
@@ -4791,6 +4791,7 @@ MonoBehaviour:
   isHideOption: 1
   numMaxActive: 12
   selectUI: {fileID: 0}
+  isRememberIndex: 1
 --- !u!114 &245706503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5769,8 +5770,8 @@ MonoBehaviour:
   increaseValue: 10
   minValue: 70
   maxValue: 150
-  curValue: 100
-  prePos: 
+  curValue: 0
+  prePos: ' '
   postPos: '%'
   previewText: {fileID: 1632190984}
 --- !u!222 &285005635
@@ -6617,7 +6618,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 375, y: -1583.5}
+  m_AnchoredPosition: {x: 375, y: -1495.5}
   m_SizeDelta: {x: 700, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &313752089
@@ -11725,6 +11726,7 @@ MonoBehaviour:
   isHideOption: 0
   numMaxActive: 0
   selectUI: {fileID: 0}
+  isRememberIndex: 1
 --- !u!114 &556523187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12718,7 +12720,7 @@ MonoBehaviour:
   minValue: 0
   maxValue: 100
   curValue: 0
-  prePos: 
+  prePos: ' '
   postPos: '%'
 --- !u!1 &609785644
 GameObject:
@@ -14527,8 +14529,8 @@ MonoBehaviour:
   increaseValue: 5
   minValue: 0
   maxValue: 100
-  curValue: 0
-  prePos: 
+  curValue: 100
+  prePos: ' '
   postPos: '%'
 --- !u!1 &704342028
 GameObject:
@@ -15793,6 +15795,7 @@ MonoBehaviour:
   isHideOption: 0
   numMaxActive: 0
   selectUI: {fileID: 0}
+  isRememberIndex: 1
   KeyCountText: {fileID: 180180318}
 --- !u!1 &770236076
 GameObject:
@@ -18321,7 +18324,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 375, y: -1759.5}
+  m_AnchoredPosition: {x: 375, y: -1671.5}
   m_SizeDelta: {x: 700, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &900991173
@@ -20164,12 +20167,12 @@ MonoBehaviour:
   actionType: 2
   slider: {fileID: 1375297071}
   valueText: {fileID: 1713399392}
-  increaseValue: 10
+  increaseValue: 5
   minValue: 0
   maxValue: 100
-  curValue: 0
-  prePos: 
-  postPos: 
+  curValue: 100
+  prePos: ' '
+  postPos: '%'
   groupType: 2
 --- !u!222 &973222120
 CanvasRenderer:
@@ -26646,12 +26649,12 @@ MonoBehaviour:
   actionType: 2
   slider: {fileID: 1253585409}
   valueText: {fileID: 945095848}
-  increaseValue: 10
+  increaseValue: 5
   minValue: 0
   maxValue: 100
-  curValue: 0
-  prePos: 
-  postPos: 
+  curValue: 100
+  prePos: ' '
+  postPos: '%'
   groupType: 3
 --- !u!222 &1366249836
 CanvasRenderer:
@@ -34073,6 +34076,7 @@ MonoBehaviour:
   isHideOption: 0
   numMaxActive: 0
   selectUI: {fileID: 0}
+  isRememberIndex: 1
 --- !u!114 &1740707520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35989,7 +35993,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 375, y: -1671.5}
+  m_AnchoredPosition: {x: 375, y: -1583.5}
   m_SizeDelta: {x: 700, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1882804243

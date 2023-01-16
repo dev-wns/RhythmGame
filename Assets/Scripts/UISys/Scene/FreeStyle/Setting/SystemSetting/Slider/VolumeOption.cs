@@ -8,7 +8,7 @@ public class VolumeOption : OptionSlider
 
     private void OnEnable()
     {
-        curValue = Global.Math.Round( SoundManager.Inst.GetVolume( groupType ) * 100f );
+        curValue = Mathf.RoundToInt( SoundManager.Inst.GetVolume( groupType ) * 100f );
         UpdateValue( curValue );
     }
 

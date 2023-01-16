@@ -79,9 +79,10 @@ public class BGASystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
-        if ( GameSetting.BGAOpacity <= .0001f )
+        if ( GameSetting.BGAOpacity == 0 )
         {
-            gameObject.SetActive( false );
+            transform.root.gameObject.SetActive( false );
+            NowPlaying.Inst.IsLoadBGA = true;
             return;
         }
 

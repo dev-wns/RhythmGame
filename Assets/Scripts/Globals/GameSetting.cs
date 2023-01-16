@@ -70,8 +70,8 @@ public class GameSetting
     public static int SoundOffset = -50;
 
     // Opacity Percentage ( 0 ~ 100 )
-    public static float BGAOpacity   = 100f;
-    public static float PanelOpacity = 100f;
+    public static int BGAOpacity   = 100;
+    public static int PanelOpacity = 100;
 
     // IO
     public static readonly string SoundDirectoryPath = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
@@ -83,7 +83,7 @@ public class GameSetting
     // Jugdement
     private static float DefaultJudgePos = -435f;
     public static float JudgePos => DefaultJudgePos + JudgeOffset;
-    public static float JudgeOffset = 0f;
+    public static int JudgeOffset = 0;
     public static float JudgeHeight = 50f;
 
     // note

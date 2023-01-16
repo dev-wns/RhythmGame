@@ -11,9 +11,9 @@ public abstract class OptionSlider : OptionBase
     public Slider slider;
     public TextMeshProUGUI valueText;
 
-    public float increaseValue = 10f;
-    public float minValue, maxValue;
-    public float curValue;
+    public int increaseValue = 10;
+    public int minValue, maxValue;
+    public int curValue;
 
     public string prePos, postPos;
 
