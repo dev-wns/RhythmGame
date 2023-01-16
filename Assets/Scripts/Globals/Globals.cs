@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Global
 {
@@ -64,6 +66,15 @@ namespace Global
     public static class Const
     {
         public static readonly float OptionFadeDuration = .15f;
+    }
+}
+
+public static class Extentions
+{
+    public static void Increment<T>( this IDictionary<T, int> _dictionary, T _key )
+    {
+        if ( _dictionary.TryGetValue( _key, out int _count ) )
+             _dictionary[_key] = _count + 1;
     }
 }
 

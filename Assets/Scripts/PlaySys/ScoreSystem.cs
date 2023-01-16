@@ -40,12 +40,15 @@ public class ScoreSystem : MonoBehaviour
               images[i].sortingOrder = sortingOrder;
     }
 
-    private void Result() => judge.SetResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
+    private void Result()
+    {
+        NowPlaying.Inst.SetResultData( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
+    }
 
     private void ReLoad()
     {
         targetScore = 0d;
-        curScore = 0d;
+        curScore    = 0d;
 
         for ( int i = 0; i < images.Count; i++ )
         {

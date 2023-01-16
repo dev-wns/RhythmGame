@@ -8,6 +8,7 @@ public class InGame : Scene
 {
     public GameObject loadingCanvas;
     public OptionController pause, gameOver;
+    public GameObject hitCount, debug;
 
     public event Action<Chart> OnSystemInitialize;
     public event Action<Chart> OnSystemInitializeThread;
@@ -30,6 +31,9 @@ public class InGame : Scene
         isHitLastNotes  = new bool[NowPlaying.CurrentSong.keyCount];
         IsGameInputLock = true;
         IsInputLock     = true;
+
+        hitCount.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) );
+        debug.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) );
 
         NowPlaying.Inst.ParseChart();
     }

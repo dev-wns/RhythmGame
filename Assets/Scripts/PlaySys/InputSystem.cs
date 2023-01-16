@@ -106,7 +106,7 @@ public class InputSystem : MonoBehaviour
         if ( NowPlaying.CurrentSong.keyCount == 4 )      note = _key == 1 || _key == 2 ? note2 : note1;
         else if ( NowPlaying.CurrentSong.keyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
         else if ( NowPlaying.CurrentSong.keyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
-        notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
+        notePool ??= new ObjectPool<NoteRenderer>( note, 10 );
     }
 
     private void StartProcess()
@@ -131,7 +131,7 @@ public class InputSystem : MonoBehaviour
             note.Despawn();
         }
 
-        judge.ReLoad();
+        NowPlaying.Inst.ResetData();
         noteSpawnIndex = 0;
         curNote        = null;
         isPress        = false;

@@ -31,10 +31,13 @@ public class RateSystem : MonoBehaviour
         judge.OnJudge += RateUpdate;
 
         for ( int i = 0; i < images.Count; i++ )
-              images[i].sortingOrder = sortingOrder;
+            images[i].sortingOrder = sortingOrder;
     }
 
-    private void Result() => judge.SetResult( HitResult.Rate, ( int )( curRate / curMaxCount ) );
+    private void Result()
+    {
+        NowPlaying.Inst.SetResultData( HitResult.Rate, ( int )( curRate / curMaxCount ) );
+    }
 
     private void ReLoad()
     {

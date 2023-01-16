@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Result : Scene
 {
-    public Judgement Judge = null;
-
-
     public string soundName;
     public uint highlightPos;
     private float playback, soundLength;
@@ -16,9 +13,6 @@ public class Result : Scene
     {
         base.Awake();
 
-        var obj = GameObject.FindGameObjectWithTag( "Judgement" );
-        obj?.TryGetComponent( out Judge );
-
         SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false );
         SoundManager.Inst.Play();
         soundLength = SoundManager.Inst.Length;
@@ -27,12 +21,6 @@ public class Result : Scene
         SoundManager.Inst.FadeVolume( 0f, SoundManager.Inst.Volume, 2f );
 
         isStart = true;
-    }
-
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        Destroy( Judge );
     }
 
     protected override void Update()
@@ -59,8 +47,10 @@ public class Result : Scene
 
     public override void KeyBind()
     {
+        Bind( ActionType.Main, KeyCode.Escape, () => NowPlaying.Inst.ResetData() );
         Bind( ActionType.Main, KeyCode.Escape, () => LoadScene( SceneType.FreeStyle ) );
         Bind( ActionType.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
+        Bind( ActionType.Main, KeyCode.Return, () => NowPlaying.Inst.ResetData() );
         Bind( ActionType.Main, KeyCode.Return, () => LoadScene( SceneType.FreeStyle ) );
         Bind( ActionType.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
     }

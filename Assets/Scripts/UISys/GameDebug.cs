@@ -37,6 +37,9 @@ public class GameDebug : MonoBehaviour
 
     private void Awake()
     {
+        if ( !GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) )
+             return;
+            
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
 
         //StartCoroutine( CalcFrameRate() );
@@ -49,17 +52,6 @@ public class GameDebug : MonoBehaviour
         {
             keySoundCount.text = $"{SoundManager.Inst.KeySoundCount} ( {SoundManager.Inst.TotalKeySoundCount} )";
             yield return YieldCache.WaitForEndOfFrame;
-        }
-    }
-
-    private IEnumerator CalcFrameRate()
-    {
-        while ( true )
-        {
-            yield return YieldCache.WaitForSeconds( .075f );
-
-            //fpsText.text = $"{( int )FPS} ( {( deltaTime * 1000f ):F1} ms )";
-            //channelsInUse.text = $"{SoundManager.Inst.UseChannelCount}";
         }
     }
 }

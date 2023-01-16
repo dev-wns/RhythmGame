@@ -30,12 +30,10 @@ public class AccuracyGraph : MonoBehaviour
         //}
         //rdr = GetComponent<LineRenderer>();
 
-        Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
-        Judgement judge = scene.Judge;
-        if ( judge == null || !TryGetComponent( out rdr ) )
-            return;
+        if ( !TryGetComponent( out rdr ) )
+             return;
 
-        var hitDatas    = judge.hitDatas;
+        var hitDatas    = NowPlaying.Inst.HitDatas;
         var posY        = ( transform as RectTransform ).anchoredPosition.y;
         float posOffset = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 1 );
         int divideCount = ( int )( hitDatas.Count / TotalJudge );
@@ -77,10 +75,7 @@ public class AccuracyGraph : MonoBehaviour
         int maxDeviationMilliseconds = ( int )Global.Math.Abs( maxDeviationAbs * 1000d );
         int maxDeviationAverage      = maxDeviationMilliseconds <= 3 ? 1 : maxDeviationMilliseconds;
         accuracyRangeText.text = $"{-minDeviationAverage} ms ~ {maxDeviationAverage} ms";
-    }
 
-    private void Start()
-    {
         StartCoroutine( UpdatePosition() );
     }
 

@@ -55,7 +55,10 @@ public class ComboSystem : MonoBehaviour
         sequence?.Kill();
     }
 
-    private void Result() => judge.SetResult( HitResult.Combo, highestCombo );
+    private void Result()
+    {
+        NowPlaying.Inst.SetResultData( HitResult.Combo, highestCombo );
+    }
 
     private void ReLoad()
     {

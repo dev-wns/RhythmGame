@@ -30,10 +30,8 @@ public class NowPlaying : Singleton<NowPlaying>
     private static double Sync;
     #endregion
 
-
-    //#region Event
-    //public event Action<bool/* isPause */> OnPause;
-    //#endregion
+    public List<HitData> HitDatas { get; private set; } = new List<HitData>();
+    public Dictionary<HitResult, int /* HitCount */> Results { get; private set; } = new Dictionary<HitResult, int>();
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
@@ -41,20 +39,16 @@ public class NowPlaying : Singleton<NowPlaying>
     public bool IsLoadKeySound { get; set; }
     #endregion
 
-    #region Input
-    //public static bool IsGameInputLock { get; set; }
-    #endregion
-
     #region Unity Callback
     protected override async void Awake()
     {
         base.Awake();
 
-        Stop();
-#if ASYNC_PARSE
+        InitializeData();
+        #if ASYNC_PARSE
         Task parseSongsAsyncTask = Task.Run( ParseSongs );
         await parseSongsAsyncTask;
-#else
+        #else
         ParseSong();
         await Task.CompletedTask;
         #endif        
@@ -93,7 +87,6 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
     #endregion
-
     #region Parsing
     private void ConvertSong()
     {
@@ -133,13 +126,45 @@ public class NowPlaying : Singleton<NowPlaying>
             }
             else 
             {
-                CurrentChart     = chart;
-                medianBPM        = CurrentSong.medianBpm * GameSetting.CurrentPitch;
+                CurrentChart = chart;
+                medianBPM    = CurrentSong.medianBpm * GameSetting.CurrentPitch;
                 Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  CurrentChart : {CurrentSong.title}" );
             }
         }
     }
 
+    #endregion
+    #region HitData
+    private void InitializeData()
+    {
+        for ( int i = 0; i < ( int )HitResult.Count; i++ )
+        {
+            Results[( HitResult )i] = 0;
+        }
+    }
+
+    public void ResetData()
+    {
+        HitDatas.Clear();
+        InitializeData();
+    }
+
+    public void AddHitData( HitResult _key, double _diff )
+    {
+        HitDatas.Add( new HitData( _key, _diff, Playback ) );
+        Results.Increment( _key );
+
+        int keyIndex = ( int )_key;
+        if ( keyIndex > 2 && keyIndex < 6 )
+        {
+            Results.Increment( _diff > 0d ? HitResult.Fast : HitResult.Slow );
+        }
+    }
+
+    public void SetResultData( HitResult _key, int _count )
+    {
+        Results[_key] = _count;
+    }
     #endregion
     #region Sound Process
     public void SoundSynchronized( double _time )

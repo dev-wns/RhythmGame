@@ -44,69 +44,21 @@ public class ResultInfomation : MonoBehaviour
     private readonly float duration = .5f;
     private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = _value.ToString();
 
-    private IEnumerator ProgressEffect( Judgement _judge )
-    {
-        bool isEnd = false;
-        int count = 0;
-        var waitEnd = new WaitUntil( () => isEnd );
-
-        count = _judge.GetResult( HitResult.Perfect );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => TextProgressEffect( perfect, x ), count, duration ).OnComplete( () => isEnd = true );
-        yield return waitEnd;
-
-        count = _judge.GetResult( HitResult.Great );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => TextProgressEffect( great, x ), count, duration ).OnComplete( () => isEnd = true );
-        yield return waitEnd;
-
-        count = _judge.GetResult( HitResult.Good );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => TextProgressEffect( good, x ), count, duration ).OnComplete( () => isEnd = true );
-        yield return waitEnd;
-
-        count = _judge.GetResult( HitResult.Bad );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => TextProgressEffect( bad, x ), count, duration ).OnComplete( () => isEnd = true );
-        yield return waitEnd;
-
-        count = _judge.GetResult( HitResult.Miss );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => TextProgressEffect( miss, x ), count, duration ).OnComplete( () => isEnd = true );
-        yield return waitEnd;
-
-        count = _judge.GetResult( HitResult.Combo );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), count, duration ).OnComplete( () => isEnd = true );
-        yield return waitEnd;
-        
-        count = _judge.GetResult( HitResult.Score );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => TextProgressEffect( score, x ), count, duration ).OnComplete( () => isEnd = true );
-        yield return waitEnd;
-
-        count = _judge.GetResult( HitResult.Rate );
-        isEnd = count == 0 ? true : false;
-        if ( count > 0 ) DOTween.To( () => 0, x => rate.text = $"{( x * .01d ):F2}%", count, duration ).OnComplete( () => isEnd = true );
-    }
-
     private void Awake()
     {
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
-        Judgement judge = scene.Judge;
-        if ( judge == null ) return;
 
         var song = NowPlaying.CurrentSong;
         // Song Infomation
-        title.text = song.title;
+        title.text  = song.title;
         artist.text = song.artist;
 
         // Hit Count 
         totalNotes.text = ( song.noteCount + song.sliderCount ).ToString();
 
         // fast slow
-        fast.text       = judge.GetResult( HitResult.Fast ).ToString();
-        slow.text       = judge.GetResult( HitResult.Slow ).ToString();
+        fast.text = NowPlaying.Inst.Results[HitResult.Fast].ToString();
+        slow.text = NowPlaying.Inst.Results[HitResult.Slow].ToString();
 
         // bpm
         var pitch = GameSetting.CurrentPitch;
@@ -126,7 +78,7 @@ public class ResultInfomation : MonoBehaviour
                     pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Score
-        int scoreValue = judge.GetResult( HitResult.Score );
+        int scoreValue = NowPlaying.Inst.Results[HitResult.Score];
         rank.sprite = scoreValue >= 950000 ? rankAtlas.GetSprite( "Ranking-S" ) :
                       scoreValue >= 900000 ? rankAtlas.GetSprite( "Ranking-A" ) :
                       scoreValue >= 850000 ? rankAtlas.GetSprite( "Ranking-B" ) :
@@ -139,7 +91,15 @@ public class ResultInfomation : MonoBehaviour
         // Background
         StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
 
-        StartCoroutine( ProgressEffect( judge ) );
+        DOTween.To( () => 0, x => TextProgressEffect( perfect, x  ), NowPlaying.Inst.Results[HitResult.Maximum] + 
+                                                                     NowPlaying.Inst.Results[HitResult.Perfect], duration );
+        DOTween.To( () => 0, x => TextProgressEffect( great, x    ), NowPlaying.Inst.Results[HitResult.Great],   duration );
+        DOTween.To( () => 0, x => TextProgressEffect( good, x     ), NowPlaying.Inst.Results[HitResult.Good],    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( bad, x      ), NowPlaying.Inst.Results[HitResult.Bad],     duration );
+        DOTween.To( () => 0, x => TextProgressEffect( miss, x     ), NowPlaying.Inst.Results[HitResult.Miss],    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), NowPlaying.Inst.Results[HitResult.Combo],   duration );
+        DOTween.To( () => 0, x => TextProgressEffect( score, x    ), NowPlaying.Inst.Results[HitResult.Score],   duration );
+        DOTween.To( () => 0, x => rate.text = $"{( x * .01d ):F2}%", NowPlaying.Inst.Results[HitResult.Rate],    duration );
     }
 
     private void OnDestroy()

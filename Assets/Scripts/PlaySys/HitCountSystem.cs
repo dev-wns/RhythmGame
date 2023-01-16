@@ -16,10 +16,13 @@ public class HitCountSystem : MonoBehaviour
     private Judgement judge;
 
     private int prevCount, curCount;
-    private int prevNum, curNum;
+    private int prevNum,   curNum;
 
     private void Awake()
     {
+        if ( !GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) )
+             return;
+
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
         images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
@@ -31,17 +34,13 @@ public class HitCountSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += AddCount;
 
-        scene.OnResult += Result;
-
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;
     }
 
-    private void Result() => judge.SetResult( type, curCount );
-
     private void ReLoad()
     {
-        prevNum = curNum = 0;
+        prevNum   = curNum   = 0;
         prevCount = curCount = 0;
 
         images[0].gameObject.SetActive( true );

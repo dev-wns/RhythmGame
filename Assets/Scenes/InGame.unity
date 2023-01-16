@@ -10025,6 +10025,8 @@ MonoBehaviour:
   loadingCanvas: {fileID: 1876988534}
   pause: {fileID: 314525029}
   gameOver: {fileID: 50901419}
+  hitCount: {fileID: 566966196}
+  debug: {fileID: 977345978}
 --- !u!4 &1220838188
 Transform:
   m_ObjectHideFlags: 0
