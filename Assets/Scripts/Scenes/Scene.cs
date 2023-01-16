@@ -15,6 +15,7 @@ public abstract class Scene : SceneKeyAction
     private SpriteRenderer blackSprite;
     private readonly float FadeTime = .65f;
     public bool IsGameInputLock { get; set; }
+    public Action<float/* pitch */> OnUpdatePitch;
     #endregion
 
     #region Unity Callback
@@ -50,6 +51,12 @@ public abstract class Scene : SceneKeyAction
     protected virtual void OnDestroy()
     {
         Disconnect();
+    }
+
+    public void UpdatePitch( float _pitch )
+    {
+        SoundManager.Inst.SetPitch( _pitch, ChannelType.BGM );
+        OnUpdatePitch?.Invoke( _pitch );
     }
     #endregion
 

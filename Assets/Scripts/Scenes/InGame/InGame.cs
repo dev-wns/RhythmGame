@@ -169,7 +169,6 @@ public class InGame : Scene
     public IEnumerator GameOver()
     {
         IsInputLock     = true;
-        //ChangeAction( ActionType.GameOver );
 
         yield return StartCoroutine( NowPlaying.Inst.GameOver() );
 
@@ -177,7 +176,6 @@ public class InGame : Scene
         IsInputLock     = false;
         EnableCanvas( ActionType.GameOver, gameOver, false );
 
-        //yield return YieldCache.WaitForSeconds( .1f );
         OnGameOver?.Invoke();
     }
 

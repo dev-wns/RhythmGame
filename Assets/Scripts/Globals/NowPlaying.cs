@@ -183,7 +183,7 @@ public class NowPlaying : Singleton<NowPlaying>
             Playback += speed * Time.deltaTime;
             UpdatePlayback();
 
-            SoundManager.Inst.SetPitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ), ChannelType.BGM );
+            CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
             if ( speed < 0f )
                  break;

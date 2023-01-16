@@ -47,7 +47,8 @@ public class BGASystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
-        scene.OnReLoad += ReLoad;
+        scene.OnReLoad           += ReLoad;
+        scene.OnUpdatePitch      += UpdatePitch;
 
         color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
 
@@ -119,6 +120,14 @@ public class BGASystem : MonoBehaviour
     {
         yield return new WaitUntil( () => NowPlaying.Playback >= NowPlaying.CurrentSong.videoOffset * .001d );
         vp.Play();
+    }
+
+    private void UpdatePitch( float _pitch )
+    {
+        if ( type != BackgroundType.Video )
+             return;
+
+        vp.playbackSpeed = _pitch;
     }
 
     private void ReLoad()
