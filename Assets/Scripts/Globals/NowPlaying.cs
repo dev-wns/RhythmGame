@@ -31,9 +31,9 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
 
 
-    #region Event
-    public event Action<bool/* isPause */> OnPause;
-    #endregion
+    //#region Event
+    //public event Action<bool/* isPause */> OnPause;
+    //#endregion
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
@@ -42,7 +42,7 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
 
     #region Input
-    public static bool IsGameInputLock { get; set; }
+    //public static bool IsGameInputLock { get; set; }
     #endregion
 
     #region Unity Callback
@@ -145,7 +145,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void SoundSynchronized( double _time )
     {
         Sync = _time - Playback;
-        Debug.Log( $"Synchronized : {Sync} ms" );
+        Debug.Log( $"Synchronized : {Sync} s" );
     }
 
     public void Play()
@@ -155,7 +155,6 @@ public class NowPlaying : Singleton<NowPlaying>
         startTime       = timer.CurrentTime;
         saveTime        = StartWaitTime;
         IsStart         = true;
-        IsGameInputLock = false;
         Debug.Log( $"Playback start." );
     }
 
@@ -171,12 +170,10 @@ public class NowPlaying : Singleton<NowPlaying>
         IsStart         = false;
         IsLoadBGA       = false;
         IsLoadKeySound  = false;
-        IsGameInputLock = true;
     }
 
     public IEnumerator GameOver()
     {
-        IsGameInputLock = true;
         IsStart         = false;
         float slowTimeOffset = 1f / 3f;
         float speed = 1f;
@@ -200,16 +197,12 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( _isPause )
         {
-            IsGameInputLock = true;
-            IsStart         = false;
-
+            IsStart  = false;
             saveTime = Playback + PauseWaitTime;
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
-            OnPause?.Invoke( true );
         }
         else
         {
-            IsGameInputLock = false;
             StartCoroutine( Continue() );
         }
     }
@@ -231,7 +224,6 @@ public class NowPlaying : Singleton<NowPlaying>
         yield return new WaitUntil( () => Playback > saveTime - PauseWaitTime );
         SoundSynchronized( saveTime - PauseWaitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
-        OnPause?.Invoke( false );
 
         yield return YieldCache.WaitForSeconds( 3f );
         CurrentScene.IsInputLock = false;

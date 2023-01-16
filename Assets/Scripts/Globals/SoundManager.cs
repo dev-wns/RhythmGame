@@ -224,7 +224,6 @@ public class SoundManager : Singleton<SoundManager>
     public void KeyRelease()
     {
         TotalKeySoundCount = 0;
-        int prevCount = keySounds.Count;
         foreach ( var keySound in keySounds )
         {
             var sound = keySound.Value;
@@ -235,8 +234,6 @@ public class SoundManager : Singleton<SoundManager>
             }
         }
         keySounds.Clear();
-
-        Debug.Log( $"KeySound release.  {prevCount} -> {keySounds.Count}" );
     }
 
     public void Release()

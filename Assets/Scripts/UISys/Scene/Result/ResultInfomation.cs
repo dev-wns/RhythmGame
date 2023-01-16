@@ -146,10 +146,7 @@ public class ResultInfomation : MonoBehaviour
     {
         StopAllCoroutines();
         if ( texture != null )
-        {
-            DestroyImmediate( texture );
-            Debug.Log( "Destroy Texture" );
-        }
+             DestroyImmediate( texture );
     }
 
     private IEnumerator LoadBackground( string _path )

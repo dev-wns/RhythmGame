@@ -60,15 +60,12 @@ public class BGASystem : MonoBehaviour
     {
         StopAllCoroutines();
         ClearRenderTexture();
-        NowPlaying.Inst.OnPause -= OnPause;
 
-        int prevCount = textures.Count;
         foreach ( var tex in textures )
         {
             DestroyImmediate( tex.Value );
         }
         textures.Clear();
-        Debug.Log( $"Remove loaded textures using UnityWebRequest.  {prevCount} -> {textures.Count}" );
     }
 
     private void ClearRenderTexture()
@@ -94,8 +91,8 @@ public class BGASystem : MonoBehaviour
         {
             case BackgroundType.Video:
                 StartCoroutine( LoadVideo() );
-                scene.OnGameStart       += PlayVideo;
-                NowPlaying.Inst.OnPause += OnPause;
+                scene.OnGameStart += PlayVideo;
+                scene.OnPause     += OnPause;
                 foreground.gameObject.SetActive( false );
             break;
 
@@ -151,8 +148,20 @@ public class BGASystem : MonoBehaviour
 
     private void OnPause( bool _isPause )
     {
+        if ( type != BackgroundType.Video )
+             return;
+
         if ( _isPause ) vp?.Pause();
-        else            vp?.Play();
+        else            StartCoroutine( WaitVideoTime() );
+    }
+
+    private IEnumerator WaitVideoTime()
+    {
+        // 노트가 위로 올라갔다 내려오는 효과 때문에
+        // 시간이 역행하는지 확인 후 시작시간 타이밍을 기다린다.
+        yield return new WaitUntil( () => NowPlaying.Playback < vp.time );
+        yield return new WaitUntil( () => NowPlaying.Playback > vp.time );
+        vp.Play();
     }
 
     private IEnumerator LoadVideo()

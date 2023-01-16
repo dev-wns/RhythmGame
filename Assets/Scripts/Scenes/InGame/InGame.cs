@@ -13,8 +13,10 @@ public class InGame : Scene
     public event Action<Chart> OnSystemInitializeThread;
 
     public event Action OnGameStart;
+    public event Action OnGameOver;
     public event Action OnReLoad;
     public event Action OnResult;
+    public event Action<bool/* isPause */> OnPause;
     public event Action OnLoadEnd;
     public bool IsEnd { get; private set; }
     private bool[] isHitLastNotes;
@@ -24,21 +26,20 @@ public class InGame : Scene
     protected override void Awake()
     {
         base.Awake();
+
+        isHitLastNotes  = new bool[NowPlaying.CurrentSong.keyCount];
+        IsGameInputLock = true;
+        IsInputLock     = true;
+
         NowPlaying.Inst.ParseChart();
     }
 
     protected async override void Start()
     {
         base.Start();
-        IsInputLock = true;
-
-        isHitLastNotes = new bool[NowPlaying.CurrentSong.keyCount];
-        Debug.Log( $"HitLastNoteCount : {isHitLastNotes.Length}" );
 
         OnSystemInitialize?.Invoke( NowPlaying.CurrentChart );
-        
         await Task.Run( () => OnSystemInitializeThread?.Invoke( NowPlaying.CurrentChart ) );
-
         StartCoroutine( Play() );
     }
 
@@ -106,7 +107,8 @@ public class InGame : Scene
         loadingCanvas.SetActive( false );
 
         OnGameStart?.Invoke();
-        IsInputLock = false;
+        IsGameInputLock = false;
+        IsInputLock     = false;
         NowPlaying.Inst.Play();
     }
 
@@ -120,7 +122,8 @@ public class InGame : Scene
 
     protected IEnumerator RestartProcess()
     {
-        IsInputLock = true;
+        IsInputLock     = true;
+        IsGameInputLock = true;
         yield return StartCoroutine( FadeOut() );
 
         DisableCanvas( ActionType.Main, pause );
@@ -136,10 +139,11 @@ public class InGame : Scene
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();
         NowPlaying.Inst.Play();
-        IsInputLock = false;
+        IsInputLock     = false;
+        IsGameInputLock = false;
     }
 
-    public void Pause( bool _isPuase )
+    public void Pause( bool _isPause )
     {
         if ( IsEnd )
         {
@@ -149,28 +153,32 @@ public class InGame : Scene
         }
         else
         {
-            if ( _isPuase )
-            {
-                NowPlaying.Inst.Pause( true );
-                EnableCanvas( ActionType.Pause, pause );
-            }
-            else
-            {
-                NowPlaying.Inst.Pause( false );
-                DisableCanvas( ActionType.Main, pause );
-            }
+            IsGameInputLock = _isPause;
+            NowPlaying.Inst.Pause( _isPause );
+            ShowPauseCanvas( _isPause );
+            OnPause?.Invoke( _isPause );
         }
+    }
+
+    private void ShowPauseCanvas( bool _isPause )
+    {
+        if ( _isPause ) EnableCanvas(  ActionType.Pause, pause );
+        else            DisableCanvas( ActionType.Main,  pause );
     }
 
     public IEnumerator GameOver()
     {
-        IsInputLock = true;
-        ChangeAction( ActionType.GameOver );
+        IsInputLock     = true;
+        //ChangeAction( ActionType.GameOver );
 
         yield return StartCoroutine( NowPlaying.Inst.GameOver() );
 
+        IsGameInputLock = true;
+        IsInputLock     = false;
         EnableCanvas( ActionType.GameOver, gameOver, false );
-        IsInputLock = false;
+
+        //yield return YieldCache.WaitForSeconds( .1f );
+        OnGameOver?.Invoke();
     }
 
     public override void KeyBind()

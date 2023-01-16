@@ -46,9 +46,10 @@ public class InputSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnGameStart       += StartProcess;
-        scene.OnReLoad          += ReLoad;
-        NowPlaying.Inst.OnPause += Pause;
+        scene.OnGameStart += StartProcess;
+        scene.OnGameOver  += GameOver;
+        scene.OnReLoad    += ReLoad;
+        scene.OnPause     += Pause;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
@@ -61,20 +62,23 @@ public class InputSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( NowPlaying.IsGameInputLock ) return;
+        if ( scene.IsGameInputLock ) 
+             return;
 
+        // Note Select
         if ( curNote == null && notes.Count > 0 )
         {
             curNote  = notes.Dequeue();
             curSound = curNote.Sound;
         }
 
-        if ( isAuto )
-        {
-            AutoCheckNote();
-        }
+        // Judgement
+        if ( isAuto ) AutoCheckNote();
         else
         {
+            CheckNote();
+
+            // Input Effect
             if ( Input.GetKeyDown( key ) )
             {
                 OnInputEvent?.Invoke( InputType.Down );
@@ -84,15 +88,12 @@ public class InputSystem : MonoBehaviour
             {
                 OnInputEvent?.Invoke( InputType.Up );
             }
-
-            CheckNote();
         }
     }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
-        NowPlaying.Inst.OnPause -= Pause;
     }
     #endregion
 
@@ -143,26 +144,31 @@ public class InputSystem : MonoBehaviour
         noteDatas.Add( _note );
     }
 
+    private void GameOver()
+    {
+        OnInputEvent?.Invoke( InputType.Up );
+        OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+    }
+
     /// <summary>
     /// process the slider when pausing, it will be judged immediately.
     /// </summary>
     private void Pause( bool _isPause )
     {
         OnInputEvent?.Invoke( InputType.Up );
+        OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
 
         if ( !_isPause || curNote == null || !curNote.IsSlider ) 
              return;
 
         if ( isAuto )
         {
-            OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
             judge.ResultUpdate( HitResult.Perfect, NoteType.Slider );
             SelectNextNote();
         }
         else
         {
             curNote.SetBodyFail();
-            OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
             judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
             sliderMissQueue.Enqueue( curNote );
             SelectNextNote( false );
