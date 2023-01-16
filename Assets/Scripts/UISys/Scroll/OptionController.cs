@@ -6,6 +6,7 @@ using UnityEngine;
 public class OptionController : ScrollHide
 {
     public RectTransform selectUI;
+    public bool isRememberIndex = true;
 
     protected override void Start()
     {
@@ -14,6 +15,21 @@ public class OptionController : ScrollHide
         OptionProcess();
         while ( CurrentOption.type == OptionType.Title )
                 NextMove();
+    }
+
+    private void OnDisable()
+    {
+        if ( !isRememberIndex )
+             Select( 0 );
+    }
+
+    protected override void Select( int _pos )
+    {
+        base.Select( _pos );
+
+        PreviousOption?.ActiveOutline( false );
+        CurrentOption?.ActiveOutline( true );
+        SetSelectUIParent();
     }
 
     private void SetSelectUIParent()

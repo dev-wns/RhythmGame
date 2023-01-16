@@ -31,7 +31,8 @@ public class ScrollOption : ScrollBase
 
         if ( Length <= 0 ) return;
 
-        CurrentOption = options[_pos];
+        PreviousOption = CurrentOption;
+        CurrentOption  = options[_pos];
     }
 
     public override void PrevMove()

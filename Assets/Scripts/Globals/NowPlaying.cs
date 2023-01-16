@@ -145,7 +145,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void SoundSynchronized( double _time )
     {
         Sync = _time - Playback;
-        Debug.Log( $"Synchronized : {Sync} s" );
+        Debug.Log( $"Synchronized : {( int )( Sync * 1000d )} ms" );
     }
 
     public void Play()

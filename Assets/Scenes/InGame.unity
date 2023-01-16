@@ -447,6 +447,7 @@ MonoBehaviour:
   isHideOption: 0
   numMaxActive: 0
   selectUI: {fileID: 1747029874}
+  isRememberIndex: 0
 --- !u!1 &64259531
 GameObject:
   m_ObjectHideFlags: 0
@@ -2494,6 +2495,7 @@ MonoBehaviour:
   isHideOption: 0
   numMaxActive: 0
   selectUI: {fileID: 838784243}
+  isRememberIndex: 0
 --- !u!1 &326197520
 GameObject:
   m_ObjectHideFlags: 0

@@ -62,9 +62,9 @@ namespace Global
     }
 
     public static class Const
-{
-    public static readonly float OptionFadeDuration = .15f;
-}
+    {
+        public static readonly float OptionFadeDuration = .15f;
+    }
 }
 
 public static class Debug
