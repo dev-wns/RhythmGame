@@ -14,7 +14,6 @@ public class KeySampleSystem : MonoBehaviour
     private int curIndex;
     private double curTime;
     private double offset;
-    private readonly int DefaultSoundOffset = -50;
 
     private void Awake()
     {
@@ -33,7 +32,8 @@ public class KeySampleSystem : MonoBehaviour
 
     private void GameStart()
     {
-        offset = NowPlaying.CurrentSong.isOnlyKeySound && GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0d : ( DefaultSoundOffset + GameSetting.SoundOffset ) * .001d;
+        offset = NowPlaying.CurrentSong.isOnlyKeySound && GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0d : GameSetting.SoundOffset * .001d;
+
         StartCoroutine( Process() );
     }
 
@@ -66,9 +66,7 @@ public class KeySampleSystem : MonoBehaviour
         if ( samples.Count > 0 )
              curTime = samples[curIndex].time;
 
-        double offset = NowPlaying.CurrentSong.isOnlyKeySound && GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0d : ( DefaultSoundOffset + GameSetting.SoundOffset ) * .001d;
         WaitUntil waitNextSample = new WaitUntil( () => curTime + offset < NowPlaying.Playback );
-
         StartCoroutine( FirstSync() );
 
         while ( curIndex < samples.Count )

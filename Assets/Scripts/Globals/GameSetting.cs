@@ -67,7 +67,7 @@ public class GameSetting
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
-    public static int SoundOffset = 0;
+    public static int SoundOffset = 50;
 
     // Opacity Percentage ( 0 ~ 100 )
     public static float BGAOpacity   = 100f;
@@ -81,9 +81,9 @@ public class GameSetting
     public static float MeasureHeight = 2f;
 
     // Jugdement
-    private static float DefaultJudgePos = -340f;
+    private static float DefaultJudgePos = -435f;
     public static float JudgePos => DefaultJudgePos + JudgeOffset;
-    public static float JudgeOffset = -100f;
+    public static float JudgeOffset = 0f;
     public static float JudgeHeight = 50f;
 
     // note

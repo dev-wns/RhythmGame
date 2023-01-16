@@ -1359,8 +1359,8 @@ MonoBehaviour:
   slider: {fileID: 2115645225}
   valueText: {fileID: 772159161}
   increaseValue: 5
-  minValue: -200
-  maxValue: 200
+  minValue: -100
+  maxValue: 100
   curValue: 0
   prePos: 
   postPos: 
@@ -4790,6 +4790,7 @@ MonoBehaviour:
   options: []
   isHideOption: 1
   numMaxActive: 12
+  selectUI: {fileID: 0}
 --- !u!114 &245706503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11723,6 +11724,7 @@ MonoBehaviour:
   options: []
   isHideOption: 0
   numMaxActive: 0
+  selectUI: {fileID: 0}
 --- !u!114 &556523187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15790,6 +15792,7 @@ MonoBehaviour:
   options: []
   isHideOption: 0
   numMaxActive: 0
+  selectUI: {fileID: 0}
   KeyCountText: {fileID: 180180318}
 --- !u!1 &770236076
 GameObject:
@@ -34069,6 +34072,7 @@ MonoBehaviour:
   options: []
   isHideOption: 0
   numMaxActive: 0
+  selectUI: {fileID: 0}
 --- !u!114 &1740707520
 MonoBehaviour:
   m_ObjectHideFlags: 0
