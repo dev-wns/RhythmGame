@@ -12,8 +12,7 @@ public class AccuracyGraph : MonoBehaviour
     private const float StartPosX  = -875f;
     private const float EndPosX    = -175f;
     private const int   TotalJudge = 80;
-    private const int   DivideStep = 10;
-    private const float Power      = 2f;
+    private const float Power      = 5f;
 
 
     private void Awake()
@@ -39,6 +38,8 @@ public class AccuracyGraph : MonoBehaviour
         double totalSumMinDiff = 0d, totalSumMaxDiff = 0d;
         int    totalMinCount   = 0,  totalMaxCount   = 0;
 
+        int step = ( hitDatas.Count / TotalJudge );
+        float stepInverse = 1f / step;
         positions.Add( new Vector3( StartPosX, posY, 0f ) );
         for ( int i = 0; i < hitDatas.Count; i++ )
         {
@@ -55,15 +56,13 @@ public class AccuracyGraph : MonoBehaviour
             }
 
             sumDivideDiff += diff;
-            if ( i % DivideStep == 0 )
+            if ( i % step == 0 )
             {
-                datas.Add( new HitData( HitResult.None, sumDivideDiff / DivideStep, hitDatas[i].time ) );
+                datas.Add( new HitData( HitResult.None, sumDivideDiff * stepInverse, hitDatas[i].time ) );
                 sumDivideDiff = 0d;
             }
         }
-
-        int    divideCount  = datas.Count / TotalJudge;
-        double minDivideAvg = 0d, maxDivideAvg  = 0d;
+        
         for ( int i = 0; i < datas.Count; i++ )
         {
             if ( positions.Count == TotalJudge + 1 )
@@ -71,14 +70,7 @@ public class AccuracyGraph : MonoBehaviour
 
             var avg = datas[i].diff * 1000f * Power;
             avg = Mathf.Round( ( float )( avg - ( avg % ( 5d * Power ) ) ) );
-            minDivideAvg = avg < 0d && avg < minDivideAvg ? avg : minDivideAvg;
-            maxDivideAvg = avg > 0d && avg > maxDivideAvg ? avg : maxDivideAvg;
-            if ( i % divideCount == 0 )
-            {
-                var highest  = minDivideAvg + maxDivideAvg > 0d ? maxDivideAvg : minDivideAvg;
-                minDivideAvg = maxDivideAvg = 0d;
-                positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )highest, -120f, 80f ), 0 ) );
-            }
+            positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )avg, -120f, 80f ), 0 ) );
         }
         positions.Add( new Vector3( EndPosX, posY, 0f ) );
 

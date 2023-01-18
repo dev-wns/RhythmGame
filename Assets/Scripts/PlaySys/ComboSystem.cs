@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using System.Net.Http.Headers;
 
 public class ComboSystem : MonoBehaviour
 {
@@ -47,7 +46,7 @@ public class ComboSystem : MonoBehaviour
     {
         sequence = DOTween.Sequence().Pause().SetAutoKill( false );
         sequence.Append( transform.DOMoveY( startPos.y + 10f, .1f ) );
-        StartCoroutine( Count() );
+        StartCoroutine( BreakCombo() );
     }
 
     private void OnDestroy()
@@ -62,13 +61,16 @@ public class ComboSystem : MonoBehaviour
 
     private void ReLoad()
     {
+        StopAllCoroutines();
         highestCombo = 0;
         curNum       = 0;
         prevNum      = 0;
-        targetCombo  = 0;
-        elapsedCombo = 0f;
         curCombo     = 0;
+        targetCombo  = 0;
         prevCombo    = -1;
+        breakCombo   = 0;
+        breakElapsedCombo = 0f;
+        color = Color.white;
 
         transform.position = startPos;
         images[0].gameObject.SetActive( true );
@@ -79,46 +81,30 @@ public class ComboSystem : MonoBehaviour
             images[i].gameObject.SetActive( false );
         }
         layoutGroup.SetLayoutHorizontal();
+        StartCoroutine( BreakCombo() );
     }
 
-    public int curCombo, targetCombo;
-    public float elapsedCombo = 0f;
-    private IEnumerator Count()
+    public int curCombo;
+    public int targetCombo;
+    public float breakElapsedCombo = 0f;
+    public float breakCombo = 0f;
+    public Color color = Color.white;
+    private IEnumerator BreakCombo()
     {
-        WaitUntil waitNextValue = new WaitUntil( () => ( targetCombo - curCombo ) != 0 );
+        WaitUntil waitNextValue = new WaitUntil( () => targetCombo < curCombo );
         while ( true )
         {
             yield return waitNextValue;
 
-            elapsedCombo += ( targetCombo - curCombo ) / ( targetCombo < curCombo ? .15f : .05f ) * Time.deltaTime;
-            curCombo = ( int )elapsedCombo;
-
-            if ( prevCombo != curCombo )
+            breakElapsedCombo -= breakCombo * 2f * Time.deltaTime; // .5s
+            curCombo = ( int )Global.Math.Clamp( breakElapsedCombo, 0f, 1000000f );
+            if ( targetCombo >= curCombo )
             {
-                curNum = curCombo == 0 ? 1 : Global.Math.Log10( curCombo ) + 1;
-                float calcCurCombo  = curCombo;
-                Color color = targetCombo < curCombo ? Color.grey : Color.white;
-                for ( int i = 0; i < images.Count; i++ )
-                {
-                    if ( i < curNum )
-                    {
-                        images[i].gameObject.SetActive( true );
-                        images[i].color  = color;
-                        images[i].sprite = sprites[( int )calcCurCombo % 10];
-                        calcCurCombo *= .1f;
-                    }
-                    else
-                    {
-                        images[i].gameObject.SetActive( false );
-                    }
-                }
-
-                if ( prevNum != curNum )
-                     layoutGroup.SetLayoutHorizontal();
-
-                prevNum   = curNum;
-                prevCombo = curCombo;
+                color = Color.white;
+                curCombo = targetCombo;
             }
+
+            UpdateImages();
         }
     }
 
@@ -140,6 +126,8 @@ public class ComboSystem : MonoBehaviour
             break;
 
             case HitResult.Miss:
+            color = Color.gray;
+            breakElapsedCombo = breakCombo = curCombo;
             targetCombo = 0;
             break;
         }
@@ -148,5 +136,37 @@ public class ComboSystem : MonoBehaviour
 
         transform.position = startPos;
         sequence.Restart();
+
+        if ( targetCombo > curCombo )
+        {
+            curCombo = targetCombo;
+            UpdateImages();
+        }
+    }
+
+    private void UpdateImages()
+    {
+        curNum = curCombo == 0 ? 1 : Global.Math.Log10( curCombo ) + 1;
+        float calcCurCombo  = curCombo;
+        for ( int i = 0; i < images.Count; i++ )
+        {
+            if ( i < curNum )
+            {
+                images[i].gameObject.SetActive( true );
+                images[i].sprite = sprites[( int )calcCurCombo % 10];
+                images[i].color  = color;
+                calcCurCombo *= .1f;
+            }
+            else
+            {
+                images[i].gameObject.SetActive( false );
+            }
+        }
+
+        if ( prevNum != curNum )
+             layoutGroup.SetLayoutHorizontal();
+
+        prevNum   = curNum;
+        prevCombo = curCombo;
     }
 }

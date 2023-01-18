@@ -89,7 +89,7 @@ public class InGame : Scene
         if ( IsEnd )
         {
             StartCoroutine( GameEnd() );
-            Debug.Log( "GameEnd" );
+            Debug.Log( "All lanes are empty." );
         }
     }
 

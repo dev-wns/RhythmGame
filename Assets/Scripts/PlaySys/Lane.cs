@@ -35,6 +35,7 @@ public class Lane : MonoBehaviour
     {
         if ( _type == InputType.Down )
         {
+            ShouldPlayLaneEffect = false;
             laneEffect.color = color;
             fadeAlpha = StartFadeAlpha;
         }
