@@ -247,7 +247,7 @@ public class InputSystem : MonoBehaviour
                 OnInputEvent?.Invoke( InputType.Up );
 
                 OnHitNote?.Invoke( NoteType.Default, InputType.Down );
-                judge.ResultUpdate( startDiff, NoteType.Default );
+                judge.ResultUpdate( startDiff - ( GameSetting.IsAutoRandom ? startDiff - rand : startDiff ), NoteType.Default );
                 SoundManager.Inst.Play( curSound );
                 SelectNextNote();
             }
@@ -256,7 +256,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( !isPress )
             {
-                if ( startDiff <= 0d )
+                if ( startDiff < 0d )
                 {
                     OnInputEvent?.Invoke( InputType.Down );
 
@@ -270,7 +270,7 @@ public class InputSystem : MonoBehaviour
             }
             else
             {
-                if ( endDiff <= 0d )
+                if ( endDiff < 0d )
                 {
                     OnInputEvent?.Invoke( InputType.Up );
 

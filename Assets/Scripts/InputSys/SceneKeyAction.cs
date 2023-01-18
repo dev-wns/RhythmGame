@@ -10,7 +10,7 @@ public abstract class SceneKeyAction : MonoBehaviour
     public ActionType CurrentAction { get; private set; }
     public bool IsInputLock         { get; set; }
 
-    protected virtual void Update()
+    protected virtual void LateUpdate()
     {
         if ( IsInputLock || !keyActions.ContainsKey( CurrentAction ) )
              return;

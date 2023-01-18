@@ -23,9 +23,8 @@ public class Result : Scene
         isStart = true;
     }
 
-    protected override void Update()
-    {
-        base.Update();
+    private void Update()
+    { 
         if ( !isStart ) return;
 
         playback += Time.deltaTime * 1000f;

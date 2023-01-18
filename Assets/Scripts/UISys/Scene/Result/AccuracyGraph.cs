@@ -9,73 +9,82 @@ public class AccuracyGraph : MonoBehaviour
     public TextMeshProUGUI accuracyRangeText;
     private LineRenderer rdr;
     private List<Vector3> positions = new List<Vector3>();
-    private const float StartPosX = -875f;
-    private const float EndPosX   = -175f;
-    private const int TotalJudge  = 100;
+    private const float StartPosX  = -875f;
+    private const float EndPosX    = -175f;
+    private const int   TotalJudge = 80;
+    private const int   DivideStep = 10;
+    private const float Power      = 2f;
+
 
     private void Awake()
     {
         //List<HitData> hitDatas = new List<HitData>();
-        //double time = 0d;
-        //for ( int i = 0; i < 10000; i++ )
+        //double times = 0d;
+        //for ( int i = 0; i < 2500; i++ )
         //{
         //    double diff = UnityEngine.Random.Range( (float)-Judgement.Bad, (float)Judgement.Bad );
-        //    double diffAbs = Global.Math.Abs( diff );
-        //    //double diff = UnityEngine.Random.Range( -.005f, .005f );
-
-        //    time += 1d;
-
-        //    hitDatas.Add( new HitData( HitResult.None, time, ( double )diff ) );
-        //    //hitDatas.Add( new HitData( HitResult.None, time, 0d ) );
+        //    times += 1d;
+        //    hitDatas.Add( new HitData( HitResult.None, diff, times ) );
         //}
-        //rdr = GetComponent<LineRenderer>();
 
         if ( !TryGetComponent( out rdr ) )
              return;
 
-        var hitDatas    = NowPlaying.Inst.HitDatas;
-        var posY        = ( transform as RectTransform ).anchoredPosition.y;
-        float posOffset = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 1 );
-        int divideCount = ( int )( hitDatas.Count / TotalJudge );
-        List<double> deviations = new List<double>();
+        var    hitDatas   = NowPlaying.Inst.HitDatas;
+        float  posY       = ( transform as RectTransform ).anchoredPosition.y;
+        float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 1 );
+
+        List<HitData> datas    = new List<HitData>();
+        double sumDivideDiff   = 0d;
+        double totalSumMinDiff = 0d, totalSumMaxDiff = 0d;
+        int    totalMinCount   = 0,  totalMaxCount   = 0;
 
         positions.Add( new Vector3( StartPosX, posY, 0f ) );
-        for ( int i = 0; i < TotalJudge; i++ )
+        for ( int i = 0; i < hitDatas.Count; i++ )
         {
-            var diffRange = hitDatas.GetRange( i * divideCount, divideCount );
-            deviations.Add( diffRange.Sum( d => d.diff ) / diffRange.Count );
-        }
-
-        bool canDivide = false;
-        double minDeviationAbs = Global.Math.Abs( deviations.Min() );
-        double maxDeviationAbs = Global.Math.Abs( deviations.Max() );
-        double deviationAverage = minDeviationAbs < maxDeviationAbs ? maxDeviationAbs : minDeviationAbs;
-        for ( int i = 0; i < deviations.Count; i++ )
-        {
-            canDivide = deviationAverage > double.Epsilon && Global.Math.Abs( deviations[i] ) > double.Epsilon;
-            if ( canDivide )
+            var diff = hitDatas[i].diff;
+            if ( diff < 0d )
             {
-                float devideAverage = ( float )( deviations[i] / deviationAverage );
-                int averageMilliseconds = ( int )Global.Math.Abs( deviations[i] * 1000f );
-                float result = averageMilliseconds <= 3 ? 0f : devideAverage;
-                Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), posY + ( ( float )result * 100f ), 0 );
-                positions.Add( newPos );
+                totalSumMinDiff += diff * 1000d;
+                totalMinCount++;
             }
             else
             {
-                Vector3 newPos = new Vector3( StartPosX + ( posOffset * positions.Count ), posY, 0 );
-                positions.Add( newPos );
+                totalSumMaxDiff += diff * 1000d;
+                totalMaxCount++;
+            }
+
+            sumDivideDiff += diff;
+            if ( i % DivideStep == 0 )
+            {
+                datas.Add( new HitData( HitResult.None, sumDivideDiff / DivideStep, hitDatas[i].time ) );
+                sumDivideDiff = 0d;
+            }
+        }
+
+        int    divideCount  = datas.Count / TotalJudge;
+        double minDivideAvg = 0d, maxDivideAvg  = 0d;
+        for ( int i = 0; i < datas.Count; i++ )
+        {
+            if ( positions.Count == TotalJudge + 1 )
+                 break;
+
+            var avg = datas[i].diff * 1000f * Power;
+            avg = Mathf.Round( ( float )( avg - ( avg % ( 5d * Power ) ) ) );
+            minDivideAvg = avg < 0d && avg < minDivideAvg ? avg : minDivideAvg;
+            maxDivideAvg = avg > 0d && avg > maxDivideAvg ? avg : maxDivideAvg;
+            if ( i % divideCount == 0 )
+            {
+                var highest  = minDivideAvg + maxDivideAvg > 0d ? maxDivideAvg : minDivideAvg;
+                minDivideAvg = maxDivideAvg = 0d;
+                positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )highest, -120f, 80f ), 0 ) );
             }
         }
         positions.Add( new Vector3( EndPosX, posY, 0f ) );
 
-        int minDeviationMilliseconds = ( int )Global.Math.Abs( minDeviationAbs * 1000d );
-        int minDeviationAverage      = minDeviationMilliseconds <= 3 ? 1 : minDeviationMilliseconds;
-
-        int maxDeviationMilliseconds = ( int )Global.Math.Abs( maxDeviationAbs * 1000d );
-        int maxDeviationAverage      = maxDeviationMilliseconds <= 3 ? 1 : maxDeviationMilliseconds;
-        accuracyRangeText.text = $"{-minDeviationAverage} ms ~ {maxDeviationAverage} ms";
-
+        int minAverageMS = totalMinCount == 0 ? 0 : Mathf.RoundToInt( ( float )( totalSumMinDiff / totalMinCount ) );
+        int maxAverageMS = totalMaxCount == 0 ? 0 : Mathf.RoundToInt( ( float )( totalSumMaxDiff / totalMaxCount ) );
+        accuracyRangeText.text = $"{minAverageMS} ms ~ {maxAverageMS} ms";
         StartCoroutine( UpdatePosition() );
     }
 

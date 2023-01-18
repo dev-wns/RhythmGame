@@ -3,6 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct HealthData
+{
+    public double time;
+    public float  health;
+
+    public HealthData( double _time, float _health )
+    {
+        time   = _time;
+        health = _health;
+    }
+}
+
 public class HealthSystem : MonoBehaviour
 {
     private InGame scene;
@@ -26,7 +38,7 @@ public class HealthSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += Initialize;
+        scene.OnReLoad += Clear;
         scene.OnGameStart += () => StartCoroutine( InitHealthEffect() );
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
@@ -39,7 +51,7 @@ public class HealthSystem : MonoBehaviour
         healthBGTransform.position        = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 17f, ( -Screen.height * .5f ) + ( helpTransform.localScale.y * .5f ), 0f );
         healthRenderer.transform.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 33f, ( -Screen.height * .5f ) + helpTransform.localScale.y, 0f );
 
-        Initialize();
+        Clear();
     }
 
     private IEnumerator InitHealthEffect()
@@ -61,7 +73,7 @@ public class HealthSystem : MonoBehaviour
         {
             healthScaleTimer   += healthScalerSpeed * Time.deltaTime;
             float scaleOffset   = ( Mathf.Cos( healthScaleTimer ) + 1f ) * .5f; // 0 ~ 1
-            float curTileHeight =  curHealth * healthTileOffset;
+            float curTileHeight = curHealth * healthTileOffset;
             float height        = curTileHeight - Global.Math.Lerp( curTileHeight * .04f, 0f, scaleOffset );
             healthRenderer.size = new Vector2( healthTileCached.x, Global.Math.Clamp( height, 0f, healthTileCached.y ) );
             yield return null;
@@ -86,15 +98,15 @@ public class HealthSystem : MonoBehaviour
         }
     }
 
-    private void Initialize()
+    private void Clear()
     {
         StopAllCoroutines();
-        curHealth    = 0f;
         healthOffset = 0f;
+        curHealth    = 0f;
         healthCached = MaxHealth;
         healthRenderer.size = new Vector2( healthTileCached.x, 0f );
     }
-
+    
     private void HealthUpdate( HitResult _result, NoteType _type )
     {
         switch ( _result )
@@ -107,6 +119,7 @@ public class HealthSystem : MonoBehaviour
             case HitResult.Miss:        healthCached -= .055f; break;
         }
         healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );
+        
         healthOffset = healthCached - curHealth;
     }
 }

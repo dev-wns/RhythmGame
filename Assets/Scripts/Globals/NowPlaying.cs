@@ -30,7 +30,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private static double Sync;
     #endregion
 
-    public List<HitData> HitDatas { get; private set; } = new List<HitData>();
+    public List<HitData>    HitDatas    { get; private set; } = new List<HitData>();
     public Dictionary<HitResult, int /* HitCount */> Results { get; private set; } = new Dictionary<HitResult, int>();
 
     public bool IsStart        { get; private set; }
@@ -134,7 +134,7 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #endregion
-    #region HitData
+    #region Data
     private void InitializeData()
     {
         for ( int i = 0; i < ( int )HitResult.Count; i++ )

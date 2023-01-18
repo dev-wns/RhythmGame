@@ -24,9 +24,8 @@ public class Lobby : Scene
         isStart = true;
     }
 
-    protected override void Update()
+    private void Update()
     {
-        base.Update();
         if ( !isStart ) return;
 
         playback = playback < soundLength ? playback += Time.deltaTime * 1000f : 0;
