@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using DG.Tweening;
 
 public class HeartBeat : MonoBehaviour
 {
@@ -14,9 +12,10 @@ public class HeartBeat : MonoBehaviour
     [Header( "BPM" )]
     private double curBPM;
     private float previewTime;
-    private float spb, spbHalf, spbQuarter;
+    private float spb;
+
+    private readonly float Duration = .18f;
     private float time = 0f;
-    private bool isWaitTime = true;
 
     private void Awake()
     {
@@ -25,7 +24,7 @@ public class HeartBeat : MonoBehaviour
         pitchOption.OnPitchUpdate += UpdatePitch;
 
         startSize = rt.sizeDelta.x;
-        endSize   = rt.sizeDelta.x * 1.75f;
+        endSize   = rt.sizeDelta.x * 1.5f;
     }
 
     private void UpdatePitch( float _pitch )
@@ -36,39 +35,25 @@ public class HeartBeat : MonoBehaviour
     private void UpdateSong( Song _song )
     {
         curBPM      = _song.medianBpm;
-        previewTime = _song.previewTime * .001f;
+        previewTime = _song.previewTime * GameSetting.CurrentPitch * .001f;
         UpdateBPM( curBPM * GameSetting.CurrentPitch );
     }
 
     private void UpdateBPM( double _bpm )
     {
-        spb        = ( float )( 60d / _bpm );
-        spbHalf    = spb * .5f;
-        spbQuarter = spb * .25f;
-
-        time         = previewTime - ( spb * Mathf.FloorToInt( previewTime / spb ) );
-        isWaitTime   = false;
+        spb  = ( float )( 60d / _bpm );
+        time = previewTime % spb;
         rt.sizeDelta = new Vector2( startSize, startSize );
     }
 
     private void Update()
     {
         time += Time.deltaTime;
-        if ( isWaitTime && spb < time )
-        {
-            time       -= spb;
-            isWaitTime = false;
-        }
-        else
-        {
-            float t    = Mathf.Cos( ( 1f + ( time / spbQuarter ) ) * .5f ); // 0 ~ 1
-            float size = Global.Math.Lerp( startSize, endSize, t );
+        if ( spb < time )
+             time %= spb;
 
-            size = Global.Math.Clamp( size, startSize, endSize );
-            rt.sizeDelta = new Vector2( size, size );
-
-            if ( spbHalf < time )
-                 isWaitTime = true;
-        }
+        float t    = ( 1f + Mathf.Cos( ( Global.Math.Clamp( time, 0f, Duration ) / Duration ) * Mathf.PI ) ) * .5f; // 1 -> 0
+        float size = Global.Math.Clamp( Global.Math.Lerp( startSize, endSize, t ), startSize, endSize );
+        rt.sizeDelta = new Vector2( size, size );
     }
 }
