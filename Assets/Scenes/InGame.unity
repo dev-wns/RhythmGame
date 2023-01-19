@@ -11333,7 +11333,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 27691ec6b7ea7fa46bf51a36849bd8ce, type: 3}
   curCombo: 0
   targetCombo: 0
-  elapsedCombo: 0
+  breakElapsedCombo: 0
+  breakCombo: 0
+  color: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &1337680954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11451,8 +11453,8 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 0
-  m_AllowMSAA: 0
+  m_HDR: 1
+  m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 0
