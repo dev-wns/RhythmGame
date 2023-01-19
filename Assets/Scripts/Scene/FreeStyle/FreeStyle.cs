@@ -11,6 +11,8 @@ public class FreeStyle : Scene
     {
         base.Awake();
 
+        SoundManager.Inst.OnReload += Connect;
+
         var judge = GameObject.FindGameObjectWithTag( "Judgement" );
         if ( judge ) Destroy( judge );
 

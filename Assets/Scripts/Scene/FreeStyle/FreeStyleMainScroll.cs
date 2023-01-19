@@ -46,6 +46,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         IsLoop = true;
         curPos = rt.anchoredPosition.y;
+        SoundManager.Inst.OnReload += OnBufferSetting;
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
@@ -94,6 +95,36 @@ public class FreeStyleMainScroll : ScrollBase
         UpdateScrollBar();
 
         UpdateSong();
+    }
+
+    private void Update()
+    {
+        playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
+        if ( ( curSong.totalTime + waitPreviewTime < playback ) )
+        {
+            SoundManager.Inst.Play();
+            SoundManager.Inst.Position = ( uint )curSong.previewTime;
+            playback = curSong.previewTime;
+            OnSoundRestart?.Invoke( curSong );
+
+            Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
+            SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
+        }
+
+        if ( isKeyUp )
+        {
+            keyUpTime += Time.deltaTime;
+            if ( keyUpTime >= KeyUpWaitTime )
+            {
+                isKeyUp = false;
+                UpdateSong();
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        SoundManager.Inst.OnReload -= OnBufferSetting;
     }
 
     public override void PrevMove()
@@ -173,7 +204,7 @@ public class FreeStyleMainScroll : ScrollBase
         SoundManager.Inst.FadeVolume( prevMusic, 1f, 0f, .5f, () => SoundManager.Inst.Stop( prevMusic ) );
 
         SoundManager.Inst.Load( curSong.audioPath, false, true );
-        curSong.totalTime = ( int )SoundManager.Inst.Length;
+        curSong.totalTime   = ( int )SoundManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         playback = curSong.previewTime;
 
@@ -182,6 +213,13 @@ public class FreeStyleMainScroll : ScrollBase
         Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
         SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
         SoundManager.Inst.Position = ( uint )curSong.previewTime;
+    }
+
+    private void OnBufferSetting()
+    {
+        SoundManager.Inst.Load( curSong.audioPath, false, true );
+        SoundManager.Inst.Play();
+        SoundManager.Inst.Position = ( uint )playback;
     }
 
     private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( curSong.totalTime * .314f ) : ( uint )_time;
@@ -206,31 +244,6 @@ public class FreeStyleMainScroll : ScrollBase
         isKeyUp = false;
         SoundManager.Inst.Play( SoundSfxType.MainSelect );
         NextMove();
-    }
-
-    private void Update()
-    {
-        playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
-        if ( ( curSong.totalTime + waitPreviewTime < playback ) )
-        {
-            SoundManager.Inst.Play();
-            SoundManager.Inst.Position = ( uint )curSong.previewTime;
-            playback = curSong.previewTime;
-            OnSoundRestart?.Invoke( curSong );
-
-            Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
-            SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
-        }
-
-        if ( isKeyUp )
-        {
-            keyUpTime += Time.deltaTime;
-            if ( keyUpTime >= KeyUpWaitTime )
-            {
-                isKeyUp = false;
-                UpdateSong();
-            }
-        }
     }
 
     private void KeyHold( Action _action )

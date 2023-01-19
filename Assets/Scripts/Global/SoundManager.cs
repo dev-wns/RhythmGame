@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Windows;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SoundSfxType 
@@ -39,7 +40,7 @@ public class SoundManager : Singleton<SoundManager>
     public FMOD.Sound MainSound { get; private set; }
     public FMOD.Channel MainChannel { get; private set; }
     private int curDriverIndex;
-    public event Action OnReload, OnRelease;
+    public event Action OnReload;
     public struct SoundDriver : IEquatable<SoundDriver>
     {
         public Guid guid;
@@ -212,7 +213,7 @@ public class SoundManager : Singleton<SoundManager>
         Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
         // Details
-        SetVolume( 1f, ChannelType.Master );
+        SetVolume( .2f, ChannelType.Master );
         SetVolume( .1f, ChannelType.BGM );
         SetVolume( .3f, ChannelType.SFX );
         SetVolume( .075f, ChannelType.Clap );
@@ -260,15 +261,14 @@ public class SoundManager : Singleton<SoundManager>
         }
         keySounds.Clear();
 
-        if ( MainSound.hasHandle() )
-        {
-            ErrorCheck( MainSound.release() );
-            MainSound.clearHandle();
-        }
-
+        //ErrorCheck( MainChannel.stop() );
+        //if ( MainSound.hasHandle() )
+        //{
+        //    ErrorCheck( MainSound.release() );
+        //    MainSound.clearHandle();
+        //}
 
         // ChannelGroup
-        OnRelease?.Invoke();
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
         {
             foreach ( var dsp in dsps.Values )
@@ -276,12 +276,19 @@ public class SoundManager : Singleton<SoundManager>
                 ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
             }
 
+            ErrorCheck( groups[( ChannelType )i].getNumChannels( out int numChannels ) );
+            for ( int j = 0; j < numChannels; j++ )
+            {
+                ErrorCheck( groups[( ChannelType )i].getChannel( j, out FMOD.Channel channel ) );
+                ErrorCheck( channel.stop() );
+            }
+
             ErrorCheck( groups[( ChannelType )i].release() );
         }
 
         ErrorCheck( groups[ChannelType.Master].release() );
         groups.Clear();
-        
+
         // DSP
         foreach ( var dsp in dsps.Values )
         {
@@ -299,18 +306,28 @@ public class SoundManager : Singleton<SoundManager>
 
     public void ReLoad()
     {
-        AllStop();
         IsLoad = true;
+        AllStop();
 
-        int prevDriverIndex;
-        ErrorCheck( system.getDriver( out prevDriverIndex ) );
+        // caching
+        ErrorCheck( system.getDriver( out int prevDriverIndex ) );
+        float[] volumes = new float[groups.Count];
+        int groupCount = 0;
+        foreach ( var group in groups.Values )
+            ErrorCheck( group.getVolume( out volumes[groupCount++] ) );
 
+        // reload
         Release();
         Initialize();
 
         OnReload?.Invoke();
+
+        // rollback
         ErrorCheck( system.setDriver( prevDriverIndex ) );
         curDriverIndex = prevDriverIndex;
+        groupCount = 0;
+        foreach ( var group in groups.Values )
+            ErrorCheck( group.setVolume( volumes[groupCount++] ) );
 
         IsLoad = false;
     }
@@ -322,9 +339,10 @@ public class SoundManager : Singleton<SoundManager>
         Initialize();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if ( !IsLoad ) system.update();
+        if ( !IsLoad ) 
+             system.update();
     }
 
     private void OnDestroy()
@@ -387,15 +405,14 @@ public class SoundManager : Singleton<SoundManager>
     }
     #endregion
     #region Play
-
     /// <summary> Play Background Music </summary>
     public void Play()
     {
-        if ( !MainSound.hasHandle() )
-        {
-            Debug.LogError( "Bgm is not loaded." );
-            return;
-        }
+        //if ( !MainSound.hasHandle() )
+        //{
+        //    Debug.LogError( "Bgm is not loaded." );
+        //    return;
+        //}
 
         ErrorCheck( system.playSound( MainSound, groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
         MainChannel = channel;
@@ -450,7 +467,6 @@ public class SoundManager : Singleton<SoundManager>
     {
         StartCoroutine( Fade( _music, _start, _end, _t, _OnCompleted ) );
     }
-
 
     public IEnumerator Fade( Music _music, float _start, float _end, float _t, Action _OnCompleted )
     {
@@ -554,7 +570,8 @@ public class SoundManager : Singleton<SoundManager>
     {
         _music.channel.isPlaying( out bool isPlaying );
         if ( isPlaying ) ErrorCheck( _music.channel.stop() );
-        _music.sound.release();
+        ErrorCheck( _music.sound.release() );
+        _music.sound.clearHandle();
     }
 
     public void AllStop()
@@ -565,9 +582,10 @@ public class SoundManager : Singleton<SoundManager>
                 ErrorCheck( group.Value.stop() );
         }
 
-        MainChannel.isPlaying( out bool isPlaying );
-        if ( isPlaying ) ErrorCheck( MainChannel.stop() );
-        MainSound.release();
+        //MainChannel.isPlaying( out bool isPlaying );
+        //if ( isPlaying ) ErrorCheck( MainChannel.stop() );
+        //MainSound.release();
+        //MainSound.clearHandle();
     }
     #endregion
     #region DSP
