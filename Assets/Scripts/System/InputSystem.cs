@@ -60,7 +60,7 @@ public class InputSystem : MonoBehaviour
         rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         if ( scene.IsGameInputLock ) 
              return;

@@ -8,7 +8,7 @@ public class AudioVisualizer : MonoBehaviour
     private float[][] spectrums;
     public Action<float[][]> OnUpdateSpectrums;
 
-    private void Update()
+    private void LateUpdate()
     {
         if ( SoundManager.Inst.IsLoad )
              return;
