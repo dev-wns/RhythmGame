@@ -30,8 +30,8 @@ public class ScoreSystem : MonoBehaviour
 
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
-        scene.OnReLoad += ReLoad;
-        scene.OnResult += Result;
+        scene.OnReLoad += OnReLoad;
+        scene.OnResult += OnResult;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreUpdate;
@@ -40,12 +40,12 @@ public class ScoreSystem : MonoBehaviour
               images[i].sortingOrder = sortingOrder;
     }
 
-    private void Result()
+    private void OnResult()
     {
-        NowPlaying.Inst.SetResultData( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
+        NowPlaying.Inst.SetResultCount( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
     }
 
-    private void ReLoad()
+    private void OnReLoad()
     {
         targetScore = 0d;
         curScore    = 0d;

@@ -11,7 +11,6 @@ public class FreeStyleMainScroll : ScrollBase
     private RectTransform rt => transform as RectTransform;
 
     [Header("Scroll")]
-    public ScrollBar scrollbar;
     public int maxShowCount = 7;
     
     private int median;
@@ -29,7 +28,7 @@ public class FreeStyleMainScroll : ScrollBase
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
-    private readonly float ScrollUpdateTime = .075f;
+    private readonly float ScrollUpdateTime = .1f;
     private readonly float KeyHoldWaitTime = .5f;
     private readonly float KeyUpWaitTime = .2f;
     private bool isKeyUp, isKeyPress;
@@ -55,7 +54,6 @@ public class FreeStyleMainScroll : ScrollBase
         median = Mathf.FloorToInt( maxShowCount / 2f );
 
         // 객체 할당
-        scrollbar.Initialize( NowPlaying.Inst.Songs.Count );
         Length    = NowPlaying.Inst.Songs.Count;
         int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
                     NowPlaying.Inst.CurrentSongIndex - median + Length :
@@ -91,8 +89,8 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void Start()
     {
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 100f, .5f );
-        UpdateScrollBar();
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 125f, .5f );
+        //UpdateScrollBar();
 
         UpdateSong();
     }
@@ -149,12 +147,14 @@ public class FreeStyleMainScroll : ScrollBase
         // 위치 갱신
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX, .5f );
         curNode = curNode.Previous;
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 100f, .5f );
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 125f, .5f );
 
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
 
-        UpdateScrollBar();
+        //UpdateScrollBar();
+        if ( curText )
+             curText.text = ( CurrentIndex + 1 ).ToString();
     }
 
     public override void NextMove()
@@ -179,21 +179,23 @@ public class FreeStyleMainScroll : ScrollBase
         // 위치 갱신
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX, .5f );
         curNode = curNode.Next;
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 100f, .5f );
+        curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 125f, .5f );
 
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );
 
-        UpdateScrollBar();
-    }
-
-    private void UpdateScrollBar()
-    {
-        scrollbar.UpdateHandle( CurrentIndex );
-
-        if ( curText ) 
+        //UpdateScrollBar();
+        if ( curText )
              curText.text = ( CurrentIndex + 1 ).ToString();
     }
+
+    //private void UpdateScrollBar()
+    //{
+    //    scrollbar.UpdateHandle( CurrentIndex );
+
+    //    if ( curText ) 
+    //         curText.text = ( CurrentIndex + 1 ).ToString();
+    //}
 
     private void UpdateSong()
     {

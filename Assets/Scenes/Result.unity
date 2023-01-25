@@ -4216,7 +4216,7 @@ GameObject:
   - component: {fileID: 1204265907}
   - component: {fileID: 1204265906}
   m_Layer: 5
-  m_Name: Rate
+  m_Name: Accuracy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6826,7 +6826,7 @@ MonoBehaviour:
   slow: {fileID: 453864777}
   maxCombo: {fileID: 2093097131}
   score: {fileID: 203582327}
-  rate: {fileID: 1204265906}
+  accuracy: {fileID: 1204265906}
   rank: {fileID: 893710554}
   date: {fileID: 477232498}
   defaultOrigin: {fileID: 0}

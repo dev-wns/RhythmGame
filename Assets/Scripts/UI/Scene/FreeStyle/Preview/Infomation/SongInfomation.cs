@@ -5,7 +5,7 @@ using TMPro;
 
 public class SongInfomation : OptionButton
 {
-    public TextMeshProUGUI title, artist;
+    public TextMeshProUGUI title, version, artist;
     public Song song;
 
     public RectTransform rt { get; private set; }
@@ -19,7 +19,8 @@ public class SongInfomation : OptionButton
     public void SetInfo( Song _song )
     {
         song = _song;
-        title.text = _song.title;
-        artist.text = _song.artist;
+        title.text   = _song.title;
+        version.text = _song.version;
+        artist.text  = $"{_song.artist} // {_song.creator}";
     }
 }

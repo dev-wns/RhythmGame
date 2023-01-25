@@ -29,7 +29,8 @@ public class HitCountSystem : MonoBehaviour
         images.Reverse();
 
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += ReLoad;
+        scene.OnReLoad += OnReLoad;
+        scene.OnResult += OnResult;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += AddCount;
@@ -38,7 +39,12 @@ public class HitCountSystem : MonoBehaviour
               images[i].sortingOrder = sortingOrder;
     }
 
-    private void ReLoad()
+    private void OnResult()
+    {
+        NowPlaying.Inst.SetResultCount( type, curCount );
+    }
+
+    private void OnReLoad()
     {
         prevNum   = curNum   = 0;
         prevCount = curCount = 0;

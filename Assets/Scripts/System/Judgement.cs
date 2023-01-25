@@ -3,20 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum HitResult { None, Maximum, Perfect, Great, Good, Bad, Miss, Fast, Slow, Rate, Combo, Score, Count }
-public struct HitData
-{
-    public HitResult result;
-    public double diff;
-    public double time;
-
-    public HitData( HitResult _res, double _diff, double _time )
-    {
-        result = _res;
-        diff   = _diff;
-        time   = _time;
-    }
-}
+public enum HitResult { None, Maximum, Perfect, Great, Good, Bad, Miss, Fast, Slow, Accuracy, Combo, Score, Count }
 
 public class Judgement : MonoBehaviour
 {

@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class RateSystem : MonoBehaviour
+public class AccuracySystem : MonoBehaviour
 {
     [Header("Sprite")]
     public int sortingOrder;
@@ -16,33 +15,33 @@ public class RateSystem : MonoBehaviour
     public List<SpriteRenderer> images = new List<SpriteRenderer>();
 
     private int curMaxCount;
-    private double curRate;
+    private double curAccuracy;
     private int prevNum, curNum;
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += ReLoad;
-        scene.OnResult += Result;
+        scene.OnReLoad += OnReLoad;
+        scene.OnResult += OnResult;
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
         images.Reverse();
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += RateUpdate;
+        judge.OnJudge += AccuracyUpdate;
 
         for ( int i = 0; i < images.Count; i++ )
             images[i].sortingOrder = sortingOrder;
     }
 
-    private void Result()
+    private void OnResult()
     {
-        NowPlaying.Inst.SetResultData( HitResult.Rate, ( int )( curRate / curMaxCount ) );
+        NowPlaying.Inst.SetResultCount( HitResult.Accuracy, ( int )( curAccuracy / curMaxCount ) );
     }
 
-    private void ReLoad()
+    private void OnReLoad()
     {
         curMaxCount = 0;
-        curRate = 0d;
+        curAccuracy = 0d;
         curNum = prevNum = 0;
 
         images[images.Count - 1].gameObject.SetActive( true );
@@ -55,7 +54,7 @@ public class RateSystem : MonoBehaviour
         layoutGroup.SetLayoutHorizontal();
     }
 
-    private void RateUpdate( HitResult _result, NoteType _type )
+    private void AccuracyUpdate( HitResult _result, NoteType _type )
     {
         if ( _result == HitResult.None ) return;
 
@@ -67,16 +66,16 @@ public class RateSystem : MonoBehaviour
             return;
 
             case HitResult.Maximum:
-            case HitResult.Perfect: curRate += 10000d; break; 
-            case HitResult.Great:   curRate += 9000d;  break; 
-            case HitResult.Good:    curRate += 8000d;  break; 
-            case HitResult.Bad:     curRate += 7000d;  break; 
-            case HitResult.Miss:    curRate += .0001d; break; 
+            case HitResult.Perfect: curAccuracy +=  10000d; break; 
+            case HitResult.Great:   curAccuracy +=  9000d;  break; 
+            case HitResult.Good:    curAccuracy +=  8000d;  break; 
+            case HitResult.Bad:     curAccuracy +=  7000d;  break; 
+            case HitResult.Miss:    curAccuracy += .0001d; break; 
         }
         ++curMaxCount;
 
-        double calcCurRate  = curRate / curMaxCount;
-        curNum = Global.Math.Log10( calcCurRate ) + 1;
+        double calcCurAccuracy  = curAccuracy / curMaxCount;
+        curNum = Global.Math.Log10( calcCurAccuracy ) + 1;
         for ( int i = 3; i < images.Count; i++ )
         {
             if ( i >= curNum )
@@ -95,8 +94,8 @@ public class RateSystem : MonoBehaviour
         {
             if ( i == curNum ) break;
             
-            images[i].sprite = sprites[( int )calcCurRate % 10];
-            calcCurRate  *= .1d;
+            images[i].sprite = sprites[( int )calcCurAccuracy % 10];
+            calcCurAccuracy *= .1d;
         }
 
         if ( prevNum != curNum )

@@ -31,8 +31,8 @@ public class ComboSystem : MonoBehaviour
         images.Reverse();
 
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += ReLoad;
-        scene.OnResult += Result;
+        scene.OnReLoad += OnReLoad;
+        scene.OnResult += OnResult;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
@@ -54,12 +54,12 @@ public class ComboSystem : MonoBehaviour
         sequence?.Kill();
     }
 
-    private void Result()
+    private void OnResult()
     {
-        NowPlaying.Inst.SetResultData( HitResult.Combo, highestCombo );
+        NowPlaying.Inst.SetResultCount( HitResult.Combo, highestCombo );
     }
 
-    private void ReLoad()
+    private void OnReLoad()
     {
         StopAllCoroutines();
         highestCombo = 0;

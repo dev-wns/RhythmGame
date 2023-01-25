@@ -7,6 +7,48 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
+public struct HitData
+{
+    public HitResult result;
+    public double diff;
+    public double time;
+
+    public HitData( HitResult _res, double _diff, double _time )
+    {
+        result = _res;
+        diff = _diff;
+        time = _time;
+    }
+}
+public struct ResultData
+{
+    // counts
+    public int maximum;
+    public int perfect;
+    public int great;
+    public int good;
+    public int bad;
+    public int miss;
+    public int fast;
+    public int slow;
+    public int accuracy;
+    public int combo;
+    public int score;
+
+    public int random;
+    public DateTime   date;
+    public int        pitch;
+
+    public ResultData( int _random, DateTime _date, int _pitch )
+    {
+        random  = _random;
+        date    = _date;
+        pitch   = _pitch;
+        maximum = perfect = great    = good  = bad   = miss = 0;
+        fast    = slow    = accuracy = combo = score        = 0;
+    }
+}
+
 public class NowPlaying : Singleton<NowPlaying>
 {
     #region Variables
@@ -29,9 +71,9 @@ public class NowPlaying : Singleton<NowPlaying>
     private static double PlaybackInBPMChache;
     private static double Sync;
     #endregion
-
-    public List<HitData>    HitDatas    { get; private set; } = new List<HitData>();
-    public Dictionary<HitResult, int /* HitCount */> Results { get; private set; } = new Dictionary<HitResult, int>();
+    public List<HitData> HitDatas { get; private set; } = new List<HitData>();
+    public  ResultData CurrentResult => currentResult;
+    private ResultData currentResult = new ResultData();
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
@@ -44,7 +86,6 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         base.Awake();
 
-        InitializeData();
         #if ASYNC_PARSE
         Task parseSongsAsyncTask = Task.Run( ParseSongs );
         await parseSongsAsyncTask;
@@ -134,36 +175,35 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #endregion
-    #region Data
-    private void InitializeData()
-    {
-        for ( int i = 0; i < ( int )HitResult.Count; i++ )
-        {
-            Results[( HitResult )i] = 0;
-        }
-    }
+    #region ResultData
 
     public void ResetData()
     {
+        currentResult = new ResultData( ( int )GameSetting.CurrentRandom, DateTime.Now, Mathf.RoundToInt( GameSetting.CurrentPitch * 100f ) );
         HitDatas.Clear();
-        InitializeData();
     }
 
     public void AddHitData( HitResult _key, double _diff )
     {
         HitDatas.Add( new HitData( _key, _diff, Playback ) );
-        Results.Increment( _key );
-
-        int keyIndex = ( int )_key;
-        if ( keyIndex > 2 && keyIndex < 6 )
-        {
-            Results.Increment( _diff > 0d ? HitResult.Fast : HitResult.Slow );
-        }
     }
 
-    public void SetResultData( HitResult _key, int _count )
+    public void SetResultCount( HitResult _key, int _count )
     {
-        Results[_key] = _count;
+        switch ( _key )
+        {
+            case HitResult.Maximum:  currentResult.maximum  = _count; break;
+            case HitResult.Perfect:  currentResult.perfect  = _count; break;
+            case HitResult.Great:    currentResult.great    = _count; break;
+            case HitResult.Good:     currentResult.good     = _count; break;
+            case HitResult.Bad:      currentResult.bad      = _count; break;
+            case HitResult.Miss:     currentResult.miss     = _count; break;
+            case HitResult.Fast:     currentResult.fast     = _count; break;
+            case HitResult.Slow:     currentResult.slow     = _count; break;
+            case HitResult.Accuracy: currentResult.accuracy = _count; break;
+            case HitResult.Combo:    currentResult.combo    = _count; break;
+            case HitResult.Score:    currentResult.score    = _count; break;
+        }
     }
     #endregion
     #region Sound Process

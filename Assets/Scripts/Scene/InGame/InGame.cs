@@ -119,6 +119,7 @@ public class InGame : Scene
     public void BackToLobby()
     {
         //Destroy( GameObject.FindGameObjectWithTag( "Judgement" ) );
+        NowPlaying.Inst.ResetData();
         LoadScene( SceneType.FreeStyle );
     }
 

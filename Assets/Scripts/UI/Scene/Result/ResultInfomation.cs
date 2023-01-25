@@ -27,7 +27,7 @@ public class ResultInfomation : MonoBehaviour
     [Header( "Result" )]
     public TextMeshProUGUI maxCombo;
     public TextMeshProUGUI score;
-    public TextMeshProUGUI rate;
+    public TextMeshProUGUI accuracy;
 
     [Header( "Rank" )]
     public Image rank;
@@ -41,7 +41,7 @@ public class ResultInfomation : MonoBehaviour
     private Sprite spriteBg;
     private Texture2D texture;
 
-    private readonly float duration = .5f;
+    private readonly float duration = 1f;
     private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = _value.ToString();
 
     private void Awake()
@@ -49,6 +49,7 @@ public class ResultInfomation : MonoBehaviour
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
 
         var song = NowPlaying.CurrentSong;
+        var result = NowPlaying.Inst.CurrentResult;
         // Song Infomation
         title.text  = song.title;
         artist.text = song.artist;
@@ -57,8 +58,8 @@ public class ResultInfomation : MonoBehaviour
         totalNotes.text = ( song.noteCount + song.sliderCount ).ToString();
 
         // fast slow
-        fast.text = NowPlaying.Inst.Results[HitResult.Fast].ToString();
-        slow.text = NowPlaying.Inst.Results[HitResult.Slow].ToString();
+        fast.text = result.fast.ToString();
+        slow.text = result.slow.ToString();
 
         // bpm
         var pitch = GameSetting.CurrentPitch;
@@ -78,7 +79,7 @@ public class ResultInfomation : MonoBehaviour
                     pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Score
-        int scoreValue = NowPlaying.Inst.Results[HitResult.Score];
+        int scoreValue = result.score;
         rank.sprite = scoreValue >= 950000 ? rankAtlas.GetSprite( "Ranking-S" ) :
                       scoreValue >= 900000 ? rankAtlas.GetSprite( "Ranking-A" ) :
                       scoreValue >= 850000 ? rankAtlas.GetSprite( "Ranking-B" ) :
@@ -86,20 +87,20 @@ public class ResultInfomation : MonoBehaviour
                                              rankAtlas.GetSprite( "Ranking-D" );
 
         // Date
-        date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
+        //date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
+        date.text = result.date.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
         // Background
         StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
 
-        DOTween.To( () => 0, x => TextProgressEffect( perfect, x  ), NowPlaying.Inst.Results[HitResult.Maximum] + 
-                                                                     NowPlaying.Inst.Results[HitResult.Perfect], duration );
-        DOTween.To( () => 0, x => TextProgressEffect( great, x    ), NowPlaying.Inst.Results[HitResult.Great],   duration );
-        DOTween.To( () => 0, x => TextProgressEffect( good, x     ), NowPlaying.Inst.Results[HitResult.Good],    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( bad, x      ), NowPlaying.Inst.Results[HitResult.Bad],     duration );
-        DOTween.To( () => 0, x => TextProgressEffect( miss, x     ), NowPlaying.Inst.Results[HitResult.Miss],    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), NowPlaying.Inst.Results[HitResult.Combo],   duration );
-        DOTween.To( () => 0, x => TextProgressEffect( score, x    ), NowPlaying.Inst.Results[HitResult.Score],   duration );
-        DOTween.To( () => 0, x => rate.text = $"{( x * .01d ):F2}%", NowPlaying.Inst.Results[HitResult.Rate],    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( perfect, x  ),     result.maximum + result.perfect,  duration );
+        DOTween.To( () => 0, x => TextProgressEffect( great, x    ),     result.great,                     duration );
+        DOTween.To( () => 0, x => TextProgressEffect( good, x     ),     result.good,                      duration );
+        DOTween.To( () => 0, x => TextProgressEffect( bad, x      ),     result.bad,                       duration );
+        DOTween.To( () => 0, x => TextProgressEffect( miss, x     ),     result.miss,                      duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ),     result.combo,                     duration );
+        DOTween.To( () => 0, x => TextProgressEffect( score, x    ),     result.score,                     duration );
+        DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.accuracy,                  duration );
     }
 
     private void OnDestroy()
