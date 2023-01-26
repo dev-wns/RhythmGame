@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Windows;
+using UnityEngine.UI;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SoundSfxType 
@@ -39,12 +40,13 @@ public class SoundManager : Singleton<SoundManager>
     private FMOD.System system;
     public FMOD.Sound MainSound { get; private set; }
     public FMOD.Channel MainChannel { get; private set; }
-    private int curDriverIndex;
+    private int curDriverIndex = -1;
     public event Action OnReload;
     public struct SoundDriver : IEquatable<SoundDriver>
     {
+        public int index; // OUTPUTTYPE에 해당하는 출력장치 인덱스
+        public FMOD.OUTPUTTYPE outputType;
         public Guid guid;
-        public int index;
         public string name;
         public int systemRate, speakModeChannels;
         public FMOD.SPEAKERMODE mode;
@@ -74,17 +76,16 @@ public class SoundManager : Singleton<SoundManager>
         get => curDriverIndex;
         set
         {
-            int curIndex;
-            ErrorCheck( system.getDriver( out curIndex ) );
-
-            if ( Drivers.Count <= value || curIndex == value )
+            if ( Drivers.Count <= value || curDriverIndex == value )
             {
                 Debug.LogWarning( "SoundDriver Index is Out of Range or Duplicated Value" );
                 return;
             }
 
-            ErrorCheck( system.setDriver( value ) );
+            ErrorCheck( system.setOutput( Drivers[value].outputType ) );
+            ErrorCheck( system.setDriver( Drivers[value].index ) );
             curDriverIndex = value;
+            Debug.Log( curDriverIndex );
         }
     }
     public int KeySoundCount => keySounds.Count;
@@ -136,51 +137,40 @@ public class SoundManager : Singleton<SoundManager>
         // System
         ErrorCheck( FMOD.Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
-        
-        // To do Before System Initialize
-        int sampleRate, numRawSpeakers;
-        FMOD.SPEAKERMODE mode;
-        ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
-        ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
-        ErrorCheck( system.getSoftwareFormat( out sampleRate, out mode, out numRawSpeakers ) );
-        Debug.Log( $"SampleRate : {sampleRate}  Mode : {mode}  RawSpeakers : {numRawSpeakers}" );
-        
-        int softwareChannels;
-        ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
-        ErrorCheck( system.getSoftwareChannels( out softwareChannels ) );
-        Debug.Log( $"SoftwareChannel {softwareChannels}" );
-        
-        ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
+        // ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
+        //ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.ASIO ) );
 
-        uint bufferSize;
-        int numbuffers;
-        ErrorCheck( system.getDSPBufferSize( out bufferSize, out numbuffers ) );
-        Debug.Log( $"Buffers : {numbuffers}  BufferSize : {bufferSize}" );
+        // To do Before System Initialize
+        ErrorCheck( system.getSoftwareFormat( out int sampleRate, out FMOD.SPEAKERMODE mode, out int numRawSpeakers ) );
+        ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
+        ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
+        ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
 
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
         ErrorCheck( system.init( MaxVirtualChannel, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
-        uint version;
-        ErrorCheck( system.getVersion( out version ) );
+        ErrorCheck( system.getVersion( out uint version ) );
         if ( version < FMOD.VERSION.number )
              Debug.LogError( "using the old version." );
 
         // Sound Driver
-        int numDriver;
-        ErrorCheck( system.getNumDrivers( out numDriver ) );
         List<SoundDriver> drivers = new List<SoundDriver>();
-        for ( int i = 0; i < numDriver; i++ )
+        MakeDriverInfomation( FMOD.OUTPUTTYPE.WASAPI, drivers );
+        MakeDriverInfomation( FMOD.OUTPUTTYPE.ASIO,   drivers );
+        Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
+        if ( curDriverIndex < 0 )
         {
-            SoundDriver driver;
-            if ( ErrorCheck( system.getDriverInfo( i, out driver.name, 256, out driver.guid, out driver.systemRate, out driver.mode, out driver.speakModeChannels ) ) )
+            ErrorCheck( system.getDriver( out int driverIndex ) );
+            ErrorCheck( system.getDriverInfo( driverIndex, out string name, 256, out Guid guid, out int rate, out FMOD.SPEAKERMODE driverSpeakMode, out int channels ) );
+            for ( int i = 0; i < Drivers.Count; i++ )
             {
-                driver.index = i;
-                drivers.Add( driver );
+                if ( guid.CompareTo( Drivers[i].guid ) == 0 )
+                {
+                    curDriverIndex = i;
+                    break;
+                }
             }
         }
-        Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
-        ErrorCheck( system.getDriver( out curDriverIndex ) );
-        Debug.Log( $"Current Sound Device : {Drivers[curDriverIndex].name}" );
 
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
@@ -194,6 +184,10 @@ public class SoundManager : Singleton<SoundManager>
 
             groups.Add( type, group );
         }
+
+        #if UNITY_EDITOR
+        PrintSystemSetting();
+        #endif
 
         #region Details
         // DSP
@@ -210,7 +204,7 @@ public class SoundManager : Singleton<SoundManager>
         Load( SoundSfxType.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
 
         Load( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
-        Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
+        Load( SoundSfxType.Clap,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
         // Details
         SetVolume( .5f, ChannelType.Master );
@@ -218,8 +212,38 @@ public class SoundManager : Singleton<SoundManager>
         SetVolume( .3f, ChannelType.SFX );
         SetVolume( .075f, ChannelType.Clap );
         #endregion
-
         Debug.Log( "SoundManager initialization completed" );
+    }
+
+    private void PrintSystemSetting()
+    {
+        ErrorCheck( system.getSoftwareFormat( out int sampleRate, out FMOD.SPEAKERMODE mode, out int numRawSpeakers ) );
+        Debug.Log( $"SampleRate : {sampleRate}  Mode : {mode}  RawSpeakers : {numRawSpeakers}" );
+        ErrorCheck( system.getSoftwareChannels( out int softwareChannels ) );
+        Debug.Log( $"SoftwareChannel {softwareChannels}" );
+        ErrorCheck( system.getDSPBufferSize( out uint bufferSize, out int numbuffers ) );
+        Debug.Log( $"Buffers : {numbuffers}  BufferSize : {bufferSize}" );
+        Debug.Log( $"Current Sound Device : {Drivers[curDriverIndex].name}" );
+    }
+
+    private void MakeDriverInfomation( FMOD.OUTPUTTYPE _type, List<SoundDriver> _list )
+    {
+        ErrorCheck( system.getOutput( out FMOD.OUTPUTTYPE prevType ) );
+        ErrorCheck( system.setOutput( _type ) );
+
+        ErrorCheck( system.getNumDrivers( out int numDriver ) );
+        for ( int i = 0; i < numDriver; i++ )
+        {
+            SoundDriver driver;
+            if ( ErrorCheck( system.getDriverInfo( i, out driver.name, 256, out driver.guid, out driver.systemRate, out driver.mode, out driver.speakModeChannels ) ) )
+            {
+                driver.index      = i;
+                driver.outputType = _type;
+                _list.Add( driver );
+            }
+        }
+
+        ErrorCheck( system.setOutput( prevType ) );
     }
 
     public void KeyRelease()
@@ -260,13 +284,6 @@ public class SoundManager : Singleton<SoundManager>
             }
         }
         keySounds.Clear();
-
-        //ErrorCheck( MainChannel.stop() );
-        //if ( MainSound.hasHandle() )
-        //{
-        //    ErrorCheck( MainSound.release() );
-        //    MainSound.clearHandle();
-        //}
 
         // ChannelGroup
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
@@ -310,7 +327,6 @@ public class SoundManager : Singleton<SoundManager>
         AllStop();
 
         // caching
-        ErrorCheck( system.getDriver( out int prevDriverIndex ) );
         float[] volumes = new float[groups.Count];
         int groupCount = 0;
         foreach ( var group in groups.Values )
@@ -323,8 +339,10 @@ public class SoundManager : Singleton<SoundManager>
         OnReload?.Invoke();
 
         // rollback
-        ErrorCheck( system.setDriver( prevDriverIndex ) );
-        curDriverIndex = prevDriverIndex;
+        ErrorCheck( system.setOutput( Drivers[curDriverIndex].outputType ) );
+        ErrorCheck( system.setDriver( Drivers[curDriverIndex].index ) );
+        Debug.Log( Drivers[curDriverIndex].outputType );
+        Debug.Log( Drivers[curDriverIndex].index );
         groupCount = 0;
         foreach ( var group in groups.Values )
             ErrorCheck( group.setVolume( volumes[groupCount++] ) );
