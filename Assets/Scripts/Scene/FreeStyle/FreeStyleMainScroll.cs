@@ -8,7 +8,9 @@ using System;
 public class FreeStyleMainScroll : ScrollBase
 {
     public SongInfomation prefab;
+    public GameObject noContents;
     private RectTransform rt => transform as RectTransform;
+    private bool hasAnySongs;
 
     [Header("Scroll")]
     public int maxShowCount = 7;
@@ -28,7 +30,7 @@ public class FreeStyleMainScroll : ScrollBase
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
-    private readonly float ScrollUpdateTime = .1f;
+    private readonly float ScrollUpdateTime = .075f;
     private readonly float KeyHoldWaitTime = .5f;
     private readonly float KeyUpWaitTime = .2f;
     private bool isKeyUp, isKeyPress;
@@ -49,31 +51,41 @@ public class FreeStyleMainScroll : ScrollBase
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
-        KeyBind();
 
-        median = Mathf.FloorToInt( maxShowCount / 2f );
+        Length = NowPlaying.Inst.Songs.Count;
+        hasAnySongs = Length != 0;
+        if ( hasAnySongs )
+        {
+            KeyBind();
+            MakeSongElements();
+        }
+        noContents.SetActive( !hasAnySongs );
+    }
 
+    private void MakeSongElements()
+    {
         // 객체 할당
-        Length    = NowPlaying.Inst.Songs.Count;
+        median = Mathf.FloorToInt( maxShowCount / 2f );
         int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
-                    NowPlaying.Inst.CurrentSongIndex - median + Length :
+                    Global.Math.Abs( NowPlaying.Inst.CurrentSongIndex - median + Length ) % Length :
                     NowPlaying.Inst.CurrentSongIndex - median;
-
         for ( int i = 0; i < maxShowCount; i++ )
         {
-            if ( count > Length - 1 ) count = 0;
+            if ( count < 0 || count >= Length )
+                 count = 0;
             var song = Instantiate( prefab, transform );
             song.SetInfo( NowPlaying.Inst.Songs[count++] );
             songs.AddLast( song );
         }
         Select( NowPlaying.Inst.CurrentSongIndex );
 
+
         // 레이아웃 갱신
         group.Initialize();
         group.SetLayoutVertical();
 
         if ( songs.Count > 0 )
-             prefabOriginPosX = songs.First.Value.rt.anchoredPosition.x;
+            prefabOriginPosX = songs.First.Value.rt.anchoredPosition.x;
 
         // 중앙 위치에 있는 객체
         curNode = songs.First;
@@ -84,19 +96,18 @@ public class FreeStyleMainScroll : ScrollBase
         size = curNode.Value.rt.sizeDelta.y + group.spacing;
 
         // Count Text
-        if ( maxText ) maxText.text = Length.ToString();
-    }
+        if ( maxText )
+            maxText.text = Length.ToString();
 
-    private void Start()
-    {
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 125f, .5f );
-        //UpdateScrollBar();
-
         UpdateSong();
     }
 
     private void Update()
     {
+        if ( !hasAnySongs )
+             return;
+
         playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
         if ( ( curSong.totalTime + waitPreviewTime < playback ) )
         {
@@ -128,7 +139,6 @@ public class FreeStyleMainScroll : ScrollBase
     public override void PrevMove()
     {
         base.PrevMove();
-
         // 객체 위치 스왑
         var first = songs.First.Value;
         var last  = songs.Last.Value;
@@ -136,7 +146,7 @@ public class FreeStyleMainScroll : ScrollBase
 
         // Song 정보 수정
         int infoIndex = CurrentIndex - median < 0 ?
-                        CurrentIndex - median + Length :
+                        Global.Math.Abs( CurrentIndex - median + Length ) % Length :
                         CurrentIndex - median;
         last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
@@ -152,23 +162,21 @@ public class FreeStyleMainScroll : ScrollBase
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
 
-        //UpdateScrollBar();
         if ( curText )
-             curText.text = ( CurrentIndex + 1 ).ToString();
+            curText.text = ( CurrentIndex + 1 ).ToString();
     }
 
     public override void NextMove()
     {
         base.NextMove();
-
         // 객체 위치 스왑
         var first = songs.First.Value;
         var last  = songs.Last.Value;
         first.rt.anchoredPosition = new Vector2( last.rt.anchoredPosition.x, last.rt.anchoredPosition.y - size );
-        
+
         // Song 정보 수정
         int infoIndex = CurrentIndex + median >= Length ?
-                        CurrentIndex + median - Length :
+                        Global.Math.Abs( CurrentIndex + median - Length ) % Length :
                         CurrentIndex + median;
         first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
@@ -184,18 +192,9 @@ public class FreeStyleMainScroll : ScrollBase
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );
 
-        //UpdateScrollBar();
         if ( curText )
-             curText.text = ( CurrentIndex + 1 ).ToString();
+            curText.text = ( CurrentIndex + 1 ).ToString();
     }
-
-    //private void UpdateScrollBar()
-    //{
-    //    scrollbar.UpdateHandle( CurrentIndex );
-
-    //    if ( curText ) 
-    //         curText.text = ( CurrentIndex + 1 ).ToString();
-    //}
 
     private void UpdateSong()
     {
@@ -206,7 +205,7 @@ public class FreeStyleMainScroll : ScrollBase
         SoundManager.Inst.FadeVolume( prevMusic, 1f, 0f, .5f, () => SoundManager.Inst.Stop( prevMusic ) );
 
         SoundManager.Inst.Load( curSong.audioPath, false, true );
-        curSong.totalTime   = ( int )SoundManager.Inst.Length;
+        curSong.totalTime = ( int )SoundManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         playback = curSong.previewTime;
 
@@ -252,7 +251,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         keyPressTime += Time.deltaTime;
         if ( keyPressTime >= KeyHoldWaitTime )
-             isKeyPress = true;
+            isKeyPress = true;
 
         if ( isKeyPress && keyPressTime >= ScrollUpdateTime )
         {
@@ -272,15 +271,15 @@ public class FreeStyleMainScroll : ScrollBase
     {
         CurrentScene.Bind( ActionType.Main, KeyCode.Return, SelectChart );
 
-        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow,   ScrollDown );
+        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow, ScrollDown );
         CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.DownArrow, ScrollUp );
 
         // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
-        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
+        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow, () => KeyHold( ScrollDown ) );
         CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
 
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
-        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow,   KeyUp );
+        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow, KeyUp );
         CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.DownArrow, KeyUp );
     }
 }

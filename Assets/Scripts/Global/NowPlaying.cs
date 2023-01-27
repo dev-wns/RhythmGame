@@ -150,7 +150,9 @@ public class NowPlaying : Singleton<NowPlaying>
             Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  TotalSongs : {Songs.Count}" );
         }
         IsParseSong = true;
-        UpdateSong( 0 );
+
+        if ( Songs.Count > 0 )
+             UpdateSong( 0 );
     }
 
     public void ParseChart()
