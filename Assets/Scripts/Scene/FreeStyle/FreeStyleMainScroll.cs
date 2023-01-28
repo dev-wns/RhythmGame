@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using TMPro;
 using System;
+using UnityEngine.XR;
 
 public class FreeStyleMainScroll : ScrollBase
 {
@@ -100,6 +101,7 @@ public class FreeStyleMainScroll : ScrollBase
             maxText.text = Length.ToString();
 
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 125f, .5f );
+        curNode.Value.SetSelectColor( true );
         UpdateSong();
     }
 
@@ -155,8 +157,10 @@ public class FreeStyleMainScroll : ScrollBase
         songs.AddFirst( last );
 
         // 위치 갱신
+        curNode.Value.SetSelectColor( false );
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX, .5f );
         curNode = curNode.Previous;
+        curNode.Value.SetSelectColor( true );
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 125f, .5f );
 
         curPos -= size;
@@ -185,8 +189,10 @@ public class FreeStyleMainScroll : ScrollBase
         songs.AddLast( first );
 
         // 위치 갱신
+        curNode.Value.SetSelectColor( false );
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX, .5f );
         curNode = curNode.Next;
+        curNode.Value.SetSelectColor( true );
         curNode.Value.rt.DOAnchorPosX( prefabOriginPosX - 125f, .5f );
 
         curPos += size;
