@@ -5,10 +5,10 @@ using UnityEngine;
 public class ParticleSpeedController : MonoBehaviour
 {
     [Header("Base")]
-    public AudioVisualizer visualizer;
+    public FrequencyBand band;
 
     [Header("Particle")]
-    private  ParticleSystem particle;
+    private ParticleSystem particle;
     private ParticleSystem.MainModule mainModule;
     [Min(0f)] public float power = 1f;
 
@@ -21,15 +21,15 @@ public class ParticleSpeedController : MonoBehaviour
         StartCoroutine( ParticleInit() );
     }
 
-    private void SpeedUpdate( float _amount )
+    private void SpeedUpdate( float[] _amount )
     {
-        mainModule.simulationSpeed = _amount * power;
+        mainModule.simulationSpeed = _amount[0] * power;
     }
 
     protected IEnumerator ParticleInit()
     {
         mainModule.simulationSpeed = 1000;
         yield return YieldCache.WaitForSeconds( .1f );
-        //visualizer.OnUpdateBass += SpeedUpdate;
+        band.OnUpdateBand += SpeedUpdate;
     }
 }

@@ -63,6 +63,34 @@ namespace Global
         }
     }
 
+    public static class IO
+    {
+        public static string[] GetFilesInSubDirectories( string _dirPath, string _extension )
+        {
+            List<string> paths = new List<string>();
+            try
+            {
+                string[] subDirectories = System.IO.Directory.GetDirectories( _dirPath );
+                paths.Capacity = subDirectories.Length;
+                for ( int i = 0; i < subDirectories.Length; i++ )
+                {
+                    System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo( subDirectories[i] );
+                    System.IO.FileInfo[] files      = dirInfo.GetFiles( _extension );
+
+                    for ( int j = 0; j < files.Length; j++ )
+                        paths.Add( files[j].FullName );
+                }
+            }
+            catch ( System.Exception _error )
+            {
+                // 대부분 폴더가 없는 경우.
+                Debug.LogError( $"{_error}, {_dirPath}" );
+            }
+
+            return paths.ToArray();
+        }
+    }
+
     public static class Const
     {
         public static readonly float OptionFadeDuration = .15f;
@@ -84,7 +112,7 @@ public static class Debug
     [Conditional( "UNITY_EDITOR" )] public static void LogWarning( object _message ) => UnityEngine.Debug.LogWarning( _message );
     [Conditional( "UNITY_EDITOR" )] public static void LogError( object _message )   => UnityEngine.Debug.LogError( _message );
 
-    [Conditional( "UNITY_EDITOR" )] public static void Log( object _message, Object _context )        => UnityEngine.Debug.Log( _message, _context );
-    [Conditional( "UNITY_EDITOR" )] public static void LogWarning( object _message, Object _context ) => UnityEngine.Debug.LogWarning( _message, _context );
-    [Conditional( "UNITY_EDITOR" )] public static void LogError( object _message, Object _context )   => UnityEngine.Debug.LogError( _message, _context );
+    [Conditional( "UNITY_EDITOR" )] public static void Log( object _message, UnityEngine.Object _context )        => UnityEngine.Debug.Log( _message, _context );
+    [Conditional( "UNITY_EDITOR" )] public static void LogWarning( object _message, UnityEngine.Object _context ) => UnityEngine.Debug.LogWarning( _message, _context );
+    [Conditional( "UNITY_EDITOR" )] public static void LogError( object _message, UnityEngine.Object _context )   => UnityEngine.Debug.LogError( _message, _context );
 }

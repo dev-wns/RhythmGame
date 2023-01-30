@@ -12,8 +12,6 @@ public interface IOption
 
 public abstract class OptionBase : MonoBehaviour, IOption
 {
-    [Header( "Option Base" )]
-    public ActionType actionType = ActionType.Main;
     public OptionType type { get; protected set; }
 
     private GameObject outline;

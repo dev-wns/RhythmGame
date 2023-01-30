@@ -224,15 +224,19 @@ public class FileConverter : FileReader
         }
     }
 
-    public void ReLoad()
+    public void Load( string _path )
     {
-        string[] osuFiles = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
-        for ( int i = 0; i < osuFiles.Length; i++ )
-        {
-            var newPath = Path.ChangeExtension( osuFiles[i], "wns" );
-            if ( !File.Exists( newPath ) )
-                 Convert( osuFiles[i] );
-        }
+        var newPath = Path.ChangeExtension( _path, "wns" );
+        if ( !File.Exists( newPath ) )
+             Convert( _path );
+
+        // string[] osuFiles = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
+        // for ( int i = 0; i < osuFiles.Length; i++ )
+        // {
+        //     var newPath = Path.ChangeExtension( osuFiles[i], "wns" );
+        //     if ( !File.Exists( newPath ) )
+        //          Convert( osuFiles[i] );
+        // }
     }
 
     private void Convert( string _path ) 

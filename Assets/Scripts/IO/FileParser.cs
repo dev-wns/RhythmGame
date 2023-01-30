@@ -7,21 +7,20 @@ using System.IO;
 
 public class FileParser : FileReader
 {
-    public void ParseFileInDirectories( out ReadOnlyCollection<Song> _songs )
-    {
-        List<Song> songs = new List<Song>();
-
-        string[] files = GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
-        for ( int i = 0; i < files.Length; i++ )
-        {
-            Song newSong = new Song();
-            if ( TryParse( files[i], out newSong ) )
-                 songs.Add( newSong );
-        }
-        songs.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
-
-        _songs = new ReadOnlyCollection<Song>( songs );
-    }
+    // public void ParseFileInDirectories( out ReadOnlyCollection<Song> _songs )
+    // {
+    //     List<Song> songs = new List<Song>();
+    //     string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
+    //     for ( int i = 0; i < files.Length; i++ )
+    //     {
+    //         Song newSong = new Song();
+    //         if ( TryParse( files[i], out newSong ) )
+    //              songs.Add( newSong );
+    //     }
+    //     songs.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
+    // 
+    //     _songs = new ReadOnlyCollection<Song>( songs );
+    // }
 
     public bool TryParse( string _path, out Song _song )
     {

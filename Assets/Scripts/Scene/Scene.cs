@@ -112,6 +112,22 @@ public abstract class Scene : SceneKeyAction
         SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume * .5f, .5f );
     }
 
+    protected void EnableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true )
+    {
+        GameObject root = _obj.transform.root.gameObject;
+        root.SetActive( true );
+        if ( root.TryGetComponent( out CanvasGroup group ) )
+        {
+            group.alpha = 0f;
+            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.OptionFadeDuration );
+        }
+
+        ChangeAction( _changeType );
+        if ( _isSfxPlay )
+            SoundManager.Inst.Play( SoundSfxType.MenuClick );
+        SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume * .5f, .5f );
+    }
+
     protected void DisableCanvas( ActionType _changeType, OptionController _controller )
     {
         GameObject root = _controller.transform.root.gameObject;
@@ -128,6 +144,25 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
         SoundManager.Inst.Play( SoundSfxType.MenuHover );
         SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+    }
+
+    protected void DisableCanvas( ActionType _changeType, GameObject _obj )
+    {
+        GameObject root = _obj.transform.root.gameObject;
+        if ( root.TryGetComponent( out CanvasGroup group ) )
+        {
+            group.alpha = 1f;
+            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.OptionFadeDuration ).OnComplete( () => root.SetActive( false ) );
+        }
+        else
+        {
+            root.SetActive( false );
+        }
+
+        ChangeAction( _changeType );
+        SoundManager.Inst.Play( SoundSfxType.MenuHover );
+        SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+
     }
     #endregion
 

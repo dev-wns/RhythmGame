@@ -75,6 +75,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public  ResultData CurrentResult => currentResult;
     private ResultData currentResult = new ResultData();
 
+    public event Action<string> OnParse;
+
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
     public bool IsLoadBGA      { get; set; }
@@ -90,7 +92,7 @@ public class NowPlaying : Singleton<NowPlaying>
         Task parseSongsAsyncTask = Task.Run( ParseSongs );
         await parseSongsAsyncTask;
         #else
-        ParseSong();
+        //Load();
         await Task.CompletedTask;
         #endif        
     }
@@ -133,20 +135,33 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         using ( FileConverter converter = new FileConverter() )
         {
-            converter.ReLoad();
+            string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
+            for ( int i = 0; i < files.Length; i++ )
+            {
+                converter.Load( files[i] );
+            }
         }
     }
 
-    private void ParseSong()
+    public void Load()
     {
         Timer perfomenceTimer = new Timer( true );
         ConvertSong();
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
         using ( FileParser parser = new FileParser() )
         {
-            ReadOnlyCollection<Song> songs;
-            parser.ParseFileInDirectories( out songs );
-            Songs = songs;
+            List<Song> newSongList = new List<Song>();
+            string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
+            for( int i = 0; i < files.Length; i++ )
+            {
+                OnParse?.Invoke( System.IO.Path.GetFileName( files[i] ) );
+                if ( parser.TryParse( files[i], out Song newSong ) )
+                {
+                    newSongList.Add( newSong );
+                }
+            }
+            newSongList.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
+            Songs = new ReadOnlyCollection<Song>( newSongList );
             Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  TotalSongs : {Songs.Count}" );
         }
         IsParseSong = true;

@@ -1,10 +1,13 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
+using System.Collections.Generic;
 
 public class FreeStyle : Scene
 {
-    public OptionController    gameSetting, systemSetting, exitContoller;
+    public OptionController    gameSetting, systemSetting, exit;
     public FreeStyleKeySetting keySetting;
+    public GameObject          reload;
     public TextMeshProUGUI speedText;
 
     protected override void Awake()
@@ -34,7 +37,7 @@ public class FreeStyle : Scene
 
     public void Quit() => Application.Quit();
 
-    public void ExitCancel() => DisableCanvas( ActionType.Main, exitContoller );
+    public void ExitCancel() => DisableCanvas( ActionType.Main, exit );
 
     public override void KeyBind()
     {
@@ -70,10 +73,14 @@ public class FreeStyle : Scene
         Bind( ActionType.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.Tab,                keySetting.ChangeButtonCount );
 
+        // ReLoad
+        Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas(  ActionType.ReLoad, reload ); } );
+        Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,   reload ); } );
+
         // Exit
-        Bind( ActionType.Main, KeyCode.Escape,     () => { EnableCanvas( ActionType.Exit, exitContoller ); } );
+        Bind( ActionType.Main, KeyCode.Escape,     () => { EnableCanvas( ActionType.Exit, exit ); } );
         Bind( ActionType.Exit, KeyCode.Escape,             ExitCancel );
-        Bind( ActionType.Exit, KeyCode.RightArrow, () => { MoveToNextOption( exitContoller ); } );
-        Bind( ActionType.Exit, KeyCode.LeftArrow,  () => { MoveToPrevOption( exitContoller ); } );
+        Bind( ActionType.Exit, KeyCode.RightArrow, () => { MoveToNextOption( exit ); } );
+        Bind( ActionType.Exit, KeyCode.LeftArrow,  () => { MoveToPrevOption( exit ); } );
     }
 }

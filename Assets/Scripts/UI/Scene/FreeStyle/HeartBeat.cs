@@ -16,6 +16,7 @@ public class HeartBeat : MonoBehaviour
 
     private readonly float Duration = .18f;
     private float time = 0f;
+    private bool isStop = true;
 
     private void Awake()
     {
@@ -34,6 +35,7 @@ public class HeartBeat : MonoBehaviour
 
     private void UpdateSong( Song _song )
     {
+        isStop      = false;
         curBPM      = _song.medianBpm;
         previewTime = _song.previewTime * GameSetting.CurrentPitch * .001f;
         UpdateBPM( curBPM * GameSetting.CurrentPitch );
@@ -48,6 +50,8 @@ public class HeartBeat : MonoBehaviour
 
     private void Update()
     {
+        if ( isStop ) return;
+
         time += Time.deltaTime;
         if ( spb < time )
              time %= spb;

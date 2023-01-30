@@ -70,29 +70,4 @@ public abstract class FileReader : IDisposable
         
         return line.Replace( _old, _new ).Trim();
     }
-
-    protected string[] GetFilesInSubDirectories( string _dirPath, string _extension )
-    {
-        List<string> paths = new List<string>();
-        try 
-        {
-            string[] subDirectories = Directory.GetDirectories( _dirPath );
-            paths.Capacity = subDirectories.Length;
-            for ( int i = 0; i < subDirectories.Length; i++ )
-            {
-                DirectoryInfo dirInfo = new DirectoryInfo( subDirectories[i] );
-                FileInfo[] files      = dirInfo.GetFiles( _extension );
-
-                for ( int j = 0; j < files.Length; j++ )
-                      paths.Add( files[j].FullName );
-            }
-        }
-        catch ( Exception _error )
-        {
-            // 대부분 폴더가 없는 경우.
-            Debug.LogError( $"{_error}, {_dirPath}" );
-        }
-
-        return paths.ToArray();
-    }
 }

@@ -13,6 +13,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     private Transform parent;
     private Stack<T> pool = new Stack<T>();
     private int allocateCount;
+    public int ActiveCount { get; private set; }
 
     public ObjectPool( T _prefab, int _initializeCount, int _allocateCount = 1 )
     {
@@ -40,6 +41,20 @@ public class ObjectPool<T> where T : MonoBehaviour
         parent = parentObj.transform;
         Allocate( _initializeCount );
     }
+
+    public ObjectPool( T _prefab, Transform _parent, int _initializeCount, int _allocateCount = 1 )
+    {
+        allocateCount = _allocateCount;
+
+        if ( ReferenceEquals( _prefab, null ) )
+        {
+            Debug.LogError( "objectpool Constructor failed" );
+        }
+        prefab = _prefab;
+        parent = _parent;
+        Allocate( _initializeCount );
+    }
+
     private void Allocate( int _allocateCount )
     {
         for( int i = 0; i < _allocateCount; i++ )
@@ -59,6 +74,7 @@ public class ObjectPool<T> where T : MonoBehaviour
 
         T obj = pool.Pop();
         obj.gameObject.SetActive( true );
+        ActiveCount++;
 
         return obj;
     }
@@ -66,5 +82,6 @@ public class ObjectPool<T> where T : MonoBehaviour
     {
         _obj.gameObject.SetActive( false );
         pool.Push( _obj );
+        ActiveCount--;
     }
 }
