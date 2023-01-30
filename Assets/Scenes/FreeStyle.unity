@@ -35333,6 +35333,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   band: {fileID: 1605866379}
   power: 7.5
+  decrease: 17.5
 --- !u!4 &1523756059
 Transform:
   m_ObjectHideFlags: 0
@@ -39640,6 +39641,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779, type: 3}
   maxShowCount: 15
+  songCount: {fileID: 882121896}
   maxText: {fileID: 2073670476}
   curText: {fileID: 1674481073}
   noContents: {fileID: 987803544}
@@ -42360,7 +42362,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 32
+    m_Bits: 33
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0

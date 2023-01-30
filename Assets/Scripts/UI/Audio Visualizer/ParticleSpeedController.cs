@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +11,9 @@ public class ParticleSpeedController : MonoBehaviour
     [Header("Particle")]
     private ParticleSystem particle;
     private ParticleSystem.MainModule mainModule;
-    [Min(0f)] public float power = 1f;
+    [Min(0f)]        public float power = 1f;
+    [Range(0f, 30f)] public float decrease;
+    private float buffer;
 
     private void Awake()
     {
@@ -23,7 +26,8 @@ public class ParticleSpeedController : MonoBehaviour
 
     private void SpeedUpdate( float[] _amount )
     {
-        mainModule.simulationSpeed = _amount[0] * power;
+        buffer = buffer < _amount[0] ? _amount[0] : Mathf.Lerp( buffer, _amount[0], decrease * Time.deltaTime );
+        mainModule.simulationSpeed = buffer * power;
     }
 
     protected IEnumerator ParticleInit()

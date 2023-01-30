@@ -20,8 +20,9 @@ public class FreeStyleMainScroll : ScrollBase
     private int median;
     private float curPos;
     private float size;
-    
+
     [Header( "Count Text" )]
+    public GameObject songCount;
     public TextMeshProUGUI maxText;
     public TextMeshProUGUI curText;
 
@@ -77,7 +78,8 @@ public class FreeStyleMainScroll : ScrollBase
     public void UpdateSongElements()
     {
         Length = NowPlaying.Inst.Songs.Count;
-        
+
+        songCount.SetActive( !HasAnySongs );
         noContents.SetActive( !HasAnySongs );
         particle.SetActive( !HasAnySongs );
         middleInfomationText.SetActive( HasAnySongs );
@@ -89,7 +91,7 @@ public class FreeStyleMainScroll : ScrollBase
             SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\NAV5J Hana.mp3", true, false );
             SoundManager.Inst.Play();
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            //SoundManager.Inst.Position = 141500;
+            //SoundManager.Inst.Position = 140500;
             return;
         }
 
