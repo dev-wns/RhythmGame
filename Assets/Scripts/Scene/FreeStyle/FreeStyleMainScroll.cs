@@ -70,8 +70,6 @@ public class FreeStyleMainScroll : ScrollBase
             song.gameObject.SetActive( false );
             songs.AddLast( song );
         }
-
-        UpdateSongElements();
     }
 
     public void UpdateSongElements()
@@ -135,6 +133,11 @@ public class FreeStyleMainScroll : ScrollBase
         curPos = contentOriginPos.y;
 
         UpdateSong();
+    }
+
+    private void Start()
+    {
+        UpdateSongElements();
     }
 
     private void Update()

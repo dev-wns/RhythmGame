@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class CustomVerticalLayoutGroup : CustomLayoutGroup
 {
-    public override void Initialize()
+    public override void Initialize( bool _shouldIncludeDisabledObject = false )
     {
-        base.Initialize();
+        base.Initialize( _shouldIncludeDisabledObject );
         rectChildren.Reverse();
     }
 
@@ -20,8 +20,8 @@ public class CustomVerticalLayoutGroup : CustomLayoutGroup
         float maxSpacing        = 0f;
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
-            if ( !rectChildren[i].gameObject.activeInHierarchy )
-                continue;
+            if ( !ShouldIncludeDisabledObject && !rectChildren[i].gameObject.activeInHierarchy )
+                 continue;
 
             childrenMaxWidth  += rectChildren[i].sizeDelta.x;
             childrenMaxHeight += rectChildren[i].sizeDelta.y;
@@ -36,7 +36,7 @@ public class CustomVerticalLayoutGroup : CustomLayoutGroup
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
             var child = rectChildren[i];
-            if ( !child.gameObject.activeInHierarchy )
+            if ( !ShouldIncludeDisabledObject && !child.gameObject.activeInHierarchy )
                 continue;
 
             child.anchoredPosition = new Vector2( widthOffset + padding.left - padding.right,

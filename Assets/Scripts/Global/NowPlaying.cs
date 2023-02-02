@@ -39,17 +39,24 @@ public struct ResultData
     public int score;
 
     public int random;
-    public DateTime   date;
-    public int        pitch;
+    public int pitch;
 
-    public ResultData( int _random, DateTime _date, int _pitch )
+    public ResultData( int _random, int _pitch )
     {
         random  = _random;
-        date    = _date;
         pitch   = _pitch;
         maximum = perfect = great    = good  = bad   = miss = 0;
         fast    = slow    = accuracy = combo = score        = 0;
     }
+}
+
+public struct RecordData
+{
+    public int score;
+    public int accuracy;
+    public int random;
+    public float pitch;
+    public string date;
 }
 
 public class NowPlaying : Singleton<NowPlaying>
@@ -59,6 +66,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public ReadOnlyCollection<Song> Songs { get; private set; } = new ReadOnlyCollection<Song>( new List<Song>() );
     public static Song  CurrentSong    { get; private set; }
     public static Chart CurrentChart   { get; private set; }
+    public static string Directory     { get; private set; }
     public int CurrentSongIndex { get; private set; }
 
     private double medianBPM;
@@ -78,7 +86,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public  ResultData CurrentResult => currentResult;
     private ResultData currentResult = new ResultData();
 
-    public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>();
+    public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( 5 );
 
     public event Action<string> OnParse;
 
@@ -102,17 +110,20 @@ public class NowPlaying : Singleton<NowPlaying>
         #endif        
     }
 
-    public struct RecordData
+    public void UpdateRecord()
     {
-        public int score;
-        public int accuracy;
-        public int random;
-        public float pitch;
-        public string date;
+        RecordDatas.Clear();
+        string path = Path.Combine( Directory, GameSetting.RecordFileName );
+        if ( !File.Exists( path ) )
+             return;
+
+        using ( StreamReader stream = new StreamReader( path ) )
+        {
+            RecordDatas.AddRange( JsonConvert.DeserializeObject<RecordData[]>( stream.ReadToEnd() ) );
+        }
     }
 
-    static string RecordFileName = "Record.json";
-    public void UpdateRecord()
+    public RecordData MakeNewRecord()
     {
         var newRecord = new RecordData()
         {
@@ -120,7 +131,7 @@ public class NowPlaying : Singleton<NowPlaying>
             accuracy = currentResult.accuracy,
             random   = ( int )GameSetting.CurrentRandom,
             pitch    = GameSetting.CurrentPitch,
-            date     = currentResult.date.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
+            date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
         };
         RecordDatas.Add( newRecord );
         RecordDatas.Sort( delegate ( RecordData A, RecordData B )
@@ -132,14 +143,15 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( RecordDatas.Count > 5 )
              RecordDatas.Remove( RecordDatas.Last() );
 
-        string dir = Path.GetDirectoryName( CurrentSong.filePath );
-        using ( FileStream stream = new FileStream( Path.Combine( dir, RecordFileName ), FileMode.OpenOrCreate ) )
+        using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.OpenOrCreate ) )
         {
             using ( StreamWriter writer = new StreamWriter( stream ) )
             {
                 writer.Write( JsonConvert.SerializeObject( RecordDatas.ToArray(), Formatting.Indented ) );
             }
         }
+
+        return newRecord;
     }
 
     private void Update()
@@ -241,7 +253,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void ResetData()
     {
-        currentResult = new ResultData( ( int )GameSetting.CurrentRandom, DateTime.Now, Mathf.RoundToInt( GameSetting.CurrentPitch * 100f ) );
+        currentResult = new ResultData( ( int )GameSetting.CurrentRandom, Mathf.RoundToInt( GameSetting.CurrentPitch * 100f ) );
         HitDatas.Clear();
     }
 
@@ -365,6 +377,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         CurrentSongIndex = _index;
         CurrentSong      = Songs[_index];
+        Directory        = Path.GetDirectoryName( Songs[_index].filePath );
     }
     #endregion
 

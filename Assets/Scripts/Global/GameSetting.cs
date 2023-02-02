@@ -78,6 +78,7 @@ public class GameSetting
     // IO
     public static readonly string SoundDirectoryPath = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
     public static readonly string FailedPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
+    public static readonly string RecordFileName     = "Record.json";
 
     // Measure
     public static float MeasureHeight = 2f;

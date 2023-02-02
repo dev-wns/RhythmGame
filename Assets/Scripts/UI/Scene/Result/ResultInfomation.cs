@@ -42,13 +42,13 @@ public class ResultInfomation : MonoBehaviour
     private Texture2D texture;
 
     private readonly float duration = 1f;
-    private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = _value.ToString();
+    private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value:N0}";
 
     private void Awake()
     {
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
 
-        NowPlaying.Inst.UpdateRecord();
+        var record = NowPlaying.Inst.MakeNewRecord();
         var song   = NowPlaying.CurrentSong;
         var result = NowPlaying.Inst.CurrentResult;
         // Song Infomation
@@ -86,11 +86,8 @@ public class ResultInfomation : MonoBehaviour
                       result.accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
                                                 rankAtlas.GetSprite( "Ranking-D" );
 
-        Debug.Log( result.accuracy );
-
-        // Date
         //date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
-        date.text = result.date.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
+        date.text = record.date;
 
         // Background
         StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );

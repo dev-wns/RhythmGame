@@ -31,9 +31,11 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
 
     [SerializeField]
     protected List<RectTransform> rectChildren = new List<RectTransform>();
-    
-    public virtual void Initialize()
+    public bool ShouldIncludeDisabledObject { get; private set; }
+
+    public virtual void Initialize( bool _shouldIncludeDisabledObject = false )
     {
+        ShouldIncludeDisabledObject = _shouldIncludeDisabledObject;
         SetAlignment();
         rectChildren?.Clear();
         var rt = transform as RectTransform;

@@ -14,7 +14,7 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
         float maxSpacing        = 0f;
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
-            if ( !rectChildren[i].gameObject.activeSelf )
+            if ( !ShouldIncludeDisabledObject && !rectChildren[i].gameObject.activeSelf )
                  continue;
 
             childrenMaxWidth  += rectChildren[i].sizeDelta.x;
@@ -30,7 +30,7 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
             var child = rectChildren[i];
-            if ( !child.gameObject.activeInHierarchy )
+            if ( !ShouldIncludeDisabledObject && !child.gameObject.activeInHierarchy )
                  continue;
 
             child.anchoredPosition = new Vector2( widthOffset  + padding.left   - padding.right,
