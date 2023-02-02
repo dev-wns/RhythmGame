@@ -6,6 +6,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.IO;
+using System.Linq;
 
 public struct HitData
 {
@@ -75,6 +78,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public  ResultData CurrentResult => currentResult;
     private ResultData currentResult = new ResultData();
 
+    public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>();
+
     public event Action<string> OnParse;
 
     public bool IsStart        { get; private set; }
@@ -88,13 +93,53 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         base.Awake();
 
-        #if ASYNC_PARSE
+#if ASYNC_PARSE
         Task parseSongsAsyncTask = Task.Run( ParseSongs );
         await parseSongsAsyncTask;
-        #else
-        //Load();
+#else
+        Load();
         await Task.CompletedTask;
         #endif        
+    }
+
+    public struct RecordData
+    {
+        public int score;
+        public int accuracy;
+        public int random;
+        public float pitch;
+        public string date;
+    }
+
+    static string RecordFileName = "Record.json";
+    public void UpdateRecord()
+    {
+        var newRecord = new RecordData()
+        {
+            score    = currentResult.score,
+            accuracy = currentResult.accuracy,
+            random   = ( int )GameSetting.CurrentRandom,
+            pitch    = GameSetting.CurrentPitch,
+            date     = currentResult.date.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
+        };
+        RecordDatas.Add( newRecord );
+        RecordDatas.Sort( delegate ( RecordData A, RecordData B )
+        {
+            if ( A.score < B.score )      return 1;
+            else if ( A.score > B.score ) return -1;
+            else                          return 0;
+        } );
+        if ( RecordDatas.Count > 5 )
+             RecordDatas.Remove( RecordDatas.Last() );
+
+        string dir = Path.GetDirectoryName( CurrentSong.filePath );
+        using ( FileStream stream = new FileStream( Path.Combine( dir, RecordFileName ), FileMode.OpenOrCreate ) )
+        {
+            using ( StreamWriter writer = new StreamWriter( stream ) )
+            {
+                writer.Write( JsonConvert.SerializeObject( RecordDatas.ToArray(), Formatting.Indented ) );
+            }
+        }
     }
 
     private void Update()
@@ -162,7 +207,7 @@ public class NowPlaying : Singleton<NowPlaying>
             }
             newSongList.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
             Songs = new ReadOnlyCollection<Song>( newSongList );
-            Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  TotalSongs : {Songs.Count}" );
+            Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  Total : {Songs.Count}" );
         }
         IsParseSong = true;
 

@@ -48,7 +48,8 @@ public class ResultInfomation : MonoBehaviour
     {
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
 
-        var song = NowPlaying.CurrentSong;
+        NowPlaying.Inst.UpdateRecord();
+        var song   = NowPlaying.CurrentSong;
         var result = NowPlaying.Inst.CurrentResult;
         // Song Infomation
         title.text  = song.title;
@@ -79,12 +80,13 @@ public class ResultInfomation : MonoBehaviour
                     pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Score
-        int scoreValue = result.score;
-        rank.sprite = scoreValue >= 950000 ? rankAtlas.GetSprite( "Ranking-S" ) :
-                      scoreValue >= 900000 ? rankAtlas.GetSprite( "Ranking-A" ) :
-                      scoreValue >= 850000 ? rankAtlas.GetSprite( "Ranking-B" ) :
-                      scoreValue >= 800000 ? rankAtlas.GetSprite( "Ranking-C" ) :
-                                             rankAtlas.GetSprite( "Ranking-D" );
+        rank.sprite = result.accuracy >= 9500 ? rankAtlas.GetSprite( "Ranking-S" ) :
+                      result.accuracy >= 9000 ? rankAtlas.GetSprite( "Ranking-A" ) :
+                      result.accuracy >= 8500 ? rankAtlas.GetSprite( "Ranking-B" ) :
+                      result.accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
+                                                rankAtlas.GetSprite( "Ranking-D" );
+
+        Debug.Log( result.accuracy );
 
         // Date
         //date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );

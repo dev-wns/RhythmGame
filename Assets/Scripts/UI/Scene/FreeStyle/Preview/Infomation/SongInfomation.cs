@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 public class SongInfomation : OptionButton
 {
@@ -25,11 +26,22 @@ public class SongInfomation : OptionButton
         posCached = rt.anchoredPosition;
     }
 
-    public void SetSelectColor( bool _isSelect )
+    public void Select( bool _isSelect )
     {
-        panel.color   = _isSelect ? SelectPanelColor   : Color.white;
-        title.color   = _isSelect ? SelectTitleColor   : Color.white;
-        version.color = _isSelect ? SelectVersionColor : Color.white;
+        if ( _isSelect )
+        {
+            panel.color   = SelectPanelColor;
+            title.color   = SelectTitleColor;
+            version.color = SelectVersionColor;
+            rt.DOAnchorPosX( posCached.x - 125f, .5f );
+        }
+        else
+        {
+            panel.color   = Color.white;
+            title.color   = Color.white;
+            version.color = Color.white;
+            rt.DOAnchorPosX( posCached.x, .5f );
+        }
     }
 
     public void SetInfo( Song _song )

@@ -89,25 +89,19 @@ public struct KeySound
     public string name;
     public float volume;
     public double time;
-    //public FMOD.Sound sound;
-    //public bool hasSound;
 
     public KeySound( double _time, string _name, float _volume )
     {
         time = _time;
         volume = _volume < .1f ? 100f : _volume;
         name = _name;
-        //sound = new FMOD.Sound();
-        //hasSound = false;
     }
 
     public KeySound( Note _note )
     {
-        name = _note.keySound.name;
+        name   = _note.keySound.name;
         volume = _note.keySound.volume < .1f ? 100f : _note.keySound.volume;
-        time = _note.keySound.time;
-        //sound = new FMOD.Sound();
-        //hasSound = false;
+        time   = _note.keySound.time;
     }
 }
 
@@ -120,10 +114,10 @@ public struct SpriteSample
 
     public SpriteSample( SpriteType _type, double _start, double _end, string _name )
     {
-        type = _type;
+        type  = _type;
         start = _start;
-        end = _end;
-        name = _name;
+        end   = _end;
+        name  = _name;
     }
 }
 
@@ -136,10 +130,9 @@ public struct Chart
     public ReadOnlyCollection<SpriteSample> sprites;
 }
 
-
 public class FileConverter : FileReader
 {
-    private List<Timing> unInheritedTimings = new List<Timing>();
+    private List<Timing> uninheritedTimings = new List<Timing>();
     private List<Timing> timings            = new List<Timing>();
     private List<Note> notes                = new List<Note>();
     private List<KeySound> samples          = new List<KeySound>();
@@ -187,6 +180,7 @@ public class FileConverter : FileReader
 
         public bool this[int _key] => bits[_key];
     }
+
     private class LaneData : IEquatable<LaneData>
     {
         public int px;
@@ -200,43 +194,32 @@ public class FileConverter : FileReader
         {
             return base.GetHashCode();
         }
-
         public bool Equals( LaneData _data )
         {
             return px == _data.px;
         }
-
         public LaneData( int _px )
         {
-            px = _px;
+            px   = _px;
             lane = -1;
         }
     }
-    private class CalcMedianTiming
+    private class AccumulateTiming
     {
-        public double elapsedTime;
+        public double time;
         public double bpm;
 
-        public CalcMedianTiming( double _time, double _bpm )
+        public AccumulateTiming( double _time, double _bpm )
         {
-            elapsedTime = _time;
-            bpm = _bpm;
+            time = _time;
+            bpm  = _bpm;
         }
     }
 
     public void Load( string _path )
     {
-        var newPath = Path.ChangeExtension( _path, "wns" );
-        if ( !File.Exists( newPath ) )
+        if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
              Convert( _path );
-
-        // string[] osuFiles = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
-        // for ( int i = 0; i < osuFiles.Length; i++ )
-        // {
-        //     var newPath = Path.ChangeExtension( osuFiles[i], "wns" );
-        //     if ( !File.Exists( newPath ) )
-        //          Convert( osuFiles[i] );
-        // }
     }
 
     private void Convert( string _path ) 
@@ -337,9 +320,9 @@ public class FileConverter : FileReader
 #endregion
 #region Timing
             timings?.Clear();
-            unInheritedTimings?.Clear();
+            uninheritedTimings?.Clear();
 
-            double unInheritedBeat = 0d;
+            double uninheritedBeat = 0d;
             song.minBpm = int.MaxValue;
             while ( ReadLine() != "[HitObjects]" )
             {
@@ -353,12 +336,12 @@ public class FileConverter : FileReader
 
                 if ( isUninherited == 1 )
                 {
-                    unInheritedBeat = beatLengthAbs;
-                    unInheritedTimings.Add( new Timing( time, 1d / beatLengthAbs * 60000d, beatLengthAbs, isUninherited ) );
+                    uninheritedBeat = beatLengthAbs;
+                    uninheritedTimings.Add( new Timing( time, 1d / beatLengthAbs * 60000d, beatLengthAbs, isUninherited ) );
                 }
                 else
                 {
-                    beatLengthAbs = unInheritedBeat * ( beatLengthAbs * .01d );
+                    beatLengthAbs = uninheritedBeat * ( beatLengthAbs * .01d );
                 }
 
                 double BPM = 1d / beatLengthAbs * 60000d;
@@ -572,40 +555,40 @@ public class FileConverter : FileReader
 
     private double GetMedianBpm()
     {
-        List<CalcMedianTiming> elapsedTimings = new List<CalcMedianTiming>();
+        List<AccumulateTiming> accumulateTimings = new List<AccumulateTiming>();
         // 상속되지않은 BPM으로 계산한다.
-        for ( int i = 0; i < unInheritedTimings.Count; i++ )
+        for ( int i = 0; i < uninheritedTimings.Count; i++ )
         {
             // 마지막 BPM은 마지막 노트 시간까지 계산한다.
-            double nextTime = ( i + 1 < unInheritedTimings.Count ) ? unInheritedTimings[i + 1].time : notes.Last().time;
+            double nextTime = ( i + 1 < uninheritedTimings.Count ) ? uninheritedTimings[i + 1].time : notes.Last().time;
 
             bool isFind = false;
-            // 오차가 적은 BPM 찾은 후 시간 추가.
-            for ( int j = 0; j < elapsedTimings.Count; j++ )
+            // 타이밍 지속시간 누적
+            for ( int j = 0; j < accumulateTimings.Count; j++ )
             {
-                double diff = Math.Round( elapsedTimings[j].bpm - unInheritedTimings[i].bpm );
+                double diff = Math.Round( accumulateTimings[j].bpm - uninheritedTimings[i].bpm );
                 if ( Math.Abs( diff ) < double.Epsilon )
                 {
                     isFind = true;
-                    elapsedTimings[j].elapsedTime += nextTime - unInheritedTimings[i].time;
+                    accumulateTimings[j].time += nextTime - uninheritedTimings[i].time;
                     break;
                 }
             }
 
             // 비교될 새로운 타이밍 추가
             if ( !isFind )
-                elapsedTimings.Add( new CalcMedianTiming( nextTime - unInheritedTimings[i].time, unInheritedTimings[i].bpm ) );
+                 accumulateTimings.Add( new AccumulateTiming( nextTime - uninheritedTimings[i].time, uninheritedTimings[i].bpm ) );
         }
 
-        if ( elapsedTimings.Count == 0 )
+        if ( accumulateTimings.Count == 0 )
              throw new Exception( "Error calculating median bpm." );
 
         // 오름차순 정렬 ( 가장 오래 지속되는 BPM이 첫번째요소가 되도록 )
-        elapsedTimings.Sort( delegate ( CalcMedianTiming A, CalcMedianTiming B )
+        accumulateTimings.Sort( delegate ( AccumulateTiming A, AccumulateTiming B )
         {
-            if ( A.elapsedTime < B.elapsedTime )      return 1;
-            else if ( A.elapsedTime > B.elapsedTime ) return -1;
-            else                                      return 0;
+            if ( A.time < B.time )      return 1;
+            else if ( A.time > B.time ) return -1;
+            else                        return 0;
         } );
 
         //Debug.Log( $"============= {Path.GetFileName( path )} =============" );
@@ -614,6 +597,6 @@ public class FileConverter : FileReader
         //    Debug.Log( $"{i} : BPM( {elapsedTimings[i].bpm} )  Time( {elapsedTimings[i].elapsedTime} )" );
         //}
 
-        return elapsedTimings[0].bpm;
+        return accumulateTimings[0].bpm;
     }
 }

@@ -1,9 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using TMPro;
-using System;
 
 public class FreeStyleMainScroll : ScrollBase
 {
@@ -11,7 +11,6 @@ public class FreeStyleMainScroll : ScrollBase
 
     private RectTransform rt => transform as RectTransform;
     private Vector2 contentOriginPos;
-    private Vector2 prefabOriginPos;
     private bool HasAnySongs => Length != 0;
 
     [Header("Scroll")]
@@ -34,11 +33,11 @@ public class FreeStyleMainScroll : ScrollBase
 
     [Header("Time")]
     private readonly float ScrollUpdateTime = .075f;
-    private readonly float KeyHoldWaitTime = .5f;
-    private readonly float KeyUpWaitTime = .2f;
+    private readonly float KeyHoldWaitTime  = .5f;
+    private readonly float KeyUpWaitTime    = .2f;
+    private readonly uint waitPreviewTime   = 500;
     private bool isKeyUp, isKeyPress;
     private float keyUpTime, keyPressTime;
-    private readonly uint waitPreviewTime = 500;
     private float playback;
 
     [Header("Contents")]
@@ -79,9 +78,9 @@ public class FreeStyleMainScroll : ScrollBase
     {
         Length = NowPlaying.Inst.Songs.Count;
 
-        songCount.SetActive( !HasAnySongs );
         noContents.SetActive( !HasAnySongs );
         particle.SetActive( !HasAnySongs );
+        songCount.SetActive( HasAnySongs );
         middleInfomationText.SetActive( HasAnySongs );
         previewCanvas.SetActive( HasAnySongs );
 
@@ -96,8 +95,7 @@ public class FreeStyleMainScroll : ScrollBase
         }
 
         // 이전 UI 이펙트 초기화
-        curNode?.Value.SetSelectColor( false );
-        curNode?.Value.rt.DOAnchorPosX( prefabOriginPos.x, .5f );
+        curNode?.Value.Select( false );
 
         int medianCount = 0;
         int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
@@ -126,16 +124,13 @@ public class FreeStyleMainScroll : ScrollBase
         group.Initialize();
         group.SetLayoutVertical();
         
-        prefabOriginPos = curNode.Value.rt.anchoredPosition;
-        size            = curNode.Value.rt.sizeDelta.y + group.spacing;
+        size = curNode.Value.rt.sizeDelta.y + group.spacing;
 
         // Count Text
         maxText.text = $"{Length}";
         curText.text = $"{CurrentIndex + 1}";
 
-        curNode.Value.SetSelectColor( true );
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPos.x - 125f, .5f );
-
+        curNode.Value.Select( true );
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
 
@@ -194,11 +189,9 @@ public class FreeStyleMainScroll : ScrollBase
         last.rt.SetAsFirstSibling();
 
         // 위치 갱신
-        curNode.Value.SetSelectColor( false );
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPos.x, .5f );
+        curNode.Value.Select( false );
         curNode = curNode.Previous;
-        curNode.Value.SetSelectColor( true );
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPos.x - 125f, .5f );
+        curNode.Value.Select( true );
 
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
@@ -226,11 +219,9 @@ public class FreeStyleMainScroll : ScrollBase
         first.rt.SetAsLastSibling();
 
         // 위치 갱신
-        curNode.Value.SetSelectColor( false );
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPos.x, .5f );
+        curNode.Value.Select( false );
         curNode = curNode.Next;
-        curNode.Value.SetSelectColor( true );
-        curNode.Value.rt.DOAnchorPosX( prefabOriginPos.x - 125f, .5f );
+        curNode.Value.Select( true );
 
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );

@@ -40,18 +40,26 @@ public class FreeStyleReLoad : MonoBehaviour
 
     private IEnumerator UpdateText()
     {
-        WaitUntil waitData = new WaitUntil( () => dataQueue.Count > 0 );
         yield return YieldCache.WaitForSeconds( 1f );
 
-        while ( !NowPlaying.Inst.IsParseSong || dataQueue.Count > 0 )
+        while ( !NowPlaying.Inst.IsParseSong )
         {
-            yield return waitData;
+            if ( dataQueue.Count > 0 )
+            {
+                var text  = textPool.Spawn();
+                text.transform.SetAsLastSibling();
+                text.text = dataQueue.Dequeue();
+                DisabledText( text );
+            }
+            yield return YieldCache.WaitForSeconds( .01f );
+        }
 
+        while ( dataQueue.Count > 0 )
+        {
             var text  = textPool.Spawn();
             text.transform.SetAsLastSibling();
             text.text = dataQueue.Dequeue();
             DisabledText( text );
-            
             yield return YieldCache.WaitForSeconds( .01f );
         }
 
