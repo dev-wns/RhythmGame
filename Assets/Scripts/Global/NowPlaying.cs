@@ -77,6 +77,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private double startTime, saveTime;
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
+    public  static float GameTime         { get; private set; }
     public  static double Playback        { get; private set; }
     public  static double PlaybackInBPM   { get; private set; }
     private static double PlaybackInBPMChache;
@@ -156,6 +157,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private void Update()
     {
+        GameTime += Time.deltaTime;
         if ( !IsStart ) return;
 
         Playback = saveTime + ( timer.CurrentTime - startTime ) + Sync;
