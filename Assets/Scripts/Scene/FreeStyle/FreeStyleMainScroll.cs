@@ -21,7 +21,6 @@ public class FreeStyleMainScroll : ScrollBase
     private float size;
 
     [Header( "Count Text" )]
-    public GameObject songCount;
     public TextMeshProUGUI maxText;
     public TextMeshProUGUI curText;
 
@@ -42,13 +41,13 @@ public class FreeStyleMainScroll : ScrollBase
 
     [Header("Contents")]
     public GameObject noContents;
-    public GameObject middleInfomationText;
-    public GameObject previewCanvas;
     public GameObject particle;
 
     private Song curSong;
     public event Action<Song> OnSelectSong;
     public event Action<Song> OnSoundRestart;
+
+    public TMP_InputField field;
 
     private void Awake()
     {
@@ -74,13 +73,10 @@ public class FreeStyleMainScroll : ScrollBase
 
     public void UpdateSongElements()
     {
-        Length = NowPlaying.Inst.Songs.Count;
+        Length = NowPlaying.Inst.ChangedSongs.Count;
 
         noContents.SetActive( !HasAnySongs );
         particle.SetActive( !HasAnySongs );
-        songCount.SetActive( HasAnySongs );
-        middleInfomationText.SetActive( HasAnySongs );
-        previewCanvas.SetActive( HasAnySongs );
 
         if ( !HasAnySongs )
         {
@@ -112,7 +108,7 @@ public class FreeStyleMainScroll : ScrollBase
                  count = 0;
 
             song.gameObject.SetActive( HasAnySongs );
-            song.SetInfo( NowPlaying.Inst.Songs[count++] );
+            song.SetInfo( NowPlaying.Inst.ChangedSongs[count++] );
             song.PositionReset();
         }
         Select( NowPlaying.Inst.CurrentSongIndex );
@@ -135,9 +131,32 @@ public class FreeStyleMainScroll : ScrollBase
         UpdateSong();
     }
 
+    private Coroutine cor;
+
+    public void Search()
+    {
+        if ( !ReferenceEquals( cor, null ) )
+        {
+            StopCoroutine( cor );
+            cor = null;
+        }
+
+        cor = StartCoroutine( UpdateNewSearchSongs() );
+        Debug.Log( "Search" );
+    }
+
+    private IEnumerator UpdateNewSearchSongs()
+    {
+        yield return YieldCache.WaitForSeconds( 3f );
+        NowPlaying.Inst.Search( field.text );
+        UpdateSongElements();
+    }
+
     private void Start()
     {
         UpdateSongElements();
+        //field.ActivateInputField();
+        //field.MoveTextEnd( false );
     }
 
     private void Update()
@@ -184,7 +203,7 @@ public class FreeStyleMainScroll : ScrollBase
         int infoIndex = CurrentIndex - median < 0 ?
                         Global.Math.Abs( CurrentIndex - median + Length ) % Length :
                         CurrentIndex - median;
-        last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
+        last.SetInfo( NowPlaying.Inst.ChangedSongs[infoIndex] );
 
         // 노드 이동
         songs.RemoveLast();
@@ -214,7 +233,7 @@ public class FreeStyleMainScroll : ScrollBase
         int infoIndex = CurrentIndex + median >= Length ?
                         Global.Math.Abs( CurrentIndex + median - Length ) % Length :
                         CurrentIndex + median;
-        first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
+        first.SetInfo( NowPlaying.Inst.ChangedSongs[infoIndex] );
 
         // 노드 이동
         songs.RemoveFirst();
@@ -273,6 +292,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void ScrollDown()
     {
+        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         isKeyUp = false;
@@ -282,6 +302,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void ScrollUp()
     {
+        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         isKeyUp = false;
@@ -291,6 +312,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void KeyHold( Action _action )
     {
+        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         keyPressTime += Time.deltaTime;
@@ -306,6 +328,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void KeyUp()
     {
+        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         keyPressTime = keyUpTime = 0f;
@@ -327,5 +350,23 @@ public class FreeStyleMainScroll : ScrollBase
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
         CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow,   KeyUp );
         CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.DownArrow, KeyUp );
+
+
+        //
+        CurrentScene.Bind( ActionType.Main, KeyCode.F1, () =>
+        {
+            field.ActivateInputField();
+        } );
+
+        CurrentScene.Bind( ActionType.Main, KeyCode.F2, () =>
+        {
+            field.DeactivateInputField();
+        } );
+
+        CurrentScene.Bind( ActionType.Main, KeyCode.F3, () =>
+        {
+            NowPlaying.Inst.Search( field.text );
+            UpdateSongElements();
+        } );
     }
 }

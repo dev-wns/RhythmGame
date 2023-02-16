@@ -8,7 +8,6 @@ public class SongRecord : MonoBehaviour
 {
     public FreeStyleMainScroll mainScroll;
     public RecordInfomation prefab;
-    public GameObject noRecord;
     private List<RecordInfomation> records = new List<RecordInfomation>();
     private CustomVerticalLayoutGroup group;
 
@@ -16,9 +15,10 @@ public class SongRecord : MonoBehaviour
     {
         mainScroll.OnSelectSong += UpdateRecord;
         
-        for ( int i = 0; i < 5; i++ )
+        for ( int i = 0; i < 10; i++ )
         {
             RecordInfomation obj = Instantiate( prefab, transform );
+            obj.Initialize( i );
             obj.SetActive( false );
             records.Add( obj );
         }
@@ -36,8 +36,7 @@ public class SongRecord : MonoBehaviour
     {
         NowPlaying.Inst.UpdateRecord();
         var datas = NowPlaying.Inst.RecordDatas;
-        noRecord.SetActive( datas.Count == 0 );
-        for ( int i = 0; i < 5; i++ )
+        for ( int i = 0; i < 10; i++ )
         {
             if ( i < datas.Count )
             {

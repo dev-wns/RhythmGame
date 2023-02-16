@@ -24,7 +24,6 @@ public class RecordInfomation : MonoBehaviour
     public float startPosX;
     public float duration;
     public float waitTime;
-    private Sequence sequence;
     private Coroutine coroutine;
 
     private void Awake()
@@ -32,10 +31,9 @@ public class RecordInfomation : MonoBehaviour
         rt = transform as RectTransform;
     }
 
-    private void Start()
+    public void Initialize( int _index )
     {
-        sequence = DOTween.Sequence().Pause().SetAutoKill( false );
-        sequence.Append( rt.DOAnchorPosX( 0f, duration ) );
+        waitTime *= ( _index + 1 );
     }
 
     public void SetActive( bool _isActive ) => gameObject.SetActive( _isActive );
@@ -59,13 +57,14 @@ public class RecordInfomation : MonoBehaviour
             StopCoroutine( coroutine );
             coroutine = null;
         }
-        coroutine = StartCoroutine( PlayEffect( _index ) );
+        
+        rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );
+        coroutine = StartCoroutine( PlayEffect() );
     }
 
-    private IEnumerator PlayEffect( int _index )
+    private IEnumerator PlayEffect()
     {
-        rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );
-        yield return YieldCache.WaitForSeconds( _index * waitTime );
-        sequence.Restart();
+        yield return YieldCache.WaitForSeconds( waitTime );
+        rt.DOAnchorPosX( 0f, duration );
     }
 }

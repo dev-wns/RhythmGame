@@ -63,7 +63,9 @@ public class NowPlaying : Singleton<NowPlaying>
 {
     #region Variables
     public static Scene CurrentScene;
-    public ReadOnlyCollection<Song> Songs { get; private set; } = new ReadOnlyCollection<Song>( new List<Song>() );
+    private ReadOnlyCollection<Song> Songs;//{ get; private set; }
+    public List<Song> ChangedSongs;
+
     public static Song  CurrentSong    { get; private set; }
     public static Chart CurrentChart   { get; private set; }
     public static string Directory     { get; private set; }
@@ -96,6 +98,31 @@ public class NowPlaying : Singleton<NowPlaying>
     public bool IsLoadBGA      { get; set; }
     public bool IsLoadKeySound { get; set; }
     #endregion
+
+    public void Search( string _keyword )
+    {
+        string keyword = _keyword.TrimStart();
+        if ( keyword == string.Empty )
+        {
+            ChangedSongs = Songs.ToList();
+            UpdateSong( 0 );
+            return;
+        }
+
+        List<Song> newList = new List<Song>();
+        for ( int i = 0; i < Songs.Count; i++ )
+        {
+            if ( Songs[i].title.Replace(   " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) || 
+                 Songs[i].version.Replace( " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) || 
+                 Songs[i].artist.Replace(  " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) )
+            {
+                newList.Add( Songs[i] );
+            }
+        }
+
+        ChangedSongs = newList.Count == 0 ? Songs.ToList() : newList;
+        UpdateSong( 0 );
+    }
 
     #region Unity Callback
     protected override async void Awake()
@@ -141,7 +168,7 @@ public class NowPlaying : Singleton<NowPlaying>
             else if ( A.score > B.score ) return -1;
             else                          return 0;
         } );
-        if ( RecordDatas.Count > 5 )
+        if ( RecordDatas.Count > 10 )
              RecordDatas.Remove( RecordDatas.Last() );
 
         using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.OpenOrCreate ) )
@@ -221,6 +248,8 @@ public class NowPlaying : Singleton<NowPlaying>
             }
             newSongList.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
             Songs = new ReadOnlyCollection<Song>( newSongList );
+            ChangedSongs = Songs.ToList();
+
             Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  Total : {Songs.Count}" );
         }
         IsParseSong = true;
@@ -374,12 +403,12 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Etc.
     public void UpdateSong( int _index )
     {
-        if ( _index >= Songs.Count )
+        if ( _index >= ChangedSongs.Count )
             throw new Exception( "out of range" );
 
         CurrentSongIndex = _index;
-        CurrentSong      = Songs[_index];
-        Directory        = Path.GetDirectoryName( Songs[_index].filePath );
+        CurrentSong      = ChangedSongs[_index];
+        Directory        = Path.GetDirectoryName( ChangedSongs[_index].filePath );
     }
     #endregion
 

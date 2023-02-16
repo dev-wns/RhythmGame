@@ -31,7 +31,7 @@ public struct Music
 public class SoundManager : Singleton<SoundManager>
 {
     #region variables
-    private static readonly int MaxSoftwareChannel = 128;
+    private static readonly int MaxSoftwareChannel = 256;
     private static readonly int MaxVirtualChannel  = 1000;
     private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();

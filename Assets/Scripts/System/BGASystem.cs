@@ -105,7 +105,15 @@ public class BGASystem : MonoBehaviour
             break;
 
             case BackgroundType.Image:
+            if ( !System.IO.File.Exists( NowPlaying.CurrentSong.imagePath ) )
+            {
+                transform.root.gameObject.SetActive( false );
+                NowPlaying.Inst.IsLoadBGA = true;
+            }
+            else
+            {
                 StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
+            }
             break;
         }
         gameDebug?.SetBackgroundType( type );
@@ -366,7 +374,7 @@ public class BGASystem : MonoBehaviour
     {
         Timer perfomenceTimer = new Timer( true );
         if ( !System.IO.File.Exists( _path ) )
-            yield break;
+             yield break;
         
         Texture2D tex;
         var ext = System.IO.Path.GetExtension( _path );
