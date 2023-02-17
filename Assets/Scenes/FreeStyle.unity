@@ -1823,6 +1823,7 @@ MonoBehaviour:
   exit: {fileID: 1740707519}
   keySetting: {fileID: 764672822}
   reload: {fileID: 1746340428}
+  record: {fileID: 1830328331}
   speedText: {fileID: 308743033}
 --- !u!4 &103959473
 Transform:
@@ -35288,7 +35289,7 @@ GameObject:
   - component: {fileID: 1830328331}
   - component: {fileID: 1830328330}
   m_Layer: 5
-  m_Name: Record
+  m_Name: Record System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35311,7 +35312,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -500, y: 2.5}
+  m_AnchoredPosition: {x: -500, y: 1.5}
   m_SizeDelta: {x: 770, y: 450}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1830328329
@@ -35356,6 +35357,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainScroll: {fileID: 1702868222}
   prefab: {fileID: 891526747278239352, guid: 46f4046dc2985ca43b503be0118c22bb, type: 3}
+  icon: {fileID: 463729018}
+  startPosX: -850
+  duration: 0.3
+  waitTime: 0.03
 --- !u!1 &1834991429
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,9 +21,6 @@ public class RecordInfomation : MonoBehaviour
     public TextMeshProUGUI date;
 
     [Header("Effect")]
-    public float startPosX;
-    public float duration;
-    public float waitTime;
     private Coroutine coroutine;
 
     private void Awake()
@@ -31,14 +28,12 @@ public class RecordInfomation : MonoBehaviour
         rt = transform as RectTransform;
     }
 
-    public void Initialize( int _index )
+    public void SetActive( bool _isActive )
     {
-        waitTime *= ( _index + 1 );
+        gameObject.SetActive( _isActive );
     }
 
-    public void SetActive( bool _isActive ) => gameObject.SetActive( _isActive );
-
-    public void SetInfo( int _index, RecordData _data )
+    public void SetInfo( RecordData _data )
     {
         chaos.text    = $"{( ( GameRandom )_data.random ).ToString().Replace( '_', ' ' )}";
         score.text    = $"{_data.score:N0}";
@@ -51,20 +46,30 @@ public class RecordInfomation : MonoBehaviour
                            _data.accuracy >= 8500 ? rankAtlas.GetSprite( "Ranking-B" ) :
                            _data.accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
                                                     rankAtlas.GetSprite( "Ranking-D" );
+    }
 
+    public void Play( float _startPosX, float _offset, float _waitTime )
+    {
         if ( !ReferenceEquals( coroutine, null ) )
         {
             StopCoroutine( coroutine );
             coroutine = null;
         }
-        
-        rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );
-        coroutine = StartCoroutine( PlayEffect() );
+
+        rt.anchoredPosition = new Vector2( _startPosX, rt.anchoredPosition.y );
+        coroutine = StartCoroutine( PlayEffect( _offset, _waitTime ) );
     }
 
-    private IEnumerator PlayEffect()
+    private IEnumerator PlayEffect( float _offset, float _waitTime )
     {
-        yield return YieldCache.WaitForSeconds( waitTime );
-        rt.DOAnchorPosX( 0f, duration );
+        yield return YieldCache.WaitForSeconds( _waitTime );
+        while ( rt.anchoredPosition.x <= 0 )
+        {
+            yield return null;
+            float posX = rt.anchoredPosition.x + ( _offset * Time.deltaTime );
+            rt.anchoredPosition = new Vector2( posX, rt.anchoredPosition.y );
+        }
+
+        rt.anchoredPosition = new Vector2( 0f, rt.anchoredPosition.y );
     }
 }

@@ -247,8 +247,8 @@ MonoBehaviour:
   accuracy: {fileID: 3611946064232590095}
   date: {fileID: 3611946063558946982}
   startPosX: -850
-  duration: 0.35
-  waitTime: 0.05
+  duration: 0.3
+  waitTime: 0.03
 --- !u!114 &919177679940131540
 MonoBehaviour:
   m_ObjectHideFlags: 0

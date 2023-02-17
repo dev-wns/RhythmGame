@@ -8,6 +8,7 @@ public class FreeStyle : Scene
     public OptionController    gameSetting, systemSetting, exit;
     public FreeStyleKeySetting keySetting;
     public GameObject          reload;
+    public RecordSystem        record;
     public TextMeshProUGUI speedText;
 
     protected override void Awake()
@@ -76,6 +77,9 @@ public class FreeStyle : Scene
         // ReLoad
         Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas(  ActionType.ReLoad, reload ); } );
         Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,   reload ); } );
+
+        // Record
+        Bind( ActionType.Main, KeyCode.Tab, record.HideRecordInfomation );
 
         // Exit
         Bind( ActionType.Main, KeyCode.Escape,     () => { EnableCanvas( ActionType.Exit, exit ); } );

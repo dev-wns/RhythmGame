@@ -89,7 +89,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public  ResultData CurrentResult => currentResult;
     private ResultData currentResult = new ResultData();
 
-    public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( 5 );
+    public readonly static int MaxRecordSize = 10;
+    public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( MaxRecordSize );
 
     public event Action<string> OnParse;
 
@@ -168,7 +169,7 @@ public class NowPlaying : Singleton<NowPlaying>
             else if ( A.score > B.score ) return -1;
             else                          return 0;
         } );
-        if ( RecordDatas.Count > 10 )
+        if ( MaxRecordSize < RecordDatas.Count )
              RecordDatas.Remove( RecordDatas.Last() );
 
         using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.OpenOrCreate ) )
