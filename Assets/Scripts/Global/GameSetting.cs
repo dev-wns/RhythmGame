@@ -81,7 +81,7 @@ public class GameSetting
     public static readonly string RecordFileName     = "Record.json";
 
     // Measure
-    public static float MeasureHeight = 2f;
+    public static float MeasureHeight = 2.5f;
 
     // Jugdement
     private static float DefaultJudgePos = -435f;

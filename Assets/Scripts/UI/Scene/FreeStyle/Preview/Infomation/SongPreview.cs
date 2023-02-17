@@ -9,10 +9,9 @@ public class SongPreview : MonoBehaviour
     public FreeStyleMainScroll scroller;
     public SoundPitchOption pitchOption;
 
-    public TextMeshProUGUI keyCount;
-    public Image keySound;
-
+    [Header("Horizontal")]
     [Header("Line 0")]
+    public TextMeshProUGUI keyCount;
     public TextMeshProUGUI speed;
     public TextMeshProUGUI rate;
     public TextMeshProUGUI mode;
@@ -22,6 +21,9 @@ public class SongPreview : MonoBehaviour
     public TextMeshProUGUI noteCount;
     public TextMeshProUGUI sliderCount;
     public TextMeshProUGUI bpm;
+
+    [Header("Vertical")]
+    public Image keySound;
 
     [Header("Background Type")]
     public Image  backgroundType;
