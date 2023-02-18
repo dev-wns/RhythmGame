@@ -48,8 +48,6 @@ public class FreeStyleMainScroll : ScrollBase
     public event Action<Song> OnSelectSong;
     public event Action<Song> OnSoundRestart;
 
-    private static bool IsFirstPlaySound;
-
     #region Unity Callback
     private void Awake()
     {
@@ -101,7 +99,8 @@ public class FreeStyleMainScroll : ScrollBase
             if ( keyUpTime >= KeyUpWaitTime )
             {
                 isKeyUp = false;
-                UpdateSong();
+                if ( NowPlaying.Inst.CurrentSongIndex != CurrentIndex )
+                     UpdateSong();
             }
         }
     }
