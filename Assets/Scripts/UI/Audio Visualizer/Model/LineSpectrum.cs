@@ -36,8 +36,8 @@ public class LineSpectrum : BaseSpectrum
                         i < specCount     ? GetGradationColor( i ) :
                                             GetGradationColor( symmetryColorIdx++ );
 
-            transforms[i].position = i < specCount ? new Vector3( -GetIndexToPositionX( i ),             transform.position.y, transform.position.z ) :
-                                                     new Vector3(  GetIndexToPositionX( i - specCount ), transform.position.y, transform.position.z );
+            transforms[i].position = i < specCount ? new Vector3( transform.position.x + -GetIndexToPositionX( i ),             transform.position.y, transform.position.z ) :
+                                                     new Vector3( transform.position.x +  GetIndexToPositionX( i - specCount ), transform.position.y, transform.position.z );
         }
     }
 
@@ -72,8 +72,8 @@ public class LineSpectrum : BaseSpectrum
             if ( isPositionUpdate )
             {
                 float posX = GetIndexToPositionX( i );
-                left.position  = new Vector3( -posX, transform.position.y, transform.position.z );
-                right.position = new Vector3(  posX, transform.position.y, transform.position.z );
+                left.position  = new Vector3( transform.position.x + -posX, transform.position.y, transform.position.z );
+                right.position = new Vector3( transform.position.x +  posX, transform.position.y, transform.position.z );
             }
         }
     }
