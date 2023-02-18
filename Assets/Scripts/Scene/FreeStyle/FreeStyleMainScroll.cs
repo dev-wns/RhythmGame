@@ -8,6 +8,7 @@ using TMPro;
 public class FreeStyleMainScroll : ScrollBase
 {
     public SongInfomation prefab;
+    public FreeStyleSearch search;
 
     private RectTransform rt => transform as RectTransform;
     private Vector2 contentOriginPos;
@@ -47,8 +48,7 @@ public class FreeStyleMainScroll : ScrollBase
     public event Action<Song> OnSelectSong;
     public event Action<Song> OnSoundRestart;
 
-    public TMP_InputField field;
-
+    #region Unity Callback
     private void Awake()
     {
         IsLoop = true;
@@ -56,6 +56,7 @@ public class FreeStyleMainScroll : ScrollBase
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
         SoundManager.Inst.OnReload += OnBufferSetting;
+        search.OnSearch += UpdateSongElements;
 
         median           = Mathf.FloorToInt( maxShowCount / 2f );
         contentOriginPos = rt.anchoredPosition;
@@ -71,92 +72,9 @@ public class FreeStyleMainScroll : ScrollBase
         }
     }
 
-    public void UpdateSongElements()
-    {
-        Length = NowPlaying.Inst.ChangedSongs.Count;
-
-        noContents.SetActive( !HasAnySongs );
-        particle.SetActive( !HasAnySongs );
-
-        if ( !HasAnySongs )
-        {
-            SoundManager.Inst.AllStop();
-            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\NAV5J Hana.mp3", true, false );
-            SoundManager.Inst.Play();
-            SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            //SoundManager.Inst.Position = 140500;
-            return;
-        }
-
-        // 이전 UI 이펙트 초기화
-        curNode?.Value.Select( false );
-
-        int medianCount = 0;
-        int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
-                    Global.Math.Abs( NowPlaying.Inst.CurrentSongIndex - median + Length ) % Length :
-                    NowPlaying.Inst.CurrentSongIndex - median;
-        curNode = songs.First;
-        foreach ( var song in songs )
-        {
-            if  ( medianCount < median )
-            {
-                curNode = curNode.Next;
-                medianCount++;
-            }
-
-            if ( count < 0 || count >= Length )
-                 count = 0;
-
-            song.gameObject.SetActive( HasAnySongs );
-            song.SetInfo( NowPlaying.Inst.ChangedSongs[count++] );
-            song.PositionReset();
-        }
-        Select( NowPlaying.Inst.CurrentSongIndex );
-
-
-        // 레이아웃 갱신
-        group.Initialize();
-        group.SetLayoutVertical();
-        
-        size = curNode.Value.rt.sizeDelta.y + group.spacing;
-
-        // Count Text
-        maxText.text = $"{Length}";
-        curText.text = $"{CurrentIndex + 1}";
-
-        curNode.Value.Select( true );
-        rt.anchoredPosition = contentOriginPos;
-        curPos = contentOriginPos.y;
-
-        UpdateSong();
-    }
-
-    private Coroutine cor;
-
-    public void Search()
-    {
-        if ( !ReferenceEquals( cor, null ) )
-        {
-            StopCoroutine( cor );
-            cor = null;
-        }
-
-        cor = StartCoroutine( UpdateNewSearchSongs() );
-        Debug.Log( "Search" );
-    }
-
-    private IEnumerator UpdateNewSearchSongs()
-    {
-        yield return YieldCache.WaitForSeconds( 3f );
-        NowPlaying.Inst.Search( field.text );
-        UpdateSongElements();
-    }
-
     private void Start()
     {
         UpdateSongElements();
-        //field.ActivateInputField();
-        //field.MoveTextEnd( false );
     }
 
     private void Update()
@@ -189,6 +107,68 @@ public class FreeStyleMainScroll : ScrollBase
     private void OnDestroy()
     {
         SoundManager.Inst.OnReload -= OnBufferSetting;
+    }
+    #endregion
+
+    #region Update Song & Scroll
+    public void UpdateSongElements()
+    {
+        Length = NowPlaying.Inst.ChangedSongs.Count;
+
+        noContents.SetActive( !HasAnySongs );
+        particle.SetActive( !HasAnySongs );
+
+        if ( !HasAnySongs )
+        {
+            SoundManager.Inst.AllStop();
+            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\NAV5J Hana.mp3", true, false );
+            SoundManager.Inst.Play();
+            SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
+            //SoundManager.Inst.Position = 140500;
+            return;
+        }
+
+        // 이전 UI 이펙트 초기화
+        curNode?.Value.Select( false );
+
+        int medianCount = 0;
+        int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
+                    Global.Math.Abs( NowPlaying.Inst.CurrentSongIndex - median + Length ) % Length :
+                    NowPlaying.Inst.CurrentSongIndex - median;
+        curNode = songs.First;
+        foreach ( var song in songs )
+        {
+            if ( medianCount < median )
+            {
+                curNode = curNode.Next;
+                medianCount++;
+            }
+
+            if ( count < 0 || count >= Length )
+                count = 0;
+
+            song.gameObject.SetActive( HasAnySongs );
+            song.SetInfo( NowPlaying.Inst.ChangedSongs[count++] );
+            song.PositionReset();
+        }
+        Select( NowPlaying.Inst.CurrentSongIndex );
+
+
+        // 레이아웃 갱신
+        group.Initialize();
+        group.SetLayoutVertical();
+
+        size = curNode.Value.rt.sizeDelta.y + group.spacing;
+
+        // Count Text
+        maxText.text = $"{Length}";
+        curText.text = $"{CurrentIndex + 1}";
+
+        curNode.Value.Select( true );
+        rt.anchoredPosition = contentOriginPos;
+        curPos = contentOriginPos.y;
+
+        UpdateSong();
     }
 
     public override void PrevMove()
@@ -279,7 +259,9 @@ public class FreeStyleMainScroll : ScrollBase
     }
 
     private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( curSong.totalTime * .314f ) : ( uint )_time;
+    #endregion
 
+    #region Input
     private void SelectChart()
     {
         if ( !HasAnySongs ) return;
@@ -292,7 +274,6 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void ScrollDown()
     {
-        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         isKeyUp = false;
@@ -302,7 +283,6 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void ScrollUp()
     {
-        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         isKeyUp = false;
@@ -312,7 +292,6 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void KeyHold( Action _action )
     {
-        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         keyPressTime += Time.deltaTime;
@@ -328,13 +307,13 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void KeyUp()
     {
-        field.MoveTextEnd( false );
         if ( !HasAnySongs ) return;
 
         keyPressTime = keyUpTime = 0f;
         isKeyPress = false;
         isKeyUp = true;
     }
+    #endregion
 
     public void KeyBind()
     {
@@ -350,23 +329,5 @@ public class FreeStyleMainScroll : ScrollBase
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
         CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow,   KeyUp );
         CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.DownArrow, KeyUp );
-
-
-        //
-        CurrentScene.Bind( ActionType.Main, KeyCode.F1, () =>
-        {
-            field.ActivateInputField();
-        } );
-
-        CurrentScene.Bind( ActionType.Main, KeyCode.F2, () =>
-        {
-            field.DeactivateInputField();
-        } );
-
-        CurrentScene.Bind( ActionType.Main, KeyCode.F3, () =>
-        {
-            NowPlaying.Inst.Search( field.text );
-            UpdateSongElements();
-        } );
     }
 }

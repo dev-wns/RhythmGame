@@ -8,6 +8,7 @@ public class FreeStyle : Scene
     public OptionController    gameSetting, systemSetting, exit;
     public FreeStyleKeySetting keySetting;
     public GameObject          reload;
+    public GameObject          search;
     public RecordSystem        record;
     public TextMeshProUGUI speedText;
 
@@ -73,6 +74,11 @@ public class FreeStyle : Scene
         Bind( ActionType.KeySetting, KeyCode.RightArrow, () => { MoveToNextOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.Tab,                keySetting.ChangeButtonCount );
+
+        // Search
+        Bind( ActionType.Main,   KeyCode.F2,     () => { EnableCanvas(  ActionType.Search, search ); } );
+        Bind( ActionType.Search, KeyCode.F2,     () => { DisableCanvas( ActionType.Main,   search ); } );
+        Bind( ActionType.Search, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,   search ); } );
 
         // ReLoad
         Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas(  ActionType.ReLoad, reload ); } );

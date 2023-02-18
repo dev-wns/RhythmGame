@@ -24,10 +24,11 @@ public abstract class Scene : SceneKeyAction
         if ( !OnceTweenInit )
         {
             DOTween.Init( true, false, LogBehaviour.Default ).SetCapacity( 50, 10 );
-            QualitySettings.maxQueuedFrames = 0;
-            //Cursor.visible = false;
             OnceTweenInit = true;
         }
+
+        QualitySettings.maxQueuedFrames = 0;
+        //Cursor.visible = false;
 
         CreateFadeSprite();
 

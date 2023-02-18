@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ActionType : byte { Main, GameOption, SystemOption, KeySetting, ReLoad, Pause, GameOver, Exit, }
+public enum ActionType : byte { Main, Search, GameOption, SystemOption, KeySetting, ReLoad, Pause, GameOver, Exit, }
 public abstract class SceneKeyAction : MonoBehaviour
 {
     private Dictionary<ActionType, KeyAction> keyActions = new Dictionary<ActionType, KeyAction>();
@@ -17,9 +17,8 @@ public abstract class SceneKeyAction : MonoBehaviour
 
         keyActions[CurrentAction].ActionCheck();
     }
-    /// <summary> The input type is KeyDown </summary>
-    /// 
 
+    /// <summary> The input type is KeyDown </summary>
     public void Bind( ActionType _actionType, KeyCode _keyCode, Action _action )
     {
         if ( keyActions.ContainsKey( _actionType ) )

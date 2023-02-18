@@ -71,6 +71,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static string Directory     { get; private set; }
     public int CurrentSongIndex { get; private set; }
 
+    public int SearchCount { get; private set; }
     private double medianBPM;
     private int timingIndex;
 
@@ -102,7 +103,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Search( string _keyword )
     {
-        string keyword = _keyword.TrimStart();
+        string keyword = _keyword.Replace( " ", string.Empty );
         if ( keyword == string.Empty )
         {
             ChangedSongs = Songs.ToList();
@@ -120,8 +121,9 @@ public class NowPlaying : Singleton<NowPlaying>
                 newList.Add( Songs[i] );
             }
         }
+        SearchCount = newList.Count;
 
-        ChangedSongs = newList.Count == 0 ? Songs.ToList() : newList;
+        ChangedSongs = SearchCount == 0 ? Songs.ToList() : newList;
         UpdateSong( 0 );
     }
 
