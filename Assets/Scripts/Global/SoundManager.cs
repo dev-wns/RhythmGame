@@ -424,7 +424,7 @@ public class SoundManager : Singleton<SoundManager>
     #endregion
     #region Play
     /// <summary> Play Background Music </summary>
-    public void Play()
+    public void Play( float _volume = 1f )
     {
         //if ( !MainSound.hasHandle() )
         //{
@@ -433,6 +433,7 @@ public class SoundManager : Singleton<SoundManager>
         //}
 
         ErrorCheck( system.playSound( MainSound, groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
+        ErrorCheck( channel.setVolume( _volume ) );
         MainChannel = channel;
     }
 

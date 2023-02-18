@@ -18,7 +18,7 @@ public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
 
     private void LateUpdate()
     {
-        transform.localPosition = new Vector2( 0, GameSetting.JudgePos + ( float )( ( time - NowPlaying.PlaybackInBPM ) * GameSetting.Weight ) );
+        transform.localPosition = new Vector2( 0, GameSetting.JudgePos + ( float )( ( time - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
         if ( transform.localPosition.y <= GameSetting.JudgePos )
         {
             rdr.enabled = false;

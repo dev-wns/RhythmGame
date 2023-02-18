@@ -63,8 +63,8 @@ public class NowPlaying : Singleton<NowPlaying>
 {
     #region Variables
     public static Scene CurrentScene;
-    private ReadOnlyCollection<Song> Songs;//{ get; private set; }
-    public List<Song> ChangedSongs = new List<Song>();
+    private ReadOnlyCollection<Song> OriginSongs;
+    public List<Song> Songs = new List<Song>();
 
     public static Song  CurrentSong    { get; private set; }
     public static Chart CurrentChart   { get; private set; }
@@ -82,8 +82,8 @@ public class NowPlaying : Singleton<NowPlaying>
     private static readonly double PauseWaitTime = -1.5d;
     public  static float GameTime         { get; private set; }
     public  static double Playback        { get; private set; }
-    public  static double PlaybackInBPM   { get; private set; }
-    private static double PlaybackInBPMChache;
+    public  static double ScaledPlayback  { get; private set; }
+    private static double ScaledPlaybackCache;
     private static double Sync;
     #endregion
     public List<HitData> HitDatas { get; private set; } = new List<HitData>();
@@ -101,32 +101,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public bool IsLoadKeySound { get; set; }
     #endregion
 
-    public void Search( string _keyword )
-    {
-        string keyword = _keyword.Replace( " ", string.Empty );
-        if ( keyword == string.Empty )
-        {
-            ChangedSongs = Songs.ToList();
-            UpdateSong( 0 );
-            return;
-        }
-
-        List<Song> newList = new List<Song>();
-        for ( int i = 0; i < Songs.Count; i++ )
-        {
-            if ( Songs[i].title.Replace(   " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) || 
-                 Songs[i].version.Replace( " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) || 
-                 Songs[i].artist.Replace(  " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) )
-            {
-                newList.Add( Songs[i] );
-            }
-        }
-        SearchCount = newList.Count;
-
-        ChangedSongs = SearchCount == 0 ? Songs.ToList() : newList;
-        UpdateSong( 0 );
-    }
-
     #region Unity Callback
     protected override async void Awake()
     {
@@ -139,50 +113,6 @@ public class NowPlaying : Singleton<NowPlaying>
         Load();
         await Task.CompletedTask;
         #endif        
-    }
-
-    public void UpdateRecord()
-    {
-        RecordDatas.Clear();
-        string path = Path.Combine( Directory, GameSetting.RecordFileName );
-        if ( !File.Exists( path ) )
-             return;
-
-        using ( StreamReader stream = new StreamReader( path ) )
-        {
-            RecordDatas.AddRange( JsonConvert.DeserializeObject<RecordData[]>( stream.ReadToEnd() ) );
-        }
-    }
-
-    public RecordData MakeNewRecord()
-    {
-        var newRecord = new RecordData()
-        {
-            score    = currentResult.score,
-            accuracy = currentResult.accuracy,
-            random   = ( int )GameSetting.CurrentRandom,
-            pitch    = GameSetting.CurrentPitch,
-            date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
-        };
-        RecordDatas.Add( newRecord );
-        RecordDatas.Sort( delegate ( RecordData A, RecordData B )
-        {
-            if ( A.score < B.score )      return 1;
-            else if ( A.score > B.score ) return -1;
-            else                          return 0;
-        } );
-        if ( MaxRecordSize < RecordDatas.Count )
-             RecordDatas.Remove( RecordDatas.Last() );
-
-        using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.OpenOrCreate ) )
-        {
-            using ( StreamWriter writer = new StreamWriter( stream ) )
-            {
-                writer.Write( JsonConvert.SerializeObject( RecordDatas.ToArray(), Formatting.Indented ) );
-            }
-        }
-
-        return newRecord;
     }
 
     private void Update()
@@ -209,13 +139,13 @@ public class NowPlaying : Singleton<NowPlaying>
                 double nextTime = timings[i + 1].time;
                 if ( nextTime < Playback )
                 {
-                    PlaybackInBPMChache += ( curBPM / medianBPM ) * ( nextTime - curTime );
+                    ScaledPlaybackCache += ( curBPM / medianBPM ) * ( nextTime - curTime );
                     timingIndex += 1;
                     continue;
                 }
             }
 
-            PlaybackInBPM = PlaybackInBPMChache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
+            ScaledPlayback = ScaledPlaybackCache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
         }
     }
     #endregion
@@ -250,10 +180,10 @@ public class NowPlaying : Singleton<NowPlaying>
                 }
             }
             newSongList.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
-            Songs = new ReadOnlyCollection<Song>( newSongList );
-            ChangedSongs = Songs.ToList();
+            OriginSongs  = new ReadOnlyCollection<Song>( newSongList );
+            Songs = OriginSongs.ToList();
 
-            Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  Total : {Songs.Count}" );
+            Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  Total : {OriginSongs.Count}" );
         }
         IsParseSong = true;
 
@@ -283,8 +213,80 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #endregion
-    #region ResultData
+    #region Search
+    public void Search( string _keyword )
+    {
+        if ( OriginSongs.Count == 0 )
+             return;
 
+        Songs.Clear();
+        for ( int i = 0; i < OriginSongs.Count; i++ )
+        {
+            if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                 OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                 OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+            {
+                Songs.Add( OriginSongs[i] );
+            }
+        }
+
+        SearchCount = Songs.Count;
+        if ( SearchCount == 0 )
+        {
+            Songs = OriginSongs.ToList();
+        }
+        UpdateSong( 0 );
+    }
+    #endregion
+    #region Record
+    public void UpdateRecord()
+    {
+        RecordDatas.Clear();
+        string path = Path.Combine( Directory, GameSetting.RecordFileName );
+        if ( !File.Exists( path ) )
+            return;
+
+        using ( StreamReader stream = new StreamReader( path ) )
+        {
+            RecordDatas.AddRange( JsonConvert.DeserializeObject<RecordData[]>( stream.ReadToEnd() ) );
+        }
+    }
+
+    public RecordData MakeNewRecord()
+    {
+        var newRecord = new RecordData()
+        {
+            score    = currentResult.score,
+            accuracy = currentResult.accuracy,
+            random   = ( int )GameSetting.CurrentRandom,
+            pitch    = GameSetting.CurrentPitch,
+            date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
+        };
+        RecordDatas.Add( newRecord );
+        RecordDatas.Sort( delegate ( RecordData A, RecordData B )
+        {
+            if ( A.score < B.score )
+                return 1;
+            else if ( A.score > B.score )
+                return -1;
+            else
+                return 0;
+        } );
+        if ( MaxRecordSize < RecordDatas.Count )
+            RecordDatas.Remove( RecordDatas.Last() );
+
+        using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.CreateNew ) )
+        {
+            using ( StreamWriter writer = new StreamWriter( stream ) )
+            {
+                writer.Write( JsonConvert.SerializeObject( RecordDatas.ToArray(), Formatting.Indented ) );
+            }
+        }
+
+        return newRecord;
+    }
+    #endregion
+    #region Result
     public void ResetData()
     {
         currentResult = new ResultData( ( int )GameSetting.CurrentRandom, Mathf.RoundToInt( GameSetting.CurrentPitch * 100f ) );
@@ -336,8 +338,8 @@ public class NowPlaying : Singleton<NowPlaying>
         StopAllCoroutines();
         Playback = StartWaitTime;
         saveTime = StartWaitTime;
-        PlaybackInBPM       = 0d;
-        PlaybackInBPMChache = 0d;
+        ScaledPlayback       = 0d;
+        ScaledPlaybackCache = 0d;
         timingIndex         = 0;
 
         IsStart         = false;
@@ -386,7 +388,7 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( Playback > saveTime )
         {
             Playback     -= Time.deltaTime * 2d;
-            PlaybackInBPM = PlaybackInBPMChache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
+            ScaledPlayback = ScaledPlaybackCache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
 
             yield return null;
         }
@@ -402,21 +404,20 @@ public class NowPlaying : Singleton<NowPlaying>
         CurrentScene.IsInputLock = false;
     }
     #endregion
-
     #region Etc.
     public void UpdateSong( int _index )
     {
-        if ( _index >= ChangedSongs.Count )
+        if ( _index >= Songs.Count )
             throw new Exception( "out of range" );
 
         CurrentSongIndex = _index;
-        CurrentSong      = ChangedSongs[_index];
-        Directory        = Path.GetDirectoryName( ChangedSongs[_index].filePath );
+        CurrentSong      = Songs[_index];
+        Directory        = Path.GetDirectoryName( Songs[_index].filePath );
     }
     #endregion
 
     /// <returns> Time including BPM. </returns>
-    public double GetIncludeBPMTime( double _time )
+    public double GetScaledPlayback( double _time )
     {
         var timings = CurrentChart.timings;
         double newTime = 0d;

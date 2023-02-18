@@ -48,6 +48,8 @@ public class FreeStyleMainScroll : ScrollBase
     public event Action<Song> OnSelectSong;
     public event Action<Song> OnSoundRestart;
 
+    private static bool IsFirstPlaySound;
+
     #region Unity Callback
     private void Awake()
     {
@@ -113,7 +115,7 @@ public class FreeStyleMainScroll : ScrollBase
     #region Update Song & Scroll
     public void UpdateSongElements()
     {
-        Length = NowPlaying.Inst.ChangedSongs.Count;
+        Length = NowPlaying.Inst.Songs.Count;
 
         noContents.SetActive( !HasAnySongs );
         particle.SetActive( !HasAnySongs );
@@ -148,7 +150,7 @@ public class FreeStyleMainScroll : ScrollBase
                 count = 0;
 
             song.gameObject.SetActive( HasAnySongs );
-            song.SetInfo( NowPlaying.Inst.ChangedSongs[count++] );
+            song.SetInfo( NowPlaying.Inst.Songs[count++] );
             song.PositionReset();
         }
         Select( NowPlaying.Inst.CurrentSongIndex );
@@ -183,7 +185,7 @@ public class FreeStyleMainScroll : ScrollBase
         int infoIndex = CurrentIndex - median < 0 ?
                         Global.Math.Abs( CurrentIndex - median + Length ) % Length :
                         CurrentIndex - median;
-        last.SetInfo( NowPlaying.Inst.ChangedSongs[infoIndex] );
+        last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
         // 노드 이동
         songs.RemoveLast();
@@ -213,7 +215,7 @@ public class FreeStyleMainScroll : ScrollBase
         int infoIndex = CurrentIndex + median >= Length ?
                         Global.Math.Abs( CurrentIndex + median - Length ) % Length :
                         CurrentIndex + median;
-        first.SetInfo( NowPlaying.Inst.ChangedSongs[infoIndex] );
+        first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
         // 노드 이동
         songs.RemoveFirst();
@@ -244,11 +246,11 @@ public class FreeStyleMainScroll : ScrollBase
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         playback = curSong.previewTime;
 
-        SoundManager.Inst.Play();
+        SoundManager.Inst.Play( 0f );
+        SoundManager.Inst.Position = ( uint )curSong.previewTime;
         OnSelectSong?.Invoke( curSong );
         Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
         SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
-        SoundManager.Inst.Position = ( uint )curSong.previewTime;
     }
 
     private void OnBufferSetting()

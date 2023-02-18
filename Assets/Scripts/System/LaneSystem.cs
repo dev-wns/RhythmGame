@@ -95,8 +95,8 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.calcTime       = NowPlaying.Inst.GetIncludeBPMTime( newNote.time );
-                    newNote.calcSliderTime = NowPlaying.Inst.GetIncludeBPMTime( newNote.sliderTime );
+                    newNote.calcTime       = NowPlaying.Inst.GetScaledPlayback( newNote.time );
+                    newNote.calcSliderTime = NowPlaying.Inst.GetScaledPlayback( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     lanes[newNote.lane].InputSys.AddNote( in newNote );
@@ -123,8 +123,8 @@ public class LaneSystem : MonoBehaviour
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
                     prevTimes[selectLane] = newNote.isSlider ? newNote.sliderTime : newNote.time;
 
-                    newNote.calcTime       = NowPlaying.Inst.GetIncludeBPMTime( newNote.time );
-                    newNote.calcSliderTime = NowPlaying.Inst.GetIncludeBPMTime( newNote.sliderTime );
+                    newNote.calcTime       = NowPlaying.Inst.GetScaledPlayback( newNote.time );
+                    newNote.calcSliderTime = NowPlaying.Inst.GetScaledPlayback( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     lanes[selectLane].InputSys.AddNote( in newNote );

@@ -186,7 +186,7 @@ public class InputSystem : MonoBehaviour
             curSound = curData.keySound;
         }
 
-        WaitUntil waitNextNote = new WaitUntil( () => curData.calcTime <= NowPlaying.PlaybackInBPM + GameSetting.PreLoadTime );
+        WaitUntil waitNextNote = new WaitUntil( () => curData.calcTime <= NowPlaying.ScaledPlayback + GameSetting.PreLoadTime );
         while ( noteSpawnIndex < noteDatas.Count )
         {
             yield return waitNextNote;

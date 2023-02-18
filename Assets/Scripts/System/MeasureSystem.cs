@@ -63,10 +63,10 @@ public class MeasureSystem : MonoBehaviour
             double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
 
             int maxCount =  Mathf.CeilToInt( ( float )( ( nextTime - time ) / spb ) );
-            //measures.Add( NowPlaying.Inst.GetIncludeBPMTime( time ) );
+            //measures.Add( NowPlaying.Inst.GetScaledPlayback( time ) );
             for ( int j = 0; j < maxCount; j++ )
             {
-                measures.Add( NowPlaying.Inst.GetIncludeBPMTime( time + ( j * spb ) ) );
+                measures.Add( NowPlaying.Inst.GetScaledPlayback( time + ( j * spb ) ) );
             }
         }
     }
@@ -76,7 +76,7 @@ public class MeasureSystem : MonoBehaviour
         if ( measures.Count > 0 )
              curTime = measures[curIndex];
         
-        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.PlaybackInBPM + GameSetting.PreLoadTime );
+        WaitUntil waitNextMeasure = new WaitUntil( () => curTime <= NowPlaying.ScaledPlayback + GameSetting.PreLoadTime );
         while ( curIndex < measures.Count )
         {
             yield return waitNextMeasure;

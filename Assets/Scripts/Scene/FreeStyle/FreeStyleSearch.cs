@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEditorInternal;
 
 public class FreeStyleSearch : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class FreeStyleSearch : MonoBehaviour
     public Action OnSearch;
     private Coroutine lateSearchCoroutine;
     private readonly float SearchWaitTime = 1f;
-    private static string SearchText;
+    private static string SearchText = string.Empty;
 
     private void Awake()
     {
@@ -61,11 +62,20 @@ public class FreeStyleSearch : MonoBehaviour
     private IEnumerator UpdateSearchSongs()
     {
         yield return YieldCache.WaitForSeconds( SearchWaitTime );
-        SearchText = field.text;
-        NowPlaying.Inst.Search( field.text );
+        string text = field.text.Replace( " ", string.Empty );
+        if ( string.Compare( SearchText, text, StringComparison.OrdinalIgnoreCase ) == 0 )
+        {
+            scene.IsInputLock = false;
+            yield break;
+        }
+
+        SearchText = text;
+        NowPlaying.Inst.Search( text );
         noSearchResultText.SetActive( NowPlaying.Inst.SearchCount == 0 );
+
         if ( NowPlaying.Inst.SearchCount != 0 )
         {
+            NowPlaying.Inst.UpdateSong( 0 );
             OnSearch?.Invoke();
         }
 

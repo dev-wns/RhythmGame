@@ -66,7 +66,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         if ( IsSlider )
         {
             if ( ShouldResizeSlider && Time < NowPlaying.Playback )
-                 newTime = NowPlaying.PlaybackInBPM;
+                 newTime = NowPlaying.ScaledPlayback;
 
             BodyLength   = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
             float length =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
@@ -74,6 +74,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
             tailTf.localPosition = new Vector2( 0f, length );
         }
 
-        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.PlaybackInBPM ) * GameSetting.Weight ) );
+        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
     }
 }
