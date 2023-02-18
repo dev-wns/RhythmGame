@@ -64,7 +64,7 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Variables
     public static Scene CurrentScene;
     private ReadOnlyCollection<Song> Songs;//{ get; private set; }
-    public List<Song> ChangedSongs;
+    public List<Song> ChangedSongs = new List<Song>();
 
     public static Song  CurrentSong    { get; private set; }
     public static Chart CurrentChart   { get; private set; }

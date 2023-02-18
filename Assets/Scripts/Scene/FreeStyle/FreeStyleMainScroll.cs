@@ -124,7 +124,7 @@ public class FreeStyleMainScroll : ScrollBase
             SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\NAV5J Hana.mp3", true, false );
             SoundManager.Inst.Play();
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            //SoundManager.Inst.Position = 140500;
+            SoundManager.Inst.Position = 133000;
             return;
         }
 

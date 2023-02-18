@@ -27,7 +27,7 @@ public class InputSystem : MonoBehaviour
     private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
     private NoteRenderer curNote;
 
-    public event Action<NoteType, InputType> OnHitNote;
+    public event Action<NoteType>  OnHitNote;
     public event Action<InputType> OnInputEvent;
 
     private KeyCode key;
@@ -147,7 +147,7 @@ public class InputSystem : MonoBehaviour
     private void GameOver()
     {
         OnInputEvent?.Invoke( InputType.Up );
-        OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+        OnHitNote?.Invoke( NoteType.Slider );
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ public class InputSystem : MonoBehaviour
     private void Pause( bool _isPause )
     {
         OnInputEvent?.Invoke( InputType.Up );
-        OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+        OnHitNote?.Invoke( NoteType.Slider );
 
         if ( !_isPause || curNote == null || !curNote.IsSlider ) 
              return;
@@ -246,7 +246,7 @@ public class InputSystem : MonoBehaviour
                 OnInputEvent?.Invoke( InputType.Down );
                 OnInputEvent?.Invoke( InputType.Up );
 
-                OnHitNote?.Invoke( NoteType.Default, InputType.Down );
+                OnHitNote?.Invoke( NoteType.Default );
                 judge.ResultUpdate( startDiff - ( GameSetting.IsAutoRandom ? startDiff - rand : startDiff ), NoteType.Default );
                 SoundManager.Inst.Play( curSound );
                 SelectNextNote();
@@ -261,7 +261,7 @@ public class InputSystem : MonoBehaviour
                     OnInputEvent?.Invoke( InputType.Down );
 
                     isPress = curNote.ShouldResizeSlider = true;
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
+                    OnHitNote?.Invoke( NoteType.Slider );
                     SoundManager.Inst.Play( curSound );
                     judge.ResultUpdate( 0d, NoteType.Default );
 
@@ -274,7 +274,7 @@ public class InputSystem : MonoBehaviour
                 {
                     OnInputEvent?.Invoke( InputType.Up );
 
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+                    OnHitNote?.Invoke( NoteType.Slider );
                     judge.ResultUpdate( 0d, NoteType.Slider );
                     SelectNextNote();
                 }
@@ -298,7 +298,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff ) )
             {
-                OnHitNote?.Invoke( NoteType.Default, InputType.Down );
+                OnHitNote?.Invoke( NoteType.Default );
                 judge.ResultUpdate( startDiff, NoteType.Default );
                 SelectNextNote();
                 return;
@@ -317,7 +317,7 @@ public class InputSystem : MonoBehaviour
                 if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff ) )
                 {
                     isPress = curNote.ShouldResizeSlider = true;
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
+                    OnHitNote?.Invoke( NoteType.Slider );
                     judge.ResultUpdate( startDiff, NoteType.Default );
 
                     inputStartTime = curNote.Time;
@@ -338,7 +338,7 @@ public class InputSystem : MonoBehaviour
                 if ( endDiff < 0 )
                 {
                     judge.ResultUpdate( endDiff, NoteType.Slider );
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+                    OnHitNote?.Invoke( NoteType.Slider );
                     SelectNextNote();
                     return;
                 }
@@ -354,7 +354,7 @@ public class InputSystem : MonoBehaviour
                 {
                     if ( judge.CanBeHit( endDiff ) )
                     {
-                        OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+                        OnHitNote?.Invoke( NoteType.Slider );
                         judge.ResultUpdate( endDiff, NoteType.Slider );
                         SelectNextNote();
                     }
