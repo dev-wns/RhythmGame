@@ -10,6 +10,7 @@ public class FreqSpark : MonoBehaviour
     private RectTransform rt => transform as RectTransform;
     private Vector2 pos => rt.anchoredPosition;
     private Vector2 scl => rt.sizeDelta;
+    private float maxHeight;
 
     [Header("LineRenderer")]
     private LineRenderer rdr;
@@ -36,6 +37,7 @@ public class FreqSpark : MonoBehaviour
 
         bandBuffer = new float[freqCount];
         maxCount   = ( freqCount * 2 ) + 4;
+        maxHeight  = scl.y * .5f;
 
         rdr = GetComponent<LineRenderer>();
         rdr.positionCount = maxCount;
@@ -60,7 +62,7 @@ public class FreqSpark : MonoBehaviour
     {
         for ( int i = 0; i < freqCount; i++ )
         {
-            float value = Global.Math.Clamp( _values[i] - freqBand.Average, 0f, 45f );
+            float value = Global.Math.Clamp( _values[i] - freqBand.Average, 0f, maxHeight );
 
             bandBuffer[i] = bandBuffer[i] < value ?
                             value : Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
