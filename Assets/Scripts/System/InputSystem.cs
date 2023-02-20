@@ -147,7 +147,6 @@ public class InputSystem : MonoBehaviour
     private void GameOver()
     {
         OnInputEvent?.Invoke( InputType.Up );
-        OnHitNote?.Invoke( NoteType.Slider );
     }
 
     /// <summary>
@@ -156,7 +155,6 @@ public class InputSystem : MonoBehaviour
     private void Pause( bool _isPause )
     {
         OnInputEvent?.Invoke( InputType.Up );
-        OnHitNote?.Invoke( NoteType.Slider );
 
         if ( !_isPause || curNote == null || !curNote.IsSlider ) 
              return;

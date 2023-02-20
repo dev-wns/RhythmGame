@@ -76,7 +76,6 @@ public class NowPlaying : Singleton<NowPlaying>
     private int timingIndex;
 
     #region Time
-    private Timer timer = new Timer();
     private double startTime, saveTime;
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
@@ -120,7 +119,7 @@ public class NowPlaying : Singleton<NowPlaying>
         GameTime += Time.deltaTime;
         if ( !IsStart ) return;
 
-        Playback = saveTime + ( timer.CurrentTime - startTime ) + Sync;
+        Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime ) + Sync;
         UpdatePlayback();
     }
 
@@ -273,9 +272,9 @@ public class NowPlaying : Singleton<NowPlaying>
                 return 0;
         } );
         if ( MaxRecordSize < RecordDatas.Count )
-            RecordDatas.Remove( RecordDatas.Last() );
+             RecordDatas.Remove( RecordDatas.Last() );
 
-        using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.CreateNew ) )
+        using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.OpenOrCreate ) )
         {
             using ( StreamWriter writer = new StreamWriter( stream ) )
             {
@@ -327,7 +326,8 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
-        startTime       = timer.CurrentTime;
+        startTime = Time.realtimeSinceStartupAsDouble;
+        //startTime       = timer.CurrentTime;
         saveTime        = StartWaitTime;
         IsStart         = true;
         Debug.Log( $"Playback start." );
@@ -393,7 +393,7 @@ public class NowPlaying : Singleton<NowPlaying>
             yield return null;
         }
 
-        startTime = timer.CurrentTime;
+        startTime = Time.realtimeSinceStartupAsDouble;
         IsStart   = true;
 
         yield return new WaitUntil( () => Playback > saveTime - PauseWaitTime );
