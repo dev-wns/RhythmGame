@@ -57,7 +57,7 @@ public class InputSystem : MonoBehaviour
         lane.OnLaneInitialize += Initialize;
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-        rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
+        rand = UnityEngine.Random.Range( ( float )( -Judgement.Judge.bad ), ( float )( Judgement.Judge.bad ) );
     }
 
     private void Update()
@@ -240,7 +240,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( GameSetting.IsAutoRandom ? startDiff < rand : startDiff < 0d )
             {
-                rand = UnityEngine.Random.Range( ( float )( -Judgement.Bad ), ( float )( Judgement.Bad ) );
+                rand = UnityEngine.Random.Range( ( float )( -Judgement.Judge.bad ), ( float )( Judgement.Judge.bad ) );
                 OnInputEvent?.Invoke( InputType.Down );
                 OnInputEvent?.Invoke( InputType.Up );
 

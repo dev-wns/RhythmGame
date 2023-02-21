@@ -83,9 +83,10 @@ public class ResultInfomation : MonoBehaviour
         artist.text = song.artist;
 
         // Note Infomation
+        bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         totalNotes.text  = $"{song.noteCount + song.sliderCount}";
-        noteCount.text   = $"{song.noteCount}";
-        sliderCount.text = $"{song.sliderCount}";
+        noteCount.text   = hasNoSlider ? $"{song.noteCount + song.sliderCount}" : $"{song.noteCount}";
+        sliderCount.text = hasNoSlider ? $"{0}" : $"{song.sliderCount}";
 
         // Clear Type
         if ( result.great + result.good + result.bad + result.miss == 0 )
@@ -108,15 +109,15 @@ public class ResultInfomation : MonoBehaviour
         }
 
         //Mode
+        noSlider.color    = hasNoSlider                                                 ? Color.white : DisableColor;
         autoPlay.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay    ) ? Color.white : DisableColor;
         noFail.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail      ) ? Color.white : DisableColor;
-        noSlider.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider    ) ? Color.white : DisableColor;
         fixedBPM.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM    ) ? Color.white : DisableColor;
         hardJudge.color   = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge   ) ? Color.white : DisableColor;
         onlyPerfect.color = GameSetting.CurrentGameMode.HasFlag( GameMode.OnlyPerfect ) ? Color.white : DisableColor;
 
         // Judgement
-        totalJudge.text = $"{song.noteCount + ( song.sliderCount * 2 )}";
+        totalJudge.text = hasNoSlider ? $"{song.noteCount + song.sliderCount}" : $"{song.noteCount + ( song.sliderCount * 2 )}";
         DOTween.To( () => 0, x => TextProgressEffect( maximum, x  ),     result.maximum,  duration );
         DOTween.To( () => 0, x => TextProgressEffect( perfect, x  ),     result.perfect,  duration );
         DOTween.To( () => 0, x => TextProgressEffect( great, x    ),     result.great,    duration );
