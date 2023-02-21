@@ -56,7 +56,7 @@ public class ComboSystem : MonoBehaviour
 
     private void OnResult()
     {
-        NowPlaying.Inst.SetResultCount( HitResult.Combo, highestCombo );
+        NowPlaying.Inst.SetResult( HitResult.Combo, highestCombo );
     }
 
     private void OnReLoad()

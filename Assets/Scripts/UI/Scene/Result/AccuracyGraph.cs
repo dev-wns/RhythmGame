@@ -9,8 +9,8 @@ public class AccuracyGraph : MonoBehaviour
     public TextMeshProUGUI accuracyRangeText;
     private LineRenderer rdr;
     private List<Vector3> positions = new List<Vector3>();
-    private const float StartPosX  = -875f;
-    private const float EndPosX    = -175f;
+    private const float StartPosX  = 200f;
+    private const float EndPosX    = 900f;
     private const int   TotalJudge = 80;
     private const float Power      = 5f;
 
@@ -23,7 +23,7 @@ public class AccuracyGraph : MonoBehaviour
         //{
         //    double diff = UnityEngine.Random.Range( (float)-Judgement.Bad, (float)Judgement.Bad );
         //    times += 1d;
-        //    hitDatas.Add( new HitData( HitResult.None, diff, times ) );
+        //    hitDatas.Add( new HitData( HitResult.Default, diff, times ) );
         //}
 
         if ( !TryGetComponent( out rdr ) )
@@ -31,7 +31,7 @@ public class AccuracyGraph : MonoBehaviour
 
         var    hitDatas   = NowPlaying.Inst.HitDatas;
         float  posY       = ( transform as RectTransform ).anchoredPosition.y;
-        float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 1 );
+        float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 2 );
 
         List<HitData> datas    = new List<HitData>();
         double sumDivideDiff   = 0d;
@@ -43,6 +43,9 @@ public class AccuracyGraph : MonoBehaviour
         positions.Add( new Vector3( StartPosX, posY, 0f ) );
         for ( int i = 0; i < hitDatas.Count; i++ )
         {
+            if ( hitDatas[i].type != NoteType.Default )
+                 continue; 
+
             var diff = hitDatas[i].diff;
             if ( diff < 0d )
             {
@@ -58,7 +61,7 @@ public class AccuracyGraph : MonoBehaviour
             sumDivideDiff += diff;
             if ( i % step == 0 )
             {
-                datas.Add( new HitData( HitResult.None, sumDivideDiff * stepInverse, hitDatas[i].time ) );
+                datas.Add( new HitData( NoteType.Default, sumDivideDiff * stepInverse, hitDatas[i].time ) );
                 sumDivideDiff = 0d;
             }
         }
@@ -70,8 +73,9 @@ public class AccuracyGraph : MonoBehaviour
 
             var avg = datas[i].diff * 1000f * Power;
             avg = Mathf.Round( ( float )( avg - ( avg % ( 5d * Power ) ) ) );
-            positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )avg, -120f, 80f ), 0 ) );
+            positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )avg, -170f, 50f ), 0 ) );
         }
+        positions.Add( new Vector3( EndPosX - posOffset, posY, 0f ) );
         positions.Add( new Vector3( EndPosX, posY, 0f ) );
 
         int minAverageMS = totalMinCount == 0 ? 0 : Mathf.RoundToInt( ( float )( totalSumMinDiff / totalMinCount ) );

@@ -35,7 +35,7 @@ public class AccuracySystem : MonoBehaviour
 
     private void OnResult()
     {
-        NowPlaying.Inst.SetResultCount( HitResult.Accuracy, ( int )( curAccuracy / curMaxCount ) );
+        NowPlaying.Inst.SetResult( HitResult.Accuracy, ( int )( curAccuracy / curMaxCount ) );
     }
 
     private void OnReLoad()

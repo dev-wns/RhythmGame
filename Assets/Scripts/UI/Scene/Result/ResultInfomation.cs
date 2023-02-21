@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine.U2D;
 using DG.Tweening;
 using System;
+using System.IO;
 
 public class ResultInfomation : MonoBehaviour
 {
@@ -16,13 +17,36 @@ public class ResultInfomation : MonoBehaviour
     public TextMeshProUGUI title;
     public TextMeshProUGUI artist;
 
-    [Header( "Hit Count" )]
+    [Header( "Note Infomation" )]
     public TextMeshProUGUI totalNotes;
-    public TextMeshProUGUI perfect, great, good, bad, miss;
+    public TextMeshProUGUI noteCount;
+    public TextMeshProUGUI sliderCount;
+
+    public TextMeshProUGUI clear;
+    public TextMeshProUGUI fullCombo;
+    public TextMeshProUGUI allPerfect;
+
+    [Header( "Mode" )]
+    public TextMeshProUGUI autoPlay;
+    public TextMeshProUGUI noFail;
+    public TextMeshProUGUI noSlider;
+    public TextMeshProUGUI fixedBPM;
+    public TextMeshProUGUI hardJudge;
+    public TextMeshProUGUI onlyPerfect;
+
+    [Header( "Judgement" )]
+    public TextMeshProUGUI totalJudge;
+    public TextMeshProUGUI maximum;
+    public TextMeshProUGUI perfect;
+    public TextMeshProUGUI great;
+    public TextMeshProUGUI good;
+    public TextMeshProUGUI bad;
+    public TextMeshProUGUI miss;
 
     [Header( "Fast Slow" )]
     public TextMeshProUGUI bpm;
-    public TextMeshProUGUI fast, slow; 
+    public TextMeshProUGUI fast;
+    public TextMeshProUGUI slow;
 
     [Header( "Result" )]
     public TextMeshProUGUI maxCombo;
@@ -32,7 +56,7 @@ public class ResultInfomation : MonoBehaviour
     [Header( "Rank" )]
     public Image rank;
 
-    [Header( "Today" )]
+    [Header( "Date" )]
     public TextMeshProUGUI date;
 
     [Header( "Background" )]
@@ -41,8 +65,10 @@ public class ResultInfomation : MonoBehaviour
     private Sprite spriteBg;
     private Texture2D texture;
 
+    private Color DisableColor = new Color( 1f, 1f, 1f, .25f );
     private readonly float duration = 1f;
-    private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value:N0}";
+    private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value}";
+    //private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value:N0}";
 
     private void Awake()
     {
@@ -51,29 +77,72 @@ public class ResultInfomation : MonoBehaviour
         var record = NowPlaying.Inst.MakeNewRecord();
         var song   = NowPlaying.CurrentSong;
         var result = NowPlaying.Inst.CurrentResult;
+        
         // Song Infomation
-        title.text  = song.title;
+        title.text  = $"{song.title} [{song.version}]";
         artist.text = song.artist;
 
-        // Hit Count 
-        totalNotes.text = ( song.noteCount + song.sliderCount ).ToString();
+        // Note Infomation
+        totalNotes.text  = $"{song.noteCount + song.sliderCount}";
+        noteCount.text   = $"{song.noteCount}";
+        sliderCount.text = $"{song.sliderCount}";
+
+        // Clear Type
+        if ( result.great + result.good + result.bad + result.miss == 0 )
+        {
+            allPerfect.color = Color.white;
+            fullCombo.color  = DisableColor;
+            clear.color      = DisableColor;
+        }
+        else if ( result.miss == 0 )
+        {
+            allPerfect.color = DisableColor;
+            fullCombo.color  = Color.white;
+            clear.color      = DisableColor;
+        }
+        else
+        {
+            allPerfect.color = DisableColor;
+            fullCombo.color  = DisableColor;
+            clear.color      = Color.white;
+        }
+
+        //Mode
+        autoPlay.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay    ) ? Color.white : DisableColor;
+        noFail.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail      ) ? Color.white : DisableColor;
+        noSlider.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider    ) ? Color.white : DisableColor;
+        fixedBPM.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM    ) ? Color.white : DisableColor;
+        hardJudge.color   = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge   ) ? Color.white : DisableColor;
+        onlyPerfect.color = GameSetting.CurrentGameMode.HasFlag( GameMode.OnlyPerfect ) ? Color.white : DisableColor;
+
+        // Judgement
+        totalJudge.text = $"{song.noteCount + ( song.sliderCount * 2 )}";
+        DOTween.To( () => 0, x => TextProgressEffect( maximum, x  ),     result.maximum,  duration );
+        DOTween.To( () => 0, x => TextProgressEffect( perfect, x  ),     result.perfect,  duration );
+        DOTween.To( () => 0, x => TextProgressEffect( great, x    ),     result.great,    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( good, x     ),     result.good,     duration );
+        DOTween.To( () => 0, x => TextProgressEffect( bad, x      ),     result.bad,      duration );
+        DOTween.To( () => 0, x => TextProgressEffect( miss, x     ),     result.miss,     duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ),     result.combo,    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( score, x    ),     result.score,    duration );
+        DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.accuracy, duration );
 
         // fast slow
-        fast.text = result.fast.ToString();
-        slow.text = result.slow.ToString();
+        fast.text = $"{result.fast}";
+        slow.text = $"{result.slow}";
 
         // bpm
         var pitch = GameSetting.CurrentPitch;
         if ( Global.Math.Abs( pitch - 1f ) < .0001f )
         {
             int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm );
-            if ( song.minBpm == song.maxBpm ) bpm.text = medianBpm.ToString();
+            if ( song.minBpm == song.maxBpm ) bpm.text = $"{medianBpm}";
             else                              bpm.text = $"{medianBpm} ({song.minBpm} ~ {song.maxBpm})";
         }
         else
         {
             int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * pitch  );
-            if ( song.minBpm == song.maxBpm ) bpm.text = medianBpm.ToString();
+            if ( song.minBpm == song.maxBpm ) bpm.text = $"{medianBpm}";
             else                              bpm.text = $"{medianBpm} ({Mathf.RoundToInt( song.minBpm * pitch )} ~ {Mathf.RoundToInt( song.maxBpm * pitch )})";
         }
         bpm.color = pitch < 1f ? new Color( .5f, .5f, 1f ) :
@@ -91,15 +160,6 @@ public class ResultInfomation : MonoBehaviour
 
         // Background
         StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
-
-        DOTween.To( () => 0, x => TextProgressEffect( perfect, x  ),     result.maximum + result.perfect,  duration );
-        DOTween.To( () => 0, x => TextProgressEffect( great, x    ),     result.great,                     duration );
-        DOTween.To( () => 0, x => TextProgressEffect( good, x     ),     result.good,                      duration );
-        DOTween.To( () => 0, x => TextProgressEffect( bad, x      ),     result.bad,                       duration );
-        DOTween.To( () => 0, x => TextProgressEffect( miss, x     ),     result.miss,                      duration );
-        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ),     result.combo,                     duration );
-        DOTween.To( () => 0, x => TextProgressEffect( score, x    ),     result.score,                     duration );
-        DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.accuracy,                  duration );
     }
 
     private void OnDestroy()

@@ -12,13 +12,13 @@ using System.Linq;
 
 public struct HitData
 {
-    public HitResult result;
+    public NoteType type;
     public double diff;
     public double time;
 
-    public HitData( HitResult _res, double _diff, double _time )
+    public HitData( NoteType _type, double _diff, double _time )
     {
-        result = _res;
+        type = _type;
         diff = _diff;
         time = _time;
     }
@@ -292,26 +292,33 @@ public class NowPlaying : Singleton<NowPlaying>
         HitDatas.Clear();
     }
 
-    public void AddHitData( HitResult _key, double _diff )
+    public void AddHitData( NoteType _type, double _diff )
     {
-        HitDatas.Add( new HitData( _key, _diff, Playback ) );
+        HitDatas.Add( new HitData( _type, _diff, Playback ) );
     }
 
-    public void SetResultCount( HitResult _key, int _count )
+    public void SetResult( HitResult _key, int _count )
     {
         switch ( _key )
         {
-            case HitResult.Maximum:  currentResult.maximum  = _count; break;
-            case HitResult.Perfect:  currentResult.perfect  = _count; break;
-            case HitResult.Great:    currentResult.great    = _count; break;
-            case HitResult.Good:     currentResult.good     = _count; break;
-            case HitResult.Bad:      currentResult.bad      = _count; break;
-            case HitResult.Miss:     currentResult.miss     = _count; break;
-            case HitResult.Fast:     currentResult.fast     = _count; break;
-            case HitResult.Slow:     currentResult.slow     = _count; break;
             case HitResult.Accuracy: currentResult.accuracy = _count; break;
             case HitResult.Combo:    currentResult.combo    = _count; break;
             case HitResult.Score:    currentResult.score    = _count; break;
+        }
+    }
+
+    public void IncreaseResult( HitResult _type )
+    {
+        switch ( _type )
+        {
+            case HitResult.Maximum:  currentResult.maximum++; break;
+            case HitResult.Perfect:  currentResult.perfect++; break;
+            case HitResult.Great:    currentResult.great++;   break;
+            case HitResult.Good:     currentResult.good++;    break;
+            case HitResult.Bad:      currentResult.bad++;     break;
+            case HitResult.Miss:     currentResult.miss++;    break;
+            case HitResult.Fast:     currentResult.fast++;    break;
+            case HitResult.Slow:     currentResult.slow++;    break;
         }
     }
     #endregion

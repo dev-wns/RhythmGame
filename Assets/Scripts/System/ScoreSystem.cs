@@ -42,7 +42,7 @@ public class ScoreSystem : MonoBehaviour
 
     private void OnResult()
     {
-        NowPlaying.Inst.SetResultCount( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
+        NowPlaying.Inst.SetResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
     }
 
     private void OnReLoad()

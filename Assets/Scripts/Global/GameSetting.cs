@@ -22,10 +22,13 @@ public enum GameRandom
 [Flags]
 public enum GameMode
 {
-    None     = 0,
-    AutoPlay = 1 << 0,
-    NoFail   = 1 << 1,
-    NoSlider = 1 << 2,
+    None        = 0,
+    AutoPlay    = 1 << 0,
+    NoFail      = 1 << 1,
+    NoSlider    = 1 << 2,
+    FixedBPM    = 1 << 3,
+    HardJudge   = 1 << 4,
+    OnlyPerfect = 1 << 5,
 
     All      = int.MaxValue,
 }
