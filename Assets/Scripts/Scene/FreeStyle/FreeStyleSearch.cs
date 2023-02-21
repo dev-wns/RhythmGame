@@ -26,7 +26,8 @@ public class FreeStyleSearch : MonoBehaviour
 
     private void Update()
     {
-        if ( Input.GetMouseButtonDown( 0 ) && field.interactable )
+        if ( ( Input.GetMouseButtonDown( 0 )      && field.interactable ) ||
+             ( Input.GetKeyDown( KeyCode.Escape ) && field.interactable ) )
         {
             field.ActivateInputField();
             field.MoveTextEnd( false );
@@ -62,24 +63,24 @@ public class FreeStyleSearch : MonoBehaviour
     private IEnumerator UpdateSearchSongs()
     {
         yield return YieldCache.WaitForSeconds( SearchWaitTime );
-        string text = field.text.Replace( " ", string.Empty );
-        if ( string.Compare( SearchText, text, StringComparison.OrdinalIgnoreCase ) == 0 )
+        string searchText = SearchText.Replace( " ", string.Empty );
+        string fieldText  = field.text.Replace( " ", string.Empty );
+        if ( string.Compare( searchText, fieldText, StringComparison.OrdinalIgnoreCase ) == 0 )
         {
             scene.IsInputLock = false;
             yield break;
         }
 
-        SearchText = text;
-        NowPlaying.Inst.Search( text );
+        SearchText = field.text;
+        NowPlaying.Inst.Search( fieldText );
         noSearchResultText.SetActive( NowPlaying.Inst.SearchCount == 0 );
 
         if ( NowPlaying.Inst.SearchCount != 0 )
         {
             NowPlaying.Inst.UpdateSong( 0 );
             OnSearch?.Invoke();
+            scene.IsInputLock = false;
         }
-
-        scene.IsInputLock = false;
     }
 
     void KeyBind()
