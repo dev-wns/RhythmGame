@@ -31,7 +31,6 @@ public class FreeStyleSearch : MonoBehaviour
         {
             field.ActivateInputField();
             field.MoveTextEnd( false );
-            Debug.Log( "on point click " );
         }
     }
 

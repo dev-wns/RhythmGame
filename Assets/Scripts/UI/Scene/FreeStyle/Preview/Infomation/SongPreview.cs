@@ -8,6 +8,7 @@ public class SongPreview : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
     public SoundPitchOption pitchOption;
+    public FixedBPMOption fixedBPMOption;
 
     [Header("Horizontal")]
     [Header("Line 0")]
@@ -36,6 +37,7 @@ public class SongPreview : MonoBehaviour
     {
         scroller.OnSelectSong += SelectChangedSoundInfo;
         pitchOption.OnPitchUpdate += PitchUpdate;
+        fixedBPMOption.OnChangeOption += ChangeFixedBPM;
     }
 
     private void SelectChangedSoundInfo( Song _song )
@@ -55,7 +57,7 @@ public class SongPreview : MonoBehaviour
         mode.text  = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
         rate.text  = $"x{GameSetting.CurrentPitch:F1}";
         rate.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
-                           GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
+                     GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         PitchUpdate( GameSetting.CurrentPitch );
     }
@@ -67,24 +69,24 @@ public class SongPreview : MonoBehaviour
         int minute = second / 60;
         second = second % 60;
 
-        if ( Global.Math.Abs( _pitch - 1f ) < .0001f )
-        {
-            length.text = $"{minute:00}:{second:00}";
-
-            int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm );
-            if ( song.minBpm == song.maxBpm ) bpm.text = medianBpm.ToString();
-            else                              bpm.text = $"{medianBpm} ({song.minBpm} ~ {song.maxBpm})";
-        }
-        else
-        {
-            length.text = $"{minute:00}:{second:00}";
-
-            int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * _pitch  );
-            if ( song.minBpm == song.maxBpm ) bpm.text = medianBpm.ToString();
-            else                              bpm.text = $"{medianBpm} ({Mathf.RoundToInt( song.minBpm * _pitch )} ~ {Mathf.RoundToInt( song.maxBpm * _pitch )})";
-        }
-
+        length.text = $"{minute:00}:{second:00}";
         length.color = bpm.color = _pitch < 1f ? new Color( .5f, .5f, 1f ) :
                                    _pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
+
+        int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * _pitch  );
+        int minBpm    = Mathf.RoundToInt( ( float )song.minBpm    * _pitch  );
+        int maxBpm    = Mathf.RoundToInt( ( float )song.maxBpm    * _pitch  );
+        bpm.text = song.minBpm == song.maxBpm || GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? 
+                   $"{medianBpm}" : $"{medianBpm} ({minBpm} ~ {maxBpm})";
+    }
+
+    private void ChangeFixedBPM()
+    {
+        var song = NowPlaying.CurrentSong;
+        var medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * GameSetting.CurrentPitch );
+        var minBpm    = Mathf.RoundToInt( ( float )song.minBpm    * GameSetting.CurrentPitch );
+        var maxBpm    = Mathf.RoundToInt( ( float )song.maxBpm    * GameSetting.CurrentPitch );
+        bpm.text = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? 
+                   $"{medianBpm}" : $"{medianBpm} ({minBpm} ~ {maxBpm})";
     }
 }

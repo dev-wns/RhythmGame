@@ -138,6 +138,7 @@ public class FileParser : FileReader
                         double spb = ( 60d / timing.bpm ) * 4d;
                         int count = Mathf.CeilToInt( ( float )( ( Global.Math.Abs( NowPlaying.StartWaitTime ) + timing.time ) / spb ) );
                         timing.time -= count * spb;
+
                         Debug.Log( $"First BPM time adjustment.  SPB : {spb}  Time : {prevTime} -> {timing.time}" );
                     }
 
@@ -145,10 +146,15 @@ public class FileParser : FileReader
                 }
 
                 timings.Add( timing );
+                if ( GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) )
+                {
+                    while ( ReadLine() != "[Sprites]" ) { }
+                    break;
+                }
             }
 
             _chart.uninheritedTimings = new ReadOnlyCollection<Timing>( uninheritedTimings );
-            _chart.timings = new ReadOnlyCollection<Timing>( timings );
+            _chart.timings            = new ReadOnlyCollection<Timing>( timings );
 #endregion
             
 #region Sprite Samples
