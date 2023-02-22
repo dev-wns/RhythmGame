@@ -62,7 +62,7 @@ public class ScoreSystem : MonoBehaviour
         var slider = hasKeyConversion ? NowPlaying.CurrentSong.sliderCount - NowPlaying.CurrentSong.delSliderCount : NowPlaying.CurrentSong.sliderCount;
         var note   = hasKeyConversion ? NowPlaying.CurrentSong.noteCount   - NowPlaying.CurrentSong.delNoteCount   : NowPlaying.CurrentSong.noteCount;
         
-        int maxJudgeCount = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + slider;
+        int maxJudgeCount = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + ( slider * 2 );
         maxScore = 1000000d / maxJudgeCount;
         StartCoroutine( Count() );
     }
