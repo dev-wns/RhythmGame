@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
-using DG.Tweening;
-using UnityEngine.Windows;
-using UnityEngine.UI;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SoundSfxType 

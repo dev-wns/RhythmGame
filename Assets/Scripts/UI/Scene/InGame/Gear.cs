@@ -20,13 +20,14 @@ public class Gear : MonoBehaviour
              panel.gameObject.SetActive( false );
 
         panel.localScale   = new Vector3( GameSetting.GearWidth, Screen.height );
+        panel.position     = new Vector2( GameSetting.GearOffsetX, 0f );
         sideLeft.position  = new Vector3( GameSetting.GearStartPos, 0f );
-        sideRight.position = new Vector3( -GameSetting.GearStartPos, 0f );
+        sideRight.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth, 0f );
     }
 
     private void UpdatePosition()
     {
-        judge.position   = new Vector2( 0f, GameSetting.JudgePos );
+        judge.position   = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos );
         judge.localScale = new Vector3( GameSetting.GearWidth, judge.localScale.y );
     }
 }

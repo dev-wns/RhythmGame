@@ -37,6 +37,9 @@ public class ComboSystem : MonoBehaviour
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ComboUpdate;
 
+        var rt = transform as RectTransform;
+        rt.anchoredPosition = new Vector2( rt.anchoredPosition.x + GameSetting.GearOffsetX, rt.anchoredPosition.y );
+
         startPos = transform.localPosition;
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;

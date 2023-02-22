@@ -7,7 +7,6 @@ using TMPro;
 using UnityEngine.U2D;
 using DG.Tweening;
 using System;
-using System.IO;
 
 public class ResultInfomation : MonoBehaviour
 {

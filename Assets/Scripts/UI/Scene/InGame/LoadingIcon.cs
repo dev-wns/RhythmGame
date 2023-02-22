@@ -18,6 +18,7 @@ public class LoadingIcon : MonoBehaviour
     {
         InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnLoadEnd += IconDisable;
+        transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
     }
 
     private void Start()

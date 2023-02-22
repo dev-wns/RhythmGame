@@ -6,7 +6,6 @@ using UnityEngine.UI;
 [RequireComponent( typeof( Scrollbar ) )]
 public class ScrollBar : Scrollbar
 {
-
     private Scrollbar scrollbar;
     private float offset;
 

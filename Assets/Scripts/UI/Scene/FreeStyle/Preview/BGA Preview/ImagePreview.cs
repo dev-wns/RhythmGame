@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Networking;
 
 public class ImagePreview : FreeStylePreview
@@ -21,7 +19,7 @@ public class ImagePreview : FreeStylePreview
         if ( prevTexture )
         {
             if ( ReferenceEquals( prevTexture, defaultSprite.texture ) )
-                 return;
+                return;
 
             DestroyImmediate( prevTexture );
         }

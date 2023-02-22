@@ -14,6 +14,7 @@ public class KeySampleSystem : MonoBehaviour
     private int curIndex;
     private double curTime;
     private double offset;
+    private static float DefaultOffset = -50;
 
     private void Awake()
     {
@@ -32,8 +33,7 @@ public class KeySampleSystem : MonoBehaviour
 
     private void GameStart()
     {
-        offset = NowPlaying.CurrentSong.isOnlyKeySound && GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0d : GameSetting.SoundOffset * .001d;
-
+        offset = NowPlaying.CurrentSong.isOnlyKeySound ? 0d : ( DefaultOffset + GameSetting.SoundOffset ) * .001d;
         StartCoroutine( Process() );
     }
 

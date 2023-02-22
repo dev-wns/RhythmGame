@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using UnityEngine.EventSystems;
-using UnityEditorInternal;
 
 public class FreeStyleSearch : MonoBehaviour
 {

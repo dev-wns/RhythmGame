@@ -21,6 +21,7 @@ public class JudgeEffectSystem : MonoBehaviour
         judge.OnJudge += HitEffect;
 
         endScale = transform.localScale;
+        transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
     }
 
     private void OnDestroy()

@@ -98,10 +98,11 @@ public class GameSetting
     public static float NoteBodyWidth => 107f * NoteSizeMultiplier;
     public static float NoteHeight => 63f * NoteSizeMultiplier;
     public static float NoteBlank  = 2.5f;
-    public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
+    public static float NoteStartPos => GearOffsetX + -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 
     // Gear
-    public static float GearStartPos => ( -( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f );
+    public static float GearOffsetX = 0f;
+    public static float GearStartPos => GearOffsetX + ( -( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f );
     public static float GearWidth    => ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) );
 
     // Pitch
