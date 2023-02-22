@@ -27,6 +27,8 @@ public class ResultInfomation : MonoBehaviour
     public TextMeshProUGUI allPerfect;
 
     [Header( "Mode" )]
+    public GameObject useModeObj;
+
     public TextMeshProUGUI autoPlay;
     public TextMeshProUGUI noFail;
     public TextMeshProUGUI noSlider;
@@ -73,8 +75,7 @@ public class ResultInfomation : MonoBehaviour
     private void Awake()
     {
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
-
-        var record = NowPlaying.Inst.MakeNewRecord();
+        
         var song   = NowPlaying.CurrentSong;
         var result = NowPlaying.Inst.CurrentResult;
         
@@ -161,7 +162,11 @@ public class ResultInfomation : MonoBehaviour
                                                 rankAtlas.GetSprite( "Ranking-D" );
 
         //date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
-        date.text = record.date;
+        bool shouldMakeRecord = GameSetting.CurrentGameMode == GameMode.None || 
+                                GameSetting.CurrentGameMode == GameMode.HardJudge;
+        if ( shouldMakeRecord ) NowPlaying.Inst.MakeNewRecord();
+        useModeObj.SetActive( !shouldMakeRecord );
+        date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
         // Background
         StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
