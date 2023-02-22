@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Runtime.Remoting.Messaging;
 
 public class AccuracyGraph : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class AccuracyGraph : MonoBehaviour
         if ( !TryGetComponent( out rdr ) )
              return;
 
-        var    hitDatas   = NowPlaying.Inst.HitDatas;
+        var    hitDatas   = NowPlaying.Inst.HitDatas.FindAll( ( HitData _data ) => _data.type == NoteType.Default );
         float  posY       = ( transform as RectTransform ).anchoredPosition.y;
         float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 2 );
 
@@ -43,9 +44,6 @@ public class AccuracyGraph : MonoBehaviour
         positions.Add( new Vector3( StartPosX, posY, 0f ) );
         for ( int i = 0; i < hitDatas.Count; i++ )
         {
-            if ( hitDatas[i].type != NoteType.Default )
-                 continue; 
-
             var diff = hitDatas[i].diff;
             if ( diff < 0d )
             {
