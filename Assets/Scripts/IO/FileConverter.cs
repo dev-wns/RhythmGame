@@ -32,6 +32,8 @@ public struct Song
     public int keyCount;
     public int noteCount;
     public int sliderCount;
+    public int delNoteCount;
+    public int delSliderCount;
 
     public int    minBpm;
     public int    maxBpm;
@@ -101,7 +103,7 @@ public struct KeySound
     {
         name   = _note.keySound.name;
         volume = _note.keySound.volume < .1f ? 100f : _note.keySound.volume;
-        time   = _note.keySound.time;
+        time   = _note.time;
     }
 }
 
@@ -379,10 +381,16 @@ public class FileConverter : FileReader
                     if ( sliderTime > 0d ) {
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
+
+                        if ( finalLane == 3 )
+                             song.delSliderCount++;
                     }
                     else {
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
+
+                        if ( finalLane == 3 )
+                             song.delNoteCount++;
                     }
 
                     notes.Add( new Note( finalLane, noteTime, sliderTime, keySound ) );
@@ -478,6 +486,8 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"KeyCount: {_song.keyCount}" );
                     writer.WriteLine( $"NumNote: {_song.noteCount}" );
                     writer.WriteLine( $"NumSlider: {_song.sliderCount}" );
+                    writer.WriteLine( $"NumDelNote: {_song.delNoteCount}" );
+                    writer.WriteLine( $"NumDelSlider: {_song.delSliderCount}" );
 
                     writer.WriteLine( $"MinBPM: {_song.minBpm}" );
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );

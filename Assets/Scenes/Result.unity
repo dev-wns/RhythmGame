@@ -9067,7 +9067,7 @@ GameObject:
   - component: {fileID: 1620260100}
   - component: {fileID: 1620260099}
   m_Layer: 5
-  m_Name: Only Perfect
+  m_Name: 7K To 6K
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9113,7 +9113,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ONLY PERFECT
+  m_text: 7K TO 6K
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e629adaa7311a694b9813c25cdbbb03a, type: 2}
   m_sharedMaterial: {fileID: -1945638961723439664, guid: e629adaa7311a694b9813c25cdbbb03a,

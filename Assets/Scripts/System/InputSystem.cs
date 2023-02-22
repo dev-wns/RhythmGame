@@ -100,12 +100,12 @@ public class InputSystem : MonoBehaviour
     #region Event
     public void Initialize( int _key )
     {
-        key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.CurrentSong.keyCount][_key];
+        key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.KeyCount][_key];
 
         NoteRenderer note = note1;
-        if ( NowPlaying.CurrentSong.keyCount == 4 )      note = _key == 1 || _key == 2 ? note2 : note1;
-        else if ( NowPlaying.CurrentSong.keyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
-        else if ( NowPlaying.CurrentSong.keyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
+        if ( NowPlaying.KeyCount == 4 )      note = _key == 1 || _key == 2 ? note2 : note1;
+        else if ( NowPlaying.KeyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
+        else if ( NowPlaying.KeyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
         notePool ??= new ObjectPool<NoteRenderer>( note, 10 );
     }
 

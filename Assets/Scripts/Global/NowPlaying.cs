@@ -70,8 +70,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public static Song  CurrentSong    { get; private set; }
     public static Chart CurrentChart   { get; private set; }
     public static string Directory     { get; private set; }
+    public static int KeyCount         => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7 ? 6 : CurrentSong.keyCount;
     public int CurrentSongIndex { get; private set; }
-
     public int SearchCount { get; private set; }
     private double medianBPM;
     private int timingIndex;
@@ -412,6 +412,7 @@ public class NowPlaying : Singleton<NowPlaying>
         CurrentScene.IsInputLock = false;
     }
     #endregion
+
     #region Etc.
     public void UpdateSong( int _index )
     {

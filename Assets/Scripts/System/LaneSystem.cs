@@ -4,6 +4,7 @@ using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor.PackageManager.UI;
 
 public class LaneSystem : MonoBehaviour
 {
@@ -14,11 +15,9 @@ public class LaneSystem : MonoBehaviour
     private System.Random random;
     private readonly int MinimumSwapCount = 5;
     private int keyCount;
-
     private void Awake()
     {
-        keyCount = NowPlaying.CurrentSong.keyCount;
-
+        keyCount = NowPlaying.KeyCount;
         keySampleSystem = GetComponent<KeySampleSystem>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitializeThread += Initialize;
@@ -74,10 +73,11 @@ public class LaneSystem : MonoBehaviour
     private void CreateNotes( Chart _chart )
     {
         Timer perfomenceTimer = new Timer( true );
-        var notes        = _chart.notes;
-        string dir       = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
-        bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        random           = new System.Random( ( int )System.DateTime.Now.Ticks );
+        var notes          = _chart.notes;
+        string dir         = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
+        bool hasNoSlider   = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        bool hasConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && NowPlaying.CurrentSong.keyCount == 7;
+        random             = new System.Random( ( int )System.DateTime.Now.Ticks );
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
@@ -85,6 +85,20 @@ public class LaneSystem : MonoBehaviour
         for ( int i = 0; i < notes.Count; i++ )
         {
             Note newNote = notes[i];
+            if ( hasConversion )
+            {
+                if ( newNote.lane == 3 )
+                {
+                    if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
+                         keySampleSystem.AddSample( new KeySound( newNote ) );
+
+                    continue;
+                }
+
+                if ( newNote.lane > 2 )
+                     newNote.lane -= 1;
+            }
+
             if ( hasNoSlider ) 
                  newNote.isSlider = false;
 

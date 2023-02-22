@@ -85,7 +85,6 @@ public class SoundManager : Singleton<SoundManager>
             ErrorCheck( system.setOutput( Drivers[value].outputType ) );
             ErrorCheck( system.setDriver( Drivers[value].index ) );
             curDriverIndex = value;
-            Debug.Log( curDriverIndex );
         }
     }
     public int KeySoundCount => keySounds.Count;

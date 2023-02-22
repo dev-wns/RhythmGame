@@ -22,13 +22,13 @@ public enum GameRandom
 [Flags]
 public enum GameMode
 {
-    None        = 0,
-    AutoPlay    = 1 << 0,
-    NoFail      = 1 << 1,
-    NoSlider    = 1 << 2,
-    FixedBPM    = 1 << 3,
-    HardJudge   = 1 << 4,
-    OnlyPerfect = 1 << 5,
+    None          = 0,
+    AutoPlay      = 1 << 0,
+    NoFail        = 1 << 1,
+    NoSlider      = 1 << 2,
+    FixedBPM      = 1 << 3,
+    HardJudge     = 1 << 4,
+    KeyConversion = 1 << 5,
 
     All      = int.MaxValue,
 }
@@ -98,11 +98,11 @@ public class GameSetting
     public static float NoteBodyWidth => 107f * NoteSizeMultiplier;
     public static float NoteHeight => 63f * NoteSizeMultiplier;
     public static float NoteBlank  = 2.5f;
-    public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.CurrentSong.keyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) ) * .5f;
+    public static float NoteStartPos => -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 
     // Gear
-    public static float GearStartPos => ( -( ( NoteWidth * NowPlaying.CurrentSong.keyCount ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) ) * .5f );
-    public static float GearWidth    => ( ( NoteWidth * NowPlaying.CurrentSong.keyCount ) + ( NoteBlank * ( NowPlaying.CurrentSong.keyCount + 1 ) ) );
+    public static float GearStartPos => ( -( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f );
+    public static float GearWidth    => ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) );
 
     // Pitch
     private static int pitch = 100;

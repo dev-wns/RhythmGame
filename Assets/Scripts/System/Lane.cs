@@ -64,15 +64,15 @@ public class Lane : MonoBehaviour
         UpdatePosition( _key );
         OnLaneInitialize?.Invoke( Key );
         
-        if ( NowPlaying.CurrentSong.keyCount == 4 )
+        if ( NowPlaying.KeyCount == 4 )
         {
             color = _key == 1 || _key == 2 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
         }
-        else if ( NowPlaying.CurrentSong.keyCount == 6 )
+        else if ( NowPlaying.KeyCount == 6 )
         {
             color = _key == 1 || _key == 4 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
         }
-        else if ( NowPlaying.CurrentSong.keyCount == 7 )
+        else if ( NowPlaying.KeyCount == 7 )
         {
             color = _key == 1 || _key == 5 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) :
                                  _key == 3 ? new Color( 1f, 1f, 0f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );

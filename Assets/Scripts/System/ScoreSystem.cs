@@ -58,17 +58,11 @@ public class ScoreSystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
-        int maxJudgeCount;
-        if ( GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) )
-        {
-            maxJudgeCount = _chart.notes.Count;
-        }
-        else
-        {
-            maxJudgeCount = NowPlaying.CurrentSong.noteCount +
-                          ( NowPlaying.CurrentSong.sliderCount * 2 );
-        }
-
+        bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) &&  NowPlaying.CurrentSong.keyCount == 7;
+        var slider = hasKeyConversion ? NowPlaying.CurrentSong.sliderCount - NowPlaying.CurrentSong.delSliderCount : NowPlaying.CurrentSong.sliderCount;
+        var note   = hasKeyConversion ? NowPlaying.CurrentSong.noteCount   - NowPlaying.CurrentSong.delNoteCount   : NowPlaying.CurrentSong.noteCount;
+        
+        int maxJudgeCount = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + slider;
         maxScore = 1000000d / maxJudgeCount;
         StartCoroutine( Count() );
     }

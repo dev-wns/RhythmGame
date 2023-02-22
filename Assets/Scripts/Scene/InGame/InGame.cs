@@ -28,7 +28,7 @@ public class InGame : Scene
     {
         base.Awake();
 
-        isHitLastNotes  = new bool[NowPlaying.CurrentSong.keyCount];
+        isHitLastNotes  = new bool[NowPlaying.KeyCount];
         IsGameInputLock = true;
         IsInputLock     = true;
 

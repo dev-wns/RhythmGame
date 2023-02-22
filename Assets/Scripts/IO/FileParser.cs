@@ -82,8 +82,10 @@ public class FileParser : FileReader
                     _song.keyCount = int.Parse( Split( ':' ) );
                     _song.keyCount = _song.keyCount == 8 ? 7 : _song.keyCount;
                 }
-                if ( Contains( "NumNote:" ) )   _song.noteCount   = int.Parse( Split( ':' ) );
-                if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( Split( ':' ) );
+                if ( Contains( "NumNote:" ) )      _song.noteCount      = int.Parse( Split( ':' ) );
+                if ( Contains( "NumSlider:" ) )    _song.sliderCount    = int.Parse( Split( ':' ) );
+                if ( Contains( "NumDelNote:" ) )   _song.delNoteCount   = int.Parse( Split( ':' ) );
+                if ( Contains( "NumDelSlider:" ) ) _song.delSliderCount = int.Parse( Split( ':' ) );
 
                 if ( Contains( "MinBPM:" ) )  _song.minBpm         = int.Parse( Split( ':' ) );
                 if ( Contains( "MaxBPM:" ) )  _song.maxBpm         = int.Parse( Split( ':' ) );

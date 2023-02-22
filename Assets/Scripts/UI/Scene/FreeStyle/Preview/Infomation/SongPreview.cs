@@ -8,9 +8,10 @@ using System.Runtime.CompilerServices;
 public class SongPreview : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
-    public SoundPitchOption pitchOption;
-    public NoSliderOption   noSliderOption;
-    public FixedBPMOption   fixedBPMOption;
+    public SoundPitchOption    pitchOption;
+    public NoSliderOption      noSliderOption;
+    public FixedBPMOption      fixedBPMOption;
+    public KeyConversionOption keyConversionOption;
 
     [Header("Horizontal")]
     [Header("Line 0")]
@@ -36,13 +37,15 @@ public class SongPreview : MonoBehaviour
 
     private Song song;
     private float pitch;
+    private bool hasKeyConversion;
 
     private void Awake()
     {
-        scroller.OnSelectSong += SelectChangedSoundInfo;
-        pitchOption.OnPitchUpdate += UpdateInfo;
-        fixedBPMOption.OnChangeOption += UpdateBPMInfo;
-        noSliderOption.OnChangeOption += UpdateNoteInfo;
+        scroller.OnSelectSong              += SelectChangedSoundInfo;
+        pitchOption.OnPitchUpdate          += UpdateInfo;
+        fixedBPMOption.OnChangeOption      += UpdateBPMInfo;
+        noSliderOption.OnChangeOption      += UpdateNoteInfo;
+        keyConversionOption.OnChangeOption += UpdateButton;
     }
 
     private void SelectChangedSoundInfo( Song _song )
@@ -53,7 +56,7 @@ public class SongPreview : MonoBehaviour
                                                  bgImage;
 
         keySound.color = song.hasKeySound ? Color.white : new Color( 1f, 1f, 1f, .25f );
-        keyCount.text  = $"{song.keyCount}K";
+
 
         speed.text  = $"{GameSetting.ScrollSpeed:F1}";
         random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
@@ -76,15 +79,26 @@ public class SongPreview : MonoBehaviour
         length.color = bpm.color = pitch < 1f ? new Color( .5f, .5f, 1f ) :
                                    pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
+        UpdateButton();
         UpdateNoteInfo();
         UpdateBPMInfo();
+    }
+
+    private void UpdateButton()
+    {
+        hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
+        keyCount.color = hasKeyConversion ? new Color( .5f, 1f, .5f, 1f ) : Color.white;
+        keyCount.text  = hasKeyConversion ? $"{6}K"                       : $"{song.keyCount}K";
     }
 
     private void UpdateNoteInfo()
     {
         bool hasNoSlider = song.sliderCount != 0 && GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        noteCount.text   = hasNoSlider ? $"{song.noteCount + song.sliderCount}" : $"{song.noteCount}";
-        sliderCount.text = hasNoSlider ? $"{0}"                                 : $"{song.sliderCount}";
+        var slider       = hasKeyConversion ? song.sliderCount - song.delSliderCount : song.sliderCount;
+        var note         = hasKeyConversion ? song.noteCount   - song.delNoteCount   : song.noteCount;
+
+        noteCount.text   = hasNoSlider ? $"{note + slider}" : $"{note}";
+        sliderCount.text = hasNoSlider ? $"{0}"             : $"{slider}";
 
         noteCount.color   = hasNoSlider ? new Color( 1f, .5f, .5f ) : Color.white;
         sliderCount.color = hasNoSlider ? new Color( .5f, .5f, 1f ) : Color.white;
