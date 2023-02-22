@@ -80,7 +80,6 @@ public class SongPreview : MonoBehaviour
                                    pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         UpdateButton();
-        UpdateNoteInfo();
         UpdateBPMInfo();
     }
 
@@ -89,6 +88,8 @@ public class SongPreview : MonoBehaviour
         hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
         keyCount.color = hasKeyConversion ? new Color( .5f, 1f, .5f, 1f ) : Color.white;
         keyCount.text  = hasKeyConversion ? $"{6}K"                       : $"{song.keyCount}K";
+
+        UpdateNoteInfo();
     }
 
     private void UpdateNoteInfo()
@@ -100,8 +101,8 @@ public class SongPreview : MonoBehaviour
         noteCount.text   = hasNoSlider ? $"{note + slider}" : $"{note}";
         sliderCount.text = hasNoSlider ? $"{0}"             : $"{slider}";
 
-        noteCount.color   = hasNoSlider ? new Color( 1f, .5f, .5f ) : Color.white;
-        sliderCount.color = hasNoSlider ? new Color( .5f, .5f, 1f ) : Color.white;
+        noteCount.color   = hasKeyConversion || hasNoSlider ? new Color( .5f, 1f, .5f ) : Color.white;
+        sliderCount.color = hasKeyConversion || hasNoSlider ? new Color( .5f, 1f, .5f ) : Color.white;
     }
 
     private void UpdateBPMInfo()

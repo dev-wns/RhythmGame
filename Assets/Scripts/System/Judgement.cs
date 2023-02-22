@@ -74,10 +74,10 @@ public class Judgement : MonoBehaviour
     {
         OnJudge?.Invoke( _result, _type );
 
-        for ( int i = 0; i < _count; i++ )
-        {
-            if ( _result == HitResult.Miss )
-                 NowPlaying.Inst.AddHitData( _type, Judge.miss );
-        }
+        //for ( int i = 0; i < _count; i++ )
+        //{
+        //    if ( _result == HitResult.Miss )
+        //         NowPlaying.Inst.AddHitData( _type, Judge.miss );
+        //}
     }
 }

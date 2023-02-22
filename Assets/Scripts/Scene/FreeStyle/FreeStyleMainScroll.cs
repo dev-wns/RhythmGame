@@ -260,7 +260,7 @@ public class FreeStyleMainScroll : ScrollBase
         SoundManager.Inst.Position = ( uint )playback;
     }
 
-    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( curSong.totalTime * .314f ) : ( uint )_time;
+    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( endTime * .314f ) : ( uint )_time;
     #endregion
 
     #region Input
