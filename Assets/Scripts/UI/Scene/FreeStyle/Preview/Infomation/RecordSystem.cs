@@ -47,6 +47,7 @@ public class RecordSystem : MonoBehaviour
         IsHideRecord = !IsHideRecord;
         if ( IsHideRecord )
         {
+            SoundManager.Inst.Play( SoundSfxType.MenuHover );
             icon.color = new Color( 1f, 1f, 1f, .25f );
             for ( int i = 0; i < NowPlaying.MaxRecordSize; i++ )
             {
@@ -55,6 +56,7 @@ public class RecordSystem : MonoBehaviour
         }
         else
         {
+            SoundManager.Inst.Play( SoundSfxType.MenuClick );
             icon.color = Color.white;
             UpdateRecord( NowPlaying.CurrentSong );
         }

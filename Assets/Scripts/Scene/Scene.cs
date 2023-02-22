@@ -27,7 +27,7 @@ public abstract class Scene : SceneKeyAction
             OnceTweenInit = true;
         }
 
-        //QualitySettings.maxQueuedFrames = 8;
+        QualitySettings.maxQueuedFrames = 8;
         //Cursor.visible = false;
 
         CreateFadeSprite();
