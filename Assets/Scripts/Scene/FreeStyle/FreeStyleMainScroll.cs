@@ -39,6 +39,7 @@ public class FreeStyleMainScroll : ScrollBase
     private bool isKeyUp, isKeyPress;
     private float keyUpTime, keyPressTime;
     private float playback;
+    private float endTime;
 
     [Header("Contents")]
     public GameObject noContents;
@@ -82,7 +83,7 @@ public class FreeStyleMainScroll : ScrollBase
         if ( !HasAnySongs ) return;
 
         playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
-        if ( ( curSong.totalTime + waitPreviewTime < playback ) )
+        if ( endTime > 0f && ( endTime + waitPreviewTime < playback ) )
         {
             SoundManager.Inst.Play();
             SoundManager.Inst.Position = ( uint )curSong.previewTime;
@@ -241,7 +242,7 @@ public class FreeStyleMainScroll : ScrollBase
         SoundManager.Inst.FadeVolume( prevMusic, 1f, 0f, .5f, () => SoundManager.Inst.Stop( prevMusic ) );
 
         SoundManager.Inst.Load( curSong.audioPath, false, true );
-        curSong.totalTime = ( int )SoundManager.Inst.Length;
+        endTime             = ( int )SoundManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         playback = curSong.previewTime;
 
