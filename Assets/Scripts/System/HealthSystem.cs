@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public struct HealthData
@@ -19,10 +17,8 @@ public class HealthSystem : MonoBehaviour
 {
     private InGame scene;
     private Judgement judge;
-    public Transform helpTransform;
 
     [Header("Health")]
-    public Transform healthBGTransform;
     public SpriteRenderer healthRenderer;
     public static readonly float MaxHealth = 1f;
     public float smoothHealthControlSpeed = 1;
@@ -46,10 +42,6 @@ public class HealthSystem : MonoBehaviour
 
         healthTileCached = healthRenderer.size;
         healthTileOffset = healthRenderer.size.y;
-
-        helpTransform.position            = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 5f,  ( -Screen.height * .5f ) + 50f, 0f );
-        healthBGTransform.position        = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 17f, ( -Screen.height * .5f ) + ( helpTransform.localScale.y * .5f ), 0f );
-        healthRenderer.transform.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 33f, ( -Screen.height * .5f ) + helpTransform.localScale.y, 0f );
 
         Clear();
     }

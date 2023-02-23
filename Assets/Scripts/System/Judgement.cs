@@ -1,7 +1,4 @@
-using JetBrains.Annotations;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum HitResult { None, Maximum, Perfect, Great, Good, Bad, Miss, Fast, Slow, Accuracy, Combo, Score, Count }
@@ -73,6 +70,7 @@ public class Judgement : MonoBehaviour
     public void ResultUpdate( HitResult _result, NoteType _type, int _count = 1 )
     {
         OnJudge?.Invoke( _result, _type );
+        NowPlaying.Inst.IncreaseResult( _result );
 
         //for ( int i = 0; i < _count; i++ )
         //{

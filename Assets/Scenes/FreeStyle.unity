@@ -36752,8 +36752,8 @@ MonoBehaviour:
   slider: {fileID: 1449743778}
   valueText: {fileID: 164444450}
   increaseValue: 10
-  minValue: -500
-  maxValue: 500
+  minValue: -520
+  maxValue: 200
   curValue: 0
   prePos: 
   postPos: 

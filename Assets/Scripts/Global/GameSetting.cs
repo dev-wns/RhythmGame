@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System;
+using UnityEngine;
 
 public enum BooleanOption { Off, On, Count }
 
@@ -96,8 +94,8 @@ public class GameSetting
     public static float NoteSizeMultiplier = 1f;
     public static float NoteWidth  => 111f * NoteSizeMultiplier;
     public static float NoteBodyWidth => 107f * NoteSizeMultiplier;
-    public static float NoteHeight => 63f * NoteSizeMultiplier;
-    public static float NoteBlank  = 2.5f;
+    public static float NoteHeight => 64f * NoteSizeMultiplier;
+    public static float NoteBlank  = 3f;
     public static float NoteStartPos => GearOffsetX + -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 
     // Gear
