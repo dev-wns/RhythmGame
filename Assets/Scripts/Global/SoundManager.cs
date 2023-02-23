@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
-public enum SoundSfxType 
-{ 
+public enum SoundSfxType
+{
     MainSelect, MainClick, MainHover, Slider,
     MenuSelect, MenuClick, MenuHover,
     Clap,
@@ -52,12 +52,15 @@ public class SoundManager : Singleton<SoundManager>
         public override bool Equals( object _obj ) => Equals( ( SoundDriver )_obj );
         public override int GetHashCode() => base.GetHashCode();
     }
-    public ReadOnlyCollection<SoundDriver> Drivers { get; private set; } 
+    public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
+    #region Properties
     /// <summary>
     /// The accuratetime flag is required.
     /// </summary>
-    public uint Length {
-        get {
+    public uint Length
+    {
+        get
+        {
             //if ( !hasAccurateFlag || !IsPlaying( ChannelType.BGM ) ) {
             //    Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
             //    return uint.MaxValue;
@@ -67,8 +70,7 @@ public class SoundManager : Singleton<SoundManager>
             return length;
         }
     }
-    #region Properties
-    public int CurrentDriverIndex 
+    public int CurrentDriverIndex
     {
         get => curDriverIndex;
         set
@@ -111,7 +113,7 @@ public class SoundManager : Singleton<SoundManager>
                 Debug.LogError( "bgm is not playing" );
                 return;
             }
-            
+
             ErrorCheck( MainChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
         }
     }
@@ -147,12 +149,12 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( system.init( MaxVirtualChannel, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
         ErrorCheck( system.getVersion( out uint version ) );
         if ( version < FMOD.VERSION.number )
-             Debug.LogError( "using the old version." );
+            Debug.LogError( "using the old version." );
 
         // Sound Driver
         List<SoundDriver> drivers = new List<SoundDriver>();
         MakeDriverInfomation( FMOD.OUTPUTTYPE.WASAPI, drivers );
-        MakeDriverInfomation( FMOD.OUTPUTTYPE.ASIO,   drivers );
+        MakeDriverInfomation( FMOD.OUTPUTTYPE.ASIO, drivers );
         Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
         if ( curDriverIndex < 0 )
         {
@@ -181,9 +183,9 @@ public class SoundManager : Singleton<SoundManager>
             groups.Add( type, group );
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         PrintSystemSetting();
-        #endif
+#endif
 
         #region Details
         // DSP
@@ -192,7 +194,7 @@ public class SoundManager : Singleton<SoundManager>
         // Sfx Sound
         Load( SoundSfxType.MainClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav" );
         Load( SoundSfxType.MenuClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav" );
-        
+
         Load( SoundSfxType.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
         Load( SoundSfxType.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
 
@@ -200,7 +202,7 @@ public class SoundManager : Singleton<SoundManager>
         Load( SoundSfxType.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
 
         Load( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
-        Load( SoundSfxType.Clap,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
+        Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
         // Details
         SetVolume( .5f, ChannelType.Master );
@@ -233,7 +235,7 @@ public class SoundManager : Singleton<SoundManager>
             SoundDriver driver;
             if ( ErrorCheck( system.getDriverInfo( i, out driver.name, 256, out driver.guid, out driver.systemRate, out driver.mode, out driver.speakModeChannels ) ) )
             {
-                driver.index      = i;
+                driver.index = i;
                 driver.outputType = _type;
                 _list.Add( driver );
             }
@@ -355,8 +357,8 @@ public class SoundManager : Singleton<SoundManager>
 
     private void Update()
     {
-        if ( !IsLoad ) 
-             system.update();
+        if ( !IsLoad )
+            system.update();
     }
 
     private void OnDestroy()
@@ -373,8 +375,8 @@ public class SoundManager : Singleton<SoundManager>
     public void Load( string _path, bool _isLoop, bool _isStream )
     {
         FMOD.MODE mode = _isStream ? FMOD.MODE.CREATESTREAM : FMOD.MODE.CREATESAMPLE;
-        mode           = _isLoop   ? mode |= FMOD.MODE.LOOP_NORMAL  : mode |= FMOD.MODE.LOOP_OFF;
-        mode           |=  FMOD.MODE.ACCURATETIME;
+        mode = _isLoop ? mode |= FMOD.MODE.LOOP_NORMAL : mode |= FMOD.MODE.LOOP_OFF;
+        mode |= FMOD.MODE.ACCURATETIME;
 
         ErrorCheck( system.createSound( _path, mode, out FMOD.Sound sound ) );
         MainSound = sound;
@@ -442,8 +444,10 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        if ( _type == SoundSfxType.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
-        else                              ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
+        if ( _type == SoundSfxType.Clap )
+            ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
+        else
+            ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX], false, out FMOD.Channel channel ) );
     }
 
     /// <summary> Play Key Sound Effects </summary>
@@ -454,7 +458,7 @@ public class SoundManager : Singleton<SoundManager>
             //Debug.LogWarning( $"keySound[{_keySound.name}] is not loaded." );
             return;
         }
-        
+
         ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
         ErrorCheck( channel.setVolume( _sound.volume ) );
     }
@@ -489,7 +493,8 @@ public class SoundManager : Singleton<SoundManager>
         // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
         // isPlaying이 INVALID_HANDLE을 반환할때 false와 동일하게 취급한다.
         _music.channel.isPlaying( out bool isPlaying );
-        if ( !isPlaying ) yield break;
+        if ( !isPlaying )
+            yield break;
 
         // 같은 값일 때 계산 없이 종료.
         if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
@@ -544,7 +549,7 @@ public class SoundManager : Singleton<SoundManager>
     public bool IsPlaying( ChannelType _type )
     {
         ErrorCheck( groups[_type].isPlaying( out bool isPlay ) );
-        
+
         return isPlay;
     }
 
@@ -574,9 +579,12 @@ public class SoundManager : Singleton<SoundManager>
     public void SetVolume( float _value, ChannelType _type )
     {
         float chlVolume = _value;
-        if ( _value < 0f ) chlVolume = 0f;
-        if ( _value > 1f ) chlVolume = 1f;
-        if ( _type == ChannelType.BGM ) Volume = chlVolume;
+        if ( _value < 0f )
+            chlVolume = 0f;
+        if ( _value > 1f )
+            chlVolume = 1f;
+        if ( _type == ChannelType.BGM )
+            Volume = chlVolume;
 
         ErrorCheck( groups[_type].setVolume( chlVolume ) );
     }
@@ -584,7 +592,8 @@ public class SoundManager : Singleton<SoundManager>
     public void Stop( Music _music )
     {
         _music.channel.isPlaying( out bool isPlaying );
-        if ( isPlaying ) ErrorCheck( _music.channel.stop() );
+        if ( isPlaying )
+            ErrorCheck( _music.channel.stop() );
         ErrorCheck( _music.sound.release() );
         _music.sound.clearHandle();
     }
@@ -615,7 +624,7 @@ public class SoundManager : Singleton<SoundManager>
         for ( int i = 0; i < num; i++ )
         {
             ErrorCheck( dsp.getParameterInfo( i, out descs[i] ) );
-            Debug.Log( $"Desc[{i}] : { System.Text.Encoding.Default.GetString( descs[i].name ) } { descs[i].type } { System.Text.Encoding.Default.GetString( descs[i].label ) } { descs[i].description }" );
+            Debug.Log( $"Desc[{i}] : {System.Text.Encoding.Default.GetString( descs[i].name )} {descs[i].type} {System.Text.Encoding.Default.GetString( descs[i].label )} {descs[i].description}" );
         }
 
         dsp.release();
@@ -633,19 +642,19 @@ public class SoundManager : Singleton<SoundManager>
         _dsp = dsps[_type];
         return true;
     }
-    
+
     public void AddDSP( FMOD.DSP_TYPE _dspType, ChannelType _channelType )
     {
         if ( !dsps.ContainsKey( _dspType ) )
-             return;
-            
+            return;
+
         ErrorCheck( groups[_channelType].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, dsps[_dspType] ) );
     }
 
     public void RemoveDSP( FMOD.DSP_TYPE _dspType, ChannelType _channelType )
     {
         if ( !dsps.ContainsKey( _dspType ) )
-             return;
+            return;
 
         ErrorCheck( groups[_channelType].removeDSP( dsps[_dspType] ) );
     }
@@ -670,19 +679,31 @@ public class SoundManager : Singleton<SoundManager>
     {
         //CreateMultiBandDSP();
         CreateFFTWindow();
+        CreateNormalizeDSP();
         CreatePitchShiftDSP();
     }
 
     private void CreateFFTWindow()
     {
         if ( dsps.ContainsKey( FMOD.DSP_TYPE.FFT ) )
-             return;
+            return;
 
-        FMOD.DSP dsp;
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp ) );
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out FMOD.DSP dsp ) );
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
         dsps.Add( FMOD.DSP_TYPE.FFT, dsp );
+    }
+
+    private void CreateNormalizeDSP()
+    {
+        if ( dsps.ContainsKey( FMOD.DSP_TYPE.NORMALIZE ) )
+            return;
+
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.NORMALIZE, out FMOD.DSP dsp ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.FADETIME, 1000f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.THRESHOLD, 0f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.MAXAMP, 100f ) );
+        dsps.Add( FMOD.DSP_TYPE.NORMALIZE, dsp );
     }
 
     private void CreatePitchShiftDSP()
@@ -690,8 +711,7 @@ public class SoundManager : Singleton<SoundManager>
         if ( dsps.ContainsKey( FMOD.DSP_TYPE.PITCHSHIFT ) )
             return;
 
-        FMOD.DSP dsp;
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.PITCHSHIFT, out dsp ) );
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.PITCHSHIFT, out FMOD.DSP dsp ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.MAXCHANNELS, 2 ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.FFTSIZE, 1024 ) );
         dsps.Add( FMOD.DSP_TYPE.PITCHSHIFT, dsp );
@@ -710,10 +730,9 @@ public class SoundManager : Singleton<SoundManager>
     private void CreateMultiBandDSP()
     {
         if ( dsps.ContainsKey( FMOD.DSP_TYPE.MULTIBAND_EQ ) )
-             return;
+            return;
 
-        FMOD.DSP dsp;
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out dsp ) );
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.MULTIBAND_EQ, out FMOD.DSP dsp ) );
         dsps.Add( FMOD.DSP_TYPE.MULTIBAND_EQ, dsp );
 
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.A_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.LOWSHELF ) );
@@ -733,7 +752,7 @@ public class SoundManager : Singleton<SoundManager>
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_Q, .11f ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_Q, .11f ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_Q, .11f ) );
-                    
+
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.A_GAIN, 10f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_GAIN, 4f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_GAIN, 4f ) );
@@ -741,7 +760,7 @@ public class SoundManager : Singleton<SoundManager>
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_GAIN, 4f ) );
     }
     #endregion
-    
+
     #region DSP Update
     public void UpdatePitchShift()
     {

@@ -1,8 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class FreeStyleSearch : MonoBehaviour
 {
@@ -25,7 +24,8 @@ public class FreeStyleSearch : MonoBehaviour
     private void Update()
     {
         if ( ( Input.GetMouseButtonDown( 0 )      && field.interactable ) ||
-             ( Input.GetKeyDown( KeyCode.Escape ) && field.interactable ) )
+             ( Input.GetKeyDown( KeyCode.Escape ) && field.interactable ) ||
+             ( Input.GetKeyDown( KeyCode.Return ) && field.interactable ) )
         {
             field.ActivateInputField();
             field.MoveTextEnd( false );
