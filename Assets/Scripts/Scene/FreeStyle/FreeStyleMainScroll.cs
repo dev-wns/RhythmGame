@@ -27,7 +27,7 @@ public class FreeStyleMainScroll : ScrollBase
     public Scene CurrentScene { get; private set; }
     [Header( "Scene" )]
     private LinkedList<SongInfomation> songs = new LinkedList<SongInfomation>();
-    private LinkedListNode<SongInfomation> curNode;
+    private LinkedListNode<SongInfomation> medianNode;
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
@@ -130,43 +130,40 @@ public class FreeStyleMainScroll : ScrollBase
         }
 
         // 이전 UI 이펙트 초기화
-        curNode?.Value.Select( false );
-        
-        int medianCount = 0;
-        var songIndex = NowPlaying.Inst.CurrentSongIndex;
-        int count = songIndex - ( median + 1 ) < 0 ?
-                    Global.Math.Abs( songIndex - ( median + 1 ) + Length ) % Length :
-                    songIndex - ( median + 1 );
-        curNode = songs.First;
+        int medianCounts = 0;
+        medianNode?.Value.Select( false );
+        medianNode = songs.First;
+        //int index = Length - ( median % Length );
+        Select( NowPlaying.Inst.CurrentSongIndex );
+        int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
+                                                ( CurrentIndex - median ) % Length;
+
         foreach ( var song in songs )
         {
-            if ( medianCount < median )
+            if ( medianCounts < median )
             {
-                curNode = curNode.Next;
-                medianCount++;
+                medianNode = medianNode.Next;
+                medianCounts++;
             }
 
-            if ( count < 0 || count >= Length )
-                count = 0;
-
             song.gameObject.SetActive( HasAnySongs );
-            song.SetInfo( NowPlaying.Inst.Songs[count++] );
+            song.SetInfo( NowPlaying.Inst.Songs[index] );
             song.PositionReset();
-        }
-        Select( NowPlaying.Inst.CurrentSongIndex );
 
+            index = index + 1 < Length ? index + 1 : 0;
+        }
 
         // 레이아웃 갱신
         group.Initialize();
         group.SetLayoutVertical();
 
-        size = curNode.Value.rt.sizeDelta.y + group.spacing;
+        size = medianNode.Value.rt.sizeDelta.y + group.spacing;
 
         // Count Text
         maxText.text = $"{Length}";
         curText.text = $"{CurrentIndex + 1}";
 
-        curNode.Value.Select( true );
+        medianNode.Value.Select( true );
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
 
@@ -182,9 +179,8 @@ public class FreeStyleMainScroll : ScrollBase
         last.rt.anchoredPosition = new Vector2( first.rt.anchoredPosition.x, first.rt.anchoredPosition.y + size );
 
         // Song 정보 수정
-        int infoIndex = CurrentIndex - ( median + 1 ) < 0 ?
-                        Global.Math.Abs( CurrentIndex - ( median + 1 ) + Length ) % Length :
-                        CurrentIndex - median;
+        int infoIndex = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
+                                                    ( CurrentIndex - median ) % Length;
         last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
         // 노드 이동
@@ -193,9 +189,9 @@ public class FreeStyleMainScroll : ScrollBase
         last.rt.SetAsFirstSibling();
 
         // 위치 갱신
-        curNode.Value.Select( false );
-        curNode = curNode.Previous;
-        curNode.Value.Select( true );
+        medianNode.Value.Select( false );
+        medianNode = medianNode.Previous;
+        medianNode.Value.Select( true );
 
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
@@ -212,9 +208,7 @@ public class FreeStyleMainScroll : ScrollBase
         first.rt.anchoredPosition = new Vector2( last.rt.anchoredPosition.x, last.rt.anchoredPosition.y - size );
 
         // Song 정보 수정
-        int infoIndex = CurrentIndex + ( median + 1 ) >= Length ?
-                        Global.Math.Abs( CurrentIndex + ( median + 1 ) - Length ) % Length :
-                        CurrentIndex + median;
+        int infoIndex = ( CurrentIndex + median ) % Length;
         first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
         // 노드 이동
@@ -223,9 +217,9 @@ public class FreeStyleMainScroll : ScrollBase
         first.rt.SetAsLastSibling();
 
         // 위치 갱신
-        curNode.Value.Select( false );
-        curNode = curNode.Next;
-        curNode.Value.Select( true );
+        medianNode.Value.Select( false );
+        medianNode = medianNode.Next;
+        medianNode.Value.Select( true );
 
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );
