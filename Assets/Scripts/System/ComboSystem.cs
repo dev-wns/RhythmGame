@@ -1,7 +1,7 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
 public class ComboSystem : MonoBehaviour
 {
@@ -48,7 +48,7 @@ public class ComboSystem : MonoBehaviour
     private void Start()
     {
         sequence = DOTween.Sequence().Pause().SetAutoKill( false );
-        sequence.Append( transform.DOMoveY( startPos.y + 10f, .1f ) );
+        sequence.Append( transform.DOMoveY( startPos.y + 10f, .115f ) );
         StartCoroutine( BreakCombo() );
     }
 
@@ -101,7 +101,7 @@ public class ComboSystem : MonoBehaviour
 
             breakElapsedCombo -= breakCombo * 2f * Time.deltaTime; // .5s
             curCombo = ( int )Global.Math.Clamp( breakElapsedCombo, 0f, 1000000f );
-            if ( targetCombo >= curCombo )
+            if ( targetCombo >= ( curCombo - 1 ) )
             {
                 color = Color.white;
                 curCombo = targetCombo;
@@ -129,8 +129,10 @@ public class ComboSystem : MonoBehaviour
             break;
 
             case HitResult.Miss:
-            color = Color.gray;
             breakElapsedCombo = breakCombo = curCombo;
+            if ( curCombo != 0 )
+                 color = Color.gray;
+
             targetCombo = 0;
             break;
         }

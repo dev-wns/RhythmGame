@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class FreeStyleSearch : MonoBehaviour
 {
+    public GameObject canvas;
     public TMP_InputField field;
     public GameObject noSearchResultText;
 
@@ -18,13 +19,14 @@ public class FreeStyleSearch : MonoBehaviour
     {
         field.SetTextWithoutNotify( SearchText );
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-        KeyBind();
     }
 
     private void Update()
     {
+        if ( scene.CurrentAction != ActionType.Search )
+             return;
+
         if ( ( Input.GetMouseButtonDown( 0 )      && field.interactable ) ||
-             ( Input.GetKeyDown( KeyCode.Escape ) && field.interactable ) ||
              ( Input.GetKeyDown( KeyCode.Return ) && field.interactable ) )
         {
             field.ActivateInputField();
@@ -32,14 +34,14 @@ public class FreeStyleSearch : MonoBehaviour
         }
     }
 
-    private void EnableInputField()
+    public void EnableInputField()
     {
         field.interactable = true;
         field.ActivateInputField();
         field.MoveTextEnd( false );
     }
 
-    private void DisableInputField()
+    public void DisableInputField()
     {
         field.interactable = false;
         field.DeactivateInputField();
@@ -78,12 +80,5 @@ public class FreeStyleSearch : MonoBehaviour
             OnSearch?.Invoke();
             scene.IsInputLock = false;
         }
-    }
-
-    void KeyBind()
-    {
-        scene.Bind( ActionType.Main,   KeyCode.F2,     EnableInputField );
-        scene.Bind( ActionType.Search, KeyCode.F2,     DisableInputField );
-        scene.Bind( ActionType.Search, KeyCode.Escape, DisableInputField );
     }
 }

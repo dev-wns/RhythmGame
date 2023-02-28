@@ -1924,7 +1924,7 @@ MonoBehaviour:
   exit: {fileID: 1740707519}
   keySetting: {fileID: 764672822}
   reload: {fileID: 1746340428}
-  search: {fileID: 1978991851}
+  search: {fileID: 1133842865}
   record: {fileID: 1830328331}
   speedText: {fileID: 308743033}
 --- !u!4 &103959473
@@ -21076,6 +21076,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60f0b271e866ae44ab5b9919ea27abd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvas: {fileID: 1978991851}
   field: {fileID: 2095202505}
   noSearchResultText: {fileID: 902916150}
 --- !u!1 &1134140513

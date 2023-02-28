@@ -83,7 +83,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public  static double Playback        { get; private set; }
     public  static double ScaledPlayback  { get; private set; }
     private static double ScaledPlaybackCache;
-    private static double Sync;
     #endregion
     public List<HitData> HitDatas { get; private set; } = new List<HitData>();
     public  ResultData CurrentResult => currentResult;
@@ -119,7 +118,7 @@ public class NowPlaying : Singleton<NowPlaying>
         GameTime += Time.deltaTime;
         if ( !IsStart ) return;
 
-        Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime ) + Sync;
+        Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime );
         UpdatePlayback();
     }
 
@@ -163,7 +162,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Load()
     {
-        Timer perfomenceTimer = new Timer( true );
         ConvertSong();
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
         using ( FileParser parser = new FileParser() )
@@ -181,8 +179,6 @@ public class NowPlaying : Singleton<NowPlaying>
             newSongList.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
             OriginSongs  = new ReadOnlyCollection<Song>( newSongList );
             Songs = OriginSongs.ToList();
-
-            Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  Total : {OriginSongs.Count}" );
         }
         IsParseSong = true;
 
@@ -192,12 +188,10 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void ParseChart()
     {
-        Timer perfomenceTimer = new Timer( true );
         Stop();
         using ( FileParser parser = new FileParser() )
         {
-            Chart chart;
-            if ( !parser.TryParse( CurrentSong.filePath, out chart ) )
+            if ( !parser.TryParse( CurrentSong.filePath, out Chart chart ) )
             {
                 CurrentScene.LoadScene( SceneType.FreeStyle );
                 Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
@@ -206,7 +200,6 @@ public class NowPlaying : Singleton<NowPlaying>
             {
                 CurrentChart = chart;
                 medianBPM    = CurrentSong.medianBpm * GameSetting.CurrentPitch;
-                Debug.Log( $"Parsing completed ( {perfomenceTimer.End} ms )  CurrentChart : {CurrentSong.title}" );
             }
         }
     }
@@ -223,7 +216,8 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
                  OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                 OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+                 OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                 OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
             {
                 Songs.Add( OriginSongs[i] );
             }
@@ -247,7 +241,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         using ( StreamReader stream = new StreamReader( path ) )
         {
-            RecordDatas.AddRange( JsonConvert.DeserializeObject<RecordData[]>( stream.ReadToEnd() ) );
+            RecordDatas = JsonConvert.DeserializeObject<RecordData[]>( stream.ReadToEnd() ).ToList();
         }
     }
 
@@ -264,22 +258,32 @@ public class NowPlaying : Singleton<NowPlaying>
         RecordDatas.Add( newRecord );
         RecordDatas.Sort( delegate ( RecordData A, RecordData B )
         {
-            if ( A.score < B.score )
-                return 1;
-            else if ( A.score > B.score )
-                return -1;
-            else
-                return 0;
+            if ( A.score < B.score )      return 1;
+            else if ( A.score > B.score ) return -1;
+            else                          return 0;
         } );
-        if ( MaxRecordSize < RecordDatas.Count )
-             RecordDatas.Remove( RecordDatas.Last() );
 
-        using ( FileStream stream = new FileStream( Path.Combine( Directory, GameSetting.RecordFileName ), FileMode.OpenOrCreate ) )
+        var readDatas = MaxRecordSize < RecordDatas.Count ? RecordDatas.GetRange( 0, MaxRecordSize ).ToArray() : RecordDatas.ToArray();
+        string path   = Path.Combine( Directory, GameSetting.RecordFileName );
+        try
         {
-            using ( StreamWriter writer = new StreamWriter( stream ) )
+            FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
+            using ( FileStream stream = new FileStream( path, mode ) )
             {
-                writer.Write( JsonConvert.SerializeObject( RecordDatas.ToArray(), Formatting.Indented ) );
+                using ( StreamWriter writer = new StreamWriter( stream, System.Text.Encoding.UTF8 ) )
+                {
+                    writer.Write( JsonConvert.SerializeObject( readDatas, Formatting.Indented ) );
+                }
             }
+            RecordDatas = readDatas.ToList();
+        }
+        catch ( Exception )
+        {
+            if ( File.Exists( path ) )
+                 File.Delete( path );
+
+            RecordDatas.Clear();
+            Debug.LogError( $"Record Write Error : {path}" );
         }
 
         return newRecord;
@@ -323,11 +327,6 @@ public class NowPlaying : Singleton<NowPlaying>
     }
     #endregion
     #region Sound Process
-    public void SoundSynchronized( double _time )
-    {
-        Sync = _time - Playback;
-        Debug.Log( $"Synchronized : {( int )( Sync * 1000d )} ms" );
-    }
 
     public void Play()
     {
@@ -404,7 +403,6 @@ public class NowPlaying : Singleton<NowPlaying>
         IsStart   = true;
 
         yield return new WaitUntil( () => Playback > saveTime - PauseWaitTime );
-        SoundSynchronized( saveTime - PauseWaitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         yield return YieldCache.WaitForSeconds( 3f );

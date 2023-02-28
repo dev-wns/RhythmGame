@@ -1,11 +1,11 @@
-using System.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using UnityEngine;
-using System;
 using System.IO;
+using System.Linq;
 using System.Text;
+using UnityEngine;
 
 public struct Song
 {
@@ -25,6 +25,7 @@ public struct Song
     public string artist;
     public string creator;
     public string version;
+    public string source;
 
     public int totalTime;
     public int previewTime;
@@ -221,7 +222,7 @@ public class FileConverter : FileReader
     public void Load( string _path )
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-             Convert( _path );
+            Convert( _path );
     }
 
     private void Convert( string _path ) 
@@ -247,9 +248,9 @@ public class FileConverter : FileReader
             {
                 if ( Contains( "Title:" )  && !Contains( "TitleUnicode:" ) )  song.title   = Replace( "Title:",   string.Empty );
                 if ( Contains( "Artist:" ) && !Contains( "ArtistUnicode:" ) ) song.artist  = Replace( "Artist:",  string.Empty );
+                if ( Contains( "Source:"  ) )                                 song.source  = Replace( "Source:",  string.Empty );
                 if ( Contains( "Creator:" ) )                                 song.creator = Replace( "Creator:", string.Empty );
                 if ( Contains( "Version:" ) )                                 song.version = Replace( "Version:", string.Empty );
-                
             }
 
             // [Metadata] ~ [Difficulty]
@@ -382,14 +383,14 @@ public class FileConverter : FileReader
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
 
-                        if ( finalLane == 3 )
+                        if ( finalLane == 6 )
                              song.delSliderCount++;
                     }
                     else {
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
 
-                        if ( finalLane == 3 )
+                        if ( finalLane == 6 )
                              song.delNoteCount++;
                     }
 
@@ -477,6 +478,7 @@ public class FileConverter : FileReader
 
                     writer.WriteLine( $"Title: {_song.title}" );
                     writer.WriteLine( $"Artist: {_song.artist}" );
+                    writer.WriteLine( $"Source: {_song.source}" );
                     writer.WriteLine( $"Creator: {_song.creator}" );
                     writer.WriteLine( $"Version: {_song.version}" );
 
@@ -494,9 +496,9 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"Median: {_song.medianBpm}" );
 
                     writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound ? 1 : 0 )}:" +
-                                                 $"{( _song.hasKeySound ? 1 : 0 )}:" +
-                                                 $"{( _song.hasVideo ? 1 : 0 )}:" +
-                                                 $"{( _song.hasSprite ? 1 : 0 )}" );
+                                                 $"{( _song.hasKeySound    ? 1 : 0 )}:" +
+                                                 $"{( _song.hasVideo       ? 1 : 0 )}:" +
+                                                 $"{( _song.hasSprite      ? 1 : 0 )}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );
@@ -594,11 +596,11 @@ public class FileConverter : FileReader
              throw new Exception( "Error calculating median bpm." );
 
         // 오름차순 정렬 ( 가장 오래 지속되는 BPM이 첫번째요소가 되도록 )
-        accumulateTimings.Sort( delegate ( AccumulateTiming A, AccumulateTiming B )
+        accumulateTimings.Sort( delegate ( AccumulateTiming _a, AccumulateTiming _b )
         {
-            if ( A.time < B.time )      return 1;
-            else if ( A.time > B.time ) return -1;
-            else                        return 0;
+            if ( _a.time < _b.time )      return 1;
+            else if ( _a.time > _b.time ) return -1;
+            else                          return 0;
         } );
 
         //Debug.Log( $"============= {Path.GetFileName( path )} =============" );

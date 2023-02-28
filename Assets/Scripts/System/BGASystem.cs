@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using UnityEngine.Video;
 
 public enum BackgroundType : byte { None, Video, Sprite, Image, }
@@ -191,12 +191,10 @@ public class BGASystem : MonoBehaviour
         background.texture = renderTexture;
         background.color = color;
         
-        Timer perfomenceTimer = new Timer( true );
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
 
         NowPlaying.Inst.IsLoadBGA = true;
-        Debug.Log( $"Video load completed ( {perfomenceTimer.End} ms )" );
     }
 
     private void SpriteProcess()
@@ -262,7 +260,6 @@ public class BGASystem : MonoBehaviour
 
     public IEnumerator LoadSamples( ReadOnlyCollection<SpriteSample> _samples )
     {
-        Timer perfomenceTimer = new Timer( true );
         var dir = System.IO.Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         for ( int i = 0; i < _samples.Count; i++ )
         {
@@ -302,7 +299,6 @@ public class BGASystem : MonoBehaviour
         //} );
 
         yield return YieldCache.WaitForEndOfFrame;
-        Debug.Log( $"Sprite load completed ( {perfomenceTimer.End} ms )  Texture : {textures.Count}  Background : {backgrounds.Count}  Foreground : {foregrounds.Count}" );
         NowPlaying.Inst.IsLoadBGA = true;
     }
 
@@ -372,7 +368,6 @@ public class BGASystem : MonoBehaviour
 
     public IEnumerator LoadBackground( string _path )
     {
-        Timer perfomenceTimer = new Timer( true );
         if ( !System.IO.File.Exists( _path ) )
              yield break;
         
@@ -410,7 +405,6 @@ public class BGASystem : MonoBehaviour
         background.texture = tex;
         background.rectTransform.sizeDelta = Global.Math.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
         NowPlaying.Inst.IsLoadBGA = true;
-        Debug.Log( $"Image load completed ( {perfomenceTimer.End} ms )" );
     }
 }
 

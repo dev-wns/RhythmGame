@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using UnityEngine;
 
 
@@ -53,21 +52,12 @@ public class KeySampleSystem : MonoBehaviour
         samples.Add( _sample );
     }
 
-    private IEnumerator FirstSync()
-    {
-        double time = samples[0].time + offset;
-        yield return new WaitUntil( () => time < NowPlaying.Playback );
-
-        NowPlaying.Inst.SoundSynchronized( time );
-    }
-
     private IEnumerator Process()
     {
         if ( samples.Count > 0 )
              curTime = samples[curIndex].time;
 
         WaitUntil waitNextSample = new WaitUntil( () => curTime + offset < NowPlaying.Playback );
-        StartCoroutine( FirstSync() );
 
         while ( curIndex < samples.Count )
         {

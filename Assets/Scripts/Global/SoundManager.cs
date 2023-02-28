@@ -206,8 +206,8 @@ public class SoundManager : Singleton<SoundManager>
 
         // Details
         SetVolume( .5f, ChannelType.Master );
-        SetVolume( .1f, ChannelType.BGM );
-        SetVolume( .3f, ChannelType.SFX );
+        SetVolume( .5f, ChannelType.BGM );
+        SetVolume(  1f, ChannelType.SFX );
         SetVolume( .075f, ChannelType.Clap );
         #endregion
         Debug.Log( "SoundManager initialization completed" );

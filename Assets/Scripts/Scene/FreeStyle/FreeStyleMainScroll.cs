@@ -1,9 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using DG.Tweening;
+using System;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 
 public class FreeStyleMainScroll : ScrollBase
 {
@@ -123,20 +122,21 @@ public class FreeStyleMainScroll : ScrollBase
         if ( !HasAnySongs )
         {
             SoundManager.Inst.AllStop();
-            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\NAV5J Hana.mp3", true, false );
-            SoundManager.Inst.Play();
+            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\WiDE AWAKE - Something More [NCS Release].mp3", true, false );
+            SoundManager.Inst.Play( 0f );
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            SoundManager.Inst.Position = 133000;
+            //SoundManager.Inst.Position = 101500;
             return;
         }
 
         // 이전 UI 이펙트 초기화
         curNode?.Value.Select( false );
-
+        
         int medianCount = 0;
-        int count = NowPlaying.Inst.CurrentSongIndex - median < 0 ?
-                    Global.Math.Abs( NowPlaying.Inst.CurrentSongIndex - median + Length ) % Length :
-                    NowPlaying.Inst.CurrentSongIndex - median;
+        var songIndex = NowPlaying.Inst.CurrentSongIndex;
+        int count = songIndex - ( median + 1 ) < 0 ?
+                    Global.Math.Abs( songIndex - ( median + 1 ) + Length ) % Length :
+                    songIndex - ( median + 1 );
         curNode = songs.First;
         foreach ( var song in songs )
         {
@@ -182,8 +182,8 @@ public class FreeStyleMainScroll : ScrollBase
         last.rt.anchoredPosition = new Vector2( first.rt.anchoredPosition.x, first.rt.anchoredPosition.y + size );
 
         // Song 정보 수정
-        int infoIndex = CurrentIndex - median < 0 ?
-                        Global.Math.Abs( CurrentIndex - median + Length ) % Length :
+        int infoIndex = CurrentIndex - ( median + 1 ) < 0 ?
+                        Global.Math.Abs( CurrentIndex - ( median + 1 ) + Length ) % Length :
                         CurrentIndex - median;
         last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 
@@ -212,8 +212,8 @@ public class FreeStyleMainScroll : ScrollBase
         first.rt.anchoredPosition = new Vector2( last.rt.anchoredPosition.x, last.rt.anchoredPosition.y - size );
 
         // Song 정보 수정
-        int infoIndex = CurrentIndex + median >= Length ?
-                        Global.Math.Abs( CurrentIndex + median - Length ) % Length :
+        int infoIndex = CurrentIndex + ( median + 1 ) >= Length ?
+                        Global.Math.Abs( CurrentIndex + ( median + 1 ) - Length ) % Length :
                         CurrentIndex + median;
         first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
 

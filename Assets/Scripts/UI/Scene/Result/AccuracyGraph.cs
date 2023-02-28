@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class AccuracyGraph : MonoBehaviour
 {
+    private Result scene;
     public TextMeshProUGUI accuracyRangeText;
     private LineRenderer rdr;
     private List<Vector3> positions = new List<Vector3>();
@@ -25,12 +26,15 @@ public class AccuracyGraph : MonoBehaviour
         //    hitDatas.Add( new HitData( HitResult.Default, diff, times ) );
         //}
 
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
+        scene.IsInputLock = true;
+
         if ( !TryGetComponent( out rdr ) )
              return;
 
         var    hitDatas   = NowPlaying.Inst.HitDatas.FindAll( ( HitData _data ) => _data.type == NoteType.Default );
         float  posY       = ( transform as RectTransform ).anchoredPosition.y;
-        float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) / ( float )( TotalJudge + 2 );
+        float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) /   ( TotalJudge + 2 );
 
         List<HitData> datas    = new List<HitData>();
         double sumDivideDiff   = 0d;
@@ -100,5 +104,7 @@ public class AccuracyGraph : MonoBehaviour
 
             rdr.SetPosition( i, positions[i] );
         }
+
+        scene.IsInputLock = false;
     }
 }

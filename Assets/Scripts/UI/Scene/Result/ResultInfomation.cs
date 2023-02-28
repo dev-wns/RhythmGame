@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Networking;
-using TMPro;
-using UnityEngine.U2D;
 using DG.Tweening;
 using System;
+using System.Collections;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.U2D;
+using UnityEngine.UI;
 
 public class ResultInfomation : MonoBehaviour
 {
@@ -161,10 +160,15 @@ public class ResultInfomation : MonoBehaviour
                                                 rankAtlas.GetSprite( "Ranking-D" );
 
         //date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
-        bool shouldMakeRecord = GameSetting.CurrentGameMode == GameMode.None || 
-                                GameSetting.CurrentGameMode == GameMode.HardJudge;
-        if ( shouldMakeRecord ) NowPlaying.Inst.MakeNewRecord();
-        useModeObj.SetActive( !shouldMakeRecord );
+        //bool shouldMakeRecord = GameSetting.CurrentGameMode == GameMode.None || 
+        //                        GameSetting.CurrentGameMode == GameMode.HardJudge;
+
+        bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ||
+                                GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
+                                GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        if ( !shouldMakeRecord )
+             NowPlaying.Inst.MakeNewRecord();
+        useModeObj.SetActive( shouldMakeRecord );
         date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
         // Background

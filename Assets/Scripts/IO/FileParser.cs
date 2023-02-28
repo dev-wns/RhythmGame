@@ -1,27 +1,11 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using UnityEngine;
-using System;
 using System.IO;
+using UnityEngine;
 
 public class FileParser : FileReader
 {
-    // public void ParseFileInDirectories( out ReadOnlyCollection<Song> _songs )
-    // {
-    //     List<Song> songs = new List<Song>();
-    //     string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
-    //     for ( int i = 0; i < files.Length; i++ )
-    //     {
-    //         Song newSong = new Song();
-    //         if ( TryParse( files[i], out newSong ) )
-    //              songs.Add( newSong );
-    //     }
-    //     songs.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
-    // 
-    //     _songs = new ReadOnlyCollection<Song>( songs );
-    // }
-
     public bool TryParse( string _path, out Song _song )
     {
         _song = new Song();
@@ -38,39 +22,27 @@ public class FileParser : FileReader
                 if ( Contains( "ImagePath:" ) )
                 {
                     var imageName = Split( ':' );
-                    if ( imageName == string.Empty )
-                        _song.imagePath = string.Empty;
-                    else
-                        _song.imagePath = Path.Combine( directory, imageName );
+                    _song.imagePath = imageName == string.Empty ? string.Empty :
+                                                                  Path.Combine( directory, imageName );
                 }
                 if ( Contains( "AudioPath:" ) )
                 {
                     var soundName = Split( ':' );
-                    if ( soundName == string.Empty )
-                        _song.audioPath = string.Empty;
-                    else
-                        _song.audioPath = Path.Combine( directory, soundName );
+                    _song.audioPath = soundName == string.Empty ? string.Empty :
+                                                                  Path.Combine( directory, soundName );
                 }
                 if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = Split( ':' );
-
-                    if ( videoName == string.Empty )
-                    {
-                        _song.videoPath = string.Empty;
-                        _song.hasVideo = false;
-                    }
-                    else
-                    {
-                        _song.videoPath = Path.Combine( directory, videoName );
-                        _song.hasVideo = true;
-                    }
+                    _song.hasVideo  = videoName != string.Empty;
+                    _song.videoPath = _song.hasVideo ? Path.Combine( directory, videoName ) : string.Empty;
                 }
                 if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( Split( ':' ) );
 
                 if ( Contains( "Title:" ) )   _song.title   = Replace( "Title:",   string.Empty );
                 if ( Contains( "Artist:" ) )  _song.artist  = Replace( "Artist:",  string.Empty );
+                if ( Contains( "Source:" ) )  _song.source  = Replace( "Source:",  string.Empty );
                 if ( Contains( "Creator:" ) ) _song.creator = Replace( "Creator:", string.Empty );
                 if ( Contains( "Version:" ) ) _song.version = Replace( "Version:", string.Empty );
 
@@ -87,17 +59,17 @@ public class FileParser : FileReader
                 if ( Contains( "NumDelNote:" ) )   _song.delNoteCount   = int.Parse( Split( ':' ) );
                 if ( Contains( "NumDelSlider:" ) ) _song.delSliderCount = int.Parse( Split( ':' ) );
 
-                if ( Contains( "MinBPM:" ) )  _song.minBpm         = int.Parse( Split( ':' ) );
-                if ( Contains( "MaxBPM:" ) )  _song.maxBpm         = int.Parse( Split( ':' ) );
-                if ( Contains( "Median:" ) )  _song.medianBpm      = double.Parse( Split( ':' ) );
+                if ( Contains( "MinBPM:" ) )  _song.minBpm    = int.Parse( Split( ':' ) );
+                if ( Contains( "MaxBPM:" ) )  _song.maxBpm    = int.Parse( Split( ':' ) );
+                if ( Contains( "Median:" ) )  _song.medianBpm = double.Parse( Split( ':' ) );
 
                 if ( Contains( "DataExist:" ) )
                 {
                     string[] splitDatas = line.Split( ':' );
-                    _song.isOnlyKeySound = int.Parse( splitDatas[1] ) == 1 ? true : false;
-                    _song.hasKeySound    = int.Parse( splitDatas[2] ) == 1 ? true : false;
-                    _song.hasVideo       = int.Parse( splitDatas[3] ) == 1 ? true : false;
-                    _song.hasSprite      = int.Parse( splitDatas[4] ) == 1 ? true : false;
+                    _song.isOnlyKeySound = int.Parse( splitDatas[1] ) == 1;
+                    _song.hasKeySound    = int.Parse( splitDatas[2] ) == 1;
+                    _song.hasVideo       = int.Parse( splitDatas[3] ) == 1;
+                    _song.hasSprite      = int.Parse( splitDatas[4] ) == 1;
                 }
             }
         }
@@ -124,6 +96,7 @@ public class FileParser : FileReader
             List<Timing> timings = new List<Timing>();
             List<Timing> uninheritedTimings = new List<Timing>();
 
+            bool hasFixedBPM = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM );
             while ( ReadLine() != "[Sprites]" )
             {
                 Timing timing = new Timing();
@@ -132,6 +105,17 @@ public class FileParser : FileReader
                 timing.time          = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
                 timing.beatLength    = double.Parse( split[1] );
                 timing.bpm           = ( 1d / timing.beatLength * 60000d ) * GameSetting.CurrentPitch;
+                
+                if ( hasFixedBPM )
+                {
+                    timing.bpm = NowPlaying.CurrentSong.medianBpm * GameSetting.CurrentPitch;
+                    uninheritedTimings.Add( timing );
+                    timings.Add( timing );
+
+                    while ( ReadLine() != "[Sprites]" ) { }
+                    break;
+                }
+
                 if ( int.Parse( split[2] ) == 1 )
                 {
                     if ( uninheritedTimings.Count == 0 )
@@ -148,11 +132,6 @@ public class FileParser : FileReader
                 }
 
                 timings.Add( timing );
-                if ( GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) )
-                {
-                    while ( ReadLine() != "[Sprites]" ) { }
-                    break;
-                }
             }
 
             _chart.uninheritedTimings = new ReadOnlyCollection<Timing>( uninheritedTimings );

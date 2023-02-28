@@ -1,10 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
 using System.Collections.ObjectModel;
-using TMPro;
+using UnityEngine;
 
 public class BpmChanger : MonoBehaviour
 {
@@ -63,6 +61,7 @@ public class BpmChanger : MonoBehaviour
 
     private IEnumerator Process()
     {
+        float minSPF = 1f / 60f;
         WaitUntil waitChangedTimeUntil = new WaitUntil( () => curTiming.time <= NowPlaying.Playback );
         while ( curIndex < timings.Count )
         {
@@ -92,6 +91,10 @@ public class BpmChanger : MonoBehaviour
             if ( prevNum != curNum )
                 layoutGroup.SetLayoutHorizontal();
 
+            if ( curIndex + 1 < timings.Count && curTiming.bpm > 1000d &&
+                 timings[curIndex + 1].time - curTiming.time < minSPF )
+                 yield return YieldCache.WaitForSeconds( minSPF );
+                 
             prevNum = curNum;
             curIndex++;
         }

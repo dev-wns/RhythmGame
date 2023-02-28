@@ -1,12 +1,11 @@
+using DG.Tweening;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using DG.Tweening;
 
 // Build Index
-public enum SceneType : int { Lobby = 1, FreeStyle, Game, Result };
+public enum SceneType : int { FreeStyle = 1, Game, Result };
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
 {
@@ -27,8 +26,8 @@ public abstract class Scene : SceneKeyAction
             OnceTweenInit = true;
         }
 
-        QualitySettings.maxQueuedFrames = 8;
-        //Cursor.visible = false;
+        QualitySettings.maxQueuedFrames = 0;
+        Cursor.visible = false;
 
         CreateFadeSprite();
 
