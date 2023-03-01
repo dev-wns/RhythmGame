@@ -13,6 +13,18 @@ public class Judgement : MonoBehaviour
         public double good;
         public double bad;
         public double miss;
+
+        public JudgeData Multiply( float _value )
+        {
+            var newData = new JudgeData();
+            newData.maximum = this.maximum * _value;
+            newData.perfect = this.perfect * _value;
+            newData.great   = this.great   * _value;
+            newData.good    = this.good    * _value;
+            newData.bad     = this.bad     * _value;
+            newData.miss    = this.miss    * _value;
+            return newData;
+        }
     }
     public static readonly JudgeData OriginJudgeData = new JudgeData() 
     { 
@@ -23,29 +35,31 @@ public class Judgement : MonoBehaviour
         bad     = .089d, 
         miss    = .1d 
     };
-    public static readonly JudgeData HardJudgeData   = new JudgeData()
-    {
-        maximum = .0165d * .75d,
-        perfect = .039d  * .75d,
-        great   = .061d  * .75d,
-        good    = .076d  * .75d,
-        bad     = .089d  * .75d,
-        miss    = .1d
-    };
-    public static JudgeData Judge;
+    public static JudgeData NoteJudgeData;
+    public static JudgeData SliderJudgeData;
     public event Action<HitResult, NoteType> OnJudge;
 
     private void Awake()
     {
-        Judge = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? HardJudgeData : OriginJudgeData;
+        bool hasHardJudge = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge );
+        NoteJudgeData   = hasHardJudge ? OriginJudgeData.Multiply( .75f ) : OriginJudgeData;
+        SliderJudgeData = NoteJudgeData.Multiply( 1.5f );
     }
 
-    public bool CanBeHit( double _diff ) => Global.Math.Abs( _diff ) <= Judge.bad;
-    
-    public bool IsMiss( double _diff ) => _diff < -Judge.bad;
+    public bool CanBeHit( double _diff, NoteType _noteType )
+    {
+        return _noteType == NoteType.Default ? Global.Math.Abs( _diff ) <= NoteJudgeData.bad : Global.Math.Abs( _diff ) <= SliderJudgeData.bad;
+    }
+
+    public bool IsMiss( double _diff, NoteType _noteType )
+    {
+        return _noteType == NoteType.Default ? _diff < -NoteJudgeData.bad : _diff < -SliderJudgeData.bad;
+       
+    }
 
     public void ResultUpdate( double _diff, NoteType _noteType )
     {
+        var Judge = _noteType == NoteType.Default ? NoteJudgeData : SliderJudgeData;
         double diffAbs = Math.Abs( _diff );
         HitResult result = diffAbs <= Judge.maximum                             ? HitResult.Maximum :
                            diffAbs >  Judge.maximum && diffAbs <= Judge.perfect ? HitResult.Perfect :

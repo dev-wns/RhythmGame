@@ -1,10 +1,10 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public enum NoteType { None, Default, Slider }
+
 
 public class InputSystem : MonoBehaviour
 {
@@ -23,8 +23,10 @@ public class InputSystem : MonoBehaviour
     private double endNoteTime;
     #endregion
 
-    private Queue<NoteRenderer> notes           = new Queue<NoteRenderer>();
-    private Queue<NoteRenderer> sliderMissQueue = new Queue<NoteRenderer>();
+    private Queue<NoteRenderer> notes            = new Queue<NoteRenderer>();
+    private Queue<NoteRenderer> sliderMissQueue  = new Queue<NoteRenderer>();
+    private Queue<NoteRenderer> sliderEarlyQueue = new Queue<NoteRenderer>();
+
     private NoteRenderer curNote;
 
     public event Action<NoteType>  OnHitNote;
@@ -57,7 +59,7 @@ public class InputSystem : MonoBehaviour
         lane.OnLaneInitialize += Initialize;
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-        rand = UnityEngine.Random.Range( ( float )( -Judgement.Judge.bad ), ( float )( Judgement.Judge.bad ) );
+        rand = UnityEngine.Random.Range( ( float )( -Judgement.NoteJudgeData.bad ), ( float )( Judgement.NoteJudgeData.bad ) );
     }
 
     private void Update()
@@ -113,6 +115,7 @@ public class InputSystem : MonoBehaviour
     {
         StartCoroutine( NoteSpawn() );
         StartCoroutine( SliderMissCheck() );
+        StartCoroutine( SliderEarlyCheck() );
     }
 
     private void ReLoad()
@@ -120,8 +123,14 @@ public class InputSystem : MonoBehaviour
         StopAllCoroutines();
         while ( sliderMissQueue.Count > 0 )
         {
-            var note = sliderMissQueue.Dequeue();
-            note.Despawn();
+            var slider = sliderMissQueue.Dequeue();
+            slider.Despawn();
+        }
+
+        while ( sliderEarlyQueue.Count > 0 )
+        {
+            var slider = sliderEarlyQueue.Dequeue();
+            slider.Despawn();
         }
 
         curNote?.Despawn();
@@ -166,7 +175,7 @@ public class InputSystem : MonoBehaviour
         }
         else
         {
-            curNote.SetBodyFail();
+            curNote.SetSliderFail();
             judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
             sliderMissQueue.Enqueue( curNote );
             SelectNextNote( false );
@@ -198,6 +207,22 @@ public class InputSystem : MonoBehaviour
         }
     }
 
+    private IEnumerator SliderEarlyCheck()
+    {
+        var WaitEnqueue  = new WaitUntil( () => sliderEarlyQueue.Count > 0 );
+        while ( true )
+        {
+            yield return WaitEnqueue;
+
+            var slider = sliderEarlyQueue.Peek();
+            if ( slider.Time < NowPlaying.Playback )
+            {
+                slider.Despawn();
+                sliderEarlyQueue.Dequeue();
+            }
+        }
+    }
+
     private IEnumerator SliderMissCheck()
     {
         var WaitEnqueue  = new WaitUntil( () => sliderMissQueue.Count > 0 );
@@ -205,10 +230,10 @@ public class InputSystem : MonoBehaviour
         {
             yield return WaitEnqueue;
             
-            var note = sliderMissQueue.Peek();
-            if ( note.TailPos < -640f )
+            var slider = sliderMissQueue.Peek();
+            if ( slider.TailPos < -640f )
             {
-                note.Despawn();
+                slider.Despawn();
                 sliderMissQueue.Dequeue();
             }
         }
@@ -240,7 +265,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( GameSetting.IsAutoRandom ? startDiff < rand : startDiff < 0d )
             {
-                rand = UnityEngine.Random.Range( ( float )( -Judgement.Judge.bad ), ( float )( Judgement.Judge.bad ) );
+                rand = UnityEngine.Random.Range( ( float )( -Judgement.NoteJudgeData.bad ), ( float )( Judgement.NoteJudgeData.bad ) );
                 OnInputEvent?.Invoke( InputType.Down );
                 OnInputEvent?.Invoke( InputType.Up );
 
@@ -258,7 +283,8 @@ public class InputSystem : MonoBehaviour
                 {
                     OnInputEvent?.Invoke( InputType.Down );
 
-                    isPress = curNote.ShouldResizeSlider = true;
+                    isPress = true;
+                    curNote.StartResizeSlider();
                     OnHitNote?.Invoke( NoteType.Slider );
                     SoundManager.Inst.Play( curSound );
                     judge.ResultUpdate( 0d, NoteType.Default );
@@ -294,7 +320,7 @@ public class InputSystem : MonoBehaviour
         double startDiff = curNote.Time - NowPlaying.Playback;
         if ( !curNote.IsSlider )
         {
-            if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff ) )
+            if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff, NoteType.Default ) )
             {
                 OnHitNote?.Invoke( NoteType.Default );
                 judge.ResultUpdate( startDiff, NoteType.Default );
@@ -302,7 +328,7 @@ public class InputSystem : MonoBehaviour
                 return;
             }
 
-            if ( judge.IsMiss( startDiff ) )
+            if ( judge.IsMiss( startDiff, NoteType.Default ) )
             {
                 judge.ResultUpdate( HitResult.Miss, NoteType.Default );
                 SelectNextNote();
@@ -312,9 +338,11 @@ public class InputSystem : MonoBehaviour
         {
             if ( !isPress )
             {
-                if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff ) )
+                if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff, NoteType.Default ) )
                 {
-                    isPress = curNote.ShouldResizeSlider = true;
+                    isPress = true;
+                    curNote.StartResizeSlider();
+
                     OnHitNote?.Invoke( NoteType.Slider );
                     judge.ResultUpdate( startDiff, NoteType.Default );
 
@@ -322,9 +350,9 @@ public class InputSystem : MonoBehaviour
                     return;
                 }
 
-                if ( judge.IsMiss( startDiff ) )
+                if ( judge.IsMiss( startDiff, NoteType.Default ) )
                 {
-                    curNote.SetBodyFail();
+                    curNote.SetSliderFail();
                     judge.ResultUpdate( HitResult.Miss, NoteType.Slider, 2 );
                     sliderMissQueue.Enqueue( curNote );
                     SelectNextNote( false );
@@ -350,15 +378,16 @@ public class InputSystem : MonoBehaviour
                 
                 if ( Input.GetKeyUp( key ) )
                 {
-                    if ( judge.CanBeHit( endDiff ) )
+                    if ( judge.CanBeHit( endDiff, NoteType.Slider ) )
                     {
                         OnHitNote?.Invoke( NoteType.Slider );
                         judge.ResultUpdate( endDiff, NoteType.Slider );
-                        SelectNextNote();
+                        sliderEarlyQueue.Enqueue( curNote );
+                        SelectNextNote( false );
                     }
                     else
                     {
-                        curNote.SetBodyFail();
+                        curNote.SetSliderFail();
                         judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
                         sliderMissQueue.Enqueue( curNote );
                         SelectNextNote( false );

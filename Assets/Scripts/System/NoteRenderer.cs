@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
@@ -39,7 +37,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 
     public void SetInfo( int _lane, in Note _note, int _spawnIndex )
     {
-        //system  = _system;
         SpawnIndex = _spawnIndex;
         ShouldResizeSlider = false;
         note      = _note;
@@ -50,9 +47,15 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         body.enabled = tail.enabled = IsSlider;
         head.color   = tail.color   = Color.white;
         body.color   = GameSetting.IsNoteBodyGray ? Color.gray : Color.white;
+        ResizeSlider( false );
     }
 
-    public void SetBodyFail() => head.color = body.color = tail.color = NoteFailColor;
+    public void SetSliderFail()
+    {
+        ShouldResizeSlider = false;
+        head.color = body.color = tail.color = NoteFailColor;
+        ResizeSlider( true );
+    }
 
     public void Despawn()
     {
@@ -60,19 +63,44 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         pool.Despawn( this );
     }
 
+    public void StartResizeSlider()
+    {
+        if ( !IsSlider ) return;
+
+        ShouldResizeSlider = true;
+        ResizeSlider( true );
+    }
+
+    private void ResizeSlider( bool _isSnap )
+    {
+        if ( !IsSlider ) return;
+
+        if ( _isSnap )
+             newTime = NowPlaying.ScaledPlayback;
+
+        BodyLength = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
+
+        float length         =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
+        bodyTf.localScale    = new Vector2( GameSetting.NoteBodyWidth, length );
+        tailTf.localPosition = new Vector2( 0f, length );
+
+        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
+    }
+
     private void LateUpdate()
     {
-       // 롱노트 판정선에 붙기
-        if ( IsSlider )
-        {
-            if ( ShouldResizeSlider && Time < NowPlaying.Playback )
-                 newTime = NowPlaying.ScaledPlayback;
-
-            BodyLength   = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
-            float length =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
-            bodyTf.localScale    = new Vector2( GameSetting.NoteBodyWidth, length );
-            tailTf.localPosition = new Vector2( 0f, length );
-        }
+        // 롱노트 판정선에 붙기
+        if ( IsSlider && ShouldResizeSlider && Time < NowPlaying.Playback )
+             ResizeSlider( true );
+        //{
+        //    if ( ShouldResizeSlider && Time < NowPlaying.Playback )
+        //         newTime = NowPlaying.ScaledPlayback;
+        //
+        //    BodyLength   = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
+        //    float length =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
+        //    bodyTf.localScale    = new Vector2( GameSetting.NoteBodyWidth, length );
+        //    tailTf.localPosition = new Vector2( 0f, length );
+        //}
 
         transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
     }
