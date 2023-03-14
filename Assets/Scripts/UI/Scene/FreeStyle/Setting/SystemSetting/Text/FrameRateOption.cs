@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Text;
 
 public class FrameRateOption : OptionText
 {
@@ -13,19 +10,17 @@ public class FrameRateOption : OptionText
 
     protected override void CreateObject()
     {
-        StringBuilder builder = new StringBuilder();
         for ( int i = 0; i < ( int )FrameRate.Count; i++ )
         {
-            var text = ( ( FrameRate )i ).ToString();
-
-            builder.Clear();
-            builder.Append( text.Replace( "_", " " ).Trim() );
-            if ( i >= 2 )
+            switch ( ( FrameRate )i )
             {
-                builder.Append( " FPS" );
+                case FrameRate.No_Limit: texts.Add( $"제한없음" );    break;
+                case FrameRate.vSync:    texts.Add( $"수직 동기화" ); break;
+                case FrameRate._60:      texts.Add( $"60 FPS" );     break;
+                case FrameRate._144:     texts.Add( $"144 FPS" );    break;
+                case FrameRate._240:     texts.Add( $"240 FPS" );    break;
+                case FrameRate._960:     texts.Add( $"960 FPS" );    break;
             }
-
-            texts.Add( builder.ToString() );
         }
     }
 
@@ -45,7 +40,7 @@ public class FrameRateOption : OptionText
 
             case FrameRate._60:
             case FrameRate._144:
-            case FrameRate._300:
+            case FrameRate._240:
             case FrameRate._960:
             {
                 QualitySettings.vSyncCount = 0;

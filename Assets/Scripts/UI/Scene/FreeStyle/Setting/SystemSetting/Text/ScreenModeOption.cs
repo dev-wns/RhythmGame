@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Text;
 
 public class ScreenModeOption : OptionText
 {
@@ -13,16 +10,14 @@ public class ScreenModeOption : OptionText
 
     protected override void CreateObject()
     {
-        StringBuilder builder = new StringBuilder();
         for ( int i = 0; i < ( int )ScreenMode.Count; i++ )
         {
-            if ( ( ScreenMode )i == ScreenMode.Maximized_Window ) continue;
-
-            var text = ( ( ScreenMode )i ).ToString();
-            builder.Clear();
-            builder.Append( text.Replace( "_", " " ).Trim() );
-
-            texts.Add( builder.ToString() );
+            switch ( ( ScreenMode )i )
+            {
+                case ScreenMode.Exclusive_FullScreen: texts.Add( $"전체화면" );    break;
+                case ScreenMode.FullScreen_Window:    texts.Add( $"전체 창모드" ); break;
+                case ScreenMode.Windowed:             texts.Add( $"창모드" );      break;
+            }
         }
     }
 
@@ -31,9 +26,6 @@ public class ScreenModeOption : OptionText
         var type = ( ScreenMode )CurrentIndex;
         switch ( type )
         {
-            case ScreenMode.Maximized_Window: // mac 전용
-            break;
-
             default:
             {
                 var replace = ( ( Resolution )CurrentIndex ).ToString().Replace( "_", " " );

@@ -15,7 +15,7 @@ public enum FrameRate
     No_Limit,
     _60,
     _144,
-    _300,
+    _240,
     _960,
     Count,
 }
@@ -24,7 +24,6 @@ public enum ScreenMode
 {
     Exclusive_FullScreen,
     FullScreen_Window,
-    Maximized_Window,
     Windowed,
     Count,
 }
