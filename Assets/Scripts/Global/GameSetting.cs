@@ -93,9 +93,9 @@ public class GameSetting
     // note
     public static float NoteSizeMultiplier = 1f;
     public static float NoteWidth  => 111f * NoteSizeMultiplier;
-    public static float NoteBodyWidth => 107f * NoteSizeMultiplier;
+    public static float NoteBodyWidth => 111f * NoteSizeMultiplier;
     public static float NoteHeight => 64f * NoteSizeMultiplier;
-    public static float NoteBlank  = .5f;
+    public static float NoteBlank  = 0f;
     public static float NoteStartPos => GearOffsetX + -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 
     // Gear
@@ -111,6 +111,5 @@ public class GameSetting
     public static int PPU = 100; // pixel per unit
 
     // Debug
-    public static bool IsAutoRandom   = false;
     public static bool IsNoteBodyGray = false;
 }

@@ -81,7 +81,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         BodyLength = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
 
         float length         =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
-        bodyTf.localScale    = new Vector2( GameSetting.NoteBodyWidth, length );
+        bodyTf.localScale    = new Vector2( GameSetting.NoteWidth, length );
         tailTf.localPosition = new Vector2( 0f, length );
 
         transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );

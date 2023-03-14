@@ -11,7 +11,7 @@ public class MeasureRenderer : MonoBehaviour//, IObjectPool<MeasureRenderer>
 
     public void UpdateTransform( double _playback, double _scaledPlayback )
     {
-        transform.localPosition = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( ( ScaledTime - _scaledPlayback ) * GameSetting.Weight ) );
+        transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( ( ScaledTime - _scaledPlayback ) * GameSetting.Weight ) );
     }
 
     public void SetInfo( double _scaledTime )

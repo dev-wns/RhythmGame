@@ -27,6 +27,12 @@ public class InGame : Scene
     {
         base.Awake();
 
+        int antiAliasing = ( int )SystemSetting.CurrentAntiAliasing;
+        QualitySettings.antiAliasing =  antiAliasing == 1 ? 2  :
+                                        antiAliasing == 2 ? 4  :
+                                        antiAliasing == 3 ? 8  :
+                                        antiAliasing == 4 ? 16 : 0;
+
         isHitLastNotes  = new bool[NowPlaying.KeyCount];
         IsGameInputLock = true;
         IsInputLock     = true;
@@ -206,7 +212,6 @@ public class InGame : Scene
         Bind( ActionType.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
 
         // Etc.
-        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom   = !GameSetting.IsAutoRandom );
-        Bind( ActionType.Main, InputType.Down, KeyCode.F2, () => GameSetting.IsNoteBodyGray = !GameSetting.IsNoteBodyGray );
+        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsNoteBodyGray = !GameSetting.IsNoteBodyGray );
     }
 }

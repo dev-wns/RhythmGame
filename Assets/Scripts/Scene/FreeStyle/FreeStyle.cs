@@ -14,6 +14,8 @@ public class FreeStyle : Scene
     {
         base.Awake();
 
+        QualitySettings.antiAliasing = 8;
+
         SoundManager.Inst.OnReload += Connect;
 
         var judge = GameObject.FindGameObjectWithTag( "Judgement" );

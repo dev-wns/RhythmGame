@@ -36,7 +36,6 @@ public class InputSystem : MonoBehaviour
     private KeySound curSound;
     private bool isAuto, isPress;
 
-    private float rand;
     #region Time
     private double inputStartTime;
     private double inputHoldTime;
@@ -59,12 +58,11 @@ public class InputSystem : MonoBehaviour
         lane.OnLaneInitialize += Initialize;
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-        rand = UnityEngine.Random.Range( ( float )( -Judgement.NoteJudgeData.bad ), ( float )( Judgement.NoteJudgeData.bad ) );
 
         NowPlaying.Inst.OnUpdateTime += UpdateNotes;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if ( scene.IsGameInputLock ) 
              return;
@@ -267,14 +265,13 @@ public class InputSystem : MonoBehaviour
 
         if ( !curNote.IsSlider )
         {
-            if ( GameSetting.IsAutoRandom ? startDiff < rand : startDiff < 0d )
+            if ( startDiff <= 0d )
             {
-                rand = UnityEngine.Random.Range( ( float )( -Judgement.NoteJudgeData.bad ), ( float )( Judgement.NoteJudgeData.bad ) );
                 OnInputEvent?.Invoke( InputType.Down );
                 OnInputEvent?.Invoke( InputType.Up );
 
                 OnHitNote?.Invoke( NoteType.Default );
-                judge.ResultUpdate( startDiff - ( GameSetting.IsAutoRandom ? startDiff - rand : startDiff ), NoteType.Default );
+                judge.ResultUpdate( 0d, NoteType.Default );
                 SoundManager.Inst.Play( curSound );
                 SelectNextNote();
             }

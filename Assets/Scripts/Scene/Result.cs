@@ -11,6 +11,8 @@ public class Result : Scene
     {
         base.Awake();
 
+        QualitySettings.antiAliasing = 0;
+
         SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false );
         SoundManager.Inst.Play();
         soundLength = SoundManager.Inst.Length;

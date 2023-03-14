@@ -23,6 +23,7 @@ public struct HitData
         time = _time;
     }
 }
+
 public struct ResultData
 {
     // counts
@@ -338,7 +339,6 @@ public class NowPlaying : Singleton<NowPlaying>
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         startTime = Time.realtimeSinceStartupAsDouble;
-        //startTime       = timer.CurrentTime;
         saveTime        = WaitTime;
         IsStart         = true;
         Debug.Log( $"Playback start." );
@@ -349,7 +349,7 @@ public class NowPlaying : Singleton<NowPlaying>
         StopAllCoroutines();
         Playback = WaitTime;
         saveTime = WaitTime;
-        ScaledPlayback       = 0d;
+        ScaledPlayback      = 0d;
         ScaledPlaybackCache = 0d;
         timingIndex         = 0;
 
