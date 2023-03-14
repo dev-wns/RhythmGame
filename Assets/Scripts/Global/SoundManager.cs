@@ -28,7 +28,7 @@ public struct Music
 public class SoundManager : Singleton<SoundManager>
 {
     #region variables
-    private static readonly int MaxSoftwareChannel = 256;
+    private static readonly int MaxSoftwareChannel = 128;
     private static readonly int MaxVirtualChannel  = 1000;
     private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
@@ -208,7 +208,7 @@ public class SoundManager : Singleton<SoundManager>
         SetVolume( .5f, ChannelType.Master );
         SetVolume( .5f, ChannelType.BGM );
         SetVolume(  1f, ChannelType.SFX );
-        SetVolume( .075f, ChannelType.Clap );
+        SetVolume( .15f, ChannelType.Clap );
         #endregion
         Debug.Log( "SoundManager initialization completed" );
     }
@@ -315,7 +315,6 @@ public class SoundManager : Singleton<SoundManager>
         // System
         ErrorCheck( system.release() ); // 내부에서 close 함.
         system.clearHandle();
-
         Debug.Log( "SoundManager release" );
     }
 

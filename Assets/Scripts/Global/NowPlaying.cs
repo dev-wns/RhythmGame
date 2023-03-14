@@ -77,6 +77,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     #region Time
     private double startTime, saveTime;
+    public  static double WaitTime { get; private set; }
     public  static readonly double StartWaitTime = -3d;
     private static readonly double PauseWaitTime = -1.5d;
     public  static float GameTime         { get; private set; }
@@ -92,6 +93,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( MaxRecordSize );
 
     public event Action<string> OnParse;
+    public event Action<double/* Playback */, double/* Scaled Playback */> OnUpdateTime;
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
@@ -120,6 +122,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime );
         UpdatePlayback();
+        OnUpdateTime?.Invoke( Playback, ScaledPlayback );
     }
 
     private void UpdatePlayback()
@@ -188,7 +191,9 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void ParseChart()
     {
-        Stop();
+        WaitTime  = CurrentSong.audioLeadIn + StartWaitTime;
+        medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
+
         using ( FileParser parser = new FileParser() )
         {
             if ( !parser.TryParse( CurrentSong.filePath, out Chart chart ) )
@@ -199,9 +204,9 @@ public class NowPlaying : Singleton<NowPlaying>
             else 
             {
                 CurrentChart = chart;
-                medianBPM    = CurrentSong.medianBpm * GameSetting.CurrentPitch;
             }
         }
+        Stop();
     }
 
     #endregion
@@ -334,7 +339,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         startTime = Time.realtimeSinceStartupAsDouble;
         //startTime       = timer.CurrentTime;
-        saveTime        = StartWaitTime;
+        saveTime        = WaitTime;
         IsStart         = true;
         Debug.Log( $"Playback start." );
     }
@@ -342,8 +347,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Stop()
     {
         StopAllCoroutines();
-        Playback = StartWaitTime;
-        saveTime = StartWaitTime;
+        Playback = WaitTime;
+        saveTime = WaitTime;
         ScaledPlayback       = 0d;
         ScaledPlaybackCache = 0d;
         timingIndex         = 0;

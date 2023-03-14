@@ -60,6 +60,8 @@ public class InputSystem : MonoBehaviour
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
         rand = UnityEngine.Random.Range( ( float )( -Judgement.NoteJudgeData.bad ), ( float )( Judgement.NoteJudgeData.bad ) );
+
+        NowPlaying.Inst.OnUpdateTime += UpdateNotes;
     }
 
     private void Update()
@@ -96,9 +98,11 @@ public class InputSystem : MonoBehaviour
     private void OnDestroy()
     {
         StopAllCoroutines();
+        NowPlaying.Inst.OnUpdateTime -= UpdateNotes;
     }
     #endregion
 
+    private Note curData;
     #region Event
     public void Initialize( int _key )
     {
@@ -109,11 +113,16 @@ public class InputSystem : MonoBehaviour
         else if ( NowPlaying.KeyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
         notePool ??= new ObjectPool<NoteRenderer>( note, 10 );
+
+        if ( noteDatas.Count > 0 )
+        {
+            curData = noteDatas[noteSpawnIndex];
+            curSound = noteDatas[noteSpawnIndex].keySound;
+        }
     }
 
     private void StartProcess()
     {
-        StartCoroutine( NoteSpawn() );
         StartCoroutine( SliderMissCheck() );
         StartCoroutine( SliderEarlyCheck() );
     }
@@ -184,26 +193,21 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Note Process
-    private IEnumerator NoteSpawn()
+    private void UpdateNotes( double _playback, double _scaledPlayback )
     {
-        Note curData = new Note();
-        if ( noteDatas.Count > 0 )
+        if ( noteSpawnIndex < noteDatas.Count && curData.calcTime <= _scaledPlayback + GameSetting.PreLoadTime )
         {
-            curData = noteDatas[noteSpawnIndex];
-            curSound = curData.keySound;
-        }
-
-        WaitUntil waitNextNote = new WaitUntil( () => curData.calcTime <= NowPlaying.ScaledPlayback + GameSetting.PreLoadTime );
-        while ( noteSpawnIndex < noteDatas.Count )
-        {
-            yield return waitNextNote;
-
             NoteRenderer note = notePool.Spawn();
             note.SetInfo( lane.Key, in curData, noteSpawnIndex );
             notes.Enqueue( note );
 
             if ( ++noteSpawnIndex < noteDatas.Count )
                  curData = noteDatas[noteSpawnIndex];
+        }
+
+        foreach ( var note in notePool.ActiveObjects )
+        {
+            note.UpdateTransform( _playback, _scaledPlayback );
         }
     }
 
@@ -215,7 +219,7 @@ public class InputSystem : MonoBehaviour
             yield return WaitEnqueue;
 
             var slider = sliderEarlyQueue.Peek();
-            if ( slider.Time < NowPlaying.Playback )
+            if ( slider.SliderTime < NowPlaying.Playback )
             {
                 slider.Despawn();
                 sliderEarlyQueue.Dequeue();

@@ -1,8 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public class InGame : Scene
 {
@@ -95,6 +94,7 @@ public class InGame : Scene
 
     private IEnumerator GameEnd()
     {
+        SoundManager.Inst.FadeVolume( SoundManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );
 
         Stop();

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,11 +8,12 @@ public interface IObjectPool<T> where T : MonoBehaviour
 
 public class ObjectPool<T> where T : MonoBehaviour
 {
+    public LinkedList<T> ActiveObjects { get; private set; } = new LinkedList<T>();
+
     private T prefab;
     private Transform parent;
     private Stack<T> pool = new Stack<T>();
     private int allocateCount;
-    public int ActiveCount { get; private set; }
 
     public ObjectPool( T _prefab, int _initializeCount, int _allocateCount = 1 )
     {
@@ -67,6 +67,7 @@ public class ObjectPool<T> where T : MonoBehaviour
             pool.Push( obj );
         }
     }
+
     public T Spawn()
     {
         if ( pool.Count == 0 )
@@ -74,14 +75,15 @@ public class ObjectPool<T> where T : MonoBehaviour
 
         T obj = pool.Pop();
         obj.gameObject.SetActive( true );
-        ActiveCount++;
+        ActiveObjects.AddLast( obj );
 
         return obj;
     }
+
     public void Despawn( T _obj )
     {
         _obj.gameObject.SetActive( false );
         pool.Push( _obj );
-        ActiveCount--;
+        ActiveObjects.Remove( _obj );
     }
 }

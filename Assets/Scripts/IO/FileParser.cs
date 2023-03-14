@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using UnityEngine;
 
 public class FileParser : FileReader
 {
@@ -32,6 +31,7 @@ public class FileParser : FileReader
                                                                   Path.Combine( directory, soundName );
                 }
                 if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
+                if ( Contains( "AudioLeadIn:" ) ) _song.audioLeadIn = int.Parse( Split( ':' ) );
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = Split( ':' );
@@ -105,7 +105,19 @@ public class FileParser : FileReader
                 timing.time          = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
                 timing.beatLength    = double.Parse( split[1] );
                 timing.bpm           = ( 1d / timing.beatLength * 60000d ) * GameSetting.CurrentPitch;
-                
+
+                if ( uninheritedTimings.Count == 0 )
+                {
+                    double firstTime = timing.time;
+                    double spb       = ( 60d / timing.bpm ) * 4;
+                    while ( firstTime > NowPlaying.WaitTime )
+                    {
+                        firstTime -= spb;
+                    }
+
+                    timing.time = firstTime;
+                }
+
                 if ( hasFixedBPM )
                 {
                     timing.bpm = NowPlaying.CurrentSong.medianBpm * GameSetting.CurrentPitch;
@@ -118,16 +130,6 @@ public class FileParser : FileReader
 
                 if ( int.Parse( split[2] ) == 1 )
                 {
-                    if ( uninheritedTimings.Count == 0 )
-                    {
-                        double prevTime = timing.time;
-                        double spb = ( 60d / timing.bpm ) * 4d;
-                        int count = Mathf.CeilToInt( ( float )( ( Global.Math.Abs( NowPlaying.StartWaitTime ) + timing.time ) / spb ) );
-                        timing.time -= count * spb;
-
-                        Debug.Log( $"First BPM time adjustment.  SPB : {spb}  Time : {prevTime} -> {timing.time}" );
-                    }
-
                     uninheritedTimings.Add( timing );
                 }
 

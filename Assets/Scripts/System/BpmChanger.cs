@@ -89,12 +89,11 @@ public class BpmChanger : MonoBehaviour
             }
 
             if ( prevNum != curNum )
-                layoutGroup.SetLayoutHorizontal();
+                 layoutGroup.SetLayoutHorizontal();
 
-            if ( curIndex + 1 < timings.Count && curTiming.bpm > 1000d &&
-                 timings[curIndex + 1].time - curTiming.time < minSPF )
+            if ( curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) < minSPF )
                  yield return YieldCache.WaitForSeconds( minSPF );
-                 
+
             prevNum = curNum;
             curIndex++;
         }

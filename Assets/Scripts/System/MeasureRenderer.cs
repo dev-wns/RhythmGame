@@ -1,34 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
+public class MeasureRenderer : MonoBehaviour//, IObjectPool<MeasureRenderer>
 {
-    public ObjectPool<MeasureRenderer> pool { get; set; }
-
-    private double time;
-
-    private SpriteRenderer rdr;
+    public double ScaledTime { get; private set; }
 
     private void Awake()
     {
-        rdr = GetComponent<SpriteRenderer>();
         transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
     }
 
-    private void LateUpdate()
+    public void UpdateTransform( double _playback, double _scaledPlayback )
     {
-        transform.localPosition = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( ( time - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
-        if ( transform.localPosition.y <= GameSetting.JudgePos )
-        {
-            rdr.enabled = false;
-            pool.Despawn( this );
-        }
+        transform.localPosition = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( ( ScaledTime - _scaledPlayback ) * GameSetting.Weight ) );
     }
 
-    public void SetInfo( double _time )
+    public void SetInfo( double _scaledTime )
     {
-        rdr.enabled = true;
-        time = _time;
+        ScaledTime = _scaledTime;
     }
 }

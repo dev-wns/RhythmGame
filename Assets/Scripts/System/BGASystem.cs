@@ -150,7 +150,9 @@ public class BGASystem : MonoBehaviour
 
             case BackgroundType.Video:
             {
-                background.texture = Texture2D.blackTexture;
+                // background.texture = Texture2D.blackTexture;
+                if ( !vp.isPlaying ) vp.Play();
+                vp.Pause();
                 vp.frame = 0;
             } break;
 
@@ -194,6 +196,9 @@ public class BGASystem : MonoBehaviour
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
 
+        if ( vp.isPlaying ) vp.Play();
+        vp.Pause();
+        vp.frame = 0;
         NowPlaying.Inst.IsLoadBGA = true;
     }
 

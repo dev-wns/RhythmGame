@@ -1,9 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class FreeStyleReLoad : MonoBehaviour
@@ -76,7 +75,7 @@ public class FreeStyleReLoad : MonoBehaviour
     private void DisabledText( TextMeshProUGUI _text )
     {
         textQueue.Enqueue( _text );
-        if ( textPool.ActiveCount > maxShowCount )
+        if ( textPool.ActiveObjects.Count > maxShowCount )
              textPool.Despawn( textQueue.Dequeue() );
     }
 }

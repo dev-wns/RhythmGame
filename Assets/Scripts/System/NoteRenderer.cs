@@ -20,7 +20,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public KeySound Sound => note.keySound;
 
     private float column;
-    private static readonly Color NoteFailColor = new Color( .25f, .25f, .25f, 1f );
+    private static readonly Color NoteFailColor = new Color( .5f, .5f, .5f, 1f );
     private double newTime;
 
     private void Awake()
@@ -87,21 +87,12 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
     }
 
-    private void LateUpdate()
+    public void UpdateTransform( double _playback, double _scaledPlayback )
     {
         // 롱노트 판정선에 붙기
-        if ( IsSlider && ShouldResizeSlider && Time < NowPlaying.Playback )
+        if ( IsSlider && ShouldResizeSlider && Time < _playback )
              ResizeSlider( true );
-        //{
-        //    if ( ShouldResizeSlider && Time < NowPlaying.Playback )
-        //         newTime = NowPlaying.ScaledPlayback;
-        //
-        //    BodyLength   = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
-        //    float length =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
-        //    bodyTf.localScale    = new Vector2( GameSetting.NoteBodyWidth, length );
-        //    tailTf.localPosition = new Vector2( 0f, length );
-        //}
 
-        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
+        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - _scaledPlayback ) * GameSetting.Weight ) );
     }
 }
