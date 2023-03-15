@@ -70,6 +70,7 @@ public class GameSetting
     public static double PreLoadTime => 1200d / Weight;
 
     // Sound
+    public static readonly float DefaultSoundOffset = -50;
     public static int SoundOffset = 0;
 
     // Opacity Percentage ( 0 ~ 100 )

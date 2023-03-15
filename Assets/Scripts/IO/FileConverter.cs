@@ -12,7 +12,6 @@ public struct Song
     public string filePath;
     public string imagePath;
     public string audioPath;
-    public int    audioOffset;
     public int    audioLeadIn;
     public string videoPath;
     public int    videoOffset;
@@ -223,7 +222,7 @@ public class FileConverter : FileReader
     public void Load( string _path )
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-             Convert( _path );
+            Convert( _path );
     }
 
     private void Convert( string _path ) 
@@ -416,8 +415,6 @@ public class FileConverter : FileReader
                 else if ( _A.time < _B.time ) return -1;
                 else                          return 0;
             } );
-            if ( samples.Count > 0 )
-                 song.audioOffset = ( int )samples[0].time;
             notes.Sort( delegate ( Note _A, Note _B )
             {
                 if ( _A.time > _B.time )      return 1;
@@ -474,7 +471,6 @@ public class FileConverter : FileReader
                     writer.WriteLine( "[General]" );
                     writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"AudioPath: {_song.audioPath}" );
-                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
                     writer.WriteLine( $"AudioLeadIn: {_song.audioLeadIn}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
                     writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );

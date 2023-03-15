@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Networking;
 using System.IO;
+using UnityEngine;
+using UnityEngine.Networking;
 
 public class SpritePreview : FreeStylePreview
 {
@@ -71,8 +70,8 @@ public class SpritePreview : FreeStylePreview
                     sprite.end   = double.Parse( split[2] );
                     sprite.name  = split[3];
 
-                    if ( sprites.Count == 0 )
-                         offset = ( sprite.start - _song.audioOffset ) * .5f;
+                    //if ( sprites.Count == 0 )
+                    //     offset = ( sprite.start - _song.audioOffset ) * .5f;
 
                     if ( sprite.start < previewTime - offset )
                          startIndex = sprites.Count;

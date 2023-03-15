@@ -1,9 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
-using UnityEngine.UI;
-using System.IO;
 
 public class VideoPreview : FreeStylePreview
 {
@@ -63,12 +60,12 @@ public class VideoPreview : FreeStylePreview
         yield return waitPrepared;
 
         float spb = ( float )( 60f / _song.medianBpm ) * 1000f;
-        float offset = _song.videoOffset > 1f ? _song.videoOffset * .75f :
-                       _song.audioOffset > 1f ? _song.audioOffset * .75f :
-                       _song.isOnlyKeySound   ? -spb                : 0f;
+        //float offset = _song.videoOffset > 1f ? _song.videoOffset * .75f :
+        //               _song.audioOffset > 1f ? _song.audioOffset * .75f :
+        //               _song.isOnlyKeySound   ? -spb                : 0f;
 
-        vp.playbackSpeed = GameSetting.CurrentPitch;
-        vp.time = ( SoundManager.Inst.Position + offset ) * .001f;
+        //vp.playbackSpeed = GameSetting.CurrentPitch;
+        //vp.time = ( SoundManager.Inst.Position + offset ) * .001f;
 
         tf.sizeDelta = sizeCache;
         previewImage.enabled = true;

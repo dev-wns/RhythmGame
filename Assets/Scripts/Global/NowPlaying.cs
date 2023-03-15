@@ -192,7 +192,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void ParseChart()
     {
-        WaitTime  = CurrentSong.audioLeadIn + StartWaitTime;
+        WaitTime  = ( CurrentSong.audioLeadIn * .001d ) + StartWaitTime;
         medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
 
         using ( FileParser parser = new FileParser() )
