@@ -222,7 +222,7 @@ public class FileConverter : FileReader
     public void Load( string _path )
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-            Convert( _path );
+             Convert( _path );
     }
 
     private void Convert( string _path ) 

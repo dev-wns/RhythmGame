@@ -75,18 +75,29 @@ public class LaneSystem : MonoBehaviour
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
         double secondPer16Beats        = ( 60d / NowPlaying.CurrentSong.medianBpm ) * .25d/* 4/16 */;
+        bool isSevenButton = NowPlaying.CurrentSong.keyCount == 7;
         for ( int i = 0; i < notes.Count; i++ )
         {
             Note newNote = notes[i];
-            if ( hasConversion )
+            if ( hasConversion && isSevenButton )
             {
-                if ( newNote.lane == 6 )
+                if ( newNote.lane == 3)
                 {
                     if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
                          keySampleSystem.AddSample( new KeySound( newNote ) );
 
                     continue;
                 }
+                else if ( newNote.lane > 3 )
+                          newNote.lane -= 1;
+
+                // if ( newNote.lane == 6 )
+                // {
+                //     if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
+                //          keySampleSystem.AddSample( new KeySound( newNote ) );
+                // 
+                //     continue;
+                // }
             }
 
             if ( hasNoSlider ) 
