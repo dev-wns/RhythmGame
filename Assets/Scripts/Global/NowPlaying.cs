@@ -368,6 +368,7 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             Playback += speed * Time.deltaTime;
             UpdatePlayback();
+            OnUpdateTime?.Invoke( Playback, ScaledPlayback );
 
             CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
@@ -400,6 +401,7 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             Playback     -= Time.deltaTime * 2d;
             ScaledPlayback = ScaledPlaybackCache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
+            OnUpdateTime?.Invoke( Playback, ScaledPlayback );
 
             yield return null;
         }

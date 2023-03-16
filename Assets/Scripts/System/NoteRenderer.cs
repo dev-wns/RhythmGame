@@ -54,7 +54,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     {
         ShouldResizeSlider = false;
         head.color = body.color = tail.color = NoteFailColor;
-        ResizeSlider( true );
     }
 
     public void Despawn()
