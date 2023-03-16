@@ -31,7 +31,7 @@ public class KeySampleSystem : MonoBehaviour
 
     private void GameStart()
     {
-        offset = NowPlaying.CurrentSong.isOnlyKeySound ? 0d : ( GameSetting.DefaultSoundOffset + NowPlaying.CurrentSong.audioLeadIn + GameSetting.SoundOffset ) * .001d;
+        offset = NowPlaying.CurrentSong.isOnlyKeySound ? 0d : ( GameSetting.DefaultSoundOffset + NowPlaying.CurrentSong.audioOffset + GameSetting.SoundOffset ) * .001d;
         StartCoroutine( Process() );
     }
 

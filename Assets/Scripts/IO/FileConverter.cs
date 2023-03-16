@@ -12,7 +12,7 @@ public struct Song
     public string filePath;
     public string imagePath;
     public string audioPath;
-    public int    audioLeadIn;
+    public int    audioOffset;
     public string videoPath;
     public int    videoOffset;
 
@@ -237,7 +237,6 @@ public class FileConverter : FileReader
             while ( ReadLine() != "[Metadata]" )
             {
                 if ( Contains( "AudioFilename:" ) ) song.audioPath   = Split( ':' );
-                if ( Contains( "AudioLeadIn:" ) )   song.audioLeadIn = int.Parse( Split( ':' ) );
                 if ( Contains( "PreviewTime:" ) )   song.previewTime = int.Parse( Split( ':' ) );
                 if ( Contains( "Mode:" ) )          mode             = int.Parse( Split( ':' ) );
             }
@@ -384,14 +383,14 @@ public class FileConverter : FileReader
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
 
-                        if ( finalLane == 6 )
+                        if ( finalLane == 3 )
                              song.delSliderCount++;
                     }
                     else {
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
 
-                        if ( finalLane == 6 )
+                        if ( finalLane == 3 )
                              song.delNoteCount++;
                     }
 
@@ -471,7 +470,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( "[General]" );
                     writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"AudioPath: {_song.audioPath}" );
-                    writer.WriteLine( $"AudioLeadIn: {_song.audioLeadIn}" );
+                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
                     writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
 
