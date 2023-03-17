@@ -86,4 +86,15 @@ public class ObjectPool<T> where T : MonoBehaviour
         pool.Push( _obj );
         ActiveObjects.Remove( _obj );
     }
+
+    public void AllDespawn()
+    {
+        foreach( var obj in ActiveObjects )
+        {
+            obj.gameObject.SetActive( false );
+            pool.Push( obj );
+        }
+
+        pool.Clear();
+    }
 }

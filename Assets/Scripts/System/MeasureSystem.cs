@@ -28,7 +28,7 @@ public class MeasureSystem : MonoBehaviour
             }
         }
 
-        pool = new ObjectPool<MeasureRenderer>( mPrefab, 10 );
+        pool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
     }
 
     private void OnDestroy()
@@ -42,8 +42,7 @@ public class MeasureSystem : MonoBehaviour
         curIndex = 0;
         curTime = measures[curIndex];
 
-        while ( despawnQueue.Count > 0 )
-            pool.Despawn( despawnQueue.Dequeue() );
+        pool.AllDespawn();
     }
 
     private void Initialize( Chart _chart )
