@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using DG.Tweening;
 
 public class SongInfomation : OptionButton
 {
@@ -49,7 +47,7 @@ public class SongInfomation : OptionButton
         song = _song;
         title.text   = _song.title;
         version.text = _song.version;
-        artist.text  = $"{_song.artist} // {_song.creator}";
+        artist.text  = $"{_song.artist}";
     }
 
     public void PositionReset()

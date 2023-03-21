@@ -4,9 +4,8 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 {
     public ObjectPool<NoteRenderer> pool { get; set; }
 
-    public SpriteRenderer head, body, tail;
-    private Transform headTf, bodyTf, tailTf;
     private Note note;
+    public SpriteRenderer head, body, tail;
     public int SpawnIndex { get; private set; }
     public float HeadPos => transform.position.y;
     public float TailPos => transform.position.y + BodyLength;
@@ -25,14 +24,9 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 
     private void Awake()
     {
-        headTf = head.transform;
-        headTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
-
-        bodyTf = body.transform;
-        bodyTf.transform.position = new Vector2( 0, GameSetting.NoteHeight * .5f );
-
-        tailTf = tail.transform;
-        tailTf.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
+        head.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
+        body.transform.localPosition = new Vector2( 0, GameSetting.NoteHeight * .5f );
+        tail.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
     }
 
     public void SetInfo( int _lane, in Note _note, int _spawnIndex )
@@ -80,8 +74,8 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         BodyLength = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
 
         float length         =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
-        bodyTf.localScale    = new Vector2( GameSetting.NoteWidth, length );
-        tailTf.localPosition = new Vector2( 0f, length );
+        body.transform.localScale    = new Vector2( GameSetting.NoteWidth, length );
+        tail.transform.localPosition = new Vector2( 0f, length );
 
         transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
     }
@@ -92,6 +86,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         if ( IsSlider && ShouldResizeSlider && Time < _playback )
              ResizeSlider( true );
 
-        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - _scaledPlayback ) * GameSetting.Weight ) );
+        this.transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - _scaledPlayback ) * GameSetting.Weight ) );
     }
 }

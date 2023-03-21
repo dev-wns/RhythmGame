@@ -22,7 +22,7 @@ public abstract class Scene : SceneKeyAction
     {
         if ( !OnceTweenInit )
         {
-            DOTween.Init( true, false, LogBehaviour.Default ).SetCapacity( 50, 10 );
+            DOTween.Init( true, false, LogBehaviour.Default ).SetCapacity( 50, 20 );
             OnceTweenInit = true;
         }
 

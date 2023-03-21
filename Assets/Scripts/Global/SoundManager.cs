@@ -29,7 +29,7 @@ public class SoundManager : Singleton<SoundManager>
 {
     #region variables
     private static readonly int MaxSoftwareChannel = 128;
-    private static readonly int MaxVirtualChannel  = 1000;
+    private static readonly int MaxVirtualChannel  = 128;
     private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
     private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
@@ -135,21 +135,20 @@ public class SoundManager : Singleton<SoundManager>
         // System
         ErrorCheck( FMOD.Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
-        // ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
-        //ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.ASIO ) );
 
         // To do Before System Initialize
         ErrorCheck( system.getSoftwareFormat( out int sampleRate, out FMOD.SPEAKERMODE mode, out int numRawSpeakers ) );
         ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
         ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
-
+        
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
         ErrorCheck( system.init( MaxVirtualChannel, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
+
         ErrorCheck( system.getVersion( out uint version ) );
         if ( version < FMOD.VERSION.number )
-            Debug.LogError( "using the old version." );
+             Debug.LogWarning( "using the old version." );
 
         // Sound Driver
         List<SoundDriver> drivers = new List<SoundDriver>();
@@ -173,19 +172,17 @@ public class SoundManager : Singleton<SoundManager>
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
         {
-            FMOD.ChannelGroup group;
             ChannelType type = ( ChannelType )i;
-
-            ErrorCheck( system.createChannelGroup( type.ToString(), out group ) );
+            ErrorCheck( system.createChannelGroup( type.ToString(), out FMOD.ChannelGroup group ) );
             if ( type != ChannelType.Master )
-                ErrorCheck( groups[ChannelType.Master].addGroup( group ) );
+                 ErrorCheck( groups[ChannelType.Master].addGroup( group ) );
 
             groups.Add( type, group );
         }
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         PrintSystemSetting();
-#endif
+        #endif
 
         #region Details
         // DSP
@@ -202,13 +199,13 @@ public class SoundManager : Singleton<SoundManager>
         Load( SoundSfxType.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
 
         Load( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
-        Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
+        Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap2.wav" );
 
         // Details
         SetVolume( .5f, ChannelType.Master );
         SetVolume( .5f, ChannelType.BGM );
         SetVolume(  1f, ChannelType.SFX );
-        SetVolume( .15f, ChannelType.Clap );
+        SetVolume( .5f, ChannelType.Clap );
         #endregion
         Debug.Log( "SoundManager initialization completed" );
     }
@@ -338,8 +335,6 @@ public class SoundManager : Singleton<SoundManager>
         // rollback
         ErrorCheck( system.setOutput( Drivers[curDriverIndex].outputType ) );
         ErrorCheck( system.setDriver( Drivers[curDriverIndex].index ) );
-        Debug.Log( Drivers[curDriverIndex].outputType );
-        Debug.Log( Drivers[curDriverIndex].index );
         groupCount = 0;
         foreach ( var group in groups.Values )
             ErrorCheck( group.setVolume( volumes[groupCount++] ) );
@@ -390,7 +385,8 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out FMOD.Sound sound ) );
+        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE | FMOD.MODE.VIRTUAL_PLAYFROMSTART, out FMOD.Sound sound ) );
+        ErrorCheck( sound.setDefaults( 48000, 0 ) );
         sfxSounds.Add( _type, sound );
     }
 
@@ -443,10 +439,8 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        if ( _type == SoundSfxType.Clap )
-            ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
-        else
-            ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX], false, out FMOD.Channel channel ) );
+        if ( _type == SoundSfxType.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
+        else                              ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
     }
 
     /// <summary> Play Key Sound Effects </summary>
@@ -488,9 +482,9 @@ public class SoundManager : Singleton<SoundManager>
 
     public IEnumerator Fade( Music _music, float _start, float _end, float _t, Action _OnCompleted )
     {
-        // 플레이 중이 아니면 Channel의 대부분의 함수는 사용할 수 없다.
+        // 음악이 플레이 중이 아니면 Channel의 대부분의 메서드는 사용할 수 없다.
         // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
-        // isPlaying이 INVALID_HANDLE을 반환할때 false와 동일하게 취급한다.
+        // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
         _music.channel.isPlaying( out bool isPlaying );
         if ( !isPlaying )
             yield break;
@@ -514,7 +508,7 @@ public class SoundManager : Singleton<SoundManager>
             ErrorCheck( _music.channel.setVolume( elapsedVolume ) );
         }
 
-        // 볼륨이 _end 보다 크기 때문에 ( 페이드인 기준 ) 프레임 넘어가기 전 _end 값으로 초기화.
+        // 반복문이 끝났을 시점에선 볼륨이 _end 보다 크기 때문에 ( 페이드인 기준 ) 프레임 넘어가기 전 _end 값으로 초기화.
         ErrorCheck( _music.channel.setVolume( _end ) );
         yield return YieldCache.WaitForEndOfFrame;
         _OnCompleted?.Invoke();
@@ -776,6 +770,7 @@ public class SoundManager : Singleton<SoundManager>
     #endregion
     private bool ErrorCheck( FMOD.RESULT _result )
     {
+#if UNITY_EDITOR
         if ( FMOD.RESULT.OK != _result )
         {
             Debug.LogError( FMOD.Error.String( _result ) );
@@ -783,5 +778,10 @@ public class SoundManager : Singleton<SoundManager>
         }
 
         return true;
+#else
+        // 임시 로직.
+        return FMOD.RESULT.OK == _result;
+        // 에러일시 로그 파일 생성 후 파일에 쓰도록 구현하기
+#endif
     }
 }

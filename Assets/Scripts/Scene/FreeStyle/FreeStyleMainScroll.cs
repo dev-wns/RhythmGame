@@ -122,7 +122,8 @@ public class FreeStyleMainScroll : ScrollBase
         if ( !HasAnySongs )
         {
             SoundManager.Inst.AllStop();
-            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\NAV5J Hana.mp3", true, false );
+            //SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\NAV5J Hana.mp3", true, false );
+            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Takin A Break Master.mp3", true, false );
             SoundManager.Inst.Play( 0f );
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
             //SoundManager.Inst.Position = 101500;

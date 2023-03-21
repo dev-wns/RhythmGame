@@ -113,7 +113,7 @@ public class NowPlaying : Singleton<NowPlaying>
 #else
         Load();
         await Task.CompletedTask;
-        #endif        
+#endif        
     }
 
     private void Update()

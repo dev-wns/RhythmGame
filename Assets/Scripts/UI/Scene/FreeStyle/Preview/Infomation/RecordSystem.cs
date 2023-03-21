@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,31 +9,31 @@ public class RecordSystem : MonoBehaviour
     private List<RecordInfomation> records = new List<RecordInfomation>();
     private CustomVerticalLayoutGroup group;
 
-    private int recordCount;
-
     [Header("Hide Infomation")]
     public Image icon;
     private static bool IsHideRecord;
 
     [Header("Effect")]
     public float startPosX;
-    public float duration;
-    public float waitTime;
-    private float offset;
 
     private void Awake()
     {
+        group  = GetComponent<CustomVerticalLayoutGroup>();
         mainScroll.OnSelectSong += UpdateRecord;
         
         for ( int i = 0; i < NowPlaying.MaxRecordSize; i++ )
         {
             RecordInfomation obj = Instantiate( prefab, transform );
-            obj.SetActive( false );
             records.Add( obj );
         }
 
-        offset = -startPosX / duration;
-        group  = GetComponent<CustomVerticalLayoutGroup>();
+        group.Initialize( true );
+        group.SetLayoutVertical();
+
+        for ( int i = 0; i < NowPlaying.MaxRecordSize; i++ )
+        {
+            records[i].Initialize( i, startPosX );
+        }
 
         icon.color = IsHideRecord ? new Color( 1f, 1f, 1f, .25f ) : Color.white;
     }
@@ -59,11 +58,6 @@ public class RecordSystem : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        group.Initialize( true );
-        group.SetLayoutVertical();
-    }
 
     private void UpdateRecord( Song _song )
     {
@@ -78,7 +72,6 @@ public class RecordSystem : MonoBehaviour
             {
                 records[i].SetActive( true );
                 records[i].SetInfo( datas[i] );
-                records[i].Play( startPosX, offset, waitTime * ( i + 1 ) );
             }
             else
             {

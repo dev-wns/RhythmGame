@@ -1,11 +1,8 @@
-using FMOD.Studio;
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
-using DG.Tweening;
 
 public class RecordInfomation : MonoBehaviour
 {
@@ -21,11 +18,17 @@ public class RecordInfomation : MonoBehaviour
     public TextMeshProUGUI date;
 
     [Header("Effect")]
-    private Coroutine coroutine;
+    private Sequence sequence;
+    private float startPosX;
 
-    private void Awake()
+    public void Initialize( int _index, float _startPosX )
     {
         rt = transform as RectTransform;
+        startPosX = _startPosX;
+
+        sequence = DOTween.Sequence().Pause().SetAutoKill( false ).SetEase( Ease.OutBack );
+        sequence.AppendInterval( 0.1f * _index ).Append( rt.DOAnchorPosX( 0f, 1f ) );
+        gameObject.SetActive( false );
     }
 
     public void SetActive( bool _isActive )
@@ -46,30 +49,8 @@ public class RecordInfomation : MonoBehaviour
                            _data.accuracy >= 8500 ? rankAtlas.GetSprite( "Ranking-B" ) :
                            _data.accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
                                                     rankAtlas.GetSprite( "Ranking-D" );
-    }
 
-    public void Play( float _startPosX, float _offset, float _waitTime )
-    {
-        if ( !ReferenceEquals( coroutine, null ) )
-        {
-            StopCoroutine( coroutine );
-            coroutine = null;
-        }
-
-        rt.anchoredPosition = new Vector2( _startPosX, rt.anchoredPosition.y );
-        coroutine = StartCoroutine( PlayEffect( _offset, _waitTime ) );
-    }
-
-    private IEnumerator PlayEffect( float _offset, float _waitTime )
-    {
-        yield return YieldCache.WaitForSeconds( _waitTime );
-        while ( rt.anchoredPosition.x <= 0 )
-        {
-            yield return null;
-            float posX = rt.anchoredPosition.x + ( _offset * Time.deltaTime );
-            rt.anchoredPosition = new Vector2( posX, rt.anchoredPosition.y );
-        }
-
-        rt.anchoredPosition = new Vector2( 0f, rt.anchoredPosition.y );
+        rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );
+        sequence.Restart();
     }
 }
