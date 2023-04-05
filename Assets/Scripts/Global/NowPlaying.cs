@@ -128,26 +128,30 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private void UpdatePlayback()
     {
+        bool shouldFixedTime = false;
         var timings = CurrentChart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
         {
             double curTime = timings[i].time;
             if ( Playback < curTime )
-                break;
+                 break;
 
             double curBPM  = timings[i].bpm;
             if ( i + 1 < timings.Count )
             {
                 double nextTime = timings[i + 1].time;
-                if ( nextTime < Playback )
+                shouldFixedTime = Global.Math.Abs( nextTime - curTime ) < Time.deltaTime;
+                if ( shouldFixedTime || nextTime < Playback )
                 {
-                    ScaledPlaybackCache += ( curBPM / medianBPM ) * ( nextTime - curTime );
                     timingIndex += 1;
+                    ScaledPlaybackCache += ( curBPM / medianBPM ) * ( nextTime - curTime );
+
                     continue;
                 }
             }
 
-            ScaledPlayback = ScaledPlaybackCache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
+            ScaledPlayback = shouldFixedTime ? ScaledPlaybackCache : 
+                                               ScaledPlaybackCache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
         }
     }
     #endregion

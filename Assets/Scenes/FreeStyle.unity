@@ -38351,7 +38351,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1830328327}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2d21272f7196d94a8f4d1ad632cfcd9, type: 3}
   m_Name: 
@@ -38363,7 +38363,8 @@ MonoBehaviour:
     top: 0
     bottom: 0
   childAlignment: 4
-  rectChildren: []
+  rectChildren:
+  - {fileID: 0}
 --- !u!114 &1830328331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38380,8 +38381,6 @@ MonoBehaviour:
   prefab: {fileID: 891526747278239352, guid: 46f4046dc2985ca43b503be0118c22bb, type: 3}
   icon: {fileID: 463729018}
   startPosX: -850
-  duration: 0.3
-  waitTime: 0.03
 --- !u!1 &1834991429
 GameObject:
   m_ObjectHideFlags: 0

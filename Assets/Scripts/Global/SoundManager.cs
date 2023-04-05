@@ -205,7 +205,7 @@ public class SoundManager : Singleton<SoundManager>
         SetVolume( .5f, ChannelType.Master );
         SetVolume( .5f, ChannelType.BGM );
         SetVolume(  1f, ChannelType.SFX );
-        SetVolume( .5f, ChannelType.Clap );
+        SetVolume( .8f, ChannelType.Clap );
         #endregion
         Debug.Log( "SoundManager initialization completed" );
     }
@@ -672,8 +672,9 @@ public class SoundManager : Singleton<SoundManager>
     {
         //CreateMultiBandDSP();
         CreateFFTWindow();
-        CreateNormalizeDSP();
+        //CreateNormalizeDSP();
         CreatePitchShiftDSP();
+        //CreateCompressorDSP();
     }
 
     private void CreateFFTWindow()
@@ -693,10 +694,23 @@ public class SoundManager : Singleton<SoundManager>
             return;
 
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.NORMALIZE, out FMOD.DSP dsp ) );
-        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.FADETIME, 1000f ) );
-        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.THRESHOLD, 0f ) );
-        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.MAXAMP, 100f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.FADETIME, 5000f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.THRESHOLD, 1f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.MAXAMP, 5f ) );
         dsps.Add( FMOD.DSP_TYPE.NORMALIZE, dsp );
+    }
+    private void CreateCompressorDSP()
+    {
+        if ( dsps.ContainsKey( FMOD.DSP_TYPE.COMPRESSOR ) )
+            return;
+
+        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.COMPRESSOR, out FMOD.DSP dsp ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.THRESHOLD, -5f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.RATIO, 1.5f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.ATTACK, 10f ) );
+        //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.THRESHOLD, 1f ) );
+        //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.MAXAMP, 5f ) );
+        dsps.Add( FMOD.DSP_TYPE.COMPRESSOR, dsp );
     }
 
     private void CreatePitchShiftDSP()
