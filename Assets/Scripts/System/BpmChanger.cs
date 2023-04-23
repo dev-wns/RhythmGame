@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
@@ -9,7 +8,6 @@ public class BpmChanger : MonoBehaviour
     private InGame scene;
     private ReadOnlyCollection<Timing> timings;
     private int curIndex;
-    private Timing curTiming;
     
     [Header("Sprite")]
     public int sortingOrder;
@@ -20,11 +18,14 @@ public class BpmChanger : MonoBehaviour
     private CustomHorizontalLayoutGroup layoutGroup;
     private int prevNum, curNum;
 
+    [Header("Time")]
+    private float delayTime = 0f;
+    private const float ShowDelayTime = 1f / 100f;
+
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>(); 
         scene.OnSystemInitialize += Initialize;
-        scene.OnGameStart += StartProcess;
         scene.OnReLoad += ReLoad;
 
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
@@ -41,7 +42,6 @@ public class BpmChanger : MonoBehaviour
         StopAllCoroutines();
         prevNum = curNum = 0;
         curIndex = 0;
-        curTiming = new Timing();
 
         images[0].gameObject.SetActive( true );
         images[0].sprite = sprites[0];
@@ -57,45 +57,50 @@ public class BpmChanger : MonoBehaviour
         timings = _chart.timings;
     }
 
-    private void StartProcess() => StartCoroutine( Process() );
-
-    private IEnumerator Process()
+    private void LateUpdate()
     {
-        float minSPF = 1f / 60f;
-        WaitUntil waitChangedTimeUntil = new WaitUntil( () => curTiming.time <= NowPlaying.Playback );
-        while ( curIndex < timings.Count )
+        delayTime += Time.deltaTime;
+        if ( delayTime > ShowDelayTime && 
+             curIndex < timings.Count &&
+             timings[curIndex].time <= NowPlaying.Playback )
         {
-            curTiming = timings[curIndex];
-            var bpm = Math.Round( curTiming.bpm );
-            yield return waitChangedTimeUntil;
-
-            double calcCurBpm = bpm;
-            curNum = Global.Math.Log10( bpm ) + 1;
-            for ( int i = 0; i < images.Count; i++ )
+            ImageUpdate( Math.Round( timings[curIndex].bpm ) );
+            if ( curIndex + 1 < timings.Count )
             {
-                if ( i < curNum )
+                if ( ( timings[curIndex].bpm < timings[curIndex + 1].bpm && timings[curIndex].bpm * 10 < timings[curIndex + 1].bpm ) ||
+                     ( timings[curIndex].bpm > timings[curIndex + 1].bpm && timings[curIndex].bpm      > timings[curIndex + 1].bpm * 10 ) )
                 {
-                    if ( !images[i].gameObject.activeSelf )
-                         images[i].gameObject.SetActive( true );
-
-                    images[i].sprite = sprites[( int )calcCurBpm % 10];
-                    calcCurBpm *= .1f;
-                }
-                else
-                {
-                    if ( images[i].gameObject.activeSelf )
-                         images[i].gameObject.SetActive( false );
+                    delayTime = 0f;
                 }
             }
-
-            if ( prevNum != curNum )
-                 layoutGroup.SetLayoutHorizontal();
-
-            if ( curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) < minSPF )
-                 yield return YieldCache.WaitForSeconds( minSPF );
-
-            prevNum = curNum;
             curIndex++;
         }
+    }
+
+    private void ImageUpdate( double _bpm )
+    {
+        double calcCurBpm = _bpm;
+        curNum = Global.Math.Log10( _bpm ) + 1;
+        for ( int i = 0; i < images.Count; i++ )
+        {
+            if ( i < curNum )
+            {
+                if ( !images[i].gameObject.activeSelf )
+                    images[i].gameObject.SetActive( true );
+
+                images[i].sprite = sprites[( int )calcCurBpm % 10];
+                calcCurBpm *= .1f;
+            }
+            else
+            {
+                if ( images[i].gameObject.activeSelf )
+                    images[i].gameObject.SetActive( false );
+            }
+        }
+
+        if ( prevNum != curNum )
+            layoutGroup.SetLayoutHorizontal();
+
+        prevNum = curNum;
     }
 }

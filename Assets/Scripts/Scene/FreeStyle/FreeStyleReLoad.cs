@@ -75,7 +75,7 @@ public class FreeStyleReLoad : MonoBehaviour
     private void DisabledText( TextMeshProUGUI _text )
     {
         textQueue.Enqueue( _text );
-        if ( textPool.ActiveObjects.Count > maxShowCount )
+        if ( textPool.ActiveCount > maxShowCount )
              textPool.Despawn( textQueue.Dequeue() );
     }
 }

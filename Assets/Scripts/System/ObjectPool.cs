@@ -8,10 +8,11 @@ public interface IObjectPool<T> where T : MonoBehaviour
 
 public class ObjectPool<T> where T : MonoBehaviour
 {
-    public LinkedList<T> ActiveObjects { get; private set; } = new LinkedList<T>();
+    public int ActiveCount { get; private set; }
 
     private T prefab;
     private Transform parent;
+    private List<T> objects = new List<T>();
     private Stack<T> pool = new Stack<T>();
     private int allocateCount;
 
@@ -65,6 +66,7 @@ public class ObjectPool<T> where T : MonoBehaviour
 
             obj.gameObject.SetActive( false );
             pool.Push( obj );
+            objects.Add( obj );
         }
     }
 
@@ -75,7 +77,7 @@ public class ObjectPool<T> where T : MonoBehaviour
 
         T obj = pool.Pop();
         obj.gameObject.SetActive( true );
-        ActiveObjects.AddLast( obj );
+        ActiveCount++;
 
         return obj;
     }
@@ -84,17 +86,15 @@ public class ObjectPool<T> where T : MonoBehaviour
     {
         _obj.gameObject.SetActive( false );
         pool.Push( _obj );
-        ActiveObjects.Remove( _obj );
+        ActiveCount--;
     }
 
     public void AllDespawn()
     {
-        foreach( var obj in ActiveObjects )
+        for ( int i = 0; i < objects.Count; i++ )
         {
-            obj.gameObject.SetActive( false );
-            pool.Push( obj );
+            if ( objects[i].gameObject.activeSelf )
+                 Despawn( objects[i] );
         }
-
-        pool.Clear();
     }
 }

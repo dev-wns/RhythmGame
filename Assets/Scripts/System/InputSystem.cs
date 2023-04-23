@@ -27,6 +27,7 @@ public class InputSystem : MonoBehaviour
     private Queue<NoteRenderer> sliderMissQueue  = new Queue<NoteRenderer>();
     private Queue<NoteRenderer> sliderEarlyQueue = new Queue<NoteRenderer>();
 
+    private Note curData;
     private NoteRenderer curNote;
 
     public event Action<NoteType>  OnHitNote;
@@ -59,7 +60,7 @@ public class InputSystem : MonoBehaviour
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
 
-        NowPlaying.Inst.OnUpdateTime += UpdateNotes;
+        NowPlaying.Inst.OnUpdateTime += SpawnNotes;
     }
 
     private void LateUpdate()
@@ -96,11 +97,10 @@ public class InputSystem : MonoBehaviour
     private void OnDestroy()
     {
         StopAllCoroutines();
-        NowPlaying.Inst.OnUpdateTime -= UpdateNotes;
+        NowPlaying.Inst.OnUpdateTime -= SpawnNotes;
     }
     #endregion
 
-    private Note curData;
     #region Event
     public void Initialize( int _key )
     {
@@ -191,7 +191,22 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Note Process
-    private void UpdateNotes( double _playback, double _scaledPlayback )
+    //private IEnumerator SpawnNotes()
+    //{
+    //    var waitTime = new WaitUntil( () => curData.calcTime <= NowPlaying.ScaledPlayback + GameSetting.PreLoadTime );
+    //    while ( noteSpawnIndex < noteDatas.Count  )
+    //    {
+    //        yield return waitTime;
+    //        NoteRenderer note = notePool.Spawn();
+    //        note.SetInfo( lane.Key, in curData, noteSpawnIndex );
+    //        notes.Enqueue( note );
+
+    //        if ( ++noteSpawnIndex < noteDatas.Count )
+    //            curData = noteDatas[noteSpawnIndex];
+    //    }
+    //}
+
+    private void SpawnNotes( double _playback, double _scaledPlayback )
     {
         if ( noteSpawnIndex < noteDatas.Count && curData.calcTime <= _scaledPlayback + GameSetting.PreLoadTime )
         {
@@ -202,12 +217,26 @@ public class InputSystem : MonoBehaviour
             if ( ++noteSpawnIndex < noteDatas.Count )
                  curData = noteDatas[noteSpawnIndex];
         }
-
-        foreach ( var note in notePool.ActiveObjects )
-        {
-            note.UpdateTransform( _playback, _scaledPlayback );
-        }
     }
+
+    //private void UpdateNotes( double _playback, double _scaledPlayback )
+    //{
+    //    if ( noteSpawnIndex < noteDatas.Count && curData.calcTime <= _scaledPlayback + GameSetting.PreLoadTime )
+    //    {
+    //        NoteRenderer note = notePool.Spawn();
+    //        note.SetInfo( lane.Key, in curData, noteSpawnIndex );
+    //        notes.Enqueue( note );
+
+    //        if ( ++noteSpawnIndex < noteDatas.Count )
+    //             curData = noteDatas[noteSpawnIndex];
+    //    }
+
+    //    foreach ( var note in notePool.Objects )
+    //    {
+    //        if ( note.gameObject.activeSelf )
+    //             note.UpdateTransform( _playback, _scaledPlayback );
+    //    }
+    //}
 
     private IEnumerator SliderEarlyCheck()
     {

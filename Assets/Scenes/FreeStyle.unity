@@ -33102,7 +33102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   band: {fileID: 1605866379}
   power: 7.5
-  decrease: 17.5
+  decrease: 15
 --- !u!4 &1523756059
 Transform:
   m_ObjectHideFlags: 0

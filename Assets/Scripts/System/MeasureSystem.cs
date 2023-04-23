@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ public class MeasureSystem : MonoBehaviour
     private InGame scene;
     public ObjectPool<MeasureRenderer> pool;
     public MeasureRenderer mPrefab;
-    private Queue<MeasureRenderer> despawnQueue   = new Queue<MeasureRenderer>();
+    //private Queue<MeasureRenderer> despawnQueue   = new Queue<MeasureRenderer>();
     private List<double/* ScaledTime */> measures = new List<double>();
     private int curIndex;
     private double curTime;
@@ -24,17 +25,23 @@ public class MeasureSystem : MonoBehaviour
             {
                 scene.OnSystemInitialize += Initialize;
                 scene.OnReLoad += ReLoad;
-                NowPlaying.Inst.OnUpdateTime += UpdateMeasures;
+                NowPlaying.Inst.OnUpdateTime += SpawnMeasures;
             }
         }
 
         pool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
     }
 
+    //private void Start()
+    //{
+    //    StartCoroutine( SpawnMeasures() );
+    //}
+
     private void OnDestroy()
     {
+        StopAllCoroutines();
         if ( shouldShowMeasure )
-             NowPlaying.Inst.OnUpdateTime -= UpdateMeasures;
+             NowPlaying.Inst.OnUpdateTime -= SpawnMeasures;
     }
 
     private void ReLoad()
@@ -66,25 +73,54 @@ public class MeasureSystem : MonoBehaviour
             curTime = measures[curIndex];
     }
 
-    private void UpdateMeasures( double _playback, double _scaledPlayback )
+    private IEnumerator SpawnMeasures()
     {
+        var waitTime = new WaitUntil( () => curTime <= NowPlaying.ScaledPlayback + GameSetting.PreLoadTime );
+        while ( curIndex < measures.Count )
+        {
+            yield return waitTime;
 
+            MeasureRenderer measure = pool.Spawn();
+            measure.SetInfo( curTime );
+
+            if ( ++curIndex < measures.Count )
+                 curTime = measures[curIndex];
+        }
+    }
+
+    private void SpawnMeasures( double _playback, double _scaledPlayback )
+    {
         while ( curIndex < measures.Count && curTime <= _scaledPlayback + GameSetting.PreLoadTime )
         {
             MeasureRenderer measure = pool.Spawn();
             measure.SetInfo( curTime );
-        
+
             if ( ++curIndex < measures.Count )
-                 curTime = measures[curIndex];
+                curTime = measures[curIndex];
         }
-
-        foreach ( var measure in pool.ActiveObjects )
-        {
-            if ( measure.ScaledTime < _scaledPlayback ) despawnQueue.Enqueue( measure );
-            else                                        measure.UpdateTransform( _playback, _scaledPlayback );
-        }
-
-        while ( despawnQueue.Count > 0 )
-                pool.Despawn( despawnQueue.Dequeue() );
     }
+
+    //private void UpdateMeasures( double _playback, double _scaledPlayback )
+    //{
+    //    while ( curIndex < measures.Count && curTime <= _scaledPlayback + GameSetting.PreLoadTime )
+    //    {
+    //        MeasureRenderer measure = pool.Spawn();
+    //        measure.SetInfo( curTime );
+
+    //        if ( ++curIndex < measures.Count )
+    //             curTime = measures[curIndex];
+    //    }
+
+    //    foreach ( var measure in pool.Objects )
+    //    {
+    //        if ( measure.gameObject.activeSelf )
+    //        {
+    //            if ( measure.ScaledTime < _scaledPlayback ) despawnQueue.Enqueue( measure );
+    //            else                                        measure.UpdateTransform( _playback, _scaledPlayback );
+    //        }
+    //    }
+
+    //    while ( despawnQueue.Count > 0 )
+    //            pool.Despawn( despawnQueue.Dequeue() );
+    //}
 }

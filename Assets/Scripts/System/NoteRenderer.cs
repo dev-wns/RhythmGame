@@ -77,15 +77,15 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         body.transform.localScale    = new Vector2( GameSetting.NoteWidth, length );
         tail.transform.localPosition = new Vector2( 0f, length );
 
-        transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight ) );
+        //transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
     }
 
-    public void UpdateTransform( double _playback, double _scaledPlayback )
+    private void LateUpdate()
     {
         // 롱노트 판정선에 붙기
-        if ( IsSlider && ShouldResizeSlider && Time < _playback )
+        if ( IsSlider && ShouldResizeSlider && Time < NowPlaying.Playback )
              ResizeSlider( true );
 
-        this.transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - _scaledPlayback ) * GameSetting.Weight ) );
+        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
     }
 }

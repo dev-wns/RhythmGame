@@ -207,14 +207,14 @@ public abstract class Scene : SceneKeyAction
         if ( _isPlus )
         {
             SoundManager.Inst.Play( SoundSfxType.Slider );
-            GameSetting.ScrollSpeed += .1d;
+            GameSetting.ScrollSpeed += .1f;
         }
         else
         {
             if ( GameSetting.ScrollSpeed > 1.0001d )
                  SoundManager.Inst.Play( SoundSfxType.Slider );
 
-            GameSetting.ScrollSpeed -= .1d;
+            GameSetting.ScrollSpeed -= .1f;
         }
 
         OnScrollChange?.Invoke();

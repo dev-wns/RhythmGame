@@ -54,8 +54,8 @@ public class GameSetting
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static double OriginScrollSpeed = 6.5d; 
-    public static double ScrollSpeed
+    private static float OriginScrollSpeed = 6.5f; 
+    public static float ScrollSpeed
     {
 
         get => OriginScrollSpeed;
@@ -66,8 +66,8 @@ public class GameSetting
         }
     }
 
-    public static double Weight => ScrollSpeed * 350d;
-    public static double PreLoadTime => 1200d / Weight;
+    public static float Weight => ScrollSpeed * 350f;
+    public static float PreLoadTime => 1200f / Weight;
 
     // Sound
     public static readonly float DefaultSoundOffset = -50;

@@ -30,13 +30,13 @@ public class FrameRateOption : OptionText
         switch ( type )
         {
             case FrameRate.vSync:
-                 QualitySettings.vSyncCount = 1;
-                 break;
+                QualitySettings.vSyncCount = 1;
+                break;
 
             case FrameRate.No_Limit:
-                 QualitySettings.vSyncCount  = 0;
-                 Application.targetFrameRate = 10000;
-                 break;
+                QualitySettings.vSyncCount  = 0;
+                Application.targetFrameRate = 0;
+            break;
 
             case FrameRate._60:
             case FrameRate._144:
