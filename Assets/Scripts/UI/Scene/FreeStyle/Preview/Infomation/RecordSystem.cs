@@ -35,7 +35,7 @@ public class RecordSystem : MonoBehaviour
             records[i].Initialize( i, startPosX );
         }
 
-        icon.color = IsHideRecord ? new Color( 1f, 1f, 1f, .25f ) : Color.white;
+        icon.color = !IsHideRecord ? new Color( 1f, 1f, 1f, .25f ) : Color.white;
     }
 
     public void HideRecordInfomation()
@@ -44,7 +44,7 @@ public class RecordSystem : MonoBehaviour
         if ( IsHideRecord )
         {
             SoundManager.Inst.Play( SoundSfxType.MenuHover );
-            icon.color = new Color( 1f, 1f, 1f, .25f );
+            icon.color = Color.white;
             for ( int i = 0; i < NowPlaying.MaxRecordSize; i++ )
             {
                 records[i].SetActive( false );
@@ -53,7 +53,7 @@ public class RecordSystem : MonoBehaviour
         else
         {
             SoundManager.Inst.Play( SoundSfxType.MenuClick );
-            icon.color = Color.white;
+            icon.color = new Color( 1f, 1f, 1f, .25f );
             UpdateRecord( NowPlaying.CurrentSong );
         }
     }
