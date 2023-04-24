@@ -102,6 +102,7 @@ public class FreeStyleMainScroll : ScrollBase
                 if ( NowPlaying.Inst.CurrentSongIndex != CurrentIndex )
                      UpdateSong();
             }
+
         }
     }
 
