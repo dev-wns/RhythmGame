@@ -466,13 +466,17 @@ public class SoundManager : Singleton<SoundManager>
     /// </summary>
     public void FadeVolume( float _start, float _end, float _t )
     {
+        StopFadeEffect();
+        volumeEffectCoroutine = StartCoroutine( Fade( _start, _end, _t ) );
+    }
+
+    public void StopFadeEffect()
+    {
         if ( !ReferenceEquals( volumeEffectCoroutine, null ) )
         {
             StopCoroutine( volumeEffectCoroutine );
             volumeEffectCoroutine = null;
         }
-
-        volumeEffectCoroutine = StartCoroutine( Fade( _start, _end, _t ) );
     }
 
     public void FadeVolume( Music _music, float _start, float _end, float _t, Action _OnCompleted = null )

@@ -100,7 +100,7 @@ public class InGame : Scene
 
     private IEnumerator GameEnd()
     {
-        //SoundManager.Inst.FadeVolume( SoundManager.Inst.Volume, 0f, 2.5f );
+        SoundManager.Inst.FadeVolume( SoundManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );
 
         Stop();

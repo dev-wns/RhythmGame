@@ -63,6 +63,7 @@ public abstract class Scene : SceneKeyAction
     public void LoadScene( SceneType _type )
     {
         StopAllCoroutines();
+        SoundManager.Inst.StopFadeEffect();
         StartCoroutine( SceneChange( _type ) );
     }
 
