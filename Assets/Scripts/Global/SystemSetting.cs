@@ -7,7 +7,7 @@ public class SystemSetting
 {
     public static Resolution   CurrentResolution   = Resolution._1920_1080;
     public static FrameRate    CurrentFrameRate    = FrameRate.No_Limit;
-    public static ScreenMode   CurrentScreenMode   = ScreenMode.Exclusive_FullScreen;
+    public static ScreenMode   CurrentScreenMode   = ScreenMode.FullScreen_Window;
     public static SoundBuffer  CurrentSoundBuffer  = SoundBuffer._64;
     public static AntiAliasing CurrentAntiAliasing = AntiAliasing.None;
 

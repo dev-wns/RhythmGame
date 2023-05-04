@@ -94,7 +94,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( MaxRecordSize );
 
     public event Action<string> OnParse;
-    public event Action<double/* Playback */, double/* Scaled Playback */> OnUpdateTime;
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
@@ -122,9 +121,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime );
         UpdatePlayback();
-        OnUpdateTime?.Invoke( Playback, ScaledPlayback );
     }
-
     private void UpdatePlayback()
     {
         bool shouldFixedTime = false;

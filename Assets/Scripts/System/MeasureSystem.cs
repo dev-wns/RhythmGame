@@ -25,23 +25,20 @@ public class MeasureSystem : MonoBehaviour
             {
                 scene.OnSystemInitialize += Initialize;
                 scene.OnReLoad += ReLoad;
-                NowPlaying.Inst.OnUpdateTime += SpawnMeasures;
             }
         }
 
         pool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
     }
 
-    //private void Start()
-    //{
-    //    StartCoroutine( SpawnMeasures() );
-    //}
+    private void Start()
+    {
+        StartCoroutine( SpawnMeasures() );
+    }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
-        if ( shouldShowMeasure )
-             NowPlaying.Inst.OnUpdateTime -= SpawnMeasures;
     }
 
     private void ReLoad()
@@ -99,28 +96,4 @@ public class MeasureSystem : MonoBehaviour
                 curTime = measures[curIndex];
         }
     }
-
-    //private void UpdateMeasures( double _playback, double _scaledPlayback )
-    //{
-    //    while ( curIndex < measures.Count && curTime <= _scaledPlayback + GameSetting.PreLoadTime )
-    //    {
-    //        MeasureRenderer measure = pool.Spawn();
-    //        measure.SetInfo( curTime );
-
-    //        if ( ++curIndex < measures.Count )
-    //             curTime = measures[curIndex];
-    //    }
-
-    //    foreach ( var measure in pool.Objects )
-    //    {
-    //        if ( measure.gameObject.activeSelf )
-    //        {
-    //            if ( measure.ScaledTime < _scaledPlayback ) despawnQueue.Enqueue( measure );
-    //            else                                        measure.UpdateTransform( _playback, _scaledPlayback );
-    //        }
-    //    }
-
-    //    while ( despawnQueue.Count > 0 )
-    //            pool.Despawn( despawnQueue.Dequeue() );
-    //}
 }

@@ -13,7 +13,6 @@ public enum SoundSfxType
 }
 
 
-public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
 public struct Music
 {
     public FMOD.Sound sound;
@@ -25,6 +24,7 @@ public struct Music
     }
 }
 
+public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
 public class SoundManager : Singleton<SoundManager>
 {
     #region variables
@@ -35,10 +35,9 @@ public class SoundManager : Singleton<SoundManager>
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
     private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>          dsps      = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
     private FMOD.System system;
-    public FMOD.Sound MainSound { get; private set; }
-    public FMOD.Channel MainChannel { get; private set; }
     private int curDriverIndex = -1;
     public event Action OnReload;
+    public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
     public struct SoundDriver : IEquatable<SoundDriver>
     {
         public int index; // OUTPUTTYPE에 해당하는 출력장치 인덱스
@@ -52,31 +51,10 @@ public class SoundManager : Singleton<SoundManager>
         public override bool Equals( object _obj ) => Equals( ( SoundDriver )_obj );
         public override int GetHashCode() => base.GetHashCode();
     }
-    public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
-    #region Properties
-    /// <summary>
-    /// The accuratetime flag is required.
-    /// </summary>
-    public uint Length
-    {
-        get
-        {
-            //if ( !hasAccurateFlag || !IsPlaying( ChannelType.BGM ) ) {
-            //    Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
-            //    return uint.MaxValue;
-            //}
-
-            ErrorCheck( MainSound.getLength( out uint length, FMOD.TIMEUNIT.MS ) );
-            return length;
-        }
-    }
-    public int CurrentDriverIndex
-    {
+    public int CurrentDriverIndex {
         get => curDriverIndex;
-        set
-        {
-            if ( Drivers.Count <= value || curDriverIndex == value )
-            {
+        set {
+            if ( Drivers.Count <= value || curDriverIndex == value ) {
                 Debug.LogWarning( "SoundDriver Index is Out of Range or Duplicated Value" );
                 return;
             }
@@ -84,6 +62,26 @@ public class SoundManager : Singleton<SoundManager>
             ErrorCheck( system.setOutput( Drivers[value].outputType ) );
             ErrorCheck( system.setDriver( Drivers[value].index ) );
             curDriverIndex = value;
+        }
+    }
+    #region Properties
+    public FMOD.Sound MainSound     { get; private set; }
+    public FMOD.Channel MainChannel { get; private set; }
+    /// <summary>
+    /// The accuratetime flag is required.
+    /// </summary>
+    public uint Length
+    {
+        get
+        {
+            //if ( !hasAccurateFlag || !IsPlaying( ChannelType.BGM ) )
+            //{
+            //    Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
+            //    return uint.MaxValue;
+            //}
+
+
+            return ErrorCheck( MainSound.getLength( out uint length, FMOD.TIMEUNIT.MS ) ) ? length : uint.MaxValue;
         }
     }
     public int KeySoundCount => keySounds.Count;
@@ -101,8 +99,7 @@ public class SoundManager : Singleton<SoundManager>
                 return 0;
             }
 
-            uint pos;
-            ErrorCheck( MainChannel.getPosition( out pos, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( MainChannel.getPosition( out uint pos, FMOD.TIMEUNIT.MS ) );
             return pos;
         }
 

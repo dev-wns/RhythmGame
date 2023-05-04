@@ -54,7 +54,6 @@ public class Judgement : MonoBehaviour
     public bool IsMiss( double _diff, NoteType _noteType )
     {
         return _noteType == NoteType.Default ? _diff < -NoteJudgeData.bad : _diff < -SliderJudgeData.bad;
-       
     }
 
     public void ResultUpdate( double _diff, NoteType _noteType )

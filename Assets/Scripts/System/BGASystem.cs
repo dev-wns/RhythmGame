@@ -405,6 +405,8 @@ public class BGASystem : MonoBehaviour
                 }
             }
         }
+
+
         textures.Add( "BackgroundImage", tex );
         background.color = color;
         background.texture = tex;

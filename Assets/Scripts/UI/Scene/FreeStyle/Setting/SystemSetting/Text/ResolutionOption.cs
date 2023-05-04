@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System.Text;
+using UnityEngine;
 
 public class ResolutionOption : OptionText
 {
@@ -43,7 +41,21 @@ public class ResolutionOption : OptionText
         var width  = int.Parse( split[0] );
         var height = int.Parse( split[1] );
 
-        Screen.SetResolution( width, height, ( FullScreenMode )SystemSetting.CurrentScreenMode );
+        switch ( SystemSetting.CurrentScreenMode )
+        {
+            case ScreenMode.Exclusive_FullScreen:
+            Screen.SetResolution( width, height, FullScreenMode.ExclusiveFullScreen );
+            break;
+
+            case ScreenMode.FullScreen_Window:
+            Screen.SetResolution( width, height, FullScreenMode.FullScreenWindow );
+            break;
+
+            case ScreenMode.Windowed:
+            Screen.SetResolution( width, height, FullScreenMode.Windowed );
+            break;
+        }
+
         SystemSetting.CurrentResolution = ( Resolution )CurrentIndex;
     }
 }

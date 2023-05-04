@@ -23,19 +23,25 @@ public class ScreenModeOption : OptionText
 
     public override void Process()
     {
+        var replace = SystemSetting.CurrentResolution.ToString().Replace( "_", " " );
+        var split = replace.Trim().Split( ' ' );
+
+        var width  = int.Parse( split[0] );
+        var height = int.Parse( split[1] );
+
         var type = ( ScreenMode )CurrentIndex;
         switch ( type )
         {
-            default:
-            {
-                var replace = ( ( Resolution )CurrentIndex ).ToString().Replace( "_", " " );
-                var split = replace.Trim().Split( ' ' );
+            case ScreenMode.Exclusive_FullScreen:
+            Screen.SetResolution( width, height, FullScreenMode.ExclusiveFullScreen );
+            break;
 
-                var width = int.Parse( split[0] );
-                var height = int.Parse( split[1] );
+            case ScreenMode.FullScreen_Window:
+            Screen.SetResolution( width, height, FullScreenMode.FullScreenWindow );
+            break;
 
-                Screen.SetResolution( width, height, ( FullScreenMode )type );
-            }
+            case ScreenMode.Windowed:
+            Screen.SetResolution( width, height, FullScreenMode.Windowed );
             break;
         }
 

@@ -383,14 +383,14 @@ public class FileConverter : FileReader
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
 
-                        if ( finalLane == 3 )
+                        if ( finalLane == 6 )
                              song.delSliderCount++;
                     }
                     else {
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
 
-                        if ( finalLane == 3 )
+                        if ( finalLane == 6 )
                              song.delNoteCount++;
                     }
 
@@ -600,12 +600,6 @@ public class FileConverter : FileReader
             else if ( _a.time > _b.time ) return -1;
             else                          return 0;
         } );
-
-        //Debug.Log( $"============= {Path.GetFileName( path )} =============" );
-        //for ( int i = 0; i < elapsedTimings.Count; i++ )
-        //{
-        //    Debug.Log( $"{i} : BPM( {elapsedTimings[i].bpm} )  Time( {elapsedTimings[i].elapsedTime} )" );
-        //}
 
         return accumulateTimings[0].bpm;
     }
