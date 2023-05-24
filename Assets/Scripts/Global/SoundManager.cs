@@ -123,7 +123,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
     public bool IsLoad { get; private set; }
-    public float Volume { get; private set; }
+    public float Volume { get; set; }
     #endregion
     #endregion
     #region System
@@ -573,10 +573,8 @@ public class SoundManager : Singleton<SoundManager>
     public void SetVolume( float _value, ChannelType _type )
     {
         float chlVolume = _value;
-        if ( _value < 0f )
-            chlVolume = 0f;
-        if ( _value > 1f )
-            chlVolume = 1f;
+        if ( _value < 0f ) chlVolume = 0f;
+        if ( _value > 1f ) chlVolume = 1f;
         if ( _type == ChannelType.BGM )
             Volume = chlVolume;
 

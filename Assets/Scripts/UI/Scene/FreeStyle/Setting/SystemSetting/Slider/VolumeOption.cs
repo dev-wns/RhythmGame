@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class VolumeOption : OptionSlider
@@ -8,12 +6,24 @@ public class VolumeOption : OptionSlider
 
     private void OnEnable()
     {
-        curValue = Mathf.RoundToInt( SoundManager.Inst.GetVolume( groupType ) * 100f );
+        curValue = groupType == ChannelType.BGM ? Mathf.RoundToInt( SoundManager.Inst.Volume * 100f ) : Mathf.RoundToInt( SoundManager.Inst.GetVolume( groupType ) * 100f );
         UpdateValue( curValue );
     }
 
     public override void Process()
     {
-        SoundManager.Inst.SetVolume( curValue * .01f, groupType );
+        switch ( groupType )
+        {
+            case ChannelType.BGM:
+            SoundManager.Inst.StopFadeEffect();
+            SoundManager.Inst.Volume = curValue * .01f;
+            SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+            break;
+
+
+            default:
+            SoundManager.Inst.SetVolume( curValue * .01f, groupType );
+            break;
+        }
     }
 }
