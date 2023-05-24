@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class BaseSpectrum : MonoBehaviour
@@ -19,12 +17,11 @@ public abstract class BaseSpectrum : MonoBehaviour
     [Min(0f)]       public int   specCount;
     [Min(0f)]       public float specPower;
     [Min(0f)]       public float specWidth;
-    [Min(0f)]       public float specBlank;
+    [Min(-1f)]      public float specBlank;
 
     protected float Offset => specWidth + specBlank;
     protected float Power  => specPower * AdditionalPower;
 
-    protected Transform[] transforms; // 생성된 모델 안의 Transform
     private readonly float AdditionalPower = 1000f;
 
     protected virtual void Awake()

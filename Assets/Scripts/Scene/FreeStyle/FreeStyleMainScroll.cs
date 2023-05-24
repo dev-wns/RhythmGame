@@ -127,7 +127,7 @@ public class FreeStyleMainScroll : ScrollBase
             SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\LIHO  Surrender.mp3", true, false );
             SoundManager.Inst.Play( 0f );
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            //SoundManager.Inst.Position = 101500;
+            //SoundManager.Inst.Position = 165000;
             return;
         }
 

@@ -15,7 +15,7 @@ public class FreeStyle : Scene
     {
         base.Awake();
 
-        QualitySettings.antiAliasing = 8;
+        QualitySettings.antiAliasing = 0;
 
         SoundManager.Inst.OnReload += Connect;
 

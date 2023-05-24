@@ -21658,16 +21658,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualizer: {fileID: 1923945052}
   gradationColorAlpha: 1
-  color: {r: 1, g: 1, b: 1, a: 0.14901961}
+  color: {r: 1, g: 1, b: 1, a: 1}
   isGradationColor: 1
   prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
   sortingOrder: 2
   specStartIndex: 8
   specCount: 200
-  specPower: 1.25
-  specWidth: 4.375
-  specBlank: 0.225
-  decreasePower: 15
+  specPower: 1.5
+  specWidth: 4.5975
+  specBlank: 0
+  decreasePower: 12.5
   IsNormalized: 1
   isReverse: 1
   isPositionUpdate: 0

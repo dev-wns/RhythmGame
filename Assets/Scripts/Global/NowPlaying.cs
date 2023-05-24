@@ -94,6 +94,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( MaxRecordSize );
 
     public event Action<string> OnParse;
+    public event Action<double/*Playback*/, double/*ScaledPlayback*/> OnSpawnObjects;
 
     public bool IsStart        { get; private set; }
     public bool IsParseSong    { get; private set; }
@@ -121,10 +122,11 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime );
         UpdatePlayback();
+
+        OnSpawnObjects?.Invoke( Playback, ScaledPlayback );
     }
     private void UpdatePlayback()
     {
-        bool shouldFixedTime = false;
         var timings = CurrentChart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
         {
@@ -136,18 +138,23 @@ public class NowPlaying : Singleton<NowPlaying>
             if ( i + 1 < timings.Count )
             {
                 double nextTime = timings[i + 1].time;
-                shouldFixedTime = Global.Math.Abs( nextTime - curTime ) < Time.deltaTime;
-                if ( shouldFixedTime || nextTime < Playback )
+                if ( Global.Math.Abs( nextTime - curTime ) < double.Epsilon )
+                {
+                    timingIndex += 1;
+                    continue;
+                }
+
+                if ( nextTime < Playback )
                 {
                     timingIndex += 1;
                     ScaledPlaybackCache += ( curBPM / medianBPM ) * ( nextTime - curTime );
 
-                    continue;
+                    ScaledPlayback = ScaledPlaybackCache;
+                    break;
                 }
             }
 
-            ScaledPlayback = shouldFixedTime ? ScaledPlaybackCache : 
-                                               ScaledPlaybackCache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
+            ScaledPlayback = ScaledPlaybackCache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
         }
     }
     #endregion

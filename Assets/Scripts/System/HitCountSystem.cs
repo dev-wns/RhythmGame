@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,7 +29,6 @@ public class HitCountSystem : MonoBehaviour
 
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += OnReLoad;
-        //scene.OnResult += OnResult;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += AddCount;
@@ -38,11 +36,6 @@ public class HitCountSystem : MonoBehaviour
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;
     }
-
-    //private void OnResult()
-    //{
-    //    NowPlaying.Inst.SetResultCount( type, curCount );
-    //}
 
     private void OnReLoad()
     {
@@ -65,8 +58,8 @@ public class HitCountSystem : MonoBehaviour
         curCount++;
 
         curNum = curCount == 0 ? 1 : Global.Math.Log10( curCount ) + 1;
-        float calcPrevCount = prevCount;
-        float calcCurCount  = curCount;
+        double calcPrevCount = prevCount;
+        double calcCurCount  = curCount;
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( ( int )calcPrevCount % 10 == ( int )calcCurCount % 10 )
@@ -76,8 +69,8 @@ public class HitCountSystem : MonoBehaviour
                  images[i].gameObject.SetActive( true );
 
             images[i].sprite = sprites[( int )calcCurCount % 10];
-            calcCurCount  *= .1f;
-            calcPrevCount *= .1f;
+            calcCurCount  *= .1d;
+            calcPrevCount *= .1d;
         }
 
         if ( prevNum != curNum )

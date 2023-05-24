@@ -1,10 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LineSpectrum : BaseSpectrum
 {
     private float[] buffer;
+
+    protected Transform[] transforms; // ìƒì„±ëœ ëª¨ë¸ ì•ˆì˜ Transform
 
     [Header("Speed Control")]
     [Range(0f, 50f)] 
@@ -45,10 +45,10 @@ public class LineSpectrum : BaseSpectrum
     {
         for ( int i = 0; i < specCount; i++ )
         {
-            // ÀÎ½ºÆåÅÍ »óÀÇ ½ºÆåÆ®·³ ½ÃÀÛÀ§Ä¡ºÎÅÍ °ªÀ» ¹Ş¾Æ¿Â´Ù.
+            // ì¸ìŠ¤í™í„° ìƒì˜ ìŠ¤í™íŠ¸ëŸ¼ ì‹œì‘ìœ„ì¹˜ë¶€í„° ê°’ì„ ë°›ì•„ì˜¨ë‹¤.
             int index = isReverse ? specStartIndex + specCount - i - 1 : specStartIndex + i;
 
-            // ½ºÅ×·¹¿À( 0 : Left, 1 : Right ) ½ºÆåÆ®·³ °ª Æò±Õ.
+            // ìŠ¤í…Œë ˆì˜¤( 0 : Left, 1 : Right ) ìŠ¤í™íŠ¸ëŸ¼ ê°’ í‰ê· .
             float value = ( _values[0][index] + _values[1][index] ) * .5f;
             if ( IsNormalized )
             {
@@ -61,10 +61,13 @@ public class LineSpectrum : BaseSpectrum
                 value = sumValue / ( end - start + 1 );
             }
 
-            // ÀÌÀü °ª°úÀÇ Â÷ÀÌ°¡ Å¬¼ö·Ï ºü¸£°Ô º¯È­ÇÏµµ·Ï ÇÑ´Ù.
-            buffer[i] = buffer[i] < value ? value : Mathf.Lerp( buffer[i], value, decreasePower * Time.deltaTime );
+            // ì´ì „ ê°’ê³¼ì˜ ì°¨ì´ê°€ í´ìˆ˜ë¡ ë¹ ë¥´ê²Œ ë³€í™”í•˜ë„ë¡ í•œë‹¤.
+            float diffAbs = Global.Math.Abs( buffer[i] - value );
+            float cache   = Global.Math.Clamp( buffer[i] - ( diffAbs * decreasePower * Time.deltaTime ), .0005f, 1f );
+            buffer[i] = cache < value ? value : cache;
 
-            // °è»êµÈ °ªÀ¸·Î ½ºÄÉÀÏ Á¶Àı.
+
+            // ê³„ì‚°ëœ ê°’ìœ¼ë¡œ ìŠ¤ì¼€ì¼ ì¡°ì ˆ.
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];
             left.localScale = right.localScale = new Vector3( specWidth, buffer[i] * Power, 1f );

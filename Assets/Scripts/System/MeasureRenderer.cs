@@ -13,7 +13,7 @@ public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
     private void LateUpdate()
     {
         transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( ScaledTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
-        if ( ScaledTime <= NowPlaying.ScaledPlayback )
+        if ( ScaledTime < NowPlaying.ScaledPlayback )
              pool.Despawn( this );
     }
 

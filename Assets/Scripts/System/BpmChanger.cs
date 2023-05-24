@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
@@ -19,8 +19,7 @@ public class BpmChanger : MonoBehaviour
     private int prevNum, curNum;
 
     [Header("Time")]
-    private float delayTime = 0f;
-    private const float ShowDelayTime = 1f / 100f;
+    private const float DelayTime = 1f / 100f;
 
     private void Awake()
     {
@@ -50,30 +49,38 @@ public class BpmChanger : MonoBehaviour
             images[i].gameObject.SetActive( false );
         }
         layoutGroup.SetLayoutHorizontal();
+        StartCoroutine( UpdateBPM() );
     }
 
     private void Initialize( Chart _chart )
     {
         timings = _chart.timings;
+        StartCoroutine( UpdateBPM() );
     }
 
-    private void LateUpdate()
+    private IEnumerator UpdateBPM()
     {
-        delayTime += Time.deltaTime;
-        if ( delayTime > ShowDelayTime && 
-             curIndex < timings.Count &&
-             timings[curIndex].time <= NowPlaying.Playback )
+        var curTiming = timings[curIndex];
+        ImageUpdate( curTiming.bpm );
+
+        WaitUntil waitNextBPMTime = new WaitUntil( () => curTiming.time < NowPlaying.Playback );
+
+        while ( curIndex < timings.Count )
         {
-            ImageUpdate( Math.Round( timings[curIndex].bpm ) );
-            if ( curIndex + 1 < timings.Count )
+            yield return waitNextBPMTime;
+
+            while ( curIndex + 1 < timings.Count && 
+                    Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) < double.Epsilon )
             {
-                if ( ( timings[curIndex].bpm < timings[curIndex + 1].bpm && timings[curIndex].bpm * 10 < timings[curIndex + 1].bpm ) ||
-                     ( timings[curIndex].bpm > timings[curIndex + 1].bpm && timings[curIndex].bpm      > timings[curIndex + 1].bpm * 10 ) )
-                {
-                    delayTime = 0f;
-                }
+                curTiming = timings[++curIndex];
             }
-            curIndex++;
+
+            ImageUpdate( curTiming.bpm );
+
+            if ( ++curIndex < timings.Count )
+                 curTiming = timings[curIndex];
+
+            yield return YieldCache.WaitForSeconds( DelayTime );
         }
     }
 
@@ -89,7 +96,7 @@ public class BpmChanger : MonoBehaviour
                     images[i].gameObject.SetActive( true );
 
                 images[i].sprite = sprites[( int )calcCurBpm % 10];
-                calcCurBpm *= .1f;
+                calcCurBpm *= .1d;
             }
             else
             {

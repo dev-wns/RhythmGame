@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +6,6 @@ public class MeasureSystem : MonoBehaviour
     private InGame scene;
     public ObjectPool<MeasureRenderer> pool;
     public MeasureRenderer mPrefab;
-    //private Queue<MeasureRenderer> despawnQueue   = new Queue<MeasureRenderer>();
     private List<double/* ScaledTime */> measures = new List<double>();
     private int curIndex;
     private double curTime;
@@ -25,20 +23,18 @@ public class MeasureSystem : MonoBehaviour
             {
                 scene.OnSystemInitialize += Initialize;
                 scene.OnReLoad += ReLoad;
+                NowPlaying.Inst.OnSpawnObjects += SpawnMeasures;
             }
         }
 
-        pool = new ObjectPool<MeasureRenderer>( mPrefab, 5 );
-    }
-
-    private void Start()
-    {
-        StartCoroutine( SpawnMeasures() );
+        pool = new ObjectPool<MeasureRenderer>( mPrefab, 10 );
     }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
+        if ( shouldShowMeasure )
+             NowPlaying.Inst.OnSpawnObjects -= SpawnMeasures;
     }
 
     private void ReLoad()
@@ -67,22 +63,7 @@ public class MeasureSystem : MonoBehaviour
         }
 
         if ( measures.Count > 0 )
-            curTime = measures[curIndex];
-    }
-
-    private IEnumerator SpawnMeasures()
-    {
-        var waitTime = new WaitUntil( () => curTime <= NowPlaying.ScaledPlayback + GameSetting.PreLoadTime );
-        while ( curIndex < measures.Count )
-        {
-            yield return waitTime;
-
-            MeasureRenderer measure = pool.Spawn();
-            measure.SetInfo( curTime );
-
-            if ( ++curIndex < measures.Count )
-                 curTime = measures[curIndex];
-        }
+             curTime = measures[curIndex];
     }
 
     private void SpawnMeasures( double _playback, double _scaledPlayback )
@@ -93,7 +74,7 @@ public class MeasureSystem : MonoBehaviour
             measure.SetInfo( curTime );
 
             if ( ++curIndex < measures.Count )
-                curTime = measures[curIndex];
+                 curTime = measures[curIndex];
         }
     }
 }

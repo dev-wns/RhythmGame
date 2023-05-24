@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HitEffectSystem : MonoBehaviour
 {
@@ -14,7 +12,7 @@ public class HitEffectSystem : MonoBehaviour
     public List<Sprite> spritesL = new List<Sprite>();
     private float offsetL;
 
-    private readonly float HitEffectFramePerSecond = 1f / 80f;
+    private readonly float HitEffectFramePerSecond = 1f / 100f;
 
     private SpriteRenderer rdr;
     private int curIndex = 0;
@@ -49,18 +47,19 @@ public class HitEffectSystem : MonoBehaviour
     private void Initialize( int _key )
     {
         lane.InputSys.OnHitNote += HitEffect;
-        lane.InputSys.OnInputEvent += SetInputType;
+        lane.InputSys.OnInputEvent += SetCurrentInput;
 
         UpdatePosition();
         float size = GameSetting.NoteWidth * 2;
         transform.localScale = new Vector2( size, size );
     }
 
-    private void SetInputType( InputType _type ) => inputType = _type;
-    
-    private void HitEffect( NoteType _type )
+    private void SetCurrentInput( InputType _type ) => inputType = _type;
+
+    private void HitEffect( NoteType _noteType, InputType _inputType )
     {
-        type = _type;
+        type = _noteType;
+        inputType = _inputType;
         curIndex = 0;
 
         switch ( type )
@@ -82,19 +81,19 @@ public class HitEffectSystem : MonoBehaviour
         {
             case NoteType.Default:
             {
-                if ( time >= offsetN )
+                if ( time > offsetN )
                 {
                     if ( curIndex < spritesN.Count - 1 ) rdr.sprite = spritesN[++curIndex];
                     else                                 Stop();
 
-                    time     = Global.Math.Abs( time - offsetN );
+                    time = 0f;
                 }
             }
             break;
 
             case NoteType.Slider:
             {
-                if ( time >= offsetL )
+                if ( time > offsetL )
                 {
                     if ( curIndex < spritesL.Count - 1 )
                     {
@@ -111,7 +110,7 @@ public class HitEffectSystem : MonoBehaviour
                         }
                     }
 
-                    time = Global.Math.Abs( time - offsetL );
+                    time = 0f;
                 }
             }
             break;

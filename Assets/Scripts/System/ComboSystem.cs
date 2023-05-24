@@ -152,7 +152,7 @@ public class ComboSystem : MonoBehaviour
     private void UpdateImages()
     {
         curNum = curCombo == 0 ? 1 : Global.Math.Log10( curCombo ) + 1;
-        float calcCurCombo  = curCombo;
+        double calcCurCombo  = curCombo;
         for ( int i = 0; i < images.Count; i++ )
         {
             if ( i < curNum )
@@ -160,7 +160,7 @@ public class ComboSystem : MonoBehaviour
                 images[i].gameObject.SetActive( true );
                 images[i].sprite = sprites[( int )calcCurCombo % 10];
                 images[i].color  = color;
-                calcCurCombo *= .1f;
+                calcCurCombo *= .1d;
             }
             else
             {
