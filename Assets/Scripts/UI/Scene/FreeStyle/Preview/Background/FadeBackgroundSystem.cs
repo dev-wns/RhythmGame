@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Networking;
 
 public class FadeBackgroundSystem : MonoBehaviour
@@ -38,6 +36,7 @@ public class FadeBackgroundSystem : MonoBehaviour
     {
         Sprite sprite;
         bool isExist = System.IO.File.Exists( _path );
+        bool useDefault = false;
         if ( isExist )
         {
             var ext = System.IO.Path.GetExtension( _path );
@@ -66,17 +65,26 @@ public class FadeBackgroundSystem : MonoBehaviour
                         }
 
                         Texture2D tex = handler.texture;
-                        sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+                        try
+                        { sprite = Sprite.Create( tex, new Rect( 0, 0, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect ); }
+                        catch ( System.Exception )
+                        {
+                            sprite = defaultSprite;
+                            useDefault = true;
+                        }
                     }
                 }
             }
         }
         else
+        {
             sprite = defaultSprite;
+            useDefault = true;
+        }
 
         background?.Despawn();
         background = bgPool.Spawn();
-        background.SetInfo( this, sprite, !isExist );
+        background.SetInfo( this, sprite, useDefault );
 
         // 원시 버젼 메모리 재할당이 큼
         //Texture2D tex = new Texture2D( 1, 1, TextureFormat.ARGB32, false );

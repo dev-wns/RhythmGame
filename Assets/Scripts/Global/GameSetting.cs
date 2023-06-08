@@ -70,7 +70,6 @@ public class GameSetting
     public static float PreLoadTime => 1200f / Weight;
 
     // Sound
-    public static readonly float DefaultSoundOffset = -50;
     public static int SoundOffset = 0;
 
     // Opacity Percentage ( 0 ~ 100 )
@@ -93,9 +92,9 @@ public class GameSetting
 
     // note
     public static float NoteSizeMultiplier = 1f;
-    public static float NoteWidth  => 105f * NoteSizeMultiplier; // 111
-    public static float NoteBodyWidth => 105f * NoteSizeMultiplier;
-    public static float NoteHeight => 64f * NoteSizeMultiplier;
+    public static float NoteWidth  => 111f * NoteSizeMultiplier; // 111
+    public static float NoteBodyWidth => 111f * NoteSizeMultiplier;
+    public static float NoteHeight => 63.5f * NoteSizeMultiplier;
     public static float NoteBlank  = 0f;
     public static float NoteStartPos => GearOffsetX + -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 
@@ -112,5 +111,5 @@ public class GameSetting
     public static int PPU = 100; // pixel per unit
 
     // Debug
-    public static bool IsNoteBodyGray = false;
+    public static bool IsAutoRandom = false;
 }

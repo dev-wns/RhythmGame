@@ -30,7 +30,6 @@ public class FileParser : FileReader
                     _song.audioPath = soundName == string.Empty ? string.Empty :
                                                                   Path.Combine( directory, soundName );
                 }
-                if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = Split( ':' );

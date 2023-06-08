@@ -9,6 +9,8 @@ using UnityEngine;
 
 public struct Song
 {
+    public int UID;
+
     public string filePath;
     public string imagePath;
     public string audioPath;
@@ -223,7 +225,39 @@ public class FileConverter : FileReader
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
              Convert( _path );
+
+
+        //Check( _path );
     }
+
+    //private void Check( string _path )
+    //{
+    //    var newPath = Path.ChangeExtension( _path, "wns" );
+
+    //    if ( !File.Exists( newPath ) )
+    //         return;
+
+    //    try
+    //    {
+    //        OpenFile( newPath );
+
+    //        while ( ReadLineEndOfStream() )
+    //        {
+    //            if ( Contains( "ImagePath:" ) )
+    //            {
+
+    //                var imageName = Split( ':' );
+    //                if ( imageName == string.Empty )
+    //                {
+    //                    Convert( _path );
+    //                }
+    //                break;
+    //            }
+    //        }
+    //    }
+    //    catch( Exception )
+    //    { }
+    //}
 
     private void Convert( string _path ) 
     {
@@ -232,6 +266,7 @@ public class FileConverter : FileReader
             Song song = new Song();
             OpenFile( _path );
 #region General
+
             // [General] ~ [Editor]
             int mode = 0;
             while ( ReadLine() != "[Metadata]" )
@@ -281,7 +316,12 @@ public class FileConverter : FileReader
             var directory = Path.GetDirectoryName( _path );
             while ( ReadLine() != "[TimingPoints]" )
             {
-                if ( Contains( ".avi" ) || Contains( ".mp4" ) )
+                // Image
+                if ( Contains( "0,0," ) && !( Contains( ".mp3" ) || Contains( ".wav" ) || Contains( ".ogg" ) || Contains( "Video," ) || Contains( "Sprite," ) ) )
+                     song.imagePath = Split( '"' );
+
+                // Video
+                if ( Contains( "Video," ) )
                 {
                     var splitData = line.Split( ',' );
                     song.videoOffset = int.Parse( splitData[1] );
@@ -289,11 +329,7 @@ public class FileConverter : FileReader
                     song.hasVideo    = File.Exists( Path.Combine( directory, song.videoPath ) );
                 }
 
-                if ( ( Contains( ".jpg" ) || Contains( ".png" ) || Contains( ".bmp" ) ) && ( !Contains( "Sprite," ) ) )
-                {
-                    song.imagePath = Split( '"' );
-                }
-
+                // Sprite
                 if ( Contains( "Sprite," ) )
                 {
                     string[] splitSprite = line.Split( ',' );
@@ -303,6 +339,8 @@ public class FileConverter : FileReader
                     sprites.Add( new SpriteSample( type, float.Parse( splitTime[2] ), float.Parse( splitTime[3] ), name ) );
                 }
 
+                // HitSound
+                // <filepath> is the same concept as with sprites, only referring to the .wav, .mp3, or .ogg file.
                 if ( Contains( ".mp3" ) || Contains( ".wav" ) || Contains( ".ogg" ) )
                 {
                     string[] split = line.Split( ',' );
@@ -317,6 +355,7 @@ public class FileConverter : FileReader
                 else if ( _A.start < _B.start ) return -1;
                 else                            return 0;
             } );
+
             if ( sprites.Count > 0 )
                  song.hasSprite = true;
              
@@ -383,14 +422,14 @@ public class FileConverter : FileReader
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
 
-                        if ( finalLane == 6 )
+                        if ( finalLane == 3 )
                              song.delSliderCount++;
                     }
                     else {
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
 
-                        if ( finalLane == 6 )
+                        if ( finalLane == 3 )
                              song.delNoteCount++;
                     }
 
@@ -425,35 +464,25 @@ public class FileConverter : FileReader
             song.medianBpm = GetMedianBpm();
             Write( in song );
         }
-        catch ( Exception _error ) {
-            #region 미처리된 파일 Failed 폴더로 이동
-            //if ( !Directory.Exists( GameSetting.FailedPath ) )
-            //      Directory.CreateDirectory( GameSetting.FailedPath );
-
-            //if ( File.Exists( path ) )
-            //{
-            //    File.Move( path, GameSetting.FailedPath );
-            //    Debug.LogWarning( $"File Move Failed Directory : {path}" );
-            //}
-            #endregion
+        catch ( System.Exception _error ) {
+            
             Dispose();
-            Debug.LogError( $"{_error.Message}  {Path.GetFileName( path )}" );
-        }
-    }
 
-    public int GetLineNumber( Exception ex )
-    {
-        var lineNumber = 0;
-        const string lineSearch = ":line ";
-        var index = ex.StackTrace.LastIndexOf( lineSearch );
-        if ( index != -1 )
-        {
-            var lineNumberText = ex.StackTrace.Substring( index + lineSearch.Length );
-            if ( int.TryParse( lineNumberText, out lineNumber ) )
+            #region 미처리된 파일 Failed 폴더로 이동
+            if ( !Directory.Exists( GameSetting.FailedPath ) )
+                 Directory.CreateDirectory( GameSetting.FailedPath );
+
+            if ( File.Exists( path ) )
             {
+                #if !UNITY_EDITOR 
+                File.Move( path, Path.Combine( GameSetting.FailedPath, Path.GetFileName( path ) ) );
+                #endif
             }
+            #endregion
+
+            System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
+            Debug.LogError( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
         }
-        return lineNumber;
     }
 
     private void Write( in Song _song )
@@ -470,7 +499,6 @@ public class FileConverter : FileReader
                     writer.WriteLine( "[General]" );
                     writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"AudioPath: {_song.audioPath}" );
-                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
                     writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
 

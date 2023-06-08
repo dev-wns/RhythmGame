@@ -39,9 +39,9 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         newTime = note.calcTime;
 
         body.enabled = tail.enabled = IsSlider;
-        head.color   = tail.color   = Color.white;
-        body.color   = GameSetting.IsNoteBodyGray ? Color.gray : Color.white;
+        head.color   = body.color = tail.color = Color.white;
         ResizeSlider( false );
+        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
     }
 
     public void SetSliderFail()
@@ -76,8 +76,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         float length         =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
         body.transform.localScale    = new Vector2( GameSetting.NoteWidth, length );
         tail.transform.localPosition = new Vector2( 0f, length );
-
-        //transform.position = new Vector2( column, GameSetting.JudgePos + ( float )( ( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
     }
 
     private void LateUpdate()

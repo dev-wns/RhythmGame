@@ -289,7 +289,10 @@ public class SoundManager : Singleton<SoundManager>
             for ( int j = 0; j < numChannels; j++ )
             {
                 ErrorCheck( groups[( ChannelType )i].getChannel( j, out FMOD.Channel channel ) );
+                ErrorCheck( channel.getCurrentSound( out FMOD.Sound sound ) );
                 ErrorCheck( channel.stop() );
+                ErrorCheck( sound.release() );
+                sound.clearHandle();
             }
 
             ErrorCheck( groups[( ChannelType )i].release() );

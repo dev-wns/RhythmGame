@@ -33,10 +33,9 @@ public class FreeStyleMainScroll : ScrollBase
     [Header("Time")]
     private readonly float ScrollUpdateTime = .075f;
     private readonly float KeyHoldWaitTime  = .5f;
-    private readonly float KeyUpWaitTime    = .2f;
     private readonly uint waitPreviewTime   = 500;
-    private bool isKeyUp, isKeyPress;
-    private float keyUpTime, keyPressTime;
+    private bool isKeyDown;
+    private float keyPressTime;
     private float playback;
     private float endTime;
 
@@ -56,7 +55,7 @@ public class FreeStyleMainScroll : ScrollBase
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
         SoundManager.Inst.OnReload += OnBufferSetting;
-        search.OnSearch += UpdateSongElements;
+        search.OnSearch += UpdateLayoutAndSong;
 
         median           = Mathf.FloorToInt( maxShowCount / 2f );
         contentOriginPos = rt.anchoredPosition;
@@ -74,7 +73,23 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void Start()
     {
+        Length = NowPlaying.Inst.Songs.Count;
+        
+        noContents.SetActive( !HasAnySongs );
+        particle.SetActive( !HasAnySongs );
+
+        if ( !HasAnySongs )
+        {
+            SoundManager.Inst.AllStop();
+            //SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
+            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\LIHO  Surrender.mp3", true, false );
+            SoundManager.Inst.Play( 0f );
+            SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
+            //SoundManager.Inst.Position = 165000;
+        }
+
         UpdateSongElements();
+        UpdateSong();
     }
 
     private void Update()
@@ -92,18 +107,6 @@ public class FreeStyleMainScroll : ScrollBase
             Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
             SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
         }
-
-        if ( isKeyUp )
-        {
-            keyUpTime += Time.deltaTime;
-            if ( keyUpTime >= KeyUpWaitTime )
-            {
-                isKeyUp = false;
-                if ( NowPlaying.Inst.CurrentSongIndex != CurrentIndex )
-                     UpdateSong();
-            }
-
-        }
     }
 
     private void OnDestroy()
@@ -117,25 +120,10 @@ public class FreeStyleMainScroll : ScrollBase
     {
         Length = NowPlaying.Inst.Songs.Count;
 
-        noContents.SetActive( !HasAnySongs );
-        particle.SetActive( !HasAnySongs );
-
-        if ( !HasAnySongs )
-        {
-            SoundManager.Inst.AllStop();
-            //SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
-            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\LIHO  Surrender.mp3", true, false );
-            SoundManager.Inst.Play( 0f );
-            SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            //SoundManager.Inst.Position = 165000;
-            return;
-        }
-
         // 이전 UI 이펙트 초기화
         int medianCounts = 0;
         medianNode?.Value.Select( false );
         medianNode = songs.First;
-        //int index = Length - ( median % Length );
         Select( NowPlaying.Inst.CurrentSongIndex );
         int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
                                                 ( CurrentIndex - median ) % Length;
@@ -168,8 +156,14 @@ public class FreeStyleMainScroll : ScrollBase
         medianNode.Value.Select( true );
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
+    }
 
-        UpdateSong();
+    private void UpdateLayoutAndSong()
+    {
+        UpdateSongElements();
+
+        if ( curSong.UID != NowPlaying.CurrentSong.UID )
+             UpdateSong();
     }
 
     public override void PrevMove()
@@ -256,7 +250,7 @@ public class FreeStyleMainScroll : ScrollBase
         SoundManager.Inst.Position = ( uint )playback;
     }
 
-    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( endTime * .314f ) : ( uint )_time;
+    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( endTime * .345f ) : ( uint )_time;
     #endregion
 
     #region Input
@@ -274,18 +268,28 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        isKeyUp = false;
         SoundManager.Inst.Play( SoundSfxType.MainSelect );
         PrevMove();
+
+        if ( !isKeyDown )
+        {
+            isKeyDown = true;
+            keyPressTime = 0f;
+        }
     }
 
     private void ScrollUp()
     {
         if ( !HasAnySongs ) return;
 
-        isKeyUp = false;
         SoundManager.Inst.Play( SoundSfxType.MainSelect );
         NextMove();
+
+        if ( !isKeyDown )
+        {
+            isKeyDown = true;
+            keyPressTime = 0f;
+        }
     }
 
     private void KeyHold( Action _action )
@@ -293,12 +297,9 @@ public class FreeStyleMainScroll : ScrollBase
         if ( !HasAnySongs ) return;
 
         keyPressTime += Time.deltaTime;
-        if ( keyPressTime >= KeyHoldWaitTime )
-            isKeyPress = true;
-
-        if ( isKeyPress && keyPressTime >= ScrollUpdateTime )
+        if ( keyPressTime >= KeyHoldWaitTime + ScrollUpdateTime )
         {
-            keyPressTime = 0f;
+            keyPressTime = KeyHoldWaitTime;
             _action?.Invoke();
         }
     }
@@ -307,9 +308,10 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        keyPressTime = keyUpTime = 0f;
-        isKeyPress = false;
-        isKeyUp = true;
+        UpdateSong();
+
+        isKeyDown = false;
+        keyPressTime = 0f;
     }
     #endregion
 

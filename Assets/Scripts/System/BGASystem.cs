@@ -127,7 +127,7 @@ public class BGASystem : MonoBehaviour
 
     private IEnumerator WaitVideo()
     {
-        yield return new WaitUntil( () => NowPlaying.Playback >= ( GameSetting.DefaultSoundOffset + NowPlaying.CurrentSong.videoOffset + GameSetting.SoundOffset ) * .001d );
+        yield return new WaitUntil( () => NowPlaying.Playback >= ( NowPlaying.CurrentSong.videoOffset + GameSetting.SoundOffset - 50 ) * .001d );
         vp.Play();
     }
 

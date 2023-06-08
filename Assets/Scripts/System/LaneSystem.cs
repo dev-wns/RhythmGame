@@ -81,13 +81,23 @@ public class LaneSystem : MonoBehaviour
             Note newNote = notes[i];
             if ( hasConversion && isSevenButton )
             {
-                if ( newNote.lane == 6 )
+                if ( newNote.lane == 3 )
                 {
                     if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
                          keySampleSystem.AddSample( new KeySound( newNote ) );
 
                     continue;
                 }
+                else if ( newNote.lane > 3 )
+                          newNote.lane -= 1;
+
+                //if ( newNote.lane == 6 )
+                //{
+                //    if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
+                //         keySampleSystem.AddSample( new KeySound( newNote ) );
+
+                //    continue;
+                //}
             }
 
             if ( hasNoSlider ) 

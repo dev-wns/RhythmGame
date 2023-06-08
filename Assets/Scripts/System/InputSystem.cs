@@ -41,6 +41,10 @@ public class InputSystem : MonoBehaviour
     private double inputStartTime;
     private double inputHoldTime;
     #endregion
+
+    #region Auto
+    private double target;
+    #endregion
     #endregion
 
     #region Unity Event Function
@@ -60,6 +64,11 @@ public class InputSystem : MonoBehaviour
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
         NowPlaying.Inst.OnSpawnObjects += SpawnNotes;
+    }
+
+    private void Start()
+    {
+        target = UnityEngine.Random.Range( -( float )Judgement.NoteJudgeData.bad, ( float )Judgement.NoteJudgeData.bad );
     }
 
     private void LateUpdate()
@@ -199,7 +208,7 @@ public class InputSystem : MonoBehaviour
             notes.Enqueue( note );
 
             if ( ++noteSpawnIndex < noteDatas.Count )
-                curData = noteDatas[noteSpawnIndex];
+                 curData = noteDatas[noteSpawnIndex];
         }
     }
 
@@ -244,8 +253,8 @@ public class InputSystem : MonoBehaviour
         {
             curNote.gameObject.SetActive( false );
             curNote.Despawn();
-        }
-
+        } 
+            
         curNote = null;
         isPress = false;
     }
@@ -259,15 +268,16 @@ public class InputSystem : MonoBehaviour
 
         if ( !curNote.IsSlider )
         {
-            if ( startDiff <= 0d )
+            if ( startDiff <= ( GameSetting.IsAutoRandom ? target : 0d ) )
             {
+                target = UnityEngine.Random.Range( -( float )Judgement.NoteJudgeData.bad, ( float )Judgement.NoteJudgeData.bad );
+
                 OnInputEvent?.Invoke( InputType.Down );
                 OnInputEvent?.Invoke( InputType.Up );
 
                 OnHitNote?.Invoke( NoteType.Default, InputType.Down );
-                judge.ResultUpdate( 0d, NoteType.Default );
+                judge.ResultUpdate( GameSetting.IsAutoRandom ? target : 0d, NoteType.Default );
                 SoundManager.Inst.Play( curSound );
-                //SoundManager.Inst.Play( SoundSfxType.Clap );
                 SelectNextNote();
             }
         }
@@ -283,7 +293,6 @@ public class InputSystem : MonoBehaviour
                     curNote.StartResizeSlider();
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
                     SoundManager.Inst.Play( curSound );
-                    //SoundManager.Inst.Play( SoundSfxType.Clap );
                     judge.ResultUpdate( 0d, NoteType.Default );
 
                     inputStartTime = curNote.Time;

@@ -76,7 +76,7 @@ public class FreeStyleSearch : MonoBehaviour
 
         if ( NowPlaying.Inst.SearchCount != 0 )
         {
-            NowPlaying.Inst.UpdateSong( 0 );
+            //NowPlaying.Inst.UpdateSong( 0 );
             OnSearch?.Invoke();
             scene.IsInputLock = false;
         }

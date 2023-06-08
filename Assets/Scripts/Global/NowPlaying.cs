@@ -125,6 +125,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         OnSpawnObjects?.Invoke( Playback, ScaledPlayback );
     }
+
     private void UpdatePlayback()
     {
         var timings = CurrentChart.timings;
@@ -184,12 +185,12 @@ public class NowPlaying : Singleton<NowPlaying>
                 OnParse?.Invoke( System.IO.Path.GetFileName( files[i] ) );
                 if ( parser.TryParse( files[i], out Song newSong ) )
                 {
+                    newSong.UID = newSongList.Count;
                     newSongList.Add( newSong );
                 }
             }
-            newSongList.Sort( delegate ( Song _a, Song _b ) { return _a.title.CompareTo( _b.title ); } );
-            OriginSongs  = new ReadOnlyCollection<Song>( newSongList );
-            Songs = OriginSongs.ToList();
+            Songs = newSongList.ToList();
+            OriginSongs = new ReadOnlyCollection<Song>( Songs.ToList() );
         }
         IsParseSong = true;
 
@@ -199,7 +200,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void ParseChart()
     {
-        WaitTime  = ( CurrentSong.audioOffset * .001d ) + StartWaitTime;
+        WaitTime  = StartWaitTime;
         medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
 
         using ( FileParser parser = new FileParser() )
@@ -224,24 +225,39 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( OriginSongs.Count == 0 )
              return;
 
+        if ( _keyword.Replace( " ", string.Empty ) == string.Empty )
+        {
+            Songs = OriginSongs.ToList();
+            SearchCount = OriginSongs.Count;
+            UpdateSong( CurrentSong.UID );
+
+            return;
+        }
+
         Songs.Clear();
+        bool isSV = _keyword.Replace( " ", string.Empty ).ToUpper().CompareTo( "SV" ) == 0;
         for ( int i = 0; i < OriginSongs.Count; i++ )
         {
-            if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                 OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                 OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                 OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+            if ( isSV )
             {
-                Songs.Add( OriginSongs[i] );
+                if ( OriginSongs[i].minBpm != OriginSongs[i].maxBpm )
+                     Songs.Add( OriginSongs[i] );
+            }
+            else
+            {
+                if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+                {
+                    Songs.Add( OriginSongs[i] );
+                }
             }
         }
 
         SearchCount = Songs.Count;
-        if ( SearchCount == 0 )
-        {
-            Songs = OriginSongs.ToList();
-        }
-        UpdateSong( 0 );
+        if ( SearchCount != 0 )
+             UpdateSong( 0 );
     }
     #endregion
     #region Record

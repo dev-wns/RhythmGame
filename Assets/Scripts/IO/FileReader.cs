@@ -34,6 +34,9 @@ public abstract class FileReader : IDisposable
         else
         {
             line = streamReader.ReadLine();
+            while ( line == string.Empty )
+                line = streamReader.ReadLine();
+
             return true;
         }
     }

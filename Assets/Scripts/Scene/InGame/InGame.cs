@@ -212,6 +212,6 @@ public class InGame : Scene
         Bind( ActionType.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
 
         // Etc.
-        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsNoteBodyGray = !GameSetting.IsNoteBodyGray );
+        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
     }
 }
