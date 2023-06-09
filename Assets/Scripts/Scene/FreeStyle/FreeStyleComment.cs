@@ -42,11 +42,13 @@ public class FreeStyleComment : MonoBehaviour
     {
         field.interactable = false;
         field.DeactivateInputField();
+        if ( field.text.Trim() == string.Empty )
+             field.text = "None";
     }
 
     private void UpdateComment( Song _song )
     {
-        path = Path.Combine( Path.GetDirectoryName( _song.filePath ), "Comment.txt" );
+        path = Path.Combine( Path.GetDirectoryName( _song.filePath ), $"{Path.GetFileNameWithoutExtension( _song.filePath )}_Comment.txt" );
         if ( File.Exists( path ) )
         {
             using ( StreamReader reader = new StreamReader( path ) )

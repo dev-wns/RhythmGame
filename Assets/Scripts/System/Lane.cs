@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
 public class Lane : MonoBehaviour
 {
@@ -17,7 +14,7 @@ public class Lane : MonoBehaviour
     private Color color;
 
     private readonly float StartFadeAlpha = 1f;
-    private readonly float FadeDuration = .25f;
+    private readonly float FadeDuration = .2f;
     private float fadeOffset;
     private float fadeAlpha;
 
