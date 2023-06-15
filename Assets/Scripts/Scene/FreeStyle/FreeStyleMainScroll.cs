@@ -71,25 +71,32 @@ public class FreeStyleMainScroll : ScrollBase
         }
     }
 
-    private void Start()
+    public void UpdateScrollView()
     {
         Length = NowPlaying.Inst.Songs.Count;
-        
+
         noContents.SetActive( !HasAnySongs );
         particle.SetActive( !HasAnySongs );
+        if ( HasAnySongs )
+        {
+            UpdateSongElements();
+            UpdateSong();
+        }
+    }
+
+    private void Start()
+    {
+        UpdateScrollView();
 
         if ( !HasAnySongs )
         {
             SoundManager.Inst.AllStop();
-            //SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
-            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\LIHO  Surrender.mp3", true, false );
+            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
+            //SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Feeling Good.mp3", true, false );
             SoundManager.Inst.Play( 0f );
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            //SoundManager.Inst.Position = 165000;
+            //SoundManager.Inst.Position = 155000;
         }
-
-        UpdateSongElements();
-        UpdateSong();
     }
 
     private void Update()
@@ -116,7 +123,7 @@ public class FreeStyleMainScroll : ScrollBase
     #endregion
 
     #region Update Song & Scroll
-    public void UpdateSongElements()
+    private void UpdateSongElements()
     {
         Length = NowPlaying.Inst.Songs.Count;
 
@@ -250,7 +257,7 @@ public class FreeStyleMainScroll : ScrollBase
         SoundManager.Inst.Position = ( uint )playback;
     }
 
-    private uint GetPreviewTime( int _time ) => _time <= 0 ? ( uint )( endTime * .345f ) : ( uint )_time;
+    private uint GetPreviewTime( int _time ) => _time > endTime || _time <= 0 ? ( uint )( endTime * .35f ) : ( uint )_time;
     #endregion
 
     #region Input
@@ -307,8 +314,9 @@ public class FreeStyleMainScroll : ScrollBase
     private void KeyUp()
     {
         if ( !HasAnySongs ) return;
-
-        UpdateSong();
+        
+        if ( NowPlaying.Inst.CurrentSongIndex != CurrentIndex )
+             UpdateSong();
 
         isKeyDown = false;
         keyPressTime = 0f;

@@ -70,11 +70,26 @@ public class FileParser : FileReader
                     _song.hasSprite      = int.Parse( splitDatas[4] ) == 1;
                 }
             }
+
+            if ( _song.noteCount + _song.sliderCount < 10 )
+                 throw new Exception( $"Too few notes." );
         }
         catch ( Exception _error )
         {
-            Debug.LogError( $"{_error}, {_path}" );
             Dispose();
+
+            #if !UNITY_EDITOR
+            // 에러 내용 텍스트 파일로 작성하기
+            // ------------------------------
+            // 미처리된 파일 Failed 폴더로 이동
+            //Move( $"{Path.GetFileNameWithoutExtension( path )}.osu", GameSetting.FailedPath ); // 원본파일
+            //Move( path,                                              GameSetting.FailedPath );
+            #else
+            // 에러 위치 찾기
+            System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
+            Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
+            #endif
+
             return false;
         }
 

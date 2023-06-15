@@ -50,7 +50,7 @@ public class FreeStyleReLoad : MonoBehaviour
                 text.text = dataQueue.Dequeue();
                 DisabledText( text );
             }
-            yield return YieldCache.WaitForSeconds( .01f );
+            yield return YieldCache.WaitForSeconds( .0015f );
         }
 
         while ( dataQueue.Count > 0 )
@@ -59,7 +59,7 @@ public class FreeStyleReLoad : MonoBehaviour
             text.transform.SetAsLastSibling();
             text.text = dataQueue.Dequeue();
             DisabledText( text );
-            yield return YieldCache.WaitForSeconds( .01f );
+            yield return YieldCache.WaitForSeconds( .0015f );
         }
 
         OnReLoadEnd?.Invoke();

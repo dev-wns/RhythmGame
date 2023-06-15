@@ -370,9 +370,10 @@ public class SoundManager : Singleton<SoundManager>
     {
         FMOD.MODE mode = _isStream ? FMOD.MODE.CREATESTREAM : FMOD.MODE.CREATESAMPLE;
         mode = _isLoop ? mode |= FMOD.MODE.LOOP_NORMAL : mode |= FMOD.MODE.LOOP_OFF;
-        mode |= FMOD.MODE.ACCURATETIME;
+        mode |= FMOD.MODE.ACCURATETIME | FMOD.MODE.LOWMEM;// | FMOD.MODE.IGNORETAGS;
 
         ErrorCheck( system.createSound( _path, mode, out FMOD.Sound sound ) );
+
         MainSound = sound;
     }
 
@@ -401,7 +402,7 @@ public class SoundManager : Singleton<SoundManager>
         }
         else if ( System.IO.File.Exists( @_path ) )
         {
-            ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE, out FMOD.Sound sound ) );
+            ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE | FMOD.MODE.LOWMEM, out FMOD.Sound sound ) );
             keySounds.Add( name, sound );
         }
         //   if ( !System.IO.File.Exists( @_path ) )

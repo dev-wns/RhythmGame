@@ -19,7 +19,7 @@ public class BpmChanger : MonoBehaviour
     private int prevNum, curNum;
 
     [Header("Time")]
-    private const float DelayTime = 1f / 100f;
+    private const float DelayTime = 1f / 80f;
 
     private void Awake()
     {
@@ -67,13 +67,12 @@ public class BpmChanger : MonoBehaviour
 
         while ( curIndex < timings.Count )
         {
-            yield return waitNextBPMTime;
-
-            while ( curIndex + 1 < timings.Count && 
-                    Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) < double.Epsilon )
+            while ( curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) < double.Epsilon )
             {
                 curTiming = timings[++curIndex];
             }
+            
+            yield return waitNextBPMTime;
 
             ImageUpdate( curTiming.bpm );
 

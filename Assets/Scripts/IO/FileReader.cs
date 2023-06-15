@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 public abstract class FileReader : IDisposable
 {
@@ -72,5 +70,14 @@ public abstract class FileReader : IDisposable
             return string.Empty;
         
         return line.Replace( _old, _new ).Trim();
+    }
+
+    protected void Move( string _sourceFilePath, string _destFolderPath )
+    {
+        if ( !Directory.Exists( _destFolderPath ) )
+             Directory.CreateDirectory( _destFolderPath );
+
+        if ( File.Exists( _sourceFilePath ) )
+             File.Move( _sourceFilePath, Path.Combine( _destFolderPath, Path.GetFileName( _sourceFilePath ) ) );
     }
 }

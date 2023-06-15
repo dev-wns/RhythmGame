@@ -225,39 +225,7 @@ public class FileConverter : FileReader
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
              Convert( _path );
-
-
-        //Check( _path );
     }
-
-    //private void Check( string _path )
-    //{
-    //    var newPath = Path.ChangeExtension( _path, "wns" );
-
-    //    if ( !File.Exists( newPath ) )
-    //         return;
-
-    //    try
-    //    {
-    //        OpenFile( newPath );
-
-    //        while ( ReadLineEndOfStream() )
-    //        {
-    //            if ( Contains( "ImagePath:" ) )
-    //            {
-
-    //                var imageName = Split( ':' );
-    //                if ( imageName == string.Empty )
-    //                {
-    //                    Convert( _path );
-    //                }
-    //                break;
-    //            }
-    //        }
-    //    }
-    //    catch( Exception )
-    //    { }
-    //}
 
     private void Convert( string _path ) 
     {
@@ -468,20 +436,17 @@ public class FileConverter : FileReader
             
             Dispose();
 
-            #region 미처리된 파일 Failed 폴더로 이동
-            if ( !Directory.Exists( GameSetting.FailedPath ) )
-                 Directory.CreateDirectory( GameSetting.FailedPath );
-
-            if ( File.Exists( path ) )
-            {
-                #if !UNITY_EDITOR 
-                File.Move( path, Path.Combine( GameSetting.FailedPath, Path.GetFileName( path ) ) );
-                #endif
-            }
-            #endregion
-
+            #if !UNITY_EDITOR
+            // 에러 내용 텍스트 파일로 작성하기
+            // ------------------------------
+            // 미처리된 파일 Failed 폴더로 이동
+            //Move( path, GameSetting.FailedPath );
+            #else
+            // 에러 위치 찾기
             System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
-            Debug.LogError( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
+            Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
+            #endif
+
         }
     }
 
@@ -583,12 +548,12 @@ public class FileConverter : FileReader
             Debug.LogError( _error.Message );
         }
 
-        // 원본 파일 삭제
-        if ( File.Exists( path ) )
-        {
-            //Debug.Log( $"File Delete : {path}" );
-            //File.Delete( path );
-        }
+        // 원본 파일 삭제 ( 그냥 원본 놔둘지 고민 )
+        // if ( File.Exists( path ) )
+        // {
+        //     Debug.Log( $"File Delete : {path}" );
+        //     File.Delete( path );
+        // }
     }
 
     private double GetMedianBpm()

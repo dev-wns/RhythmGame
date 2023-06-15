@@ -33897,7 +33897,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   band: {fileID: 1605866379}
-  power: 7.5
+  power: 6.5
   decrease: 17.5
 --- !u!4 &1523756059
 Transform:
@@ -38484,7 +38484,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1702868222}
         m_TargetAssemblyTypeName: FreeStyleMainScroll, Assembly-CSharp
-        m_MethodName: UpdateSongElements
+        m_MethodName: UpdateScrollView
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -39238,7 +39238,6 @@ MonoBehaviour:
   mainScroll: {fileID: 1702868222}
   prefab: {fileID: 891526747278239352, guid: 46f4046dc2985ca43b503be0118c22bb, type: 3}
   icon: {fileID: 463729020}
-  iconImage: {fileID: 463729018}
   startPosX: -850
 --- !u!1 &1834991429
 GameObject:

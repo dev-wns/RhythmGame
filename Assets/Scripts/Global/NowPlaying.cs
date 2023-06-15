@@ -182,7 +182,7 @@ public class NowPlaying : Singleton<NowPlaying>
             string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
             for( int i = 0; i < files.Length; i++ )
             {
-                OnParse?.Invoke( System.IO.Path.GetFileName( files[i] ) );
+                OnParse?.Invoke( System.IO.Path.GetFileNameWithoutExtension( files[i] ) );
                 if ( parser.TryParse( files[i], out Song newSong ) )
                 {
                     newSong.UID = newSongList.Count;
