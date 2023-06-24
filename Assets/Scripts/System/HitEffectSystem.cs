@@ -47,28 +47,40 @@ public class HitEffectSystem : MonoBehaviour
     private void Initialize( int _key )
     {
         lane.InputSys.OnHitNote += HitEffect;
-        lane.InputSys.OnInputEvent += SetCurrentInput;
+        lane.InputSys.OnStopEffect += SetCurrentInput;
 
         UpdatePosition();
         float size = GameSetting.NoteWidth * 2;
         transform.localScale = new Vector2( size, size );
     }
 
-    private void SetCurrentInput( InputType _type ) => inputType = _type;
+    private void SetCurrentInput() => inputType = InputType.Up;
 
     private void HitEffect( NoteType _noteType, InputType _inputType )
     {
         type = _noteType;
         inputType = _inputType;
-        curIndex = 0;
 
         switch ( type )
         {
-            case NoteType.Default: rdr.sprite = spritesN[0]; break;
-            case NoteType.Slider:  rdr.sprite = spritesL[0]; break;
+            case NoteType.Default:
+            {
+                Play();
+                rdr.sprite = spritesN[0];
+                curIndex = 0;
+            } break;
+
+            case NoteType.Slider:
+            {
+                if ( inputType == InputType.Down )
+                {
+                    Play();
+                    curIndex = 0;
+                    rdr.sprite = spritesL[0];
+                }
+            } break;
         }
 
-        Play();
     }
 
     private void Update()

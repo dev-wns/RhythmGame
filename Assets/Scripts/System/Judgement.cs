@@ -65,7 +65,7 @@ public class Judgement : MonoBehaviour
                            diffAbs >  Judge.perfect && diffAbs <= Judge.great   ? HitResult.Great   :
                            diffAbs >  Judge.great   && diffAbs <= Judge.good    ? HitResult.Good    :
                            diffAbs >  Judge.good    && diffAbs <= Judge.bad     ? HitResult.Bad     :
-                           _diff   < -Judge.bad                                 ? HitResult.Miss    : 
+                           //_diff   < -Judge.bad                                 ? HitResult.Miss    : 
                                                                                   HitResult.None;
 
         if ( diffAbs > Judge.perfect && diffAbs <= Judge.bad )
@@ -82,13 +82,9 @@ public class Judgement : MonoBehaviour
 
     public void ResultUpdate( HitResult _result, NoteType _type, int _count = 1 )
     {
-        OnJudge?.Invoke( _result, _type );
-        NowPlaying.Inst.IncreaseResult( _result );
+        for ( int i = 0; i < _count; i++ )
+            OnJudge?.Invoke( _result, _type );
 
-        //for ( int i = 0; i < _count; i++ )
-        //{
-        //    if ( _result == HitResult.Miss )
-        //         NowPlaying.Inst.AddHitData( _type, Judge.miss );
-        //}
+        NowPlaying.Inst.IncreaseResult( _result, _count );
     }
 }

@@ -14,13 +14,19 @@ public class ComboSystem : MonoBehaviour
     private List<SpriteRenderer> images  = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
-    private int highestCombo;
-    private int prevCombo = -1;
-    private int prevNum, curNum;
+
+    private const float ElapsedPower = 100;
+    private float curCombo = 0f, prevCombo = -1f;
+    private float targetCombo;
+    private float highestCombo;
+    private float pointOfMiss;
+    private int   prevNum, curNum;
+    private bool  isMissing;
+    private Color color = Color.white;
 
 
     [Header("Effect")]
-    private Sequence sequence;
+    private Sequence effectSeq;
     private Vector3 startPos;
 
     private void Awake()
@@ -47,32 +53,33 @@ public class ComboSystem : MonoBehaviour
 
     private void Start()
     {
-        sequence = DOTween.Sequence().Pause().SetAutoKill( false );
-        sequence.Append( transform.DOMoveY( startPos.y + 10f, .115f ) );
+        effectSeq = DOTween.Sequence().Pause().SetAutoKill( false );
+        effectSeq.Append( transform.DOMoveY( startPos.y + 10f, .115f ) );
+
         StartCoroutine( BreakCombo() );
     }
 
     private void OnDestroy()
     {
-        sequence?.Kill();
+        effectSeq?.Kill();
     }
 
     private void OnResult()
     {
-        NowPlaying.Inst.SetResult( HitResult.Combo, highestCombo );
+        NowPlaying.Inst.SetResult( HitResult.Combo, Mathf.RoundToInt( highestCombo ) );
     }
 
     private void OnReLoad()
     {
         StopAllCoroutines();
-        highestCombo = 0;
         curNum       = 0;
         prevNum      = 0;
-        curCombo     = 0;
-        targetCombo  = 0;
-        prevCombo    = -1;
-        breakCombo   = 0;
-        breakElapsedCombo = 0f;
+        highestCombo = 0f;
+        curCombo     = 0f;
+        targetCombo  = 0f;
+        pointOfMiss  = 0f;
+        prevCombo    = -1f;
+        isMissing    = false;
         color = Color.white;
 
         transform.position = startPos;
@@ -87,27 +94,34 @@ public class ComboSystem : MonoBehaviour
         StartCoroutine( BreakCombo() );
     }
 
-    public int curCombo;
-    public int targetCombo;
-    public float breakElapsedCombo = 0f;
-    public float breakCombo = 0f;
-    public Color color = Color.white;
     private IEnumerator BreakCombo()
     {
-        WaitUntil waitNextValue = new WaitUntil( () => targetCombo < curCombo );
+        WaitUntil waitNextValue = new WaitUntil( () => Global.Math.Abs( targetCombo - curCombo ) > float.Epsilon );
         while ( true )
         {
             yield return waitNextValue;
 
-            breakElapsedCombo -= breakCombo * 2f * Time.deltaTime; // .5s
-            curCombo = ( int )Global.Math.Clamp( breakElapsedCombo, 0f, 1000000f );
-            if ( targetCombo >= ( curCombo - 1 ) )
+            if ( isMissing )
             {
-                color = Color.white;
-                curCombo = targetCombo;
+                curCombo -= ( ElapsedPower + ( 2f * curCombo ) ) * Time.deltaTime;
+                if ( curCombo <= targetCombo || curCombo <= 0f )
+                {
+                    curCombo = targetCombo;
+                    isMissing = false;
+                    color = Color.white;
+                }
+            }
+            else
+            {
+                curCombo += ElapsedPower * Time.deltaTime;
+                if ( curCombo > targetCombo )
+                     curCombo = targetCombo;
             }
 
-            UpdateImages();
+            if ( Global.Math.Abs( prevCombo - curCombo ) > float.Epsilon )
+                 UpdateImages();
+
+            prevCombo = curCombo;
         }
     }
 
@@ -125,28 +139,20 @@ public class ComboSystem : MonoBehaviour
             case HitResult.Great:
             case HitResult.Good:
             case HitResult.Bad:
-            targetCombo++;
+            ++targetCombo;
             break;
 
             case HitResult.Miss:
-            breakElapsedCombo = breakCombo = curCombo;
-            if ( curCombo != 0 )
-                 color = Color.gray;
-
+            isMissing = true;
+            color = Color.gray;
+            pointOfMiss = targetCombo;
             targetCombo = 0;
             break;
         }
 
         highestCombo = highestCombo < targetCombo ? targetCombo : highestCombo;
-
         transform.position = startPos;
-        sequence.Restart();
-
-        if ( targetCombo > curCombo )
-        {
-            curCombo = targetCombo;
-            UpdateImages();
-        }
+        effectSeq.Restart();
     }
 
     private void UpdateImages()
@@ -172,6 +178,5 @@ public class ComboSystem : MonoBehaviour
              layoutGroup.SetLayoutHorizontal();
 
         prevNum   = curNum;
-        prevCombo = curCombo;
     }
 }

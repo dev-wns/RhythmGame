@@ -32,10 +32,11 @@ public class InputSystem : MonoBehaviour
 
     public event Action<NoteType, InputType>  OnHitNote;
     public event Action<InputType> OnInputEvent;
+    public event Action OnStopEffect;
 
     private KeyCode key;
     private KeySound curSound;
-    private bool isAuto, isPress;
+    private bool isAuto;
 
     #region Time
     private double inputStartTime;
@@ -48,7 +49,6 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Unity Event Function
-
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
@@ -158,7 +158,6 @@ public class InputSystem : MonoBehaviour
         NowPlaying.Inst.ResetData();
         noteSpawnIndex = 0;
         curNote        = null;
-        isPress        = false;
         curSound       = new KeySound();
     }
 
@@ -170,7 +169,8 @@ public class InputSystem : MonoBehaviour
 
     private void GameOver()
     {
-        OnInputEvent?.Invoke( InputType.Up );
+        OnStopEffect?.Invoke();
+        //OnInputEvent?.Invoke( InputType.Up );
     }
 
     /// <summary>
@@ -178,7 +178,8 @@ public class InputSystem : MonoBehaviour
     /// </summary>
     private void Pause( bool _isPause )
     {
-        OnInputEvent?.Invoke( InputType.Up );
+        OnStopEffect?.Invoke();
+        //OnInputEvent?.Invoke( InputType.Up );
 
         if ( !_isPause || curNote == null || !curNote.IsSlider ) 
              return;
@@ -256,7 +257,6 @@ public class InputSystem : MonoBehaviour
         } 
             
         curNote = null;
-        isPress = false;
     }
 
     private void AutoCheckNote()
@@ -283,19 +283,18 @@ public class InputSystem : MonoBehaviour
         }
         else
         {
-            if ( !isPress )
+            if ( !curNote.IsKeyDown )
             {
                 if ( startDiff < 0d )
                 {
                     OnInputEvent?.Invoke( InputType.Down );
 
-                    isPress = true;
-                    curNote.StartResizeSlider();
+                    curNote.IsKeyDown = true;
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
                     SoundManager.Inst.Play( curSound );
                     judge.ResultUpdate( 0d, NoteType.Default );
 
-                    inputStartTime = curNote.Time;
+                    inputStartTime = NowPlaying.Playback;
                 }
             }
             else
@@ -323,7 +322,9 @@ public class InputSystem : MonoBehaviour
     {
         if ( curNote == null ) return;
 
-        double startDiff = curNote.Time - NowPlaying.Playback;
+        double startDiff = curNote.Time       - NowPlaying.Playback;
+        double endDiff   = curNote.SliderTime - NowPlaying.Playback;
+
         if ( !curNote.IsSlider )
         {
             if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff, NoteType.Default ) )
@@ -342,17 +343,16 @@ public class InputSystem : MonoBehaviour
         }
         else
         {
-            if ( !isPress )
+            if ( !curNote.IsKeyDown )
             {
                 if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff, NoteType.Default ) )
                 {
-                    isPress = true;
-                    curNote.StartResizeSlider();
+                    curNote.IsKeyDown = true;
 
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
                     judge.ResultUpdate( startDiff, NoteType.Default );
 
-                    inputStartTime = curNote.Time;
+                    inputStartTime = NowPlaying.Playback;
                     return;
                 }
 
@@ -366,7 +366,6 @@ public class InputSystem : MonoBehaviour
             }
             else
             {
-                double endDiff = curNote.SliderTime - NowPlaying.Playback;
                 if ( endDiff < 0d )
                 {
                     judge.ResultUpdate( endDiff, NoteType.Slider );
@@ -384,9 +383,9 @@ public class InputSystem : MonoBehaviour
                 
                 if ( Input.GetKeyUp( key ) )
                 {
+                    OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
                     if ( judge.CanBeHit( endDiff, NoteType.Slider ) )
                     {
-                        OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
                         judge.ResultUpdate( endDiff, NoteType.Slider );
                         sliderEarlyQueue.Enqueue( curNote );
                         SelectNextNote( false );

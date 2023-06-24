@@ -23,7 +23,10 @@ public class Lane : MonoBehaviour
         InputSys = GetComponent<InputSystem>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.LaneEffect ) != 0 )
-             InputSys.OnInputEvent += LaneEffect;
+        {
+            InputSys.OnInputEvent += LaneEffect;
+            InputSys.OnStopEffect += () => ShouldPlayLaneEffect = true;
+        }
 
         fadeOffset = StartFadeAlpha / FadeDuration;
     }

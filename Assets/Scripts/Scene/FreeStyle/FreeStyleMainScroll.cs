@@ -92,10 +92,9 @@ public class FreeStyleMainScroll : ScrollBase
         {
             SoundManager.Inst.AllStop();
             SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
-            //SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Feeling Good.mp3", true, false );
             SoundManager.Inst.Play( 0f );
+            //SoundManager.Inst.Position = 180000;
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
-            //SoundManager.Inst.Position = 155000;
         }
     }
 

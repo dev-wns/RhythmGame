@@ -14,7 +14,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public double SliderTime => note.sliderTime;
     public double CalcSliderTime => note.calcSliderTime;
     public bool IsSlider => note.isSlider;
-    public bool ShouldResizeSlider { get; set; }
+    public bool IsKeyDown { get; set; }
     public float BodyLength { get; private set; }
     public KeySound Sound => note.keySound;
 
@@ -32,7 +32,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public void SetInfo( int _lane, in Note _note, int _spawnIndex )
     {
         SpawnIndex = _spawnIndex;
-        ShouldResizeSlider = false;
+        IsKeyDown = false;
         note      = _note;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
@@ -40,50 +40,39 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 
         body.enabled = tail.enabled = IsSlider;
         head.color   = body.color = tail.color = Color.white;
-        ResizeSlider( false );
     }
 
     public void SetSliderFail()
     {
-        ShouldResizeSlider = false;
+        if ( IsKeyDown )
+        { 
+            IsKeyDown = false;
+            newTime   = NowPlaying.ScaledPlayback;
+        }
+
         head.color = body.color = tail.color = NoteFailColor;
     }
 
     public void Despawn()
     {
-        ShouldResizeSlider = false;
+        IsKeyDown = false;
         pool.Despawn( this );
-    }
-
-    public void StartResizeSlider()
-    {
-        if ( !IsSlider ) return;
-
-        ShouldResizeSlider = true;
-        ResizeSlider( true );
-    }
-
-    private void ResizeSlider( bool _isSnap )
-    {
-        if ( !IsSlider ) return;
-
-        if ( _isSnap )
-             newTime = NowPlaying.ScaledPlayback;
-
-        BodyLength = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
-
-        float length         =  Global.Math.Clamp( BodyLength - GameSetting.NoteHeight,  0f, float.MaxValue );
-        body.transform.localScale    = new Vector2( GameSetting.NoteWidth, length );
-        tail.transform.localPosition = new Vector2( 0f, length );
-
-        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
     }
 
     private void LateUpdate()
     {
         // 롱노트 판정선에 붙기
-        if ( IsSlider && ShouldResizeSlider && Time < NowPlaying.Playback )
-             ResizeSlider( true );
+        if ( IsSlider )
+        {
+            if ( IsKeyDown && Time < NowPlaying.Playback )
+                 newTime = NowPlaying.ScaledPlayback;
+
+            BodyLength = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );
+
+            float length = Global.Math.Clamp( BodyLength - GameSetting.NoteHeight, 0f, float.MaxValue );
+            body.transform.localScale = new Vector2( GameSetting.NoteWidth, length );
+            tail.transform.localPosition = new Vector2( 0f, length );
+        }
 
         transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( newTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
     }

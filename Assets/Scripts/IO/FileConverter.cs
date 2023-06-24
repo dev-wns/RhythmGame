@@ -292,9 +292,13 @@ public class FileConverter : FileReader
                 if ( Contains( "Video," ) )
                 {
                     var splitData = line.Split( ',' );
-                    song.videoOffset = int.Parse( splitData[1] );
-                    song.videoPath   = splitData[2].Split( '"' )[1].Trim();
-                    song.hasVideo    = File.Exists( Path.Combine( directory, song.videoPath ) );
+                    var path = splitData[2].Split( '"' )[1].Trim();
+                    if ( Path.GetExtension( path ) != ".mpg" )
+                    {
+                        song.videoPath = path;
+                        song.videoOffset = int.Parse( splitData[1] );
+                        song.hasVideo = File.Exists( Path.Combine( directory, song.videoPath ) );
+                    }
                 }
 
                 // Sprite
@@ -368,6 +372,8 @@ public class FileConverter : FileReader
             DeleteKey deleteKey = new DeleteKey( song.keyCount );
             while ( ReadLineEndOfStream() ) 
             {
+                if ( line == null ) continue;
+
                 string[] splitDatas = line.Split( ',' );
                 string[] objParams = splitDatas[5].Split( ':' );
                 double noteTime    = double.Parse( splitDatas[2] );
@@ -430,23 +436,18 @@ public class FileConverter : FileReader
 
 #endregion
             song.medianBpm = GetMedianBpm();
-            Write( in song );
-        }
-        catch ( System.Exception _error ) {
-            
-            Dispose();
 
-            #if !UNITY_EDITOR
-            // 에러 내용 텍스트 파일로 작성하기
-            // ------------------------------
-            // 미처리된 파일 Failed 폴더로 이동
-            //Move( path, GameSetting.FailedPath );
-            #else
+            Write( in song );
+            Dispose();
+        }
+        catch ( System.Exception _error ) 
+        {
+            Dispose();
+            #if UNITY_EDITOR
             // 에러 위치 찾기
             System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
             Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
             #endif
-
         }
     }
 

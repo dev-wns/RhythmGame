@@ -73,17 +73,18 @@ public class FileParser : FileReader
 
             if ( _song.noteCount + _song.sliderCount < 10 )
                  throw new Exception( $"Too few notes." );
+
+            Dispose();
         }
         catch ( Exception _error )
         {
             Dispose();
-
             #if !UNITY_EDITOR
             // 에러 내용 텍스트 파일로 작성하기
             // ------------------------------
             // 미처리된 파일 Failed 폴더로 이동
-            //Move( $"{Path.GetFileNameWithoutExtension( path )}.osu", GameSetting.FailedPath ); // 원본파일
-            //Move( path,                                              GameSetting.FailedPath );
+            Move( Path.Combine( dir, $"{Path.GetFileNameWithoutExtension( path )}.osu" ), GameSetting.FailedPath ); // 원본파일
+            Move( path,                                                                   GameSetting.FailedPath ); // 변환파일
             #else
             // 에러 위치 찾기
             System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
@@ -216,7 +217,6 @@ public class FileParser : FileReader
         catch ( Exception _error )
         {
             Debug.LogError( _error.Message );
-            Dispose();
             return false;
         }
 

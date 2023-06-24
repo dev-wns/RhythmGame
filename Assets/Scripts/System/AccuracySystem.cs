@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -70,7 +69,7 @@ public class AccuracySystem : MonoBehaviour
             case HitResult.Great:   curAccuracy +=  9000d;  break; 
             case HitResult.Good:    curAccuracy +=  8000d;  break; 
             case HitResult.Bad:     curAccuracy +=  7000d;  break; 
-            case HitResult.Miss:    curAccuracy += .0001d; break; 
+            case HitResult.Miss:    curAccuracy +=  .0001d; break; 
         }
         ++curMaxCount;
 

@@ -80,7 +80,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private double startTime, saveTime;
     public  static double WaitTime { get; private set; }
     public  static readonly double StartWaitTime = -3d;
-    private static readonly double PauseWaitTime = -1.5d;
+    private static readonly double PauseWaitTime = -2d;
     public  static float GameTime         { get; private set; }
     public  static double Playback        { get; private set; }
     public  static double ScaledPlayback  { get; private set; }
@@ -122,8 +122,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime );
         UpdatePlayback();
-
-        OnSpawnObjects?.Invoke( Playback, ScaledPlayback );
     }
 
     private void UpdatePlayback()
@@ -157,15 +155,17 @@ public class NowPlaying : Singleton<NowPlaying>
 
             ScaledPlayback = ScaledPlaybackCache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
         }
+
+        OnSpawnObjects?.Invoke( Playback, ScaledPlayback );
     }
     #endregion
     #region Parsing
     private void ConvertSong()
     {
-        using ( FileConverter converter = new FileConverter() )
+        string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
+        for ( int i = 0; i < files.Length; i++ )
         {
-            string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
-            for ( int i = 0; i < files.Length; i++ )
+            using ( FileConverter converter = new FileConverter() )
             {
                 converter.Load( files[i] );
             }
@@ -176,22 +176,22 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         ConvertSong();
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
-        using ( FileParser parser = new FileParser() )
+        List<Song> newSongList = new List<Song>();
+        string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
+        for( int i = 0; i < files.Length; i++ )
         {
-            List<Song> newSongList = new List<Song>();
-            string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
-            for( int i = 0; i < files.Length; i++ )
+            using ( FileParser parser = new FileParser() )
             {
-                OnParse?.Invoke( System.IO.Path.GetFileNameWithoutExtension( files[i] ) );
                 if ( parser.TryParse( files[i], out Song newSong ) )
                 {
                     newSong.UID = newSongList.Count;
                     newSongList.Add( newSong );
+                    OnParse?.Invoke( System.IO.Path.GetFileNameWithoutExtension( files[i] ) );
                 }
-            }
-            Songs = newSongList.ToList();
-            OriginSongs = new ReadOnlyCollection<Song>( Songs.ToList() );
+            }           
         }
+        Songs = newSongList.ToList();
+        OriginSongs = new ReadOnlyCollection<Song>( Songs.ToList() );
         IsParseSong = true;
 
         if ( Songs.Count > 0 )
@@ -264,7 +264,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void UpdateRecord()
     {
         RecordDatas.Clear();
-        string path = Path.Combine( Directory, GameSetting.RecordFileName );
+        string path = Path.Combine( Directory, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
         if ( !File.Exists( path ) )
             return;
 
@@ -293,7 +293,7 @@ public class NowPlaying : Singleton<NowPlaying>
         } );
 
         var readDatas = MaxRecordSize < RecordDatas.Count ? RecordDatas.GetRange( 0, MaxRecordSize ).ToArray() : RecordDatas.ToArray();
-        string path   = Path.Combine( Directory, GameSetting.RecordFileName );
+        string path   = Path.Combine( Directory, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
         try
         {
             FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
@@ -340,18 +340,21 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
 
-    public void IncreaseResult( HitResult _type )
+    public void IncreaseResult( HitResult _type, int _count = 1 )
     {
-        switch ( _type )
-        {
-            case HitResult.Maximum:  currentResult.maximum++; break;
-            case HitResult.Perfect:  currentResult.perfect++; break;
-            case HitResult.Great:    currentResult.great++;   break;
-            case HitResult.Good:     currentResult.good++;    break;
-            case HitResult.Bad:      currentResult.bad++;     break;
-            case HitResult.Miss:     currentResult.miss++;    break;
-            case HitResult.Fast:     currentResult.fast++;    break;
-            case HitResult.Slow:     currentResult.slow++;    break;
+        for ( int i = 0; i < _count; i++ )
+        { 
+            switch ( _type )
+            {
+                case HitResult.Maximum:  currentResult.maximum++; break;
+                case HitResult.Perfect:  currentResult.perfect++; break;
+                case HitResult.Great:    currentResult.great++;   break;
+                case HitResult.Good:     currentResult.good++;    break;
+                case HitResult.Bad:      currentResult.bad++;     break;
+                case HitResult.Miss:     currentResult.miss++;    break;
+                case HitResult.Fast:     currentResult.fast++;    break;
+                case HitResult.Slow:     currentResult.slow++;    break;
+            }
         }
     }
     #endregion
@@ -421,7 +424,7 @@ public class NowPlaying : Singleton<NowPlaying>
         Timing timing = CurrentChart.timings[timingIndex];
         while ( Playback > saveTime )
         {
-            Playback     -= Time.deltaTime * 2d;
+            Playback     -= Time.deltaTime * 1.2f;
             ScaledPlayback = ScaledPlaybackCache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
 
             yield return null;

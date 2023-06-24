@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum InputType { Down, Hold, Up, }
+public enum InputType { Down, Hold, Up, Click, }
 public class KeyAction
 {
     private Dictionary<KeyCode, Dictionary<InputType, Action>> keyActions = new Dictionary<KeyCode, Dictionary<InputType, Action>>();

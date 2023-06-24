@@ -105,10 +105,10 @@ public class HealthSystem : MonoBehaviour
         {
             case HitResult.Maximum:     healthCached += .017f; break;
             case HitResult.Perfect:     healthCached += .011f; break;
-            case HitResult.Great:       healthCached += .005f; break;
-            case HitResult.Good:        healthCached -= .019f; break;
-            case HitResult.Bad:         healthCached -= .027f; break;
-            case HitResult.Miss:        healthCached -= .055f; break;
+            case HitResult.Great:       healthCached -= .005f; break;
+            case HitResult.Good:        healthCached -= .025f; break;
+            case HitResult.Bad:         healthCached -= .037f; break;
+            case HitResult.Miss:        healthCached -= .063f; break;
         }
         healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );
         

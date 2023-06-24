@@ -1,9 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using DG.Tweening;
-using Newtonsoft.Json.Linq;
 
 public class ScoreSystem : MonoBehaviour
 {
@@ -77,10 +74,10 @@ public class ScoreSystem : MonoBehaviour
             return;
 
             case HitResult.Maximum: targetScore += maxScore;        break;
-            case HitResult.Perfect: targetScore += maxScore * .92d; break;
-            case HitResult.Great:   targetScore += maxScore * .76d; break;
-            case HitResult.Good:    targetScore += maxScore * .51d; break;
-            case HitResult.Bad:     targetScore += maxScore * .35d; break;
+            case HitResult.Perfect: targetScore += maxScore * .82d; break;
+            case HitResult.Great:   targetScore += maxScore * .63d; break;
+            case HitResult.Good:    targetScore += maxScore * .41d; break;
+            case HitResult.Bad:     targetScore += maxScore * .25d; break;
             case HitResult.Miss:    targetScore += 0d;              break;
         }
 

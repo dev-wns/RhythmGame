@@ -1,8 +1,8 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
 public class InitScene : Scene
 {
@@ -46,6 +46,30 @@ public class InitScene : Scene
 
         fadeImage.enabled = false;
         LoadScene( SceneType.FreeStyle );
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        var replace = SystemSetting.CurrentResolution.ToString().Replace( "_", " " );
+        var split = replace.Trim().Split( ' ' );
+
+        var width  = int.Parse( split[0] );
+        var height = int.Parse( split[1] );
+        switch ( SystemSetting.CurrentScreenMode )
+        {
+            case ScreenMode.Exclusive_FullScreen:
+            Screen.SetResolution( width, height, FullScreenMode.ExclusiveFullScreen );
+            break;
+
+            case ScreenMode.FullScreen_Window:
+            Screen.SetResolution( width, height, FullScreenMode.FullScreenWindow );
+            break;
+
+            case ScreenMode.Windowed:
+            Screen.SetResolution( width, height, FullScreenMode.Windowed );
+            break;
+        }
     }
 
     protected override void Start()

@@ -45,7 +45,7 @@ public abstract class FileReader : IDisposable
 
     protected string ReadLine()
     {
-        return line = streamReader.ReadLine();
+        return line = streamReader.ReadLine().Trim();
     }
 
     protected bool Contains( string _str )
