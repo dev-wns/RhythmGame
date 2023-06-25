@@ -1,48 +1,51 @@
-![VS](https://img.shields.io/badge/VS2019-v16.11.15-red?style=flat&logo=visualstudio)
-![Unity](https://img.shields.io/badge/Unity-v2020.3.34f1-blue?style=flat&logo=unity)
+![VS](https://img.shields.io/badge/VS2022-v17.4.4-red?style=flat&logo=visualstudio)
+![Unity](https://img.shields.io/badge/Unity-v2021.3.16f1-blue?style=flat&logo=unity)
 ![FMOD](https://img.shields.io/badge/FMOD-v2.01.11-brightgreen?style=flat&logo=FMOD)
 
 # 1. 소개
-<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192090994-a74490b6-86d2-41c1-ac09-f3453efd69c3.gif"> 
+<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/248521254-e10cce6a-0735-48fe-94b8-ba8f311d1cd5.gif"> 
 
-      유니티를 사용하여 제작한 6키 건반형 리듬게임 구동기입니다.
+      유니티를 활용하여 제작한 건반형 리듬게임입니다.
 
 # 2. 사용 방법
-## 2.1. 파일 목록
-      
-      지원하는 채보파일형식은 .osu 입니다.
-      
-## 2.2. 채보 추가 방법
+## 2.1. 채보 추가 방법
 
-      게임 설치 경로에 있는 StreamingAssets\\Songs 폴더 안의 파일들을 탐색하여 곡 리스트를 작성합니다.
-      리소스, 채보 데이터 등이 포함된 폴더를 해당 경로에 생성하시면 됩니다.
+      게임 설치 경로에 있는 StreamingAssets\\Songs 폴더안의 데이터를 탐색하여 채보 리스트를 작성합니다.
+
+      Sound, BGM, 게임 데이터 등이 포함되어있는 폴더를 해당 경로로 이동시켜 채보를 추가합니다.
       
-      7키 이상의 채보는 6키로 고정되어 일부 키를 제거하고 키음 데이터는 자동으로 재생되도록 변환합니다.
-      
-## 2.3. 조작 방법
-      
-      게임 내에서 마우스는 사용하지 않습니다.
-      
-      사용자가 게임 세팅을 통해 정의한 키를 제외하고 방향키, 엔터, 스페이스바, ESC로 대부분의 조작이 가능합니다.
-      예외로 스크롤 속도는 키보드 상단의 1, 2 키를 통해 조절할 수 있습니다.
+## 2.2. 조작 방법
+
+      # Arrow - 채보 및 옵션 선택
+      # Enter - 게임 시작 및 옵션 설정 확인
+      # Escape - 뒤로가기, 게임종료, 일시정지
+      # Space - 게임 옵션
+      # 1, 2 - 스크롤 속도 조절
+      # F2 - 검색
+      # F3 - 코멘트 작성
+      # F5 - 채보 갱신
+      # F10 - 시스템 설정
+      # F11 - 키 설정
 
 # 3. 기능
-## 3.1. 변속 ( BPM 변화 )
-<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192090996-143422c0-63f3-4b4f-ab86-39d1c3b0af73.gif">    
+## 3.1. 변속
+<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/248521312-87d64431-838d-4022-8591-de8d8006d738.gif">    
             
-      BPM 변화에 맞춰 내려오는 노트의 속도도 달라집니다.
+      메인 BPM과 변경되는 BPM의 비율에 따라 노트의 속도가 달라집니다.
       
 ## 3.2. 속도 조절
 * ### 스크롤 속도
 <p align="center">
       
-      스크롤 속도 변경을 통해 내려오는 노트의 속도를 조절할 수 있습니다.
+      노트는 선택한 채보의 BPM과 관계없이 스크롤 속도에 의존된 속도로 이동합니다.
+
+      BPM이 서로다른 두 채보를 플레이할 때 스크롤 속도가 같으면 노트 또한 같은 속도로 이동합니다.
       
-* ### 사운드 속도
-<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/192102583-13d6f6a2-4513-43c0-b0ff-0c9246b72707.gif">
-<p align="center"> < 왼쪽부터 0.7  1.0  1.5 배속 >
+* ### 사운드 속도 ( 배속 )
+<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/248521330-a421424f-7475-4d59-884d-d0f7a7b272a4.gif">
+<p align="center"> < 좌측( x0.7 ) 중앙( x1.0 ) 우측( x1.5 ) >
                 
-      사운드 속도에 따라 음악의 빠르기와 노트의 간격이 함께 조정됩니다.
+      변경 값에 따라 사운드 속도와 노트의 타격 타이밍이 함께 조정됩니다.
     
 ## 3.3. BGA
 * ### Video
@@ -60,36 +63,51 @@
               
 * ### Image
       
-      영상 형식의 BGA 데이터가 없을 때 해당 채보의 배경 이미지를 보여줍니다.
+      영상 형식의 BGA 데이터가 없을 때 해당 채보의 타이틀 배경 이미지를 보여줍니다.
       
-      모든 배경 데이터가 없을 시 미리 로딩된 이미지를 보여줍니다.
+      모든 배경 데이터가 없을 시 미리 로딩된 기본 이미지를 보여줍니다.
 
-외부의 이미지 파일은 UnityWebRequest를 통해 로딩합니다.
+외부의 모든 이미지 파일은 UnityWebRequest를 통해 로딩됩니다.
 
 ## 3.4. 키음
-      
-      키음 데이터가 있는 경우 해당 레인의 키를 누를 때마다 설정된 사운드를 재생합니다.
+
+      # 배경음 영역 - 정의된 데이터에 의해 자동으로 재생되며 모드를 통해 제거된 키의 사운드는 배경음 영역에서 재생됩니다.
+                   
+      # 키음 영역 - 레인의 키를 입력하면 판정되어야 할 노트의 사운드를 재생합니다.
 
 ## 3.5. 게임 모드
 * ### Random
+<p align="center"> <img src="https://user-images.githubusercontent.com/19517385/248521388-11f838dd-b02c-4e13-8eb8-f15a3b2b49e4.gif">
+<p align="center"> < 좌측( None ) 중앙( Basic ) 우측( Max ) >
 
-      1. 미러 - 레인을 반전시킵니다.
+      # Mirror - 레인을 반전시킵니다.
 
-      2. 기본 - 모든 레인을 무작위로 섞습니다.
+      # Basic Random - 모든 레인을 무작위로 섞습니다.
       
-      3. 하프 - 중앙을 기준으로 레인을 절반씩 무작위로 섞습니다.
+      # Half Random - 레인을 중앙을 기준으로 절반씩 무작위로 섞습니다.
       
-      4. 맥스 - 노트마다 무작위 레인에 배치합니다.
+      # Max Random - 노트마다 무작위 레인에 배치합니다. ( 계단 보정 )
 
 * ### AutoPlay
       
-      자동 연주 기능으로 플레이되는 완벽한 플레이를 감상할 수 있습니다.
+      모든 판정을 자동으로 처리합니다.
       
 * ### NoSlider
       
-      롱노트 처리가 어렵다면 일반노트로 변환시켜 플레이할 수 있습니다.
+      롱노트를 일반노트로 변환하여 시작합니다.
+
+* ### NoFail
       
+      게임 오버가 되지 않습니다.
+
+* ### FixedBPM
+     
+      메인 BPM만 사용하도록 고정하여 변속 기능을 제거합니다.
+
+* ### 7K To 6K
+     
+      6키로 변환합니다.
+  
 # 4. 마치며
       
-      Blah Blah Blah
-      
+      이미지, 사운드 등 프로젝트에서 사용한 모든 리소스를 제외하여 포크 및 리포지토리 복제를 통해 실행하면 제대로 작동하지 않습니다.
