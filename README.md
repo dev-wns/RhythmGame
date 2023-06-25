@@ -80,11 +80,12 @@
 <p align="center"> <img src="https://user-images.githubusercontent.com/19517385/248521388-11f838dd-b02c-4e13-8eb8-f15a3b2b49e4.gif">
 <p align="center"> < 좌측( None ) 중앙( Basic ) 우측( Max ) >
 
-      # Mirror - 레인을 반전시킵니다.
+      # Mirror - 레인이 좌우반전됩니다.
 
       # Basic Random - 모든 레인을 무작위로 섞습니다.
       
-      # Half Random - 레인을 중앙을 기준으로 절반씩 무작위로 섞습니다.
+      # Half Random -중앙을 기준으로 절반씩 무작위로 섞습니다. 
+      ( 홀수 키인 경우 중앙에 위치한 키는 제외하고 적용됩니다. )
       
       # Max Random - 노트마다 무작위 레인에 배치합니다. ( 계단 보정 )
 
