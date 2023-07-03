@@ -114,7 +114,7 @@ public class SoundManager : Singleton<SoundManager>
             ErrorCheck( MainChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
         }
     }
-    public int UseChannelCount
+    public int ChannelsInUse
     {
         get
         {

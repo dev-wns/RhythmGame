@@ -35,7 +35,7 @@ public class ChannelCounter : MonoBehaviour
                 images[i].gameObject.SetActive( false );
             }
 
-            float calcChannel = SoundManager.Inst.UseChannelCount;
+            float calcChannel = SoundManager.Inst.ChannelsInUse;
             int number = Global.Math.Log10( calcChannel ) + 1;
             for ( int i = 0; i < number; i++ )
             {

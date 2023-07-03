@@ -11,8 +11,6 @@ public abstract class Scene : SceneKeyAction
 {
     #region Variables
     public static bool OnceTweenInit;
-    private SpriteRenderer blackSprite;
-    private readonly float FadeTime = .65f;
     public bool IsGameInputLock { get; set; }
     public Action<float/* pitch */> OnUpdatePitch;
     #endregion
@@ -137,6 +135,16 @@ public abstract class Scene : SceneKeyAction
         _icon?.Play();
     }
 
+    protected void ImmediateDisableCanvas( ActionType _changeType, OptionController _controller )
+    {
+        _controller.transform.root.gameObject.SetActive( false );
+
+        ChangeAction( _changeType );
+
+        SoundManager.Inst.Play( SoundSfxType.MenuHover );
+        SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+    }
+
     protected void DisableCanvas( ActionType _changeType, OptionController _controller, IconController _icon = null, bool _isSfxPlay = true, bool _hasFadeVolume = true )
     {
         GameObject root = _controller.transform.root.gameObject;
@@ -231,7 +239,12 @@ public abstract class Scene : SceneKeyAction
     }
     #endregion
 
-    #region Effect
+    #region Fade
+    private SpriteRenderer blackSprite;
+    private static readonly float FadeTime     = .65f;
+    private static readonly float FadeWaitTime = .025f;
+    private static readonly float FadeDuration = FadeTime + ( FadeWaitTime * 2f );
+
     private void CreateFadeSprite()
     {
         //gameObject.layer = 6; // 3d
@@ -252,8 +265,11 @@ public abstract class Scene : SceneKeyAction
         blackSprite.color = Color.black;
         blackSprite.enabled = true;
 
+        yield return YieldCache.WaitForSeconds( FadeWaitTime );
+
         blackSprite.DOFade( 0f, FadeTime );
-        yield return YieldCache.WaitForSeconds( FadeTime + .1f );
+        yield return YieldCache.WaitForSeconds( FadeDuration );
+        blackSprite.color = Color.clear;
         blackSprite.enabled = false;
     }
 
@@ -261,8 +277,12 @@ public abstract class Scene : SceneKeyAction
     {
         blackSprite.color = Color.clear;
         blackSprite.enabled = true;
+
+        yield return YieldCache.WaitForSeconds( FadeWaitTime );
+
         blackSprite.DOFade( 1f, FadeTime );
-        yield return YieldCache.WaitForSeconds( FadeTime + .1f );
+        yield return YieldCache.WaitForSeconds( FadeDuration );
+        blackSprite.color = Color.black;
     }
     #endregion
 

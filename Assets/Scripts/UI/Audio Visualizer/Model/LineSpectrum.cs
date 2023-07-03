@@ -57,13 +57,13 @@ public class LineSpectrum : BaseSpectrum
                 int end   = Global.Math.Clamp( index + NormalizedRange, 0, 4096 );
                 for ( int idx = start; idx <= end; idx++ )
                       sumValue += ( _values[0][idx] + _values[1][idx] ) * .5f;
-
+                      
                 value = sumValue / ( end - start + 1 );
             }
 
             // 이전 값과의 차이가 클수록 빠르게 변화하도록 한다.
             float diffAbs = Global.Math.Abs( buffer[i] - value );
-            float cache   = Global.Math.Clamp( buffer[i] - ( diffAbs * decreasePower * Time.deltaTime ), .0005f, 1f );
+            float cache   = Global.Math.Clamp( buffer[i] - ( ( .0001f + ( diffAbs * decreasePower ) ) * Time.deltaTime ), .0005f, 1f );
             buffer[i] = cache < value ? value : cache;
 
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
@@ -19,7 +18,10 @@ public class BpmChanger : MonoBehaviour
     private int prevNum, curNum;
 
     [Header("Time")]
-    private const float DelayTime = 1f / 80f;
+    private const double DelayTime = 1d / 60d;
+    private Timing curTiming;
+    private bool isStart;
+    private double time;
 
     private void Awake()
     {
@@ -41,6 +43,7 @@ public class BpmChanger : MonoBehaviour
         StopAllCoroutines();
         prevNum = curNum = 0;
         curIndex = 0;
+        time = 0d;
 
         images[0].gameObject.SetActive( true );
         images[0].sprite = sprites[0];
@@ -49,37 +52,37 @@ public class BpmChanger : MonoBehaviour
             images[i].gameObject.SetActive( false );
         }
         layoutGroup.SetLayoutHorizontal();
-        StartCoroutine( UpdateBPM() );
+        Initialize();
     }
 
     private void Initialize( Chart _chart )
     {
         timings = _chart.timings;
-        StartCoroutine( UpdateBPM() );
+        Initialize();
     }
 
-    private IEnumerator UpdateBPM()
+    private void Initialize()
     {
-        var curTiming = timings[curIndex];
+        curIndex = 0;
+        curTiming = timings[curIndex];
+        time = curTiming.time;
         ImageUpdate( curTiming.bpm );
+        isStart = true;
+    }
 
-        WaitUntil waitNextBPMTime = new WaitUntil( () => curTiming.time < NowPlaying.Playback );
-
-        while ( curIndex < timings.Count )
+    private void LateUpdate()
+    {
+        if ( isStart && curIndex < timings.Count &&
+             time < NowPlaying.Playback )
         {
-            while ( curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) < double.Epsilon )
-            {
-                curTiming = timings[++curIndex];
-            }
-            
-            yield return waitNextBPMTime;
-
             ImageUpdate( curTiming.bpm );
 
             if ( ++curIndex < timings.Count )
-                 curTiming = timings[curIndex];
-
-            yield return YieldCache.WaitForSeconds( DelayTime );
+            {
+                curTiming = timings[curIndex];
+                time = curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
+                       curTiming.time + DelayTime : curTiming.time;
+            }
         }
     }
 

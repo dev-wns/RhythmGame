@@ -52,7 +52,8 @@ public class AccuracyGraph : MonoBehaviour
                 totalSumMinDiff += diff * 1000d;
                 totalMinCount++;
             }
-            else
+
+            if ( diff > double.Epsilon )
             {
                 totalSumMaxDiff += diff * 1000d;
                 totalMaxCount++;
@@ -71,7 +72,7 @@ public class AccuracyGraph : MonoBehaviour
             if ( positions.Count == TotalJudge + 1 )
                  break;
 
-            var avg = datas[i].diff * 1000f * Power;
+            var avg = datas[i].diff * 1000d * Power;
             avg = Mathf.Round( ( float )( avg - ( avg % ( 5d * Power ) ) ) );
             positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )avg, -170f, 50f ), 0 ) );
         }

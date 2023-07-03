@@ -100,6 +100,9 @@ public class InGame : Scene
 
     private IEnumerator GameEnd()
     {
+        if ( NowPlaying.CurrentSong.isOnlyKeySound )
+             yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && SoundManager.Inst.ChannelsInUse == 0 );
+
         SoundManager.Inst.FadeVolume( SoundManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );
 
@@ -137,8 +140,8 @@ public class InGame : Scene
         IsGameInputLock = true;
         yield return StartCoroutine( FadeOut() );
 
-        DisableCanvas( ActionType.Main, pause );
-        DisableCanvas( ActionType.Main, gameOver );
+        ImmediateDisableCanvas( ActionType.Main, pause );
+        ImmediateDisableCanvas( ActionType.Main, gameOver );
         NowPlaying.Inst.Stop();
         SoundManager.Inst.AllStop();
 
