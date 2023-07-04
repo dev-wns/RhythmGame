@@ -129,7 +129,6 @@ public struct SpriteSample
 public struct Chart
 {
     public ReadOnlyCollection<Timing> timings;
-    public ReadOnlyCollection<Timing> uninheritedTimings;
     public ReadOnlyCollection<Note> notes;
     public ReadOnlyCollection<KeySound> samples;
     public ReadOnlyCollection<SpriteSample> sprites;
@@ -381,7 +380,7 @@ public class FileConverter : FileReader
                 if ( int.Parse( splitDatas[3] ) == 2 << 6 )
                      sliderTime = double.Parse( objParams[0] );
 
-                // 잘린 노트의 키음은 자동으로 재생되는 KeySample로 만들어 준다.
+                // 제거된 노트의 키음은 자동으로 재생되는 배경음으로 재생한다.
                 int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * song.keyCount / 512 );
                 int finalLane     = deleteKey.FinalKey( originLane );
                 KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], 

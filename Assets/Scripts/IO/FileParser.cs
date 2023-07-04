@@ -105,53 +105,63 @@ public class FileParser : FileReader
             OpenFile( _path );
             while ( ReadLine() != "[Timings]" )
             { }
-            
-#region Timings
+
+            #region Timings
+            Timing curTiming = new Timing();
+            Timing prevTiming = new Timing( double.MinValue, double.MinValue );
             List<Timing> timings = new List<Timing>();
             List<Timing> uninheritedTimings = new List<Timing>();
 
             bool hasFixedBPM = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM );
             while ( ReadLine() != "[Sprites]" )
             {
-                Timing timing = new Timing();
                 var split = line.Split( ',' );
 
-                timing.time          = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
-                timing.beatLength    = double.Parse( split[1] );
-                timing.bpm           = ( 1d / timing.beatLength * 60000d ) * GameSetting.CurrentPitch;
-
+                curTiming.time          = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
+                curTiming.beatLength    = double.Parse( split[1] );
+                curTiming.bpm           = ( 1d / curTiming.beatLength * 60000d ) * GameSetting.CurrentPitch;
+                curTiming.isUninherited = int.Parse( split[2] );
                 if ( uninheritedTimings.Count == 0 )
                 {
-                    double firstTime = timing.time;
-                    double spb       = ( 60d / timing.bpm ) * 4;
+                    double firstTime = curTiming.time;
+                    double spb       = ( 60d / curTiming.bpm ) * 4;
                     while ( firstTime > NowPlaying.WaitTime )
                     {
                         firstTime -= spb;
                     }
 
-                    timing.time = firstTime;
+                    curTiming.time = firstTime;
                 }
 
                 if ( hasFixedBPM )
                 {
-                    timing.bpm = NowPlaying.CurrentSong.medianBpm * GameSetting.CurrentPitch;
-                    uninheritedTimings.Add( timing );
-                    timings.Add( timing );
+                    curTiming.bpm = NowPlaying.CurrentSong.medianBpm * GameSetting.CurrentPitch;
+                    uninheritedTimings.Add( curTiming );
+                    timings.Add( curTiming );
 
                     while ( ReadLine() != "[Sprites]" ) { }
                     break;
                 }
 
-                if ( int.Parse( split[2] ) == 1 )
+                if ( curTiming.isUninherited == 1 )
                 {
-                    uninheritedTimings.Add( timing );
+                    uninheritedTimings.Add( curTiming );
                 }
 
-                timings.Add( timing );
+                // 필요없는 타이밍 제외하고 추가
+                if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
+                     Global.Math.Abs( curTiming.bpm  - prevTiming.bpm )  > double.Epsilon )
+                     timings.Add( curTiming );
+
+                prevTiming = curTiming;
             }
 
-            _chart.uninheritedTimings = new ReadOnlyCollection<Timing>( uninheritedTimings );
-            _chart.timings            = new ReadOnlyCollection<Timing>( timings );
+            // 마지막 타이밍 추가
+            if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
+                 Global.Math.Abs( curTiming.bpm  - prevTiming.bpm  ) > double.Epsilon )
+                 timings.Add( curTiming );
+
+            _chart.timings = new ReadOnlyCollection<Timing>( timings );
 #endregion
             
 #region Sprite Samples

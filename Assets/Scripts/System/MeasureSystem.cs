@@ -47,14 +47,31 @@ public class MeasureSystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
-        var timings   = _chart.uninheritedTimings;
+        var timings   = _chart.timings;
         var totalTime = NowPlaying.CurrentSong.totalTime * .001d;
+
         for ( int i = 0; i < timings.Count; i++ )
         {
-            double time     = timings[i].time;
-            double nextTime = ( i + 1 == timings.Count ) ? ( double )( totalTime + 60d ) : timings[i + 1].time;
-            double spb      = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
+            if ( timings[i].isUninherited == 0 )
+                 continue;
 
+            double time      = timings[i].time;
+            double nextTime  = 0d;
+            bool hasNextTime = false;
+            for ( int j = i + 1; j < timings.Count; j++ )
+            {
+                if ( timings[j].isUninherited == 1 )
+                {
+                    hasNextTime = true;
+                    nextTime = timings[j].time;
+                    break;
+                }
+            }
+
+            if ( !hasNextTime )
+                 nextTime = ( double )( totalTime + 60d );
+
+            double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
             while ( time < nextTime )
             {
                 measures.Add( NowPlaying.Inst.GetScaledPlayback( time ) );
@@ -64,6 +81,7 @@ public class MeasureSystem : MonoBehaviour
 
         if ( measures.Count > 0 )
              curTime = measures[curIndex];
+
     }
 
     private void SpawnMeasures( double _playback, double _scaledPlayback )

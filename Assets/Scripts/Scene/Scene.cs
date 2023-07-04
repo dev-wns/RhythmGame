@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 // Build Index
 public enum SceneType : int { FreeStyle = 1, Game, Result };
+
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
 {
@@ -41,8 +42,8 @@ public abstract class Scene : SceneKeyAction
 
     protected virtual void Start()
     {
-        StartCoroutine( FadeIn() );
         Connect();
+        StartCoroutine( FadeIn() );
     }
 
     protected virtual void OnDestroy()

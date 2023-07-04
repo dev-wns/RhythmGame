@@ -64,7 +64,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         // 롱노트 판정선에 붙기
         if ( IsSlider )
         {
-            if ( IsKeyDown && Time < NowPlaying.Playback )
+            if ( IsKeyDown && CalcTime < NowPlaying.ScaledPlayback )
                  newTime = NowPlaying.ScaledPlayback;
 
             BodyLength = ( float )( ( CalcSliderTime - newTime ) * GameSetting.Weight );

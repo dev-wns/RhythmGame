@@ -137,12 +137,6 @@ public class NowPlaying : Singleton<NowPlaying>
             if ( i + 1 < timings.Count )
             {
                 double nextTime = timings[i + 1].time;
-                if ( Global.Math.Abs( nextTime - curTime ) < double.Epsilon )
-                {
-                    timingIndex += 1;
-                    continue;
-                }
-
                 if ( nextTime < Playback )
                 {
                     timingIndex += 1;
