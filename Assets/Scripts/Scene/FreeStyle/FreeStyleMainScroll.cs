@@ -91,10 +91,10 @@ public class FreeStyleMainScroll : ScrollBase
         if ( !HasAnySongs )
         {
             SoundManager.Inst.AllStop();
-            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\LIHO  Surrender.mp3", true, false );
+            SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
             SoundManager.Inst.Play( 0f );
-            //SoundManager.Inst.Position = 180000;
-            SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
+            SoundManager.Inst.Position = 160000;
+            SoundManager.Inst.FadeVolume( 0f, 1f, .5f );
         }
     }
 
@@ -110,8 +110,7 @@ public class FreeStyleMainScroll : ScrollBase
             playback = curSong.previewTime;
             OnSoundRestart?.Invoke( curSong );
 
-            Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
-            SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
+            SoundManager.Inst.FadeVolume( 0f, 1f, .5f );
         }
     }
 
@@ -234,19 +233,21 @@ public class FreeStyleMainScroll : ScrollBase
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.CurrentSong;
 
+        // 이전 음악 페이드아웃
         Music prevMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
         SoundManager.Inst.FadeVolume( prevMusic, 1f, 0f, .5f, () => SoundManager.Inst.Stop( prevMusic ) );
 
+        // 새로운 음악 로딩
         SoundManager.Inst.Load( curSong.audioPath, false, true );
         endTime             = ( int )SoundManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
-        playback = curSong.previewTime;
+        playback            = curSong.previewTime;
 
+        // 음악 재생 및 페이드인
         SoundManager.Inst.Play( 0f );
         SoundManager.Inst.Position = ( uint )curSong.previewTime;
         OnSelectSong?.Invoke( curSong );
-        Music curMusic = new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel );
-        SoundManager.Inst.FadeVolume( curMusic, 0f, 1f, .5f );
+        SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
     }
 
     private void OnBufferSetting()

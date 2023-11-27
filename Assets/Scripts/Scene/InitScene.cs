@@ -1,56 +1,18 @@
 using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class InitScene : Scene
 {
-    public List<Canvas> canvasList;
-    //private readonly float CanvasWaitTime = 1f;
-    //private int canvasIndex;
-
-    public Image fadeImage;
-
-    private IEnumerator Process()
-    {
-        fadeImage.enabled = true;
-        fadeImage.color = Color.black;
-
-        yield return YieldCache.WaitForSeconds( 1f );
-
-        fadeImage.DOFade( 0f, .7f );
-
-        yield return YieldCache.WaitForSeconds( 3f );
-
-        fadeImage.DOFade( 1f, .7f );
-
-        //yield return YieldCache.WaitForSeconds( CanvasWaitTime );
-
-        //while ( true )
-        //{
-        //    canvasList[canvasIndex].gameObject.SetActive( true );
-
-        //    yield return YieldCache.WaitForSeconds( CanvasWaitTime );
-
-        //    fadeImage.DOFade( 1f, .7f );
-
-        //    yield return YieldCache.WaitForSeconds( CanvasWaitTime );
-
-        //    canvasList[canvasIndex].gameObject.SetActive( false );
-        //    fadeImage.DOFade( 0f, .7f );
-
-        //    if ( canvasIndex + 1 < canvasList.Count ) ++canvasIndex;
-        //    else                                      break;
-        //}
-
-        fadeImage.enabled = false;
-        LoadScene( SceneType.FreeStyle );
-    }
-
     protected override void Awake()
     {
         base.Awake();
+
+        QualitySettings.maxQueuedFrames = 0;
+        Cursor.visible = false;
+        DOTween.Init( true, false, LogBehaviour.Default ).SetCapacity( 50, 20 );
+
         var replace = SystemSetting.CurrentResolution.ToString().Replace( "_", " " );
         var split = replace.Trim().Split( ' ' );
 
@@ -70,14 +32,42 @@ public class InitScene : Scene
             Screen.SetResolution( width, height, FullScreenMode.Windowed );
             break;
         }
+
+        QualitySettings.vSyncCount = SystemSetting.CurrentFrameRate == FrameRate.vSync ? 1 : 0;
+        switch ( SystemSetting.CurrentFrameRate )
+        {
+            case FrameRate.vSync:
+            case FrameRate.No_Limit:
+            Application.targetFrameRate = 0;
+            break;
+
+            case FrameRate._60:
+            case FrameRate._144:
+            case FrameRate._240:
+            case FrameRate._960:
+            {
+                QualitySettings.vSyncCount = 0;
+                var frame = ( SystemSetting.CurrentFrameRate ).ToString().Replace( "_", " " );
+                Application.targetFrameRate = int.Parse( frame );
+            } break;
+        }
     }
 
-    protected override void Start()
+    protected async override void Start()
     {
-        base.Start();
-        QualitySettings.vSyncCount = 0;
+        StartCoroutine( ParsingAfterSwitchScene() );
+        await Task.Run( NowPlaying.Inst.Load );
+    }
 
-        StartCoroutine( Process() );
+    private IEnumerator ParsingAfterSwitchScene()
+    {
+        yield return StartCoroutine( FadeIn() );
+
+        yield return new WaitUntil( () => !NowPlaying.IsParsing );
+
+        yield return YieldCache.WaitForSeconds( 3f );
+
+        LoadScene( SceneType.FreeStyle );
     }
 
     public override void KeyBind()

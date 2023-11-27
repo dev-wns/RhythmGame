@@ -36,7 +36,7 @@ public class HeartBeat : MonoBehaviour
     private void UpdateSong( Song _song )
     {
         isStop      = false;
-        curBPM      = _song.medianBpm;
+        curBPM      = _song.mainBPM;
         previewTime = _song.previewTime * GameSetting.CurrentPitch * .001f;
         UpdateBPM( curBPM * GameSetting.CurrentPitch );
     }

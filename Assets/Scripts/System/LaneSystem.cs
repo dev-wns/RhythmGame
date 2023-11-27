@@ -34,7 +34,7 @@ public class LaneSystem : MonoBehaviour
             {
                 lanes.Add( Instantiate( prefab, transform ) );
             }
-            Debug.Log( $"Make enough lanes. AddCount : {addCount}" );
+            Debug.Log( $"Create {addCount} lanes." );
         }
 
         for ( int i = 0; i < keyCount; i++ )
@@ -45,6 +45,7 @@ public class LaneSystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
+        Timer timer = new Timer();
         if ( !NowPlaying.CurrentSong.isOnlyKeySound )
         {
             if ( SoundManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
@@ -58,10 +59,14 @@ public class LaneSystem : MonoBehaviour
             if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
                  keySampleSystem.AddSample( sample );
         }
+        Debug.Log( $"Sound Loading {timer.End} ms" );
 
+        timer.Start();
         CreateNotes( _chart );
+        Debug.Log( $"Note Placement {timer.End} ms" );
+
         keySampleSystem.SortSamples();
-        NowPlaying.Inst.IsLoadKeySound = true;
+        NowPlaying.IsLoadKeySound = true;
     }
 
     private void CreateNotes( Chart _chart )
@@ -74,8 +79,8 @@ public class LaneSystem : MonoBehaviour
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
-        double secondPer16Beats        = ( 60d / NowPlaying.CurrentSong.medianBpm ) * .25d/* 4/16 */;
-        bool isSevenButton = NowPlaying.CurrentSong.keyCount == 7;
+        double secondPer16Beat         = ( 60d / NowPlaying.CurrentSong.mainBPM ) * .25d/* 4/16 */;
+        bool isSevenButton             = NowPlaying.CurrentSong.keyCount == 7;
         for ( int i = 0; i < notes.Count; i++ )
         {
             Note newNote = notes[i];
@@ -110,8 +115,8 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.calcTime       = NowPlaying.Inst.GetScaledPlayback( newNote.time );
-                    newNote.calcSliderTime = NowPlaying.Inst.GetScaledPlayback( newNote.sliderTime );
+                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     lanes[newNote.lane].InputSys.AddNote( in newNote );
@@ -120,13 +125,15 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Max_Random:
                 {
                     emptyLanes.Clear();
-                    for ( int j = 0; j < keyCount; j++ ) // 32비트 빠른계단, 즈레 등.. 보정
+                    // 빠른계단, 즈레 등의 패턴이 존재할 때 물리적으로 처리하지 못하는 밀도로 배치되는 부분 보정
+                    for ( int j = 0; j < keyCount; j++ ) 
                     {
-                        if ( secondPer16Beats < ( newNote.time - prevTimes[j] ) )
+                        if ( secondPer16Beat < ( newNote.time - prevTimes[j] ) )
                              emptyLanes.Add( j );
                     }
 
-                    if ( emptyLanes.Count == 0 ) // 보정할 수 없을 때 남은 자리 찾기
+                    // 보정할 자리가 없을 때 보정되지않은 상태로 배치
+                    if ( emptyLanes.Count == 0 ) 
                     {
                         for ( int j = 0; j < keyCount; j++ )
                         {
@@ -138,16 +145,16 @@ public class LaneSystem : MonoBehaviour
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
                     prevTimes[selectLane] = newNote.isSlider ? newNote.sliderTime : newNote.time;
 
-                    newNote.calcTime       = NowPlaying.Inst.GetScaledPlayback( newNote.time );
-                    newNote.calcSliderTime = NowPlaying.Inst.GetScaledPlayback( newNote.sliderTime );
+                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     lanes[selectLane].InputSys.AddNote( in newNote );
                 } break;
+
             }
         }
 
-        // 라인별 스왑일 때
         switch ( GameSetting.CurrentRandom )
         {
             case GameRandom.Mirror:

@@ -103,7 +103,7 @@ public class ComboSystem : MonoBehaviour
 
             if ( isMissing )
             {
-                curCombo -= ( ElapsedPower + ( 2f * curCombo ) ) * Time.deltaTime;
+                curCombo -= ( ElapsedPower + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
                 if ( curCombo <= targetCombo || curCombo <= 0f )
                 {
                     curCombo = targetCombo;
@@ -113,7 +113,8 @@ public class ComboSystem : MonoBehaviour
             }
             else
             {
-                curCombo += ElapsedPower * Time.deltaTime;
+                curCombo += ( ElapsedPower + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
+                //curCombo += ElapsedPower * Time.deltaTime;
                 if ( curCombo > targetCombo )
                      curCombo = targetCombo;
             }

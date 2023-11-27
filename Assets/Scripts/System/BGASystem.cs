@@ -82,7 +82,7 @@ public class BGASystem : MonoBehaviour
         if ( GameSetting.BGAOpacity == 0 )
         {
             transform.root.gameObject.SetActive( false );
-            NowPlaying.Inst.IsLoadBGA = true;
+            NowPlaying.IsLoadBGA = true;
             return;
         }
 
@@ -108,7 +108,7 @@ public class BGASystem : MonoBehaviour
             if ( !System.IO.File.Exists( NowPlaying.CurrentSong.imagePath ) )
             {
                 transform.root.gameObject.SetActive( false );
-                NowPlaying.Inst.IsLoadBGA = true;
+                NowPlaying.IsLoadBGA = true;
             }
             else
             {
@@ -177,15 +177,13 @@ public class BGASystem : MonoBehaviour
 
     private IEnumerator WaitVideoTime()
     {
-        // 노트가 위로 올라갔다 내려오는 효과 때문에
-        // 시간이 역행하는지 확인 후 시작시간 타이밍을 기다린다.
-        yield return new WaitUntil( () => NowPlaying.Playback < vp.time );
-        yield return new WaitUntil( () => NowPlaying.Playback > vp.time );
+        yield return new WaitUntil( () => NowPlaying.Playback > NowPlaying.Inst.SaveTime - NowPlaying.PauseWaitTime );
         vp.Play();
     }
 
     private IEnumerator LoadVideo()
     {
+        Timer timer = new Timer();
         vp.enabled = true;
         vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.url = @$"{NowPlaying.CurrentSong.videoPath}";
@@ -199,7 +197,9 @@ public class BGASystem : MonoBehaviour
         if ( vp.isPlaying ) vp.Play();
         vp.Pause();
         vp.frame = 0;
-        NowPlaying.Inst.IsLoadBGA = true;
+
+        Debug.Log( $"{type} Loading {timer.End} ms" );
+        NowPlaying.IsLoadBGA = true;
     }
 
     private void SpriteProcess()
@@ -265,6 +265,7 @@ public class BGASystem : MonoBehaviour
 
     public IEnumerator LoadSamples( ReadOnlyCollection<SpriteSample> _samples )
     {
+        Timer timer = new Timer();
         var dir = System.IO.Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         for ( int i = 0; i < _samples.Count; i++ )
         {
@@ -303,8 +304,9 @@ public class BGASystem : MonoBehaviour
         //    else                            return 0;
         //} );
 
+        Debug.Log( $"{type} Loading {timer.End} ms" );
         yield return YieldCache.WaitForEndOfFrame;
-        NowPlaying.Inst.IsLoadBGA = true;
+        NowPlaying.IsLoadBGA = true;
     }
 
     public IEnumerator LoadSample( string _dir, SpriteSample _sample )
@@ -323,7 +325,7 @@ public class BGASystem : MonoBehaviour
         }
         else
         {
-            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path ) )
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path, true ) )
             {
                 www.method = UnityWebRequest.kHttpVerbGET;
                 using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
@@ -375,7 +377,9 @@ public class BGASystem : MonoBehaviour
     {
         if ( !System.IO.File.Exists( _path ) )
              yield break;
-        
+
+        Timer timer = new Timer();
+
         Texture2D tex;
         var ext = System.IO.Path.GetExtension( _path );
         if ( ext.Contains( ".bmp" ) )
@@ -386,7 +390,7 @@ public class BGASystem : MonoBehaviour
         }
         else
         {
-            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path ) )
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path, true ) )
             {
                 www.method = UnityWebRequest.kHttpVerbGET;
                 using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
@@ -397,7 +401,6 @@ public class BGASystem : MonoBehaviour
                     if ( www.result == UnityWebRequest.Result.ConnectionError ||
                          www.result == UnityWebRequest.Result.ProtocolError )
                     {
-                        Debug.LogError( $"UnityWebRequest Error : {www.error}" );
                         throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
                     }
 
@@ -411,7 +414,8 @@ public class BGASystem : MonoBehaviour
         background.color = color;
         background.texture = tex;
         background.rectTransform.sizeDelta = Global.Math.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
-        NowPlaying.Inst.IsLoadBGA = true;
+        Debug.Log( $"{type} Loading {timer.End} ms" );
+        NowPlaying.IsLoadBGA = true;
     }
 }
 

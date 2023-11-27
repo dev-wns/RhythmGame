@@ -139,15 +139,15 @@ public class ResultInfomation : MonoBehaviour
         var pitch = GameSetting.CurrentPitch;
         if ( Global.Math.Abs( pitch - 1f ) < .0001f )
         {
-            int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm );
-            if ( song.minBpm == song.maxBpm ) bpm.text = $"{medianBpm}";
-            else                              bpm.text = $"{medianBpm} ({song.minBpm} ~ {song.maxBpm})";
+            int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM );
+            if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
+            else                              bpm.text = $"{mainBPM} ({song.minBpm} ~ {song.maxBpm})";
         }
         else
         {
-            int medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * pitch  );
-            if ( song.minBpm == song.maxBpm ) bpm.text = $"{medianBpm}";
-            else                              bpm.text = $"{medianBpm} ({Mathf.RoundToInt( song.minBpm * pitch )} ~ {Mathf.RoundToInt( song.maxBpm * pitch )})";
+            int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * pitch  );
+            if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
+            else                              bpm.text = $"{mainBPM} ({Mathf.RoundToInt( song.minBpm * pitch )} ~ {Mathf.RoundToInt( song.maxBpm * pitch )})";
         }
         bpm.color = pitch < 1f ? new Color( .5f, .5f, 1f ) :
                     pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
@@ -201,7 +201,7 @@ public class ResultInfomation : MonoBehaviour
         }
         else
         {
-            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path ) )
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path, true ) )
             {
                 www.method = UnityWebRequest.kHttpVerbGET;
                 using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )

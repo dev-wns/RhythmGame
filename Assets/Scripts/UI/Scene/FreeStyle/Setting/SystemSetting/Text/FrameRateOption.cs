@@ -27,16 +27,12 @@ public class FrameRateOption : OptionText
     public override void Process()
     {
         var type = ( FrameRate )CurrentIndex;
+
+        QualitySettings.vSyncCount = SystemSetting.CurrentFrameRate == FrameRate.vSync ? 1 : 0;
         switch ( type )
         {
             case FrameRate.vSync:
-                QualitySettings.vSyncCount = 1;
-                break;
-
-            case FrameRate.No_Limit:
-                QualitySettings.vSyncCount  = 0;
-                Application.targetFrameRate = 0;
-            break;
+            case FrameRate.No_Limit: Application.targetFrameRate = 0; break;
 
             case FrameRate._60:
             case FrameRate._144:
@@ -47,8 +43,6 @@ public class FrameRateOption : OptionText
                 var frame = ( type ).ToString().Replace( "_", " " );
                 Application.targetFrameRate = int.Parse( frame );
             } break;
-
-            default: break;
         }
 
         SystemSetting.CurrentFrameRate = type;

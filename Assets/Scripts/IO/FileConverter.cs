@@ -40,7 +40,7 @@ public struct Song
 
     public int    minBpm;
     public int    maxBpm;
-    public double medianBpm;
+    public double mainBPM;
 }
 
 public struct Timing
@@ -73,8 +73,8 @@ public struct Note
     public double time;
     public double sliderTime;
     public bool isSlider;
-    public double calcTime;
-    public double calcSliderTime;
+    public double noteDistance;
+    public double sliderDistance;
     public KeySound keySound;
 
     public Note( int _lane, double _time, double _sliderTime, KeySound _sound )
@@ -82,8 +82,8 @@ public struct Note
         lane = _lane;
         time = _time;
         sliderTime = _sliderTime;
-        calcTime = 0d;
-        calcSliderTime = 0d;
+        noteDistance = 0d;
+        sliderDistance = 0d;
         isSlider = sliderTime > 0d ? true : false;
         keySound = _sound;
     }
@@ -331,21 +331,21 @@ public class FileConverter : FileReader
                  song.hasSprite = true;
              
 #endregion
-#region Timing
             timings?.Clear();
             uninheritedTimings?.Clear();
 
             double uninheritedBeat = 0d;
             song.minBpm = int.MaxValue;
+
+            #region Timing
             while ( ReadLine() != "[HitObjects]" )
             {
                 string[] splitDatas = line.Split( ',' );
                 if ( splitDatas.Length != 8 ) continue;
 
-                double time = double.Parse( splitDatas[0] );
-                // 상속된 BeatLength는 음수이기 때문에 절대값 변환 후 계산한다.
-                double beatLengthAbs = Global.Math.Abs( double.Parse( splitDatas[1] ) );
-                int isUninherited = int.Parse( splitDatas[6] );
+                double time          = double.Parse( splitDatas[0] );
+                double beatLengthAbs = Math.Abs( double.Parse( splitDatas[1] ) );
+                int isUninherited    = int.Parse( splitDatas[6] );
 
                 if ( isUninherited == 1 )
                 {
@@ -362,9 +362,9 @@ public class FileConverter : FileReader
                 if ( song.maxBpm < BPM ) song.maxBpm = Mathf.RoundToInt( ( float )BPM );
 
                 timings.Add( new Timing( time, BPM, beatLengthAbs, isUninherited ) );
-                     
             }
             #endregion
+
 #region Note
             notes?.Clear();
             bool isCheckKeySoundOnce = false;
@@ -434,7 +434,7 @@ public class FileConverter : FileReader
             } );
 
 #endregion
-            song.medianBpm = GetMedianBpm();
+            song.mainBPM = GetMainBPM();
 
             Write( in song );
             Dispose();
@@ -484,7 +484,7 @@ public class FileConverter : FileReader
 
                     writer.WriteLine( $"MinBPM: {_song.minBpm}" );
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
-                    writer.WriteLine( $"Median: {_song.medianBpm}" );
+                    writer.WriteLine( $"MainBPM: {_song.mainBPM}" );
 
                     writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound ? 1 : 0 )}:" +
                                                  $"{( _song.hasKeySound    ? 1 : 0 )}:" +
@@ -556,17 +556,17 @@ public class FileConverter : FileReader
         // }
     }
 
-    private double GetMedianBpm()
+    private double GetMainBPM()
     {
         List<AccumulateTiming> accumulateTimings = new List<AccumulateTiming>();
         // 상속되지않은 BPM으로 계산한다.
         for ( int i = 0; i < uninheritedTimings.Count; i++ )
         {
-            // 마지막 BPM은 마지막 노트 시간까지 계산한다.
+            // 끝나는 지점은 마지막 노트 시간으로 지정한다.
             double nextTime = ( i + 1 < uninheritedTimings.Count ) ? uninheritedTimings[i + 1].time : notes.Last().time;
 
-            bool isFind = false;
             // 타이밍 지속시간 누적
+            bool isFind = false;
             for ( int j = 0; j < accumulateTimings.Count; j++ )
             {
                 double diff = Math.Round( accumulateTimings[j].bpm - uninheritedTimings[i].bpm );
@@ -584,14 +584,14 @@ public class FileConverter : FileReader
         }
 
         if ( accumulateTimings.Count == 0 )
-             throw new Exception( "Error calculating median bpm." );
+             throw new Exception( "The MainBPM was not found." );
 
-        // 오름차순 정렬 ( 가장 오래 지속되는 BPM이 첫번째요소가 되도록 )
-        accumulateTimings.Sort( delegate ( AccumulateTiming _a, AccumulateTiming _b )
+        // 가장 오래 지속되는 BPM이 첫번째 요소가 되도록 오름차순 정렬
+        accumulateTimings.Sort( delegate ( AccumulateTiming _left, AccumulateTiming _right )
         {
-            if ( _a.time < _b.time )      return 1;
-            else if ( _a.time > _b.time ) return -1;
-            else                          return 0;
+            if      ( _left.time < _right.time ) return 1;
+            else if ( _left.time > _right.time ) return -1;
+            else                                 return 0;
         } );
 
         return accumulateTimings[0].bpm;

@@ -1,4 +1,4 @@
-// #define ASYNC_PARSE
+#define START_FREESTYLE
 
 using Newtonsoft.Json;
 using System;
@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public struct HitData
@@ -73,18 +72,19 @@ public class NowPlaying : Singleton<NowPlaying>
     public static int KeyCount         => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7 ? 6 : CurrentSong.keyCount;
     public int CurrentSongIndex { get; private set; }
     public int SearchCount { get; private set; }
-    private double medianBPM;
+    private double mainBPM;
     private int timingIndex;
 
     #region Time
-    private double startTime, saveTime;
+    public  double SaveTime { get; private set; }
+    private double startTime;
     public  static double WaitTime { get; private set; }
     public  static readonly double StartWaitTime = -3d;
-    private static readonly double PauseWaitTime = -2d;
+    public  static readonly double PauseWaitTime = -2d;
     public  static float GameTime         { get; private set; }
     public  static double Playback        { get; private set; }
-    public  static double ScaledPlayback  { get; private set; }
-    private static double ScaledPlaybackCache;
+    public  static double Distance        { get; private set; }
+    private static double DistanceCache;
     #endregion
     public List<HitData> HitDatas { get; private set; } = new List<HitData>();
     public  ResultData CurrentResult => currentResult;
@@ -93,70 +93,66 @@ public class NowPlaying : Singleton<NowPlaying>
     public readonly static int MaxRecordSize = 10;
     public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( MaxRecordSize );
 
-    public event Action<string> OnParse;
-    public event Action<double/*Playback*/, double/*ScaledPlayback*/> OnSpawnObjects;
+    public int TotalFileCount { get; private set; }
+    public static event Action<Song> OnParsing;
+    public static event Action       OnParsingEnd;
+    public static event Action<double/* Distance */> OnSpawnObjects;
+    public static event Action<double/* Distance */> OnUpdateDistance;
 
-    public bool IsStart        { get; private set; }
-    public bool IsParseSong    { get; private set; }
-    public bool IsLoadBGA      { get; set; }
-    public bool IsLoadKeySound { get; set; }
+    public static bool IsStart        { get; private set; }
+    public static bool IsParsing      { get; private set; }
+    public static bool IsLoadBGA      { get; set; }
+    public static bool IsLoadKeySound { get; set; }
     #endregion
 
     #region Unity Callback
-    protected override async void Awake()
+#if START_FREESTYLE
+    protected override void Awake()
     {
         base.Awake();
-#if ASYNC_PARSE
-        Task parseSongsAsyncTask = Task.Run( ParseSongs );
-        await parseSongsAsyncTask;
-#else
         Load();
-        await Task.CompletedTask;
-#endif        
     }
+#endif        
 
     private void Update()
     {
         GameTime += Time.deltaTime;
         if ( !IsStart ) return;
 
-        Playback = saveTime + ( Time.realtimeSinceStartupAsDouble - startTime );
-        UpdatePlayback();
+        Playback = SaveTime + ( Time.realtimeSinceStartupAsDouble - startTime );
+        UpdateDistance();
     }
 
-    private void UpdatePlayback()
+    private void UpdateDistance()
     {
         var timings = CurrentChart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
         {
-            double curTime = timings[i].time;
-            if ( Playback < curTime )
+            double time = timings[i].time;
+            double bpm  = timings[i].bpm / mainBPM;
+
+            if ( Playback < time )
                  break;
 
-            double curBPM  = timings[i].bpm;
-            if ( i + 1 < timings.Count )
+            if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
             {
-                double nextTime = timings[i + 1].time;
-                if ( nextTime < Playback )
-                {
-                    timingIndex += 1;
-                    ScaledPlaybackCache += ( curBPM / medianBPM ) * ( nextTime - curTime );
-
-                    ScaledPlayback = ScaledPlaybackCache;
-                    break;
-                }
+                timingIndex++;
+                DistanceCache += bpm * ( timings[i + 1].time - time );
+                Distance = DistanceCache;
+                break;
             }
 
-            ScaledPlayback = ScaledPlaybackCache + ( ( curBPM / medianBPM ) * ( Playback - curTime ) );
+            Distance = DistanceCache + ( bpm * ( Playback - time ) );
         }
 
-        OnSpawnObjects?.Invoke( Playback, ScaledPlayback );
+        OnSpawnObjects?.Invoke( Distance );
+        OnUpdateDistance?.Invoke( Distance );
     }
     #endregion
     #region Parsing
     private void ConvertSong()
     {
-        string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
+        string[] files = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
         for ( int i = 0; i < files.Length; i++ )
         {
             using ( FileConverter converter = new FileConverter() )
@@ -168,11 +164,15 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Load()
     {
+        Timer timer = new Timer();
+        IsParsing = true;
         ConvertSong();
-        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
         List<Song> newSongList = new List<Song>();
-        string[] files = Global.IO.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
-        for( int i = 0; i < files.Length; i++ )
+
+        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
+        string[] files = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
+        TotalFileCount = files.Length;
+        for ( int i = 0; i < TotalFileCount; i++ )
         {
             using ( FileParser parser = new FileParser() )
             {
@@ -180,22 +180,28 @@ public class NowPlaying : Singleton<NowPlaying>
                 {
                     newSong.UID = newSongList.Count;
                     newSongList.Add( newSong );
-                    OnParse?.Invoke( System.IO.Path.GetFileNameWithoutExtension( files[i] ) );
+                    OnParsing?.Invoke( newSong );
                 }
-            }           
+            }
         }
+
         Songs = newSongList.ToList();
         OriginSongs = new ReadOnlyCollection<Song>( Songs.ToList() );
-        IsParseSong = true;
 
         if ( Songs.Count > 0 )
              UpdateSong( 0 );
+
+        OnParsingEnd?.Invoke();
+        IsParsing = false;
+
+        Debug.Log( $"Update Songs {timer.End} ms" );
     }
 
     public void ParseChart()
     {
+        Timer timer = new Timer();
         WaitTime  = StartWaitTime;
-        medianBPM = CurrentSong.medianBpm * GameSetting.CurrentPitch;
+        mainBPM = CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
         using ( FileParser parser = new FileParser() )
         {
@@ -205,10 +211,10 @@ public class NowPlaying : Singleton<NowPlaying>
                 Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
             }
             else 
-            {
                 CurrentChart = chart;
-            }
         }
+
+        Debug.Log( $"Chart Parsing {timer.End} ms" );
         Stop();
     }
 
@@ -359,19 +365,19 @@ public class NowPlaying : Singleton<NowPlaying>
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         startTime = Time.realtimeSinceStartupAsDouble;
-        saveTime        = WaitTime;
+        SaveTime        = WaitTime;
         IsStart         = true;
-        Debug.Log( $"Playback start." );
+        Debug.Log( $"Playback Start" );
     }
 
     public void Stop()
     {
         StopAllCoroutines();
         Playback = WaitTime;
-        saveTime = WaitTime;
-        ScaledPlayback      = 0d;
-        ScaledPlaybackCache = 0d;
-        timingIndex         = 0;
+        SaveTime = WaitTime;
+        Distance      = 0d;
+        DistanceCache = 0d;
+        timingIndex   = 0;
 
         IsStart         = false;
         IsLoadBGA       = false;
@@ -387,7 +393,7 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( true )
         {
             Playback += speed * Time.deltaTime;
-            UpdatePlayback();
+            UpdateDistance();
 
             CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
@@ -404,7 +410,7 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( _isPause )
         {
             IsStart  = false;
-            saveTime = Playback + PauseWaitTime;
+            SaveTime = Playback + PauseWaitTime;
             SoundManager.Inst.SetPaused( true, ChannelType.BGM );
         }
         else
@@ -416,10 +422,13 @@ public class NowPlaying : Singleton<NowPlaying>
     private IEnumerator Continue()
     {
         Timing timing = CurrentChart.timings[timingIndex];
-        while ( Playback > saveTime )
+        while ( Playback > SaveTime )
         {
-            Playback     -= Time.deltaTime * 1.2f;
-            ScaledPlayback = ScaledPlaybackCache + ( ( timing.bpm / medianBPM ) * ( Playback - timing.time ) );
+            Playback -= Time.deltaTime * 1.2f;
+            Distance  = DistanceCache + ( ( timing.bpm / mainBPM ) * ( Playback - timing.time ) );
+
+            OnSpawnObjects?.Invoke( Distance );
+            OnUpdateDistance?.Invoke( Distance );
 
             yield return null;
         }
@@ -427,7 +436,7 @@ public class NowPlaying : Singleton<NowPlaying>
         startTime = Time.realtimeSinceStartupAsDouble;
         IsStart   = true;
 
-        yield return new WaitUntil( () => Playback > saveTime - PauseWaitTime );
+        yield return new WaitUntil( () => Playback > SaveTime - PauseWaitTime );
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         yield return YieldCache.WaitForSeconds( 3f );
@@ -448,21 +457,45 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
 
     /// <returns> Time including BPM. </returns>
-    public double GetScaledPlayback( double _time )
+    //public double GetScaledPlayback( double _time )
+    //{
+    //    var timings = CurrentChart.timings;
+    //    double newTime = 0d;
+    //    double prevBpm = 0d;
+    //    for ( int i = 0; i < timings.Count; i++ )
+    //    {
+    //        double time = timings[i].time;
+    //        double bpm  = timings[i].bpm / mainBPM;
+    //
+    //        if ( time > _time ) break;
+    //
+    //        newTime += ( bpm - prevBpm ) * ( _time - time );
+    //        prevBpm = bpm;
+    //    }
+    //    return newTime;
+    //}
+
+    /// <returns> _time까지 이동한 거리 </returns>
+    public double GetDistance( double _time )
     {
+        double result = 0d;
         var timings = CurrentChart.timings;
-        double newTime = 0d;
-        double prevBpm = 0d;
         for ( int i = 0; i < timings.Count; i++ )
         {
             double time = timings[i].time;
-            double bpm  = timings[i].bpm;
+            double bpm  = timings[i].bpm / mainBPM;
 
-            if ( time > _time ) break;
-            bpm = bpm / medianBPM;
-            newTime += ( bpm - prevBpm ) * ( _time - time );
-            prevBpm = bpm;
+            // 구간별 타이밍에 대한 거리 추가
+            if ( i + 1 < timings.Count && timings[i + 1].time < _time )
+            {
+                result += bpm * ( timings[i + 1].time - time );
+                continue;
+            }
+
+            // 마지막 타이밍에 대한 거리 추가
+            result += bpm * ( _time - time );
+            break;
         }
-        return newTime;
+        return result;
     }
 }

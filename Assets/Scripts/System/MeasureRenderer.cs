@@ -3,22 +3,38 @@ using UnityEngine;
 public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
 {
     public ObjectPool<MeasureRenderer> pool { get; set; }
-    public double ScaledTime { get; private set; }
+    public double distance { get; private set; }
 
     private void Awake()
     {
         transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
     }
 
-    private void LateUpdate()
+    private void OnDestroy()
     {
-        transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( ScaledTime - NowPlaying.ScaledPlayback ) * GameSetting.Weight );
-        if ( ScaledTime < NowPlaying.ScaledPlayback )
-             pool.Despawn( this );
+        NowPlaying.OnUpdateDistance -= UpdatePosition;
+    }
+
+    //private void LateUpdate()
+    //{
+    //    transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( distance - NowPlaying.Distance ) * GameSetting.Weight );
+    //    if ( distance < NowPlaying.Distance )
+    //         pool.Despawn( this );
+    //}
+
+    private void UpdatePosition( double _distance )
+    {
+        transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( distance - _distance ) * GameSetting.Weight );
+        if ( distance < _distance )
+        {
+            NowPlaying.OnUpdateDistance -= UpdatePosition;
+            pool.Despawn( this );
+        }
     }
 
     public void SetInfo( double _scaledTime )
     {
-        ScaledTime = _scaledTime;
+        distance = _scaledTime;
+        NowPlaying.OnUpdateDistance += UpdatePosition;
     }
 }

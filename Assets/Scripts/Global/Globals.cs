@@ -63,7 +63,7 @@ namespace Global
         }
     }
 
-    public static class IO
+    public static class FILE
     {
         public static string[] GetFilesInSubDirectories( string _dirPath, string _extension )
         {

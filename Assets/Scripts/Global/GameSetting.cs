@@ -67,7 +67,7 @@ public class GameSetting
     }
 
     public static float Weight => ScrollSpeed * 350f;
-    public static float PreLoadTime => 1200f / Weight;
+    public static float MinDistance => 1200f / Weight;
 
     // Sound
     public static int SoundOffset = 0;
@@ -112,4 +112,5 @@ public class GameSetting
 
     // Debug
     public static bool IsAutoRandom = false;
+    public static bool UseClapSound = false;
 }

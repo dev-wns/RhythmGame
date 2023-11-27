@@ -22,8 +22,8 @@ public class MeasureSystem : MonoBehaviour
             if ( shouldShowMeasure )
             {
                 scene.OnSystemInitialize += Initialize;
+                NowPlaying.OnSpawnObjects += SpawnMeasures;
                 scene.OnReLoad += ReLoad;
-                NowPlaying.Inst.OnSpawnObjects += SpawnMeasures;
             }
         }
 
@@ -32,16 +32,14 @@ public class MeasureSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        StopAllCoroutines();
-        if ( shouldShowMeasure )
-             NowPlaying.Inst.OnSpawnObjects -= SpawnMeasures;
+        NowPlaying.OnSpawnObjects -= SpawnMeasures;
+        //StopAllCoroutines();
     }
 
     private void ReLoad()
     {
         curIndex = 0;
         curTime = measures[curIndex];
-
         pool.AllDespawn();
     }
 
@@ -74,25 +72,24 @@ public class MeasureSystem : MonoBehaviour
             double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
             while ( time < nextTime )
             {
-                measures.Add( NowPlaying.Inst.GetScaledPlayback( time ) );
+                measures.Add( NowPlaying.Inst.GetDistance( time ) );
                 time += spb;
             }
         }
 
         if ( measures.Count > 0 )
              curTime = measures[curIndex];
-
     }
 
-    private void SpawnMeasures( double _playback, double _scaledPlayback )
+    private void SpawnMeasures( double _distance )
     {
-        while ( curIndex < measures.Count && curTime <= _scaledPlayback + GameSetting.PreLoadTime )
+        while ( curIndex < measures.Count && curTime <= _distance + GameSetting.MinDistance )
         {
             MeasureRenderer measure = pool.Spawn();
             measure.SetInfo( curTime );
 
             if ( ++curIndex < measures.Count )
-                 curTime = measures[curIndex];
+                curTime = measures[curIndex];
         }
     }
 }

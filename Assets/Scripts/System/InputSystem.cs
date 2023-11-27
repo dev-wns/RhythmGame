@@ -63,7 +63,8 @@ public class InputSystem : MonoBehaviour
         lane.OnLaneInitialize += Initialize;
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-        NowPlaying.Inst.OnSpawnObjects += SpawnNotes;
+
+        NowPlaying.OnSpawnObjects += SpawnNotes;
     }
 
     private void Start()
@@ -94,6 +95,8 @@ public class InputSystem : MonoBehaviour
             {
                 OnInputEvent?.Invoke( InputType.Down );
                 SoundManager.Inst.Play( curSound );
+                if ( GameSetting.UseClapSound )
+                     SoundManager.Inst.Play( SoundSfxType.Clap );
             }
             else if ( Input.GetKeyUp( key ) )
             {
@@ -105,7 +108,7 @@ public class InputSystem : MonoBehaviour
     private void OnDestroy()
     {
         StopAllCoroutines();
-        NowPlaying.Inst.OnSpawnObjects -= SpawnNotes;
+        NowPlaying.OnSpawnObjects -= SpawnNotes;
     }
     #endregion
 
@@ -118,7 +121,7 @@ public class InputSystem : MonoBehaviour
         if ( NowPlaying.KeyCount == 4 )      note = _key == 1 || _key == 2 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
-        notePool ??= new ObjectPool<NoteRenderer>( note, 10 );
+        notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
 
         if ( noteDatas.Count > 0 )
         {
@@ -155,6 +158,8 @@ public class InputSystem : MonoBehaviour
             note.Despawn();
         }
 
+        notePool.AllDespawn();
+
         NowPlaying.Inst.ResetData();
         noteSpawnIndex = 0;
         curNote        = null;
@@ -170,7 +175,6 @@ public class InputSystem : MonoBehaviour
     private void GameOver()
     {
         OnStopEffect?.Invoke();
-        //OnInputEvent?.Invoke( InputType.Up );
     }
 
     /// <summary>
@@ -179,7 +183,6 @@ public class InputSystem : MonoBehaviour
     private void Pause( bool _isPause )
     {
         OnStopEffect?.Invoke();
-        //OnInputEvent?.Invoke( InputType.Up );
 
         if ( !_isPause || curNote == null || !curNote.IsSlider ) 
              return;
@@ -200,12 +203,13 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Note Process
-    private void SpawnNotes( double _playback, double _scaledPlayback )
+
+    private void SpawnNotes( double _distance )
     {
-        while ( noteSpawnIndex < noteDatas.Count && curData.calcTime <= _scaledPlayback + GameSetting.PreLoadTime )
+        while ( noteSpawnIndex < noteDatas.Count && curData.noteDistance <= _distance + GameSetting.MinDistance )
         {
             NoteRenderer note = notePool.Spawn();
-            note.SetInfo( lane.Key, in curData, noteSpawnIndex );
+            note.SetInfo( lane.Key, in curData );
             notes.Enqueue( note );
 
             if ( ++noteSpawnIndex < noteDatas.Count )
@@ -247,7 +251,7 @@ public class InputSystem : MonoBehaviour
 
     private void SelectNextNote( bool _isDespawn = true )
     {
-        if ( curNote.SpawnIndex == ( noteDatas.Count - 1 ) )
+        if ( NowPlaying.Playback > endNoteTime && notes.Count == 0 && noteSpawnIndex == noteDatas.Count )
              scene.HitLastNote( lane.Key );
 
         if ( _isDespawn )
@@ -278,6 +282,8 @@ public class InputSystem : MonoBehaviour
                 OnHitNote?.Invoke( NoteType.Default, InputType.Down );
                 judge.ResultUpdate( GameSetting.IsAutoRandom ? target : 0d, NoteType.Default );
                 SoundManager.Inst.Play( curSound );
+                if ( GameSetting.UseClapSound )
+                     SoundManager.Inst.Play( SoundSfxType.Clap );
                 SelectNextNote();
             }
         }
@@ -292,6 +298,9 @@ public class InputSystem : MonoBehaviour
                     curNote.IsKeyDown = true;
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
                     SoundManager.Inst.Play( curSound );
+                    if ( GameSetting.UseClapSound )
+                        SoundManager.Inst.Play( SoundSfxType.Clap );
+
                     judge.ResultUpdate( 0d, NoteType.Default );
 
                     inputStartTime = NowPlaying.Playback;

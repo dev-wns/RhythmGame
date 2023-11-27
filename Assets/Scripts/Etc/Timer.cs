@@ -13,7 +13,7 @@ public class Timer
 
     public double CurrentTime => System.DateTime.Now.TimeOfDay.TotalSeconds;
 
-    public Timer() { }
+    public Timer() { Start(); }
     public Timer( bool _shouldStart )
     {
         if ( _shouldStart )

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,15 +17,10 @@ public class FilledTime : MonoBehaviour
     private void Initialize()
     {
         length = NowPlaying.CurrentSong.totalTime * .001d / GameSetting.CurrentPitch;
-        StartCoroutine( Process() );
     }
 
-    private IEnumerator Process()
+    private void Update()
     {
-        while ( NowPlaying.Playback < length )
-        {
-            image.fillAmount = ( float )( NowPlaying.Playback / length );
-            yield return null;
-        }
+        image.fillAmount = ( float )( NowPlaying.Playback / length );
     }
 }

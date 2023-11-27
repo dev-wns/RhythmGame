@@ -11,7 +11,8 @@ public class FPSCounter : MonoBehaviour
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
-    private float deltaTime = 0f;
+    private float deltaTime;
+    private int curFPS = 0, prevFPS = 0;
     private int prevNum, curNum;
 
     private void Awake()
@@ -23,7 +24,13 @@ public class FPSCounter : MonoBehaviour
         for ( int i = 0; i < images.Count; i++ )
              images[i].sortingOrder = sortingOrder;
 
-        StartCoroutine( CalcFrameRate() );
+        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) )
+             StartCoroutine( UpdateFrame() );
+    }
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 
     private void Update()
@@ -31,34 +38,41 @@ public class FPSCounter : MonoBehaviour
         deltaTime += ( Time.unscaledDeltaTime - deltaTime ) * .1f;
     }
 
-    private IEnumerator CalcFrameRate()
+    private IEnumerator UpdateFrame()
     {
-        while ( true )
+        while( true )
         {
             yield return YieldCache.WaitForSeconds( .075f );
+            
+            curFPS = ( int )( 1f / deltaTime );
+            if ( prevFPS != curFPS )
+                UpdateImage();
 
-            for ( int i = 0; i < 5; i++ )
+            prevFPS = curFPS;
+        }
+    }
+
+    private void UpdateImage()
+    {
+        float calcFPS = curFPS;
+        curNum = Global.Math.Log10( curFPS ) + 1;
+        for ( int i = 0; i < 5; i++ )
+        {
+            if ( i < curNum )
             {
-                images[i].gameObject.SetActive( false );
-            }
-
-            float fps = 1f / deltaTime;
-            float calcFPS = fps;
-            curNum = Global.Math.Log10( fps ) + 1;
-
-            for ( int i = 0; i < curNum; i++ )
-            {
-                if ( !images[i].gameObject.activeSelf )
-                     images[i].gameObject.SetActive( true );
-
+                images[i].gameObject.SetActive( true );
                 images[i].sprite = sprites[( int )calcFPS % 10];
                 calcFPS *= .1f;
             }
-
-            if ( prevNum != curNum )
-                 layoutGroup.SetLayoutHorizontal();
-
-            prevNum = curNum;
+            else
+            {
+                images[i].gameObject.SetActive( false );
+            }
         }
+
+        if ( prevNum != curNum )
+             layoutGroup.SetLayoutHorizontal();
+
+        prevNum = curNum;
     }
 }

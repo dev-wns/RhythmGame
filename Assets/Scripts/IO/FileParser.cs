@@ -57,9 +57,9 @@ public class FileParser : FileReader
                 if ( Contains( "NumDelNote:" ) )   _song.delNoteCount   = int.Parse( Split( ':' ) );
                 if ( Contains( "NumDelSlider:" ) ) _song.delSliderCount = int.Parse( Split( ':' ) );
 
-                if ( Contains( "MinBPM:" ) )  _song.minBpm    = int.Parse( Split( ':' ) );
-                if ( Contains( "MaxBPM:" ) )  _song.maxBpm    = int.Parse( Split( ':' ) );
-                if ( Contains( "Median:" ) )  _song.medianBpm = double.Parse( Split( ':' ) );
+                if ( Contains( "MinBPM:" ) )   _song.minBpm    = int.Parse( Split( ':' ) );
+                if ( Contains( "MaxBPM:" ) )   _song.maxBpm    = int.Parse( Split( ':' ) );
+                if ( Contains( "MainBPM:" ) )  _song.mainBPM   = double.Parse( Split( ':' ) );
 
                 if ( Contains( "DataExist:" ) )
                 {
@@ -71,6 +71,7 @@ public class FileParser : FileReader
                 }
             }
 
+            // delete 채보 제거
             if ( _song.noteCount + _song.sliderCount < 10 )
                  throw new Exception( $"Too few notes." );
 
@@ -135,7 +136,7 @@ public class FileParser : FileReader
 
                 if ( hasFixedBPM )
                 {
-                    curTiming.bpm = NowPlaying.CurrentSong.medianBpm * GameSetting.CurrentPitch;
+                    curTiming.bpm = NowPlaying.CurrentSong.mainBPM * GameSetting.CurrentPitch;
                     uninheritedTimings.Add( curTiming );
                     timings.Add( curTiming );
 
@@ -149,17 +150,17 @@ public class FileParser : FileReader
                 }
 
                 // 필요없는 타이밍 제외하고 추가
-                if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
-                     Global.Math.Abs( curTiming.bpm  - prevTiming.bpm )  > double.Epsilon )
+                //if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
+                //     Global.Math.Abs( curTiming.bpm  - prevTiming.bpm )  > double.Epsilon )
                      timings.Add( curTiming );
 
                 prevTiming = curTiming;
             }
 
             // 마지막 타이밍 추가
-            if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
-                 Global.Math.Abs( curTiming.bpm  - prevTiming.bpm  ) > double.Epsilon )
-                 timings.Add( curTiming );
+            //if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
+            //     Global.Math.Abs( curTiming.bpm  - prevTiming.bpm  ) > double.Epsilon )
+            //     timings.Add( curTiming );
 
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
 #endregion
@@ -196,10 +197,9 @@ public class FileParser : FileReader
                 keySounds.Add( sample );
             }
             _chart.samples = new ReadOnlyCollection<KeySound>( keySounds );
-#endregion
-#region Notes
+            #endregion
+            #region Notes
             List<Note> notes = new List<Note>();
-
             while ( ReadLineEndOfStream() )
             {
                 Note note = new Note();
@@ -211,10 +211,18 @@ public class FileParser : FileReader
                 note.isSlider       = note.sliderTime > 0d ? true : false;
 
                 var keySoundSplit = split[3].Split( ':' );
-                note.keySound.volume   = float.Parse( keySoundSplit[0] ) * .01f;
-                note.keySound.name     = keySoundSplit[1];
-                //note.keySound.hasSound = note.keySound.name == string.Empty ? false : true;
+                note.keySound.volume = float.Parse( keySoundSplit[0] ) * .01f;
+                note.keySound.name   = keySoundSplit[1];
 
+                //for ( int i = 0; i < keySounds.Count; i++ )
+                //{
+                //    if ( Global.Math.Abs( keySounds[i].time - note.time ) < .005d &&
+                //         keySounds[i].name.CompareTo( note.keySound.name ) == 0 )
+                //    {
+                //        note.keySound.name = string.Empty;
+                //        break;
+                //    }
+                //}
                 notes.Add( note );
             }
 

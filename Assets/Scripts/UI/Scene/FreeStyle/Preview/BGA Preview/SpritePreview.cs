@@ -95,14 +95,14 @@ public class SpritePreview : FreeStylePreview
                 Texture2D tex;
                 var path = @Path.Combine( dir, sprites[i].name );
                 if ( Path.GetExtension( path ).Contains( ".bmp" ) )
-                    {
-                        BMPLoader loader = new BMPLoader();
-                        BMPImage img = loader.LoadBMP( path );
-                        tex = img.ToTexture2D( TextureFormat.RGB24 );
-                    }
+                {
+                    BMPLoader loader = new BMPLoader();
+                    BMPImage img = loader.LoadBMP( path );
+                    tex = img.ToTexture2D( TextureFormat.RGB24 );
+                }
                 else
                 {
-                    using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path ) )
+                    using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path, true ) )
                     {
                         www.method = UnityWebRequest.kHttpVerbGET;
                         using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )

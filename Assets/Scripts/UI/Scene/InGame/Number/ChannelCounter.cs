@@ -11,6 +11,8 @@ public class ChannelCounter : MonoBehaviour
     public List<Sprite> sprites = new List<Sprite>();
     private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private CustomHorizontalLayoutGroup layoutGroup;
+    private int prevNum, curNum;
+    private int curChannel, prevChannel;
 
     private void Awake()
     {
@@ -21,32 +23,49 @@ public class ChannelCounter : MonoBehaviour
         for ( int i = 0; i < images.Count; i++ )
               images[i].sortingOrder = sortingOrder;
 
-        StartCoroutine( CalcFrameRate() );
+        StartCoroutine( UpdateChannel() );
     }
 
-    private IEnumerator CalcFrameRate()
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
+
+    private IEnumerator UpdateChannel()
     {
         while ( true )
         {
             yield return YieldCache.WaitForSeconds( .075f );
 
-            for ( int i = 0; i < 5; i++ )
-            {
-                images[i].gameObject.SetActive( false );
-            }
+            curChannel = SoundManager.Inst.ChannelsInUse;
+            if ( prevChannel != curChannel )
+                 UpdateImage();
+            
+            prevChannel = curChannel;
+        }
+    }
 
-            float calcChannel = SoundManager.Inst.ChannelsInUse;
-            int number = Global.Math.Log10( calcChannel ) + 1;
-            for ( int i = 0; i < number; i++ )
+    private void UpdateImage()
+    {
+        float calcChannel = curChannel;
+        curNum = Global.Math.Log10( calcChannel ) + 1;
+        for ( int i = 0; i < 5; i++ )
+        {
+            if ( i < curNum )
             {
-                if ( !images[i].gameObject.activeSelf )
-                     images[i].gameObject.SetActive( true );
-
+                images[i].gameObject.SetActive( true );
                 images[i].sprite = sprites[( int )calcChannel % 10];
                 calcChannel *= .1f;
             }
-
-            layoutGroup.SetLayoutHorizontal();
+            else
+            {
+                images[i].gameObject.SetActive( false );
+            }
         }
+
+        if ( prevNum != curNum )
+             layoutGroup.SetLayoutHorizontal();
+
+        prevNum = curNum;
     }
 }

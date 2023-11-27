@@ -106,11 +106,11 @@ public class SongPreview : MonoBehaviour
 
     private void UpdateBPMInfo()
     {
-        var medianBpm = Mathf.RoundToInt( ( float )song.medianBpm * GameSetting.CurrentPitch );
+        var mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * GameSetting.CurrentPitch );
         var minBpm    = Mathf.RoundToInt( ( float )song.minBpm    * GameSetting.CurrentPitch );
         var maxBpm    = Mathf.RoundToInt( ( float )song.maxBpm    * GameSetting.CurrentPitch );
         bpm.text = song.minBpm == song.maxBpm || GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? 
-                   $"{medianBpm}" : $"{medianBpm} ({minBpm} ~ {maxBpm})";
+                   $"{mainBPM}" : $"{mainBPM} ({minBpm} ~ {maxBpm})";
         bpm.color = pitch < 1f ? new Color( .5f, .5f, 1f ) :
                     pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
     }

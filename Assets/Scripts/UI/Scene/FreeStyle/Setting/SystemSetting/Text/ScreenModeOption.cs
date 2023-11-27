@@ -14,9 +14,9 @@ public class ScreenModeOption : OptionText
         {
             switch ( ( ScreenMode )i )
             {
-                case ScreenMode.Exclusive_FullScreen: texts.Add( $"전체화면" );    break;
-                case ScreenMode.FullScreen_Window:    texts.Add( $"전체 창모드" ); break;
-                case ScreenMode.Windowed:             texts.Add( $"창모드" );      break;
+                case ScreenMode.Exclusive_FullScreen: texts.Add( $"전체화면" );          break;
+                case ScreenMode.FullScreen_Window:    texts.Add( $"테두리 없는 창모드" ); break;
+                case ScreenMode.Windowed:             texts.Add( $"창모드" );            break;
             }
         }
     }

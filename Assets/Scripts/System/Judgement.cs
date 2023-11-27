@@ -43,7 +43,7 @@ public class Judgement : MonoBehaviour
     {
         bool hasHardJudge = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge );
         NoteJudgeData   = hasHardJudge ? OriginJudgeData.Multiply( .75f ) : OriginJudgeData;
-        SliderJudgeData = NoteJudgeData.Multiply( 1.5f );
+        SliderJudgeData = NoteJudgeData.Multiply( 2f );
     }
 
     public bool CanBeHit( double _diff, NoteType _noteType )
@@ -65,7 +65,6 @@ public class Judgement : MonoBehaviour
                            diffAbs >  Judge.perfect && diffAbs <= Judge.great   ? HitResult.Great   :
                            diffAbs >  Judge.great   && diffAbs <= Judge.good    ? HitResult.Good    :
                            diffAbs >  Judge.good    && diffAbs <= Judge.bad     ? HitResult.Bad     :
-                           //_diff   < -Judge.bad                                 ? HitResult.Miss    : 
                                                                                   HitResult.None;
 
         if ( diffAbs > Judge.perfect && diffAbs <= Judge.bad )

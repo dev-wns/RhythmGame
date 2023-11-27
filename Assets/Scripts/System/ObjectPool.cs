@@ -8,13 +8,12 @@ public interface IObjectPool<T> where T : MonoBehaviour
 
 public class ObjectPool<T> where T : MonoBehaviour
 {
-    public int ActiveCount { get; private set; }
-
     private T prefab;
     private Transform parent;
-    private List<T> objects = new List<T>();
-    private Stack<T> pool = new Stack<T>();
+    private List<T>  totalObjects = new List<T>();
+    private Stack<T> waitObjects  = new Stack<T>();
     private int allocateCount;
+    public int ActiveCount { get; private set; }
 
     public ObjectPool( T _prefab, int _initializeCount, int _allocateCount = 1 )
     {
@@ -42,7 +41,6 @@ public class ObjectPool<T> where T : MonoBehaviour
         parent = parentObj.transform;
         Allocate( _initializeCount );
     }
-
     public ObjectPool( T _prefab, Transform _parent, int _initializeCount, int _allocateCount = 1 )
     {
         allocateCount = _allocateCount;
@@ -55,9 +53,12 @@ public class ObjectPool<T> where T : MonoBehaviour
         parent = _parent;
         Allocate( _initializeCount );
     }
-
     private void Allocate( int _allocateCount )
     {
+        if ( _allocateCount < 0 )
+             return;
+
+        T[] objects = new T[_allocateCount];
         for( int i = 0; i < _allocateCount; i++ )
         {
             T obj = UnityEngine.GameObject.Instantiate( prefab, parent );
@@ -65,17 +66,19 @@ public class ObjectPool<T> where T : MonoBehaviour
                  _base.pool = this;
 
             obj.gameObject.SetActive( false );
-            pool.Push( obj );
-            objects.Add( obj );
+            objects[i] = obj;
+            waitObjects.Push( obj );
         }
+
+        totalObjects.AddRange( objects );
     }
 
     public T Spawn()
     {
-        if ( pool.Count == 0 )
+        if ( waitObjects.Count == 0 )
              Allocate( allocateCount );
 
-        T obj = pool.Pop();
+        T obj = waitObjects.Pop();
         obj.gameObject.SetActive( true );
         ActiveCount++;
 
@@ -85,16 +88,15 @@ public class ObjectPool<T> where T : MonoBehaviour
     public void Despawn( T _obj )
     {
         _obj.gameObject.SetActive( false );
-        pool.Push( _obj );
+        waitObjects.Push( _obj );
         ActiveCount--;
     }
-
     public void AllDespawn()
     {
-        for ( int i = 0; i < objects.Count; i++ )
+        for ( int i = 0; i < totalObjects.Count; i++ )
         {
-            if ( objects[i].gameObject.activeSelf )
-                 Despawn( objects[i] );
+            if ( totalObjects[i].gameObject.activeInHierarchy )
+                 Despawn( totalObjects[i] );
         }
     }
 }

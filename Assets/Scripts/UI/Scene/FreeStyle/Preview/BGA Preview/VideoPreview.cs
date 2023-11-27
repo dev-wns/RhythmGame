@@ -59,7 +59,7 @@ public class VideoPreview : FreeStylePreview
         
         yield return waitPrepared;
 
-        float spb = ( float )( 60f / _song.medianBpm ) * 1000f;
+        float spb = ( float )( 60f / _song.mainBPM ) * 1000f;
         //float offset = _song.videoOffset > 1f ? _song.videoOffset * .75f :
         //               _song.audioOffset > 1f ? _song.audioOffset * .75f :
         //               _song.isOnlyKeySound   ? -spb                : 0f;

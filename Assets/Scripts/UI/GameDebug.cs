@@ -1,11 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class GameDebug : MonoBehaviour
 {
-    private InGame scene;
     public TextMeshProUGUI fpsText;
     public TextMeshProUGUI channelsInUse;
     public TextMeshProUGUI backgroundType;
@@ -37,21 +35,16 @@ public class GameDebug : MonoBehaviour
 
     private void Awake()
     {
-        if ( !GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) )
-             return;
-            
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-
-        //StartCoroutine( CalcFrameRate() );
-        StartCoroutine( UpdateKeySoundCount() );
+        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) )
+             StartCoroutine( UpdateKeySoundCount() );
     }
 
     private IEnumerator UpdateKeySoundCount()
     {
-        while ( !NowPlaying.Inst.IsStart )
+        while ( !NowPlaying.IsStart )
         {
             keySoundCount.text = $"{SoundManager.Inst.KeySoundCount} ( {SoundManager.Inst.TotalKeySoundCount} )";
-            yield return YieldCache.WaitForEndOfFrame;
+            yield return null;
         }
     }
 }

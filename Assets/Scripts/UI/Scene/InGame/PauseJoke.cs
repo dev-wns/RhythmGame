@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class PauseJoke : MonoBehaviour
 {
     private TextMeshProUGUI jokeText;
-    private string[] jokeList = { "µ•¥‘", "ø¨≈∏", "¡Ó∑π", "∑’¿‚", "∆Æ∏±", "∫Øº”" };
+    private string[] jokeList = { "µ•¥‘" }; //{ "µ•¥‘", "ø¨≈∏", "¡Ó∑π", "∑’¿‚", "∆Æ∏±", "∫Øº”" };
 
     private void Awake()
     {

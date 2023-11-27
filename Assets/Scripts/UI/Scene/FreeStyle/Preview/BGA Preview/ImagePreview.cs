@@ -56,7 +56,7 @@ public class ImagePreview : FreeStylePreview
             }
             else
             {
-                using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path ) )
+                using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path, true ) )
                 {
                     www.method = UnityWebRequest.kHttpVerbGET;
                     using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )

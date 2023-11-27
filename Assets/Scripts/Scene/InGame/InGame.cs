@@ -113,7 +113,7 @@ public class InGame : Scene
 
     private IEnumerator Play()
     {
-        yield return new WaitUntil( () => NowPlaying.Inst.IsLoadKeySound && NowPlaying.Inst.IsLoadBGA );
+        yield return new WaitUntil( () => NowPlaying.IsLoadKeySound && NowPlaying.IsLoadBGA );
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         OnLoadEnd?.Invoke();
@@ -216,5 +216,6 @@ public class InGame : Scene
 
         // Etc.
         Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
+        Bind( ActionType.Main, InputType.Down, KeyCode.F2, () => GameSetting.UseClapSound = !GameSetting.UseClapSound );
     }
 }

@@ -11,7 +11,6 @@ public enum SceneType : int { FreeStyle = 1, Game, Result };
 public abstract class Scene : SceneKeyAction
 {
     #region Variables
-    public static bool OnceTweenInit;
     public bool IsGameInputLock { get; set; }
     public Action<float/* pitch */> OnUpdatePitch;
     #endregion
@@ -19,15 +18,7 @@ public abstract class Scene : SceneKeyAction
     #region Unity Callback
     protected virtual void Awake()
     {
-        if ( !OnceTweenInit )
-        {
-            DOTween.Init( true, false, LogBehaviour.Default ).SetCapacity( 50, 20 );
-            OnceTweenInit = true;
-        }
-
-        QualitySettings.maxQueuedFrames = 0;
-        Cursor.visible = false;
-
+        Connect();
         CreateFadeSprite();
 
         Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
@@ -42,7 +33,6 @@ public abstract class Scene : SceneKeyAction
 
     protected virtual void Start()
     {
-        Connect();
         StartCoroutine( FadeIn() );
     }
 
@@ -257,6 +247,7 @@ public abstract class Scene : SceneKeyAction
         blackSprite.drawMode = SpriteDrawMode.Sliced;
         blackSprite.size = new Vector2( 10000, 10000 );
         blackSprite.sortingOrder = 100;
+        blackSprite.color = Color.black;
 
         transform.localScale = Vector3.one;
     }
