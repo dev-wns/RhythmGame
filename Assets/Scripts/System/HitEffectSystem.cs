@@ -12,7 +12,7 @@ public class HitEffectSystem : MonoBehaviour
     public List<Sprite> spritesL = new List<Sprite>();
     private float offsetL;
 
-    private readonly float HitEffectFramePerSecond = 1f / 100f;
+    private readonly float HitEffectFramePerSecond = 1f / 75f;
 
     private SpriteRenderer rdr;
     private int curIndex = 0;

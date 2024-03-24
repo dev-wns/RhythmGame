@@ -14,7 +14,7 @@ public class ResolutionOption : OptionText
         StringBuilder builder = new StringBuilder();
         for ( int i = 0; i < ( int )Resolution.Count; i++ )
         {
-            var replace = ( ( Resolution )i ).ToString().Replace( "_", " " );
+            var replace = ( ( Resolution )i ).ToString().Replace( "_", string.Empty );
             var split = replace.Trim().Split( ' ' );
 
             builder.Clear();

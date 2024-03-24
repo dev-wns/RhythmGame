@@ -232,7 +232,7 @@ public class FileConverter : FileReader
         {
             Song song = new Song();
             OpenFile( _path );
-#region General
+            #region General
 
             // [General] ~ [Editor]
             int mode = 0;
@@ -365,7 +365,7 @@ public class FileConverter : FileReader
             }
             #endregion
 
-#region Note
+            #region Note
             notes?.Clear();
             bool isCheckKeySoundOnce = false;
             DeleteKey deleteKey = new DeleteKey( song.keyCount );
@@ -385,6 +385,7 @@ public class FileConverter : FileReader
                 int finalLane     = deleteKey.FinalKey( originLane );
                 KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], 
                                                   float.Parse( objParams[objParams.Length - 2] ) );
+
                 if ( deleteKey[originLane] )
                 {
                     samples.Add( keySound );
@@ -586,7 +587,7 @@ public class FileConverter : FileReader
         if ( accumulateTimings.Count == 0 )
              throw new Exception( "The MainBPM was not found." );
 
-        // 가장 오래 지속되는 BPM이 첫번째 요소가 되도록 오름차순 정렬
+        // 가장 오래 지속되는 BPM이 첫번째 요소가 되도록 내림차순 정렬
         accumulateTimings.Sort( delegate ( AccumulateTiming _left, AccumulateTiming _right )
         {
             if      ( _left.time < _right.time ) return 1;

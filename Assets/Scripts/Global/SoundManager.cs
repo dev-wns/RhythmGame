@@ -451,8 +451,9 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
-        //ErrorCheck( channel.setVolume( _sound.volume ) );
+        ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], true, out FMOD.Channel channel ) );
+        ErrorCheck( channel.setVolume( _sound.volume ) );
+        ErrorCheck( channel.setPaused( false ) );
     }
     #endregion
     #region Effect
