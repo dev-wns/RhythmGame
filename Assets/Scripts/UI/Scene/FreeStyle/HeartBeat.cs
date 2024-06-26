@@ -25,7 +25,7 @@ public class HeartBeat : MonoBehaviour
         pitchOption.OnPitchUpdate += UpdatePitch;
 
         startSize = rt.sizeDelta.x;
-        endSize   = rt.sizeDelta.x * 1.5f;
+        endSize   = rt.sizeDelta.x * 1.25f;
     }
 
     private void UpdatePitch( float _pitch )

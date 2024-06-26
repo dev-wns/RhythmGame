@@ -12,6 +12,12 @@ public class SoundOffsetOption : OptionSlider
         UpdateValue( curValue );
     }
 
+    public void InputProcess( float _value )
+    {
+        GameSetting.SoundOffset = ( int )_value;
+        UpdateText( _value );
+    }
+
     public override void Process()
     {
         GameSetting.SoundOffset = curValue;

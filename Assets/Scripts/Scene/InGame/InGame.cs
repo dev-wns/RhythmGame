@@ -63,12 +63,16 @@ public class InGame : Scene
         SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
         if ( GameSetting.CurrentPitchType != PitchType.None )
              SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+
+        //SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }
 
     public override void Disconnect()
     {
         if ( GameSetting.CurrentPitchType != PitchType.None )
              SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+
+        //SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }
 
     private void Stop()

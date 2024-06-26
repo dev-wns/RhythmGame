@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class LineSpectrum : BaseSpectrum
@@ -62,10 +63,15 @@ public class LineSpectrum : BaseSpectrum
             }
 
             // 이전 값과의 차이가 클수록 빠르게 변화하도록 한다.
-            float diffAbs = Global.Math.Abs( buffer[i] - value );
-            float cache   = Global.Math.Clamp( buffer[i] - ( ( .0001f + ( diffAbs * decreasePower ) ) * Time.deltaTime ), .0005f, 1f );
-            buffer[i] = cache < value ? value : cache;
+            // float diffAbs = Global.Math.Abs( buffer[i] - value );
+            // float cache   = Global.Math.Clamp( buffer[i] - ( Global.Math.Lerp( .005f, 1f, diffAbs ) * decreasePower * Time.deltaTime ), .0005f, 1f );
+            // float cache   = Global.Math.Clamp( buffer[i] - Global.Math.Clamp( diffAbs * decreasePower * Time.deltaTime, .0005f, .005f ), .0005f, 1f );
+            // buffer[i] = cache < value ? value : cache;
 
+            //buffer[i] = buffer[i] < value ? value : buffer[i];
+
+            buffer[i] = buffer[i] < value ? value : 
+                                            Global.Math.Clamp( buffer[i] - ( ( .001f + buffer[i] ) * decreasePower * Time.deltaTime ), .0005f, 1f );
 
             // 계산된 값으로 스케일 조절.
             Transform left  = transforms[i];
@@ -75,8 +81,8 @@ public class LineSpectrum : BaseSpectrum
             if ( isPositionUpdate )
             {
                 float posX = GetIndexToPositionX( i );
-                left.position  = new Vector3( transform.position.x + -posX, transform.position.y, transform.position.z );
-                right.position = new Vector3( transform.position.x +  posX, transform.position.y, transform.position.z );
+                left.position = new Vector3( transform.position.x + -posX, transform.position.y, transform.position.z );
+                right.position = new Vector3( transform.position.x + posX, transform.position.y, transform.position.z );
             }
         }
     }

@@ -10,6 +10,12 @@ public class JudgementOption : OptionSlider
         UpdateValue( curValue );
     }
 
+    public void InputProcess( float _value )
+    {
+        GameSetting.JudgeOffset = ( int )_value;
+        UpdateText( _value );
+    }
+
     public override void Process()
     {
         // GameSetting.JudgePos = curValue - ( Screen.height * .5f );

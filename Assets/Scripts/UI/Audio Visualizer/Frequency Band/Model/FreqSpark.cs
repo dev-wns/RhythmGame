@@ -19,7 +19,7 @@ public class FreqSpark : MonoBehaviour
     private Vector2   endPos;
     private int maxCount;
 
-    [Range(0f, 100f)] public float posRangeOffset;
+    [Range(0f, 100f)] public float posOffset;
 
     [Header("Frequency")]
     private float[] bandBuffer;
@@ -43,19 +43,27 @@ public class FreqSpark : MonoBehaviour
         rdr.positionCount = maxCount;
 
         positions = new Vector3[rdr.positionCount];
-        startPos  = new Vector2( pos.x - ( scl.x * .5f ) + posRangeOffset, pos.y );
-        endPos    = new Vector2( pos.x + ( scl.x * .5f ) - posRangeOffset, pos.y );
+        startPos  = transform.position;
+        // startPos  = new Vector2( pos.x - ( scl.x * .5f ) + posRangeOffset, pos.y );
+        endPos    = new Vector2( pos.x + ( scl.x * .5f ) - posOffset, pos.y );
 
-        float posOffset = Global.Math.Abs( endPos.x - startPos.x ) / ( maxCount - 1 );
+        //float posOffset = Global.Math.Abs( endPos.x - startPos.x ) / ( maxCount - 1 );
 
+        float cachedX = 0f;
         positions[0] = startPos;
         positions[1] = new Vector2( startPos.x + posOffset, startPos.y );
         for ( int i = 0; i < freqCount * 2; i++ )
         {
             positions[i + 2] = new Vector2( ( startPos.x + posOffset ) + ( posOffset * ( i + 1 ) ), pos.y );
+
+            cachedX = positions[i + 2].x;
         }
-        positions[maxCount - 2] = new Vector2( endPos.x - posOffset, endPos.y );
-        positions[maxCount - 1] = endPos;
+
+        positions[maxCount - 2] = new Vector2(cachedX + posOffset, endPos.y );
+        positions[maxCount - 1] = new Vector2(cachedX + ( posOffset * 2 ), endPos.y); ;
+
+        //positions[maxCount - 2] = new Vector2( endPos.x - posOffset, endPos.y );
+        //positions[maxCount - 1] = endPos;
     }
 
     private void UpdateLineRenderer( float[] _values )

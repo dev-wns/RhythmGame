@@ -12,6 +12,12 @@ public class GearAlignmentOption : OptionSlider
         UpdateValue( curValue );
     }
 
+    public void InputProcess( float _value )
+    {
+        GameSetting.GearOffsetX = ( int )_value;
+        UpdateText( _value );
+    }
+
     public override void Process()
     {
         GameSetting.GearOffsetX = curValue;

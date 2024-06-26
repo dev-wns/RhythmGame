@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class FreeStyle : Scene
 {
-    public OptionController    gameSetting, systemSetting, exit;
+    public OptionController    exit;
+    public GameObject gameSetting;
+    public GameObject systemSetting;
     public FreeStyleKeySetting keySetting;
     public FreeStyleReLoad     reload;
     public FreeStyleSearch     search;
@@ -60,16 +62,16 @@ public class FreeStyle : Scene
         Bind( ActionType.Main,       KeyCode.Space,     () => { EnableCanvas(  ActionType.GameOption, gameSetting, gameIcon ); } );
         Bind( ActionType.GameOption, KeyCode.Space,     () => { DisableCanvas( ActionType.Main,       gameSetting, gameIcon ); } );
         Bind( ActionType.GameOption, KeyCode.Escape,    () => { DisableCanvas( ActionType.Main,       gameSetting, gameIcon ); } );
-        Bind( ActionType.GameOption, KeyCode.DownArrow, () => { MoveToNextOption( gameSetting ); } );
-        Bind( ActionType.GameOption, KeyCode.UpArrow,   () => { MoveToPrevOption( gameSetting ); } );
+        //Bind( ActionType.GameOption, KeyCode.DownArrow, () => { MoveToNextOption( gameSetting ); } );
+        //Bind( ActionType.GameOption, KeyCode.UpArrow,   () => { MoveToPrevOption( gameSetting ); } );
 
         // SystemSetting
         Bind( ActionType.Main,         KeyCode.F10,       () => { EnableCanvas(  ActionType.SystemOption, systemSetting, systemIcon, true, false ); } );
         Bind( ActionType.SystemOption, KeyCode.F10,       () => { DisableCanvas( ActionType.Main,         systemSetting, systemIcon, true, false ); } );
         Bind( ActionType.SystemOption, KeyCode.Space,     () => { DisableCanvas( ActionType.Main,         systemSetting, systemIcon, true, false ); } );
         Bind( ActionType.SystemOption, KeyCode.Escape,    () => { DisableCanvas( ActionType.Main,         systemSetting, systemIcon, true, false ); } );
-        Bind( ActionType.SystemOption, KeyCode.DownArrow, () => { MoveToNextOption( systemSetting ); } );
-        Bind( ActionType.SystemOption, KeyCode.UpArrow,   () => { MoveToPrevOption( systemSetting ); } );
+        //Bind( ActionType.SystemOption, KeyCode.DownArrow, () => { MoveToNextOption( systemSetting ); } );
+        //Bind( ActionType.SystemOption, KeyCode.UpArrow,   () => { MoveToPrevOption( systemSetting ); } );
 
         // KeySetting
         Bind( ActionType.Main,       KeyCode.F11,        () => { EnableCanvas(  ActionType.KeySetting, keySetting, keyIcon ); } );

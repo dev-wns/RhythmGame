@@ -10,6 +10,12 @@ public class VolumeOption : OptionSlider
         UpdateValue( curValue );
     }
 
+    public void InputProcess( float _value )
+    {
+        SoundManager.Inst.SetVolume( _value * .01f, groupType );
+        UpdateText( _value );
+    }
+
     public override void Process()
     {
         switch ( groupType )

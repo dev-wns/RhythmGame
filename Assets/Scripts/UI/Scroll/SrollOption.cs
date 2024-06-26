@@ -13,7 +13,10 @@ public class ScrollOption : ScrollBase
 
     protected virtual void Awake()
     {
-        for ( int i = 0; i < contents.childCount; i++ )
+        if ( contents is null )
+             return;
+
+        for ( int i = 0; i < contents.childCount; i++ ) 
         {
             var option = contents.GetChild( i );
             if ( option.TryGetComponent( out OptionBase optionBase ) )

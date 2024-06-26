@@ -30,6 +30,7 @@ public class RandomOption : OptionText
     public override void Process()
     {
         GameSetting.CurrentRandom = ( GameRandom )CurrentIndex;
+        ChangeText( texts[CurrentIndex] );
         previewText.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
     }
 }

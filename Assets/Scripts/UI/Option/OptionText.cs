@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UIElements;
 
 [RequireComponent( typeof( ScrollBase ) )]
 public abstract class OptionText : OptionBase
@@ -11,6 +12,7 @@ public abstract class OptionText : OptionBase
     public List<string> texts;
     public TextMeshProUGUI valueText;
     public bool isReturnProcess = true;
+    public bool isActive;
     private ScrollBase scroller;
 
     public int CurrentIndex 
@@ -47,6 +49,22 @@ public abstract class OptionText : OptionBase
         InputAction( KeyCode.RightArrow, scroller.NextMove );
     }
 
+    public void PrevClick() 
+    {
+        scroller.PrevMove();
+        SoundManager.Inst.Play( SoundSfxType.Slider );
+        ChangeText( texts[CurrentIndex] );
+        Process();
+    }
+
+    public void NextClick() 
+    {
+        scroller.NextMove();
+        SoundManager.Inst.Play( SoundSfxType.Slider );
+        ChangeText( texts[CurrentIndex] );
+        Process();
+    }
+
     private void InputAction( KeyCode _keyCode, Action _action )
     {
         if ( Input.GetKeyDown( _keyCode ) )
@@ -62,7 +80,7 @@ public abstract class OptionText : OptionBase
 
     protected void ChangeText( string _text )
     {
-        if ( valueText == null ) return;
+        if ( valueText == null ) return; 
 
         valueText.text = _text;
     }
