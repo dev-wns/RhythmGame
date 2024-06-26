@@ -79,7 +79,7 @@ public class LaneSystem : MonoBehaviour
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
-        double secondPer16Beat         = ( 60d / NowPlaying.CurrentSong.mainBPM ) * .25d/* 4/16 */;
+        double secondPerBeat         = ( ( ( 60d / NowPlaying.CurrentSong.mainBPM ) * 4d ) / 15.9999999999d );
         bool isSevenButton             = NowPlaying.CurrentSong.keyCount == 7;
         for ( int i = 0; i < notes.Count; i++ )
         {
@@ -128,7 +128,7 @@ public class LaneSystem : MonoBehaviour
                     // 빠른계단, 즈레 등의 패턴이 존재할 때 물리적으로 처리하지 못하는 밀도로 배치되는 부분 보정
                     for ( int j = 0; j < keyCount; j++ ) 
                     {
-                        if ( secondPer16Beat < ( newNote.time - prevTimes[j] ) )
+                        if ( secondPerBeat < ( newNote.time - prevTimes[j] ) )
                              emptyLanes.Add( j );
                     }
 

@@ -49,17 +49,11 @@ public abstract class OptionText : OptionBase
         InputAction( KeyCode.RightArrow, scroller.NextMove );
     }
 
-    public void PrevClick() 
+    public void UpdateData( bool isLeft )
     {
-        scroller.PrevMove();
-        SoundManager.Inst.Play( SoundSfxType.Slider );
-        ChangeText( texts[CurrentIndex] );
-        Process();
-    }
+        if ( isLeft ) scroller.PrevMove();
+        else          scroller.NextMove();
 
-    public void NextClick() 
-    {
-        scroller.NextMove();
         SoundManager.Inst.Play( SoundSfxType.Slider );
         ChangeText( texts[CurrentIndex] );
         Process();
