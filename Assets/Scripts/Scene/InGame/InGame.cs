@@ -192,7 +192,7 @@ public class InGame : Scene
 
         IsGameInputLock = true;
         IsInputLock     = false;
-        EnableCanvas( ActionType.GameOver, gameOver, null, false );
+        EnableCanvas( ActionType.GameOver, gameOver, false );
 
         OnGameOver?.Invoke();
     }
