@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using DG.Tweening;
 
 public class HeartBeat : MonoBehaviour
 {
@@ -14,7 +16,8 @@ public class HeartBeat : MonoBehaviour
     private float previewTime;
     private float spb;
 
-    private readonly float Duration = .18f;
+    public float duration = .15f;
+    public float power = 1.25f;
     private float time = 0f;
     private bool isStop = true;
 
@@ -25,7 +28,7 @@ public class HeartBeat : MonoBehaviour
         pitchOption.OnPitchUpdate += UpdatePitch;
 
         startSize = rt.sizeDelta.x;
-        endSize   = rt.sizeDelta.x * 1.25f;
+        endSize = startSize * power;
     }
 
     private void UpdatePitch( float _pitch )
@@ -54,9 +57,13 @@ public class HeartBeat : MonoBehaviour
 
         time += Time.deltaTime;
         if ( spb < time )
-             time %= spb;
+        {
+            time %= spb;
+        }
 
-        float t    = ( 1f + Mathf.Cos( ( Global.Math.Clamp( time, 0f, Duration ) / Duration ) * Mathf.PI ) ) * .5f; // 1 -> 0
+        //float t = ( 1f + Mathf.Cos( time ) ) * .5f;
+        float cos = Mathf.Cos( ( Global.Math.Clamp( time, 0f, duration ) / duration ) * Mathf.PI );
+        float t    = ( 1f + cos ) * .5f; // 1 -> 0
         float size = Global.Math.Clamp( Global.Math.Lerp( startSize, endSize, t ), startSize, endSize );
         rt.sizeDelta = new Vector2( size, size );
     }
