@@ -79,7 +79,7 @@ public class LaneSystem : MonoBehaviour
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
-        double secondPerBeat         = ( ( ( 60d / NowPlaying.CurrentSong.mainBPM ) * 4d ) / 15.9999999999d );
+        double secondPerBeat           = ( ( ( 60d / NowPlaying.CurrentSong.mainBPM ) * 4d ) / 32d );
         bool isSevenButton             = NowPlaying.CurrentSong.keyCount == 7;
         for ( int i = 0; i < notes.Count; i++ )
         {
