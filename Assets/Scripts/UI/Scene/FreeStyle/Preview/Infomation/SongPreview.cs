@@ -25,8 +25,8 @@ public class SongPreview : MonoBehaviour
     public TextMeshProUGUI sliderCount;
     public TextMeshProUGUI bpm;
 
-    [Header("Vertical")]
-    public Image keySound;
+    //[Header("Vertical")]
+    //public Image keySound;
 
     [Header("Background Type")]
     public Image  backgroundType;
@@ -54,8 +54,7 @@ public class SongPreview : MonoBehaviour
                                 song.hasSprite ? bgSprite :
                                                  bgImage;
 
-        keySound.color = song.hasKeySound ? Color.white : new Color( 1f, 1f, 1f, .25f );
-
+        //keySound.color = song.hasKeySound ? Color.white : new Color( 1f, 1f, 1f, .25f );
 
         speed.text  = $"{GameSetting.ScrollSpeed:F1}";
         random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";

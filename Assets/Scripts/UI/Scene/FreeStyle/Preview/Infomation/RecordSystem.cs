@@ -9,7 +9,7 @@ public class RecordSystem : MonoBehaviour
     private CustomVerticalLayoutGroup group;
 
     [Header("Hide Infomation")]
-    public IconController icon;
+    //public IconController icon;
     private static bool IsHideRecord;
 
     [Header("Effect")]
@@ -34,17 +34,17 @@ public class RecordSystem : MonoBehaviour
             records[i].Initialize( i, startPosX );
         }
 
-        icon.Color = !IsHideRecord ? new Color( 1f, 1f, 1f, .25f ) : Color.white;
+        //icon.Color = !IsHideRecord ? new Color( 1f, 1f, 1f, .25f ) : Color.white;
     }
 
     public void HideRecordInfomation()
     {
-        icon.Play();
+        //icon.Play();
         IsHideRecord = !IsHideRecord;
         if ( IsHideRecord )
         {
             SoundManager.Inst.Play( SoundSfxType.MenuHover );
-            icon.Color = Color.white;
+            //icon.Color = Color.white;
             for ( int i = 0; i < NowPlaying.MaxRecordSize; i++ )
             {
                 records[i].SetActive( false );
@@ -53,7 +53,7 @@ public class RecordSystem : MonoBehaviour
         else
         {
             SoundManager.Inst.Play( SoundSfxType.MenuClick );
-            icon.Color = new Color( 1f, 1f, 1f, .25f );
+            //icon.Color = new Color( 1f, 1f, 1f, .25f );
             UpdateRecord( NowPlaying.CurrentSong );
         }
     }
