@@ -1,7 +1,9 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class FreeStyleMainScroll : ScrollBase
@@ -161,6 +163,27 @@ public class FreeStyleMainScroll : ScrollBase
         medianNode.Value.Select( true );
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
+
+        medianNode.Value.MoveX( 0f );
+        int count = 1;
+        var prevNode = medianNode.Previous;
+        var nextNode = medianNode.Next;
+        while ( prevNode is not null && nextNode is not null )
+        {
+            if ( prevNode is not null )
+            {
+                prevNode.Value.MoveX( 25f * count );
+                prevNode = prevNode.Previous;
+            }
+
+            if ( nextNode is not null )
+            {
+                nextNode.Value.MoveX( 25f * count );
+                nextNode = nextNode.Next;
+            }
+
+            count++;
+        }
     }
 
     private void UpdateLayoutAndSong()
@@ -197,6 +220,27 @@ public class FreeStyleMainScroll : ScrollBase
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
 
+        medianNode.Value.MoveX( 0f );
+        int count = 1;
+        var prevNode = medianNode.Previous;
+        var nextNode = medianNode.Next;
+        while ( prevNode is not null && nextNode is not null )
+        {
+            if ( prevNode is not null )
+            {
+                prevNode.Value.MoveX( 25f * count );
+                prevNode = prevNode.Previous;
+            }
+
+            if ( nextNode is not null )
+            {
+                nextNode.Value.MoveX( 25f * count );
+                nextNode = nextNode.Next;
+            }
+
+            count++;
+        }
+
         curText.text = $"{CurrentIndex + 1}";
     }
 
@@ -224,6 +268,27 @@ public class FreeStyleMainScroll : ScrollBase
 
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );
+
+        medianNode.Value.MoveX( 0f );
+        int count = 1;
+        var prevNode = medianNode.Previous;
+        var nextNode = medianNode.Next;
+        while ( prevNode is not null && nextNode is not null )
+        {
+            if ( prevNode is not null )
+            {
+                prevNode.Value.MoveX( 25f * count );
+                prevNode = prevNode.Previous;
+            }
+
+            if ( nextNode is not null )
+            {
+                nextNode.Value.MoveX( 25f * count );
+                nextNode = nextNode.Next;
+            }
+
+            count++;
+        }
 
         curText.text = $"{CurrentIndex + 1}";
     }
