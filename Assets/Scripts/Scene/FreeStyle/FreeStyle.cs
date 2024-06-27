@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class FreeStyle : Scene
 {
-    public OptionController    exit;
+    public GameObject    exit;
     public GameObject gameSetting;
     public GameObject systemSetting;
     public FreeStyleKeySetting keySetting;
@@ -133,7 +133,7 @@ public class FreeStyle : Scene
         // Exit
         Bind( ActionType.Main, KeyCode.Escape,     () => { EnableCanvas( ActionType.Exit, exit ); } );
         Bind( ActionType.Exit, KeyCode.Escape,             ExitCancel );
-        Bind( ActionType.Exit, KeyCode.RightArrow, () => { MoveToNextOption( exit ); } );
-        Bind( ActionType.Exit, KeyCode.LeftArrow,  () => { MoveToPrevOption( exit ); } );
+        //Bind( ActionType.Exit, KeyCode.RightArrow, () => { MoveToNextOption( exit ); } );
+        //Bind( ActionType.Exit, KeyCode.LeftArrow,  () => { MoveToPrevOption( exit ); } );
     }
 }
