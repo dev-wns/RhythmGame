@@ -83,7 +83,7 @@ public class FreeStyle : Scene
         Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // GameSetting
-        Bind( ActionType.Main,       KeyCode.Space,     () => { EnableCanvas(  ActionType.GameOption, gameSetting ); } );
+        Bind( ActionType.Main,       KeyCode.Space,     () => { EnableCanvas( ActionType.GameOption, gameSetting ); } );
         Bind( ActionType.GameOption, KeyCode.Space,     () => { DisableCanvas( ActionType.Main,       gameSetting ); } );
         Bind( ActionType.GameOption, KeyCode.Escape,    () => { DisableCanvas( ActionType.Main,       gameSetting ); } );
         //Bind( ActionType.GameOption, KeyCode.DownArrow, () => { MoveToNextOption( gameSetting ); } );

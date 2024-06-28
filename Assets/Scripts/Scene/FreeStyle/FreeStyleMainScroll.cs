@@ -1,10 +1,7 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
 using TMPro;
-using TreeEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class FreeStyleMainScroll : ScrollBase
