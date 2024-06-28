@@ -10,7 +10,7 @@ public class FreqSpark : MonoBehaviour
     private RectTransform rt => transform as RectTransform;
     private Vector2 pos => rt.anchoredPosition;
     private Vector2 scl => rt.sizeDelta;
-    private float maxHeight;
+    public float maxHeight;
 
     [Header("LineRenderer")]
     private LineRenderer rdr;
@@ -26,9 +26,10 @@ public class FreqSpark : MonoBehaviour
     private int     freqCount;
 
     public float decreasePower = 1f;
-
-    [Header("Etc")]
-    public bool isReverse;
+    
+    [Header( "Normalize" )]
+    public bool isNormalized;
+    public int NormalizedRange = 2;
 
     private void Awake()
     {
@@ -36,34 +37,20 @@ public class FreqSpark : MonoBehaviour
         freqCount = freqBand.freqCount;
 
         bandBuffer = new float[freqCount];
-        maxCount   = ( freqCount * 2 ) + 4;
-        maxHeight  = scl.y * .5f;
+        maxCount   = ( freqCount * 2 );
 
         rdr = GetComponent<LineRenderer>();
         rdr.positionCount = maxCount;
 
         positions = new Vector3[rdr.positionCount];
         startPos  = transform.position;
-        // startPos  = new Vector2( pos.x - ( scl.x * .5f ) + posRangeOffset, pos.y );
         endPos    = new Vector2( pos.x + ( scl.x * .5f ) - posOffset, pos.y );
 
-        //float posOffset = Global.Math.Abs( endPos.x - startPos.x ) / ( maxCount - 1 );
-
-        float cachedX = 0f;
-        positions[0] = startPos;
-        positions[1] = new Vector2( startPos.x + posOffset, startPos.y );
-        for ( int i = 0; i < freqCount * 2; i++ )
+        for ( int i = 0; i < freqCount; i++ )
         {
-            positions[i + 2] = new Vector2( ( startPos.x + posOffset ) + ( posOffset * ( i + 1 ) ), pos.y );
-
-            cachedX = positions[i + 2].x;
+            positions[i]             = new Vector2( ( startPos.x - ( posOffset * .5f ) - ( posOffset * ( freqCount - i - 1 ) ) ), pos.y );
+            positions[freqCount + i] = new Vector2( ( startPos.x + ( posOffset * .5f ) + ( posOffset * i ) ), pos.y );
         }
-
-        positions[maxCount - 2] = new Vector2(cachedX + posOffset, endPos.y );
-        positions[maxCount - 1] = new Vector2(cachedX + ( posOffset * 2 ), endPos.y); ;
-
-        //positions[maxCount - 2] = new Vector2( endPos.x - posOffset, endPos.y );
-        //positions[maxCount - 1] = endPos;
     }
 
     private void UpdateLineRenderer( float[] _values )
@@ -71,22 +58,22 @@ public class FreqSpark : MonoBehaviour
         for ( int i = 0; i < freqCount; i++ )
         {
             float value = Global.Math.Clamp( _values[i] - freqBand.Average, 0f, maxHeight );
-
-            bandBuffer[i] = bandBuffer[i] < value ?
-                            value : Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
-
-            if ( isReverse )
+            if ( isNormalized )
             {
-                int posIndex = ( ( freqCount - 1 - i ) * 2 ) + 2;
-                positions[posIndex]     = new Vector3( positions[posIndex].x,     pos.y - bandBuffer[i] );
-                positions[posIndex + 1] = new Vector3( positions[posIndex + 1].x, pos.y + bandBuffer[i] );
+                float sumValue = 0f;
+                int start = Global.Math.Clamp( i - NormalizedRange, 0, freqCount );
+                int end   = Global.Math.Clamp( i + NormalizedRange, 0, freqCount );
+                for ( int idx = start; idx < end; idx++ )
+                      sumValue += Global.Math.Clamp( _values[idx] - freqBand.Average, 0f, maxHeight );
+
+                value = sumValue / ( end - start + 1 );
             }
-            else
-            {
-                int posIndex = ( i * 2 ) + 2;
-                positions[posIndex]     = new Vector3( positions[posIndex].x,     pos.y + bandBuffer[i] );
-                positions[posIndex + 1] = new Vector3( positions[posIndex + 1].x, pos.y - bandBuffer[i] );
-            }
+
+            bandBuffer[i] = bandBuffer[i] < value ? value 
+                                                  : Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
+
+            positions[freqCount - i] = new Vector3( positions[freqCount - i].x, pos.y - bandBuffer[i] );
+            positions[freqCount + i] = new Vector3( positions[freqCount + i].x, pos.y - bandBuffer[i] ); ;
         }
 
         rdr.SetPositions( positions );

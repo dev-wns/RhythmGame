@@ -16,8 +16,10 @@ public class FreqColor : MonoBehaviour
     private float[] buffer;
     private int     freqCount;
     public float decreasePower = 1f;
-    public int NormalizedRange = 2;
+
+    [Header( "Normalize" )]
     public bool isNormalized;
+    public int NormalizedRange = 2;
 
     private void Awake()
     {
