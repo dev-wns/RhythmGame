@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using UnityEngine.UI;
 
-public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+[RequireComponent( typeof( Image ) )]
+public class ButtonScaler : ButtonEffect
 {
     [Range(1f, 2f)]
     public float multiplier;
@@ -29,13 +31,15 @@ public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         tf.localScale = Vector3.one;
     }
 
-    public void OnPointerEnter( PointerEventData eventData )
+    public override void OnPointerEnter( PointerEventData eventData )
     {
+        base.OnPointerEnter( eventData );
         tf.DOScale( targetSize, duration );
     }
 
-    public void OnPointerExit( PointerEventData eventData )
+    public override void OnPointerExit( PointerEventData eventData )
     {
+        base.OnPointerExit( eventData );
         tf.DOScale( Vector3.one, duration );
     }
 }

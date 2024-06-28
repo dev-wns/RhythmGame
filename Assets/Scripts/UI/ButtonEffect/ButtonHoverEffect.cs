@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent( typeof( Image ) )]
-public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class ButtonHoverEffect : ButtonEffect
 {
     private Image image;
     public float targetAlpha = 1f;
@@ -32,13 +32,15 @@ public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerEx
         DOTween.Kill( image );
     }
 
-    public void OnPointerEnter( PointerEventData eventData )
+    public override void OnPointerEnter( PointerEventData eventData )
     {
+        base.OnPointerEnter( eventData );
         image.DOFade( targetAlpha, duration );
     }
 
-    public void OnPointerExit( PointerEventData eventData )
+    public override void OnPointerExit( PointerEventData eventData )
     {
+        base.OnPointerExit( eventData );
         image.DOFade( 0f, duration );
     }
 }

@@ -35,6 +35,9 @@ public class FreqSpark : MonoBehaviour
     public bool isNormalized;
     public int NormalizedRange = 2;
 
+    [Header( "Normalize" )]
+    public bool isAxisX;
+
     private void Awake()
     {
         freqBand.OnUpdateBand += UpdateLineRenderer;
@@ -48,55 +51,58 @@ public class FreqSpark : MonoBehaviour
 
         positions = new Vector3[rdr.positionCount];
         startPos  = transform.position;
-        endPos    = new Vector2( pos.x, pos.y + ( scl.y * .5f ) - posOffset );
+        endPos    = isAxisX ? new Vector2( pos.x + ( scl.x * .5f ) - posOffset, pos.y ) 
+                            : new Vector2( pos.x, pos.y + ( scl.y * .5f ) - posOffset );
 
         for ( int i = 0; i < freqCount * 2; i++ )
         {
-            positions[i]                     = new Vector2( pos.x, ( startPos.y - ( posOffset * .5f ) - ( posOffset * ( ( freqCount * 2 ) - i - 1 ) ) ) );
-            positions[( freqCount * 2 ) + i] = new Vector2( pos.x, ( startPos.y + ( posOffset * .5f ) + ( posOffset * i ) ) );
+            positions[i]                     = isAxisX ? new Vector2( ( startPos.x - ( posOffset * .5f ) - ( posOffset * ( ( freqCount * 2 ) - i - 1 ) ) ), pos.y )
+                                                       : new Vector2( pos.x, ( startPos.y - ( posOffset * .5f ) - ( posOffset * ( ( freqCount * 2 ) - i - 1 ) ) ) );
+            positions[( freqCount * 2 ) + i] = isAxisX ? new Vector2( ( startPos.x + ( posOffset * .5f ) + ( posOffset * i ) ), pos.y )
+                                                       : new Vector2( pos.x, ( startPos.y + ( posOffset * .5f ) + ( posOffset * i ) ) );
         }
 
-        gradient       = rdr.colorGradient;
+        gradient          = rdr.colorGradient;
         gradientAlphaKeys = rdr.colorGradient.alphaKeys;
     }
 
-    private void OnEnable()
-    {
-            DOTween.To( () => 0f, ( float _alpha ) =>
-                {
-                    var keys = gradient.alphaKeys;
-                    for ( int i = 0; i < keys.Length; i++ )
-                    {
-                        keys[i].alpha = gradientAlphaKeys[i].alpha * _alpha;
-                    }
+    //private void OnEnable()
+    //{
+    //        DOTween.To( () => 0f, ( float _alpha ) =>
+    //            {
+    //                var keys = gradient.alphaKeys;
+    //                for ( int i = 0; i < keys.Length; i++ )
+    //                {
+    //                    keys[i].alpha = gradientAlphaKeys[i].alpha * _alpha;
+    //                }
 
-                    gradient.alphaKeys = keys;
-                    rdr.colorGradient  = gradient;
+    //                gradient.alphaKeys = keys;
+    //                rdr.colorGradient  = gradient;
 
-                }, 1f, Global.Const.OptionFadeDuration );
-    }
+    //            }, 1f, Global.Const.OptionFadeDuration );
+    //}
 
-    private void OnDisable()
-    {
-        DOTween.To( () => 1f, ( float _alpha ) =>
-        {
-            var keys = gradient.alphaKeys;
-            for ( int i = 0; i < keys.Length; i++ )
-            {
-                keys[i].alpha = gradientAlphaKeys[i].alpha * _alpha;
-            }
+    //private void OnDisable()
+    //{
+    //    DOTween.To( () => 1f, ( float _alpha ) =>
+    //    {
+    //        var keys = gradient.alphaKeys;
+    //        for ( int i = 0; i < keys.Length; i++ )
+    //        {
+    //            keys[i].alpha = gradientAlphaKeys[i].alpha * _alpha;
+    //        }
 
-            gradient.alphaKeys = keys;
-            rdr.colorGradient  = gradient;
+    //        gradient.alphaKeys = keys;
+    //        rdr.colorGradient  = gradient;
 
-        }, 0f, Global.Const.OptionFadeDuration );
-    }
+    //    }, 0f, Global.Const.OptionFadeDuration );
+    //}
 
     private void UpdateLineRenderer( float[] _values )
     {
         for ( int i = 0; i < freqCount; i++ )
         {
-            float value = Global.Math.Clamp( _values[i] - freqBand.Average, 0f, maxHeight );
+            float value = Global.Math.Clamp( _values[i], 0f, maxHeight );
             if ( isNormalized )
             {
                 float sumValue = 0f;
@@ -113,11 +119,15 @@ public class FreqSpark : MonoBehaviour
 
 
             int index = ( i * 2 );
-            positions[( freqCount * 2 ) - index]     = new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) - index].y );
-            positions[( freqCount * 2 ) - index - 1] = new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) - index - 1].y );
-                                                                                                 
-            positions[( freqCount * 2 ) + index]     = new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) + index].y );
-            positions[( freqCount * 2 ) + index + 1] = new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) + index + 1].y );
+            positions[( freqCount * 2 ) - index]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) - index].x, pos.y - bandBuffer[i] )
+                                                               : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) - index].y );
+            positions[( freqCount * 2 ) - index - 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) - index - 1].x, pos.y + bandBuffer[i] )
+                                                               : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) - index - 1].y );
+
+            positions[( freqCount * 2 ) + index]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) + index].x, pos.y - bandBuffer[i] )
+                                                               : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) + index].y );
+            positions[( freqCount * 2 ) + index + 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) + index + 1].x, pos.y + bandBuffer[i] )
+                                                               : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) + index + 1].y );
         }
 
         rdr.SetPositions( positions );
