@@ -12,7 +12,7 @@ public class FixedFreqBand : FrequencyBand
 
     protected override void Initialize()
     {
-        freqBand       = new float[MaxFreqBand];
+        freqBand = new float[MaxFreqBand];
     }
 
     /* 48000 / 4096 : 11.71875 Hertz

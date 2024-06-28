@@ -203,7 +203,7 @@ public class SoundManager : Singleton<SoundManager>
         Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap2.wav" );
 
         // Details
-        SetVolume( .5f, ChannelType.Master );
+        SetVolume( .1f, ChannelType.Master );
         SetVolume( .5f, ChannelType.BGM );
         SetVolume(  1f, ChannelType.SFX );
         SetVolume( .8f, ChannelType.Clap );
