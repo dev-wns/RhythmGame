@@ -25,7 +25,7 @@ public class SelectFreqBand : FrequencyBand
 
     protected override void Initialize()
     {
-        freqBand       = new float[1];
+        freqBand = new float[1];
     }
 
     protected override void UpdateFreqBand( float[][] _values )

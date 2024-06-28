@@ -73,7 +73,7 @@ public class FreqSpark : MonoBehaviour
                                                   : Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
 
             positions[freqCount - i] = new Vector3( positions[freqCount - i].x, pos.y - bandBuffer[i] );
-            positions[freqCount + i] = new Vector3( positions[freqCount + i].x, pos.y - bandBuffer[i] ); ;
+            positions[freqCount + i] = new Vector3( positions[freqCount + i].x, pos.y - bandBuffer[i] );
         }
 
         rdr.SetPositions( positions );

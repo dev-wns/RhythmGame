@@ -44,7 +44,6 @@ public class FreeStyleMainScroll : ScrollBase
 
     [Header("Contents")]
     public GameObject noContents;
-    public GameObject particle;
 
     private Song curSong;
     public event Action<Song> OnSelectSong;
@@ -79,7 +78,6 @@ public class FreeStyleMainScroll : ScrollBase
         Length = NowPlaying.Inst.Songs.Count;
 
         noContents.SetActive( !HasAnySongs );
-        particle.SetActive( !HasAnySongs );
         if ( HasAnySongs )
         {
             UpdateSongElements();
