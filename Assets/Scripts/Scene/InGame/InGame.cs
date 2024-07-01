@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
@@ -7,7 +8,6 @@ public class InGame : Scene
 {
     public GameObject loadingCanvas;
     public OptionController pause, gameOver;
-    // public GameObject hitCount, debug;
 
     public event Action<Chart> OnSystemInitialize;
     public event Action<Chart> OnSystemInitializeThread;
@@ -21,7 +21,7 @@ public class InGame : Scene
     public bool IsEnd { get; private set; }
     private bool[] isHitLastNotes;
 
-    private readonly float AdditionalLoadTime = 1f;
+    private readonly float AdditionalLoadTime = 2.5f;
 
     protected override void Awake()
     {
@@ -36,9 +36,6 @@ public class InGame : Scene
         isHitLastNotes  = new bool[NowPlaying.KeyCount];
         IsGameInputLock = true;
         IsInputLock     = true;
-
-        //hitCount.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) );
-        //debug.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) );
 
         NowPlaying.Inst.ParseChart();
     }
@@ -63,16 +60,12 @@ public class InGame : Scene
         SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
         if ( GameSetting.CurrentPitchType != PitchType.None )
              SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
-
-        //SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }
 
     public override void Disconnect()
     {
         if ( GameSetting.CurrentPitchType != PitchType.None )
              SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
-
-        //SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }
 
     private void Stop()
@@ -84,23 +77,6 @@ public class InGame : Scene
             isHitLastNotes[i] = false;
         }
     }
-
-    //public void HitLastNote( int _lane )
-    //{
-    //    isHitLastNotes[_lane] = true;
-    //    bool isEnd = true;
-    //    for ( int i = 0; i < isHitLastNotes.Length; i++ )
-    //    {
-    //        isEnd &= isHitLastNotes[i];
-    //    }
-    //    IsEnd = isEnd;
-
-    //    if ( IsEnd )
-    //    {
-    //        StartCoroutine( GameEnd() );
-    //        Debug.Log( "All lanes are empty." );
-    //    }
-    //}
 
     public IEnumerator GameEnd()
     {
@@ -117,11 +93,20 @@ public class InGame : Scene
 
     private IEnumerator Play()
     {
-        yield return new WaitUntil( () => NowPlaying.IsLoadKeySound && NowPlaying.IsLoadBGA );
+        WaitUntil waitLoadDatas = new WaitUntil( () => NowPlaying.IsLoadKeySound && NowPlaying.IsLoadBGA );
+        yield return waitLoadDatas;
 
-        yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         OnLoadEnd?.Invoke();
-        loadingCanvas.SetActive( false );
+        yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
+        
+        if ( loadingCanvas.TryGetComponent( out CanvasGroup group ) )
+        {
+            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.OptionFadeDuration );
+
+            WaitUntil waitCanvasDisabled = new WaitUntil( () => group.alpha <= 0f );
+            yield return waitCanvasDisabled;
+            loadingCanvas.SetActive( false );
+        }
 
         OnGameStart?.Invoke();
         IsGameInputLock = false;
@@ -131,7 +116,6 @@ public class InGame : Scene
 
     public void BackToLobby()
     {
-        //Destroy( GameObject.FindGameObjectWithTag( "Judgement" ) );
         NowPlaying.Inst.ResetData();
         LoadScene( SceneType.FreeStyle );
     }

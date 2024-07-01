@@ -13,7 +13,7 @@ public class LineSpectrum : BaseSpectrum
 
     [Header("Normalize")]
     public bool IsNormalized;
-    public readonly int NormalizedRange = 2;
+    public int normalizedRange = 2;
 
     [Header("Etc.")]
     public bool isReverse;
@@ -33,9 +33,9 @@ public class LineSpectrum : BaseSpectrum
             var rdr = obj.GetComponent<SpriteRenderer>();
             rdr.sortingOrder = sortingOrder;
 
-            rdr.color = !isGradationColor ? color :
-                        i < specCount     ? GetGradationColor( i ) :
-                                            GetGradationColor( symmetryColorIdx++ );
+            rdr.color = !isGradation ? color :
+                        i < specCount     ? GetGradationColor( isGradationReverse ? specCount - i : i ) :
+                                            GetGradationColor( isGradationReverse ? specCount - symmetryColorIdx++ : symmetryColorIdx++ );
 
             transforms[i].position = i < specCount ? new Vector3( transform.position.x + -GetIndexToPositionX( i ),             transform.position.y, transform.position.z ) :
                                                      new Vector3( transform.position.x +  GetIndexToPositionX( i - specCount ), transform.position.y, transform.position.z );
@@ -54,8 +54,8 @@ public class LineSpectrum : BaseSpectrum
             if ( IsNormalized )
             {
                 float sumValue = 0f;
-                int start = Global.Math.Clamp( index - NormalizedRange, 0, 4096 );
-                int end   = Global.Math.Clamp( index + NormalizedRange, 0, 4096 );
+                int start = Global.Math.Clamp( index - normalizedRange, 0, 4096 );
+                int end   = Global.Math.Clamp( index + normalizedRange, 0, 4096 );
                 for ( int idx = start; idx <= end; idx++ )
                       sumValue += ( _values[0][idx] + _values[1][idx] ) * .5f;
                       
@@ -71,7 +71,7 @@ public class LineSpectrum : BaseSpectrum
             //buffer[i] = buffer[i] < value ? value : buffer[i];
 
             buffer[i] = buffer[i] < value ? value : 
-                                            Global.Math.Clamp( buffer[i] - ( ( .001f + buffer[i] ) * decreasePower * Time.deltaTime ), .0005f, 1f );
+                                            Global.Math.Clamp( buffer[i] - ( ( .025f + buffer[i] ) * decreasePower * Time.deltaTime ), .0005f, 1f );
 
             // 계산된 값으로 스케일 조절.
             Transform left  = transforms[i];

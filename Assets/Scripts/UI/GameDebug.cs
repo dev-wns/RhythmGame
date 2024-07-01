@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class GameDebug : MonoBehaviour
 {
-    public TextMeshProUGUI fpsText;
-    public TextMeshProUGUI channelsInUse;
     public TextMeshProUGUI backgroundType;
     public TextMeshProUGUI background, foreground;
     public TextMeshProUGUI keySoundCount;
@@ -24,7 +22,6 @@ public class GameDebug : MonoBehaviour
             backgroundType.text = $"{_type} ( {_count} )";
             break;
         }
-        
     }
 
     public void SetSpriteCount( int _back, int _fore )

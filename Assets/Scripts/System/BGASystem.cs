@@ -1,3 +1,5 @@
+using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,7 +19,8 @@ public class BGASystem : MonoBehaviour
     public VideoPlayer vp;
     public RenderTexture renderTexture;
 
-    public GameDebug gameDebug;
+    public event Action<BackgroundType> OnInitialize;
+    public event Action<int/* loadTexture */, int/* bg */, int /* fg */> OnUpdateData;
 
     private struct SpriteBGA
     {
@@ -116,7 +119,8 @@ public class BGASystem : MonoBehaviour
             }
             break;
         }
-        gameDebug?.SetBackgroundType( type );
+
+        OnInitialize?.Invoke( type );
     }
 
     private void PlayVideo()
@@ -284,7 +288,7 @@ public class BGASystem : MonoBehaviour
                     break;
                 }
 
-                gameDebug?.SetSpriteCount( backgrounds.Count, foregrounds.Count );
+                OnUpdateData?.Invoke( textures.Count, backgrounds.Count, foregrounds.Count );
             }
             else 
                 yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
@@ -369,8 +373,7 @@ public class BGASystem : MonoBehaviour
             break;
         }
 
-        gameDebug?.SetBackgroundType( type, textures.Count );
-        gameDebug?.SetSpriteCount( backgrounds.Count, foregrounds.Count );
+        OnUpdateData?.Invoke( textures.Count, backgrounds.Count, foregrounds.Count );
     }
 
     public IEnumerator LoadBackground( string _path )

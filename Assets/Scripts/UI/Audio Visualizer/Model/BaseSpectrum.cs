@@ -8,7 +8,8 @@ public abstract class BaseSpectrum : MonoBehaviour
     [Header("Color")]
     [Range(0f,1f)] public float gradationColorAlpha = 1f;
     public Color color = Color.white;
-    public bool isGradationColor;
+    public bool isGradation;
+    public bool isGradationReverse;
 
     [Header("Spectrum")]
     public Transform prefab;
