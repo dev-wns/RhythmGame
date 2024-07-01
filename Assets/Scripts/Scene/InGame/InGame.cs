@@ -7,7 +7,7 @@ public class InGame : Scene
 {
     public GameObject loadingCanvas;
     public OptionController pause, gameOver;
-    public GameObject hitCount, debug;
+    // public GameObject hitCount, debug;
 
     public event Action<Chart> OnSystemInitialize;
     public event Action<Chart> OnSystemInitializeThread;
@@ -37,8 +37,8 @@ public class InGame : Scene
         IsGameInputLock = true;
         IsInputLock     = true;
 
-        hitCount.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) );
-        debug.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) );
+        //hitCount.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) );
+        //debug.SetActive( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) );
 
         NowPlaying.Inst.ParseChart();
     }
@@ -85,24 +85,24 @@ public class InGame : Scene
         }
     }
 
-    public void HitLastNote( int _lane )
-    {
-        isHitLastNotes[_lane] = true;
-        bool isEnd = true;
-        for ( int i = 0; i < isHitLastNotes.Length; i++ )
-        {
-            isEnd &= isHitLastNotes[i];
-        }
-        IsEnd = isEnd;
+    //public void HitLastNote( int _lane )
+    //{
+    //    isHitLastNotes[_lane] = true;
+    //    bool isEnd = true;
+    //    for ( int i = 0; i < isHitLastNotes.Length; i++ )
+    //    {
+    //        isEnd &= isHitLastNotes[i];
+    //    }
+    //    IsEnd = isEnd;
 
-        if ( IsEnd )
-        {
-            StartCoroutine( GameEnd() );
-            Debug.Log( "All lanes are empty." );
-        }
-    }
+    //    if ( IsEnd )
+    //    {
+    //        StartCoroutine( GameEnd() );
+    //        Debug.Log( "All lanes are empty." );
+    //    }
+    //}
 
-    private IEnumerator GameEnd()
+    public IEnumerator GameEnd()
     {
         if ( NowPlaying.CurrentSong.isOnlyKeySound )
              yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && SoundManager.Inst.ChannelsInUse == 0 );

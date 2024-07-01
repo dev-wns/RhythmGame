@@ -35,8 +35,7 @@ public class GameDebug : MonoBehaviour
 
     private void Awake()
     {
-        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) )
-             StartCoroutine( UpdateKeySoundCount() );
+        StartCoroutine( UpdateKeySoundCount() );
     }
 
     private IEnumerator UpdateKeySoundCount()

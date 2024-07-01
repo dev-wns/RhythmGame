@@ -38,8 +38,6 @@ public enum GameVisualFlag
     TouchEffect    = 1 << 0,
     LaneEffect     = 1 << 1,
     ShowMeasure    = 1 << 2,
-    ShowHitCount   = 1 << 3,
-    ShowDebug      = 1 << 4,
 
     All         = int.MaxValue,
 }

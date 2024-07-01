@@ -19,9 +19,6 @@ public class HitCountSystem : MonoBehaviour
 
     private void Awake()
     {
-        if ( !GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowHitCount ) )
-             return;
-
         layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
 
         images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );

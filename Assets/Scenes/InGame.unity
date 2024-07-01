@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -525,65 +524,6 @@ MonoBehaviour:
   auto: {fileID: 0}
   noSlider: {fileID: 0}
   noFail: {fileID: 0}
---- !u!1 &75689396
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 75689397}
-  - component: {fileID: 75689398}
-  m_Layer: 5
-  m_Name: LineSpectrum
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &75689397
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 75689396}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -540, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1708626573}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &75689398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 75689396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c3f22b39b7e0834dbbd9e179160b556, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  visualizer: {fileID: 1708626572}
-  gradationColorAlpha: 1
-  color: {r: 1, g: 1, b: 1, a: 1}
-  isGradationColor: 1
-  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
-  sortingOrder: 12
-  specStartIndex: 8
-  specCount: 156
-  specPower: 1.5
-  specWidth: 5.15
-  specBlank: 1
-  decreasePower: 14.5
-  IsNormalized: 1
-  isReverse: 1
-  isPositionUpdate: 0
 --- !u!1 &96193261
 GameObject:
   m_ObjectHideFlags: 0
@@ -4450,7 +4390,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &566966197
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4525,15 +4465,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3e8cd0e12a9caf34ea393bb807421606, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 1f756b156fb309d4fb704cd97f4e695f, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -4541,7 +4481,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.25
 --- !u!1 &591861239
 GameObject:
   m_ObjectHideFlags: 0
@@ -8191,15 +8131,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3e8cd0e12a9caf34ea393bb807421606, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 1f756b156fb309d4fb704cd97f4e695f, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
@@ -8207,7 +8147,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5
+  m_PixelsPerUnitMultiplier: 1.25
 --- !u!222 &977345981
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9911,8 +9851,6 @@ MonoBehaviour:
   loadingCanvas: {fileID: 1876988534}
   pause: {fileID: 314525029}
   gameOver: {fileID: 50901419}
-  hitCount: {fileID: 566966196}
-  debug: {fileID: 977345978}
 --- !u!4 &1220838188
 Transform:
   m_ObjectHideFlags: 0
@@ -12193,6 +12131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 058be11e705cf264db7109ef234ee79e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scene: {fileID: 1220838187}
 --- !u!1 &1445187591
 GameObject:
   m_ObjectHideFlags: 0
@@ -13962,51 +13901,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &1708626571
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1708626573}
-  - component: {fileID: 1708626572}
-  m_Layer: 6
-  m_Name: Audio Visualizer - 12
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1708626572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1708626571}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1708626573
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1708626571}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 75689397}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1728439288
 GameObject:
   m_ObjectHideFlags: 0
@@ -17225,7 +17119,6 @@ SceneRoots:
   - {fileID: 1961747335}
   - {fileID: 892947521}
   - {fileID: 1876988538}
-  - {fileID: 1708626573}
   - {fileID: 1413487547}
   - {fileID: 844784037}
   - {fileID: 1220838188}

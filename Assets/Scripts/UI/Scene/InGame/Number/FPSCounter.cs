@@ -24,8 +24,7 @@ public class FPSCounter : MonoBehaviour
         for ( int i = 0; i < images.Count; i++ )
              images[i].sortingOrder = sortingOrder;
 
-        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowDebug ) )
-             StartCoroutine( UpdateFrame() );
+        StartCoroutine( UpdateFrame() );
     }
 
     private void OnDestroy()
