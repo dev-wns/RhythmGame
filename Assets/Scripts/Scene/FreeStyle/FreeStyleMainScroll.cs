@@ -103,12 +103,12 @@ public class FreeStyleMainScroll : ScrollBase
         playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
         if ( endTime > 0f && ( endTime + waitPreviewTime < playback ) )
         {
-            SoundManager.Inst.Play();
+            SoundManager.Inst.Play( 0f );
             SoundManager.Inst.Position = ( uint )curSong.previewTime;
             playback = curSong.previewTime;
             OnSoundRestart?.Invoke( curSong );
 
-            SoundManager.Inst.FadeVolume( 0f, 1f, .5f );
+            SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
         }
     }
 
