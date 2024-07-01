@@ -255,9 +255,6 @@ public class InputSystem : MonoBehaviour
 
     private void SelectNextNote( bool _isDespawn = true )
     {
-        //if ( NowPlaying.Playback > endNoteTime && notes.Count == 0 && noteSpawnIndex == noteDatas.Count )
-        //     scene.HitLastNote( lane.Key );
-
         if ( _isDespawn )
         {
             curNote.gameObject.SetActive( false );

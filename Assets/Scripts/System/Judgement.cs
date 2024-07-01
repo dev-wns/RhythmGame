@@ -106,7 +106,7 @@ public class Judgement : MonoBehaviour
 
         NowPlaying.Inst.IncreaseResult( _result, _count );
 
-        if ( ( curJudge += _count ) >= TotalJudge )
+        if ( _result != HitResult.None && ( curJudge += _count ) >= TotalJudge )
         {
             StartCoroutine( scene.GameEnd() );
             Debug.Log( $"All lanes are empty ( {curJudge} judgement )" );
