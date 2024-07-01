@@ -34,10 +34,10 @@ public class SelectFreqBand : FrequencyBand
         if ( range <= 0 ) return;
 
         float sum = 0f;
-        int count = 1;
+        //int count = 1;
         for ( int i = start; i < end; i++ )
         {
-            sum += ( ( _values[0][i] + _values[1][i] ) * .5f ) * count++;
+            sum += ( ( _values[0][i] + _values[1][i] ) * .5f );// * count++;
         }
         freqBand[0] = ( sum / range ) * power;
 

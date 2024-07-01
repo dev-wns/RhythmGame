@@ -26,7 +26,11 @@ public class ParticleSpeedController : MonoBehaviour
 
     private void SpeedUpdate( float[] _amount )
     {
-        buffer = buffer < _amount[0] ? _amount[0] : Mathf.Lerp( buffer, _amount[0], decrease * Time.deltaTime );
+        if ( buffer < _amount[0] )
+            buffer = _amount[0];
+
+        buffer = Global.Math.Clamp( buffer - ( Global.Math.Abs( _amount[0] - buffer ) * decrease * Time.deltaTime ), 0f, 1f );
+        // buffer = buffer < _amount[0] ? _amount[0] : Mathf.Lerp( buffer, _amount[0], decrease * Time.deltaTime );
         mainModule.simulationSpeed = buffer * power;
     }
 

@@ -22246,7 +22246,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1115351010
 Transform:
   m_ObjectHideFlags: 0
@@ -22256,7 +22256,7 @@ Transform:
   m_GameObject: {fileID: 1115351009}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 40.5, y: -540, z: 0}
+  m_LocalPosition: {x: 0, y: -540, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22275,13 +22275,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visualizer: {fileID: 1923945052}
-  gradationColorAlpha: 1
+  gradationColorAlpha: 0.1
   color: {r: 1, g: 1, b: 1, a: 1}
   isGradationColor: 1
   prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
   sortingOrder: 2
   specStartIndex: 8
-  specCount: 150
+  specCount: 156
   specPower: 1.5
   specWidth: 5.15
   specBlank: 1
@@ -37318,9 +37318,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visuzlizer: {fileID: 1923945052}
-  power: 1
-  start: 0
-  end: 15
+  power: 7.5
+  start: 2
+  end: 17
   startHz: 0
   endHz: 0
   range: 0

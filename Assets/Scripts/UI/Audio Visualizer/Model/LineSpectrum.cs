@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class LineSpectrum : BaseSpectrum
 {
-    private float[] buffer;
+    protected float[] buffer;
 
     protected Transform[] transforms; // 생성된 모델 안의 Transform
 
@@ -81,13 +81,13 @@ public class LineSpectrum : BaseSpectrum
             if ( isPositionUpdate )
             {
                 float posX = GetIndexToPositionX( i );
-                left.position = new Vector3( transform.position.x + -posX, transform.position.y, transform.position.z );
-                right.position = new Vector3( transform.position.x + posX, transform.position.y, transform.position.z );
+                left.position  = new Vector3( transform.position.x + -posX, transform.position.y, transform.position.z );
+                right.position = new Vector3( transform.position.x + posX,  transform.position.y, transform.position.z );
             }
         }
     }
 
-    private float GetIndexToPositionX( int _index )
+    protected float GetIndexToPositionX( int _index )
     {
         return _index == 0 ? Offset * .5f : ( Offset * ( _index + 1 ) ) - ( Offset * .5f );
     }
