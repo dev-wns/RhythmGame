@@ -102,14 +102,14 @@ public class FreqSpark : MonoBehaviour
     {
         for ( int i = 0; i < freqCount; i++ )
         {
-            float value = Global.Math.Clamp( _values[i], 0f, maxHeight );
+            float value = Global.Math.Clamp( _values[i] - ( freqBand.Average * 1.25f ), 0f, maxHeight );
             if ( isNormalized )
             {
                 float sumValue = 0f;
                 int start = Global.Math.Clamp( i - NormalizedRange, 0, freqCount );
                 int end   = Global.Math.Clamp( i + NormalizedRange, 0, freqCount );
                 for ( int idx = start; idx < end; idx++ )
-                      sumValue += Global.Math.Clamp( _values[idx] - freqBand.Average, 0f, maxHeight );
+                      sumValue += Global.Math.Clamp( _values[idx] - ( freqBand.Average * 1.25f ), 0f, maxHeight );
 
                 value = sumValue / ( end - start + 1 );
             }

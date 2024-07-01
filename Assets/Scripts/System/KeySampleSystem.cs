@@ -37,7 +37,9 @@ public class KeySampleSystem : MonoBehaviour
     {
         UseAllSamples = false;
 
-        offset = NowPlaying.CurrentSong.audioPath == string.Empty || NowPlaying.CurrentSong.isOnlyKeySound ? 0d : ( GameSetting.SoundOffset - 50 ) * .001d;
+        offset = NowPlaying.CurrentSong.audioPath == string.Empty || NowPlaying.CurrentSong.isOnlyKeySound ? 
+                 0d : ( GameSetting.SoundOffset - 50 ) * .001d;
+
         isStart = true;
         if ( samples.Count > 0 )
              curTime = samples[curIndex].time;

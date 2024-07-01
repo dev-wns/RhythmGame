@@ -15210,7 +15210,7 @@ MonoBehaviour:
   visuzlizer: {fileID: 1923945052}
   power: 1750
   freqCount: 60
-  startIndex: 30
+  startIndex: 38
   multipleCount: 1
 --- !u!224 &746346382
 RectTransform:
@@ -22166,7 +22166,7 @@ MonoBehaviour:
   freqBand: {fileID: 746346381}
   maxHeight: 50
   posOffset: 7.5
-  decreasePower: 17.5
+  decreasePower: 15
   isNormalized: 1
   NormalizedRange: 1
   isAxisX: 1
@@ -26455,6 +26455,7 @@ GameObject:
   - component: {fileID: 1318305434}
   - component: {fileID: 1318305436}
   - component: {fileID: 1318305435}
+  - component: {fileID: 1318305437}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -26495,9 +26496,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.9019608}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -26519,6 +26520,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1318305433}
   m_CullTransparentMesh: 1
+--- !u!114 &1318305437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318305433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 017008d380e76ff49899159ecb37f0fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1324052763
 GameObject:
   m_ObjectHideFlags: 0
@@ -30261,6 +30274,7 @@ GameObject:
   - component: {fileID: 1507299037}
   - component: {fileID: 1507299039}
   - component: {fileID: 1507299038}
+  - component: {fileID: 1507299040}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -30301,9 +30315,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.9019608}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -30325,6 +30339,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1507299036}
   m_CullTransparentMesh: 1
+--- !u!114 &1507299040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507299036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 017008d380e76ff49899159ecb37f0fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1511159046
 GameObject:
   m_ObjectHideFlags: 0

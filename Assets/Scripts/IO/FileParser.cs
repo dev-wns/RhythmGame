@@ -30,6 +30,7 @@ public class FileParser : FileReader
                     _song.audioPath = soundName == string.Empty ? string.Empty :
                                                                   Path.Combine( directory, soundName );
                 }
+                if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = Split( ':' );
@@ -57,17 +58,18 @@ public class FileParser : FileReader
                 if ( Contains( "NumDelNote:" ) )   _song.delNoteCount   = int.Parse( Split( ':' ) );
                 if ( Contains( "NumDelSlider:" ) ) _song.delSliderCount = int.Parse( Split( ':' ) );
 
-                if ( Contains( "MinBPM:" ) )   _song.minBpm    = int.Parse( Split( ':' ) );
-                if ( Contains( "MaxBPM:" ) )   _song.maxBpm    = int.Parse( Split( ':' ) );
-                if ( Contains( "MainBPM:" ) )  _song.mainBPM   = double.Parse( Split( ':' ) );
+                if ( Contains( "MinBPM:" ) )   _song.minBpm  = int.Parse( Split( ':' ) );
+                if ( Contains( "MaxBPM:" ) )   _song.maxBpm  = int.Parse( Split( ':' ) );
+                if ( Contains( "MainBPM:" ) )  _song.mainBPM = double.Parse( Split( ':' ) );
 
                 if ( Contains( "DataExist:" ) )
                 {
                     string[] splitDatas = line.Split( ':' );
-                    _song.isOnlyKeySound = int.Parse( splitDatas[1] ) == 1;
-                    _song.hasKeySound    = int.Parse( splitDatas[2] ) == 1;
-                    _song.hasVideo       = int.Parse( splitDatas[3] ) == 1;
-                    _song.hasSprite      = int.Parse( splitDatas[4] ) == 1;
+                    _song.isOnlyKeySound  = int.Parse( splitDatas[1] ) == 1;
+                    _song.hasKeySound     = int.Parse( splitDatas[2] ) == 1;
+                    _song.hasVideo        = int.Parse( splitDatas[3] ) == 1;
+                    _song.hasSprite       = int.Parse( splitDatas[4] ) == 1;
+                    _song.usePreviewSound = int.Parse( splitDatas[5] ) == 1;
                 }
             }
 

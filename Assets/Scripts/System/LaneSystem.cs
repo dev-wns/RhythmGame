@@ -46,16 +46,19 @@ public class LaneSystem : MonoBehaviour
     private void Initialize( Chart _chart )
     {
         Timer timer = new Timer();
-        if ( !NowPlaying.CurrentSong.isOnlyKeySound )
+        if ( !NowPlaying.CurrentSong.isOnlyKeySound || NowPlaying.CurrentSong.usePreviewSound )
         {
             if ( SoundManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
-                 keySampleSystem.AddSample( new KeySound( 0d, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
+                 keySampleSystem.AddSample( new KeySound( NowPlaying.CurrentSong.audioOffset * .001f, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
         }
 
         var dir = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         for ( int i = 0; i < _chart.samples.Count; i++ )
         {
             var sample = _chart.samples[i];
+            if ( NowPlaying.CurrentSong.usePreviewSound )
+                 sample.volume = 0f;
+
             if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
                  keySampleSystem.AddSample( sample );
         }

@@ -22,6 +22,7 @@ public struct Song
     public bool hasSprite;
     public bool hasKeySound;    // 노트 키음이 하나라도 있을 때 ( 배경음은 상관 X )
     public bool isOnlyKeySound; // 키음으로만 이루어진 노래 ( 배경음악과 노트 전부 키음으로 이루어짐 )
+    public bool usePreviewSound;
 
     public string title;
     public string artist;
@@ -142,7 +143,7 @@ public class FileConverter : FileReader
     private List<KeySound> samples          = new List<KeySound>();
     private List<SpriteSample> sprites      = new List<SpriteSample>();
 
-    private readonly string[] virtualAudioName = { "preview.wav", "preview.mp3", "preview.ogg" };
+    private readonly string[] virtualAudioName = { "preview.wav", "preview2.mp3", "preview.mp3", "preview.ogg" };
     private class IntegerComparer : IComparer<int>
     {
         int IComparer<int>.Compare( int _left, int _right )
@@ -271,6 +272,10 @@ public class FileConverter : FileReader
                     {
                         song.audioPath = virtualAudioName[i];
                         song.isOnlyKeySound = true;
+
+                        if ( virtualAudioName[i] == "preview2.mp3" )
+                             song.usePreviewSound = true;
+
                         break;
                     }
                 }
@@ -465,6 +470,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( "[General]" );
                     writer.WriteLine( $"ImagePath: {_song.imagePath}" );
                     writer.WriteLine( $"AudioPath: {_song.audioPath}" );
+                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
                     writer.WriteLine( $"VideoPath: {_song.videoPath}" );
                     writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
 
@@ -487,10 +493,11 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
                     writer.WriteLine( $"MainBPM: {_song.mainBPM}" );
 
-                    writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound ? 1 : 0 )}:" +
-                                                 $"{( _song.hasKeySound    ? 1 : 0 )}:" +
-                                                 $"{( _song.hasVideo       ? 1 : 0 )}:" +
-                                                 $"{( _song.hasSprite      ? 1 : 0 )}" );
+                    writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound  ? 1 : 0 )}:" +
+                                                 $"{( _song.hasKeySound     ? 1 : 0 )}:" +
+                                                 $"{( _song.hasVideo        ? 1 : 0 )}:" +
+                                                 $"{( _song.hasSprite       ? 1 : 0 )}:" +
+                                                 $"{( _song.usePreviewSound ? 1 : 0 )}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );

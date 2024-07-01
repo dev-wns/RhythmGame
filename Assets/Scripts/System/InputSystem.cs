@@ -82,6 +82,8 @@ public class InputSystem : MonoBehaviour
         {
             curNote  = notes.Dequeue();
             curSound = curNote.Sound;
+            if ( NowPlaying.CurrentSong.usePreviewSound )
+                 curSound.volume = 0f;
         }
 
         // Judgement
@@ -125,8 +127,10 @@ public class InputSystem : MonoBehaviour
 
         if ( noteDatas.Count > 0 )
         {
-            curData = noteDatas[noteSpawnIndex];
+            curData  = noteDatas[noteSpawnIndex];
             curSound = noteDatas[noteSpawnIndex].keySound;
+            if ( NowPlaying.CurrentSong.usePreviewSound )
+                 curSound.volume = 0f;
         }
     }
 
