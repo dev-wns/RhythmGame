@@ -80,6 +80,8 @@ public class InGame : Scene
 
     public IEnumerator GameEnd()
     {
+        IsEnd = true;
+
         if ( NowPlaying.CurrentSong.isOnlyKeySound )
              yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && SoundManager.Inst.ChannelsInUse == 0 );
 
