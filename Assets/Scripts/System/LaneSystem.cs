@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using TMPro;
 
 public class LaneSystem : MonoBehaviour
 {
+    [Header( "Lane" )]
     public Lane prefab;
     private InGame scene;
     private KeySampleSystem keySampleSystem;
@@ -12,6 +14,15 @@ public class LaneSystem : MonoBehaviour
     private System.Random random;
     private readonly int MinimumSwapCount = 5;
     private int keyCount;
+
+    [Header( "Loading" )]
+    private Timer soundTimer = new Timer();
+    public static uint soundSampleTime;
+    public static uint keySoundTime;
+
+    private Timer noteTimer  = new Timer();
+    public static uint noteTime;
+
     private void Awake()
     {
         keyCount = NowPlaying.KeyCount;
@@ -43,9 +54,16 @@ public class LaneSystem : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        soundSampleTime = 0;
+        keySoundTime    = 0;
+        noteTime        = 0;
+    }
+
     private void Initialize( Chart _chart )
     {
-        Timer timer = new Timer();
+        soundTimer.Start();
         if ( !NowPlaying.CurrentSong.isOnlyKeySound || NowPlaying.CurrentSong.usePreviewSound )
         {
             if ( SoundManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
@@ -62,11 +80,11 @@ public class LaneSystem : MonoBehaviour
             if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
                  keySampleSystem.AddSample( sample );
         }
-        Debug.Log( $"Sound Loading {timer.End} ms" );
+        soundSampleTime += soundTimer.End;
 
-        timer.Start();
+        noteTimer.Start();
         CreateNotes( _chart );
-        Debug.Log( $"Note Placement {timer.End} ms" );
+        noteTime += noteTimer.End;
 
         keySampleSystem.SortSamples();
         NowPlaying.IsLoadKeySound = true;
@@ -91,9 +109,11 @@ public class LaneSystem : MonoBehaviour
             {
                 if ( newNote.lane == 3 )
                 {
+                    soundTimer.Start();
                     if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
                          keySampleSystem.AddSample( new KeySound( newNote ) );
 
+                    keySoundTime += soundTimer.End;
                     continue;
                 }
                 else if ( newNote.lane > 3 )
@@ -121,7 +141,10 @@ public class LaneSystem : MonoBehaviour
                     newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
+                    soundTimer.Start();
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
+                    keySoundTime += soundTimer.End;
+
                     lanes[newNote.lane].InputSys.AddNote( in newNote );
                 } break;
 
@@ -151,10 +174,12 @@ public class LaneSystem : MonoBehaviour
                     newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
+                    soundTimer.Start();
                     SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
+                    keySoundTime += soundTimer.End;
+
                     lanes[selectLane].InputSys.AddNote( in newNote );
                 } break;
-
             }
         }
 

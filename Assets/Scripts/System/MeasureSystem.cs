@@ -13,6 +13,8 @@ public class MeasureSystem : MonoBehaviour
 
     private bool shouldShowMeasure;
 
+    public static uint MeasureCalcTime;
+
     private void Awake()
     {
         var sceneObj = GameObject.FindGameObjectWithTag( "Scene" );
@@ -32,6 +34,7 @@ public class MeasureSystem : MonoBehaviour
 
     private void OnDestroy()
     {
+        MeasureCalcTime = 0;
         NowPlaying.OnSpawnObjects -= SpawnMeasures;
         //StopAllCoroutines();
     }
@@ -45,6 +48,7 @@ public class MeasureSystem : MonoBehaviour
 
     private void Initialize( Chart _chart )
     {
+        Timer timer = new Timer();
         var timings   = _chart.timings;
         var totalTime = NowPlaying.CurrentSong.totalTime * .001d;
 
@@ -76,6 +80,8 @@ public class MeasureSystem : MonoBehaviour
                 time += spb;
             }
         }
+
+        MeasureCalcTime = timer.End;
 
         if ( measures.Count > 0 )
              curTime = measures[curIndex];

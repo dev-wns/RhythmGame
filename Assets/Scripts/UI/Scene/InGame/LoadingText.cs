@@ -26,8 +26,8 @@ public class LoadingText : RotateImage
 
     private void Awake()
     {
-        InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnLoadEnd += IconDisable;
+        //InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        //scene.OnLoadEnd += IconDisable;
         transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
 
         bgaSys.OnInitialize += Initialize;
@@ -49,10 +49,10 @@ public class LoadingText : RotateImage
              spriteGroup.SetActive( true );
     }
 
-    private void UpdateBackground( int _count, int _background, int _foreground )
+    private void UpdateBackground( int _count, int _duplicate, int _background, int _foreground )
     {
         numTexture.text = $"{_count}";
-        numDuplicateTexture.text = $"{_background + _foreground}";
+        numDuplicateTexture.text = $"{_duplicate}";
         background.text = $"{_background}";
         foreground.text = $"{_foreground}";
     }

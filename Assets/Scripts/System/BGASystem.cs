@@ -1,8 +1,8 @@
 using System;
-using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -20,7 +20,13 @@ public class BGASystem : MonoBehaviour
     public RenderTexture renderTexture;
 
     public event Action<BackgroundType> OnInitialize;
-    public event Action<int/* loadTexture */, int/* bg */, int /* fg */> OnUpdateData;
+    public event Action<int/* loadTexture */, int /* duplicate */, int/* bg */, int /* fg */> OnUpdateData;
+    private int duplicateTextureCount;
+
+    [Header( "Loading" )]
+    public TextMeshProUGUI loadingText;
+    private Timer timer  = new Timer();
+    private uint loadingTime;
 
     private struct SpriteBGA
     {
@@ -85,6 +91,8 @@ public class BGASystem : MonoBehaviour
         if ( GameSetting.BGAOpacity == 0 )
         {
             transform.root.gameObject.SetActive( false );
+            type = BackgroundType.None;
+            loadingText.text = $"0 ms";
             NowPlaying.IsLoadBGA = true;
             return;
         }
@@ -111,6 +119,8 @@ public class BGASystem : MonoBehaviour
             if ( !System.IO.File.Exists( NowPlaying.CurrentSong.imagePath ) )
             {
                 transform.root.gameObject.SetActive( false );
+                type = BackgroundType.None;
+                loadingText.text = $"0 ms";
                 NowPlaying.IsLoadBGA = true;
             }
             else
@@ -145,7 +155,6 @@ public class BGASystem : MonoBehaviour
 
     private void ReLoad()
     {
-        ClearRenderTexture();
         switch ( type )
         {
             case BackgroundType.None:
@@ -154,6 +163,7 @@ public class BGASystem : MonoBehaviour
 
             case BackgroundType.Video:
             {
+                ClearRenderTexture();
                 // background.texture = Texture2D.blackTexture;
                 if ( !vp.isPlaying ) vp.Play();
                 vp.Pause();
@@ -187,7 +197,7 @@ public class BGASystem : MonoBehaviour
 
     private IEnumerator LoadVideo()
     {
-        Timer timer = new Timer();
+        timer.Start();
         vp.enabled = true;
         vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.url = @$"{NowPlaying.CurrentSong.videoPath}";
@@ -202,7 +212,7 @@ public class BGASystem : MonoBehaviour
         vp.Pause();
         vp.frame = 0;
 
-        Debug.Log( $"{type} Loading {timer.End} ms" );
+        loadingText.text = $"{timer.End} ms";
         NowPlaying.IsLoadBGA = true;
     }
 
@@ -269,7 +279,7 @@ public class BGASystem : MonoBehaviour
 
     public IEnumerator LoadSamples( ReadOnlyCollection<SpriteSample> _samples )
     {
-        Timer timer = new Timer();
+        timer.Start();
         var dir = System.IO.Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         for ( int i = 0; i < _samples.Count; i++ )
         {
@@ -288,7 +298,7 @@ public class BGASystem : MonoBehaviour
                     break;
                 }
 
-                OnUpdateData?.Invoke( textures.Count, backgrounds.Count, foregrounds.Count );
+                OnUpdateData?.Invoke( textures.Count, ++duplicateTextureCount, backgrounds.Count, foregrounds.Count );
             }
             else 
                 yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
@@ -308,7 +318,7 @@ public class BGASystem : MonoBehaviour
         //    else                            return 0;
         //} );
 
-        Debug.Log( $"{type} Loading {timer.End} ms" );
+        loadingText.text = $"{timer.End} ms";
         yield return YieldCache.WaitForEndOfFrame;
         NowPlaying.IsLoadBGA = true;
     }
@@ -373,7 +383,7 @@ public class BGASystem : MonoBehaviour
             break;
         }
 
-        OnUpdateData?.Invoke( textures.Count, backgrounds.Count, foregrounds.Count );
+        OnUpdateData?.Invoke( textures.Count, duplicateTextureCount, backgrounds.Count, foregrounds.Count );
     }
 
     public IEnumerator LoadBackground( string _path )
@@ -381,7 +391,7 @@ public class BGASystem : MonoBehaviour
         if ( !System.IO.File.Exists( _path ) )
              yield break;
 
-        Timer timer = new Timer();
+        timer.Start();
 
         Texture2D tex;
         var ext = System.IO.Path.GetExtension( _path );
@@ -412,12 +422,12 @@ public class BGASystem : MonoBehaviour
             }
         }
 
-
         textures.Add( "BackgroundImage", tex );
         background.color = color;
         background.texture = tex;
         background.rectTransform.sizeDelta = Global.Math.GetScreenRatio( tex, new Vector2( Screen.width, Screen.height ) );
-        Debug.Log( $"{type} Loading {timer.End} ms" );
+        
+        loadingText.text = $"{timer.End} ms";
         NowPlaying.IsLoadBGA = true;
     }
 }

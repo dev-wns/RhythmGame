@@ -2,10 +2,12 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 public class InGame : Scene
 {
+    [Header( "InGame" )]
     public GameObject loadingCanvas;
     public OptionController pause, gameOver;
 
@@ -17,11 +19,18 @@ public class InGame : Scene
     public event Action OnReLoad;
     public event Action OnResult;
     public event Action<bool/* isPause */> OnPause;
-    public event Action OnLoadEnd;
     public bool IsEnd { get; private set; }
     private bool[] isHitLastNotes;
 
-    private readonly float AdditionalLoadTime = 2.5f;
+    private readonly float AdditionalLoadTime = 5f;
+
+    [Header( "Loading" )]
+    public TextMeshProUGUI loadingText;
+    private Timer timer  = new Timer();
+    private uint loadingTime;
+
+    public TextMeshProUGUI soundText;
+    public TextMeshProUGUI etcText;
 
     protected override void Awake()
     {
@@ -37,7 +46,9 @@ public class InGame : Scene
         IsGameInputLock = true;
         IsInputLock     = true;
 
+        timer.Start();
         NowPlaying.Inst.ParseChart();
+        loadingText.text = $"{timer.End} ms";
     }
 
     protected async override void Start()
@@ -46,6 +57,9 @@ public class InGame : Scene
 
         OnSystemInitialize?.Invoke( NowPlaying.CurrentChart );
         await Task.Run( () => OnSystemInitializeThread?.Invoke( NowPlaying.CurrentChart ) );
+
+        soundText.text = $"{LaneSystem.soundSampleTime + LaneSystem.keySoundTime} ms";
+
         StartCoroutine( Play() );
     }
 
@@ -98,7 +112,11 @@ public class InGame : Scene
         WaitUntil waitLoadDatas = new WaitUntil( () => NowPlaying.IsLoadKeySound && NowPlaying.IsLoadBGA );
         yield return waitLoadDatas;
 
-        OnLoadEnd?.Invoke();
+        uint etcTime = ( LaneSystem.noteTime - LaneSystem.keySoundTime ) +
+                         MeasureSystem.MeasureCalcTime;
+
+        etcText.text = $"{etcTime} ms";
+
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         
         if ( loadingCanvas.TryGetComponent( out CanvasGroup group ) )

@@ -199,9 +199,8 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void ParseChart()
     {
-        Timer timer = new Timer();
-        WaitTime  = StartWaitTime;
-        mainBPM = CurrentSong.mainBPM * GameSetting.CurrentPitch;
+        WaitTime = StartWaitTime;
+        mainBPM  = CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
         using ( FileParser parser = new FileParser() )
         {
@@ -214,7 +213,6 @@ public class NowPlaying : Singleton<NowPlaying>
                 CurrentChart = chart;
         }
 
-        Debug.Log( $"Chart Parsing {timer.End} ms" );
         Stop();
     }
 
