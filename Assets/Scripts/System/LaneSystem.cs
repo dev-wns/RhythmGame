@@ -151,14 +151,14 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Max_Random:
                 {
                     emptyLanes.Clear();
-                    // 빠른계단, 즈레 등의 패턴이 존재할 때 물리적으로 처리하지 못하는 밀도로 배치되는 부분 보정
+                    // 빠른계단, 즈레 등 고밀도로 배치될 때 보정
                     for ( int j = 0; j < keyCount; j++ ) 
                     {
                         if ( secondPerBeat < ( newNote.time - prevTimes[j] ) )
                              emptyLanes.Add( j );
                     }
 
-                    // 보정할 자리가 없을 때 보정되지않은 상태로 배치
+                    // 자리가 없을 때 보정되지않은 상태로 배치
                     if ( emptyLanes.Count == 0 ) 
                     {
                         for ( int j = 0; j < keyCount; j++ )

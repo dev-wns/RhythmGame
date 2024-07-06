@@ -47,6 +47,8 @@ public class Judgement : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
 
+        scene.OnReLoad += () => curJudge = 0;
+
         bool hasHardJudge = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge );
         NoteJudgeData   = hasHardJudge ? OriginJudgeData.Multiply( .75f ) : OriginJudgeData;
         SliderJudgeData = NoteJudgeData.Multiply( 2f );

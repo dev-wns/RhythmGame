@@ -40,17 +40,20 @@ public class Result : Scene
         }
     }
 
+    public void BackToLobby()
+    {
+        NowPlaying.Inst.ResetData();
+        LoadScene( SceneType.FreeStyle );
+        SoundManager.Inst.Play( SoundSfxType.MainClick );
+    }
+
     public override void Connect() { }
 
     public override void Disconnect() { }
 
     public override void KeyBind()
     {
-        Bind( ActionType.Main, KeyCode.Escape, () => NowPlaying.Inst.ResetData() );
-        Bind( ActionType.Main, KeyCode.Escape, () => LoadScene( SceneType.FreeStyle ) );
-        Bind( ActionType.Main, KeyCode.Escape, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
-        Bind( ActionType.Main, KeyCode.Return, () => NowPlaying.Inst.ResetData() );
-        Bind( ActionType.Main, KeyCode.Return, () => LoadScene( SceneType.FreeStyle ) );
-        Bind( ActionType.Main, KeyCode.Return, () => SoundManager.Inst.Play( SoundSfxType.MainClick ) );
+        Bind( ActionType.Main, KeyCode.Escape, BackToLobby );
+        Bind( ActionType.Main, KeyCode.Return, BackToLobby );
     }
 }
