@@ -18,6 +18,7 @@ public class InGame : Scene
     public event Action OnGameOver;
     public event Action OnReLoad;
     public event Action OnResult;
+    public event Action OnLoadEnd;
     public event Action<bool/* isPause */> OnPause;
     public bool IsEnd { get; private set; }
     private bool[] isHitLastNotes;
@@ -116,6 +117,7 @@ public class InGame : Scene
                          MeasureSystem.MeasureCalcTime;
 
         etcText.text = $"{etcTime} ms";
+        OnLoadEnd?.Invoke();
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         
