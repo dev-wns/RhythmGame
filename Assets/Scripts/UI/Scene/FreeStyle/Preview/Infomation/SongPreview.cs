@@ -58,7 +58,7 @@ public class SongPreview : MonoBehaviour
 
         speed.text  = $"{GameSetting.ScrollSpeed:F1}";
         random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
-        rate.text   = $"x{GameSetting.CurrentPitch:F1}";
+        rate.text   = $"x{GameSetting.CurrentPitch:F2}";
         rate.color  = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                       GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 

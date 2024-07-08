@@ -206,19 +206,28 @@ public class InGame : Scene
     public override void KeyBind()
     {
         // Main
+        // Scroll Speed Down
         Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
         Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
-                                                           
+        // Scroll Speed Up                               
         Bind( ActionType.Main, InputType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
         Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // Pause
-        Bind( ActionType.Main,  KeyCode.Escape,    () => { Pause( true  ); } );
-        Bind( ActionType.Pause, KeyCode.Escape,    () => { Pause( false ); } );
-        Bind( ActionType.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
-        Bind( ActionType.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
+        Bind( ActionType.Main,  KeyCode.Escape,                    () => { Pause( true  ); } );
+        Bind( ActionType.Pause, KeyCode.Escape,                    () => { Pause( false ); } );
+        Bind( ActionType.Pause, KeyCode.DownArrow,                 () => { MoveToNextOption( pause ); } );
+        Bind( ActionType.Pause, KeyCode.UpArrow,                   () => { MoveToPrevOption( pause ); } );
+        // Scroll Speed Down
+        Bind( ActionType.Pause, InputType.Down,    KeyCode.Alpha1, () => SpeedControlProcess( false ) );
+        Bind( ActionType.Pause, InputType.Hold,    KeyCode.Alpha1, () => PressedSpeedControl( false ) );
+        Bind( ActionType.Pause, InputType.Up,      KeyCode.Alpha1, () => UpedSpeedControl() );
+        // Scroll Speed Up
+        Bind( ActionType.Pause, InputType.Down,    KeyCode.Alpha2, () => SpeedControlProcess( true ) );
+        Bind( ActionType.Pause, InputType.Hold,    KeyCode.Alpha2, () => PressedSpeedControl( true ) );
+        Bind( ActionType.Pause, InputType.Up,      KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // GameOver
         Bind( ActionType.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );

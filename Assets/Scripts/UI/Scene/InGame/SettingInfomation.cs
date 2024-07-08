@@ -11,12 +11,8 @@ public class SettingInfomation : MonoBehaviour
     private void Awake()
     {
         var scene = GameObject.FindGameObjectWithTag( "Scene" );
-        if ( scene )
-        {
-            InGame game;
-            if ( scene.TryGetComponent( out game ) ) 
-                 game.OnScrollChange += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
-        }
+        if ( scene.TryGetComponent( out InGame inGame ) )
+             inGame.OnScrollChange += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
 
         UpdateInfomation();
     }
