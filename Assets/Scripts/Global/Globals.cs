@@ -63,6 +63,17 @@ namespace Global
         }
     }
 
+
+    public static class Color
+    {
+        /// <summary> Clear All ( 0, 0, 0, 0 ) </summary>
+        public static UnityEngine.Color Clear    = new UnityEngine.Color( 0f, 0f, 0f, 0f );
+        /// <summary> Clear Alpha ( 1, 1, 1, 0 ) </summary>
+        public static UnityEngine.Color ClearA   = new UnityEngine.Color( 1f, 1f, 1f, 0f );
+        /// <summary> Clear Red, Blue, Green ( 0, 0, 0, 1 ) </summary>
+        public static UnityEngine.Color ClearRGB = new UnityEngine.Color( 0f, 0f, 0f, 1f );
+    }
+
     public static class FILE
     {
         public static string[] GetFilesInSubDirectories( string _dirPath, string _extension )
