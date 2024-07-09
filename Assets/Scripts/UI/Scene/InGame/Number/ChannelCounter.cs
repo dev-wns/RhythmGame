@@ -37,7 +37,8 @@ public class ChannelCounter : MonoBehaviour
         {
             yield return YieldCache.WaitForSeconds( .075f );
 
-            curChannel = SoundManager.Inst.ChannelsInUse;
+            curChannel = NowPlaying.CurrentSong.usePreviewSound ? 
+                         Global.Math.Clamp( SoundManager.Inst.ChannelsInUse - 1, 0, 10000 ) : SoundManager.Inst.ChannelsInUse;
             if ( prevChannel != curChannel )
                  UpdateImage();
             

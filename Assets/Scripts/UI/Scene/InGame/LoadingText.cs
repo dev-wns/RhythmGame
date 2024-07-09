@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Runtime.InteropServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +7,6 @@ using DG.Tweening;
 public class LoadingText : RotateImage
 {
     [Header( "Icon" )]
-    public Image loadingIcon;
     public TextMeshProUGUI loadingText;
     public TextMeshProUGUI completedText;
     private static string[] textList = new string[] { "로딩중 ", "로딩중 .", "로딩중 ..", "로딩중 ..." };
@@ -36,7 +34,6 @@ public class LoadingText : RotateImage
         bgaSys.OnInitialize += Initialize;
         bgaSys.OnUpdateData += UpdateBackground;
 
-        loadingIcon.color   = Color.white;
         loadingText.color   = Color.white;
         completedText.color = new Color( 1f, 1f, 1f, 0f );
 
@@ -76,8 +73,7 @@ public class LoadingText : RotateImage
 
     public void IconDisable()
     {
-        loadingIcon.color = Color.clear;
-        loadingText.color = Color.clear;
+        loadingText.DOFade( 0f, .5f );
         completedText.DOFade( 1f, .5f );
     }
 
