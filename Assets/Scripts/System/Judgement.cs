@@ -32,12 +32,12 @@ public class Judgement : MonoBehaviour
     }
     public static readonly JudgeData OriginJudgeData = new JudgeData() 
     { 
-        maximum = .0165d, 
-        perfect = .039d, 
-        great   = .061d, 
-        good    = .076d, 
-        bad     = .089d, 
-        miss    = .1d 
+        maximum = .0165d,
+        perfect = .0405d, 
+        great   = .0735d, 
+        good    = .1035d, 
+        bad     = .1275d, 
+        miss    = .1500d
     };
     public static JudgeData NoteJudgeData;
     public static JudgeData SliderJudgeData;
