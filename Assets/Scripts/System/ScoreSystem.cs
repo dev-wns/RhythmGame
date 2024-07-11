@@ -64,21 +64,16 @@ public class ScoreSystem : MonoBehaviour
         StartCoroutine( Count() );
     }
 
-    private void ScoreUpdate( HitResult _result, NoteType _type )
+    private void ScoreUpdate( JudgeResult _result )
     {
-        switch ( _result )
+        switch ( _result.hitResult )
         {
-            case HitResult.None:
-            case HitResult.Fast:
-            case HitResult.Slow:
-            return;
-
             case HitResult.Maximum: targetScore += maxScore;        break;
             case HitResult.Perfect: targetScore += maxScore * .82d; break;
             case HitResult.Great:   targetScore += maxScore * .63d; break;
             case HitResult.Good:    targetScore += maxScore * .41d; break;
             case HitResult.Bad:     targetScore += maxScore * .25d; break;
-            case HitResult.Miss:    targetScore += 0d;              break;
+            default:                                                return;
         }
 
         countOffset = ( float )( targetScore - curScore ) / countDuration;
@@ -93,7 +88,7 @@ public class ScoreSystem : MonoBehaviour
             
             curScore += countOffset * Time.deltaTime;
             if ( curScore >= targetScore )
-                 curScore = targetScore;
+                 curScore  = targetScore;
 
             double calcScore = Global.Math.Round( curScore );
             int num = Global.Math.Log10( calcScore ) + 1;

@@ -12,7 +12,7 @@ public class JudgeEffectSystem : MonoBehaviour
     private Sequence sequence;
     private Vector2 endScale;
 
-    private HitResult prevType = HitResult.None;
+    private HitResult prevResult = HitResult.None;
 
     private void Awake()
     {
@@ -37,24 +37,25 @@ public class JudgeEffectSystem : MonoBehaviour
                  Append( rdr.DOFade( 0f, .5f ) );
     }
 
-    private void HitEffect( HitResult _result, NoteType _type )
+    private void HitEffect( JudgeResult _result )
     {
-        if ( _type == NoteType.Slider )
+        if ( _result.noteType == NoteType.Slider )
              return;
 
-        if ( prevType != _result )
+        HitResult hitResult = _result.hitResult;
+        if ( prevResult != hitResult )
         {
-            switch ( _result )
+            switch ( hitResult )
             {
-                case HitResult.None:                                 return;
                 case HitResult.Maximum:
                 case HitResult.Perfect:     rdr.sprite = sprites[4]; break;
                 case HitResult.Great:       rdr.sprite = sprites[3]; break;
                 case HitResult.Good:        rdr.sprite = sprites[2]; break;
                 case HitResult.Bad:         rdr.sprite = sprites[1]; break;
                 case HitResult.Miss:        rdr.sprite = sprites[0]; break;
+                default:                                             return;
             }
-            prevType = _result;
+            prevResult = hitResult;
         }
 
         rdr.color = Color.white;

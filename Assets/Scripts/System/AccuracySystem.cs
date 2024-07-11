@@ -53,23 +53,21 @@ public class AccuracySystem : MonoBehaviour
         layoutGroup.SetLayoutHorizontal();
     }
 
-    private void AccuracyUpdate( HitResult _result, NoteType _type )
+    private void AccuracyUpdate( JudgeResult _result )
     {
-        if ( _result == HitResult.None ) return;
+        HitResult hitResult = _result.hitResult;
+        if ( hitResult == HitResult.None ) 
+             return;
 
-        switch ( _result )
+        switch ( hitResult )
         {
-            case HitResult.None:
-            case HitResult.Fast:
-            case HitResult.Slow: 
-            return;
-
             case HitResult.Maximum:
             case HitResult.Perfect: curAccuracy +=  10000d; break; 
             case HitResult.Great:   curAccuracy +=  9000d;  break; 
             case HitResult.Good:    curAccuracy +=  8000d;  break; 
             case HitResult.Bad:     curAccuracy +=  7000d;  break; 
             case HitResult.Miss:    curAccuracy +=  .0001d; break; 
+            default:                                        return;
         }
         ++curMaxCount;
 

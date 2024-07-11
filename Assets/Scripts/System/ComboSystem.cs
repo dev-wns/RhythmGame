@@ -126,29 +126,27 @@ public class ComboSystem : MonoBehaviour
         }
     }
 
-    private void ComboUpdate( HitResult _result, NoteType _type )
+    private void ComboUpdate( JudgeResult _result )
     {
-        switch ( _result )
+        switch ( _result.hitResult )
         {
-            case HitResult.Fast:
-            case HitResult.Slow:
-            return;
 
             case HitResult.None:
             case HitResult.Maximum:
             case HitResult.Perfect:
             case HitResult.Great:
             case HitResult.Good:
-            case HitResult.Bad:
-            ++targetCombo;
-            break;
+            case HitResult.Bad: ++targetCombo; break;
 
             case HitResult.Miss:
-            isMissing = true;
-            color = Color.gray;
-            pointOfMiss = targetCombo;
-            targetCombo = 0;
-            break;
+            {
+                isMissing = true;
+                color = Color.gray;
+                pointOfMiss = targetCombo;
+                targetCombo = 0;
+            } break;
+
+            default: return;
         }
 
         highestCombo = highestCombo < targetCombo ? targetCombo : highestCombo;

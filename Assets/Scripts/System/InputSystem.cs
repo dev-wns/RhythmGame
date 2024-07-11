@@ -69,7 +69,7 @@ public class InputSystem : MonoBehaviour
 
     private void Start()
     {
-        target = UnityEngine.Random.Range( -( float )Judgement.NoteJudgeData.bad, ( float )Judgement.NoteJudgeData.bad );
+        target = UnityEngine.Random.Range( -( float )Judgement.Bad, ( float )Judgement.Bad );
     }
 
     private void LateUpdate()
@@ -275,7 +275,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( startDiff <= ( GameSetting.IsAutoRandom ? target : 0d ) )
             {
-                target = UnityEngine.Random.Range( -( float )Judgement.NoteJudgeData.bad, ( float )Judgement.NoteJudgeData.bad );
+                target = UnityEngine.Random.Range( -( float )Judgement.Bad, ( float )Judgement.Bad );
 
                 OnInputEvent?.Invoke( InputType.Down );
                 OnInputEvent?.Invoke( InputType.Up );
@@ -378,7 +378,7 @@ public class InputSystem : MonoBehaviour
             {
                 if ( endDiff < 0d )
                 {
-                    judge.ResultUpdate( endDiff, NoteType.Slider );
+                    judge.ResultUpdate( 0d, NoteType.Slider );
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
                     SelectNextNote();
                     return;

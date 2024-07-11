@@ -99,9 +99,9 @@ public class HealthSystem : MonoBehaviour
         healthRenderer.size = new Vector2( healthTileCached.x, 0f );
     }
     
-    private void HealthUpdate( HitResult _result, NoteType _type )
+    private void HealthUpdate( JudgeResult _result )
     {
-        switch ( _result )
+        switch ( _result.hitResult )
         {
             case HitResult.Maximum:     healthCached += .017f; break;
             case HitResult.Perfect:     healthCached += .011f; break;
@@ -109,6 +109,7 @@ public class HealthSystem : MonoBehaviour
             case HitResult.Good:        healthCached -= .017f; break;
             case HitResult.Bad:         healthCached -= .028f; break;
             case HitResult.Miss:        healthCached -= .041f; break;
+            default:                                           return;
         }
         healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );
         

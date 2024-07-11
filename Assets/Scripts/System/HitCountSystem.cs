@@ -48,9 +48,10 @@ public class HitCountSystem : MonoBehaviour
         layoutGroup.SetLayoutHorizontal();
     }
 
-    private void AddCount( HitResult _result, NoteType _type )
+    private void AddCount( JudgeResult _result )
     {
-        HitResult resultType = _result == HitResult.Maximum ? HitResult.Perfect : _result;
+        HitResult resultType = _result.hitResult == HitResult.Maximum ? HitResult.Perfect :
+                                                                        _result.hitResult;
         if ( type != resultType ) return;
         curCount++;
 

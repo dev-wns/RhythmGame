@@ -2,6 +2,20 @@ using System;
 using UnityEngine;
 
 public enum HitResult { None, Maximum, Perfect, Great, Good, Bad, Miss, Fast, Slow, Accuracy, Combo, Score, Count }
+public struct JudgeResult
+{
+    public HitResult hitResult;
+    public NoteType  noteType;
+    public double diff;
+    public double diffAbs;
+
+    public JudgeResult( HitResult _hitResult, NoteType _noteType )
+    {
+        hitResult = _hitResult;
+        noteType = _noteType;
+        diff = diffAbs = 0d;
+    }
+}
 
 public class Judgement : MonoBehaviour
 {
@@ -9,49 +23,23 @@ public class Judgement : MonoBehaviour
     public int TotalJudge { get; private set; }
     private int curJudge;
 
-    public struct JudgeData
-    {
-        public double maximum;
-        public double perfect;
-        public double great;
-        public double good;
-        public double bad;
-        public double miss;
+    public static double Maximum => .0165d * Multiply;
+    public static double Perfect => .0405d * Multiply; 
+    public static double Great   => .0735d * Multiply; 
+    public static double Good    => .1035d * Multiply; 
+    public static double Bad     => .1275d * Multiply; 
+    public static double Miss    => .1500d * Multiply;
+    private static  double Multiply;
 
-        public JudgeData Multiply( float _value )
-        {
-            var newData = new JudgeData();
-            newData.maximum = this.maximum * _value;
-            newData.perfect = this.perfect * _value;
-            newData.great   = this.great   * _value;
-            newData.good    = this.good    * _value;
-            newData.bad     = this.bad     * _value;
-            newData.miss    = this.miss    * _value;
-            return newData;
-        }
-    }
-    public static readonly JudgeData OriginJudgeData = new JudgeData() 
-    { 
-        maximum = .0165d,
-        perfect = .0405d, 
-        great   = .0735d, 
-        good    = .1035d, 
-        bad     = .1275d, 
-        miss    = .1500d
-    };
-    public static JudgeData NoteJudgeData;
-    public static JudgeData SliderJudgeData;
-    public event Action<HitResult, NoteType> OnJudge;
+    public event Action<JudgeResult> OnJudge;
+
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-
         scene.OnReLoad += () => curJudge = 0;
 
-        bool hasHardJudge = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge );
-        NoteJudgeData   = hasHardJudge ? OriginJudgeData.Multiply( .75f ) : OriginJudgeData;
-        SliderJudgeData = NoteJudgeData.Multiply( 2f );
+        Multiply = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? .75d : 1d;
 
         var song = NowPlaying.CurrentSong;
         bool hasNoSlider      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
@@ -64,34 +52,35 @@ public class Judgement : MonoBehaviour
 
     public bool CanBeHit( double _diff, NoteType _noteType )
     {
-        return _noteType == NoteType.Default ? Global.Math.Abs( _diff ) <= NoteJudgeData.bad : Global.Math.Abs( _diff ) <= SliderJudgeData.bad;
+        return Global.Math.Abs( _diff ) <= Bad;
     }
 
     public bool IsMiss( double _diff, NoteType _noteType )
     {
-        return _noteType == NoteType.Default ? _diff < -NoteJudgeData.bad : _diff < -SliderJudgeData.bad;
+        return _diff < -Bad;
     }
 
     public void ResultUpdate( double _diff, NoteType _noteType )
     {
-        var Judge = _noteType == NoteType.Default ? NoteJudgeData : SliderJudgeData;
-        double diffAbs = Math.Abs( _diff );
-        HitResult result = diffAbs <= Judge.maximum                             ? HitResult.Maximum :
-                           diffAbs >  Judge.maximum && diffAbs <= Judge.perfect ? HitResult.Perfect :
-                           diffAbs >  Judge.perfect && diffAbs <= Judge.great   ? HitResult.Great   :
-                           diffAbs >  Judge.great   && diffAbs <= Judge.good    ? HitResult.Good    :
-                           diffAbs >  Judge.good    && diffAbs <= Judge.bad     ? HitResult.Bad     :
-                                                                                  HitResult.None;
+        JudgeResult result;
+        result.noteType = _noteType;
+        result.diff     = _diff;
 
-        if ( diffAbs > Judge.perfect && diffAbs <= Judge.bad )
+        double diffAbs = result.diffAbs = Math.Abs( _diff );
+        result.hitResult = diffAbs <= Maximum                       ? HitResult.Maximum :
+                           diffAbs >  Maximum && diffAbs <= Perfect ? HitResult.Perfect :
+                           diffAbs >  Perfect && diffAbs <= Great   ? HitResult.Great   :
+                           diffAbs >  Great   && diffAbs <= Good    ? HitResult.Good    :
+                           diffAbs >  Good    && diffAbs <= Bad     ? HitResult.Bad     :
+                                                                      HitResult.None;
+
+        if ( diffAbs > Perfect && diffAbs <= Bad )
         {
-            HitResult fsType = _diff >= 0d ? HitResult.Fast : HitResult.Slow;
-            OnJudge?.Invoke( fsType, _noteType );
-            NowPlaying.Inst.IncreaseResult( fsType );
+            NowPlaying.Inst.IncreaseResult( _diff >= 0d ? HitResult.Fast : HitResult.Slow );
         }
 
-        OnJudge?.Invoke( result, _noteType );
-        NowPlaying.Inst.IncreaseResult( result );
+        OnJudge?.Invoke( result );
+        NowPlaying.Inst.IncreaseResult( result.hitResult );
         NowPlaying.Inst.AddHitData( _noteType, _diff );
 
         if ( ++curJudge >= TotalJudge )
@@ -104,7 +93,7 @@ public class Judgement : MonoBehaviour
     public void ResultUpdate( HitResult _result, NoteType _type, int _count = 1 )
     {
         for ( int i = 0; i < _count; i++ )
-            OnJudge?.Invoke( _result, _type );
+            OnJudge?.Invoke( new JudgeResult( _result, _type ) );
 
         NowPlaying.Inst.IncreaseResult( _result, _count );
 
