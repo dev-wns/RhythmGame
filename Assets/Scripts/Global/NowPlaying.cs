@@ -97,7 +97,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action<Song> OnParsing;
     public static event Action       OnParsingEnd;
     public static event Action<double/* Distance */> OnSpawnObjects;
-    public static event Action<double/* Distance */> OnUpdateDistance;
+    //public static event Action<double/* Distance */> OnUpdateDistance;
 
     public static bool IsStart        { get; private set; }
     public static bool IsParsing      { get; private set; }
@@ -146,7 +146,7 @@ public class NowPlaying : Singleton<NowPlaying>
         }
 
         OnSpawnObjects?.Invoke( Distance );
-        OnUpdateDistance?.Invoke( Distance );
+        //OnUpdateDistance?.Invoke( Distance );
     }
     #endregion
     #region Parsing
@@ -424,9 +424,6 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             Playback -= Time.deltaTime * 1.2f;
             Distance  = DistanceCache + ( ( timing.bpm / mainBPM ) * ( Playback - timing.time ) );
-
-            OnSpawnObjects?.Invoke( Distance );
-            OnUpdateDistance?.Invoke( Distance );
 
             yield return null;
         }

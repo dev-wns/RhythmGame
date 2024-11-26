@@ -9,6 +9,7 @@ public class InGame : Scene
 {
     [Header( "InGame" )]
     public GameObject loadingCanvas;
+    public GameObject assistantCanvas;
     public OptionController pause, gameOver;
 
     public event Action<Chart> OnSystemInitialize;
@@ -121,13 +122,20 @@ public class InGame : Scene
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
         
-        if ( loadingCanvas.TryGetComponent( out CanvasGroup group ) )
+        if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
         {
-            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.OptionFadeDuration );
+            DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.OptionFadeDuration );
 
-            WaitUntil waitCanvasDisabled = new WaitUntil( () => group.alpha <= 0f );
+            WaitUntil waitCanvasDisabled = new WaitUntil( () => loadingGroup.alpha <= 0f );
             yield return waitCanvasDisabled;
             loadingCanvas.SetActive( false );
+        }
+
+        if ( !GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) &&
+             assistantCanvas.TryGetComponent( out CanvasGroup assistantGroup ) )
+        {
+            assistantCanvas.SetActive( true );
+            DOTween.To( () => 0f, x => assistantGroup.alpha = x, 1f, Global.Const.OptionFadeDuration );
         }
 
         OnGameStart?.Invoke();

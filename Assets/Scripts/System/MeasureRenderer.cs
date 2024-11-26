@@ -12,7 +12,7 @@ public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
 
     private void OnDestroy()
     {
-        NowPlaying.OnUpdateDistance -= UpdatePosition;
+        //NowPlaying.OnUpdateDistance -= UpdatePosition;
     }
 
     //private void LateUpdate()
@@ -22,12 +22,12 @@ public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
     //         pool.Despawn( this );
     //}
 
-    private void UpdatePosition( double _distance )
+    private void LateUpdate()
     {
-        transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( distance - _distance ) * GameSetting.Weight );
-        if ( distance < _distance )
+        transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( distance - NowPlaying.Distance ) * GameSetting.Weight );
+        if ( distance < NowPlaying.Distance )
         {
-            NowPlaying.OnUpdateDistance -= UpdatePosition;
+            //NowPlaying.OnUpdateDistance -= UpdatePosition;
             pool.Despawn( this );
         }
     }
@@ -35,6 +35,6 @@ public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
     public void SetInfo( double _scaledTime )
     {
         distance = _scaledTime;
-        NowPlaying.OnUpdateDistance += UpdatePosition;
+        //NowPlaying.OnUpdateDistance += UpdatePosition;
     }
 }

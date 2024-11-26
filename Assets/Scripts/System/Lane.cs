@@ -13,10 +13,10 @@ public class Lane : MonoBehaviour
     private bool ShouldPlayLaneEffect;
     private Color color;
 
-    private readonly float StartFadeAlpha = 1f;
-    private readonly float FadeDuration = .2f;
-    private float fadeOffset;
-    private float fadeAlpha;
+    private readonly float StartAlpha = 1f;
+    private readonly float Duration = .2f;
+    private float offset;
+    private float alpha;
 
     private void Awake()
     {
@@ -28,7 +28,7 @@ public class Lane : MonoBehaviour
             InputSys.OnStopEffect += () => ShouldPlayLaneEffect = true;
         }
 
-        fadeOffset = StartFadeAlpha / FadeDuration;
+        offset = StartAlpha / Duration;
     }
 
     private void LaneEffect( InputType _type )
@@ -37,7 +37,7 @@ public class Lane : MonoBehaviour
         {
             ShouldPlayLaneEffect = false;
             laneEffect.color = color;
-            fadeAlpha = StartFadeAlpha;
+            alpha = StartAlpha;
         }
         else if ( _type == InputType.Up )
         {
@@ -49,11 +49,9 @@ public class Lane : MonoBehaviour
     {
         if ( ShouldPlayLaneEffect )
         {
-            fadeAlpha -= fadeOffset * Time.deltaTime;
-            Color newColor = color;
-            newColor.a = fadeAlpha;
-            laneEffect.color = newColor;
-            if ( fadeAlpha < 0 )
+            alpha -= offset * Time.deltaTime;
+            laneEffect.color = new Color( color.r, color.g, color.b, alpha );
+            if ( alpha < 0 )
                  ShouldPlayLaneEffect = false;
         }
     }
@@ -66,16 +64,16 @@ public class Lane : MonoBehaviour
         
         if ( NowPlaying.KeyCount == 4 )
         {
-            color = _key == 1 || _key == 2 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
+            color = _key == 1 || _key == 2 ? new Color( 0f, 0f, 1f, StartAlpha ) : new Color( 1f, 0f, 0f, StartAlpha );
         }
         else if ( NowPlaying.KeyCount == 6 )
         {
-            color = _key == 1 || _key == 4 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
+            color = _key == 1 || _key == 4 ? new Color( 0f, 0f, 1f, StartAlpha ) : new Color( 1f, 0f, 0f, StartAlpha );
         }
         else if ( NowPlaying.KeyCount == 7 )
         {
-            color = _key == 1 || _key == 5 ? new Color( 0f, 0f, 1f, StartFadeAlpha ) :
-                                 _key == 3 ? new Color( 1f, 1f, 0f, StartFadeAlpha ) : new Color( 1f, 0f, 0f, StartFadeAlpha );
+            color = _key == 1 || _key == 5 ? new Color( 0f, 0f, 1f, StartAlpha ) :
+                                 _key == 3 ? new Color( 1f, 1f, 0f, StartAlpha ) : new Color( 1f, 0f, 0f, StartAlpha );
         }
     }
 

@@ -31,11 +31,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         tail.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
     }
 
-    private void OnDestroy()
-    {
-        NowPlaying.OnUpdateDistance -= UpdatePosition;
-    }
-
     public void SetInfo( int _lane, in Note _note )
     {
         IsKeyDown  = false;
@@ -50,7 +45,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         tail.enabled = IsOnlyBody ? false : IsSlider;
         //body.enabled = tail.enabled = IsSlider;
         head.color   = body.color = tail.color = Color.white;
-        NowPlaying.OnUpdateDistance += UpdatePosition;
     }
 
     public void SetSliderFail()
@@ -67,7 +61,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public void Despawn()
     {
         IsKeyDown = false;
-        NowPlaying.OnUpdateDistance -= UpdatePosition;
         pool.Despawn( this );
     }
 
@@ -89,13 +82,13 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     //    transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( newDistance - NowPlaying.Distance ) * GameSetting.Weight );
     //}
 
-    private void UpdatePosition( double _distance )
+    private void LateUpdate()
     {
         // ∆«¡§º±ø° ∑’≥Î∆Æ Ω∫≥¿
         if ( IsSlider )
         {
-            if ( IsKeyDown && Distance < _distance )
-                 newDistance = _distance;
+            if ( IsKeyDown && Distance < NowPlaying.Distance )
+                 newDistance = NowPlaying.Distance;
 
             BodyLength = ( float )( ( SliderDistance - newDistance ) * GameSetting.Weight );
 
@@ -104,7 +97,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
             tail.transform.localPosition = new Vector2( 0f, length );
         }
 
-        transform.localPosition = new Vector2( column, 
-                                               GameSetting.JudgePos + ( float )( newDistance - _distance ) * GameSetting.Weight );
+        transform.localPosition = new Vector2( column, GameSetting.JudgePos + ( float )( newDistance - NowPlaying.Distance ) * GameSetting.Weight );
     }
 }

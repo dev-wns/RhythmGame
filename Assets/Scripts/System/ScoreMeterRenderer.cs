@@ -11,9 +11,7 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
     private Color colorCache;
     private RectTransform rectTransform;
 
-    private static readonly float Duration = 1f;
-    private static readonly float WaitTime = .5f;
-    private float time;
+    private static readonly float Duration = 5f;
     private float alpha;
     private float offset;
     private bool isStart;
@@ -26,8 +24,7 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
 
     private void Update()
     {
-        time += Time.deltaTime;
-        if ( !isStart || time < WaitTime )
+        if ( !isStart )
              return;
 
         alpha -= ( Time.deltaTime / Duration ) * offset;
@@ -40,10 +37,19 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
         }
     }
 
-    public void SetInfo( Color _color, Vector2 _pos )
+    public void Despawn()
     {
         isStart = true;
-        time = 0f;
+    }
+
+    public void ImmediateDespawn()
+    {
+        isStart = false;
+        pool.Despawn( this );
+    }
+
+    public void SetInfo( Color _color, Vector2 _pos )
+    {
         colorCache = image.color = _color;
         alpha = offset = _color.a;
         rectTransform.anchoredPosition = _pos;

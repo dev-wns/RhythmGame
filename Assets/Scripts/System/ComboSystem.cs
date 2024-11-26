@@ -113,7 +113,7 @@ public class ComboSystem : MonoBehaviour
             }
             else
             {
-                curCombo += ( ElapsedPower + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
+                curCombo += ( ( ElapsedPower * 2.5f ) + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
                 //curCombo += ElapsedPower * Time.deltaTime;
                 if ( curCombo > targetCombo )
                      curCombo = targetCombo;
