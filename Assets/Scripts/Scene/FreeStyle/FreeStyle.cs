@@ -10,7 +10,7 @@ public class FreeStyle : Scene
     public FreeStyleReLoad     reload;
     public FreeStyleSearch     search;
     public FreeStyleComment    comment;
-    public RecordSystem        record;
+    //public RecordSystem        record;
 
     public TextMeshProUGUI speedText;
 
@@ -127,8 +127,8 @@ public class FreeStyle : Scene
         Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas(  ActionType.ReLoad, reload.gameObject ); } );
         Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,   reload.gameObject ); } );
 
-        // Record
-        Bind( ActionType.Main, KeyCode.Tab, record.HideRecordInfomation );
+        //// Record
+        //Bind( ActionType.Main, KeyCode.Tab, record.HideRecordInfomation );
 
         // Exit
         Bind( ActionType.Main, KeyCode.Escape,     () => { EnableCanvas( ActionType.Exit, exit ); } );

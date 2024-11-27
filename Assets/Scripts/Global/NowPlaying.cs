@@ -90,14 +90,12 @@ public class NowPlaying : Singleton<NowPlaying>
     public  ResultData CurrentResult => currentResult;
     private ResultData currentResult = new ResultData();
 
-    public readonly static int MaxRecordSize = 10;
-    public List<RecordData> RecordDatas { get; private set; } = new List<RecordData>( MaxRecordSize );
+    public static RecordData CurrentRecord { get; private set; } = new RecordData();
 
     public int TotalFileCount { get; private set; }
     public static event Action<Song> OnParsing;
     public static event Action       OnParsingEnd;
     public static event Action<double/* Distance */> OnSpawnObjects;
-    //public static event Action<double/* Distance */> OnUpdateDistance;
 
     public static bool IsStart        { get; private set; }
     public static bool IsParsing      { get; private set; }
@@ -146,7 +144,6 @@ public class NowPlaying : Singleton<NowPlaying>
         }
 
         OnSpawnObjects?.Invoke( Distance );
-        //OnUpdateDistance?.Invoke( Distance );
     }
     #endregion
     #region Parsing
@@ -259,17 +256,39 @@ public class NowPlaying : Singleton<NowPlaying>
     }
     #endregion
     #region Record
-    public void UpdateRecord()
+    public bool UpdateRecord()
     {
-        RecordDatas.Clear();
         string path = Path.Combine( Directory, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
         if ( !File.Exists( path ) )
-            return;
+        {
+            //var newRecord = new RecordData()
+            //{
+            //    score    = UnityEngine.Random.Range( 0, 1000000 ),
+            //    accuracy = UnityEngine.Random.Range( 0, 10000 ),
+            //    random   = ( int )GameSetting.CurrentRandom,
+            //    pitch    = GameSetting.CurrentPitch,
+            //    date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
+            //};
+
+
+
+            return false;
+        }
 
         using ( StreamReader stream = new StreamReader( path ) )
         {
-            RecordDatas = JsonConvert.DeserializeObject<RecordData[]>( stream.ReadToEnd() ).ToList();
+            try
+            {
+                CurrentRecord = JsonConvert.DeserializeObject<RecordData>( stream.ReadToEnd() );
+            }
+            catch ( Exception )
+            {
+                Debug.LogWarning( $"Record Deserialize Error : {CurrentSong.filePath}" );
+                return false;
+            }
         }
+
+        return true;
     }
 
     public RecordData MakeNewRecord()
@@ -282,15 +301,10 @@ public class NowPlaying : Singleton<NowPlaying>
             pitch    = GameSetting.CurrentPitch,
             date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
         };
-        RecordDatas.Add( newRecord );
-        RecordDatas.Sort( delegate ( RecordData A, RecordData B )
-        {
-            if ( A.score < B.score )      return 1;
-            else if ( A.score > B.score ) return -1;
-            else                          return 0;
-        } );
 
-        var readDatas = MaxRecordSize < RecordDatas.Count ? RecordDatas.GetRange( 0, MaxRecordSize ).ToArray() : RecordDatas.ToArray();
+        if ( CurrentRecord.score > newRecord.score )
+             return CurrentRecord;
+
         string path   = Path.Combine( Directory, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
         try
         {
@@ -299,17 +313,16 @@ public class NowPlaying : Singleton<NowPlaying>
             {
                 using ( StreamWriter writer = new StreamWriter( stream, System.Text.Encoding.UTF8 ) )
                 {
-                    writer.Write( JsonConvert.SerializeObject( readDatas, Formatting.Indented ) );
+                    writer.Write( JsonConvert.SerializeObject( newRecord, Formatting.Indented ) );
                 }
             }
-            RecordDatas = readDatas.ToList();
+            CurrentRecord = newRecord;
         }
         catch ( Exception )
         {
             if ( File.Exists( path ) )
                  File.Delete( path );
 
-            RecordDatas.Clear();
             Debug.LogError( $"Record Write Error : {path}" );
         }
 
