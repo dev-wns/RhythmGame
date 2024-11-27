@@ -183,6 +183,7 @@ public class FileParser : FileReader
             }
             _chart.sprites = new ReadOnlyCollection<SpriteSample>( sprites );
 #endregion
+
 #region Key Samples
             List<KeySound> keySounds = new List<KeySound>();
             while ( ReadLine() != "[Notes]" )
@@ -233,6 +234,65 @@ public class FileParser : FileReader
 
             _chart.notes = new ReadOnlyCollection<Note>( notes );
 #endregion
+        }
+        catch ( Exception _error )
+        {
+            Debug.LogError( _error.Message );
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool TryPreviewParse( string _path, out Chart _chart )
+    {
+        _chart = new Chart();
+        try
+        {
+            OpenFile( _path );
+            while ( ReadLine() != "[Timings]" )
+            { }
+
+            #region Timings
+            Timing curTiming = new Timing();
+            List<Timing> timings = new List<Timing>();
+
+            while ( ReadLine() != "[Sprites]" )
+            {
+                var split = line.Split( ',' );
+
+                curTiming.time = double.Parse( split[0] ) * .001d;
+                curTiming.beatLength = double.Parse( split[1] );
+                curTiming.bpm = ( 1d / curTiming.beatLength * 60000d );
+
+                timings.Add( curTiming );
+            }
+
+            _chart.timings = new ReadOnlyCollection<Timing>( timings );
+            #endregion
+
+            #region Notes
+            while ( ReadLine() != "[Notes]" ) { }
+
+            List<Note> notes = new List<Note>();
+            while ( ReadLineEndOfStream() )
+            {
+                Note note = new Note();
+                var split = line.Split( ',' );
+
+                note.lane       = int.Parse( split[0] );
+                note.time       = double.Parse( split[1] ) * .001d / GameSetting.CurrentPitch;
+                note.sliderTime = double.Parse( split[2] ) * .001d / GameSetting.CurrentPitch;
+                note.isSlider   = note.sliderTime > 0d ? true : false;
+
+                notes.Add( note );
+            }
+
+            if ( timings.Count == 0 )
+                throw new Exception( "Note Parsing Error" );
+
+            _chart.notes = new ReadOnlyCollection<Note>( notes );
+            #endregion
         }
         catch ( Exception _error )
         {

@@ -139,7 +139,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 timingIndex++;
                 DistanceCache += bpm * ( timings[i + 1].time - time );
                 Distance = DistanceCache;
-                break;
+                continue;
             }
 
             Distance = DistanceCache + ( bpm * ( Playback - time ) );
@@ -363,8 +363,8 @@ public class NowPlaying : Singleton<NowPlaying>
         SoundManager.Inst.SetPaused( false, ChannelType.BGM );
 
         startTime = Time.realtimeSinceStartupAsDouble;
-        SaveTime        = WaitTime;
-        IsStart         = true;
+        SaveTime  = WaitTime;
+        IsStart   = true;
         Debug.Log( $"Playback Start" );
     }
 

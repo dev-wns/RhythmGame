@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 
 public class FreeStyleMainScroll : ScrollBase
@@ -43,8 +44,8 @@ public class FreeStyleMainScroll : ScrollBase
     public GameObject noContents;
 
     private Song curSong;
-    public event Action<Song> OnSelectSong;
-    public event Action<Song> OnSoundRestart;
+    public event Action<Song>  OnSelectSong;
+    public event Action<Song>  OnSoundRestart;
 
     #region Unity Callback
     private void Awake()
@@ -99,8 +100,9 @@ public class FreeStyleMainScroll : ScrollBase
     private void Update()
     {
         if ( !HasAnySongs ) return;
-
+        
         playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
+
         if ( endTime > 0f && ( endTime + waitPreviewTime < playback ) )
         {
             SoundManager.Inst.Play( 0f );
