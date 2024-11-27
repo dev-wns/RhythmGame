@@ -204,7 +204,7 @@ public class SoundManager : Singleton<SoundManager>
 
         // Details
         SetVolume( .1f, ChannelType.Master );
-        SetVolume( .5f, ChannelType.BGM );
+        SetVolume(  1f, ChannelType.BGM );
         SetVolume(  1f, ChannelType.SFX );
         SetVolume( .8f, ChannelType.Clap );
         #endregion

@@ -65,13 +65,13 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
             tail.rectTransform.anchoredPosition = new Vector2( 0f, length );
             
             transform.localPosition = new Vector2( column, -390f + ( float )( newDistance - PreviewNoteSystem.Distance ) * GameSetting.Weight );
-            if ( SliderDistance < PreviewNoteSystem.Distance )
+            if ( SliderTime - PreviewNoteSystem.Playback < 0d )
                  pool.Despawn( this );
         }
         else
         {
             transform.localPosition = new Vector2( column, -390f + ( float )( newDistance - PreviewNoteSystem.Distance ) * GameSetting.Weight );
-            if ( Distance < PreviewNoteSystem.Distance )
+            if ( Time < PreviewNoteSystem.Playback )
                  pool.Despawn( this );
         }
         

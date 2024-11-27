@@ -17,9 +17,9 @@ public class PreviewNoteSystem : MonoBehaviour
     private int timingIndex;
     private double mainBPM;
 
+    public  static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
-    private double playback;
     private double startTime;
     private float noteStartPos;
     private float previewTime;
@@ -31,11 +31,40 @@ public class PreviewNoteSystem : MonoBehaviour
     public static float NoteHeight ;//=> GameSetting.NoteHeight * NoteMultiplier;
     private static float NoteMultiplier;
 
+    // Restart
+    private int startNoteIndex;
+
     private void Awake()
     {
-        scroll.OnSelectSong += Parse;
+        scroll.OnSelectSong   += Parse;
+        scroll.OnSoundRestart += Restart;
 
         notePool ??= new ObjectPool<PreviewNoteRenderer>( notePrefab, transform, 5 );
+    }
+
+    private void Restart( Song _song )
+    {
+        if ( cor is not null )
+        {
+            StopCoroutine( cor );
+            cor = null;
+        }
+
+        notePool.AllDespawn();
+        noteSpawnIndex = startNoteIndex;
+        timingIndex    = 0;
+        Distance       = 0d;
+        DistanceCache  = 0d;
+
+        startTime   = Time.realtimeSinceStartupAsDouble;
+        Playback    = previewTime + ( Time.realtimeSinceStartupAsDouble - startTime );
+
+        curData = chart.notes[startNoteIndex];
+        curData.noteDistance = GetDistance( curData.time );
+        if ( curData.isSlider )
+             curData.sliderDistance = GetDistance( curData.sliderTime );
+
+        cor = StartCoroutine( UpdateTime() );
     }
 
     private void Parse( Song _song )
@@ -48,13 +77,13 @@ public class PreviewNoteSystem : MonoBehaviour
 
         previewTime    = _song.previewTime * .001f;
         startTime      = Time.realtimeSinceStartupAsDouble;
-        playback       = previewTime + ( Time.realtimeSinceStartupAsDouble - startTime );
+        Playback       = previewTime + ( Time.realtimeSinceStartupAsDouble - startTime );
 
         NoteMultiplier = _song.keyCount == 7 ? .55f  : 
                          _song.keyCount == 6 ? .625f : .775f;
 
-        NoteWidth = GameSetting.NoteWidth * NoteMultiplier;
-        NoteHeight= GameSetting.NoteHeight * NoteMultiplier;
+        NoteWidth  = GameSetting.NoteWidth  * NoteMultiplier;
+        NoteHeight = GameSetting.NoteHeight * NoteMultiplier;
 
         noteStartPos   = -( ( NoteWidth * ( _song.keyCount - 1 ) ) + ( GameSetting.NoteBlank * ( _song.keyCount + 1 ) ) ) * .5f;
 
@@ -67,12 +96,13 @@ public class PreviewNoteSystem : MonoBehaviour
 
         for ( int i = 0; i < chart.notes.Count; i++ )
         {
-            if ( chart.notes[i].time < playback )
+            if ( chart.notes[i].time < Playback )
             {
                 noteSpawnIndex++;
             }
             else
             {
+                startNoteIndex = noteSpawnIndex;
                 curData = chart.notes[noteSpawnIndex];
                 curData.noteDistance = GetDistance( curData.time );
                 if ( curData.isSlider )
@@ -94,7 +124,8 @@ public class PreviewNoteSystem : MonoBehaviour
     {
         while ( true )
         {
-            playback = previewTime + ( Time.realtimeSinceStartupAsDouble - startTime ) + ( NowPlaying.CurrentSong.audioOffset * .001f );
+            yield return null;
+            Playback = previewTime + ( Time.realtimeSinceStartupAsDouble - startTime ) + ( NowPlaying.CurrentSong.audioOffset * .001f );
             
             var timings = chart.timings;
             for ( int i = timingIndex; i < timings.Count; i++ )
@@ -102,10 +133,10 @@ public class PreviewNoteSystem : MonoBehaviour
                 double time = timings[i].time;
                 double bpm  = timings[i].bpm / mainBPM;
 
-                if ( playback < time )
+                if ( Playback < time )
                      break;
 
-                if ( i + 1 < timings.Count && timings[i + 1].time < playback )
+                if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
                 {
                     timingIndex++;
                     DistanceCache += bpm * ( timings[i + 1].time - time );
@@ -113,11 +144,10 @@ public class PreviewNoteSystem : MonoBehaviour
                     continue;
                 }
 
-                Distance = DistanceCache + ( bpm * ( playback - time ) );
+                Distance = DistanceCache + ( bpm * ( Playback - time ) );
             }
 
             SpawnNotes( Distance );
-            yield return null;
         }
     }
     
@@ -142,7 +172,6 @@ public class PreviewNoteSystem : MonoBehaviour
             }
 
             note.SetInfo( curData, noteStartPos, color );
-
             if ( ++noteSpawnIndex < chart.notes.Count )
             {
                 curData = chart.notes[noteSpawnIndex];
@@ -152,6 +181,7 @@ public class PreviewNoteSystem : MonoBehaviour
             }
         }
     }
+
     public double GetDistance( double _time )
     {
         double result = 0d;
