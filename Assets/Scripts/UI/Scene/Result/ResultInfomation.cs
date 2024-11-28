@@ -68,7 +68,6 @@ public class ResultInfomation : MonoBehaviour
     private Color DisableColor = new Color( 1f, 1f, 1f, .25f );
     private readonly float duration = 1f;
     private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value}";
-    //private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value:N0}";
 
     private void Awake()
     {
@@ -159,15 +158,11 @@ public class ResultInfomation : MonoBehaviour
                       result.accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
                                                 rankAtlas.GetSprite( "Ranking-D" );
 
-        //date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
-        //bool shouldMakeRecord = GameSetting.CurrentGameMode == GameMode.None || 
-        //                        GameSetting.CurrentGameMode == GameMode.HardJudge;
 
         bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ||
                                 GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
                                 GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        if ( !shouldMakeRecord )
-             NowPlaying.Inst.MakeNewRecord();
+
         useModeObj.SetActive( shouldMakeRecord );
         date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
