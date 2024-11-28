@@ -137,7 +137,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 timingIndex++;
                 DistanceCache += bpm * ( timings[i + 1].time - time );
                 Distance = DistanceCache;
-                continue;
+                break;
             }
 
             Distance = DistanceCache + ( bpm * ( Playback - time ) );

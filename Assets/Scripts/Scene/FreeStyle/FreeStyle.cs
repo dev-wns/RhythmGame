@@ -46,30 +46,23 @@ public class FreeStyle : Scene
 
     public void ExitCancel() => DisableCanvas( ActionType.Main, exit );
 
-    public void EnableGameSettingCanvas()
+    #region Mouse Click ( Enable Canvas )
+    public void EnableGameSettingCanvas()   => EnableCanvas( ActionType.GameOption, gameSetting );
+    public void EnableSystemSettingCanvas() => EnableCanvas( ActionType.SystemOption, systemSetting, true, false );
+    public void EnableKeySettingCanvas()    => EnableCanvas( ActionType.KeySetting, keySetting );
+    public void EnableReloadCanvas()        => EnableCanvas( ActionType.ReLoad, reload.gameObject );
+    public void EnableExitCanvas()          =>EnableCanvas( ActionType.Exit, exit );
+    public void EnableSearchCanvas()
     {
-        EnableCanvas( ActionType.GameOption, gameSetting );
+        EnableCanvas( ActionType.Search, search.canvas );
+        search.EnableInputField();
     }
-
-    public void EnableSystemSettingCanvas()
+    public void EnableCommentCanvas()
     {
-        EnableCanvas( ActionType.SystemOption, systemSetting, true, false );
+        EnableCanvas( ActionType.Comment, comment.canvas );
+        comment.EnableInputField();
     }
-
-    public void EnableKeySettingCanvas()
-    {
-        EnableCanvas( ActionType.KeySetting, keySetting );
-    }
-
-    public void EnableExitCanvas()
-    {
-        EnableCanvas( ActionType.Exit, exit );
-    }
-
-    public void EnableReloadCanvas()
-    {
-        EnableCanvas( ActionType.ReLoad, reload.gameObject );
-    }
+    #endregion
 
     public override void KeyBind()
     {

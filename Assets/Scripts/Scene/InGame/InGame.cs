@@ -9,7 +9,7 @@ public class InGame : Scene
 {
     [Header( "InGame" )]
     public GameObject loadingCanvas;
-    public GameObject assistantCanvas;
+    public GameObject scoreMeterCanvas;
     public OptionController pause, gameOver;
 
     public event Action<Chart> OnSystemInitialize;
@@ -132,10 +132,10 @@ public class InGame : Scene
         }
 
         if ( !GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) &&
-             assistantCanvas.TryGetComponent( out CanvasGroup assistantGroup ) )
+             scoreMeterCanvas.TryGetComponent( out CanvasGroup scoreMeterGroup ) )
         {
-            assistantCanvas.SetActive( true );
-            DOTween.To( () => 0f, x => assistantGroup.alpha = x, 1f, Global.Const.OptionFadeDuration );
+            scoreMeterCanvas.SetActive( true );
+            DOTween.To( () => 0f, x => scoreMeterGroup.alpha = x, 1f, Global.Const.OptionFadeDuration );
         }
 
         OnGameStart?.Invoke();
