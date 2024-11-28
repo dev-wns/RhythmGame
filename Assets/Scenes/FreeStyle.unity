@@ -10188,6 +10188,7 @@ MonoBehaviour:
   notePrefab: {fileID: 8609986516714012816, guid: 22b2193a580a42b41b9ed681b520faa2,
     type: 3}
   scroll: {fileID: 1702868222}
+  pitchOption: {fileID: 1839611852}
 --- !u!1 &452828879
 GameObject:
   m_ObjectHideFlags: 0

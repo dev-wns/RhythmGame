@@ -58,19 +58,19 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
             if ( Distance < PreviewNoteSystem.Distance )
                  newDistance = PreviewNoteSystem.Distance;
 
-            BodyLength = ( float )( ( SliderDistance - newDistance ) * GameSetting.Weight );
+            BodyLength = ( float )( ( SliderDistance - newDistance ) / GameSetting.CurrentPitch * GameSetting.Weight );
 
             float length = Global.Math.Clamp( IsOnlyBody ? BodyLength : BodyLength - PreviewNoteSystem.NoteHeight, 0f, float.MaxValue );
             body.rectTransform.sizeDelta        = new Vector2( PreviewNoteSystem.NoteWidth, length );
             tail.rectTransform.anchoredPosition = new Vector2( 0f, length );
             
-            transform.localPosition = new Vector2( column, -390f + ( float )( newDistance - PreviewNoteSystem.Distance ) * GameSetting.Weight );
+            transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * GameSetting.Weight ) );
             if ( SliderTime - PreviewNoteSystem.Playback < double.Epsilon )
                  pool.Despawn( this );
         }
         else
         {
-            transform.localPosition = new Vector2( column, -390f + ( float )( newDistance - PreviewNoteSystem.Distance ) * GameSetting.Weight );
+            transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * GameSetting.Weight ) );
             if ( Time - PreviewNoteSystem.Playback < double.Epsilon )
                  pool.Despawn( this );
         }

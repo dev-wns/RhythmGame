@@ -17,10 +17,9 @@ public class PreviewNoteSystem : MonoBehaviour
     private int timingIndex;
     private double mainBPM;
 
-    public  static double Playback { get; private set; }
+    public static double Playback => FreeStyleMainScroll.Playback + ( NowPlaying.CurrentSong.audioOffset * .001f );
     public  static double Distance { get; private set; }
     private static double DistanceCache;
-    private double startTime;
     private float noteStartPos;
     private float previewTime;
     private double soundOffset;
@@ -44,9 +43,6 @@ public class PreviewNoteSystem : MonoBehaviour
         timingIndex    = 0;
         Distance       = 0d;
         DistanceCache  = 0d;
-
-        startTime   = Time.realtimeSinceStartupAsDouble;
-        Playback    = previewTime + ( Time.realtimeSinceStartupAsDouble - startTime );
 
         for ( int i = 0; i < chart.notes.Count; i++ )
         {
@@ -96,7 +92,7 @@ public class PreviewNoteSystem : MonoBehaviour
 
         noteStartPos   = -( ( NoteWidth * ( _song.keyCount - 1 ) ) + ( GameSetting.NoteBlank * ( _song.keyCount + 1 ) ) ) * .5f;
 
-        mainBPM = _song.mainBPM * GameSetting.CurrentPitch;
+        mainBPM = _song.mainBPM;
         using ( FileParser parser = new FileParser() )
         {
             if ( !parser.TryPreviewParse( _song.filePath, out chart ) )
@@ -108,8 +104,6 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void Update()
     {
-        Playback = previewTime + ( Time.realtimeSinceStartupAsDouble - startTime ) + ( NowPlaying.CurrentSong.audioOffset * .001f );
-
         var timings = chart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
         {

@@ -281,8 +281,8 @@ public class FileParser : FileReader
                 var split = line.Split( ',' );
 
                 note.lane       = int.Parse( split[0] );
-                note.time       = double.Parse( split[1] ) * .001d / GameSetting.CurrentPitch;
-                note.sliderTime = double.Parse( split[2] ) * .001d / GameSetting.CurrentPitch;
+                note.time       = double.Parse( split[1] ) * .001d;
+                note.sliderTime = double.Parse( split[2] ) * .001d;
                 note.isSlider   = note.sliderTime > 0d ? true : false;
 
                 notes.Add( note );

@@ -37,7 +37,8 @@ public class FreeStyleMainScroll : ScrollBase
     private readonly uint waitPreviewTime   = 500;
     private bool isKeyDown;
     private float keyPressTime;
-    private float playback;
+    public static double Playback => playback * .001d;
+    private static float playback;
     private float endTime;
 
     [Header("Contents")]
@@ -87,7 +88,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         UpdateScrollView();
 
-        if ( !HasAnySongs )
+        if ( !HasAnySongs ) 
         {
             SoundManager.Inst.AllStop();
             SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
