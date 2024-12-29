@@ -60,7 +60,7 @@ public class FadeBackground : MonoBehaviour
 
         system = _system;
         isDefault = _isDefault;
-        rt.sizeDelta = Global.Math.GetScreenRatio( _sprite.texture, new Vector2( Screen.width, Screen.height ) );
+        rt.sizeDelta = Global.Math.GetScreenRatio( _sprite.texture, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
         rt.SetAsFirstSibling();
         image.color = color;
         image.sprite = _sprite;

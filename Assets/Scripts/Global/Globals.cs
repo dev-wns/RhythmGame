@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Permissions;
 
 namespace Global
 {
@@ -63,7 +64,11 @@ namespace Global
         }
     }
 
-
+    public static class Screen
+    {
+        public static int Width  = 1920;
+        public static int Height = 1080;
+    }
     public static class Color
     {
         /// <summary> Clear All ( 0, 0, 0, 0 ) </summary>

@@ -182,7 +182,7 @@ public class ResultInfomation : MonoBehaviour
         if ( !System.IO.File.Exists( _path ) )
         {
             originBg.sprite = defaultOrigin;
-            originBg.rectTransform.sizeDelta = Global.Math.GetScreenRatio( defaultOrigin.texture, new Vector2( Screen.width, Screen.height ) );
+            originBg.rectTransform.sizeDelta = Global.Math.GetScreenRatio( defaultOrigin.texture, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
             yield break;
         }
 
@@ -218,6 +218,6 @@ public class ResultInfomation : MonoBehaviour
         }
 
         originBg.sprite = spriteBg;
-        originBg.rectTransform.sizeDelta = Global.Math.GetScreenRatio( spriteBg.texture, new Vector2( Screen.width, Screen.height ) );
+        originBg.rectTransform.sizeDelta = Global.Math.GetScreenRatio( spriteBg.texture, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
     }
 }

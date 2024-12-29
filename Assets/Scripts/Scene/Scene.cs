@@ -11,6 +11,7 @@ public enum SceneType : int { FreeStyle = 1, Game, Result };
 public abstract class Scene : SceneKeyAction
 {
     #region Variables
+    //public Camera UICamera;
     public bool IsGameInputLock { get; set; }
     public Action<float/* pitch */> OnUpdatePitch;
     #endregion
@@ -21,8 +22,11 @@ public abstract class Scene : SceneKeyAction
         Connect();
         CreateFadeSprite();
 
-        Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
+        //Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
         
+        //if ( UICamera is not null )
+        //     UICamera.orthographicSize = 540;
+
         NowPlaying.CurrentScene = this;
         KeyBind();
         ChangeAction( ActionType.Main );
