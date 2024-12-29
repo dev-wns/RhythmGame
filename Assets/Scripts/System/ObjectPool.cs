@@ -11,7 +11,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     private T prefab;
     private Transform parent;
     private List<T>  totalObjects = new List<T>();
-    private Stack<T> waitObjects  = new Stack<T>();
+    private Queue<T> waitObjects  = new Queue<T>();
     private int allocateCount;
     public int ActiveCount { get; private set; }
 
@@ -67,7 +67,7 @@ public class ObjectPool<T> where T : MonoBehaviour
 
             obj.gameObject.SetActive( false );
             objects[i] = obj;
-            waitObjects.Push( obj );
+            waitObjects.Enqueue( obj );
         }
 
         totalObjects.AddRange( objects );
@@ -78,7 +78,7 @@ public class ObjectPool<T> where T : MonoBehaviour
         if ( waitObjects.Count == 0 )
              Allocate( allocateCount );
 
-        T obj = waitObjects.Pop();
+        T obj = waitObjects.Dequeue();
         obj.gameObject.SetActive( true );
         ActiveCount++;
 
@@ -88,7 +88,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     public void Despawn( T _obj )
     {
         _obj.gameObject.SetActive( false );
-        waitObjects.Push( _obj );
+        waitObjects.Enqueue( _obj );
         ActiveCount--;
     }
     public void AllDespawn()

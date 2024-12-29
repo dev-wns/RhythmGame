@@ -21,7 +21,6 @@ public class PreviewNoteSystem : MonoBehaviour
     public  static double Distance { get; private set; }
     private static double DistanceCache;
     private float noteStartPos;
-    private float previewTime;
     private double soundOffset;
 
     public static float NoteWidth;
@@ -67,7 +66,7 @@ public class PreviewNoteSystem : MonoBehaviour
             double time = timings[i].time;
             double bpm  = timings[i].bpm / mainBPM;
 
-            if ( timings[i + 1].time < previewTime )
+            if ( timings[i + 1].time < Playback )
             {
                 timingIndex++;
                 DistanceCache += ( bpm * ( timings[i + 1].time - time ) );
@@ -83,7 +82,6 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void Parse( Song _song )
     {
-        previewTime    = _song.previewTime * .001f;
         NoteMultiplier = _song.keyCount == 7 ? .55f  : 
                          _song.keyCount == 6 ? .625f : .775f;
 
@@ -117,8 +115,6 @@ public class PreviewNoteSystem : MonoBehaviour
             {
                 timingIndex++;
                 DistanceCache += ( bpm * ( timings[i + 1].time - time ) );
-                Distance = DistanceCache;
-                break;
             }
 
             Distance = DistanceCache + ( bpm * ( Playback - time ) );

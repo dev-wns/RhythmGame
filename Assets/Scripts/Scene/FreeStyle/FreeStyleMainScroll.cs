@@ -108,7 +108,7 @@ public class FreeStyleMainScroll : ScrollBase
         {
             SoundManager.Inst.Play( 0f );
             SoundManager.Inst.Position = ( uint )curSong.previewTime;
-            playback = curSong.previewTime;
+            playback = curSong.previewTime - 50;
             OnSoundRestart?.Invoke( curSong );
 
             SoundManager.Inst.FadeVolume( new Music( SoundManager.Inst.MainSound, SoundManager.Inst.MainChannel ), 0f, 1f, .5f );
@@ -273,7 +273,7 @@ public class FreeStyleMainScroll : ScrollBase
         SoundManager.Inst.Load( curSong.audioPath, false, true );
         endTime             = ( int )SoundManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
-        playback            = curSong.previewTime;
+        playback            = curSong.previewTime - 50;
 
         // 음악 재생 및 페이드인
         SoundManager.Inst.Play( 0f );
