@@ -46,7 +46,7 @@ public class GameSetting
 {
     // Mode
     public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All;
-    public static GameMode       CurrentGameMode      = GameMode.AutoPlay | GameMode.NoFail;
+    public static GameMode       CurrentGameMode      = GameMode.NoFail; //GameMode.AutoPlay | GameMode.NoFail;
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentGearAlignment = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;

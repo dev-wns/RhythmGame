@@ -2,28 +2,24 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ComboSystem : MonoBehaviour
 {
     private InGame scene;
-    [Header("Sprite")]
-    public int sortingOrder;
 
     [Header("ComboSystem")]
-    public  List<Sprite>         sprites = new List<Sprite>();
-    private List<SpriteRenderer> images  = new List<SpriteRenderer>();
-    private CustomHorizontalLayoutGroup layoutGroup;
     private Judgement judge;
 
     private const float ElapsedPower = 100;
-    private float curCombo = 0f, prevCombo = -1f;
+    private float curCombo = 0f;
     private float targetCombo;
     private float highestCombo;
     private float pointOfMiss;
-    private int   prevNum, curNum;
     private bool  isMissing;
-    private Color color = Color.white;
 
+
+    public TextMeshProUGUI text;
 
     [Header("Effect")]
     private Sequence effectSeq;
@@ -31,11 +27,6 @@ public class ComboSystem : MonoBehaviour
 
     private void Awake()
     {
-        layoutGroup = GetComponent<CustomHorizontalLayoutGroup>();
-
-        images.AddRange( GetComponentsInChildren<SpriteRenderer>( true ) );
-        images.Reverse();
-
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += OnReLoad;
         scene.OnResult += OnResult;
@@ -47,8 +38,6 @@ public class ComboSystem : MonoBehaviour
         rt.anchoredPosition = new Vector2( rt.anchoredPosition.x + GameSetting.GearOffsetX, rt.anchoredPosition.y );
 
         startPos = transform.localPosition;
-        for ( int i = 0; i < images.Count; i++ )
-              images[i].sortingOrder = sortingOrder;
     }
 
     private void Start()
@@ -72,25 +61,16 @@ public class ComboSystem : MonoBehaviour
     private void OnReLoad()
     {
         StopAllCoroutines();
-        curNum       = 0;
-        prevNum      = 0;
         highestCombo = 0f;
         curCombo     = 0f;
         targetCombo  = 0f;
         pointOfMiss  = 0f;
-        prevCombo    = -1f;
         isMissing    = false;
-        color = Color.white;
-
         transform.position = startPos;
-        images[0].gameObject.SetActive( true );
-        images[0].sprite = sprites[0];
-        for ( int i = 1; i < images.Count; i++ )
-        {
-            images[i].color = Color.white;
-            images[i].gameObject.SetActive( false );
-        }
-        layoutGroup.SetLayoutHorizontal();
+
+        text.text  = $"{( int )curCombo}";
+        text.color = Color.white;
+
         StartCoroutine( BreakCombo() );
     }
 
@@ -108,21 +88,18 @@ public class ComboSystem : MonoBehaviour
                 {
                     curCombo = targetCombo;
                     isMissing = false;
-                    color = Color.white;
+                    text.color = Color.white;
                 }
             }
             else
             {
                 curCombo += ( ( ElapsedPower * 2.5f ) + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
-                //curCombo += ElapsedPower * Time.deltaTime;
+                
                 if ( curCombo > targetCombo )
                      curCombo = targetCombo;
             }
 
-            if ( Global.Math.Abs( prevCombo - curCombo ) > float.Epsilon )
-                 UpdateImages();
-
-            prevCombo = curCombo;
+            text.text  = $"{(int)curCombo}";
         }
     }
 
@@ -141,7 +118,7 @@ public class ComboSystem : MonoBehaviour
             case HitResult.Miss:
             {
                 isMissing = true;
-                color = Color.gray;
+                text.color = curCombo > double.Epsilon ? Color.gray : Color.white;
                 pointOfMiss = targetCombo;
                 targetCombo = 0;
             } break;
@@ -152,30 +129,5 @@ public class ComboSystem : MonoBehaviour
         highestCombo = highestCombo < targetCombo ? targetCombo : highestCombo;
         transform.position = startPos;
         effectSeq.Restart();
-    }
-
-    private void UpdateImages()
-    {
-        curNum = curCombo == 0 ? 1 : Global.Math.Log10( curCombo ) + 1;
-        double calcCurCombo  = curCombo;
-        for ( int i = 0; i < images.Count; i++ )
-        {
-            if ( i < curNum )
-            {
-                images[i].gameObject.SetActive( true );
-                images[i].sprite = sprites[( int )calcCurCombo % 10];
-                images[i].color  = color;
-                calcCurCombo *= .1d;
-            }
-            else
-            {
-                images[i].gameObject.SetActive( false );
-            }
-        }
-
-        if ( prevNum != curNum )
-             layoutGroup.SetLayoutHorizontal();
-
-        prevNum   = curNum;
     }
 }

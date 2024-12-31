@@ -27,7 +27,7 @@ public class ScoreMeterSystem : MonoBehaviour
         Judgement judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += UpdateScoreMeter;
 
-        pool = new ObjectPool<ScoreMeterRenderer>( prefab, contents, 100 );
+        pool = new ObjectPool<ScoreMeterRenderer>( prefab, contents, 5 );
     }
 
     private void Update()

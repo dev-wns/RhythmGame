@@ -11,7 +11,7 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
     private Color colorCache;
     private RectTransform rectTransform;
 
-    private static readonly float Duration = 5f;
+    private static readonly float Duration = 2.5f;
     private float alpha;
     private float offset;
     private bool isStart;

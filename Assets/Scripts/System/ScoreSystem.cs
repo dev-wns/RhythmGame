@@ -1,18 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ScoreSystem : MonoBehaviour
 {
     private InGame scene;
     private Judgement judge;
-    
-    [Header("Sprite")]
-    public int sortingOrder;
 
     [Header("ScoreSystem")]
-    public List<Sprite> sprites = new List<Sprite>();
-    private List<SpriteRenderer> images = new List<SpriteRenderer>();
     private double targetScore;
     private double curScore;
     private double maxScore;
@@ -20,11 +16,10 @@ public class ScoreSystem : MonoBehaviour
     private float countDuration = 0.1f; // 카운팅에 걸리는 시간 설정.
     private float countOffset;
 
+    public TextMeshProUGUI text;
+
     private void Awake()
     {
-        images.AddRange( GetComponentsInChildren<SpriteRenderer>() );
-        images.Reverse();
-
         scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
         scene.OnReLoad += OnReLoad;
@@ -32,9 +27,6 @@ public class ScoreSystem : MonoBehaviour
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreUpdate;
-
-        for ( int i = 0; i < images.Count; i++ )
-              images[i].sortingOrder = sortingOrder;
     }
 
     private void OnResult()
@@ -46,11 +38,6 @@ public class ScoreSystem : MonoBehaviour
     {
         targetScore = 0d;
         curScore    = 0d;
-
-        for ( int i = 0; i < images.Count; i++ )
-        {
-            images[i].sprite = sprites[0];
-        }
     }
 
     private void Initialize( Chart _chart )
@@ -90,16 +77,7 @@ public class ScoreSystem : MonoBehaviour
             if ( curScore >= targetScore )
                  curScore  = targetScore;
 
-            double calcScore = Global.Math.Round( curScore );
-            int num = Global.Math.Log10( calcScore ) + 1;
-            for ( int i = 0; i < images.Count; i++ )
-            {
-                if ( i == num )
-                    break;
-
-                images[i].sprite = sprites[( int )calcScore % 10];
-                calcScore *= .1d;
-            }
+            text.text = $"{( ( int )Global.Math.Round( curScore ) ):D7}";
         }
     }
 }
