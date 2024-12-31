@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PreviewNoteSystem : MonoBehaviour
@@ -115,6 +114,8 @@ public class PreviewNoteSystem : MonoBehaviour
             {
                 timingIndex++;
                 DistanceCache += ( bpm * ( timings[i + 1].time - time ) );
+                Distance = DistanceCache;
+                break;
             }
 
             Distance = DistanceCache + ( bpm * ( Playback - time ) );

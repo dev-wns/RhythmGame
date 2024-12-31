@@ -182,6 +182,14 @@ public class NowPlaying : Singleton<NowPlaying>
             }
         }
 
+        newSongList.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
+        for ( int i = 0; i < newSongList.Count; i++ )
+        {
+            var song = newSongList[i];
+            song.UID = i;
+            newSongList[i] = song;
+        }
+
         Songs = newSongList.ToList();
         OriginSongs = new ReadOnlyCollection<Song>( Songs.ToList() );
 
@@ -270,7 +278,7 @@ public class NowPlaying : Singleton<NowPlaying>
             //    date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
             //};
 
-
+            CurrentRecord = new RecordData();
 
             return false;
         }

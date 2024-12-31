@@ -82,8 +82,6 @@ public class InputSystem : MonoBehaviour
         {
             curNote  = notes.Dequeue();
             curSound = curNote.Sound;
-            if ( NowPlaying.CurrentSong.usePreviewSound )
-                 curSound.volume = 0f;
         }
 
         // Judgement
@@ -98,7 +96,7 @@ public class InputSystem : MonoBehaviour
                 OnInputEvent?.Invoke( InputType.Down );
                 SoundManager.Inst.Play( curSound );
                 if ( GameSetting.UseClapSound )
-                     SoundManager.Inst.Play( SoundSfxType.Clap );
+                    SoundManager.Inst.Play( SoundSfxType.Clap );
             }
             else if ( Input.GetKeyUp( key ) )
             {
@@ -129,8 +127,6 @@ public class InputSystem : MonoBehaviour
         {
             curData  = noteDatas[noteSpawnIndex];
             curSound = noteDatas[noteSpawnIndex].keySound;
-            if ( NowPlaying.CurrentSong.usePreviewSound )
-                 curSound.volume = 0f;
         }
     }
 

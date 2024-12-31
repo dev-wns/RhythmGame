@@ -159,9 +159,9 @@ public class ResultInfomation : MonoBehaviour
                                                 rankAtlas.GetSprite( "Ranking-D" );
 
 
-        bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ||
-                                GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
-                                GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );//||
+                                //GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
+                                //GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
 
         useModeObj.SetActive( shouldMakeRecord );
         date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );

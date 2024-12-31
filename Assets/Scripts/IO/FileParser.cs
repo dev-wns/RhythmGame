@@ -69,7 +69,6 @@ public class FileParser : FileReader
                     _song.hasKeySound     = int.Parse( splitDatas[2] ) == 1;
                     _song.hasVideo        = int.Parse( splitDatas[3] ) == 1;
                     _song.hasSprite       = int.Parse( splitDatas[4] ) == 1;
-                    _song.usePreviewSound = int.Parse( splitDatas[5] ) == 1;
                 }
             }
 

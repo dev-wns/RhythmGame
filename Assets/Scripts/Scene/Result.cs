@@ -20,9 +20,9 @@ public class Result : Scene
 
         SoundManager.Inst.FadeVolume( 0f, SoundManager.Inst.Volume, 2f );
 
-        bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ||
-                                GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
-                                GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );// ||
+                                // GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
+                                // GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         if ( !shouldMakeRecord )
              NowPlaying.Inst.MakeNewRecord();
 
