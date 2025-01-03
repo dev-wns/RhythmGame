@@ -266,7 +266,7 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Record
     public bool UpdateRecord()
     {
-        string path = Path.Combine( Directory, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
+        string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
         if ( !File.Exists( path ) )
         {
             //var newRecord = new RecordData()
@@ -313,7 +313,7 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( CurrentRecord.score > newRecord.score )
              return CurrentRecord;
 
-        string path   = Path.Combine( Directory, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
+        string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
         try
         {
             FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
