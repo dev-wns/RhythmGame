@@ -45,15 +45,15 @@ public class AccuracySystem : MonoBehaviour
         switch ( hitResult )
         {
             case HitResult.Maximum:
-            case HitResult.Perfect: curAccuracy +=  100d; break; 
-            case HitResult.Great:   curAccuracy +=  90d;  break; 
-            case HitResult.Good:    curAccuracy +=  80d;  break; 
-            case HitResult.Bad:     curAccuracy +=  70d;  break; 
+            case HitResult.Perfect: curAccuracy +=  10000d; break; 
+            case HitResult.Great:   curAccuracy +=  9000d;  break; 
+            case HitResult.Good:    curAccuracy +=  8000d;  break; 
+            case HitResult.Bad:     curAccuracy +=  7000d;  break; 
             case HitResult.Miss:    curAccuracy +=  .0001d; break; 
             default:                                        return;
         }
         ++curMaxCount;
 
-        text.text = $"{(curAccuracy / curMaxCount):F2}%";
+        text.text = $"{( ( int )( curAccuracy / curMaxCount ) *.01d ):F2}%";
     }
 }

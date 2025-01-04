@@ -22,8 +22,8 @@ public class KeySetting : Singleton<KeySetting>
         AvailableKeyBind();
 
         InitializeKey( GameKeyCount._4, new KeyCode[] { KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon } );
-        InitializeKey( GameKeyCount._6, new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote } );
-        InitializeKey( GameKeyCount._7, new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.Space, KeyCode.L, KeyCode.Semicolon, KeyCode.Quote, } );
+        InitializeKey( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket} );
+        InitializeKey( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
     }
 
     private void InitializeKey( GameKeyCount _key, KeyCode[] _code )

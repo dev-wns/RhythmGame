@@ -128,7 +128,7 @@ public class ResultInfomation : MonoBehaviour
         DOTween.To( () => 0, x => TextProgressEffect( miss, x     ),     result.miss,     duration );
         DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ),     result.combo,    duration );
         DOTween.To( () => 0, x => TextProgressEffect( score, x    ),     result.score,    duration );
-        DOTween.To( () => 0, x => accuracy.text = $"{x:F2}%",            result.accuracy, duration );
+        DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.accuracy, duration );
 
         // fast slow
         fast.text = $"{result.fast}";

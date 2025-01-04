@@ -69,7 +69,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public static Song  CurrentSong    { get; private set; }
     public static Chart CurrentChart   { get; private set; }
     public static string Directory     { get; private set; }
-    public static int KeyCount         => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7 ? 6 : CurrentSong.keyCount;
+    public static int OriginKeyCount   => CurrentSong.keyCount;
+    public static int KeyCount         => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && OriginKeyCount == 7 ? 6 : OriginKeyCount;
     public int CurrentSongIndex { get; private set; }
     public int SearchCount { get; private set; }
     private double mainBPM;

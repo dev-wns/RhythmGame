@@ -130,15 +130,15 @@ public class PreviewNoteSystem : MonoBehaviour
         {
             PreviewNoteRenderer note = notePool.Spawn();
             Color color = Color.white;
-            if ( NowPlaying.KeyCount == 4 )
+            if ( NowPlaying.OriginKeyCount == 4 )
             {
                 color = curData.lane == 1 || curData.lane == 2 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
             }
-            else if ( NowPlaying.KeyCount == 6 )
+            else if ( NowPlaying.OriginKeyCount == 6 )
             {
                 color = curData.lane == 1 || curData.lane == 4 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
             }
-            else if ( NowPlaying.KeyCount == 7 )
+            else if ( NowPlaying.OriginKeyCount == 7 )
             {
                 color = curData.lane == 1 || curData.lane == 5 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) :
                                              curData.lane == 3 ? new Color( 1f, 0.8274511f, 0.2117647f, 1f ) : Color.white;
