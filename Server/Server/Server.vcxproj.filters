@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Network">
+      <UniqueIdentifier>{cc4bca26-6a18-4142-a8e4-792e47fb4c93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Global">
+      <UniqueIdentifier>{2126b9d9-1811-494f-ab08-db52eb7b7e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Connect">
+      <UniqueIdentifier>{ef05ed6e-65c7-4d44-a92a-6a99fd1266fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packet">
+      <UniqueIdentifier>{c9f9b7ca-3a82-46a7-b6ee-0fb94e6730e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Synchronize">
+      <UniqueIdentifier>{a00f6e06-fd9f-476c-b37e-57d5b0e16062}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Managed">
+      <UniqueIdentifier>{bcf55ed8-e523-420b-b46e-022357368a67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Run">
+      <UniqueIdentifier>{0ae8423a-8b82-49f9-81a0-3f4a6ee275e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{7d30e324-fada-4ab1-944d-9fbde3b2a473}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Database">
+      <UniqueIdentifier>{5057c96d-6b85-4939-a454-030967189570}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocol\Scene">
+      <UniqueIdentifier>{27ce9a5d-293a-4a92-8efe-1c92a31d9ba5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Network\Network.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Synchronize\CriticalSection.cpp">
+      <Filter>Synchronize</Filter>
+    </ClCompile>
+    <ClCompile Include="Run\Main.cpp">
+      <Filter>Run</Filter>
+    </ClCompile>
+    <ClCompile Include="Run\Server.cpp">
+      <Filter>Run</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Database.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol\Scene\Login.cpp">
+      <Filter>Protocol\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\Acceptor.cpp" />
+    <ClCompile Include="Network\Session.cpp" />
+    <ClCompile Include="Protocol\Scene\InGame.cpp" />
+    <ClCompile Include="Protocol\Scene\Lobby.cpp" />
+    <ClCompile Include="Management\IOCP.cpp" />
+    <ClCompile Include="Management\PacketSystem.cpp" />
+    <ClCompile Include="Management\ProtocolSystem.cpp" />
+    <ClCompile Include="Management\SessionManager.cpp" />
+    <ClCompile Include="Stage\Stage.cpp" />
+    <ClCompile Include="Management\StageManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Global\Header.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Network.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Global\Singleton.hpp">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="Synchronize\CriticalSection.h">
+      <Filter>Synchronize</Filter>
+    </ClInclude>
+    <ClInclude Include="Run\Server.h">
+      <Filter>Run</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\Protocol.hpp">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Packet\Packet.hpp">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Database.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="Global\Global.hpp">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\Scene\Login.h">
+      <Filter>Protocol\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\Acceptor.h" />
+    <ClInclude Include="Network\Session.h" />
+    <ClInclude Include="Protocol\Scene\InGame.h" />
+    <ClInclude Include="Protocol\Scene\Lobby.h" />
+    <ClInclude Include="Management\IOCP.h" />
+    <ClInclude Include="Management\PacketSystem.h" />
+    <ClInclude Include="Management\ProtocolSystem.h" />
+    <ClInclude Include="Management\SessionManager.h" />
+    <ClInclude Include="Stage\Stage.h" />
+    <ClInclude Include="Global\LogText.hpp" />
+    <ClInclude Include="Management\StageManager.h" />
+    <ClInclude Include="Global\Error.hpp" />
+  </ItemGroup>
+</Project>

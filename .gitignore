@@ -91,3 +91,11 @@ Game Build Files IL2CPP/
 Game Build Files Mono/
 Profiler Data/
 bfg-1.14.0.jar
+
+# 서버 관련 빌드 파일 제외
+/Server/Output
+/Assets/TextMesh Pro
+/Assets/TextMesh Pro.meta
+/Server/Log
+/Server.exe
+/Assets/StreamingAssets/Default

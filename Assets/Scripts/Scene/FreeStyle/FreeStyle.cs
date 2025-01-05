@@ -18,6 +18,9 @@ public class FreeStyle : Scene
     {
         base.Awake();
 
+        if ( !Network.Inst.IsConnected )
+             Network.Inst.Connect( "127.0.0.1" );
+
         QualitySettings.antiAliasing = 0;
 
         SoundManager.Inst.OnReload += Connect;
