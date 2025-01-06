@@ -7,14 +7,14 @@ public class SoundDriverOption : OptionText
 {
     private void OnEnable()
     {
-        CurrentIndex = SoundManager.Inst.CurrentDriverIndex;
+        CurrentIndex = AudioManager.Inst.CurrentDriverIndex;
         ChangeText( texts[CurrentIndex] );
     }
 
     protected override void CreateObject()
     {
         StringBuilder builder = new StringBuilder();
-        var drivers = SoundManager.Inst.Drivers;
+        var drivers = AudioManager.Inst.Drivers;
         for ( int i = 0; i < drivers.Count; i++ )
         {
             string text = drivers[i].name;
@@ -34,6 +34,6 @@ public class SoundDriverOption : OptionText
 
     public override void Process()
     {
-        SoundManager.Inst.CurrentDriverIndex = CurrentIndex;
+        AudioManager.Inst.CurrentDriverIndex = CurrentIndex;
     }
 }

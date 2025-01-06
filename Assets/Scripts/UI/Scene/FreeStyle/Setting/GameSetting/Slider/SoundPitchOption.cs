@@ -20,7 +20,7 @@ public class SoundPitchOption : OptionSlider
     public void InputProcess( float _value )
     {
         GameSetting.CurrentPitch = _value;
-        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
 
         OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
         previewText.text = $"x{GameSetting.CurrentPitch:F2}";
@@ -33,7 +33,7 @@ public class SoundPitchOption : OptionSlider
     public override void Process()
     {
         GameSetting.CurrentPitch = curValue;
-        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
 
         OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
         previewText.text = $"x{GameSetting.CurrentPitch:F2}";

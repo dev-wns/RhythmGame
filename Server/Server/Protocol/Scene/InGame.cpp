@@ -5,8 +5,8 @@
 
 void InGame::Bind()
 {
-	ProtocolSystem::Inst().Regist( PACKET_CHAT_MSG,			AckChatMessage );
-	ProtocolSystem::Inst().Regist( EXIT_STAGE_REQ,			AckExitStage );
+	ProtocolSystem::Inst().Regist( PACKET_CHAT_MSG,	AckChatMessage );
+	ProtocolSystem::Inst().Regist( EXIT_STAGE_REQ,	AckExitStage );
 }
 
 void InGame::AckChatMessage( const Packet& _packet )

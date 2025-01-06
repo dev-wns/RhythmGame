@@ -5,36 +5,33 @@
 void Login::Bind()
 {
 	ProtocolSystem::Inst().Regist( CONFIRM_LOGIN_REQ,   ConfirmMatchData );
-	ProtocolSystem::Inst().Regist( DUPLICATE_EMAIL_REQ, ConfirmDuplicateInfo );
-	ProtocolSystem::Inst().Regist( CONFIRM_ACCOUNT_REQ, AddToDatabase );
+	ProtocolSystem::Inst().Regist( CONFIRM_ACCOUNT_REQ, CreateNewUserData );
 }
 
 void Login::ConfirmMatchData( const Packet& _packet )
 {
-	LOGIN_DATA data = FromJson<LOGIN_DATA>( _packet );
-	Debug.Log( "=============== LOGIN ===============" );
+	USER_INFO data = FromJson<USER_INFO>( _packet );
+	Debug.Log( "================ LOGIN ================" );
 	Session* session = _packet.session;
 	try
 	{
-		if ( Global::String::Trim( data.email ).empty() )
+		if ( Global::String::Trim( data.name ).empty() )
 		{
 			Debug.LogWarning( "The email is empty" );
 			throw Result::ERR_INVALID_DATA;
 		}
 
-		LOGIN_DATA info = Database::Inst().GetLoginData( data.email );
-		if ( data.email.compare( info.email ) != 0 || data.password.compare( info.password ) != 0 )
+		USER_INFO info = Database::Inst().GetUserInfo( data.name );
+		if ( data.name.compare( info.name ) != 0 || data.password.compare( info.password ) != 0 )
 		{
-			Debug.LogWarning( "Login information does not match" );
+			Debug.LogWarning( "User information does not match" );
 			throw Result::ERR_INVALID_DATA;
 		}
 
-		ACCOUNT_INFO ret;
-		ret.loginInfo = session->loginInfo = info;
-		ret.userInfo  = Database::Inst().GetUserData( info.uid );
-		session->Send( UPacket( CONFIRM_LOGIN_ACK, ret ) );
+		session->userInfo = info;
+		session->Send( UPacket( CONFIRM_LOGIN_ACK, info ) );
 
-		Debug.Log( "< ", info.nickname, " > login completed" );
+		Debug.Log( "< ", info.name, " > login completed" );
 	}
 	catch ( Result _error )
 	{
@@ -42,38 +39,25 @@ void Login::ConfirmMatchData( const Packet& _packet )
 	}
 }
 
-void Login::ConfirmDuplicateInfo( const Packet& _packet )
+void Login::CreateNewUserData( const Packet& _packet )
 {
 	Debug.Log( "=============== ACCOUNT ===============" );
 	try
 	{
-		const auto& data = FromJson<LOGIN_DATA>( _packet );
-		if ( Database::Inst().ExistLoginData( data ) )
+		USER_DATA data = FromJson<USER_DATA>( _packet );
+		if ( Database::Inst().IsExist( data ) )
 		{
-			Debug.LogWarning( "Login information exist" );
+			Debug.LogWarning( "User information exist" );
 			throw Result::DB_ERR_DUPLICATE_DATA;
 		}
-		
-		_packet.session->Send( UPacket( DUPLICATE_EMAIL_ACK ) );
-	}
-	catch ( Result _error )
-	{
-		_packet.session->Send( UPacket( _error, DUPLICATE_EMAIL_ACK ) );
-	}
-}
 
-void Login::AddToDatabase( const Packet& _packet )
-{
-	try
-	{
-		auto data = FromJson<LOGIN_DATA>( _packet );
-		if ( Global::String::Trim( data.nickname ).empty() )
+		if ( Global::String::Trim( data.name ).empty() )
 		{
-			Debug.LogWarning( "The nickname is empty" );
+			Debug.LogWarning( "The name is empty" );
 			throw Result::ERR_INVALID_DATA;
 		}
 
-		Database::Inst().CreateUserData( data.nickname, data.email, data.password );
+		Database::Inst().AddUser( data );
 		Debug.Log( "Account creation completed" );
 		_packet.session->Send( UPacket( CONFIRM_ACCOUNT_ACK ) );
 	}

@@ -23,7 +23,7 @@ public class ChannelCounter : MonoBehaviour
         while ( true )
         {
             yield return YieldCache.WaitForSeconds( .075f );
-            text.text = $"{SoundManager.Inst.ChannelsInUse}";
+            text.text = $"{AudioManager.Inst.ChannelsInUse}";
         }
     }
 }

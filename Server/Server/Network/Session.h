@@ -12,7 +12,7 @@ private:
 	u_int startPos, writePos, readPos;
 
 public:
-	LOGIN_INFO loginInfo;
+	USER_INFO userInfo;
 	Stage* stage;
 	SerialType serial;
 

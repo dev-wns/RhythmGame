@@ -153,43 +153,25 @@ public:
 } Quaternion, QUATERNION;
 
 #pragma region Database
-typedef struct LoginInfo
-{
-public:
-	int uid;
-	std::string nickname;
-	std::string email;
-	std::string password;
-
-	template <class Archive>
-	void serialize( Archive& ar )
-	{
-		ar( CEREAL_NVP( uid ) );
-		ar( CEREAL_NVP( nickname ) );
-		ar( CEREAL_NVP( email ) );
-		ar( CEREAL_NVP( password ) );
-	}
-} LOGIN_INFO, LoginData, LOGIN_DATA;
-
 typedef struct UserInfo
 {
 public:
+	std::string name;
+	std::string password;
 	int level;
 	float exp;
+	float accuracy;
 	int playCount;
-	int kill, death;
-	int bestKill, bestDeath;
 
 	template <class Archive>
 	void serialize( Archive& ar )
 	{
+		ar( CEREAL_NVP( name ) );
+		ar( CEREAL_NVP( password ) );
 		ar( CEREAL_NVP( level ) );
 		ar( CEREAL_NVP( exp ) );
+		ar( CEREAL_NVP( accuracy ) );
 		ar( CEREAL_NVP( playCount ) );
-		ar( CEREAL_NVP( kill ) );
-		ar( CEREAL_NVP( death ) );
-		ar( CEREAL_NVP( bestKill ) );
-		ar( CEREAL_NVP( bestDeath ) );
 	}
 } USER_INFO, UserData, USER_DATA;
 
@@ -206,20 +188,6 @@ typedef struct ResultInfo
 		ar( CEREAL_NVP( death ) );
 	}
 } RESULT_INFO, ResultData, RESULT_DATA;
-
-typedef struct AccountInfo
-{
-public:
-	LOGIN_INFO loginInfo;
-	USER_INFO userInfo;
-
-	template <class Archive>
-	void serialize( Archive& ar )
-	{
-		ar( CEREAL_NVP( loginInfo ) );
-		ar( CEREAL_NVP( userInfo ) );
-	}
-} ACCOUNT_INFO;
 #pragma endregion
 
 #pragma region Lobby Infomation

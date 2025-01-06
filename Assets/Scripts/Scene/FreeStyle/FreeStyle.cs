@@ -10,6 +10,7 @@ public class FreeStyle : Scene
     public FreeStyleReLoad     reload;
     public FreeStyleSearch     search;
     public FreeStyleComment    comment;
+    public GameObject          multiPlay;
     //public RecordSystem        record;
 
     public TextMeshProUGUI speedText;
@@ -23,7 +24,7 @@ public class FreeStyle : Scene
 
         QualitySettings.antiAliasing = 0;
 
-        SoundManager.Inst.OnReload += Connect;
+        AudioManager.Inst.OnReload += Connect;
 
         var judge = GameObject.FindGameObjectWithTag( "Judgement" );
         if ( judge ) Destroy( judge );
@@ -33,16 +34,16 @@ public class FreeStyle : Scene
 
     public override void Connect()
     {
-        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
-        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT,   ChannelType.BGM );
-        SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT,          ChannelType.BGM );
-        Debug.Log( $"Applied DSP : {SoundManager.Inst.GetAppliedDSPName()}" );
+        AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT,   ChannelType.BGM );
+        AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT,          ChannelType.BGM );
+        Debug.Log( $"Applied DSP : {AudioManager.Inst.GetAppliedDSPName()}" );
     }
 
     public override void Disconnect()
     {
-        SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
-        SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT,        ChannelType.BGM );
+        AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+        AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT,        ChannelType.BGM );
     }
 
     public void Quit() => Application.Quit();
@@ -53,6 +54,7 @@ public class FreeStyle : Scene
     public void EnableGameSettingCanvas()   => EnableCanvas( ActionType.GameOption, gameSetting );
     public void EnableSystemSettingCanvas() => EnableCanvas( ActionType.SystemOption, systemSetting, true, false );
     public void EnableKeySettingCanvas()    => EnableCanvas( ActionType.KeySetting, keySetting );
+    public void EnableMultiPlayCanvas()     => EnableCanvas( ActionType.MultiPlay, multiPlay );
     public void EnableReloadCanvas()        => EnableCanvas( ActionType.ReLoad, reload.gameObject );
     public void EnableExitCanvas()          =>EnableCanvas( ActionType.Exit, exit );
     public void EnableSearchCanvas()
@@ -109,19 +111,22 @@ public class FreeStyle : Scene
         Bind( ActionType.Search, KeyCode.Escape,         search.DisableInputField );
         Bind( ActionType.Search, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, search.canvas ); } );
 
+        // MultiPlay
+        Bind( ActionType.MultiPlay, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, multiPlay ); } );
+
         // Comment
-        Bind( ActionType.Main, KeyCode.F3,        () => { EnableCanvas( ActionType.Comment, comment.canvas ); } );
-        Bind( ActionType.Main, KeyCode.F3,        comment.EnableInputField  );
-        Bind( ActionType.Comment, KeyCode.F3,     () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
-        Bind( ActionType.Comment, KeyCode.F3,     comment.DisableInputField );
-        Bind( ActionType.Comment, KeyCode.F3,     comment.ReviseComment );
-        Bind( ActionType.Comment, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
-        Bind( ActionType.Comment, KeyCode.Escape, comment.DisableInputField );
-        Bind( ActionType.Comment, KeyCode.Escape, comment.ReviseComment );
+        //Bind( ActionType.Main, KeyCode.F3,        () => { EnableCanvas( ActionType.Comment, comment.canvas ); } );
+        //Bind( ActionType.Main, KeyCode.F3,        comment.EnableInputField  );
+        //Bind( ActionType.Comment, KeyCode.F3,     () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
+        //Bind( ActionType.Comment, KeyCode.F3,     comment.DisableInputField );
+        //Bind( ActionType.Comment, KeyCode.F3,     comment.ReviseComment );
+        //Bind( ActionType.Comment, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
+        //Bind( ActionType.Comment, KeyCode.Escape, comment.DisableInputField );
+        //Bind( ActionType.Comment, KeyCode.Escape, comment.ReviseComment );
 
         // ReLoad
-        Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas(  ActionType.ReLoad, reload.gameObject ); } );
-        Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,   reload.gameObject ); } );
+        //Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas(  ActionType.ReLoad, reload.gameObject ); } );
+        //Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,   reload.gameObject ); } );
 
         //// Record
         //Bind( ActionType.Main, KeyCode.Tab, record.HideRecordInfomation );

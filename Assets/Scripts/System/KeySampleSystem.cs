@@ -67,14 +67,14 @@ public class KeySampleSystem : MonoBehaviour
         while ( isStart && curIndex < samples.Count &&
                 samples[curIndex].time + offset < NowPlaying.Playback )
         {
-            SoundManager.Inst.Play( samples[curIndex++] );
+            AudioManager.Inst.Play( samples[curIndex++] );
 
             if ( curIndex < samples.Count )
                  UseAllSamples = true;
             //while ( curIndex + 1 < samples.Count && 
             //        Global.Math.Abs( samples[curIndex + 1].time - samples[curIndex].time ) < double.Epsilon )
             //{
-            //    SoundManager.Inst.Play( samples[++curIndex] );
+            //    AudioManager.Inst.Play( samples[++curIndex] );
             //}
 
             //++curIndex;
@@ -93,14 +93,14 @@ public class KeySampleSystem : MonoBehaviour
     //    {
     //        yield return waitNextSample;
     //        // 한 프레임 한 샘플 재생
-    //        //SoundManager.Inst.Play( samples[curIndex].sound );
+    //        //AudioManager.Inst.Play( samples[curIndex].sound );
     //        //if ( ++curIndex < samples.Count )
     //        //     curTime = samples[curIndex].time;
 
     //        // 같은 시간 동시 재생
     //        while ( curIndex < samples.Count )
     //        {
-    //            SoundManager.Inst.Play( samples[curIndex] );
+    //            AudioManager.Inst.Play( samples[curIndex] );
     //            if ( Global.Math.Abs( curTime - samples[curIndex].time ) < double.Epsilon )
     //            {
     //                curIndex += 1;

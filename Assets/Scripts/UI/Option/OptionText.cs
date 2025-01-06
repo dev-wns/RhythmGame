@@ -41,7 +41,7 @@ public abstract class OptionText : OptionBase
     {
         if ( isReturnProcess && Input.GetKeyDown( KeyCode.Return ) )
         {
-            SoundManager.Inst.Play( SoundSfxType.MenuClick );
+            AudioManager.Inst.Play( SFX.MenuClick );
             Process();
         }
 
@@ -54,7 +54,7 @@ public abstract class OptionText : OptionBase
         if ( isLeft ) scroller.PrevMove();
         else          scroller.NextMove();
 
-        SoundManager.Inst.Play( SoundSfxType.Slider );
+        AudioManager.Inst.Play( SFX.Slider );
         ChangeText( texts[CurrentIndex] );
         Process();
     }
@@ -64,7 +64,7 @@ public abstract class OptionText : OptionBase
         if ( Input.GetKeyDown( _keyCode ) )
         {
             _action?.Invoke();
-            SoundManager.Inst.Play( SoundSfxType.Slider );
+            AudioManager.Inst.Play( SFX.Slider );
             ChangeText( texts[CurrentIndex] );
 
             if ( !isReturnProcess )

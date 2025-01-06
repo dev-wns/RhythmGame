@@ -61,7 +61,7 @@ public class FreeStyleKeySetting : OptionController
 
     public void ChangeButtonCount()
     {
-        SoundManager.Inst.Play( SoundSfxType.MenuClick );
+        AudioManager.Inst.Play( SFX.MenuClick );
         Initialize( curKeyIndex + 1 < changeKeyCount.Length ? curKeyIndex + 1 : 0 );
     }
 
@@ -75,7 +75,7 @@ public class FreeStyleKeySetting : OptionController
                      tracks[i].Change( curKeyCount, KeyCode.None );
             }
 
-            SoundManager.Inst.Play( SoundSfxType.MenuSelect );
+            AudioManager.Inst.Play( SFX.MenuSelect );
             tracks[CurrentIndex].Change( curKeyCount, _key );
 
             NextMove();

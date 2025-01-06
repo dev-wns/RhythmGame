@@ -66,7 +66,7 @@ public class LaneSystem : MonoBehaviour
         soundTimer.Start();
         if ( !NowPlaying.CurrentSong.isOnlyKeySound )
         {
-            if ( SoundManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
+            if ( AudioManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
                  keySampleSystem.AddSample( new KeySound( NowPlaying.CurrentSong.audioOffset * .001f, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
         }
 
@@ -74,7 +74,7 @@ public class LaneSystem : MonoBehaviour
         for ( int i = 0; i < _chart.samples.Count; i++ )
         {
             var sample = _chart.samples[i];
-            if ( SoundManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
+            if ( AudioManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
                  keySampleSystem.AddSample( sample );
         }
         soundSampleTime += soundTimer.End;
@@ -107,7 +107,7 @@ public class LaneSystem : MonoBehaviour
                 if ( newNote.lane == 3 )
                 {
                     soundTimer.Start();
-                    if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
+                    if ( AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
                          keySampleSystem.AddSample( new KeySound( newNote ) );
 
                     keySoundTime += soundTimer.End;
@@ -118,7 +118,7 @@ public class LaneSystem : MonoBehaviour
 
                 //if ( newNote.lane == 6 )
                 //{
-                //    if ( SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
+                //    if ( AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
                 //         keySampleSystem.AddSample( new KeySound( newNote ) );
 
                 //    continue;
@@ -139,7 +139,7 @@ public class LaneSystem : MonoBehaviour
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     soundTimer.Start();
-                    SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
+                    AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     keySoundTime += soundTimer.End;
 
                     lanes[newNote.lane].InputSys.AddNote( in newNote );
@@ -172,7 +172,7 @@ public class LaneSystem : MonoBehaviour
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     soundTimer.Start();
-                    SoundManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
+                    AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     keySoundTime += soundTimer.End;
 
                     lanes[selectLane].InputSys.AddNote( in newNote );

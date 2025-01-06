@@ -68,20 +68,20 @@ public class InGame : Scene
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        SoundManager.Inst.KeyRelease();
+        AudioManager.Inst.KeyRelease();
     }
 
     public override void Connect()
     {
-        SoundManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
         if ( GameSetting.CurrentPitchType != PitchType.None )
-             SoundManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+             AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     public override void Disconnect()
     {
         if ( GameSetting.CurrentPitchType != PitchType.None )
-             SoundManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+             AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     private void Stop()
@@ -99,9 +99,9 @@ public class InGame : Scene
         IsEnd = true;
 
         if ( NowPlaying.CurrentSong.isOnlyKeySound )
-             yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && SoundManager.Inst.ChannelsInUse == 0 );
+             yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
 
-        SoundManager.Inst.FadeVolume( SoundManager.Inst.Volume, 0f, 2.5f );
+        AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );
 
         Stop();
@@ -161,7 +161,7 @@ public class InGame : Scene
         ImmediateDisableCanvas( ActionType.Main, pause );
         ImmediateDisableCanvas( ActionType.Main, gameOver );
         NowPlaying.Inst.Stop();
-        SoundManager.Inst.AllStop();
+        AudioManager.Inst.AllStop();
 
         Disconnect();
         Connect();

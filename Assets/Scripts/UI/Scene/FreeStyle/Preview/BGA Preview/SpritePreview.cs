@@ -133,8 +133,8 @@ public class SpritePreview : FreeStylePreview
         if ( curIndex < sprites.Count )
              curSample = sprites[curIndex];
 
-        WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= SoundManager.Inst.Position - offset );
-        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= SoundManager.Inst.Position - offset );
+        WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= AudioManager.Inst.Position - offset );
+        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= AudioManager.Inst.Position - offset );
         yield return waitSampleStart;
 
         // Wait First Texture

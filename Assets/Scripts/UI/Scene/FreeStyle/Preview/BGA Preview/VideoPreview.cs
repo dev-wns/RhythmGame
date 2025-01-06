@@ -65,7 +65,7 @@ public class VideoPreview : FreeStylePreview
         //               _song.isOnlyKeySound   ? -spb                : 0f;
 
         //vp.playbackSpeed = GameSetting.CurrentPitch;
-        //vp.time = ( SoundManager.Inst.Position + offset ) * .001f;
+        //vp.time = ( AudioManager.Inst.Position + offset ) * .001f;
 
         tf.sizeDelta = sizeCache;
         previewImage.enabled = true;

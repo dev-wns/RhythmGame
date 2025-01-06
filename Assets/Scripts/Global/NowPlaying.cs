@@ -98,6 +98,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action       OnParsingEnd;
     public static event Action<double/* Distance */> OnSpawnObjects;
 
+    public static USER_INFO? UserInfo { get; set; }
+
     public static bool IsStart        { get; private set; }
     public static bool IsParsing      { get; private set; }
     public static bool IsLoadBGA      { get; set; }
@@ -382,7 +384,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Play()
     {
-        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
 
         startTime = Time.realtimeSinceStartupAsDouble;
         SaveTime  = WaitTime;
@@ -431,7 +433,7 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             IsStart  = false;
             SaveTime = Playback + PauseWaitTime;
-            SoundManager.Inst.SetPaused( true, ChannelType.BGM );
+            AudioManager.Inst.SetPaused( true, ChannelType.BGM );
         }
         else
         {
@@ -454,7 +456,7 @@ public class NowPlaying : Singleton<NowPlaying>
         IsStart   = true;
 
         yield return new WaitUntil( () => Playback > SaveTime - PauseWaitTime );
-        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
 
         yield return YieldCache.WaitForSeconds( 3f );
         CurrentScene.IsInputLock = false;

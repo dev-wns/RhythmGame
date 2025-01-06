@@ -13,12 +13,12 @@ public class Result : Scene
 
         QualitySettings.antiAliasing = 8;
 
-        SoundManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false );
-        SoundManager.Inst.Play();
-        soundLength = SoundManager.Inst.Length;
-        playback = SoundManager.Inst.Position = highlightPos;
+        AudioManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false );
+        AudioManager.Inst.Play();
+        soundLength = AudioManager.Inst.Length;
+        playback = AudioManager.Inst.Position = highlightPos;
 
-        SoundManager.Inst.FadeVolume( 0f, SoundManager.Inst.Volume, 2f );
+        AudioManager.Inst.FadeVolume( 0f, AudioManager.Inst.Volume, 2f );
 
         bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );// ||
                                 // GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
@@ -36,13 +36,13 @@ public class Result : Scene
         playback += Time.deltaTime * 1000f;
         if ( playback <= highlightPos && playback >= 0 )
         {
-            SoundManager.Inst.Position = highlightPos;
+            AudioManager.Inst.Position = highlightPos;
             playback = highlightPos;
         }
 
         if ( playback > soundLength )
         {
-            playback = SoundManager.Inst.Position;
+            playback = AudioManager.Inst.Position;
         }
     }
 
@@ -50,7 +50,7 @@ public class Result : Scene
     {
         NowPlaying.Inst.ResetData();
         LoadScene( SceneType.FreeStyle );
-        SoundManager.Inst.Play( SoundSfxType.MainClick );
+        AudioManager.Inst.Play( SFX.MainClick );
     }
 
     public override void Connect() { }

@@ -17,16 +17,13 @@ public:
 	void Query( const char* query, ... );
 
 public:
-	bool ExistLoginData( const LOGIN_DATA& _data );
+	bool IsExist( const USER_DATA& _data );
 
-	void CreateUserData( const std::string& _nickname, const std::string& _email, const std::string& _password );
-	void DeleteUserData( int _uid );
-	void UpdateUserData( int _uid, const USER_DATA& _data );
+	void AddUser( const USER_DATA& _data );
+	void DeleteUser( const USER_DATA& _data );
+	void UpdateUser( const USER_DATA& _data );
 
-	// Getter
-	LOGIN_DATA GetLoginData( const std::string& _email );
-	LOGIN_DATA GetLoginData( int _uid );
-	USER_DATA  GetUserData( int _uid );
+	USER_DATA GetUserInfo( const std::string& _name );
 
 public:
 	Database() = default;

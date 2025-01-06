@@ -109,36 +109,23 @@ public struct STAGE_INFO : IProtocol
     public Personnel personnel;
 }
 
-#region Database
-public struct LOGIN_INFO : IProtocol
-{
-    public int uid;
-    public string nickname;
-    public string email;
-    public string password;
-}
-
 public struct USER_INFO : IProtocol
 {
+    public string name;
+    public string password;
     public int level;
     public float exp;
+    public float accuracy;
     public int playCount;
-    public int kill, death;
-    public int bestKill, bestDeath;
-}
 
-public struct RESULT_INFO : IProtocol
-{
-    public int uid;
-    public int kill, death;
+    public USER_INFO( string _name, string _password )
+    {
+        name = _name;
+        password = _password;
+        level = playCount = 0;
+        exp   = accuracy  = 0f;
+    }
 }
-
-public struct ACCOUNT_INFO : IProtocol
-{
-    public LOGIN_INFO loginInfo;
-    public USER_INFO userInfo;
-}
-#endregion
 
 public struct CHAT_MESSAGE : IProtocol
 {

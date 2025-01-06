@@ -6,7 +6,7 @@ using System.Text;
 using UnityEngine;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
-public enum SoundSfxType
+public enum SFX
 {
     MainSelect, MainClick, MainHover, Slider,
     MenuSelect, MenuClick, MenuHover,
@@ -26,14 +26,14 @@ public struct Music
 }
 
 public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
-public class SoundManager : Singleton<SoundManager>
+public class AudioManager : Singleton<AudioManager>
 {
     #region variables
     private static readonly int MaxSoftwareChannel = 128;
     private static readonly int MaxVirtualChannel  = 1000;
     private FMOD.System system;
     private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
-    private Dictionary<SoundSfxType, FMOD.Sound>         sfxSounds = new Dictionary<SoundSfxType, FMOD.Sound>();
+    private Dictionary<SFX, FMOD.Sound>                  sfxSounds = new Dictionary<SFX, FMOD.Sound>();
     private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
     private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>          dsps      = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
     public event Action OnReload;
@@ -190,17 +190,17 @@ public class SoundManager : Singleton<SoundManager>
         CreateDPS();
 
         // Sfx Sound
-        Load( SoundSfxType.MainClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav" );
-        Load( SoundSfxType.MenuClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav" );
+        Load( SFX.MainClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav" );
+        Load( SFX.MenuClick, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav" );
 
-        Load( SoundSfxType.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
-        Load( SoundSfxType.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
+        Load( SFX.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
+        Load( SFX.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
 
-        Load( SoundSfxType.MainHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav" );
-        Load( SoundSfxType.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
+        Load( SFX.MainHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav" );
+        Load( SFX.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
 
-        Load( SoundSfxType.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
-        Load( SoundSfxType.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap2.wav" );
+        Load( SFX.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
+        Load( SFX.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap2.wav" );
 
         // Details
         SetVolume( .1f, ChannelType.Master );
@@ -208,7 +208,7 @@ public class SoundManager : Singleton<SoundManager>
         SetVolume(  1f, ChannelType.SFX );
         SetVolume( .8f, ChannelType.Clap );
         #endregion
-        Debug.Log( $"SoundManager Initialization {timer.End} ms" );
+        Debug.Log( $"AudioManager Initialization {timer.End} ms" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
     }
 
@@ -317,7 +317,7 @@ public class SoundManager : Singleton<SoundManager>
         // System
         ErrorCheck( system.release() ); // 내부에서 close 함.
         system.clearHandle();
-        Debug.Log( "SoundManager Release" );
+        Debug.Log( "AudioManager Release" );
     }
 
     public void ReLoad()
@@ -365,7 +365,7 @@ public class SoundManager : Singleton<SoundManager>
         // 매니저격 클래스라 가장 마지막에 제거되어야 한다.
         // OnApplicationQuit -> OnDisable -> OnDestroy 순으로 호출 되기 때문에
         // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후
-        // SoundManager OnDestroy가 실행될 수 있도록 한다.
+        // AudioManager OnDestroy가 실행될 수 있도록 한다.
         Release();
     }
     #endregion
@@ -383,7 +383,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary> Load Interface SFX </summary>
-    private void Load( SoundSfxType _type, string _path )
+    private void Load( SFX _type, string _path )
     {
         if ( sfxSounds.ContainsKey( _type ) )
         {
@@ -430,7 +430,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary> Play Sound Special Effects </summary>
-    public void Play( SoundSfxType _type )
+    public void Play( SFX _type )
     {
         if ( !sfxSounds.ContainsKey( _type ) )
         {
@@ -438,8 +438,8 @@ public class SoundManager : Singleton<SoundManager>
             return;
         }
 
-        if ( _type == SoundSfxType.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
-        else                              ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
+        if ( _type == SFX.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
+        else                     ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
     }
 
     /// <summary> Play Key Sound Effects </summary>

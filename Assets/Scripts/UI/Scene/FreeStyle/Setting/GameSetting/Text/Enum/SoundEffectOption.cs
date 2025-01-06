@@ -26,6 +26,6 @@ public class SoundEffectOption : OptionText
     public override void Process()
     {
         GameSetting.CurrentPitchType = ( PitchType )CurrentIndex;
-        SoundManager.Inst.UpdatePitchShift();
+        AudioManager.Inst.UpdatePitchShift();
     }
 }

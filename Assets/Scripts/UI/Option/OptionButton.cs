@@ -22,7 +22,7 @@ public class OptionButton : OptionBase
 		if ( Input.GetKeyDown( KeyCode.Return ) )
 		{
 			if ( isPlaySfxSound )
-				 SoundManager.Inst.Play( SoundSfxType.MenuClick );
+				 AudioManager.Inst.Play( SFX.MenuClick );
 
 			Process();
 		}

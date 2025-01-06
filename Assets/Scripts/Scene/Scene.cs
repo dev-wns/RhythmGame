@@ -31,8 +31,8 @@ public abstract class Scene : SceneKeyAction
         KeyBind();
         ChangeAction( ActionType.Main );
 
-        SoundManager.Inst.SetVolume( SoundManager.Inst.Volume, ChannelType.BGM );
-        SoundManager.Inst.SetPaused( false, ChannelType.BGM );
+        AudioManager.Inst.SetVolume( AudioManager.Inst.Volume, ChannelType.BGM );
+        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
     }
 
     protected virtual void Start()
@@ -47,7 +47,7 @@ public abstract class Scene : SceneKeyAction
 
     public void UpdatePitch( float _pitch )
     {
-        SoundManager.Inst.SetPitch( _pitch, ChannelType.BGM );
+        AudioManager.Inst.SetPitch( _pitch, ChannelType.BGM );
         OnUpdatePitch?.Invoke( _pitch );
     }
     #endregion
@@ -56,7 +56,7 @@ public abstract class Scene : SceneKeyAction
     public void LoadScene( SceneType _type )
     {
         StopAllCoroutines();
-        SoundManager.Inst.StopFadeEffect();
+        AudioManager.Inst.StopFadeEffect();
         StartCoroutine( SceneChange( _type ) );
     }
 
@@ -70,8 +70,8 @@ public abstract class Scene : SceneKeyAction
 
         yield return StartCoroutine( FadeOut() );
 
-        SoundManager.Inst.AllStop();
-        SoundManager.Inst.PitchReset();
+        AudioManager.Inst.AllStop();
+        AudioManager.Inst.PitchReset();
         SceneManager.LoadScene( ( int )_type );
     }
     #endregion
@@ -80,13 +80,13 @@ public abstract class Scene : SceneKeyAction
     protected void MoveToPrevOption( OptionController _controller )
     {
         _controller.PrevMove();
-        SoundManager.Inst.Play( SoundSfxType.MenuSelect );
+        AudioManager.Inst.Play( SFX.MenuSelect );
     }
 
     protected void MoveToNextOption( OptionController _controller )
     {
         _controller.NextMove();
-        SoundManager.Inst.Play( SoundSfxType.MenuSelect );
+        AudioManager.Inst.Play( SFX.MenuSelect );
     }
 
     protected void EnableCanvas( ActionType _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -101,10 +101,10 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             SoundManager.Inst.Play( SoundSfxType.MenuClick );
+             AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-             SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume * .5f, .5f );
+             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
         }
 
     protected void EnableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -120,10 +120,10 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             SoundManager.Inst.Play( SoundSfxType.MenuClick );
+             AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-             SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume * .5f, .5f );
+             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
     }
 
     protected void ImmediateDisableCanvas( ActionType _changeType, OptionController _controller )
@@ -132,8 +132,8 @@ public abstract class Scene : SceneKeyAction
 
         ChangeAction( _changeType );
 
-        SoundManager.Inst.Play( SoundSfxType.MenuHover );
-        SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+        AudioManager.Inst.Play( SFX.MenuHover );
+        AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
     }
 
     protected void DisableCanvas( ActionType _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -151,10 +151,10 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             SoundManager.Inst.Play( SoundSfxType.MenuHover );
+             AudioManager.Inst.Play( SFX.MenuHover );
 
         if ( _hasFadeVolume )
-             SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
     }
 
     protected void DisableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -173,10 +173,10 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             SoundManager.Inst.Play( SoundSfxType.MenuHover );
+             AudioManager.Inst.Play( SFX.MenuHover );
 
         if ( _hasFadeVolume )
-             SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
     }
     #endregion
 
@@ -211,13 +211,13 @@ public abstract class Scene : SceneKeyAction
     {
         if ( _isPlus )
         {
-            SoundManager.Inst.Play( SoundSfxType.Slider );
+            AudioManager.Inst.Play( SFX.Slider );
             GameSetting.ScrollSpeed += .1f;
         }
         else
         {
             if ( GameSetting.ScrollSpeed > 1.0001d )
-                 SoundManager.Inst.Play( SoundSfxType.Slider );
+                 AudioManager.Inst.Play( SFX.Slider );
 
             GameSetting.ScrollSpeed -= .1f;
         }

@@ -6,12 +6,12 @@ using UnityEngine;
 [StructLayout( LayoutKind.Sequential, Pack = 1 )]
 public struct Packet
 {
-    public Network.Error error;
+    public Error error;
     public PacketType type;
     public ushort size;
     public byte[] data;
 
-    public Packet( Network.Error _error, PacketType _type, ushort _size, byte[] _data )
+    public Packet( Error _error, PacketType _type, ushort _size, byte[] _data )
     {
         error = _error;
         type  = _type;
@@ -21,7 +21,7 @@ public struct Packet
 
     public Packet( PacketType _type )
     {
-        error = Network.Error.OK;
+        error = Error.OK;
         type  = _type;
         size  = Network.HeaderSize;
 
@@ -33,7 +33,7 @@ public struct Packet
 
     public Packet( PacketType _type, IProtocol _protocol )
     {
-        error = Network.Error.OK;
+        error = Error.OK;
         type  = _type;
         byte[] json = System.Text.Encoding.UTF8.GetBytes( JsonConvert.SerializeObject( _protocol ) );
         size = json.Length > 2 ? ( ushort )( json.Length + Network.HeaderSize ) // 정상 패킷
@@ -46,5 +46,10 @@ public struct Packet
 
         if ( json.Length > 2 )
              Buffer.BlockCopy( json, 0, data, Network.HeaderSize, json.Length );
+    }
+
+    public static Type FromJson<Type>( in Packet _packet )
+    {
+        return JsonConvert.DeserializeObject<Type>( System.Text.Encoding.UTF8.GetString( _packet.data ) );
     }
 }

@@ -31,7 +31,7 @@ namespace Global
 		const static char* Host     = "localhost";
 		const static char* User     = "root";
 		const static char* Password = "0000";
-		const static char* Schema   = "VSLike";
+		const static char* Schema   = "Rhythm";
 	}
 
 	namespace Memory

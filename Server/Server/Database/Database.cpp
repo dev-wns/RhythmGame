@@ -109,75 +109,34 @@ void Database::Query( const char* _sentence, ... )
 	}
 }
 
-bool Database::ExistLoginData( const LOGIN_DATA& _data )
+bool Database::IsExist( const USER_DATA& _data )
 {
-	Query( R"Q( SELECT * FROM LoginData WHERE Email = '%s'; )Q", _data.email );
-	if ( ( result = ::mysql_store_result( conn ) ) == nullptr )
-	{
-		Debug.LogWarning( "DB Exception < ", ::mysql_error( conn ), " >" );
-		return false;
-	}
+	Query( R"Q( SELECT * FROM UserInfo WHERE UserName = '%s'; )Q", _data.name );
+	//if ( ( result = ::mysql_store_result( conn ) ) == nullptr )
+	//	   Debug.LogWarning( "DB Exception < ", ::mysql_error( conn ), " >" );
 
-	return ::mysql_fetch_row( result ) != nullptr;
+	return ::mysql_fetch_row( ::mysql_store_result( conn ) ) != nullptr;
 }
 
-void Database::CreateUserData( const std::string& _nickname, const std::string& _email, const std::string& _password )
+void Database::AddUser( const USER_DATA& _data )
 {
-	Query( R"Q( Call CreateUser( '%s', '%s', '%s' ); )Q", _nickname, _email, _password );
+	Query( R"Q( Call AddUser( '%s', '%s' ); )Q", _data.name, _data.password );
 }
 
-void Database::DeleteUserData( int _uid )
+void Database::DeleteUser( const USER_DATA& _data )
 {
-	Query( R"Q( Call DeleteUser( %d ); )Q", _uid );
+	Query( R"Q( Call DeleteUser( '%s' ); )Q", _data.name );
 }
 
-void Database::UpdateUserData( int _uid, const USER_DATA& _data )
+void Database::UpdateUser( const USER_DATA& _data )
 {
-	Query( R"Q( Call UpdateUserData( %d, %d, %f, %d, %d, %d, %d, %d ); )Q",
-							  _uid, _data.level, _data.exp, _data.playCount, _data.kill, _data.death, _data.bestKill, _data.bestDeath );
+	Query( R"Q( Call UpdateUser( '%s', %d, %f, %f, %d ); )Q",
+							  _data.name, _data.level, _data.exp, _data.accuracy, _data.playCount );
 }
 
-LOGIN_DATA Database::GetLoginData( const std::string& _email )
+USER_DATA Database::GetUserInfo( const std::string& _name )
 {
-	Query( R"Q( SELECT * FROM LoginData WHERE Email = '%s'; )Q", _email );
-	if ( ( result = ::mysql_store_result( conn ) ) == nullptr )
-	{
-		Debug.LogWarning( "DB Exception < ", ::mysql_error( conn ), " >" );
-		throw Result::ERR_NOT_EXIST_DATA;
-	}
-
-	MYSQL_ROW row;
-	if ( ( row = ::mysql_fetch_row( result ) ) == nullptr )
-	{
-		Debug.LogWarning( "Login information does not exist" );
-		throw Result::ERR_NOT_EXIST_DATA;
-	}
-
-	return LOGIN_DATA{ ::atoi( row[0] ), row[1], row[2], row[3] };
-}
-
-LOGIN_DATA Database::GetLoginData( int _uid )
-{
-	Query( R"Q( SELECT * FROM LoginData WHERE uid = '%d'; )Q", _uid );
-	if ( ( result = ::mysql_store_result( conn ) ) == nullptr )
-	{
-		Debug.LogWarning( "DB Exception < ", ::mysql_error( conn ), " >" );
-		throw Result::ERR_NOT_EXIST_DATA;
-	}
-
-	MYSQL_ROW row;
-	if ( ( row = ::mysql_fetch_row( result ) ) == nullptr )
-	{
-		Debug.LogWarning( "Login information does not exist" );
-		throw Result::ERR_NOT_EXIST_DATA;
-	}
-
-	return LOGIN_DATA{ ::atoi( row[0] ), row[1], row[2], row[3] };
-}
-
-USER_DATA Database::GetUserData( int _uid )
-{
-	Query( R"Q( SELECT * FROM UserData WHERE uid = '%d'; )Q", _uid );
+	Query( R"Q( SELECT * FROM UserInfo WHERE UserName = '%s'; )Q", _name );
 
 	if ( ( result = ::mysql_store_result( conn ) ) == nullptr )
 	{
@@ -192,5 +151,5 @@ USER_DATA Database::GetUserData( int _uid )
 		throw Result::ERR_NOT_EXIST_DATA;
 	}
 
-	return USER_DATA{ ::atoi( row[2] ), ( float )::atof(row[3]), ::atoi(row[4]), ::atoi(row[5]), ::atoi(row[6]), ::atoi(row[7]), ::atoi(row[8])};
+	return USER_DATA{ row[0], row[1], ::atoi( row[2] ), ( float )::atof( row[3] ), ( float )::atof( row[4] ), ::atoi(row[5]) };
 }

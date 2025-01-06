@@ -78,7 +78,7 @@ public abstract class OptionSlider : OptionBase
 
         Process();
         UpdateValue( curValue );
-        SoundManager.Inst.Play( SoundSfxType.Slider );
+        AudioManager.Inst.Play( SFX.Slider );
     }
 
     private void RightArrow()
@@ -92,7 +92,7 @@ public abstract class OptionSlider : OptionBase
 
         Process();
         UpdateValue( curValue );
-        SoundManager.Inst.Play( SoundSfxType.Slider );
+        AudioManager.Inst.Play( SFX.Slider );
     }
 
     protected void UpdateValue( float _value )

@@ -94,9 +94,9 @@ public class InputSystem : MonoBehaviour
             if ( Input.GetKeyDown( key ) )
             {
                 OnInputEvent?.Invoke( InputType.Down );
-                SoundManager.Inst.Play( curSound );
+                AudioManager.Inst.Play( curSound );
                 if ( GameSetting.UseClapSound )
-                    SoundManager.Inst.Play( SoundSfxType.Clap );
+                    AudioManager.Inst.Play( SFX.Clap );
             }
             else if ( Input.GetKeyUp( key ) )
             {
@@ -278,9 +278,9 @@ public class InputSystem : MonoBehaviour
 
                 OnHitNote?.Invoke( NoteType.Default, InputType.Down );
                 judge.ResultUpdate( GameSetting.IsAutoRandom ? target : 0d, NoteType.Default );
-                SoundManager.Inst.Play( curSound );
+                AudioManager.Inst.Play( curSound );
                 if ( GameSetting.UseClapSound )
-                     SoundManager.Inst.Play( SoundSfxType.Clap );
+                     AudioManager.Inst.Play( SFX.Clap );
                 SelectNextNote();
             }
         }
@@ -294,9 +294,9 @@ public class InputSystem : MonoBehaviour
 
                     curNote.IsKeyDown = true;
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
-                    SoundManager.Inst.Play( curSound );
+                    AudioManager.Inst.Play( curSound );
                     if ( GameSetting.UseClapSound )
-                        SoundManager.Inst.Play( SoundSfxType.Clap );
+                        AudioManager.Inst.Play( SFX.Clap );
 
                     judge.ResultUpdate( 0d, NoteType.Default );
 

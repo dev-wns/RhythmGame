@@ -4,8 +4,8 @@
 Stage::Stage( Session* _host, const STAGE_INFO& _info ) : host( _host ), info( _info ), isValid( true )
 {
 	Debug.Log( "Stage ", info.stageSerial, " has been created" );
-	Debug.Log( "< ", _host->loginInfo.nickname, " > has entered Stage ", info.stageSerial );
-	Debug.Log( "Host changed to < ", host->loginInfo.nickname, " > on stage ", info.stageSerial );
+	Debug.Log( "< ", _host->userInfo.name, " > has entered Stage ", info.stageSerial );
+	Debug.Log( "Host changed to < ", host->userInfo.name, " > on stage ", info.stageSerial );
 
 	sessions.push_back( host );
 	_host->stage = this;
@@ -28,7 +28,7 @@ void Stage::Entry( Session* _session )
 	_session->stage = this;
 	sessions.push_back( _session );
 	info.personnel.current = ( int )sessions.size();
-	Debug.Log( "< ", _session->loginInfo.nickname, " > has entered Stage ", info.stageSerial );
+	Debug.Log( "< ", _session->userInfo.name, " > has entered Stage ", info.stageSerial );
 }
 
 void Stage::Exit( Session* _session )
@@ -41,13 +41,13 @@ void Stage::Exit( Session* _session )
 
 	sessions.erase( std::find( sessions.begin(), sessions.end(), _session ) );
 	info.personnel.current = ( int )sessions.size();
-	Debug.Log( "The < ", _session->loginInfo.nickname, " > has left Stage ", info.stageSerial );
+	Debug.Log( "The < ", _session->userInfo.name, " > has left Stage ", info.stageSerial );
 
 	if ( sessions.size() > 0 && host->GetSocket() == _session->GetSocket() )
 	{
 		 host = *sessions.begin();
 		 info.hostSerial = host->serial;
-		 Debug.Log( "Host changed to < ", host->loginInfo.nickname, " > on stage ", info.stageSerial );
+		 Debug.Log( "Host changed to < ", host->userInfo.name, " > on stage ", info.stageSerial );
 
 		 SERIAL_INFO protocol;
 		 protocol.serial = info.hostSerial;

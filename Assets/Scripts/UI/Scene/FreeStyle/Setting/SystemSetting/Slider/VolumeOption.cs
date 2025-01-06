@@ -6,13 +6,13 @@ public class VolumeOption : OptionSlider
 
     private void OnEnable()
     {
-        curValue = groupType == ChannelType.BGM ? Mathf.RoundToInt( SoundManager.Inst.Volume * 100f ) : Mathf.RoundToInt( SoundManager.Inst.GetVolume( groupType ) * 100f );
+        curValue = groupType == ChannelType.BGM ? Mathf.RoundToInt( AudioManager.Inst.Volume * 100f ) : Mathf.RoundToInt( AudioManager.Inst.GetVolume( groupType ) * 100f );
         UpdateValue( curValue );
     }
 
     public void InputProcess( float _value )
     {
-        SoundManager.Inst.SetVolume( _value * .01f, groupType );
+        AudioManager.Inst.SetVolume( _value * .01f, groupType );
         UpdateText( _value );
     }
 
@@ -21,14 +21,14 @@ public class VolumeOption : OptionSlider
         switch ( groupType )
         {
             case ChannelType.BGM:
-            SoundManager.Inst.StopFadeEffect();
-            SoundManager.Inst.Volume = curValue * .01f;
-            SoundManager.Inst.FadeVolume( SoundManager.Inst.GetVolume( ChannelType.BGM ), SoundManager.Inst.Volume, .5f );
+            AudioManager.Inst.StopFadeEffect();
+            AudioManager.Inst.Volume = curValue * .01f;
+            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
             break;
 
 
             default:
-            SoundManager.Inst.SetVolume( curValue * .01f, groupType );
+            AudioManager.Inst.SetVolume( curValue * .01f, groupType );
             break;
         }
     }

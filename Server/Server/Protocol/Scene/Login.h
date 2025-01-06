@@ -12,6 +12,5 @@ public:
 
 private:
 	static void ConfirmMatchData( const Packet& _packet );
-	static void AddToDatabase( const Packet& _packet );
-	static void ConfirmDuplicateInfo( const Packet& _packet );
+	static void CreateNewUserData( const Packet& _packet );
 };

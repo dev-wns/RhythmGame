@@ -2,12 +2,12 @@ using UnityEngine;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Permissions;
+using System.Runtime.InteropServices;
 
 namespace Global
 {
     /// <summary> 가벼운 Math </summary>
-    public static class Math
+    public struct Math
     {
         public static float Lerp( float _start, float _end, float _t ) => _start + ( _end - _start ) * _t;
         public static double Lerp( double _start, double _end, double _t ) => _start + ( _end - _start ) * _t;
@@ -64,12 +64,12 @@ namespace Global
         }
     }
 
-    public static class Screen
+    public struct Screen
     {
         public static int Width  = 1920;
         public static int Height = 1080;
     }
-    public static class Color
+    public struct Color
     {
         /// <summary> Clear All ( 0, 0, 0, 0 ) </summary>
         public static UnityEngine.Color Clear    = new UnityEngine.Color( 0f, 0f, 0f, 0f );
@@ -79,7 +79,7 @@ namespace Global
         public static UnityEngine.Color ClearRGB = new UnityEngine.Color( 0f, 0f, 0f, 1f );
     }
 
-    public static class FILE
+    public struct FILE
     {
         public static string[] GetFilesInSubDirectories( string _dirPath, string _extension )
         {
@@ -107,7 +107,7 @@ namespace Global
         }
     }
 
-    public static class Const
+    public struct Const
     {
         public static readonly float OptionFadeDuration = .15f;
     }
@@ -120,6 +120,18 @@ public static class Extentions
         if ( _dictionary.TryGetValue( _key, out int _count ) )
              _dictionary[_key] = _count + 1;
     }
+}
+
+public enum Error : ushort
+{
+    OK = 0,
+    DB_ERR_DISCONNECTED,   // 서버에 연결되지않음
+    DB_ERR_INVALID_QUERY,  // 쿼리 구문이 유효하지않음
+    DB_ERR_DUPLICATE_DATA, // UNIQUE로 설정된 데이터가 이미 존재함
+
+    ERR_NOT_EXIST_DATA,    // 데이터가 존재하지않음
+    ERR_INVALID_DATA,      // 데이터가 유효하지않음
+    ERR_UNABLE_PROCESS,    // 요청을 수행할 수 없음
 }
 
 public static class Debug
