@@ -8,32 +8,12 @@ public class PlayerInfo : MonoBehaviour
 {
     [Header( "Group" )]
     public GameObject playerInfo;
-    public GameObject guestInfo;
 
     [Header( "Infomation Texts" )]
     public TextMeshProUGUI userName;
     public TextMeshProUGUI level;
     public TextMeshProUGUI accuracy;
     public TextMeshProUGUI playCount;
-
-    private void Awake()
-    {
-        UpdateGroup();
-    }
-
-    public void UpdateGroup()
-    {
-        if ( NowPlaying.UserInfo is null )
-        {
-            playerInfo.SetActive( false );
-            guestInfo.SetActive( true );
-        }
-        else
-        {
-            playerInfo.SetActive( true );
-            guestInfo.SetActive( false );
-        }
-    }
 
     public void UpdateUserInfo( USER_INFO _data )
     {

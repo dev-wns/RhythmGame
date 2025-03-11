@@ -54,7 +54,7 @@ public class BpmChanger : MonoBehaviour
         if ( isStart && curIndex < timings.Count &&
              time < NowPlaying.Playback )
         {
-            text.text = $"{(int)curTiming.bpm}";
+            text.text = $"{( int )curTiming.bpm}";
 
             if ( ++curIndex < timings.Count )
             {

@@ -119,9 +119,9 @@ public class FileParser : FileReader
             {
                 var split = line.Split( ',' );
 
-                curTiming.time          = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
+                curTiming.time          = ( double.Parse( split[0] ) * .001d ) / GameSetting.CurrentPitch;
                 curTiming.beatLength    = double.Parse( split[1] );
-                curTiming.bpm           = ( 1d / curTiming.beatLength * 60000d ) * GameSetting.CurrentPitch;
+                curTiming.bpm           = ( 1d / curTiming.beatLength ) * 60000d * GameSetting.CurrentPitch;
                 curTiming.isUninherited = int.Parse( split[2] );
                 if ( uninheritedTimings.Count == 0 )
                 {
@@ -174,8 +174,8 @@ public class FileParser : FileReader
                 var split = line.Split( ',' );
 
                 sprite.type  = ( SpriteType )int.Parse( split[0] );
-                sprite.start = double.Parse( split[1] ) * .001d / GameSetting.CurrentPitch;
-                sprite.end   = double.Parse( split[2] ) * .001d / GameSetting.CurrentPitch;
+                sprite.start = ( double.Parse( split[1] ) * .001d ) / GameSetting.CurrentPitch;
+                sprite.end   = ( double.Parse( split[2] ) * .001d ) / GameSetting.CurrentPitch;
                 sprite.name  = split[3];
 
                 sprites.Add( sprite );
@@ -190,7 +190,7 @@ public class FileParser : FileReader
                 KeySound sample;
                 var split = line.Split( ',' );
 
-                sample.time = double.Parse( split[0] ) * .001d / GameSetting.CurrentPitch;
+                sample.time   = ( double.Parse( split[0] ) * .001d ) / GameSetting.CurrentPitch;
                 sample.volume = float.Parse( split[1] ) * .01f;
                 sample.name = split[2];
                 //sample.sound = new FMOD.Sound();
@@ -208,8 +208,8 @@ public class FileParser : FileReader
                 var split = line.Split( ',' );
 
                 note.lane           = int.Parse( split[0] );
-                note.time           = double.Parse( split[1] ) * .001d / GameSetting.CurrentPitch;
-                note.sliderTime     = double.Parse( split[2] ) * .001d / GameSetting.CurrentPitch;
+                note.time           = ( double.Parse( split[1] ) * .001d ) / GameSetting.CurrentPitch;
+                note.sliderTime     = ( double.Parse( split[2] ) * .001d ) / GameSetting.CurrentPitch;
                 note.isSlider       = note.sliderTime > 0d ? true : false;
 
                 var keySoundSplit = split[3].Split( ':' );
@@ -262,7 +262,7 @@ public class FileParser : FileReader
 
                 curTiming.time = double.Parse( split[0] ) * .001d;
                 curTiming.beatLength = double.Parse( split[1] );
-                curTiming.bpm = ( 1d / curTiming.beatLength * 60000d );
+                curTiming.bpm = ( 1d / curTiming.beatLength ) * 60000d;
 
                 timings.Add( curTiming );
             }

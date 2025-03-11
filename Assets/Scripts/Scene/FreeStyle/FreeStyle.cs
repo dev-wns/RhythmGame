@@ -3,15 +3,13 @@ using UnityEngine;
 
 public class FreeStyle : Scene
 {
-    public GameObject    exit;
+    public GameObject exit;
     public GameObject gameSetting;
     public GameObject systemSetting;
     public FreeStyleKeySetting keySetting;
     public FreeStyleReLoad     reload;
     public FreeStyleSearch     search;
     public FreeStyleComment    comment;
-    public GameObject          multiPlay;
-    //public RecordSystem        record;
 
     public TextMeshProUGUI speedText;
 
@@ -54,9 +52,14 @@ public class FreeStyle : Scene
     public void EnableGameSettingCanvas()   => EnableCanvas( ActionType.GameOption, gameSetting );
     public void EnableSystemSettingCanvas() => EnableCanvas( ActionType.SystemOption, systemSetting, true, false );
     public void EnableKeySettingCanvas()    => EnableCanvas( ActionType.KeySetting, keySetting );
-    public void EnableMultiPlayCanvas()     => EnableCanvas( ActionType.MultiPlay, multiPlay );
     public void EnableReloadCanvas()        => EnableCanvas( ActionType.ReLoad, reload.gameObject );
-    public void EnableExitCanvas()          =>EnableCanvas( ActionType.Exit, exit );
+    public void EnableExitCanvas()          => EnableCanvas( ActionType.Exit, exit );
+    public void MoveToWaitingRoom()
+    {
+        AudioManager.Inst.Play( SFX.MenuClick );
+        LoadScene( SceneType.WaitingRoom );
+    }
+
     public void EnableSearchCanvas()
     {
         EnableCanvas( ActionType.Search, search.canvas );
@@ -111,22 +114,19 @@ public class FreeStyle : Scene
         Bind( ActionType.Search, KeyCode.Escape,         search.DisableInputField );
         Bind( ActionType.Search, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, search.canvas ); } );
 
-        // MultiPlay
-        Bind( ActionType.MultiPlay, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, multiPlay ); } );
-
         // Comment
-        //Bind( ActionType.Main, KeyCode.F3,        () => { EnableCanvas( ActionType.Comment, comment.canvas ); } );
-        //Bind( ActionType.Main, KeyCode.F3,        comment.EnableInputField  );
-        //Bind( ActionType.Comment, KeyCode.F3,     () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
-        //Bind( ActionType.Comment, KeyCode.F3,     comment.DisableInputField );
-        //Bind( ActionType.Comment, KeyCode.F3,     comment.ReviseComment );
-        //Bind( ActionType.Comment, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
-        //Bind( ActionType.Comment, KeyCode.Escape, comment.DisableInputField );
-        //Bind( ActionType.Comment, KeyCode.Escape, comment.ReviseComment );
+        Bind( ActionType.Main,    KeyCode.F3,     () => { EnableCanvas( ActionType.Comment, comment.canvas ); } );
+        Bind( ActionType.Main,    KeyCode.F3,     comment.EnableInputField );
+        Bind( ActionType.Comment, KeyCode.F3,     () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
+        Bind( ActionType.Comment, KeyCode.F3,     comment.DisableInputField );
+        Bind( ActionType.Comment, KeyCode.F3,     comment.ReviseComment );
+        Bind( ActionType.Comment, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, comment.canvas ); } );
+        Bind( ActionType.Comment, KeyCode.Escape, comment.DisableInputField );
+        Bind( ActionType.Comment, KeyCode.Escape, comment.ReviseComment );
 
-        // ReLoad
-        //Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas(  ActionType.ReLoad, reload.gameObject ); } );
-        //Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,   reload.gameObject ); } );
+        //ReLoad
+        Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas( ActionType.ReLoad, reload.gameObject ); } );
+        Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, reload.gameObject ); } );
 
         //// Record
         //Bind( ActionType.Main, KeyCode.Tab, record.HideRecordInfomation );

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PreviewNoteSystem : MonoBehaviour
@@ -16,6 +17,15 @@ public class PreviewNoteSystem : MonoBehaviour
     private int timingIndex;
     private double mainBPM;
 
+    private const double DelayTime = 1d / 60d;
+
+    public TextMeshProUGUI bpmText;
+    private int bpmIndex;
+    private double bpmTime;
+    private Timing curTiming;
+
+    public SoundPitchOption pitchOption;
+
     public static double Playback => FreeStyleMainScroll.Playback + ( NowPlaying.CurrentSong.audioOffset * .001f );
     public  static double Distance { get; private set; }
     private static double DistanceCache;
@@ -24,12 +34,15 @@ public class PreviewNoteSystem : MonoBehaviour
 
     public static float NoteWidth;
     public static float NoteHeight;
+    public static float Weight => ( GameSetting.ScrollSpeed * .775f ) * 350f;
+    public static float MinDistance => 1200f / Weight;
     private static float NoteMultiplier;
 
     private void Awake()
     {
         scroll.OnSelectSong   += Parse;
         scroll.OnSoundRestart += Restart;
+        pitchOption.OnPitchUpdate += OnPitchUpdate;
 
         notePool ??= new ObjectPool<PreviewNoteRenderer>( notePrefab, transform, 5 );
     }
@@ -77,6 +90,10 @@ public class PreviewNoteSystem : MonoBehaviour
             }
         }
 
+        bpmIndex  = timingIndex;
+        curTiming = timings[bpmIndex];
+        bpmTime   = curTiming.time;
+        bpmText.text = $"{Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.CurrentPitch ) )}";
     }
 
     private void Parse( Song _song )
@@ -99,6 +116,11 @@ public class PreviewNoteSystem : MonoBehaviour
         Restart( _song );
     }
 
+    private void OnPitchUpdate( float _pitch )
+    {
+        bpmText.text = $"{Mathf.RoundToInt( ( float )( curTiming.bpm * _pitch ) )}";
+    }
+
     private void Update()
     {
         var timings = chart.timings;
@@ -108,7 +130,7 @@ public class PreviewNoteSystem : MonoBehaviour
             double bpm  = timings[i].bpm / mainBPM;
 
             if ( Playback < time )
-                break;
+                 break;
 
             if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
             {
@@ -121,12 +143,24 @@ public class PreviewNoteSystem : MonoBehaviour
             Distance = DistanceCache + ( bpm * ( Playback - time ) );
         }
 
+        if ( bpmIndex < timings.Count && bpmTime < Playback )
+        {
+            bpmText.text = $"{Mathf.RoundToInt( ( float )( timings[bpmIndex].bpm * GameSetting.CurrentPitch ) )}";
+            
+            if ( ++bpmIndex < timings.Count )
+            {
+                curTiming = timings[bpmIndex];
+                bpmTime = bpmIndex + 1 < timings.Count && Global.Math.Abs( timings[bpmIndex + 1].time - curTiming.time ) > DelayTime ?
+                          curTiming.time + DelayTime : curTiming.time;
+            }
+        }
+
         SpawnNotes( Distance );
     }
     
     private void SpawnNotes( double _distance )
     {
-        while ( noteSpawnIndex < chart.notes.Count && curData.noteDistance <= _distance + GameSetting.MinDistance )
+        while ( noteSpawnIndex < chart.notes.Count && curData.noteDistance <= _distance + MinDistance )
         {
             PreviewNoteRenderer note = notePool.Spawn();
             Color color = Color.white;

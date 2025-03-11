@@ -114,7 +114,7 @@ public class LoginSystem : MonoBehaviour
                 message.text = "중복된 아이디 입니다.";
             }
             break;
-
+            
             default:
             {
                 Debug.LogWarning( _packet.error.ToString() );
@@ -133,7 +133,6 @@ public class LoginSystem : MonoBehaviour
                 var data = Packet.FromJson<USER_INFO>( _packet );
                 NowPlaying.UserInfo = data;
 
-                playerInfo.UpdateGroup();
                 playerInfo.UpdateUserInfo( data );
                 loginCanvas.SetActive( false );
                 OnLoginCompleted?.Invoke();
