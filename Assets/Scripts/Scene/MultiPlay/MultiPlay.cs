@@ -2,18 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WaitingRoom : Scene
+public class MultiPlay : Scene
 {
     public GameObject loginCanvas;
+    public PlayerInfo playerInfo;
 
     protected override void Awake()
     {
         base.Awake();
 
-        loginCanvas?.SetActive( NowPlaying.UserInfo is null );
+        if ( NowPlaying.UserInfo is null )
+             loginCanvas?.SetActive( true );
+        else
+        {
+            playerInfo.UpdateUserInfo( NowPlaying.UserInfo.Value );
+            loginCanvas?.SetActive( false );
+        }
     }
 
     public void EnableMultiPlayCanvas() => EnableCanvas( ActionType.MultiPlay, loginCanvas );
+
+    public void MoveToRoom()
+    {
+        AudioManager.Inst.Play( SFX.MainClick );
+        LoadScene( SceneType.Room );
+    }
 
     public override void Connect()
     {

@@ -54,10 +54,10 @@ public class FreeStyle : Scene
     public void EnableKeySettingCanvas()    => EnableCanvas( ActionType.KeySetting, keySetting );
     public void EnableReloadCanvas()        => EnableCanvas( ActionType.ReLoad, reload.gameObject );
     public void EnableExitCanvas()          => EnableCanvas( ActionType.Exit, exit );
-    public void MoveToWaitingRoom()
+    public void MoveToMultiPlay()
     {
         AudioManager.Inst.Play( SFX.MenuClick );
-        LoadScene( SceneType.WaitingRoom );
+        LoadScene( SceneType.MultiPlay );
     }
 
     public void EnableSearchCanvas()

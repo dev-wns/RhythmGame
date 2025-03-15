@@ -9537,7 +9537,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 103959472}
         m_TargetAssemblyTypeName: FreeStyle, Assembly-CSharp
-        m_MethodName: MoveToWaitingRoom
+        m_MethodName: MoveToMultiPlay
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

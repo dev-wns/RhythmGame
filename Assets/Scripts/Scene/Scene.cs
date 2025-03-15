@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // Build Index
-public enum SceneType : int { FreeStyle = 1, Game, Result, WaitingRoom };//, SelectingRoom, MultiPlay };
+public enum SceneType : int { FreeStyle = 1, Game, Result, MultiPlay, Room, };
 
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
