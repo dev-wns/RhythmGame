@@ -12,37 +12,32 @@ public class LoginSystem : MonoBehaviour
     public TMP_InputField email;
     public TMP_InputField password;
 
-    public bool isFocusEmail;
-
     public PlayerInfo playerInfo;
     public TextMeshProUGUI message;
 
+    private bool isFocusEmail;
     public event Action OnLoginCompleted;
 
     private void Awake()
     {
         // Protocols
         ProtocolSystem.Inst.Regist( CONFIRM_LOGIN_ACK,   AckConfirmMatchData );
-        ProtocolSystem.Inst.Regist( CONFIRM_ACCOUNT_ACK, AckCreateNewUserData );
+        ProtocolSystem.Inst.Regist( CONFIRM_ACCOUNT_ACK, AckCreateUserData );
+    }
+
+    private void Start()
+    {
+        email.ActivateInputField();
+        password.DeactivateInputField();
     }
 
     private void OnEnable()
     {
         isFocusEmail = false;
-        email.ActivateInputField();
-
         message.text = string.Empty;
-        if ( NowPlaying.UserInfo is null )
-        {
-            loginCanvas.SetActive( true );
 
-            // 패스워드 타입 설정( 코드로만 수정가능한 듯 )
-            password.contentType = TMP_InputField.ContentType.Password;
-        }
-        else
-        {
-            loginCanvas.SetActive( false );
-        }
+        // 패스워드 타입 설정( 코드로만 수정가능한 듯 )
+        password.contentType = TMP_InputField.ContentType.Password;
     }
 
     public void Update()
@@ -98,28 +93,26 @@ public class LoginSystem : MonoBehaviour
     #endregion
 
     #region Response Protocols
-    public void AckCreateNewUserData( Packet _packet )
+    public void AckCreateUserData( Packet _packet )
     {
+        AudioManager.Inst.Play( SFX.MenuClick );
         switch ( _packet.error )
         {
             case Error.DB_ERR_DISCONNECTED: break;
             case Error.OK:
             {
                 message.text = "회원가입 완료";
-            }
-            break;
+            } break;
 
             case Error.DB_ERR_DUPLICATE_DATA:
             {
                 message.text = "중복된 아이디 입니다.";
-            }
-            break;
+            } break;
             
             default:
             {
                 Debug.LogWarning( _packet.error.ToString() );
-            }
-            break;
+            } break;
         }
     }
 

@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class WaitingRoom : Scene
 {
-    public GameObject multiPlay;
+    public GameObject loginCanvas;
 
-    protected override void Start()
+    protected override void Awake()
     {
         base.Awake();
 
+        loginCanvas?.SetActive( NowPlaying.UserInfo is null );
     }
 
-    public void EnableMultiPlayCanvas() => EnableCanvas( ActionType.MultiPlay, multiPlay );
+    public void EnableMultiPlayCanvas() => EnableCanvas( ActionType.MultiPlay, loginCanvas );
 
     public override void Connect()
     {
@@ -27,7 +28,7 @@ public class WaitingRoom : Scene
     public override void KeyBind()
     {
         // MultiPlay
-        Bind( ActionType.MultiPlay, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, multiPlay ); } );
+        Bind( ActionType.MultiPlay, KeyCode.Escape, () => { DisableCanvas( ActionType.Main, loginCanvas ); } );
 
     }
 }

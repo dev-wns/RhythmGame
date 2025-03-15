@@ -29,6 +29,8 @@ public abstract class Scene : SceneKeyAction
 
         NowPlaying.CurrentScene = this;
         KeyBind();
+
+        Bind( ActionType.Main, KeyCode.JoystickButton19, () => {} );
         ChangeAction( ActionType.Main );
 
         AudioManager.Inst.SetVolume( AudioManager.Inst.Volume, ChannelType.BGM );

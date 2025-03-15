@@ -967,7 +967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07493183cbb1f6846949340a54a617c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  multiPlay: {fileID: 1087016402}
+  loginCanvas: {fileID: 1087016402}
 --- !u!212 &97794164
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2602,7 +2602,7 @@ GameObject:
   - component: {fileID: 932743417}
   - component: {fileID: 932743416}
   m_Layer: 5
-  m_Name: Background
+  m_Name: Lines Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2979,6 +2979,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1081100651}
   m_CullTransparentMesh: 1
+--- !u!1 &1083840399
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1083840402}
+  - component: {fileID: 1083840401}
+  - component: {fileID: 1083840400}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1083840400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083840399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
+--- !u!114 &1083840401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083840399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &1083840402
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083840399}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1087016402
 GameObject:
   m_ObjectHideFlags: 0
@@ -3292,7 +3360,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1187453415
@@ -3873,11 +3941,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21b1ba9a1fa77cb42a4c56f94acd80a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loginCanvas: {fileID: 1372127432}
+  loginCanvas: {fileID: 1087016402}
   email: {fileID: 1081100652}
   password: {fileID: 1961534945}
-  isFocusEmail: 0
-  playerInfo: {fileID: 0}
+  playerInfo: {fileID: 182565841}
   message: {fileID: 354586331}
 --- !u!114 &1637101858
 MonoBehaviour:
@@ -4095,32 +4162,13 @@ GameObject:
   - component: {fileID: 1740957380}
   - component: {fileID: 1740957379}
   - component: {fileID: 1740957378}
-  - component: {fileID: 1740957377}
   m_Layer: 5
-  m_Name: System
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1740957377
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740957376}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21b1ba9a1fa77cb42a4c56f94acd80a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  loginCanvas: {fileID: 0}
-  email: {fileID: 0}
-  password: {fileID: 0}
-  isFocusEmail: 0
-  playerInfo: {fileID: 0}
-  message: {fileID: 0}
 --- !u!114 &1740957378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4295,7 +4343,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1776214978
@@ -5208,6 +5256,7 @@ CanvasRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1083840402}
   - {fileID: 1107829196}
   - {fileID: 1087016408}
   - {fileID: 810825087}
