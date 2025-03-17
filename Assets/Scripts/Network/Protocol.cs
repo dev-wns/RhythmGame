@@ -104,8 +104,10 @@ public struct STAGE_INFO : IProtocol
     public uint stageSerial;
     public uint hostSerial;
     public string title;
+    public string password;
     public string host;
     public string song;
+    public bool isPlaying;
     public Personnel personnel;
 }
 

@@ -2,7 +2,6 @@ using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 
 public class FreeStyleMainScroll : ScrollBase
@@ -55,8 +54,12 @@ public class FreeStyleMainScroll : ScrollBase
 
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
-        AudioManager.Inst.OnReload += OnBufferSetting;
-        search.OnSearch += UpdateLayoutAndSong;
+
+        if ( !GameManager.IsMultiPlaying )
+        {
+            AudioManager.Inst.OnReload += OnBufferSetting;
+            search.OnSearch += UpdateLayoutAndSong;
+        }
 
         median           = Mathf.FloorToInt( maxShowCount / 2f );
         contentOriginPos = rt.anchoredPosition;

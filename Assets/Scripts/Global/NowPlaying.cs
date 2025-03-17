@@ -98,8 +98,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action       OnParsingEnd;
     public static event Action<double/* Distance */> OnSpawnObjects;
 
-    public static USER_INFO? UserInfo { get; set; }
-
     public static bool IsStart        { get; private set; }
     public static bool IsParsing      { get; private set; }
     public static bool IsLoadBGA      { get; set; }

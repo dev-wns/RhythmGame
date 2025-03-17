@@ -9,8 +9,8 @@ public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SFX
 {
     MainSelect, MainClick, MainHover, Slider,
-    MenuSelect, MenuClick, MenuHover,
-    Clap,
+    MenuSelect, MenuClick, MenuHover, MenuExit,
+    //Clap,
 }
 
 
@@ -199,8 +199,10 @@ public class AudioManager : Singleton<AudioManager>
         Load( SFX.MainHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav" );
         Load( SFX.MenuHover, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav" );
 
+        Load( SFX.MenuExit, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav" );
+
         Load( SFX.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
-        Load( SFX.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap2.wav" );
+        //Load( SFX.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap2.wav" );
 
         // Details
         SetVolume( .1f, ChannelType.Master );
@@ -438,8 +440,9 @@ public class AudioManager : Singleton<AudioManager>
             return;
         }
 
-        if ( _type == SFX.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
-        else                     ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
+        // if ( _type == SFX.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
+        // else                     ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
+        ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX], false, out FMOD.Channel channel ) );
     }
 
     /// <summary> Play Key Sound Effects </summary>

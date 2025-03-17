@@ -5,9 +5,9 @@ public enum AntiAliasing { None, _2xMultiSampling, _4xMultiSampling, _8xMultiSam
 
 public class SystemSetting
 {
-    public static Resolution   CurrentResolution   = Resolution._1920_1080;
+    public static Resolution   CurrentResolution   = Resolution._1280_720;
     public static FrameRate    CurrentFrameRate    = FrameRate.No_Limit;
-    public static ScreenMode   CurrentScreenMode   = ScreenMode.FullScreen_Window;
+    public static ScreenMode   CurrentScreenMode   = ScreenMode.Windowed;
     public static SoundBuffer  CurrentSoundBuffer  = SoundBuffer._64;
     public static AntiAliasing CurrentAntiAliasing = AntiAliasing.None;
 

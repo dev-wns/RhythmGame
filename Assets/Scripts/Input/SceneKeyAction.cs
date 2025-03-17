@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ActionType : byte { Main, Search, Comment, MultiPlay, GameOption, SystemOption, KeySetting, ReLoad, Pause, GameOver, Exit, }
+public enum ActionType : byte { Main, Exit,                                                   // Public
+                               Search, Comment, GameOption, SystemOption, KeySetting, ReLoad, // FreeStyle
+                               Pause, GameOver,                                               // InGame
+                               Login, CreateStage,                                             // MultiPlay
+}
 public abstract class SceneKeyAction : MonoBehaviour
 {
     private Dictionary<ActionType, KeyAction> keyActions = new Dictionary<ActionType, KeyAction>();
@@ -58,7 +62,8 @@ public abstract class SceneKeyAction : MonoBehaviour
     {
         if ( !keyActions.ContainsKey( _actionType ) )
         {
-            Debug.LogError( $"The bound key does not exist. {_actionType}" );
+            Bind( _actionType, KeyCode.JoystickButton19, () => { } );
+            //Debug.LogError( $"The bound key does not exist. {_actionType}" );
             return;
         }
 

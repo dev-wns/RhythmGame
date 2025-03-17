@@ -212,8 +212,10 @@ public:
 	SerialType stageSerial;
 	SerialType hostSerial;
 	std::string title;
-	int targetKill;
-	int currentKill;
+	std::string password;
+	std::string host;
+	std::string song;
+	bool isPlaying;
 	Personnel personnel;
 
 public:
@@ -223,8 +225,10 @@ public:
 		ar( CEREAL_NVP( stageSerial ) );
 		ar( CEREAL_NVP( hostSerial ) );
 		ar( CEREAL_NVP( title ) );
-		ar( CEREAL_NVP( targetKill ) );
-		ar( CEREAL_NVP( currentKill ) );
+		ar( CEREAL_NVP( password ) );
+		ar( CEREAL_NVP( host ) );
+		ar( CEREAL_NVP( song ) );
+		ar( CEREAL_NVP( isPlaying ) );
 		ar( CEREAL_NVP( personnel ) );
 	}
 } STAGE_INFO;

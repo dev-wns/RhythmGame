@@ -20,8 +20,9 @@ void Lobby::AckCreateStage( const Packet& _packet )
 	stageData.stageSerial = Global::GetNewSerial();
 	stageData.hostSerial = session->serial;
 	stageData.title = data.title;
-	stageData.targetKill = data.targetKill;
-	stageData.currentKill = 0;
+	stageData.host  = session->userInfo.name;
+	stageData.song  = "";
+	stageData.isPlaying = false;
 	stageData.personnel.maximum = data.personnel.maximum;
 	stageData.personnel.current = 1;
 

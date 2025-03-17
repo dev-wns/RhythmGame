@@ -11,6 +11,7 @@ public class ButtonHoverEffect : ButtonEffect
     private Image image;
     public float targetAlpha = 1f;
     public float duration    = .25f;
+    public bool isSfxPlay    = false;
     private Color color;
 
     private void Awake()
@@ -36,6 +37,8 @@ public class ButtonHoverEffect : ButtonEffect
     {
         base.OnPointerEnter( eventData );
         image.DOFade( targetAlpha, duration );
+        if ( isSfxPlay )
+             AudioManager.Inst.Play( SFX.MenuHover );
     }
 
     public override void OnPointerExit( PointerEventData eventData )

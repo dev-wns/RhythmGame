@@ -5,7 +5,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // Build Index
-public enum SceneType : int { FreeStyle = 1, Game, Result, MultiPlay, Room, };
+public enum SceneType : int { FreeStyle = 1, Game, Result, // SiglePlay 
+                              Lobby, Stage,                // MultiPlay
+                            };
 
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
@@ -29,8 +31,6 @@ public abstract class Scene : SceneKeyAction
 
         NowPlaying.CurrentScene = this;
         KeyBind();
-
-        Bind( ActionType.Main, KeyCode.JoystickButton19, () => {} );
         ChangeAction( ActionType.Main );
 
         AudioManager.Inst.SetVolume( AudioManager.Inst.Volume, ChannelType.BGM );
@@ -134,7 +134,7 @@ public abstract class Scene : SceneKeyAction
 
         ChangeAction( _changeType );
 
-        AudioManager.Inst.Play( SFX.MenuHover );
+        AudioManager.Inst.Play( SFX.MenuExit );
         AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
     }
 
@@ -153,7 +153,7 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             AudioManager.Inst.Play( SFX.MenuHover );
+             AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
              AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
@@ -175,7 +175,7 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             AudioManager.Inst.Play( SFX.MenuHover );
+             AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
              AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );

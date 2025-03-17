@@ -4,11 +4,12 @@ using TMPro;
 using UnityEngine;
 
 using static PacketType;
-public class Room : MonoBehaviour
+public class StageData : MonoBehaviour
 {
     public TextMeshProUGUI title;
     public TextMeshProUGUI host;
     public TextMeshProUGUI song;
+    public TextMeshProUGUI isPlaying;
     public TextMeshProUGUI personnel;
 
     public STAGE_INFO info;
@@ -21,6 +22,7 @@ public class Room : MonoBehaviour
         title.text     = info.title;
         host.text      = info.host;
         song.text      = info.song;
+        isPlaying.text = _info.isPlaying ? "PLAYING" : "WAITING";
         personnel.text = $"{info.personnel.current} / {info.personnel.maximum}";
     }
 
