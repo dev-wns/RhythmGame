@@ -4947,6 +4947,7 @@ MonoBehaviour:
   decreasePower: 17.5
   isNormalized: 1
   NormalizedRange: 1
+  isReverse: 0
   isAxisX: 0
 --- !u!1 &182803764
 GameObject:
@@ -22957,6 +22958,7 @@ MonoBehaviour:
   decreasePower: 15
   isNormalized: 1
   NormalizedRange: 1
+  isReverse: 0
   isAxisX: 1
 --- !u!1 &1108523910
 GameObject:
@@ -23075,7 +23077,7 @@ MonoBehaviour:
   specWidth: 5.15
   specBlank: 1
   decreasePower: 10
-  IsNormalized: 1
+  IsNormalized: 0
   normalizedRange: 2
   isReverse: 1
   isPositionUpdate: 0

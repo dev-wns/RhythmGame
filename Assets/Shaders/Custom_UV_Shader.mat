@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: NoteUV Mat
-  m_Shader: {fileID: 4800000, guid: abcac226a27a90d4f8d128535298b4a3, type: 3}
+  m_Name: Custom_UV_Shader
+  m_Shader: {fileID: 4800000, guid: a7b6d2a77b9604e48a965fefedc3886a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -29,9 +29,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _U: 0
-    - _V: 0
-    m_Colors:
-    - _UV: {r: 0, g: 0, b: 0, a: 0}
+    - _Cutoff: 0.008
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

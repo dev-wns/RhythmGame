@@ -70,9 +70,13 @@ public class LineSpectrum : BaseSpectrum
 
             //buffer[i] = buffer[i] < value ? value : buffer[i];
 
-            buffer[i] = buffer[i] < value ? value : 
-                                            Global.Math.Clamp( buffer[i] - ( ( .025f + buffer[i] ) * decreasePower * Time.deltaTime ), .0005f, 1f );
+            buffer[i] -= ( ( buffer[i] * decreasePower ) * Time.deltaTime );
+            buffer[i] = buffer[i] < value ? value : buffer[i];
 
+            //buffer[i] = buffer[i] < value ? value :
+            //                                Global.Math.Clamp( buffer[i] - ( ( .025f + Global.Math.Abs( buffer[i] - value ) ) * decreasePower * Time.deltaTime ), .0005f, 1f );
+                                            // Global.Math.Clamp( buffer[i] - ( ( .025f + buffer[i] ) * decreasePower * Time.deltaTime ), .0005f, 1f );
+                                            
             // 계산된 값으로 스케일 조절.
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];

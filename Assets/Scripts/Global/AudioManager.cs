@@ -202,12 +202,12 @@ public class AudioManager : Singleton<AudioManager>
         Load( SFX.MenuExit, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav" );
 
         Load( SFX.Slider, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav" );
-        //Load( SFX.Clap, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap2.wav" );
+        //Load( SFX.Clap,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
         // Details
-        SetVolume( .1f, ChannelType.Master );
-        SetVolume(  1f, ChannelType.BGM );
-        SetVolume(  1f, ChannelType.SFX );
+        SetVolume(  1f, ChannelType.Master );
+        SetVolume( .15f, ChannelType.BGM );
+        SetVolume( .3f, ChannelType.SFX );
         SetVolume( .8f, ChannelType.Clap );
         #endregion
         Debug.Log( $"AudioManager Initialization {timer.End} ms" );

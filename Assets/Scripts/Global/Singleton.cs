@@ -12,7 +12,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if ( ReferenceEquals( null, instance ) )
             {
-                T[] objs = FindObjectsOfType<T>();
+                T[] objs = FindObjectsByType<T>( FindObjectsSortMode.None );
                 if ( objs.Length > 1 ) Debug.LogError( string.Format( "create multiple singleton objects. #Name : {0}", typeof( T ) ) );
                 if ( objs.Length > 0 ) instance = objs[0];
                 if ( ReferenceEquals( null, instance ) )
@@ -29,7 +29,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void Awake()
     {
-        T[] objs = FindObjectsOfType<T>();
+        T[] objs = FindObjectsByType<T>( FindObjectsSortMode.None );
         if ( objs.Length == 1 )
         {
             instance = objs[0];

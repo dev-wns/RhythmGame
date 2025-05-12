@@ -56,10 +56,10 @@ public class ScoreSystem : MonoBehaviour
         switch ( _result.hitResult )
         {
             case HitResult.Maximum: targetScore += maxScore;        break;
-            case HitResult.Perfect: targetScore += maxScore * .82d; break;
-            case HitResult.Great:   targetScore += maxScore * .63d; break;
-            case HitResult.Good:    targetScore += maxScore * .41d; break;
-            case HitResult.Bad:     targetScore += maxScore * .25d; break;
+            case HitResult.Perfect: targetScore += maxScore * .70d; break;
+            case HitResult.Great:   targetScore += maxScore * .50d; break;
+            case HitResult.Good:    targetScore += maxScore * .30d; break;
+            case HitResult.Bad:     targetScore += maxScore * .15d; break;
             default:                                                return;
         }
 
