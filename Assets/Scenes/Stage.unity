@@ -16559,7 +16559,7 @@ MonoBehaviour:
   sortingOrder: 2
   specStartIndex: 38
   specCount: 156
-  specPower: 1.15
+  specPower: 1.25
   specWidth: 5.15
   specBlank: 1
   decreasePower: 12.5

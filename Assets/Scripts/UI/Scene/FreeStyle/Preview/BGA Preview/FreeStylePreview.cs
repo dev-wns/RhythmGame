@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,7 +16,7 @@ public abstract class FreeStylePreview : MonoBehaviour
         scroller.OnSelectSong += UpdatePreview;
         scroller.OnSoundRestart += Restart;
         if ( !TryGetComponent( out previewImage ) )
-             Debug.LogError( "PreviewBGA RawImage Component is not found." );
+            Debug.LogError( "PreviewBGA RawImage Component is not found." );
 
         tf = transform as RectTransform;
         sizeCache = tf.sizeDelta;
@@ -27,7 +25,7 @@ public abstract class FreeStylePreview : MonoBehaviour
     protected virtual void Update()
     {
         if ( !isPlay )
-             return;
+            return;
 
         float offset = Time.deltaTime / duration;
         Vector3 newScale = tf.localScale;

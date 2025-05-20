@@ -12,7 +12,7 @@ public class AntiAliasingOption : OptionText
         {
             switch ( ( AntiAliasing )i )
             {
-                case AntiAliasing.None:             texts.Add( $"Off" );                    break;
+                case AntiAliasing.None: texts.Add( $"Off" ); break;
                 case AntiAliasing._2xMultiSampling: texts.Add( $"2x MSAA Multi Sampling" ); break;
                 case AntiAliasing._4xMultiSampling: texts.Add( $"4x MSAA Multi Sampling" ); break;
                 case AntiAliasing._8xMultiSampling: texts.Add( $"8x MSAA Multi Sampling" ); break;

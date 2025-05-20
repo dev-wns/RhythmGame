@@ -10,7 +10,7 @@ public class FreeStyleReLoad : MonoBehaviour
     public TextMeshProUGUI textPrefab;
     public int maxShowCount;
     private Queue<string> dataQueue = new Queue<string>();
-    private ObjectPool<TextMeshProUGUI> textPool; 
+    private ObjectPool<TextMeshProUGUI> textPool;
     private Queue<TextMeshProUGUI> textQueue = new Queue<TextMeshProUGUI>();
     public UnityEvent OnReLoadEnd;
 
@@ -111,6 +111,6 @@ public class FreeStyleReLoad : MonoBehaviour
     {
         textQueue.Enqueue( _text );
         if ( textPool.ActiveCount > maxShowCount )
-             textPool.Despawn( textQueue.Dequeue() );
+            textPool.Despawn( textQueue.Dequeue() );
     }
 }

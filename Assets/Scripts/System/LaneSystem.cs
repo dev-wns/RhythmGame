@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using TMPro;
 
 public class LaneSystem : MonoBehaviour
 {
@@ -57,8 +56,8 @@ public class LaneSystem : MonoBehaviour
     private void OnDestroy()
     {
         soundSampleTime = 0;
-        keySoundTime    = 0;
-        noteTime        = 0;
+        keySoundTime = 0;
+        noteTime = 0;
     }
 
     private void Initialize( Chart _chart )
@@ -67,7 +66,7 @@ public class LaneSystem : MonoBehaviour
         if ( !NowPlaying.CurrentSong.isOnlyKeySound )
         {
             if ( AudioManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
-                 keySampleSystem.AddSample( new KeySound( NowPlaying.CurrentSong.audioOffset * .001f, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
+                keySampleSystem.AddSample( new KeySound( NowPlaying.CurrentSong.audioOffset * .001f, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
         }
 
         var dir = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
@@ -75,7 +74,7 @@ public class LaneSystem : MonoBehaviour
         {
             var sample = _chart.samples[i];
             if ( AudioManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
-                 keySampleSystem.AddSample( sample );
+                keySampleSystem.AddSample( sample );
         }
         soundSampleTime += soundTimer.End;
 
@@ -93,7 +92,7 @@ public class LaneSystem : MonoBehaviour
         string dir         = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
         bool hasNoSlider   = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         bool hasConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && NowPlaying.CurrentSong.keyCount == 7;
-        random             = new System.Random( ( int )System.DateTime.Now.Ticks );
+        random = new System.Random( ( int )System.DateTime.Now.Ticks );
 
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
@@ -108,13 +107,13 @@ public class LaneSystem : MonoBehaviour
                 {
                     soundTimer.Start();
                     if ( AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
-                         keySampleSystem.AddSample( new KeySound( newNote ) );
+                        keySampleSystem.AddSample( new KeySound( newNote ) );
 
                     keySoundTime += soundTimer.End;
                     continue;
                 }
                 else if ( newNote.lane > 3 )
-                          newNote.lane -= 1;
+                    newNote.lane -= 1;
 
                 //if ( newNote.lane == 6 )
                 //{
@@ -125,8 +124,8 @@ public class LaneSystem : MonoBehaviour
                 //}
             }
 
-            if ( hasNoSlider ) 
-                 newNote.isSlider = false;
+            if ( hasNoSlider )
+                newNote.isSlider = false;
 
             switch ( GameSetting.CurrentRandom )
             {
@@ -135,7 +134,7 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.noteDistance = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     soundTimer.Start();
@@ -143,32 +142,33 @@ public class LaneSystem : MonoBehaviour
                     keySoundTime += soundTimer.End;
 
                     lanes[newNote.lane].InputSys.AddNote( in newNote );
-                } break;
+                }
+                break;
 
                 case GameRandom.Max_Random:
                 {
                     emptyLanes.Clear();
                     // 빠른계단, 즈레 등 고밀도로 배치될 때 보정
-                    for ( int j = 0; j < keyCount; j++ ) 
+                    for ( int j = 0; j < keyCount; j++ )
                     {
                         if ( secondPerBeat < ( newNote.time - prevTimes[j] ) )
-                             emptyLanes.Add( j );
+                            emptyLanes.Add( j );
                     }
 
                     // 자리가 없을 때 보정되지않은 상태로 배치
-                    if ( emptyLanes.Count == 0 ) 
+                    if ( emptyLanes.Count == 0 )
                     {
                         for ( int j = 0; j < keyCount; j++ )
                         {
                             if ( prevTimes[j] < newNote.time )
-                                 emptyLanes.Add( j );
+                                emptyLanes.Add( j );
                         }
                     }
 
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
                     prevTimes[selectLane] = newNote.isSlider ? newNote.sliderTime : newNote.time;
 
-                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.noteDistance = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     soundTimer.Start();
@@ -176,7 +176,8 @@ public class LaneSystem : MonoBehaviour
                     keySoundTime += soundTimer.End;
 
                     lanes[selectLane].InputSys.AddNote( in newNote );
-                } break;
+                }
+                break;
             }
         }
 
@@ -192,8 +193,8 @@ public class LaneSystem : MonoBehaviour
 
             case GameRandom.Half_Random:
             int keyCountHalf = Mathf.FloorToInt( keyCount * .5f );
-            LaneSwap( 0,                keyCountHalf, MinimumSwapCount );
-            LaneSwap( keyCountHalf + 1, keyCount,     MinimumSwapCount );
+            LaneSwap( 0, keyCountHalf, MinimumSwapCount );
+            LaneSwap( keyCountHalf + 1, keyCount, MinimumSwapCount );
             break;
         }
     }

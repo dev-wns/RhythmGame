@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class AutoPlayOption : OptionText
 {
     private void OnEnable()
@@ -21,6 +17,6 @@ public class AutoPlayOption : OptionText
     public override void Process()
     {
         if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.AutoPlay;
-        else                     GameSetting.CurrentGameMode |=  GameMode.AutoPlay;
+        else GameSetting.CurrentGameMode |= GameMode.AutoPlay;
     }
 }

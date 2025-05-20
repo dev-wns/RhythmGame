@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ public class KeySetting : Singleton<KeySetting>
         AvailableKeyBind();
 
         InitializeKey( GameKeyCount._4, new KeyCode[] { KeyCode.S, KeyCode.D, KeyCode.L, KeyCode.Semicolon } );
-        InitializeKey( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket} );
+        InitializeKey( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket } );
         InitializeKey( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
     }
 
@@ -49,7 +48,7 @@ public class KeySetting : Singleton<KeySetting>
     private void AvailableKeyBind()
     {
         AvailableKeys.Add( KeyCode.Numlock, "Numlock" );
-        AvailableKeys.Add( KeyCode.Space,   "Space" );
+        AvailableKeys.Add( KeyCode.Space, "Space" );
 
         AvailableKeys.Add( KeyCode.LeftShift, "LeftShift" );
         AvailableKeys.Add( KeyCode.LeftAlt, "LeftAlt" );

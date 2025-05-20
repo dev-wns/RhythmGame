@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SelectFreqBand : FrequencyBand
@@ -42,7 +40,7 @@ public class SelectFreqBand : FrequencyBand
         freqBand[0] = ( sum / range ) * power;
 
         startHz = start * hzPerFFTSize;
-        endHz   = end   * hzPerFFTSize;
+        endHz = end * hzPerFFTSize;
 
         OnUpdateBand?.Invoke( freqBand );
     }

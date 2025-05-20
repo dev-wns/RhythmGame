@@ -56,8 +56,8 @@ public class BGASystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
-        scene.OnReLoad           += ReLoad;
-        scene.OnUpdatePitch      += UpdatePitch;
+        scene.OnReLoad += ReLoad;
+        scene.OnUpdatePitch += UpdatePitch;
 
         color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
 
@@ -97,22 +97,22 @@ public class BGASystem : MonoBehaviour
             return;
         }
 
-        type = NowPlaying.CurrentSong.hasVideo ? BackgroundType.Video  :
-               _chart.sprites.Count > 0        ? BackgroundType.Sprite : 
+        type = NowPlaying.CurrentSong.hasVideo ? BackgroundType.Video :
+               _chart.sprites.Count > 0 ? BackgroundType.Sprite :
                                                  BackgroundType.Image;
         switch ( type )
         {
             case BackgroundType.Video:
-                StartCoroutine( LoadVideo() );
-                scene.OnGameStart += PlayVideo;
-                scene.OnPause     += OnPause;
-                foreground.gameObject.SetActive( false );
+            StartCoroutine( LoadVideo() );
+            scene.OnGameStart += PlayVideo;
+            scene.OnPause += OnPause;
+            foreground.gameObject.SetActive( false );
             break;
 
             case BackgroundType.Sprite:
-                scene.OnGameStart += SpriteProcess;
-                foreground.gameObject.SetActive( true );
-                StartCoroutine( LoadSamples( _chart.sprites ) );
+            scene.OnGameStart += SpriteProcess;
+            foreground.gameObject.SetActive( true );
+            StartCoroutine( LoadSamples( _chart.sprites ) );
             break;
 
             case BackgroundType.Image:
@@ -148,7 +148,7 @@ public class BGASystem : MonoBehaviour
     private void UpdatePitch( float _pitch )
     {
         if ( type != BackgroundType.Video )
-             return;
+            return;
 
         vp.playbackSpeed = _pitch;
     }
@@ -168,7 +168,8 @@ public class BGASystem : MonoBehaviour
                 if ( !vp.isPlaying ) vp.Play();
                 vp.Pause();
                 vp.frame = 0;
-            } break;
+            }
+            break;
 
             case BackgroundType.Sprite:
             {
@@ -176,17 +177,18 @@ public class BGASystem : MonoBehaviour
                 foreground.texture = Texture2D.blackTexture;
                 curBackIndex = 0;
                 curForeIndex = 0;
-            } break;
+            }
+            break;
         }
     }
 
     private void OnPause( bool _isPause )
     {
         if ( type != BackgroundType.Video )
-             return;
+            return;
 
         if ( _isPause ) vp?.Pause();
-        else            StartCoroutine( WaitVideoTime() );
+        else StartCoroutine( WaitVideoTime() );
     }
 
     private IEnumerator WaitVideoTime()
@@ -204,7 +206,7 @@ public class BGASystem : MonoBehaviour
         vp.targetTexture = renderTexture;
         background.texture = renderTexture;
         background.color = color;
-        
+
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
 
@@ -227,14 +229,14 @@ public class BGASystem : MonoBehaviour
         SpriteBGA curSample = new SpriteBGA();
 
         if ( backgrounds.Count > 0 )
-             curSample = backgrounds[curBackIndex];
+            curSample = backgrounds[curBackIndex];
 
         WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= NowPlaying.Playback );
         WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= NowPlaying.Playback );
 
         yield return waitSampleStart;
         background.color = color;
-        
+
         while ( curBackIndex < backgrounds.Count )
         {
             yield return waitSampleStart;
@@ -243,7 +245,7 @@ public class BGASystem : MonoBehaviour
 
             yield return waitSampleEnd;
             if ( ++curBackIndex < backgrounds.Count )
-                 curSample = backgrounds[curBackIndex];
+                curSample = backgrounds[curBackIndex];
         }
     }
 
@@ -252,7 +254,7 @@ public class BGASystem : MonoBehaviour
         SpriteBGA curSample = new SpriteBGA();
 
         if ( foregrounds.Count > 0 )
-             curSample = foregrounds[curForeIndex];
+            curSample = foregrounds[curForeIndex];
         else if ( foregrounds.Count == 0 )
         {
             foreground.gameObject.SetActive( false );
@@ -273,7 +275,7 @@ public class BGASystem : MonoBehaviour
 
             yield return waitSampleEnd;
             if ( ++curForeIndex < foregrounds.Count )
-                 curSample = foregrounds[curForeIndex];
+                curSample = foregrounds[curForeIndex];
         }
     }
 
@@ -300,7 +302,7 @@ public class BGASystem : MonoBehaviour
 
                 OnUpdateData?.Invoke( textures.Count, ++duplicateTextureCount, backgrounds.Count, foregrounds.Count );
             }
-            else 
+            else
                 yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
         }
 
@@ -327,9 +329,9 @@ public class BGASystem : MonoBehaviour
     {
         Texture2D tex;
         var path = @System.IO.Path.Combine( _dir, _sample.name );
-        if ( !System.IO.File.Exists( path ) ) 
-             yield break;
-        
+        if ( !System.IO.File.Exists( path ) )
+            yield break;
+
         var ext = System.IO.Path.GetExtension( path );
         if ( ext.Contains( ".bmp" ) )
         {
@@ -389,7 +391,7 @@ public class BGASystem : MonoBehaviour
     public IEnumerator LoadBackground( string _path )
     {
         if ( !System.IO.File.Exists( _path ) )
-             yield break;
+            yield break;
 
         timer.Start();
 
@@ -426,7 +428,7 @@ public class BGASystem : MonoBehaviour
         background.color = color;
         background.texture = tex;
         background.rectTransform.sizeDelta = Global.Math.GetScreenRatio( tex, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
-        
+
         loadingText.text = $"{timer.End} ms";
         NowPlaying.IsLoadBGA = true;
     }

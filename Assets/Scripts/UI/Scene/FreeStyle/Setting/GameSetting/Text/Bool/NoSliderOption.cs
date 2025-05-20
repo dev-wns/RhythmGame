@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class NoSliderOption : OptionText
 {
@@ -24,7 +21,7 @@ public class NoSliderOption : OptionText
     public override void Process()
     {
         if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.NoSlider;
-        else                     GameSetting.CurrentGameMode |=  GameMode.NoSlider;
+        else GameSetting.CurrentGameMode |= GameMode.NoSlider;
 
         OnChangeOption?.Invoke();
     }

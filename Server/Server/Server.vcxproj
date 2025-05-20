@@ -127,8 +127,8 @@
       <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutputPath)Server.exe" "..\\..\\Server.exe"
-copy "$(MSBuildProjectDirectory)\libmysql.dll" "..\\..\\libmysql.dll"
+      <Command>copy "$(OutputPath)Server.exe" "..\\Server.exe"
+copy "$(MSBuildProjectDirectory)\libmysql.dll" "..\\libmysql.dll"
 copy "$(MSBuildProjectDirectory)\libmysql.dll" "$(OutDir)libmysql.dll"
 
 if not exist "$(SolutionDir)Log" mkdir "$(SolutionDir)Log"

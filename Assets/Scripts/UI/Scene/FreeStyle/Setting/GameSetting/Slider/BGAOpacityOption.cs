@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class BGAOpacityOption : OptionSlider
 {
     protected override void Awake()
@@ -11,7 +7,7 @@ public class BGAOpacityOption : OptionSlider
         curValue = GameSetting.BGAOpacity;
         UpdateValue( curValue );
     }
-    
+
     public void InputProcess( float _value )
     {
         GameSetting.BGAOpacity = ( int )_value;

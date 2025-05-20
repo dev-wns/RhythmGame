@@ -22,7 +22,7 @@ public class HitEffectSystem : MonoBehaviour
     protected void Awake()
     {
         lane = GetComponentInParent<Lane>();
-        rdr  = GetComponent<SpriteRenderer>();
+        rdr = GetComponent<SpriteRenderer>();
 
         if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.TouchEffect ) != 0 )
         {
@@ -31,7 +31,7 @@ public class HitEffectSystem : MonoBehaviour
             offsetN = HitEffectFramePerSecond; // lifeTime / spritesN.Count;
             offsetL = HitEffectFramePerSecond; // lifeTime / spritesL.Count;
 
-            rdr.color   = Color.clear;
+            rdr.color = Color.clear;
         }
         else
         {
@@ -68,7 +68,8 @@ public class HitEffectSystem : MonoBehaviour
                 Play();
                 rdr.sprite = spritesN[0];
                 curIndex = 0;
-            } break;
+            }
+            break;
 
             case NoteType.Slider:
             {
@@ -78,7 +79,8 @@ public class HitEffectSystem : MonoBehaviour
                     curIndex = 0;
                     rdr.sprite = spritesL[0];
                 }
-            } break;
+            }
+            break;
         }
 
     }
@@ -96,7 +98,7 @@ public class HitEffectSystem : MonoBehaviour
                 if ( time > offsetN )
                 {
                     if ( curIndex < spritesN.Count - 1 ) rdr.sprite = spritesN[++curIndex];
-                    else                                 Stop();
+                    else Stop();
 
                     time = 0f;
                 }
@@ -114,7 +116,7 @@ public class HitEffectSystem : MonoBehaviour
                     else
                     {
                         if ( inputType == InputType.Up )
-                             Stop();
+                            Stop();
                         else
                         {
                             curIndex = 0;

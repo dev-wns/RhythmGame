@@ -104,9 +104,9 @@ public struct KeySound
 
     public KeySound( Note _note )
     {
-        name   = _note.keySound.name;
+        name = _note.keySound.name;
         volume = _note.keySound.volume < .1f ? 100f : _note.keySound.volume;
-        time   = _note.time;
+        time = _note.time;
     }
 }
 
@@ -119,10 +119,10 @@ public struct SpriteSample
 
     public SpriteSample( SpriteType _type, double _start, double _end, string _name )
     {
-        type  = _type;
+        type = _type;
         start = _start;
-        end   = _end;
-        name  = _name;
+        end = _end;
+        name = _name;
     }
 }
 
@@ -147,16 +147,16 @@ public class FileConverter : FileReader
     {
         int IComparer<int>.Compare( int _left, int _right )
         {
-            if ( _left > _right )      return 1;
+            if ( _left > _right ) return 1;
             else if ( _left < _right ) return -1;
-            else                       return 0;
+            else return 0;
         }
     }
     private class DeleteKey
     {
         public BitArray bits { get; private set; }
         public Dictionary<int/* lane */, int /* final key */> keys = new Dictionary<int, int>();
-        
+
         public int FinalKey( int _lane ) => keys[_lane];
 
         public DeleteKey( int _bitCount )
@@ -204,7 +204,7 @@ public class FileConverter : FileReader
         }
         public LaneData( int _px )
         {
-            px   = _px;
+            px = _px;
             lane = -1;
         }
     }
@@ -216,19 +216,19 @@ public class FileConverter : FileReader
         public AccumulateTiming( double _time, double _bpm )
         {
             time = _time;
-            bpm  = _bpm;
+            bpm = _bpm;
         }
     }
 
     public void Load( string _path )
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-             Convert( _path );
+            Convert( _path );
     }
 
-    private void Convert( string _path ) 
+    private void Convert( string _path )
     {
-        try 
+        try
         {
             Song song = new Song();
             OpenFile( _path );
@@ -238,9 +238,9 @@ public class FileConverter : FileReader
             int mode = 0;
             while ( ReadLine() != "[Metadata]" )
             {
-                if ( Contains( "AudioFilename:" ) ) song.audioPath   = Split( ':' );
-                if ( Contains( "PreviewTime:" ) )   song.previewTime = int.Parse( Split( ':' ) );
-                if ( Contains( "Mode:" ) )          mode             = int.Parse( Split( ':' ) );
+                if ( Contains( "AudioFilename:" ) ) song.audioPath = Split( ':' );
+                if ( Contains( "PreviewTime:" ) ) song.previewTime = int.Parse( Split( ':' ) );
+                if ( Contains( "Mode:" ) ) mode = int.Parse( Split( ':' ) );
             }
 
             // 건반형 모드가 아니면 읽지 않음.
@@ -248,11 +248,11 @@ public class FileConverter : FileReader
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Difficulty]" )
             {
-                if ( Contains( "Title:" )  && !Contains( "TitleUnicode:" ) )  song.title   = Replace( "Title:",   string.Empty );
-                if ( Contains( "Artist:" ) && !Contains( "ArtistUnicode:" ) ) song.artist  = Replace( "Artist:",  string.Empty );
-                if ( Contains( "Source:"  ) )                                 song.source  = Replace( "Source:",  string.Empty );
-                if ( Contains( "Creator:" ) )                                 song.creator = Replace( "Creator:", string.Empty );
-                if ( Contains( "Version:" ) )                                 song.version = Replace( "Version:", string.Empty );
+                if ( Contains( "Title:" ) && !Contains( "TitleUnicode:" ) ) song.title = Replace( "Title:", string.Empty );
+                if ( Contains( "Artist:" ) && !Contains( "ArtistUnicode:" ) ) song.artist = Replace( "Artist:", string.Empty );
+                if ( Contains( "Source:" ) ) song.source = Replace( "Source:", string.Empty );
+                if ( Contains( "Creator:" ) ) song.creator = Replace( "Creator:", string.Empty );
+                if ( Contains( "Version:" ) ) song.version = Replace( "Version:", string.Empty );
             }
 
             // [Metadata] ~ [Difficulty]
@@ -286,7 +286,7 @@ public class FileConverter : FileReader
             {
                 // Image
                 if ( Contains( "0,0," ) && !( Contains( ".mp3" ) || Contains( ".wav" ) || Contains( ".ogg" ) || Contains( "Video," ) || Contains( "Sprite," ) ) )
-                     song.imagePath = Split( '"' );
+                    song.imagePath = Split( '"' );
 
                 // Video
                 if ( Contains( "Video," ) )
@@ -323,15 +323,15 @@ public class FileConverter : FileReader
 
             sprites.Sort( delegate ( SpriteSample _A, SpriteSample _B )
             {
-                if ( _A.start > _B.start )      return 1;
+                if ( _A.start > _B.start ) return 1;
                 else if ( _A.start < _B.start ) return -1;
-                else                            return 0;
+                else return 0;
             } );
 
             if ( sprites.Count > 0 )
-                 song.hasSprite = true;
-             
-#endregion
+                song.hasSprite = true;
+
+            #endregion
             timings?.Clear();
             uninheritedTimings?.Clear();
 
@@ -370,7 +370,7 @@ public class FileConverter : FileReader
             notes?.Clear();
             bool isCheckKeySoundOnce = false;
             DeleteKey deleteKey = new DeleteKey( song.keyCount );
-            while ( ReadLineEndOfStream() ) 
+            while ( ReadLineEndOfStream() )
             {
                 if ( line == null ) continue;
 
@@ -379,12 +379,12 @@ public class FileConverter : FileReader
                 double noteTime    = double.Parse( splitDatas[2] );
                 double sliderTime  = 0d;
                 if ( int.Parse( splitDatas[3] ) == 2 << 6 )
-                     sliderTime = double.Parse( objParams[0] );
+                    sliderTime = double.Parse( objParams[0] );
 
                 // 제거된 노트의 키음은 자동으로 재생되는 배경음으로 재생한다.
                 int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * song.keyCount / 512 );
                 int finalLane     = deleteKey.FinalKey( originLane );
-                KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1], 
+                KeySound keySound = new KeySound( noteTime, objParams[objParams.Length - 1],
                                                   float.Parse( objParams[objParams.Length - 2] ) );
 
                 if ( deleteKey[originLane] )
@@ -393,19 +393,21 @@ public class FileConverter : FileReader
                 }
                 else
                 {
-                    if ( sliderTime > 0d ) {
+                    if ( sliderTime > 0d )
+                    {
                         song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
                         song.sliderCount++;
 
                         if ( finalLane == 3 )
-                             song.delSliderCount++;
+                            song.delSliderCount++;
                     }
-                    else {
+                    else
+                    {
                         song.totalTime = song.totalTime >= noteTime ? song.totalTime : ( int )noteTime;
                         song.noteCount++;
 
                         if ( finalLane == 3 )
-                             song.delNoteCount++;
+                            song.delNoteCount++;
                     }
 
                     notes.Add( new Note( finalLane, noteTime, sliderTime, keySound ) );
@@ -414,7 +416,7 @@ public class FileConverter : FileReader
                     {
                         if ( File.Exists( Path.Combine( directory, keySound.name ) ) )
                         {
-                            song.hasKeySound    = true;
+                            song.hasKeySound = true;
                             isCheckKeySoundOnce = true;
                         }
                     }
@@ -424,31 +426,31 @@ public class FileConverter : FileReader
             // BMS2Osu로 뽑은 파일은 Pixel값 기준으로 정렬되어 있기 때문에 시간 순으로 다시 정렬해준다.
             samples.Sort( delegate ( KeySound _A, KeySound _B )
             {
-                if ( _A.time > _B.time )      return 1;
+                if ( _A.time > _B.time ) return 1;
                 else if ( _A.time < _B.time ) return -1;
-                else                          return 0;
+                else return 0;
             } );
             notes.Sort( delegate ( Note _A, Note _B )
             {
-                if ( _A.time > _B.time )      return 1;
+                if ( _A.time > _B.time ) return 1;
                 else if ( _A.time < _B.time ) return -1;
-                else                          return 0;
+                else return 0;
             } );
 
-#endregion
+            #endregion
             song.mainBPM = GetMainBPM();
 
             Write( in song );
             Dispose();
         }
-        catch ( System.Exception _error ) 
+        catch ( System.Exception _error )
         {
             Dispose();
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             // 에러 위치 찾기
             System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
             Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
-            #endif
+#endif
         }
     }
 
@@ -489,10 +491,10 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
                     writer.WriteLine( $"MainBPM: {_song.mainBPM}" );
 
-                    writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound  ? 1 : 0 )}:" +
-                                                 $"{( _song.hasKeySound     ? 1 : 0 )}:" +
-                                                 $"{( _song.hasVideo        ? 1 : 0 )}:" +
-                                                 $"{( _song.hasSprite       ? 1 : 0 )}" );
+                    writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound ? 1 : 0 )}:" +
+                                                 $"{( _song.hasKeySound ? 1 : 0 )}:" +
+                                                 $"{( _song.hasVideo ? 1 : 0 )}:" +
+                                                 $"{( _song.hasSprite ? 1 : 0 )}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );
@@ -583,18 +585,18 @@ public class FileConverter : FileReader
 
             // 비교될 새로운 타이밍 추가
             if ( !isFind )
-                 accumulateTimings.Add( new AccumulateTiming( nextTime - uninheritedTimings[i].time, uninheritedTimings[i].bpm ) );
+                accumulateTimings.Add( new AccumulateTiming( nextTime - uninheritedTimings[i].time, uninheritedTimings[i].bpm ) );
         }
 
         if ( accumulateTimings.Count == 0 )
-             throw new Exception( "The MainBPM was not found." );
+            throw new Exception( "The MainBPM was not found." );
 
         // 가장 오래 지속되는 BPM이 첫번째 요소가 되도록 내림차순 정렬
         accumulateTimings.Sort( delegate ( AccumulateTiming _left, AccumulateTiming _right )
         {
-            if      ( _left.time < _right.time ) return 1;
+            if ( _left.time < _right.time ) return 1;
             else if ( _left.time > _right.time ) return -1;
-            else                                 return 0;
+            else return 0;
         } );
 
         return accumulateTimings[0].bpm;

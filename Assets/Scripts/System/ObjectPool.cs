@@ -56,14 +56,14 @@ public class ObjectPool<T> where T : MonoBehaviour
     private void Allocate( int _allocateCount )
     {
         if ( _allocateCount < 0 )
-             return;
+            return;
 
         T[] objects = new T[_allocateCount];
-        for( int i = 0; i < _allocateCount; i++ )
+        for ( int i = 0; i < _allocateCount; i++ )
         {
             T obj = UnityEngine.GameObject.Instantiate( prefab, parent );
             if ( obj.TryGetComponent( out IObjectPool<T> _base ) )
-                 _base.pool = this;
+                _base.pool = this;
 
             obj.gameObject.SetActive( false );
             objects[i] = obj;
@@ -76,7 +76,7 @@ public class ObjectPool<T> where T : MonoBehaviour
     public T Spawn()
     {
         if ( waitObjects.Count == 0 )
-             Allocate( allocateCount );
+            Allocate( allocateCount );
 
         T obj = waitObjects.Dequeue();
         obj.gameObject.SetActive( true );
@@ -96,7 +96,7 @@ public class ObjectPool<T> where T : MonoBehaviour
         for ( int i = 0; i < totalObjects.Count; i++ )
         {
             if ( totalObjects[i].gameObject.activeInHierarchy )
-                 Despawn( totalObjects[i] );
+                Despawn( totalObjects[i] );
         }
     }
 }

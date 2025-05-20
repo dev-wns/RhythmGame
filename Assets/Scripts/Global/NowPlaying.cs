@@ -43,10 +43,10 @@ public struct ResultData
 
     public ResultData( int _random, int _pitch )
     {
-        random  = _random;
-        pitch   = _pitch;
-        maximum = perfect = great    = good  = bad   = miss = 0;
-        fast    = slow    = accuracy = combo = score        = 0;
+        random = _random;
+        pitch = _pitch;
+        maximum = perfect = great = good = bad = miss = 0;
+        fast = slow = accuracy = combo = score = 0;
     }
 }
 
@@ -66,29 +66,29 @@ public class NowPlaying : Singleton<NowPlaying>
     private ReadOnlyCollection<Song> OriginSongs;
     public List<Song> Songs = new List<Song>();
 
-    public static Song  CurrentSong    { get; private set; }
-    public static Chart CurrentChart   { get; private set; }
-    public static string Directory     { get; private set; }
-    public static int OriginKeyCount   => CurrentSong.keyCount;
-    public static int KeyCount         => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && OriginKeyCount == 7 ? 6 : OriginKeyCount;
+    public static Song CurrentSong { get; private set; }
+    public static Chart CurrentChart { get; private set; }
+    public static string Directory { get; private set; }
+    public static int OriginKeyCount => CurrentSong.keyCount;
+    public static int KeyCount => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && OriginKeyCount == 7 ? 6 : OriginKeyCount;
     public int CurrentSongIndex { get; private set; }
     public int SearchCount { get; private set; }
     private double mainBPM;
     private int timingIndex;
 
     #region Time
-    public  double SaveTime { get; private set; }
+    public double SaveTime { get; private set; }
     private double startTime;
-    public  static double WaitTime { get; private set; }
+    public static double WaitTime { get; private set; }
     public  static readonly double StartWaitTime = -3d;
     public  static readonly double PauseWaitTime = -2d;
-    public  static float GameTime         { get; private set; }
-    public  static double Playback        { get; private set; }
-    public  static double Distance        { get; private set; }
+    public static float GameTime { get; private set; }
+    public static double Playback { get; private set; }
+    public static double Distance { get; private set; }
     private static double DistanceCache;
     #endregion
     public List<HitData> HitDatas { get; private set; } = new List<HitData>();
-    public  ResultData CurrentResult => currentResult;
+    public ResultData CurrentResult => currentResult;
     private ResultData currentResult = new ResultData();
 
     public static RecordData CurrentRecord { get; private set; } = new RecordData();
@@ -98,9 +98,9 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action       OnParsingEnd;
     public static event Action<double/* Distance */> OnSpawnObjects;
 
-    public static bool IsStart        { get; private set; }
-    public static bool IsParsing      { get; private set; }
-    public static bool IsLoadBGA      { get; set; }
+    public static bool IsStart { get; private set; }
+    public static bool IsParsing { get; private set; }
+    public static bool IsLoadBGA { get; set; }
     public static bool IsLoadKeySound { get; set; }
     #endregion
 
@@ -131,7 +131,7 @@ public class NowPlaying : Singleton<NowPlaying>
             double bpm  = timings[i].bpm / mainBPM;
 
             if ( Playback < time )
-                 break;
+                break;
 
             if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
             {
@@ -195,7 +195,7 @@ public class NowPlaying : Singleton<NowPlaying>
         OriginSongs = new ReadOnlyCollection<Song>( Songs.ToList() );
 
         if ( Songs.Count > 0 )
-             UpdateSong( 0 );
+            UpdateSong( 0 );
 
         OnParsingEnd?.Invoke();
         IsParsing = false;
@@ -206,7 +206,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void ParseChart()
     {
         WaitTime = StartWaitTime;
-        mainBPM  = CurrentSong.mainBPM * GameSetting.CurrentPitch;
+        mainBPM = CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
         using ( FileParser parser = new FileParser() )
         {
@@ -215,7 +215,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 CurrentScene.LoadScene( SceneType.FreeStyle );
                 Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
             }
-            else 
+            else
                 CurrentChart = chart;
         }
 
@@ -227,7 +227,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Search( string _keyword )
     {
         if ( OriginSongs.Count == 0 )
-             return;
+            return;
 
         if ( _keyword.Replace( " ", string.Empty ) == string.Empty )
         {
@@ -245,14 +245,14 @@ public class NowPlaying : Singleton<NowPlaying>
             if ( isSV )
             {
                 if ( OriginSongs[i].minBpm != OriginSongs[i].maxBpm )
-                     Songs.Add( OriginSongs[i] );
+                    Songs.Add( OriginSongs[i] );
             }
             else
             {
-                if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                if ( OriginSongs[i].title.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
                      OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+                     OriginSongs[i].artist.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     OriginSongs[i].source.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
                 {
                     Songs.Add( OriginSongs[i] );
                 }
@@ -261,7 +261,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         SearchCount = Songs.Count;
         if ( SearchCount != 0 )
-             UpdateSong( 0 );
+            UpdateSong( 0 );
     }
     #endregion
     #region Record
@@ -312,7 +312,7 @@ public class NowPlaying : Singleton<NowPlaying>
         };
 
         if ( CurrentRecord.score > newRecord.score )
-             return CurrentRecord;
+            return CurrentRecord;
 
         string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
         try
@@ -330,7 +330,7 @@ public class NowPlaying : Singleton<NowPlaying>
         catch ( Exception )
         {
             if ( File.Exists( path ) )
-                 File.Delete( path );
+                File.Delete( path );
 
             Debug.LogError( $"Record Write Error : {path}" );
         }
@@ -355,25 +355,25 @@ public class NowPlaying : Singleton<NowPlaying>
         switch ( _key )
         {
             case HitResult.Accuracy: currentResult.accuracy = _count; break;
-            case HitResult.Combo:    currentResult.combo    = _count; break;
-            case HitResult.Score:    currentResult.score    = _count; break;
+            case HitResult.Combo: currentResult.combo = _count; break;
+            case HitResult.Score: currentResult.score = _count; break;
         }
     }
 
     public void IncreaseResult( HitResult _type, int _count = 1 )
     {
         for ( int i = 0; i < _count; i++ )
-        { 
+        {
             switch ( _type )
             {
-                case HitResult.Maximum:  currentResult.maximum++; break;
-                case HitResult.Perfect:  currentResult.perfect++; break;
-                case HitResult.Great:    currentResult.great++;   break;
-                case HitResult.Good:     currentResult.good++;    break;
-                case HitResult.Bad:      currentResult.bad++;     break;
-                case HitResult.Miss:     currentResult.miss++;    break;
-                case HitResult.Fast:     currentResult.fast++;    break;
-                case HitResult.Slow:     currentResult.slow++;    break;
+                case HitResult.Maximum: currentResult.maximum++; break;
+                case HitResult.Perfect: currentResult.perfect++; break;
+                case HitResult.Great: currentResult.great++; break;
+                case HitResult.Good: currentResult.good++; break;
+                case HitResult.Bad: currentResult.bad++; break;
+                case HitResult.Miss: currentResult.miss++; break;
+                case HitResult.Fast: currentResult.fast++; break;
+                case HitResult.Slow: currentResult.slow++; break;
             }
         }
     }
@@ -385,8 +385,8 @@ public class NowPlaying : Singleton<NowPlaying>
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
 
         startTime = Time.realtimeSinceStartupAsDouble;
-        SaveTime  = WaitTime;
-        IsStart   = true;
+        SaveTime = WaitTime;
+        IsStart = true;
         Debug.Log( $"Playback Start" );
     }
 
@@ -395,18 +395,18 @@ public class NowPlaying : Singleton<NowPlaying>
         StopAllCoroutines();
         Playback = WaitTime;
         SaveTime = WaitTime;
-        Distance      = 0d;
+        Distance = 0d;
         DistanceCache = 0d;
-        timingIndex   = 0;
+        timingIndex = 0;
 
-        IsStart         = false;
-        IsLoadBGA       = false;
-        IsLoadKeySound  = false;
+        IsStart = false;
+        IsLoadBGA = false;
+        IsLoadKeySound = false;
     }
 
     public IEnumerator GameOver()
     {
-        IsStart         = false;
+        IsStart = false;
         float slowTimeOffset = 1f / 3f;
         float speed = 1f;
         float pitchOffset = GameSetting.CurrentPitch * .3f;
@@ -418,7 +418,7 @@ public class NowPlaying : Singleton<NowPlaying>
             CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
             if ( speed < 0f )
-                 break;
+                break;
 
             yield return null;
         }
@@ -429,7 +429,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( _isPause )
         {
-            IsStart  = false;
+            IsStart = false;
             SaveTime = Playback + PauseWaitTime;
             AudioManager.Inst.SetPaused( true, ChannelType.BGM );
         }
@@ -445,13 +445,13 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( Playback > SaveTime )
         {
             Playback -= Time.deltaTime * 1.2f;
-            Distance  = DistanceCache + ( ( timing.bpm / mainBPM ) * ( Playback - timing.time ) );
+            Distance = DistanceCache + ( ( timing.bpm / mainBPM ) * ( Playback - timing.time ) );
 
             yield return null;
         }
 
         startTime = Time.realtimeSinceStartupAsDouble;
-        IsStart   = true;
+        IsStart = true;
 
         yield return new WaitUntil( () => Playback > SaveTime - PauseWaitTime );
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
@@ -468,8 +468,8 @@ public class NowPlaying : Singleton<NowPlaying>
             throw new Exception( "out of range" );
 
         CurrentSongIndex = _index;
-        CurrentSong      = Songs[_index];
-        Directory        = Path.GetDirectoryName( Songs[_index].filePath );
+        CurrentSong = Songs[_index];
+        Directory = Path.GetDirectoryName( Songs[_index].filePath );
     }
     #endregion
 

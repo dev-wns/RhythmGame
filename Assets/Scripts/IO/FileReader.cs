@@ -58,7 +58,7 @@ public abstract class FileReader : IDisposable
 
     protected string Split( char _separator )
     {
-        if ( line == null || line == string.Empty ) 
+        if ( line == null || line == string.Empty )
             return string.Empty;
 
         return line.Split( _separator )[1].Trim();
@@ -68,16 +68,16 @@ public abstract class FileReader : IDisposable
     {
         if ( line == null || line == string.Empty )
             return string.Empty;
-        
+
         return line.Replace( _old, _new ).Trim();
     }
 
     protected void Move( string _sourceFilePath, string _destFolderPath )
     {
         if ( !Directory.Exists( _destFolderPath ) )
-             Directory.CreateDirectory( _destFolderPath );
+            Directory.CreateDirectory( _destFolderPath );
 
         if ( File.Exists( _sourceFilePath ) )
-             File.Move( _sourceFilePath, Path.Combine( _destFolderPath, Path.GetFileName( _sourceFilePath ) ) );
+            File.Move( _sourceFilePath, Path.Combine( _destFolderPath, Path.GetFileName( _sourceFilePath ) ) );
     }
 }

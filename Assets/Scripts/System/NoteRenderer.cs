@@ -27,30 +27,30 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     private void Awake()
     {
         head.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
-        body.transform.localPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0,GameSetting.NoteHeight * .5f );
+        body.transform.localPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0, GameSetting.NoteHeight * .5f );
         tail.transform.localScale = new Vector2( GameSetting.NoteWidth, GameSetting.NoteHeight );
     }
 
     public void SetInfo( int _lane, in Note _note )
     {
-        IsKeyDown  = false;
-        note       = _note;
+        IsKeyDown = false;
+        note = _note;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
         newDistance = note.noteDistance;
 
-        head.enabled = IsOnlyBody && IsSlider  ? false :
+        head.enabled = IsOnlyBody && IsSlider ? false :
                        IsOnlyBody && !IsSlider ? true : true;
-        body.enabled = IsOnlyBody ? true  : IsSlider;
+        body.enabled = IsOnlyBody ? true : IsSlider;
         tail.enabled = IsOnlyBody ? false : IsSlider;
         //body.enabled = tail.enabled = IsSlider;
-        head.color   = body.color = tail.color = Color.white;
+        head.color = body.color = tail.color = Color.white;
     }
 
     public void SetSliderFail()
     {
         if ( IsKeyDown )
-        { 
+        {
             IsKeyDown = false;
             newDistance = NowPlaying.Distance;
         }
@@ -88,12 +88,12 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         if ( IsSlider )
         {
             if ( IsKeyDown && Distance < NowPlaying.Distance )
-                 newDistance = NowPlaying.Distance;
+                newDistance = NowPlaying.Distance;
 
             BodyLength = ( float )( ( SliderDistance - newDistance ) * GameSetting.Weight );
 
             float length = Global.Math.Clamp( IsOnlyBody ? BodyLength : BodyLength - GameSetting.NoteHeight, 0f, float.MaxValue );
-            body.transform.localScale    = new Vector2( GameSetting.NoteWidth, length );
+            body.transform.localScale = new Vector2( GameSetting.NoteWidth, length );
             tail.transform.localPosition = new Vector2( 0f, length );
         }
 

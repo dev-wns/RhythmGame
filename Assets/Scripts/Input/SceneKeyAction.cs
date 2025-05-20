@@ -1,23 +1,24 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ActionType : byte { Main, Exit,                                                   // Public
-                               Search, Comment, GameOption, SystemOption, KeySetting, ReLoad, // FreeStyle
-                               Pause, GameOver,                                               // InGame
-                               Login, CreateStage,                                             // MultiPlay
+public enum ActionType : byte
+{
+    Main, Exit,                                                   // Public
+    Search, Comment, GameOption, SystemOption, KeySetting, ReLoad, // FreeStyle
+    Pause, GameOver,                                               // InGame
+    Login, CreateStage,                                             // MultiPlay
 }
 public abstract class SceneKeyAction : MonoBehaviour
 {
     private Dictionary<ActionType, KeyAction> keyActions = new Dictionary<ActionType, KeyAction>();
     public ActionType CurrentAction { get; private set; }
-    public bool IsInputLock         { get; set; }
+    public bool IsInputLock { get; set; }
 
     protected virtual void LateUpdate()
     {
         if ( IsInputLock || !keyActions.ContainsKey( CurrentAction ) )
-             return;
+            return;
 
         keyActions[CurrentAction].ActionCheck();
     }
@@ -36,11 +37,14 @@ public abstract class SceneKeyAction : MonoBehaviour
             keyActions.Add( _actionType, keyAction );
         }
     }
-    public void Bind( ActionType _actionType, InputType _inputType, KeyCode _keyCode, Action _action ) {
-        if ( keyActions.ContainsKey( _actionType ) ) {
+    public void Bind( ActionType _actionType, InputType _inputType, KeyCode _keyCode, Action _action )
+    {
+        if ( keyActions.ContainsKey( _actionType ) )
+        {
             keyActions[_actionType].Bind( _keyCode, _inputType, _action );
         }
-        else {
+        else
+        {
             KeyAction keyAction = new KeyAction();
             keyAction.Bind( _keyCode, _inputType, _action );
             keyActions.Add( _actionType, keyAction );

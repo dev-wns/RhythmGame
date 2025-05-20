@@ -1,12 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class FrequencyBand : MonoBehaviour
 {
     public AudioVisualizer visuzlizer;
-    
+
     [Header( "Band" )]
     protected float[] freqBand;
     public float power;

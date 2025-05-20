@@ -1,8 +1,7 @@
 using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class ComboSystem : MonoBehaviour
 {
@@ -62,13 +61,13 @@ public class ComboSystem : MonoBehaviour
     {
         StopAllCoroutines();
         highestCombo = 0f;
-        curCombo     = 0f;
-        targetCombo  = 0f;
-        pointOfMiss  = 0f;
-        isMissing    = false;
+        curCombo = 0f;
+        targetCombo = 0f;
+        pointOfMiss = 0f;
+        isMissing = false;
         transform.position = startPos;
 
-        text.text  = $"{( int )curCombo}";
+        text.text = $"{( int )curCombo}";
         text.color = Color.white;
 
         StartCoroutine( BreakCombo() );
@@ -94,12 +93,12 @@ public class ComboSystem : MonoBehaviour
             else
             {
                 curCombo += ( ( ElapsedPower * 2.5f ) + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
-                
+
                 if ( curCombo > targetCombo )
-                     curCombo = targetCombo;
+                    curCombo = targetCombo;
             }
 
-            text.text  = $"{(int)curCombo}";
+            text.text = $"{( int )curCombo}";
         }
     }
 
@@ -121,7 +120,8 @@ public class ComboSystem : MonoBehaviour
                 text.color = curCombo > double.Epsilon ? Color.gray : Color.white;
                 pointOfMiss = targetCombo;
                 targetCombo = 0;
-            } break;
+            }
+            break;
 
             default: return;
         }

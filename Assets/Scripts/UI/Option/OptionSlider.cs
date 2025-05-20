@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public abstract class OptionSlider : OptionBase
 {
@@ -38,7 +36,7 @@ public abstract class OptionSlider : OptionBase
 
     public override void InputProcess()
     {
-        InputAction( KeyCode.LeftArrow,  LeftArrow );
+        InputAction( KeyCode.LeftArrow, LeftArrow );
         InputAction( KeyCode.RightArrow, RightArrow );
     }
 
@@ -99,8 +97,8 @@ public abstract class OptionSlider : OptionBase
     {
         if ( valueText == null ) return;
 
-        if ( slider.wholeNumbers ) valueText.text = string.Format( "{0}{1}{2}",     prePos, Mathf.RoundToInt( _value ), postPos );
-        else                       valueText.text = string.Format( "{0}{1:0.#}{2}", prePos, curValue,                   postPos );
+        if ( slider.wholeNumbers ) valueText.text = string.Format( "{0}{1}{2}", prePos, Mathf.RoundToInt( _value ), postPos );
+        else valueText.text = string.Format( "{0}{1:0.#}{2}", prePos, curValue, postPos );
 
         slider.value = curValue;
     }

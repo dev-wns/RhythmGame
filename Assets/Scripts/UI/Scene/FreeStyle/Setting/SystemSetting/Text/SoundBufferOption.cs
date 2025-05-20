@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System.Text;
 
 public class SoundBufferOption : OptionText
@@ -21,7 +18,7 @@ public class SoundBufferOption : OptionText
             builder.Append( text.Replace( "_", " " ).Trim() );
 
             if ( ( SoundBuffer )i == SoundBuffer._1024 )
-                 builder.Append( "(기본값)" );
+                builder.Append( "(기본값)" );
 
             texts.Add( builder.ToString() );
         }

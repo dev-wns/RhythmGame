@@ -49,7 +49,8 @@ public class InitScene : Scene
                 QualitySettings.vSyncCount = 0;
                 var frame = ( SystemSetting.CurrentFrameRate ).ToString().Replace( "_", " " );
                 Application.targetFrameRate = int.Parse( frame );
-            } break;
+            }
+            break;
         }
     }
 

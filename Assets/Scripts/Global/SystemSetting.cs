@@ -1,6 +1,6 @@
-public enum Resolution   { _1920_1080, _1600_900, _1280_720, Count, }
-public enum FrameRate    { vSync, No_Limit, _60, _144, _240, _960, Count, }
-public enum ScreenMode   { Exclusive_FullScreen, FullScreen_Window, Windowed, Count, }
+public enum Resolution { _1920_1080, _1600_900, _1280_720, Count, }
+public enum FrameRate { vSync, No_Limit, _60, _144, _240, _960, Count, }
+public enum ScreenMode { Exclusive_FullScreen, FullScreen_Window, Windowed, Count, }
 public enum AntiAliasing { None, _2xMultiSampling, _4xMultiSampling, _8xMultiSampling, Count, }
 
 public class SystemSetting

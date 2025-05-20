@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ScrollOption : ScrollBase
 {
@@ -14,13 +12,13 @@ public class ScrollOption : ScrollBase
     protected virtual void Awake()
     {
         if ( contents is null )
-             return;
+            return;
 
-        for ( int i = 0; i < contents.childCount; i++ ) 
+        for ( int i = 0; i < contents.childCount; i++ )
         {
             var option = contents.GetChild( i );
             if ( option.TryGetComponent( out OptionBase optionBase ) )
-                 options.Add( optionBase );
+                options.Add( optionBase );
             else
                 Debug.LogWarning( $"The {option.name} does not have OptionBase component." );
         }
@@ -35,22 +33,22 @@ public class ScrollOption : ScrollBase
         if ( Length <= 0 ) return;
 
         PreviousOption = CurrentOption;
-        CurrentOption  = options[_pos];
+        CurrentOption = options[_pos];
     }
 
     public override void PrevMove()
     {
         base.PrevMove();
 
-        CurrentOption  = options[CurrentIndex];
+        CurrentOption = options[CurrentIndex];
         PreviousOption = options[PreviousIndex];
     }
 
     public override void NextMove()
     {
         base.NextMove();
-         
-        CurrentOption  = options[CurrentIndex];
+
+        CurrentOption = options[CurrentIndex];
         PreviousOption = options[PreviousIndex];
     }
 }

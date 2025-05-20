@@ -12,13 +12,13 @@ public class OptionController : ScrollHide
 
         OptionProcess();
         while ( CurrentOption.type == OptionType.Title )
-                NextMove();
+            NextMove();
     }
 
     private void OnDisable()
     {
         if ( !isRememberIndex )
-             Select( 0 );
+            Select( 0 );
     }
 
     protected override void Select( int _pos )
@@ -33,7 +33,7 @@ public class OptionController : ScrollHide
     private void SetSelectUIParent()
     {
         if ( selectUI == null )
-             return;
+            return;
 
         var option = CurrentOption.transform as RectTransform;
         selectUI.SetParent( option );
@@ -51,7 +51,7 @@ public class OptionController : ScrollHide
         if ( CurrentOption.type == OptionType.Title )
         {
             if ( CurrentIndex == 0 ) NextMove();
-            else                     PrevMove();
+            else PrevMove();
         }
     }
 
@@ -64,7 +64,7 @@ public class OptionController : ScrollHide
         if ( CurrentOption.type == OptionType.Title )
         {
             if ( CurrentIndex == Length ) PrevMove();
-            else                          NextMove();
+            else NextMove();
         }
     }
 

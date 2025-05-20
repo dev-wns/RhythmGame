@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SelectMover : MonoBehaviour
@@ -15,7 +13,7 @@ public class SelectMover : MonoBehaviour
 
     private void Awake()
     {
-        leftPos  = left.position;
+        leftPos = left.position;
         rightPos = right.position;
     }
 
@@ -23,7 +21,7 @@ public class SelectMover : MonoBehaviour
     {
         timer += speed * Time.deltaTime;
         float offset = ( Mathf.Cos( timer ) + 1f ) * .5f; // 0 ~ 1
-        left.position  = new Vector2( leftPos.x  - ( moveAmount * offset ), left.transform.position.y  );
+        left.position = new Vector2( leftPos.x - ( moveAmount * offset ), left.transform.position.y );
         right.position = new Vector2( rightPos.x + ( moveAmount * offset ), right.transform.position.y );
     }
 }

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -19,9 +17,9 @@ public class StageData : MonoBehaviour
         info = _info;
         transform.localScale = Vector3.one;
 
-        title.text     = info.title;
-        host.text      = info.host;
-        song.text      = info.song;
+        title.text = info.title;
+        host.text = info.host;
+        song.text = info.song;
         isPlaying.text = _info.isPlaying ? "PLAYING" : "WAITING";
         personnel.text = $"{info.personnel.current} / {info.personnel.maximum}";
     }

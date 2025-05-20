@@ -51,10 +51,13 @@ public class AudioManager : Singleton<AudioManager>
         public override bool Equals( object _obj ) => Equals( ( SoundDriver )_obj );
         public override int GetHashCode() => base.GetHashCode();
     }
-    public int CurrentDriverIndex {
+    public int CurrentDriverIndex
+    {
         get => curDriverIndex;
-        set {
-            if ( Drivers.Count <= value || curDriverIndex == value ) {
+        set
+        {
+            if ( Drivers.Count <= value || curDriverIndex == value )
+            {
                 Debug.LogWarning( "SoundDriver Index is Out of Range or Duplicated Value" );
                 return;
             }
@@ -66,7 +69,7 @@ public class AudioManager : Singleton<AudioManager>
     }
     #region Properties
     private int curDriverIndex = -1;
-    public FMOD.Sound MainSound     { get; private set; }
+    public FMOD.Sound MainSound { get; private set; }
     public FMOD.Channel MainChannel { get; private set; }
     /// <summary>
     /// The accuratetime flag is required.
@@ -141,14 +144,14 @@ public class AudioManager : Singleton<AudioManager>
         ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
         ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
-        
+
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
         ErrorCheck( system.init( MaxVirtualChannel, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
-        
+
         ErrorCheck( system.getVersion( out uint version ) );
         if ( version < FMOD.VERSION.number )
-             Debug.LogWarning( "using the old version." );
+            Debug.LogWarning( "using the old version." );
 
         // Sound Driver
         List<SoundDriver> drivers = new List<SoundDriver>();
@@ -158,7 +161,7 @@ public class AudioManager : Singleton<AudioManager>
         if ( curDriverIndex < 0 )
         {
             ErrorCheck( system.getDriver( out int driverIndex ) );
-            ErrorCheck( system.getDriverInfo( driverIndex, out string name, 256, out Guid guid, out int rate, 
+            ErrorCheck( system.getDriverInfo( driverIndex, out string name, 256, out Guid guid, out int rate,
                                               out FMOD.SPEAKERMODE driverSpeakMode, out int channels ) );
             for ( int i = 0; i < Drivers.Count; i++ )
             {
@@ -176,14 +179,14 @@ public class AudioManager : Singleton<AudioManager>
             ChannelType type = ( ChannelType )i;
             ErrorCheck( system.createChannelGroup( type.ToString(), out FMOD.ChannelGroup group ) );
             if ( type != ChannelType.Master )
-                 ErrorCheck( groups[ChannelType.Master].addGroup( group ) );
+                ErrorCheck( groups[ChannelType.Master].addGroup( group ) );
 
             groups.Add( type, group );
         }
 
 #if UNITY_EDITOR
         //PrintSystemSetting();
-        #endif
+#endif
 
         #region Details
         // DSP
@@ -205,7 +208,7 @@ public class AudioManager : Singleton<AudioManager>
         //Load( SFX.Clap,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Clap.wav" );
 
         // Details
-        SetVolume(  1f, ChannelType.Master );
+        SetVolume( 1f, ChannelType.Master );
         SetVolume( .15f, ChannelType.BGM );
         SetVolume( .3f, ChannelType.SFX );
         SetVolume( .8f, ChannelType.Clap );
@@ -493,7 +496,7 @@ public class AudioManager : Singleton<AudioManager>
         // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
         _music.channel.isPlaying( out bool isPlaying );
         if ( !isPlaying )
-             yield break;
+            yield break;
 
         // 같은 값일 때 계산 없이 종료.
         if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
@@ -697,7 +700,7 @@ public class AudioManager : Singleton<AudioManager>
     private void CreateFFTWindow()
     {
         if ( dsps.ContainsKey( FMOD.DSP_TYPE.FFT ) )
-             return;
+            return;
 
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out FMOD.DSP dsp ) );
         ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
@@ -724,7 +727,7 @@ public class AudioManager : Singleton<AudioManager>
         ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.COMPRESSOR, out FMOD.DSP dsp ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.THRESHOLD, -12f ) );
         ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.RATIO, 2.85f ) );
-        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.ATTACK,  20f ) );
+        ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.ATTACK, 20f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_COMPRESSOR.RELEASE, 20f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.THRESHOLD, 1f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_NORMALIZE.MAXAMP, 5f ) );
@@ -782,17 +785,17 @@ public class AudioManager : Singleton<AudioManager>
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_FREQUENCY, 5000f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_Q, .11f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.B_GAIN, 4f ) );
-        
+
         //ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.C_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.DISABLED ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_FREQUENCY, 6000f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_Q, .11f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.C_GAIN, 4f ) );
-        
+
         //ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.D_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.DISABLED ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_FREQUENCY, 7000f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_Q, .11f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.D_GAIN, 4f ) );
-     
+
         //ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_MULTIBAND_EQ.E_FILTER, ( int )FMOD.DSP_MULTIBAND_EQ_FILTER_TYPE.DISABLED ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_FREQUENCY, 8000f ) );
         //ErrorCheck( dsp.setParameterFloat( ( int )FMOD.DSP_MULTIBAND_EQ.E_Q, .11f ) );

@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine;
 
 public class PauseInfomation : MonoBehaviour
 {
@@ -24,21 +21,21 @@ public class PauseInfomation : MonoBehaviour
     {
         var scene = GameObject.FindGameObjectWithTag( "Scene" );
         if ( scene.TryGetComponent( out InGame inGame ) )
-             inGame.OnScrollChange += UpdateScrollSpeedText;
+            inGame.OnScrollChange += UpdateScrollSpeedText;
 
         // Main Infomation
         UpdateScrollSpeedText();
         random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
-        rate.text   = $"x{GameSetting.CurrentPitch:F2}";
-        rate.color  = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
+        rate.text = $"x{GameSetting.CurrentPitch:F2}";
+        rate.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                       GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Game Mode
-        autoPlay.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay      ) ? Color.white : disableColor;
-        noFail.color        = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail        ) ? Color.white : disableColor;
-        noSlider.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider      ) ? Color.white : disableColor;
-        fixedBPM.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM      ) ? Color.white : disableColor;
-        hardJudge.color     = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge     ) ? Color.white : disableColor;
+        autoPlay.color = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? Color.white : disableColor;
+        noFail.color = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail ) ? Color.white : disableColor;
+        noSlider.color = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? Color.white : disableColor;
+        fixedBPM.color = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? Color.white : disableColor;
+        hardJudge.color = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? Color.white : disableColor;
         keyConversion.color = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) ? Color.white : disableColor;
     }
 

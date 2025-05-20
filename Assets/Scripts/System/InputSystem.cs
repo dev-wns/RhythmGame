@@ -53,13 +53,13 @@ public class InputSystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnGameStart += StartProcess;
-        scene.OnGameOver  += GameOver;
-        scene.OnReLoad    += ReLoad;
-        scene.OnPause     += Pause;
+        scene.OnGameOver += GameOver;
+        scene.OnReLoad += ReLoad;
+        scene.OnPause += Pause;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
-        lane  = GetComponent<Lane>(); 
+        lane = GetComponent<Lane>();
         lane.OnLaneInitialize += Initialize;
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
@@ -74,13 +74,13 @@ public class InputSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( scene.IsGameInputLock ) 
-             return;
+        if ( scene.IsGameInputLock )
+            return;
 
         // Note Select
         if ( curNote == null && notes.Count > 0 )
         {
-            curNote  = notes.Dequeue();
+            curNote = notes.Dequeue();
             curSound = curNote.Sound;
         }
 
@@ -118,14 +118,14 @@ public class InputSystem : MonoBehaviour
         key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.KeyCount][_key];
 
         NoteRenderer note = note1;
-        if ( NowPlaying.KeyCount == 4 )      note = _key == 1 || _key == 2 ? note2 : note1;
+        if ( NowPlaying.KeyCount == 4 ) note = _key == 1 || _key == 2 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
         notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
 
         if ( noteDatas.Count > 0 )
         {
-            curData  = noteDatas[noteSpawnIndex];
+            curData = noteDatas[noteSpawnIndex];
             curSound = noteDatas[noteSpawnIndex].keySound;
         }
     }
@@ -162,8 +162,8 @@ public class InputSystem : MonoBehaviour
 
         NowPlaying.Inst.ResetData();
         noteSpawnIndex = 0;
-        curNote        = null;
-        curSound       = new KeySound();
+        curNote = null;
+        curSound = new KeySound();
     }
 
     public void AddNote( in Note _note )
@@ -184,8 +184,8 @@ public class InputSystem : MonoBehaviour
     {
         OnStopEffect?.Invoke();
 
-        if ( !_isPause || curNote == null || !curNote.IsSlider ) 
-             return;
+        if ( !_isPause || curNote == null || !curNote.IsSlider )
+            return;
 
         if ( isAuto )
         {
@@ -213,7 +213,7 @@ public class InputSystem : MonoBehaviour
             notes.Enqueue( note );
 
             if ( ++noteSpawnIndex < noteDatas.Count )
-                 curData = noteDatas[noteSpawnIndex];
+                curData = noteDatas[noteSpawnIndex];
         }
     }
 
@@ -239,7 +239,7 @@ public class InputSystem : MonoBehaviour
         while ( true )
         {
             yield return WaitEnqueue;
-            
+
             var slider = sliderMissQueue.Peek();
             if ( slider.TailPos < -640f )
             {
@@ -255,8 +255,8 @@ public class InputSystem : MonoBehaviour
         {
             curNote.gameObject.SetActive( false );
             curNote.Despawn();
-        } 
-            
+        }
+
         curNote = null;
     }
 
@@ -386,7 +386,7 @@ public class InputSystem : MonoBehaviour
                     judge.ResultUpdate( HitResult.None, NoteType.None );
                     inputStartTime = NowPlaying.Playback - ( inputHoldTime - .1d );
                 }
-                
+
                 if ( Input.GetKeyUp( key ) )
                 {
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Up );

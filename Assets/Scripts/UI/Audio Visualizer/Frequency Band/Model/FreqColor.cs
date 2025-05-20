@@ -1,6 +1,3 @@
-using DG.Tweening;
-using Newtonsoft.Json.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +25,7 @@ public class FreqColor : MonoBehaviour
         buffer = new float[freqCount];
 
         if ( isReverse ) rightBars.Reverse();
-        else             leftBars.Reverse();
+        else leftBars.Reverse();
     }
 
     private void UpdateColors( float[] _values )
@@ -42,7 +39,7 @@ public class FreqColor : MonoBehaviour
                 int start = Global.Math.Clamp( i - NormalizedRange, 0, freqCount );
                 int end   = Global.Math.Clamp( i + NormalizedRange, 0, freqCount );
                 for ( int idx = start; idx < end; idx++ )
-                      sumValue += _values[idx];
+                    sumValue += _values[idx];
 
                 value = sumValue / ( end - start + 1 );
             }

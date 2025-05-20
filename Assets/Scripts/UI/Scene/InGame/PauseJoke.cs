@@ -9,7 +9,7 @@ public class PauseJoke : MonoBehaviour
     private void Awake()
     {
         if ( !TryGetComponent<TextMeshProUGUI>( out jokeText ) )
-             Destroy( this );
+            Destroy( this );
     }
 
     private void OnEnable()

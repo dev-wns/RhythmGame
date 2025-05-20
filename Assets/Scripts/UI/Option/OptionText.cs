@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
-using UnityEngine.UIElements;
+using UnityEngine;
 
 [RequireComponent( typeof( ScrollBase ) )]
 public abstract class OptionText : OptionBase
@@ -15,10 +13,10 @@ public abstract class OptionText : OptionBase
     public bool isActive;
     private ScrollBase scroller;
 
-    public int CurrentIndex 
+    public int CurrentIndex
     {
         get => scroller.CurrentIndex;
-        set { scroller.CurrentIndex = value; } 
+        set { scroller.CurrentIndex = value; }
     }
 
     protected override void Awake()
@@ -26,7 +24,7 @@ public abstract class OptionText : OptionBase
         base.Awake();
 
         if ( !TryGetComponent( out scroller ) )
-             Debug.LogError( $"The {gameObject.name} does not have ScrollBase component." );
+            Debug.LogError( $"The {gameObject.name} does not have ScrollBase component." );
 
         type = OptionType.Text;
         scroller.IsLoop = true;
@@ -45,14 +43,14 @@ public abstract class OptionText : OptionBase
             Process();
         }
 
-        InputAction( KeyCode.LeftArrow,  scroller.PrevMove );
+        InputAction( KeyCode.LeftArrow, scroller.PrevMove );
         InputAction( KeyCode.RightArrow, scroller.NextMove );
     }
 
     public void UpdateData( bool isLeft )
     {
         if ( isLeft ) scroller.PrevMove();
-        else          scroller.NextMove();
+        else scroller.NextMove();
 
         AudioManager.Inst.Play( SFX.Slider );
         ChangeText( texts[CurrentIndex] );
@@ -68,13 +66,13 @@ public abstract class OptionText : OptionBase
             ChangeText( texts[CurrentIndex] );
 
             if ( !isReturnProcess )
-                 Process();
+                Process();
         }
     }
 
     protected void ChangeText( string _text )
     {
-        if ( valueText == null ) return; 
+        if ( valueText == null ) return;
 
         valueText.text = _text;
     }

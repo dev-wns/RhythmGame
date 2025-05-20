@@ -9,7 +9,7 @@ public class SpritePreview : FreeStylePreview
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
     private int startIndex;
-    private double offset;
+    private double offset = 0d;
     private double previewTime;
     private Coroutine updatePreview;
 
@@ -62,19 +62,19 @@ public class SpritePreview : FreeStylePreview
                     SpriteSample sprite;
                     var split = line.Split( ',' );
 
-                    sprite.type  = ( SpriteType )int.Parse( split[0] );
+                    sprite.type = ( SpriteType )int.Parse( split[0] );
                     if ( sprite.type != SpriteType.Background )
-                         continue;
+                        continue;
 
                     sprite.start = double.Parse( split[1] );
-                    sprite.end   = double.Parse( split[2] );
-                    sprite.name  = split[3];
+                    sprite.end = double.Parse( split[2] );
+                    sprite.name = split[3];
 
                     //if ( sprites.Count == 0 )
                     //     offset = ( sprite.start - _song.audioOffset ) * .5f;
 
                     if ( sprite.start < previewTime - offset )
-                         startIndex = sprites.Count;
+                        startIndex = sprites.Count;
 
                     sprites.Add( sprite );
                 }
@@ -131,7 +131,7 @@ public class SpritePreview : FreeStylePreview
         SpriteSample curSample = new SpriteSample();
         int curIndex = startIndex;
         if ( curIndex < sprites.Count )
-             curSample = sprites[curIndex];
+            curSample = sprites[curIndex];
 
         WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= AudioManager.Inst.Position - offset );
         WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= AudioManager.Inst.Position - offset );
@@ -153,7 +153,7 @@ public class SpritePreview : FreeStylePreview
 
             yield return waitSampleEnd;
             if ( ++curIndex < sprites.Count )
-                 curSample = sprites[curIndex];
+                curSample = sprites[curIndex];
         }
     }
 }

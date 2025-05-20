@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 // null이 포함된 데이터를 JSON으로 만들면 서버가 뻗습니다.
@@ -125,7 +123,7 @@ public struct USER_INFO : IProtocol
         name = _name;
         password = _password;
         level = playCount = 0;
-        exp   = accuracy  = 0f;
+        exp = accuracy = 0f;
     }
 }
 

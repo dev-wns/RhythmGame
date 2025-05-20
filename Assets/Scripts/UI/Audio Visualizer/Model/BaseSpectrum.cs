@@ -21,7 +21,7 @@ public abstract class BaseSpectrum : MonoBehaviour
     [Min(-1f)]      public float specBlank;
 
     protected float Offset => specWidth + specBlank;
-    protected float Power  => specPower * AdditionalPower;
+    protected float Power => specPower * AdditionalPower;
 
     private readonly float AdditionalPower = 1000f;
 

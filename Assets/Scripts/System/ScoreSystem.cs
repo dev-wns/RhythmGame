@@ -1,7 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class ScoreSystem : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class ScoreSystem : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag("Scene").GetComponent<InGame>();
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
         scene.OnReLoad += OnReLoad;
         scene.OnResult += OnResult;
@@ -37,7 +36,7 @@ public class ScoreSystem : MonoBehaviour
     private void OnReLoad()
     {
         targetScore = 0d;
-        curScore    = 0d;
+        curScore = 0d;
     }
 
     private void Initialize( Chart _chart )
@@ -45,7 +44,7 @@ public class ScoreSystem : MonoBehaviour
         bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) &&  NowPlaying.CurrentSong.keyCount == 7;
         var slider = hasKeyConversion ? NowPlaying.CurrentSong.sliderCount - NowPlaying.CurrentSong.delSliderCount : NowPlaying.CurrentSong.sliderCount;
         var note   = hasKeyConversion ? NowPlaying.CurrentSong.noteCount   - NowPlaying.CurrentSong.delNoteCount   : NowPlaying.CurrentSong.noteCount;
-        
+
         int maxJudgeCount = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + ( slider * 2 );
         maxScore = 1000000d / maxJudgeCount;
         StartCoroutine( Count() );
@@ -55,12 +54,12 @@ public class ScoreSystem : MonoBehaviour
     {
         switch ( _result.hitResult )
         {
-            case HitResult.Maximum: targetScore += maxScore;        break;
+            case HitResult.Maximum: targetScore += maxScore; break;
             case HitResult.Perfect: targetScore += maxScore * .70d; break;
-            case HitResult.Great:   targetScore += maxScore * .50d; break;
-            case HitResult.Good:    targetScore += maxScore * .30d; break;
-            case HitResult.Bad:     targetScore += maxScore * .15d; break;
-            default:                                                return;
+            case HitResult.Great: targetScore += maxScore * .50d; break;
+            case HitResult.Good: targetScore += maxScore * .30d; break;
+            case HitResult.Bad: targetScore += maxScore * .15d; break;
+            default: return;
         }
 
         countOffset = ( float )( targetScore - curScore ) / countDuration;
@@ -72,10 +71,10 @@ public class ScoreSystem : MonoBehaviour
         while ( true )
         {
             yield return waitNextValue;
-            
+
             curScore += countOffset * Time.deltaTime;
             if ( curScore >= targetScore )
-                 curScore  = targetScore;
+                curScore = targetScore;
 
             text.text = $"{( ( int )Global.Math.Round( curScore ) ):D7}";
         }

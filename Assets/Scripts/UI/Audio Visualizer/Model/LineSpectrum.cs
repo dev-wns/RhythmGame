@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class LineSpectrum : BaseSpectrum
@@ -8,7 +7,7 @@ public class LineSpectrum : BaseSpectrum
     protected Transform[] transforms; // 생성된 모델 안의 Transform
 
     [Header("Speed Control")]
-    [Range(0f, 50f)] 
+    [Range(0f, 50f)]
     public float decreasePower;
 
     [Header("Normalize")]
@@ -21,7 +20,7 @@ public class LineSpectrum : BaseSpectrum
 
     protected override void CreateSpectrumModel()
     {
-        buffer     = new float[specCount];
+        buffer = new float[specCount];
         transforms = new Transform[specCount * 2];
         int symmetryColorIdx = 0;
 
@@ -34,11 +33,11 @@ public class LineSpectrum : BaseSpectrum
             rdr.sortingOrder = sortingOrder;
 
             rdr.color = !isGradation ? color :
-                        i < specCount     ? GetGradationColor( isGradationReverse ? specCount - i : i ) :
+                        i < specCount ? GetGradationColor( isGradationReverse ? specCount - i : i ) :
                                             GetGradationColor( isGradationReverse ? specCount - symmetryColorIdx++ : symmetryColorIdx++ );
 
-            transforms[i].position = i < specCount ? new Vector3( transform.position.x + -GetIndexToPositionX( i ),             transform.position.y, transform.position.z ) :
-                                                     new Vector3( transform.position.x +  GetIndexToPositionX( i - specCount ), transform.position.y, transform.position.z );
+            transforms[i].position = i < specCount ? new Vector3( transform.position.x + -GetIndexToPositionX( i ), transform.position.y, transform.position.z ) :
+                                                     new Vector3( transform.position.x + GetIndexToPositionX( i - specCount ), transform.position.y, transform.position.z );
         }
     }
 
@@ -57,8 +56,8 @@ public class LineSpectrum : BaseSpectrum
                 int start = Global.Math.Clamp( index - normalizedRange, 0, 4096 );
                 int end   = Global.Math.Clamp( index + normalizedRange, 0, 4096 );
                 for ( int idx = start; idx <= end; idx++ )
-                      sumValue += ( _values[0][idx] + _values[1][idx] ) * .5f;
-                      
+                    sumValue += ( _values[0][idx] + _values[1][idx] ) * .5f;
+
                 value = sumValue / ( end - start + 1 );
             }
 
@@ -75,8 +74,8 @@ public class LineSpectrum : BaseSpectrum
 
             //buffer[i] = buffer[i] < value ? value :
             //                                Global.Math.Clamp( buffer[i] - ( ( .025f + Global.Math.Abs( buffer[i] - value ) ) * decreasePower * Time.deltaTime ), .0005f, 1f );
-                                            // Global.Math.Clamp( buffer[i] - ( ( .025f + buffer[i] ) * decreasePower * Time.deltaTime ), .0005f, 1f );
-                                            
+            // Global.Math.Clamp( buffer[i] - ( ( .025f + buffer[i] ) * decreasePower * Time.deltaTime ), .0005f, 1f );
+
             // 계산된 값으로 스케일 조절.
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];
@@ -85,8 +84,8 @@ public class LineSpectrum : BaseSpectrum
             if ( isPositionUpdate )
             {
                 float posX = GetIndexToPositionX( i );
-                left.position  = new Vector3( transform.position.x + -posX, transform.position.y, transform.position.z );
-                right.position = new Vector3( transform.position.x + posX,  transform.position.y, transform.position.z );
+                left.position = new Vector3( transform.position.x + -posX, transform.position.y, transform.position.z );
+                right.position = new Vector3( transform.position.x + posX, transform.position.y, transform.position.z );
             }
         }
     }

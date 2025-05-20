@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -20,13 +19,13 @@ public class StageSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
-        pool  = new ObjectPool<StageData>( prefab, contents, 5 );
+        pool = new ObjectPool<StageData>( prefab, contents, 5 );
 
         // Protocols
-        ProtocolSystem.Inst.Regist( STAGE_INFO_ACK,    AckInsertStage );
+        ProtocolSystem.Inst.Regist( STAGE_INFO_ACK, AckInsertStage );
         ProtocolSystem.Inst.Regist( INSERT_STAGE_INFO, AckInsertStage );
-        ProtocolSystem.Inst.Regist( CREATE_STAGE_ACK,  AckEntryStage );
-        ProtocolSystem.Inst.Regist( ENTRY_STAGE_ACK,   AckEntryStage );
+        ProtocolSystem.Inst.Regist( CREATE_STAGE_ACK, AckEntryStage );
+        ProtocolSystem.Inst.Regist( ENTRY_STAGE_ACK, AckEntryStage );
         ProtocolSystem.Inst.Regist( UPDATE_STAGE_INFO, AckUpdateStage );
         ProtocolSystem.Inst.Regist( DELETE_STAGE_INFO, AckDeleteStage );
     }

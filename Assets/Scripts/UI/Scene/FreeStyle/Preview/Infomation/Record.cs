@@ -5,7 +5,7 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 
 public class Record : MonoBehaviour
-{ 
+{
     public FreeStyleMainScroll mainScroll;
 
     public GameObject noRecord;

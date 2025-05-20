@@ -1,6 +1,5 @@
 namespace WNS.Time.Control
 {
-    using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
 

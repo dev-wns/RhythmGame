@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,15 +16,15 @@ public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
 
         public RectOffset( float _left, float _right, float _top, float _bottom )
         {
-            left   = _left;
-            right  = _right;
-            top    = _top;
+            left = _left;
+            right = _right;
+            top = _top;
             bottom = _bottom;
         }
     }
     [SerializeField]
     protected RectOffset padding;
-    [SerializeField] 
+    [SerializeField]
     protected TextAnchor childAlignment = TextAnchor.MiddleCenter;
     protected Vector2 anchor;
 

@@ -24,9 +24,9 @@ public class FreeStyleSearch : MonoBehaviour
     private void Update()
     {
         if ( scene.CurrentAction != ActionType.Search )
-             return;
+            return;
 
-        if ( ( Input.GetMouseButtonDown( 0 )      && field.interactable ) ||
+        if ( ( Input.GetMouseButtonDown( 0 ) && field.interactable ) ||
              ( Input.GetKeyDown( KeyCode.Return ) && field.interactable ) )
         {
             field.ActivateInputField();

@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class NoFailOption : OptionText
 {
     private void OnEnable()
@@ -21,6 +17,6 @@ public class NoFailOption : OptionText
     public override void Process()
     {
         if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.NoFail;
-        else                     GameSetting.CurrentGameMode |=  GameMode.NoFail;
+        else GameSetting.CurrentGameMode |= GameMode.NoFail;
     }
 }

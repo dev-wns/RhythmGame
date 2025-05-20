@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,18 +16,19 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
     public bool IsKeyDown { get; set; }
     public float BodyLength { get; private set; }
     public KeySound Sound => note.keySound;
-    
+
     protected float column;
     protected static readonly Color NoteFailColor = new Color( .5f, .5f, .5f, 1f );
     protected double newDistance;
 
     protected static bool IsOnlyBody = false;
+    private bool isStart;
 
     private void Awake()
     {
-        head.rectTransform.sizeDelta        = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        head.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
         body.rectTransform.anchoredPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
-        tail.rectTransform.sizeDelta        = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        tail.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
     }
 
     public void SetInfo( in Note _note, float _startPos, Color _color )
@@ -44,35 +43,46 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
         body.enabled = IsOnlyBody ? true : IsSlider;
         tail.enabled = IsOnlyBody ? false : IsSlider;
 
-        head.rectTransform.sizeDelta        = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        head.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
         body.rectTransform.anchoredPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
-        tail.rectTransform.sizeDelta        = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        tail.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
 
         head.color = body.color = tail.color = _color;
+        isStart = true;
     }
 
     private void LateUpdate()
     {
+        if ( !isStart )
+            return;
+
         if ( IsSlider )
         {
             if ( Distance < PreviewNoteSystem.Distance )
-                 newDistance = PreviewNoteSystem.Distance;
+                newDistance = PreviewNoteSystem.Distance;
 
             BodyLength = ( float )( ( SliderDistance - newDistance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight );
 
             float length = Global.Math.Clamp( IsOnlyBody ? BodyLength : BodyLength - PreviewNoteSystem.NoteHeight, 0f, float.MaxValue );
-            body.rectTransform.sizeDelta        = new Vector2( PreviewNoteSystem.NoteWidth, length );
+            body.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, length );
             tail.rectTransform.anchoredPosition = new Vector2( 0f, length );
-            
+
             transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ) );
             if ( SliderTime - PreviewNoteSystem.Playback < double.Epsilon )
-                 pool.Despawn( this );
+                Despawn();
         }
         else
         {
             transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ) );
             if ( Time - PreviewNoteSystem.Playback < double.Epsilon )
-                 pool.Despawn( this );
+                Despawn();
         }
+    }
+
+    private void Despawn()
+    {
+        transform.localPosition = new Vector2( int.MaxValue, int.MaxValue );
+        isStart = false;
+        pool.Despawn( this );
     }
 }

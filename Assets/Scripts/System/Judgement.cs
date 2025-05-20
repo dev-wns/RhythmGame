@@ -24,11 +24,11 @@ public class Judgement : MonoBehaviour
     private int curJudge;
 
     public static double Maximum => .0165d * Multiply;
-    public static double Perfect => .0405d * Multiply; 
-    public static double Great   => .0735d * Multiply; 
-    public static double Good    => .1035d * Multiply; 
-    public static double Bad     => .1275d * Multiply; 
-    public static double Miss    => .1500d * Multiply;
+    public static double Perfect => .0405d * Multiply;
+    public static double Great => .0735d * Multiply;
+    public static double Good => .1035d * Multiply;
+    public static double Bad => .1275d * Multiply;
+    public static double Miss => .1500d * Multiply;
     private static  double Multiply;
 
     public event Action<JudgeResult> OnJudge;
@@ -64,14 +64,14 @@ public class Judgement : MonoBehaviour
     {
         JudgeResult result;
         result.noteType = _noteType;
-        result.diff     = _diff;
+        result.diff = _diff;
 
         double diffAbs = result.diffAbs = Math.Abs( _diff );
-        result.hitResult = diffAbs <= Maximum                       ? HitResult.Maximum :
-                           diffAbs >  Maximum && diffAbs <= Perfect ? HitResult.Perfect :
-                           diffAbs >  Perfect && diffAbs <= Great   ? HitResult.Great   :
-                           diffAbs >  Great   && diffAbs <= Good    ? HitResult.Good    :
-                           diffAbs >  Good    && diffAbs <= Bad     ? HitResult.Bad     :
+        result.hitResult = diffAbs <= Maximum ? HitResult.Maximum :
+                           diffAbs > Maximum && diffAbs <= Perfect ? HitResult.Perfect :
+                           diffAbs > Perfect && diffAbs <= Great ? HitResult.Great :
+                           diffAbs > Great && diffAbs <= Good ? HitResult.Good :
+                           diffAbs > Good && diffAbs <= Bad ? HitResult.Bad :
                                                                       HitResult.None;
 
         if ( diffAbs > Perfect && diffAbs <= Bad )

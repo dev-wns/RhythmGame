@@ -21,7 +21,7 @@ public class FreeStyleComment : MonoBehaviour
     private void Update()
     {
         if ( scene.CurrentAction != ActionType.Comment )
-             return;
+            return;
 
         if ( ( Input.GetMouseButtonDown( 0 ) && field.interactable ) ||
              ( Input.GetKeyDown( KeyCode.Return ) && field.interactable ) )
@@ -43,7 +43,7 @@ public class FreeStyleComment : MonoBehaviour
         field.interactable = false;
         field.DeactivateInputField();
         if ( field.text.Trim() == string.Empty )
-             field.text = "None";
+            field.text = "None";
     }
 
     private void UpdateComment( Song _song )

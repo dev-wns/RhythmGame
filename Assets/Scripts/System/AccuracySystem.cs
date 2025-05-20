@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class AccuracySystem : MonoBehaviour
 {
@@ -39,21 +38,21 @@ public class AccuracySystem : MonoBehaviour
     private void AccuracyUpdate( JudgeResult _result )
     {
         HitResult hitResult = _result.hitResult;
-        if ( hitResult == HitResult.None ) 
-             return;
+        if ( hitResult == HitResult.None )
+            return;
 
         switch ( hitResult )
         {
             case HitResult.Maximum:
-            case HitResult.Perfect: curAccuracy +=  10000d; break; 
-            case HitResult.Great:   curAccuracy +=  9000d;  break; 
-            case HitResult.Good:    curAccuracy +=  8000d;  break; 
-            case HitResult.Bad:     curAccuracy +=  7000d;  break; 
-            case HitResult.Miss:    curAccuracy +=  .0001d; break; 
-            default:                                        return;
+            case HitResult.Perfect: curAccuracy += 10000d; break;
+            case HitResult.Great: curAccuracy += 9000d; break;
+            case HitResult.Good: curAccuracy += 8000d; break;
+            case HitResult.Bad: curAccuracy += 7000d; break;
+            case HitResult.Miss: curAccuracy += .0001d; break;
+            default: return;
         }
         ++curMaxCount;
 
-        text.text = $"{( ( int )( curAccuracy / curMaxCount ) *.01d ):F2}%";
+        text.text = $"{( ( int )( curAccuracy / curMaxCount ) * .01d ):F2}%";
     }
 }

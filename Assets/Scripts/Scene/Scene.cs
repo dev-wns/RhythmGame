@@ -5,9 +5,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // Build Index
-public enum SceneType : int { FreeStyle = 1, Game, Result, // SiglePlay 
-                              Lobby, Stage,                // MultiPlay
-                            };
+public enum SceneType : int
+{
+    FreeStyle = 1, Game, Result, // SiglePlay 
+    Lobby, Stage,                // MultiPlay
+};
 
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
@@ -25,7 +27,7 @@ public abstract class Scene : SceneKeyAction
         CreateFadeSprite();
 
         //Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
-        
+
         //if ( UICamera is not null )
         //     UICamera.orthographicSize = 540;
 
@@ -67,7 +69,7 @@ public abstract class Scene : SceneKeyAction
         DOTween.KillAll();
         DOTween.Clear();
         DOTween.ClearCachedTweens();
-        
+
         IsInputLock = true;
 
         yield return StartCoroutine( FadeOut() );
@@ -103,11 +105,11 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             AudioManager.Inst.Play( SFX.MenuClick );
+            AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
-        }
+            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
+    }
 
     protected void EnableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
     {
@@ -118,14 +120,14 @@ public abstract class Scene : SceneKeyAction
             group.alpha = 0f;
             DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.OptionFadeDuration );
         }
-        
+
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             AudioManager.Inst.Play( SFX.MenuClick );
+            AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
+            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
     }
 
     protected void ImmediateDisableCanvas( ActionType _changeType, OptionController _controller )
@@ -153,10 +155,10 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             AudioManager.Inst.Play( SFX.MenuExit );
+            AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
+            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
     }
 
     protected void DisableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -171,14 +173,14 @@ public abstract class Scene : SceneKeyAction
         {
             root.SetActive( false );
         }
-        
+
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-             AudioManager.Inst.Play( SFX.MenuExit );
+            AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
+            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
     }
     #endregion
 
@@ -219,7 +221,7 @@ public abstract class Scene : SceneKeyAction
         else
         {
             if ( GameSetting.ScrollSpeed > 1.0001d )
-                 AudioManager.Inst.Play( SFX.Slider );
+                AudioManager.Inst.Play( SFX.Slider );
 
             GameSetting.ScrollSpeed -= .1f;
         }

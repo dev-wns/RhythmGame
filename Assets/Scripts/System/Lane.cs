@@ -52,7 +52,7 @@ public class Lane : MonoBehaviour
             alpha -= offset * Time.deltaTime;
             laneEffect.color = new Color( color.r, color.g, color.b, alpha );
             if ( alpha < 0 )
-                 ShouldPlayLaneEffect = false;
+                ShouldPlayLaneEffect = false;
         }
     }
 
@@ -61,7 +61,7 @@ public class Lane : MonoBehaviour
         Key = _key;
         UpdatePosition( _key );
         OnLaneInitialize?.Invoke( Key );
-        
+
         if ( NowPlaying.KeyCount == 4 )
         {
             color = _key == 1 || _key == 2 ? new Color( 0f, 0f, 1f, StartAlpha ) : new Color( 1f, 0f, 0f, StartAlpha );
@@ -80,10 +80,10 @@ public class Lane : MonoBehaviour
     public void UpdatePosition( int _key )
     {
         transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 0f );
-        
+
         if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) )
         {
-            laneEffect.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
+            laneEffect.transform.position = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
             laneEffect.transform.localScale = new Vector3( GameSetting.NoteWidth, 250f, 1f );
         }
         else

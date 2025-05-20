@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CustomHorizontalLayoutGroup : CustomLayoutGroup
 {
     public override void SetLayoutHorizontal()
     {
-        if ( rectChildren.Count < 1 ) 
-             return;
+        if ( rectChildren.Count < 1 )
+            return;
 
         float childrenMaxWidth  = 0f;
         float childrenMaxHeight = 0f;
@@ -15,11 +13,11 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
             if ( !ShouldIncludeDisabledObject && !rectChildren[i].gameObject.activeSelf )
-                 continue;
+                continue;
 
-            childrenMaxWidth  += rectChildren[i].sizeDelta.x;
+            childrenMaxWidth += rectChildren[i].sizeDelta.x;
             childrenMaxHeight += rectChildren[i].sizeDelta.y;
-            maxSpacing        += spacing * anchor.x;
+            maxSpacing += spacing * anchor.x;
         }
 
         float childrenWidthOffset = childrenMaxWidth * anchor.x;
@@ -31,14 +29,14 @@ public class CustomHorizontalLayoutGroup : CustomLayoutGroup
         {
             var child = rectChildren[i];
             if ( !ShouldIncludeDisabledObject && !child.gameObject.activeInHierarchy )
-                 continue;
+                continue;
 
-            child.anchoredPosition = new Vector2( widthOffset  + padding.left   - padding.right,
+            child.anchoredPosition = new Vector2( widthOffset + padding.left - padding.right,
                                                   heightOffset + padding.bottom - padding.top );
 
             widthOffset += ( rectChildren[i].sizeDelta.x * .5f ) + spacing;
             if ( i + 1 < rectChildren.Count )
-                 widthOffset += ( rectChildren[i + 1].sizeDelta.x * .5f );
+                widthOffset += ( rectChildren[i + 1].sizeDelta.x * .5f );
         }
     }
 

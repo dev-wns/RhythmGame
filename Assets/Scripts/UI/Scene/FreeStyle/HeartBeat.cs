@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using DG.Tweening;
 
 public class HeartBeat : MonoBehaviour
 {
@@ -23,7 +19,7 @@ public class HeartBeat : MonoBehaviour
 
     private void Awake()
     {
-        mainScroll.OnSelectSong   += UpdateSong;
+        mainScroll.OnSelectSong += UpdateSong;
         mainScroll.OnSoundRestart += UpdateSong;
         pitchOption.OnPitchUpdate += UpdatePitch;
 
@@ -38,15 +34,15 @@ public class HeartBeat : MonoBehaviour
 
     private void UpdateSong( Song _song )
     {
-        isStop      = false;
-        curBPM      = _song.mainBPM;
+        isStop = false;
+        curBPM = _song.mainBPM;
         previewTime = _song.previewTime * GameSetting.CurrentPitch * .001f;
         UpdateBPM( curBPM * GameSetting.CurrentPitch );
     }
 
     private void UpdateBPM( double _bpm )
     {
-        spb  = ( float )( 60d / _bpm );
+        spb = ( float )( 60d / _bpm );
         time = previewTime % spb;
         rt.sizeDelta = new Vector2( startSize, startSize );
     }

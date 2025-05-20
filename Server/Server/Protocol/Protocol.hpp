@@ -31,7 +31,7 @@ enum PacketType : u_short
 	ENTRY_STAGE_ACK,               // 방 입장 응답
 	EXIT_STAGE_REQ,                // 방 퇴장 요청
 	EXIT_STAGE_ACK,                // 방 퇴장 응답
-	CHANGE_HOST_ACK,               // 호스트 변경 응답
+	CHANGE_HOST_ACK,               // 호스트 변경
 
 	INIT_SCENE_ACTORS_REQ,         // 씬에 배치된 Actor들 초기화 요청
 	INIT_SCENE_ACTORS_ACK,         // 씬에 배치된 Actor들 초기화 응답

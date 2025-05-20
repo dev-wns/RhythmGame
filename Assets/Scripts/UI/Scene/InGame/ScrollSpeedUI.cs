@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using DG.Tweening;
 
 public class ScrollSpeedUI : MonoBehaviour
 {
@@ -62,14 +60,14 @@ public class ScrollSpeedUI : MonoBehaviour
     private void UpdateSpeed()
     {
         if ( scene.CurrentAction != ActionType.Main )
-             return;
+            return;
 
         timer = 0f;
         speedText.text = $"{GameSetting.ScrollSpeed:F1}";
         textSeq?.Restart();
 
         if ( isActive )
-             return;
+            return;
 
         canvas.SetActive( true );
         canvasGroup.DOFade( 1f, .15f );
@@ -85,14 +83,14 @@ public class ScrollSpeedUI : MonoBehaviour
         speedText.color = Global.Color.ClearA;
         speedText.DOFade( 1f, Duration );
 
-        isActive     = true;
+        isActive = true;
         isProcessing = false;
     }
 
     private void Update()
     {
         if ( !isActive || isProcessing )
-             return;
+            return;
 
         timer += Time.deltaTime;
         if ( PanelShowTime < timer )
@@ -101,9 +99,9 @@ public class ScrollSpeedUI : MonoBehaviour
             canvasGroup.DOFade( 0f, .15f ).OnComplete( () =>
             {
                 canvas.SetActive( false );
-                isActive     = false;
+                isActive = false;
                 isProcessing = false;
-                timer        = 0f;
+                timer = 0f;
             } );
         }
     }

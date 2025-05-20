@@ -111,7 +111,7 @@ void Database::Query( const char* _sentence, ... )
 
 bool Database::IsExist( const USER_DATA& _data )
 {
-	Query( R"Q( SELECT * FROM UserInfo WHERE UserName = '%s'; )Q", _data.name );
+	Query( R"Q( SELECT * FROM Users WHERE UserName = '%s'; )Q", _data.name );
 	//if ( ( result = ::mysql_store_result( conn ) ) == nullptr )
 	//	   Debug.LogWarning( "DB Exception < ", ::mysql_error( conn ), " >" );
 
@@ -136,7 +136,7 @@ void Database::UpdateUser( const USER_DATA& _data )
 
 USER_DATA Database::GetUserInfo( const std::string& _name )
 {
-	Query( R"Q( SELECT * FROM UserInfo WHERE UserName = '%s'; )Q", _name );
+	Query( R"Q( SELECT * FROM Users WHERE UserName = '%s'; )Q", _name );
 
 	if ( ( result = ::mysql_store_result( conn ) ) == nullptr )
 	{

@@ -19,7 +19,7 @@ public class Gear : MonoBehaviour
         if ( GameSetting.BGAOpacity == 0 )
         {
             panel.gameObject.SetActive( false );
-            sideLeft.GetComponent<SpriteRenderer>().color  = Color.black;
+            sideLeft.GetComponent<SpriteRenderer>().color = Color.black;
             sideRight.GetComponent<SpriteRenderer>().color = Color.black;
         }
         else
@@ -34,10 +34,10 @@ public class Gear : MonoBehaviour
             }
         }
 
-        sideLeft.position  = new Vector3( GameSetting.GearStartPos, 0f );
+        sideLeft.position = new Vector3( GameSetting.GearStartPos, 0f );
         sideRight.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth, 0f );
-        helpTransform.position           = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 5f,  ( -Global.Screen.Height * .5f ) + 50f, 0f );
-        healthBGTransform.position       = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 17f, ( -Global.Screen.Height * .5f ) + ( helpTransform.localScale.y * .5f ), 0f );
+        helpTransform.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 5f, ( -Global.Screen.Height * .5f ) + 50f, 0f );
+        healthBGTransform.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 17f, ( -Global.Screen.Height * .5f ) + ( helpTransform.localScale.y * .5f ), 0f );
         healthRendererTransform.position = new Vector3( GameSetting.GearStartPos + GameSetting.GearWidth + 33f, ( -Global.Screen.Height * .5f ) + helpTransform.localScale.y, 0f );
 
         //hitCount.anchoredPosition = new Vector2( helpTransform.position.x + ( hitCount.sizeDelta.x * .5f ) + 51f, 
@@ -46,7 +46,7 @@ public class Gear : MonoBehaviour
 
     private void UpdatePosition()
     {
-        judge.position   = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos );
+        judge.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos );
         judge.localScale = new Vector3( GameSetting.GearWidth, judge.localScale.y );
     }
 }

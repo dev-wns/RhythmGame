@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System.Text;
 
 public class SoundDriverOption : OptionText
@@ -19,7 +16,7 @@ public class SoundDriverOption : OptionText
         {
             string text = drivers[i].name;
             var split = text.Split( '(' );
-            
+
             builder.Clear();
             builder.Append( split[0] );
             if ( split.Length > 1 )

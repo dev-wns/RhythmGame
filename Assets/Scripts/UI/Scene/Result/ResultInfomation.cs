@@ -72,62 +72,62 @@ public class ResultInfomation : MonoBehaviour
     private void Awake()
     {
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
-        
+
         var song   = NowPlaying.CurrentSong;
         var result = NowPlaying.Inst.CurrentResult;
-        
+
         // Song Infomation
-        title.text  = $"{song.title} [{song.version}]";
+        title.text = $"{song.title} [{song.version}]";
         artist.text = song.artist;
 
         // Note Infomation
         bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
-       
+
         var slider       = hasKeyConversion ? song.sliderCount - song.delSliderCount : song.sliderCount;
         var note         = hasKeyConversion ? song.noteCount   - song.delNoteCount   : song.noteCount;
-        totalNotes.text  = $"{note + slider}";
-        noteCount.text   = hasNoSlider ? $"{note + slider}" : $"{note}";
-        sliderCount.text = hasNoSlider ? $"{0}"             : $"{slider}";
+        totalNotes.text = $"{note + slider}";
+        noteCount.text = hasNoSlider ? $"{note + slider}" : $"{note}";
+        sliderCount.text = hasNoSlider ? $"{0}" : $"{slider}";
 
         // Clear Type
         if ( result.great + result.good + result.bad + result.miss == 0 )
         {
             allPerfect.color = Color.white;
-            fullCombo.color  = DisableColor;
-            clear.color      = DisableColor;
+            fullCombo.color = DisableColor;
+            clear.color = DisableColor;
         }
         else if ( result.miss == 0 )
         {
             allPerfect.color = DisableColor;
-            fullCombo.color  = Color.white;
-            clear.color      = DisableColor;
+            fullCombo.color = Color.white;
+            clear.color = DisableColor;
         }
         else
         {
             allPerfect.color = DisableColor;
-            fullCombo.color  = DisableColor;
-            clear.color      = Color.white;
+            fullCombo.color = DisableColor;
+            clear.color = Color.white;
         }
 
         //Mode
-        noSlider.color    = hasNoSlider                                                   ? Color.white : DisableColor;
-        autoPlay.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay      ) ? Color.white : DisableColor;
-        noFail.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail        ) ? Color.white : DisableColor;
-        fixedBPM.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM      ) ? Color.white : DisableColor;
-        hardJudge.color   = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge     ) ? Color.white : DisableColor;
+        noSlider.color = hasNoSlider ? Color.white : DisableColor;
+        autoPlay.color = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? Color.white : DisableColor;
+        noFail.color = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail ) ? Color.white : DisableColor;
+        fixedBPM.color = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? Color.white : DisableColor;
+        hardJudge.color = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? Color.white : DisableColor;
         onlyPerfect.color = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) ? Color.white : DisableColor;
 
         // Judgement
         totalJudge.text = hasNoSlider ? $"{note + slider}" : $"{note + ( slider * 2 )}";
-        DOTween.To( () => 0, x => TextProgressEffect( maximum, x  ),     result.maximum,  duration );
-        DOTween.To( () => 0, x => TextProgressEffect( perfect, x  ),     result.perfect,  duration );
-        DOTween.To( () => 0, x => TextProgressEffect( great, x    ),     result.great,    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( good, x     ),     result.good,     duration );
-        DOTween.To( () => 0, x => TextProgressEffect( bad, x      ),     result.bad,      duration );
-        DOTween.To( () => 0, x => TextProgressEffect( miss, x     ),     result.miss,     duration );
-        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ),     result.combo,    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( score, x    ),     result.score,    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maximum, x ), result.maximum, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( perfect, x ), result.perfect, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( great, x ), result.great, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( good, x ), result.good, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( bad, x ), result.bad, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( miss, x ), result.miss, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), result.combo, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( score, x ), result.score, duration );
         DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.accuracy, duration );
 
         // fast slow
@@ -140,13 +140,13 @@ public class ResultInfomation : MonoBehaviour
         {
             int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM );
             if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
-            else                              bpm.text = $"{mainBPM} ({song.minBpm} ~ {song.maxBpm})";
+            else bpm.text = $"{mainBPM} ({song.minBpm} ~ {song.maxBpm})";
         }
         else
         {
             int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * pitch  );
             if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
-            else                              bpm.text = $"{mainBPM} ({Mathf.RoundToInt( song.minBpm * pitch )} ~ {Mathf.RoundToInt( song.maxBpm * pitch )})";
+            else bpm.text = $"{mainBPM} ({Mathf.RoundToInt( song.minBpm * pitch )} ~ {Mathf.RoundToInt( song.maxBpm * pitch )})";
         }
         bpm.color = pitch < 1f ? new Color( .5f, .5f, 1f ) :
                     pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
@@ -160,8 +160,8 @@ public class ResultInfomation : MonoBehaviour
 
 
         bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );//||
-                                //GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
-                                //GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+                                                                                         //GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
+                                                                                         //GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
 
         useModeObj.SetActive( shouldMakeRecord );
         date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
@@ -174,7 +174,7 @@ public class ResultInfomation : MonoBehaviour
     {
         StopAllCoroutines();
         if ( texture != null )
-             DestroyImmediate( texture );
+            DestroyImmediate( texture );
     }
 
     private IEnumerator LoadBackground( string _path )

@@ -8,7 +8,7 @@ public struct HealthData
 
     public HealthData( double _time, float _health )
     {
-        time   = _time;
+        time = _time;
         health = _health;
     }
 }
@@ -63,7 +63,7 @@ public class HealthSystem : MonoBehaviour
     {
         while ( true )
         {
-            healthScaleTimer   += healthScalerSpeed * Time.deltaTime;
+            healthScaleTimer += healthScalerSpeed * Time.deltaTime;
             float scaleOffset   = ( Mathf.Cos( healthScaleTimer ) + 1f ) * .5f; // 0 ~ 1
             float curTileHeight = curHealth * healthTileOffset;
             float height        = curTileHeight - Global.Math.Lerp( curTileHeight * .04f, 0f, scaleOffset );
@@ -78,8 +78,8 @@ public class HealthSystem : MonoBehaviour
         while ( true )
         {
             curHealth += healthOffset * smoothHealthControlSpeed * Time.deltaTime;
-            if ( healthOffset > 0f ? healthCached < curHealth :  healthCached > curHealth )
-                 curHealth = healthCached;
+            if ( healthOffset > 0f ? healthCached < curHealth : healthCached > curHealth )
+                curHealth = healthCached;
 
             if ( !isNoFailed && curHealth < 0f )
             {
@@ -94,25 +94,25 @@ public class HealthSystem : MonoBehaviour
     {
         StopAllCoroutines();
         healthOffset = 0f;
-        curHealth    = 0f;
+        curHealth = 0f;
         healthCached = MaxHealth;
         healthRenderer.size = new Vector2( healthTileCached.x, 0f );
     }
-    
+
     private void HealthUpdate( JudgeResult _result )
     {
         switch ( _result.hitResult )
         {
-            case HitResult.Maximum:     healthCached += .017f; break;
-            case HitResult.Perfect:     healthCached += .011f; break;
-            case HitResult.Great:       healthCached -= .005f; break;
-            case HitResult.Good:        healthCached -= .017f; break;
-            case HitResult.Bad:         healthCached -= .028f; break;
-            case HitResult.Miss:        healthCached -= .041f; break;
-            default:                                           return;
+            case HitResult.Maximum: healthCached += .017f; break;
+            case HitResult.Perfect: healthCached += .011f; break;
+            case HitResult.Great: healthCached -= .005f; break;
+            case HitResult.Good: healthCached -= .017f; break;
+            case HitResult.Bad: healthCached -= .028f; break;
+            case HitResult.Miss: healthCached -= .041f; break;
+            default: return;
         }
         healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );
-        
+
         healthOffset = healthCached - curHealth;
     }
 }

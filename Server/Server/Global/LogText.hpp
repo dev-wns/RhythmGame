@@ -1,6 +1,8 @@
 #pragma once
 #include "Singleton.hpp"
 #include "Synchronize/CriticalSection.h"
+#include <shlobj_core.h>
+#include <filesystem>
 
 #define Debug ( LogText::Inst() << __FUNCTION__ << "( " << std::to_string( __LINE__ ) << " )" )
 enum class LogAlignment { All, IgnoreLog, OnlyError, };
@@ -31,15 +33,27 @@ public:
 		::memset( info, 0, MaxLogSize );
 		pos = infoPos = 0;
 
-		char date[21] = { 0, };
-		const std::time_t now = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
-		std::strftime( &date[0], 21, "%Y-%m-%d_%H-%M-%S", std::localtime( &now ) );
+		// 내 문서 디렉터리 찾기
+		char documents[MAX_PATH] = { 0, };
+		if ( ::SHGetSpecialFolderPathA( NULL, documents, CSIDL_PERSONAL, FALSE ) )
+		{
+			// Log 폴더 생성
+			std::string path;
+			path.append( documents ).append( "\\Server Logs" );
+			if ( !std::filesystem::exists( path ) )
+				 std::filesystem::create_directories( path );
 
-		std::string path;
-		path.append( "../Log/" ).append( date ).append( ".txt" );
-		os.open( path, std::ios::out | std::ios::trunc );
-		if ( !os.is_open() )
-			 std::cout << "File open failed" << std::endl;
+			// 파일명을 위한 현재시간 가져오기
+			char date[21] = { 0, };
+			const std::time_t now = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
+			std::strftime( &date[0], 21, "%Y-%m-%d_%H-%M-%S", std::localtime( &now ) );
+
+			// 파일 생성 및 열기
+			path.append( "\\" ).append( date ).append( ".txt" );
+			os.open( path, std::ios::out | std::ios::trunc );
+			if ( !os.is_open() ) std::cout << "File open failed" << std::endl;
+			else                 std::cout << "# Log Path < " << path << " >" << std::endl;
+		}
 	}
 	~LogText()
 	{
@@ -67,8 +81,7 @@ private:
 			case LogType::_Log:
 			{
 				os << "# Log < " << info << " > #" << std::endl;
-			}
-			break;
+			} break;
 
 			case LogType::_Warning:
 			{
@@ -120,7 +133,7 @@ private:
 		Clear();
 	}
 
-	void WriteAfterOverflowCheck( const std::string& _str )
+	void WriteAfterCheckingOverflow( const std::string& _str )
 	{
 		size_t size = _str.size();
 		if ( pos + size >= MaxLogSize )
@@ -234,57 +247,57 @@ public:
 	}
 	void Copy( int                  _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( unsigned int         _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( short                _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( unsigned short       _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( long                 _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( unsigned long        _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( long long            _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( unsigned long long   _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( float                _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( double               _arg )
 	{
-		WriteAfterOverflowCheck( std::to_string( _arg ) );
+		WriteAfterCheckingOverflow( std::to_string( _arg ) );
 	}
 	void Copy( const char*          _arg )
 	{
 		if ( _arg != nullptr )
-			 WriteAfterOverflowCheck( _arg );
+			 WriteAfterCheckingOverflow( _arg );
 	}
 	void Copy( const unsigned char* _arg )
 	{
 		if ( _arg != nullptr )
-			 WriteAfterOverflowCheck( ( char* )_arg );
+			 WriteAfterCheckingOverflow( ( char* )_arg );
 	}
 	void Copy( const std::string&   _arg )
 	{
-		WriteAfterOverflowCheck( _arg );
+		WriteAfterCheckingOverflow( _arg );
 	}
 	void Copy( const Vector2&       _arg )
 	{
@@ -294,7 +307,7 @@ public:
 		str.append( ToString( _arg.x ) ).append( ", " );
 		str.append( ToString( _arg.y ) ).append( " )" );
 
-		WriteAfterOverflowCheck( str );
+		WriteAfterCheckingOverflow( str );
 	}
 	void Copy( const Vector3&       _arg )
 	{
@@ -305,7 +318,7 @@ public:
 		str.append( ToString( _arg.y ) ).append( ", " );
 		str.append( ToString( _arg.z ) ).append( " )" );
 
-		WriteAfterOverflowCheck( str );
+		WriteAfterCheckingOverflow( str );
 	}
 	void Copy( const Vector4&       _arg )
 	{
@@ -317,7 +330,7 @@ public:
 		str.append( ToString( _arg.z ) ).append( ", " );
 		str.append( ToString( _arg.w ) ).append( " )" );
 
-		WriteAfterOverflowCheck( str );
+		WriteAfterCheckingOverflow( str );
 	}
 };
 

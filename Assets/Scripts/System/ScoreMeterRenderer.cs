@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,7 +23,7 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
     private void Update()
     {
         if ( !isStart )
-             return;
+            return;
 
         alpha -= ( Time.deltaTime / Duration ) * offset;
         image.color = new Color( colorCache.r, colorCache.g, colorCache.b, alpha );

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CustomVerticalLayoutGroup : CustomLayoutGroup
@@ -13,7 +11,7 @@ public class CustomVerticalLayoutGroup : CustomLayoutGroup
     public override void SetLayoutVertical()
     {
         if ( rectChildren.Count < 1 )
-             return;
+            return;
 
         float childrenMaxWidth  = 0f;
         float childrenMaxHeight = 0f;
@@ -21,11 +19,11 @@ public class CustomVerticalLayoutGroup : CustomLayoutGroup
         for ( int i = 0; i < rectChildren.Count; i++ )
         {
             if ( !ShouldIncludeDisabledObject && !rectChildren[i].gameObject.activeInHierarchy )
-                 continue;
+                continue;
 
-            childrenMaxWidth  += rectChildren[i].sizeDelta.x;
+            childrenMaxWidth += rectChildren[i].sizeDelta.x;
             childrenMaxHeight += rectChildren[i].sizeDelta.y;
-            maxSpacing        += spacing * anchor.y;
+            maxSpacing += spacing * anchor.y;
         }
 
         float childrenHeightOffset = childrenMaxHeight * anchor.y;

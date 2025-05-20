@@ -1,7 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class FPSCounter : MonoBehaviour
 {
@@ -27,7 +26,7 @@ public class FPSCounter : MonoBehaviour
 
     private IEnumerator UpdateFrame()
     {
-        while( true )
+        while ( true )
         {
             yield return YieldCache.WaitForSeconds( .075f );
             text.text = $"{( int )( 1f / deltaTime )}";

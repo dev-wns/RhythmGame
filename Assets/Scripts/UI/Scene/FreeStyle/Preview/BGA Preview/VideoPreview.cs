@@ -23,7 +23,7 @@ public class VideoPreview : FreeStylePreview
     protected override void Restart( Song _song )
     {
         if ( _song.hasVideo )
-             UpdatePreview( _song );
+            UpdatePreview( _song );
     }
 
     protected override void UpdatePreview( Song _song )
@@ -39,15 +39,15 @@ public class VideoPreview : FreeStylePreview
         {
             previewImage.enabled = false;
             previewImage.texture = renderTexture;
-            coroutine  = StartCoroutine( LoadVideo( _song ) );
+            coroutine = StartCoroutine( LoadVideo( _song ) );
         }
     }
 
     private void PitchUpdate( float _pitch )
     {
         if ( !vp.isPlaying )
-             return;
-        
+            return;
+
         vp.playbackSpeed = GameSetting.CurrentPitch;
     }
 
@@ -56,7 +56,7 @@ public class VideoPreview : FreeStylePreview
         ClearRenderTexture();
         vp.url = @$"{_song.videoPath}";
         vp.Prepare();
-        
+
         yield return waitPrepared;
 
         float spb = ( float )( 60f / _song.mainBPM ) * 1000f;

@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class SoundPitchOption : OptionSlider
 {
@@ -26,7 +24,7 @@ public class SoundPitchOption : OptionSlider
         previewText.text = $"x{GameSetting.CurrentPitch:F2}";
         previewText.color = GameSetting.CurrentPitch < 1 ? new Color( .5f, .5f, 1f ) :
                             GameSetting.CurrentPitch > 1 ? new Color( 1f, .5f, .5f ) : Color.white;
-        
+
         UpdateText( _value );
     }
 

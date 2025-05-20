@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class BpmChanger : MonoBehaviour
 {
@@ -21,7 +20,7 @@ public class BpmChanger : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>(); 
+        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
         scene.OnReLoad += ReLoad;
     }

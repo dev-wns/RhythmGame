@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,15 +33,15 @@ public class SongInfomation : OptionButton
     {
         if ( _isSelect )
         {
-            panel.color   = SelectPanelColor;
-            title.color   = SelectTitleColor;
+            panel.color = SelectPanelColor;
+            title.color = SelectTitleColor;
             version.color = SelectVersionColor;
             //rt.DOAnchorPosX( PosCached.x - 125f, .5f );
         }
         else
         {
-            panel.color   = Color.white;
-            title.color   = Color.white;
+            panel.color = Color.white;
+            title.color = Color.white;
             version.color = Color.white;
             //rt.DOAnchorPosX( PosCached.x, .5f );
         }
@@ -51,9 +50,9 @@ public class SongInfomation : OptionButton
     public void SetInfo( Song _song )
     {
         song = _song;
-        title.text   = _song.title;
+        title.text = _song.title;
         version.text = _song.version;
-        artist.text  = $"{_song.artist}";
+        artist.text = $"{_song.artist}";
     }
 
     public void PositionReset()

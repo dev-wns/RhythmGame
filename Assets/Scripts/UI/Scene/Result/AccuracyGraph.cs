@@ -30,7 +30,7 @@ public class AccuracyGraph : MonoBehaviour
         scene.IsInputLock = true;
 
         if ( !TryGetComponent( out rdr ) )
-             return;
+            return;
 
         var    hitDatas   = NowPlaying.Inst.HitDatas.FindAll( ( HitData _data ) => _data.type == NoteType.Default );
         float  posY       = ( transform as RectTransform ).anchoredPosition.y;
@@ -66,11 +66,11 @@ public class AccuracyGraph : MonoBehaviour
                 sumDivideDiff = 0d;
             }
         }
-        
+
         for ( int i = 0; i < datas.Count; i++ )
         {
             if ( positions.Count == TotalJudge + 1 )
-                 break;
+                break;
 
             var avg = datas[i].diff * 1000d * Power;
             avg = Mathf.Round( ( float )( avg - ( avg % ( 5d * Power ) ) ) );

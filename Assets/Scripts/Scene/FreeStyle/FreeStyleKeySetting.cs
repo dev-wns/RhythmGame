@@ -1,7 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class FreeStyleKeySetting : OptionController
 {
@@ -19,14 +18,14 @@ public class FreeStyleKeySetting : OptionController
         base.Awake();
         IsLoop = true;
         if ( !contents.TryGetComponent( out layoutGroup ) )
-             Debug.LogError( $"There is no LayoutGroup in the keySetting contents." );
+            Debug.LogError( $"There is no LayoutGroup in the keySetting contents." );
 
         foreach ( var option in options )
         {
             if ( option.TryGetComponent( out KeySettingOption keyOption ) )
-                 tracks.Add( keyOption );
+                tracks.Add( keyOption );
             else
-                 Debug.LogWarning( $"The {option.name} does not have KeySettingOption component." );
+                Debug.LogWarning( $"The {option.name} does not have KeySettingOption component." );
         }
     }
 
@@ -72,7 +71,7 @@ public class FreeStyleKeySetting : OptionController
             for ( int i = 0; i < KeySetting.Inst.Keys[curKeyCount].Length; i++ )
             {
                 if ( KeySetting.Inst.Keys[curKeyCount][i] == _key )
-                     tracks[i].Change( curKeyCount, KeyCode.None );
+                    tracks[i].Change( curKeyCount, KeyCode.None );
             }
 
             AudioManager.Inst.Play( SFX.MenuSelect );

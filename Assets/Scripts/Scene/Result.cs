@@ -21,16 +21,16 @@ public class Result : Scene
         AudioManager.Inst.FadeVolume( 0f, AudioManager.Inst.Volume, 2f );
 
         bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );// ||
-                                // GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
-                                // GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+                                                                                         // GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
+                                                                                         // GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         if ( !shouldMakeRecord )
-             NowPlaying.Inst.MakeNewRecord();
+            NowPlaying.Inst.MakeNewRecord();
 
         isStart = true;
     }
 
     private void Update()
-    { 
+    {
         if ( !isStart ) return;
 
         playback += Time.deltaTime * 1000f;

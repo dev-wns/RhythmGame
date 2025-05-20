@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FixedFreqBand : FrequencyBand
@@ -40,7 +38,7 @@ public class FixedFreqBand : FrequencyBand
             float sum = 0f;
             int sampleCount = ( int )Mathf.Pow( 2, i ) * 2;
             if ( i == 9 )
-                 sampleCount += 2;
+                sampleCount += 2;
 
             for ( int j = 0; j < sampleCount; j++ )
             {

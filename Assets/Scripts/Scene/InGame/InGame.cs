@@ -39,14 +39,14 @@ public class InGame : Scene
         base.Awake();
 
         int antiAliasing = ( int )SystemSetting.CurrentAntiAliasing;
-        QualitySettings.antiAliasing =  antiAliasing == 1 ? 2  :
-                                        antiAliasing == 2 ? 4  :
-                                        antiAliasing == 3 ? 8  :
+        QualitySettings.antiAliasing = antiAliasing == 1 ? 2 :
+                                        antiAliasing == 2 ? 4 :
+                                        antiAliasing == 3 ? 8 :
                                         antiAliasing == 4 ? 16 : 0;
 
-        isHitLastNotes  = new bool[NowPlaying.KeyCount];
+        isHitLastNotes = new bool[NowPlaying.KeyCount];
         IsGameInputLock = true;
-        IsInputLock     = true;
+        IsInputLock = true;
 
         timer.Start();
         NowPlaying.Inst.ParseChart();
@@ -75,13 +75,13 @@ public class InGame : Scene
     {
         AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
         if ( GameSetting.CurrentPitchType != PitchType.None )
-             AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+            AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     public override void Disconnect()
     {
         if ( GameSetting.CurrentPitchType != PitchType.None )
-             AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+            AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     private void Stop()
@@ -99,7 +99,7 @@ public class InGame : Scene
         IsEnd = true;
 
         if ( NowPlaying.CurrentSong.isOnlyKeySound )
-             yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
+            yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
 
         AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );
@@ -121,7 +121,7 @@ public class InGame : Scene
         OnLoadEnd?.Invoke();
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
-        
+
         if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
         {
             DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.OptionFadeDuration );
@@ -140,7 +140,7 @@ public class InGame : Scene
 
         OnGameStart?.Invoke();
         IsGameInputLock = false;
-        IsInputLock     = false;
+        IsInputLock = false;
         NowPlaying.Inst.Play();
     }
 
@@ -154,7 +154,7 @@ public class InGame : Scene
 
     protected IEnumerator RestartProcess()
     {
-        IsInputLock     = true;
+        IsInputLock = true;
         IsGameInputLock = true;
         yield return StartCoroutine( FadeOut() );
 
@@ -171,7 +171,7 @@ public class InGame : Scene
         yield return StartCoroutine( FadeIn() );
         OnGameStart?.Invoke();
         NowPlaying.Inst.Play();
-        IsInputLock     = false;
+        IsInputLock = false;
         IsGameInputLock = false;
     }
 
@@ -194,18 +194,18 @@ public class InGame : Scene
 
     private void ShowPauseCanvas( bool _isPause )
     {
-        if ( _isPause ) EnableCanvas(  ActionType.Pause, pause );
-        else            DisableCanvas( ActionType.Main,  pause );
+        if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
+        else DisableCanvas( ActionType.Main, pause );
     }
 
     public IEnumerator GameOver()
     {
-        IsInputLock     = true;
+        IsInputLock = true;
 
         yield return StartCoroutine( NowPlaying.Inst.GameOver() );
 
         IsGameInputLock = true;
-        IsInputLock     = false;
+        IsInputLock = false;
         EnableCanvas( ActionType.GameOver, gameOver, false );
 
         OnGameOver?.Invoke();
@@ -217,29 +217,29 @@ public class InGame : Scene
         // Scroll Speed Down
         Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Main, InputType.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
         // Scroll Speed Up                               
         Bind( ActionType.Main, InputType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Main, InputType.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Main, InputType.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // Pause
-        Bind( ActionType.Main,  KeyCode.Escape,                    () => { Pause( true  ); } );
-        Bind( ActionType.Pause, KeyCode.Escape,                    () => { Pause( false ); } );
-        Bind( ActionType.Pause, KeyCode.DownArrow,                 () => { MoveToNextOption( pause ); } );
-        Bind( ActionType.Pause, KeyCode.UpArrow,                   () => { MoveToPrevOption( pause ); } );
+        Bind( ActionType.Main, KeyCode.Escape, () => { Pause( true ); } );
+        Bind( ActionType.Pause, KeyCode.Escape, () => { Pause( false ); } );
+        Bind( ActionType.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
+        Bind( ActionType.Pause, KeyCode.UpArrow, () => { MoveToPrevOption( pause ); } );
         // Scroll Speed Down
-        Bind( ActionType.Pause, InputType.Down,    KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( ActionType.Pause, InputType.Hold,    KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Pause, InputType.Up,      KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Pause, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
+        Bind( ActionType.Pause, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
+        Bind( ActionType.Pause, InputType.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
         // Scroll Speed Up
-        Bind( ActionType.Pause, InputType.Down,    KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( ActionType.Pause, InputType.Hold,    KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Pause, InputType.Up,      KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Pause, InputType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
+        Bind( ActionType.Pause, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
+        Bind( ActionType.Pause, InputType.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // GameOver
         Bind( ActionType.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );
-        Bind( ActionType.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
+        Bind( ActionType.GameOver, KeyCode.UpArrow, () => { MoveToPrevOption( gameOver ); } );
 
         // Etc.
         Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );

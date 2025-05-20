@@ -55,7 +55,7 @@ public class MeasureSystem : MonoBehaviour
         for ( int i = 0; i < timings.Count; i++ )
         {
             if ( timings[i].isUninherited == 0 )
-                 continue;
+                continue;
 
             double time      = timings[i].time;
             double nextTime  = 0d;
@@ -71,7 +71,7 @@ public class MeasureSystem : MonoBehaviour
             }
 
             if ( !hasNextTime )
-                 nextTime = ( double )( totalTime + 60d );
+                nextTime = ( double )( totalTime + 60d );
 
             double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
             while ( time < nextTime )
@@ -84,7 +84,7 @@ public class MeasureSystem : MonoBehaviour
         MeasureCalcTime = timer.End;
 
         if ( measures.Count > 0 )
-             curTime = measures[curIndex];
+            curTime = measures[curIndex];
     }
 
     private void SpawnMeasures( double _distance )

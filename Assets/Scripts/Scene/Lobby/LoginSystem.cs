@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -21,7 +19,7 @@ public class LoginSystem : MonoBehaviour
     private void Awake()
     {
         // Protocols
-        ProtocolSystem.Inst.Regist( CONFIRM_LOGIN_ACK,   AckConfirmMatchData );
+        ProtocolSystem.Inst.Regist( CONFIRM_LOGIN_ACK, AckConfirmMatchData );
         ProtocolSystem.Inst.Regist( CONFIRM_ACCOUNT_ACK, AckCreateUserData );
     }
 
@@ -60,7 +58,7 @@ public class LoginSystem : MonoBehaviour
             }
 
             if ( Input.GetKeyDown( KeyCode.Return ) )
-                 ReqConfirmLoginInfo();
+                ReqConfirmLoginInfo();
         }
     }
 
@@ -102,17 +100,20 @@ public class LoginSystem : MonoBehaviour
             case Error.OK:
             {
                 message.text = "회원가입 완료";
-            } break;
+            }
+            break;
 
             case Error.DB_ERR_DUPLICATE_DATA:
             {
                 message.text = "중복된 아이디 입니다.";
-            } break;
-            
+            }
+            break;
+
             default:
             {
                 Debug.LogWarning( _packet.error.ToString() );
-            } break;
+            }
+            break;
         }
     }
 
@@ -134,7 +135,7 @@ public class LoginSystem : MonoBehaviour
 
             default:
             {
-              message.text = "아이디 또는 비밀번호가 일치하지 않습니다.";
+                message.text = "아이디 또는 비밀번호가 일치하지 않습니다.";
             }
             break;
         }

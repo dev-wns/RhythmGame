@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,8 +15,8 @@ public class KeyAction
                 switch ( type )
                 {
                     case InputType.Down: { if ( Input.GetKeyDown( code ) ) { keyActions[code][type]?.Invoke(); } } break;
-                    case InputType.Hold: { if ( Input.GetKey(     code ) ) { keyActions[code][type]?.Invoke(); } } break;
-                    case InputType.Up:   { if ( Input.GetKeyUp(   code ) ) { keyActions[code][type]?.Invoke(); } } break;
+                    case InputType.Hold: { if ( Input.GetKey( code ) ) { keyActions[code][type]?.Invoke(); } } break;
+                    case InputType.Up: { if ( Input.GetKeyUp( code ) ) { keyActions[code][type]?.Invoke(); } } break;
                 }
             }
         }
@@ -25,9 +24,9 @@ public class KeyAction
 
     public void Remove( KeyCode _code, InputType _keyType, Action _action )
     {
-        if ( !keyActions.ContainsKey( _code ) )           return;
+        if ( !keyActions.ContainsKey( _code ) ) return;
         if ( !keyActions[_code].ContainsKey( _keyType ) ) return;
-        if ( keyActions[_code][_keyType] == null )        return;
+        if ( keyActions[_code][_keyType] == null ) return;
 
         foreach ( var action in keyActions[_code][_keyType].GetInvocationList() )
         {
@@ -48,14 +47,14 @@ public class KeyAction
         //keyActions[_code][_type] += _action;
 
         if ( _action == null )
-             return;
+            return;
 
         if ( keyActions.ContainsKey( _code ) )
         {
             if ( keyActions[_code].ContainsKey( _type ) )
-                 keyActions[_code][_type] += _action;
+                keyActions[_code][_type] += _action;
             else
-                 keyActions[_code].Add( _type, _action );
+                keyActions[_code].Add( _type, _action );
         }
         else
         {
@@ -70,10 +69,10 @@ public class KeyAction
         if ( !keyActions.ContainsKey( _code ) )
         {
             var typeAction = new Dictionary<InputType, Action>();
-            
+
             typeAction.Add( InputType.Down, () => { } );
             typeAction.Add( InputType.Hold, () => { } );
-            typeAction.Add( InputType.Up,   () => { } );
+            typeAction.Add( InputType.Up, () => { } );
 
             keyActions.Add( _code, typeAction );
         }
@@ -83,7 +82,7 @@ public class KeyAction
     {
         // InputType은 KeyCode가 없으면 Down, Hold, Up을 전부 할당하기 때문에 체크 안해도 된다.
         if ( !keyActions.ContainsKey( _code ) )
-             return false;
+            return false;
 
         foreach ( var action in keyActions[_code][_type].GetInvocationList() )
         {

@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 
 public class PlayerInfo : MonoBehaviour
@@ -17,9 +15,9 @@ public class PlayerInfo : MonoBehaviour
 
     public void UpdateUserInfo( USER_INFO _data )
     {
-        userName.text  = _data.name;
-        level.text     = $"{_data.level}";
-        accuracy.text  = $"{_data.accuracy:F1}%";
+        userName.text = _data.name;
+        level.text = $"{_data.level}";
+        accuracy.text = $"{_data.accuracy:F1}%";
         playCount.text = $"{_data.playCount}";
     }
 }

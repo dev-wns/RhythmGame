@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,11 +7,11 @@ public class ButtonEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 {
     public virtual void OnPointerEnter( PointerEventData eventData )
     {
-        
+
     }
 
     public virtual void OnPointerExit( PointerEventData eventData )
     {
-        
+
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ParticleSpeedController : MonoBehaviour
@@ -18,7 +17,7 @@ public class ParticleSpeedController : MonoBehaviour
     private void Awake()
     {
         if ( !TryGetComponent( out particle ) )
-             Debug.LogWarning( "ParticleSystem Component is not found." );
+            Debug.LogWarning( "ParticleSystem Component is not found." );
 
         mainModule = particle.main;
         StartCoroutine( ParticleInit() );

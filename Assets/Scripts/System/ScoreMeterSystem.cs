@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -52,7 +51,7 @@ public class ScoreMeterSystem : MonoBehaviour
     private void UpdateScoreMeter( JudgeResult _result )
     {
         if ( _result.diffAbs < double.Epsilon )
-             return;
+            return;
 
         Color color = Color.red;
         switch ( _result.hitResult )
@@ -60,9 +59,9 @@ public class ScoreMeterSystem : MonoBehaviour
             case HitResult.Maximum:
             case HitResult.Perfect: color = PerfectColor; break;
             case HitResult.Great:
-            case HitResult.Good:    color = GreatColor;   break;
-            case HitResult.Bad:     color = GoodColor;    break;
-            default:                                      return;
+            case HitResult.Good: color = GreatColor; break;
+            case HitResult.Bad: color = GoodColor; break;
+            default: return;
         }
 
         time = 0f;

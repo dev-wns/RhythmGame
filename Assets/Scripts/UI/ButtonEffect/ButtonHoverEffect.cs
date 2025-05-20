@@ -1,6 +1,4 @@
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -38,7 +36,7 @@ public class ButtonHoverEffect : ButtonEffect
         base.OnPointerEnter( eventData );
         image.DOFade( targetAlpha, duration );
         if ( isSfxPlay )
-             AudioManager.Inst.Play( SFX.MenuHover );
+            AudioManager.Inst.Play( SFX.MenuHover );
     }
 
     public override void OnPointerExit( PointerEventData eventData )

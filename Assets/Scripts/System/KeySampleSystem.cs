@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,7 +27,7 @@ public class KeySampleSystem : MonoBehaviour
     {
         StopAllCoroutines();
         curIndex = 0;
-        curTime  = 0d;
+        curTime = 0d;
         offset = 0d;
         UseAllSamples = false;
     }
@@ -42,7 +41,7 @@ public class KeySampleSystem : MonoBehaviour
 
         isStart = true;
         if ( samples.Count > 0 )
-             curTime = samples[curIndex].time;
+            curTime = samples[curIndex].time;
         // StartCoroutine( Process() );
     }
 
@@ -50,9 +49,9 @@ public class KeySampleSystem : MonoBehaviour
     {
         samples.Sort( delegate ( KeySound _A, KeySound _B )
         {
-            if ( _A.time > _B.time )      return 1;
+            if ( _A.time > _B.time ) return 1;
             else if ( _A.time < _B.time ) return -1;
-            else                          return 0;
+            else return 0;
 
         } );
     }
@@ -70,7 +69,7 @@ public class KeySampleSystem : MonoBehaviour
             AudioManager.Inst.Play( samples[curIndex++] );
 
             if ( curIndex < samples.Count )
-                 UseAllSamples = true;
+                UseAllSamples = true;
             //while ( curIndex + 1 < samples.Count && 
             //        Global.Math.Abs( samples[curIndex + 1].time - samples[curIndex].time ) < double.Epsilon )
             //{

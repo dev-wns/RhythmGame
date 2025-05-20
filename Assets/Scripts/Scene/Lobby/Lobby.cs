@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 using static PacketType;
@@ -13,10 +11,8 @@ public class Lobby : Scene
     {
         base.Awake();
 
-        GameManager.IsMultiPlaying = true;
-
         if ( !Network.Inst.IsConnected )
-             Network.Inst.Connect( "127.0.0.1" );
+            Network.Inst.Connect( "127.0.0.1" );
 
         if ( GameManager.UserInfo is null )
         {
@@ -35,7 +31,7 @@ public class Lobby : Scene
 
         // 생성되어있는 스테이지 정보 요청
         if ( Network.Inst.IsConnected )
-             Network.Inst.Send( new Packet( STAGE_INFO_REQ ) );
+            Network.Inst.Send( new Packet( STAGE_INFO_REQ ) );
     }
 
     public void EnableLoginCanvas() => EnableCanvas( ActionType.Login, loginCanvas, false );
@@ -44,7 +40,7 @@ public class Lobby : Scene
 
     public void EnableCreateStageCanvas() => EnableCanvas( ActionType.CreateStage, createStageCanvas );
 
-    public void DisableCreateStageCanvas() => DisableCanvas( ActionType.Main, createStageCanvas ); 
+    public void DisableCreateStageCanvas() => DisableCanvas( ActionType.Main, createStageCanvas );
 
     public void MoveToStage()
     {
@@ -54,7 +50,6 @@ public class Lobby : Scene
 
     public void MoveToFreeStyle()
     {
-        GameManager.IsMultiPlaying = false;
         AudioManager.Inst.Play( SFX.MainClick );
         LoadScene( SceneType.FreeStyle );
     }
@@ -66,7 +61,7 @@ public class Lobby : Scene
     {
         // Login
         Bind( ActionType.Login, KeyCode.Escape, DisableLoginCanvas );
-        
+
         // Create Room
         Bind( ActionType.CreateStage, KeyCode.Escape, DisableCreateStageCanvas );
     }

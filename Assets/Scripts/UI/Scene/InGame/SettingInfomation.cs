@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class SettingInfomation : MonoBehaviour
 {
@@ -12,7 +10,7 @@ public class SettingInfomation : MonoBehaviour
     {
         var scene = GameObject.FindGameObjectWithTag( "Scene" );
         if ( scene.TryGetComponent( out InGame inGame ) )
-             inGame.OnScrollChange += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
+            inGame.OnScrollChange += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
 
         UpdateInfomation();
     }
@@ -20,9 +18,9 @@ public class SettingInfomation : MonoBehaviour
     public void UpdateInfomation()
     {
         scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
-        random.text      = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
-        pitch.text       = $"x{GameSetting.CurrentPitch:F1}";
-        pitch.color      = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
+        random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
+        pitch.text = $"x{GameSetting.CurrentPitch:F1}";
+        pitch.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                            GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         if ( auto )

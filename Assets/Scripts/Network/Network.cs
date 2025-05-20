@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -22,7 +21,7 @@ public sealed class Network : Singleton<Network>
     private int startPos, writePos, readPos;
 
     // Connect
-    public  bool IsConnected => isConnected;
+    public bool IsConnected => isConnected;
     private bool isConnected;
 
     public event Action OnConnected, OnDisconnected;
@@ -121,7 +120,7 @@ public sealed class Network : Singleton<Network>
                 {
                     byte[] data = new byte[size - HeaderSize];
                     Buffer.BlockCopy( buffer, startPos + HeaderSize, data, 0, size - HeaderSize );
-                    ProtocolSystem.Inst.Push( new Packet( ( Error      )BitConverter.ToUInt16( buffer, startPos ),
+                    ProtocolSystem.Inst.Push( new Packet( ( Error )BitConverter.ToUInt16( buffer, startPos ),
                                                           ( PacketType )BitConverter.ToUInt16( buffer, startPos + 2 ), size, data ) );
 
                     startPos += size;
@@ -136,7 +135,7 @@ public sealed class Network : Singleton<Network>
             _args.BufferList = null;
 
             if ( socket.ReceiveAsync( recvArgs ) == false )
-                 OnReceiveCompleted( null, recvArgs );
+                OnReceiveCompleted( null, recvArgs );
         }
     }
 

@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
 public class FadeBackground : MonoBehaviour
 {
@@ -18,8 +15,8 @@ public class FadeBackground : MonoBehaviour
 
     private void Awake()
     {
-        image  = GetComponent<Image>();
-        rt     = transform as RectTransform;
+        image = GetComponent<Image>();
+        rt = transform as RectTransform;
         offset = color.a / fadeTime;
     }
 
@@ -40,7 +37,7 @@ public class FadeBackground : MonoBehaviour
     private void Update()
     {
         if ( !isPlay )
-             return;
+            return;
 
         Color newColor = image.color;
         newColor.a -= offset * Time.deltaTime;

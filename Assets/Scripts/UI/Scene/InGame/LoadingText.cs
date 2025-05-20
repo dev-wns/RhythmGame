@@ -1,8 +1,7 @@
+using DG.Tweening;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using DG.Tweening;
 
 public class LoadingText : RotateImage
 {
@@ -34,7 +33,7 @@ public class LoadingText : RotateImage
         bgaSys.OnInitialize += Initialize;
         bgaSys.OnUpdateData += UpdateBackground;
 
-        loadingText.color   = Color.white;
+        loadingText.color = Color.white;
         completedText.color = new Color( 1f, 1f, 1f, 0f );
 
         StartCoroutine( UpdateKeySoundCount() );
@@ -43,14 +42,14 @@ public class LoadingText : RotateImage
     private void Start()
     {
         if ( !ReferenceEquals( loadingText, null ) )
-             StartCoroutine( ChangeText() );
+            StartCoroutine( ChangeText() );
     }
 
     private void Initialize( BackgroundType _type )
     {
         backgroundType.text = $"{_type}";
         if ( _type == BackgroundType.Sprite )
-             spriteGroup.SetActive( true );
+            spriteGroup.SetActive( true );
     }
 
     private void UpdateBackground( int _count, int _duplicate, int _background, int _foreground )
@@ -65,7 +64,7 @@ public class LoadingText : RotateImage
     {
         while ( !NowPlaying.IsStart )
         {
-            numSound.text          = $"{AudioManager.Inst.KeySoundCount}";
+            numSound.text = $"{AudioManager.Inst.KeySoundCount}";
             numDuplicateSound.text = $"{AudioManager.Inst.TotalKeySoundCount}";
             yield return null;
         }
@@ -88,7 +87,7 @@ public class LoadingText : RotateImage
             yield return YieldCache.WaitForSeconds( .25f );
 
             if ( ++curIndex >= textList.Length )
-                 curIndex = 0;
+                curIndex = 0;
 
             loadingText.text = textList[curIndex];
         }

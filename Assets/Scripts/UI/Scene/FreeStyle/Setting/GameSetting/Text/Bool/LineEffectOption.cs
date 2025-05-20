@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class LineEffectOption : OptionText
 {
     private void OnEnable()
@@ -21,6 +17,6 @@ public class LineEffectOption : OptionText
     public override void Process()
     {
         if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.LaneEffect;
-        else                     GameSetting.CurrentVisualFlag |=  GameVisualFlag.LaneEffect;
+        else GameSetting.CurrentVisualFlag |= GameVisualFlag.LaneEffect;
     }
 }

@@ -15,7 +15,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     [Header("Scroll")]
     public int maxShowCount = 7;
-    
+
     private int median;
     private float curPos;
     private float size;
@@ -61,7 +61,7 @@ public class FreeStyleMainScroll : ScrollBase
             search.OnSearch += UpdateLayoutAndSong;
         }
 
-        median           = Mathf.FloorToInt( maxShowCount / 2f );
+        median = Mathf.FloorToInt( maxShowCount / 2f );
         contentOriginPos = rt.anchoredPosition;
 
         KeyBind();
@@ -91,7 +91,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         UpdateScrollView();
 
-        if ( !HasAnySongs ) 
+        if ( !HasAnySongs )
         {
             AudioManager.Inst.AllStop();
             AudioManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
@@ -104,7 +104,7 @@ public class FreeStyleMainScroll : ScrollBase
     private void Update()
     {
         if ( !HasAnySongs ) return;
-        
+
         playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
 
         if ( endTime > 0f && ( endTime + waitPreviewTime < playback ) )
@@ -199,7 +199,7 @@ public class FreeStyleMainScroll : ScrollBase
         UpdateSongElements();
 
         if ( curSong.UID != NowPlaying.CurrentSong.UID )
-             UpdateSong();
+            UpdateSong();
     }
 
     public override void PrevMove()
@@ -274,9 +274,9 @@ public class FreeStyleMainScroll : ScrollBase
 
         // 새로운 음악 로딩
         AudioManager.Inst.Load( curSong.audioPath, false, true );
-        endTime             = ( int )AudioManager.Inst.Length;
+        endTime = ( int )AudioManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
-        playback            = curSong.previewTime;
+        playback = curSong.previewTime;
 
         // 음악 재생 및 페이드인
         AudioManager.Inst.Play( 0f );
@@ -349,9 +349,9 @@ public class FreeStyleMainScroll : ScrollBase
     private void KeyUp()
     {
         if ( !HasAnySongs ) return;
-        
+
         if ( NowPlaying.Inst.CurrentSongIndex != CurrentIndex )
-             UpdateSong();
+            UpdateSong();
 
         isKeyDown = false;
         keyPressTime = 0f;
@@ -362,15 +362,15 @@ public class FreeStyleMainScroll : ScrollBase
     {
         CurrentScene.Bind( ActionType.Main, KeyCode.Return, SelectChart );
 
-        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow,   ScrollDown );
+        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow, ScrollDown );
         CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.DownArrow, ScrollUp );
 
         // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
-        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
+        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow, () => KeyHold( ScrollDown ) );
         CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
 
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
-        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow,   KeyUp );
+        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow, KeyUp );
         CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.DownArrow, KeyUp );
     }
 }

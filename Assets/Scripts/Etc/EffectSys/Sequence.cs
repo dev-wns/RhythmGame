@@ -1,8 +1,6 @@
 namespace WNS.Time.Control
 {
     using System.Collections.Generic;
-    using UnityEngine;
-    using UnityEngine.UI;
 
     public class Sequence
     {

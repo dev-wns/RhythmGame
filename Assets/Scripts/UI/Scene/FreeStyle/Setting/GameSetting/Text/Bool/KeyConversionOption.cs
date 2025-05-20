@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class KeyConversionOption : OptionText
 {
@@ -24,7 +21,7 @@ public class KeyConversionOption : OptionText
     public override void Process()
     {
         if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.KeyConversion;
-        else                     GameSetting.CurrentGameMode |=  GameMode.KeyConversion;
+        else GameSetting.CurrentGameMode |= GameMode.KeyConversion;
 
         OnChangeOption?.Invoke();
     }

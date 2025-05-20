@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class FixedBPMOption : OptionText
 {
@@ -24,7 +21,7 @@ public class FixedBPMOption : OptionText
     public override void Process()
     {
         if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.FixedBPM;
-        else                     GameSetting.CurrentGameMode |=  GameMode.FixedBPM;
+        else GameSetting.CurrentGameMode |= GameMode.FixedBPM;
 
         OnChangeOption?.Invoke();
     }
