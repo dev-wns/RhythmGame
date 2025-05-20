@@ -21,8 +21,12 @@ public class SoundDriverOption : OptionText
             builder.Append( split[0] );
             if ( split.Length > 1 )
             {
-                builder.Append( "\n(" );
-                builder.Append( split[1] );
+                builder.Append( "\n" );
+                for ( int j = 1; j < split.Length; j++ )
+                {
+                    builder.Append( "(" );
+                    builder.Append( split[j] );
+                }
             }
 
             texts.Add( builder.ToString() );
