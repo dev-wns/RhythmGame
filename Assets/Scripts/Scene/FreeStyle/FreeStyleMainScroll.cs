@@ -113,8 +113,8 @@ public class FreeStyleMainScroll : ScrollBase
             AudioManager.Inst.Position = ( uint )curSong.previewTime;
             playback = curSong.previewTime;
             OnSoundRestart?.Invoke( curSong );
-
-            AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, 1f, .5f );
+            
+            AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.previewVolume == 0 ? 1f : curSong.previewVolume * .01f, .5f );
         }
     }
 
@@ -282,7 +282,7 @@ public class FreeStyleMainScroll : ScrollBase
         AudioManager.Inst.Play( 0f );
         AudioManager.Inst.Position = ( uint )curSong.previewTime;
         OnSelectSong?.Invoke( curSong );
-        AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, 1f, .5f );
+        AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.previewVolume == 0 ? 1f : curSong.previewVolume * .01f, .5f );
     }
 
     private void OnBufferSetting()

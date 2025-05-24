@@ -8,7 +8,6 @@ public class FileParser : FileReader
     public bool TryParse( string _path, out Song _song )
     {
         _song = new Song();
-
         try
         {
             OpenFile( _path );
@@ -45,8 +44,9 @@ public class FileParser : FileReader
                 if ( Contains( "Creator:" ) ) _song.creator = Replace( "Creator:", string.Empty );
                 if ( Contains( "Version:" ) ) _song.version = Replace( "Version:", string.Empty );
 
-                if ( Contains( "PreviewTime:" ) ) _song.previewTime = int.Parse( Split( ':' ) );
-                if ( Contains( "TotalTime:" ) ) _song.totalTime = int.Parse( Split( ':' ) );
+                if ( Contains( "PreviewTime:" ) )   _song.previewTime   = int.Parse( Split( ':' ) );
+                if ( Contains( "PreviewVolume:" ) ) _song.previewVolume = int.Parse( Split( ':' ) );
+                if ( Contains( "TotalTime:" ) )     _song.totalTime     = int.Parse( Split( ':' ) );
 
                 if ( Contains( "KeyCount:" ) )
                 {

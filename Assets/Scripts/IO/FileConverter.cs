@@ -31,6 +31,7 @@ public struct Song
 
     public int totalTime;
     public int previewTime;
+    public int previewVolume;
 
     public int keyCount;
     public int noteCount;
@@ -223,24 +224,24 @@ public class FileConverter : FileReader
     public void Load( string _path )
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-            Convert( _path );
+           Convert( _path, false );
     }
 
-    private void Convert( string _path )
+    private void Convert( string _path, bool isReConvert = false )
     {
         try
         {
             Song song = new Song();
             OpenFile( _path );
-            #region General
 
+            #region General
             // [General] ~ [Editor]
             int mode = 0;
             while ( ReadLine() != "[Metadata]" )
             {
                 if ( Contains( "AudioFilename:" ) ) song.audioPath = Split( ':' );
-                if ( Contains( "PreviewTime:" ) ) song.previewTime = int.Parse( Split( ':' ) );
-                if ( Contains( "Mode:" ) ) mode = int.Parse( Split( ':' ) );
+                if ( Contains( "PreviewTime:" ) )   song.previewTime = int.Parse( Split( ':' ) );
+                if ( Contains( "Mode:" ) )          mode = int.Parse( Split( ':' ) );
             }
 
             // 건반형 모드가 아니면 읽지 않음.
@@ -440,6 +441,22 @@ public class FileConverter : FileReader
             #endregion
             song.mainBPM = GetMainBPM();
 
+            if ( isReConvert )
+            {
+                // 만들어져있는 파일에서 필요한 정보 읽기
+                string __path = Path.ChangeExtension( _path, "wns" );
+                using ( FileParser parser = new FileParser() )
+                {
+                    if ( parser.TryParse( __path, out Song _song ) )
+                    {
+                        song.audioOffset   = _song.audioOffset;
+                        song.videoOffset   = _song.videoOffset;
+                        song.previewTime   = _song.previewTime;
+                        song.previewVolume = _song.previewVolume;
+                    }
+                }
+            }
+
             Write( in song );
             Dispose();
         }
@@ -459,7 +476,7 @@ public class FileConverter : FileReader
         try
         {
             string fileName = $"{Path.GetFileNameWithoutExtension( path )}.wns";
-            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( _song.filePath ), fileName )}";
+            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( path ), fileName )}";
 
             using ( var stream = new FileStream( filePath, FileMode.Create ) )
             {
@@ -479,6 +496,7 @@ public class FileConverter : FileReader
                     writer.WriteLine( $"Version: {_song.version}" );
 
                     writer.WriteLine( $"PreviewTime: {_song.previewTime}" );
+                    writer.WriteLine( $"PreviewVolume: {_song.previewVolume}" );
                     writer.WriteLine( $"TotalTime: {_song.totalTime}" );
 
                     writer.WriteLine( $"KeyCount: {_song.keyCount}" );

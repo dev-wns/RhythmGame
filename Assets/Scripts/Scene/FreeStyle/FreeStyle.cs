@@ -74,7 +74,6 @@ public class FreeStyle : Scene
 
     public override void KeyBind()
     {
-        Debug.Log( "BInd" );
         // Main
         Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
         Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
