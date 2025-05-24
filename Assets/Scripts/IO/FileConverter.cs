@@ -459,7 +459,7 @@ public class FileConverter : FileReader
         try
         {
             string fileName = $"{Path.GetFileNameWithoutExtension( path )}.wns";
-            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( path ), fileName )}";
+            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( _song.filePath ), fileName )}";
 
             using ( var stream = new FileStream( filePath, FileMode.Create ) )
             {
