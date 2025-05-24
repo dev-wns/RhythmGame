@@ -73,7 +73,7 @@ public class BGASystem : MonoBehaviour
 
         foreach ( var tex in textures )
         {
-            DestroyImmediate( tex.Value );
+            DestroyImmediate( tex.Value, true );
         }
         textures.Clear();
     }

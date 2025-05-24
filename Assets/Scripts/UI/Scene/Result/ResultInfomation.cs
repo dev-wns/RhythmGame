@@ -174,7 +174,7 @@ public class ResultInfomation : MonoBehaviour
     {
         StopAllCoroutines();
         if ( texture != null )
-            DestroyImmediate( texture );
+            DestroyImmediate( texture, true );
     }
 
     private IEnumerator LoadBackground( string _path )

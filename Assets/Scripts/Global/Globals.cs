@@ -60,6 +60,24 @@ namespace Global
 
             return new Vector3( width, height, 1f );
         }
+        public static Vector3 GetScreenRatio( Texture _tex, Vector2 _screen )
+        {
+            float width  = _tex.width;
+            float height = _tex.height;
+
+            float offsetX = _screen.x / width;
+            width *= offsetX;
+            height *= offsetX;
+
+            float offsetY = _screen.y / height;
+            if ( offsetY > 1f )
+            {
+                width *= offsetY;
+                height *= offsetY;
+            }
+
+            return new Vector3( width, height, 1f );
+        }
     }
 
     public struct Screen

@@ -25,7 +25,7 @@ public class SpritePreview : FreeStylePreview
 
         foreach ( Texture2D texture in textures.Values )
         {
-            DestroyImmediate( texture );
+            DestroyImmediate( texture, true );
         }
         textures.Clear();
         sprites.Clear();

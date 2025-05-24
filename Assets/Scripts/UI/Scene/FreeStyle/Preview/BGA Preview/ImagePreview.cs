@@ -21,7 +21,7 @@ public class ImagePreview : FreeStylePreview
             if ( ReferenceEquals( prevTexture, defaultSprite.texture ) )
                 return;
 
-            DestroyImmediate( prevTexture );
+            DestroyImmediate( prevTexture, true );
         }
     }
 
