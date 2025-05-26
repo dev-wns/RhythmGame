@@ -12,7 +12,8 @@ public class PreviewBGASystem : MonoBehaviour
     private void Awake()
     {
         bgPool = new ObjectPool<PreviewBGARenderer>( bgPrefab, 1 );
-        scroller.OnSelectSong += ChangeImage;
+        scroller.OnSelectSong    += UpdateBGA;
+        scroller.OnSoundRestart  += Restart;
         soundPitch.OnPitchUpdate += UpdatePitch;
     }
 
@@ -21,7 +22,12 @@ public class PreviewBGASystem : MonoBehaviour
         StopAllCoroutines();
     }
 
-    private void ChangeImage( Song _song )
+    private void Restart( Song _song )
+    {
+        background.Restart( _song );
+    }
+
+    private void UpdateBGA( Song _song )
     {
         background?.Despawn();
         background = bgPool.Spawn();

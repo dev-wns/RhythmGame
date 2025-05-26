@@ -33,7 +33,8 @@ public class PreviewBGARenderer : MonoBehaviour
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
 
-    private int startIndex;
+    private int spriteIndex; // Sprite Start Index
+    private Coroutine CorUpdateSprites;
     private double previewTime;
     
 
@@ -77,6 +78,30 @@ public class PreviewBGARenderer : MonoBehaviour
         vp.playbackSpeed = pitch;
     }
 
+    public void Restart( Song _song )
+    {
+        switch ( type )
+        {
+            case BackgroundType.Sprite:
+            {
+                if ( !ReferenceEquals( CorUpdateSprites, null ) )
+                {
+                    StopCoroutine( CorUpdateSprites );
+                    CorUpdateSprites = null;
+                }
+
+                CorUpdateSprites = StartCoroutine( UpdateSprites() );
+            } break;
+
+            case BackgroundType.Video:
+            {
+                vp.time = ( AudioManager.Inst.Position + videoOffset ) * .001f;
+                vp.Play();
+            } break;
+        }
+
+    }
+
     public void SetInfo( PreviewBGASystem _system, Song _song )
     {
         // Default Setting
@@ -108,14 +133,14 @@ public class PreviewBGARenderer : MonoBehaviour
                     sprite.name  = split[3];
 
                     if ( sprite.start < previewTime - videoOffset )
-                         startIndex = sprites.Count;
+                         spriteIndex = sprites.Count;
 
                     sprites.Add( sprite );
                 }
             }
 
             StartCoroutine( LoadSprites( _song ) );
-            StartCoroutine( UpdateSprites() );
+            CorUpdateSprites = StartCoroutine( UpdateSprites() );
         }
         else if ( _song.hasVideo )
         {
@@ -132,7 +157,7 @@ public class PreviewBGARenderer : MonoBehaviour
     private IEnumerator UpdateSprites()
     {
         SpriteSample curSample = new SpriteSample();
-        int curIndex = startIndex;
+        int curIndex = spriteIndex;
         if ( curIndex < sprites.Count )
              curSample = sprites[curIndex];
 
@@ -164,7 +189,7 @@ public class PreviewBGARenderer : MonoBehaviour
     private IEnumerator LoadSprites( Song _song )
     {
         var dir = Path.GetDirectoryName( _song.filePath );
-        for ( int i = startIndex; i < sprites.Count; i++ )
+        for ( int i = spriteIndex; i < sprites.Count; i++ )
         {
             if ( !textures.ContainsKey( sprites[i].name ) )
             {
@@ -212,10 +237,10 @@ public class PreviewBGARenderer : MonoBehaviour
 
         yield return waitPrepared;
 
-        vp.time = ( AudioManager.Inst.Position + videoOffset ) * .001f;
-
-        tf.sizeDelta  = new Vector2( Global.Screen.Width, Global.Screen.Height );
         image.enabled = true;
+        tf.sizeDelta  = new Vector2( Global.Screen.Width, Global.Screen.Height );
+
+        vp.time = ( AudioManager.Inst.Position + videoOffset ) * .001f;
         vp.Play();
 
     }

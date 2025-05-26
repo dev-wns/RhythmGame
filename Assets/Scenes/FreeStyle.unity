@@ -11706,6 +11706,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scroller: {fileID: 1702868222}
+  soundPitch: {fileID: 1839611852}
   bgPrefab: {fileID: 1419412381515201341, guid: 7c4fa7096f17bbb4199169bc7de8225f,
     type: 3}
 --- !u!1 &504544004
