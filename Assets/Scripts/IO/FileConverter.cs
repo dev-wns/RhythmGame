@@ -17,6 +17,7 @@ public struct Song
     public int    audioOffset;
     public string videoPath;
     public int    videoOffset;
+    public int    volume;
 
     public bool hasVideo;
     public bool hasSprite;
@@ -31,7 +32,6 @@ public struct Song
 
     public int totalTime;
     public int previewTime;
-    public int previewVolume;
 
     public int keyCount;
     public int noteCount;
@@ -224,7 +224,9 @@ public class FileConverter : FileReader
     public void Load( string _path )
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-           Convert( _path, false );
+            Convert( _path, false );
+
+        //Convert( _path, true );
     }
 
     private void Convert( string _path, bool isReConvert = false )
@@ -452,7 +454,7 @@ public class FileConverter : FileReader
                         song.audioOffset   = _song.audioOffset;
                         song.videoOffset   = _song.videoOffset;
                         song.previewTime   = _song.previewTime;
-                        song.previewVolume = _song.previewVolume;
+                        song.volume        = _song.volume;
                     }
                 }
             }
@@ -483,36 +485,48 @@ public class FileConverter : FileReader
                 using ( var writer = new StreamWriter( stream ) )
                 {
                     writer.WriteLine( "[General]" );
-                    writer.WriteLine( $"ImagePath: {_song.imagePath}" );
-                    writer.WriteLine( $"AudioPath: {_song.audioPath}" );
-                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
-                    writer.WriteLine( $"VideoPath: {_song.videoPath}" );
-                    writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
-
                     writer.WriteLine( $"Title: {_song.title}" );
                     writer.WriteLine( $"Artist: {_song.artist}" );
                     writer.WriteLine( $"Source: {_song.source}" );
                     writer.WriteLine( $"Creator: {_song.creator}" );
                     writer.WriteLine( $"Version: {_song.version}" );
 
+                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
+                    writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
                     writer.WriteLine( $"PreviewTime: {_song.previewTime}" );
-                    writer.WriteLine( $"PreviewVolume: {_song.previewVolume}" );
+                    writer.WriteLine( $"Volume: {_song.volume}" );
+
+                    writer.WriteLine( $"ImagePath: {_song.imagePath}" );
+                    writer.WriteLine( $"AudioPath: {_song.audioPath}" );
+                    writer.WriteLine( $"VideoPath: {_song.videoPath}" );
+
                     writer.WriteLine( $"TotalTime: {_song.totalTime}" );
+                    writer.WriteLine( $"Notes: {_song.keyCount}:" +
+                                             $"{_song.noteCount}:" +
+                                             $"{_song.sliderCount}:" +
+                                             $"{_song.delNoteCount}:" +
+                                             $"{_song.delSliderCount}" );
 
-                    writer.WriteLine( $"KeyCount: {_song.keyCount}" );
-                    writer.WriteLine( $"NumNote: {_song.noteCount}" );
-                    writer.WriteLine( $"NumSlider: {_song.sliderCount}" );
-                    writer.WriteLine( $"NumDelNote: {_song.delNoteCount}" );
-                    writer.WriteLine( $"NumDelSlider: {_song.delSliderCount}" );
-
-                    writer.WriteLine( $"MinBPM: {_song.minBpm}" );
-                    writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
-                    writer.WriteLine( $"MainBPM: {_song.mainBPM}" );
+                    writer.WriteLine( $"BPM: {_song.minBpm}:" +
+                                           $"{_song.maxBpm}:" +
+                                           $"{_song.mainBPM}" );
 
                     writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound ? 1 : 0 )}:" +
-                                                 $"{( _song.hasKeySound ? 1 : 0 )}:" +
-                                                 $"{( _song.hasVideo ? 1 : 0 )}:" +
-                                                 $"{( _song.hasSprite ? 1 : 0 )}" );
+                                                 $"{( _song.hasKeySound    ? 1 : 0 )}:" +
+                                                 $"{( _song.hasVideo       ? 1 : 0 )}:" +
+                                                 $"{( _song.hasSprite      ? 1 : 0 )}" );
+
+
+                    //writer.WriteLine( $"KeyCount: {_song.keyCount}" );
+                    //writer.WriteLine( $"NumNote: {_song.noteCount}" );
+                    //writer.WriteLine( $"NumSlider: {_song.sliderCount}" );
+                    //writer.WriteLine( $"NumDelNote: {_song.delNoteCount}" );
+                    //writer.WriteLine( $"NumDelSlider: {_song.delSliderCount}" );
+
+                    //writer.WriteLine( $"MinBPM: {_song.minBpm}" );
+                    //writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
+                    //writer.WriteLine( $"MainBPM: {_song.mainBPM}" );
+
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );

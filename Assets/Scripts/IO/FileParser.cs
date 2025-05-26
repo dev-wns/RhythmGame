@@ -17,6 +17,18 @@ public class FileParser : FileReader
 
             while ( ReadLine() != "[Timings]" )
             {
+                // General
+                if ( Contains( "Title:" ) )   _song.title   = Replace( "Title:",   string.Empty );
+                if ( Contains( "Artist:" ) )  _song.artist  = Replace( "Artist:",  string.Empty );
+                if ( Contains( "Source:" ) )  _song.source  = Replace( "Source:",  string.Empty );
+                if ( Contains( "Creator:" ) ) _song.creator = Replace( "Creator:", string.Empty );
+                if ( Contains( "Version:" ) ) _song.version = Replace( "Version:", string.Empty );
+
+                if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
+                if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( Split( ':' ) );
+                if ( Contains( "PreviewTime:" ) ) _song.previewTime = int.Parse( Split( ':' ) );
+                if ( Contains( "Volume:" ) )      _song.volume      = int.Parse( Split( ':' ) );
+
                 if ( Contains( "ImagePath:" ) )
                 {
                     var imageName = Split( ':' );
@@ -29,47 +41,57 @@ public class FileParser : FileReader
                     _song.audioPath = soundName == string.Empty ? string.Empty :
                                                                   Path.Combine( directory, soundName );
                 }
-                if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
                 if ( Contains( "VideoPath:" ) )
                 {
                     string videoName = Split( ':' );
                     _song.hasVideo = videoName != string.Empty;
                     _song.videoPath = _song.hasVideo ? Path.Combine( directory, videoName ) : string.Empty;
                 }
-                if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( Split( ':' ) );
-
-                if ( Contains( "Title:" ) ) _song.title = Replace( "Title:", string.Empty );
-                if ( Contains( "Artist:" ) ) _song.artist = Replace( "Artist:", string.Empty );
-                if ( Contains( "Source:" ) ) _song.source = Replace( "Source:", string.Empty );
-                if ( Contains( "Creator:" ) ) _song.creator = Replace( "Creator:", string.Empty );
-                if ( Contains( "Version:" ) ) _song.version = Replace( "Version:", string.Empty );
-
-                if ( Contains( "PreviewTime:" ) )   _song.previewTime   = int.Parse( Split( ':' ) );
-                if ( Contains( "PreviewVolume:" ) ) _song.previewVolume = int.Parse( Split( ':' ) );
-                if ( Contains( "TotalTime:" ) )     _song.totalTime     = int.Parse( Split( ':' ) );
-
-                if ( Contains( "KeyCount:" ) )
+                if ( Contains( "TotalTime:" ) ) _song.totalTime = int.Parse( Split( ':' ) );
+                if ( Contains( "Notes:" ) )
                 {
-                    _song.keyCount = int.Parse( Split( ':' ) );
-                    _song.keyCount = _song.keyCount == 8 ? 7 : _song.keyCount;
+                    string[] splitDatas = line.Split( ':' );
+                    _song.keyCount       = int.Parse( splitDatas[1] );
+                    _song.keyCount       = _song.keyCount == 8 ? 7 : _song.keyCount;
+                    _song.noteCount      = int.Parse( splitDatas[2] );
+                    _song.sliderCount    = int.Parse( splitDatas[3] );
+                    _song.delNoteCount   = int.Parse( splitDatas[4] );
+                    _song.delSliderCount = int.Parse( splitDatas[5] );
                 }
-                if ( Contains( "NumNote:" ) ) _song.noteCount = int.Parse( Split( ':' ) );
-                if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( Split( ':' ) );
-                if ( Contains( "NumDelNote:" ) ) _song.delNoteCount = int.Parse( Split( ':' ) );
-                if ( Contains( "NumDelSlider:" ) ) _song.delSliderCount = int.Parse( Split( ':' ) );
-
-                if ( Contains( "MinBPM:" ) ) _song.minBpm = int.Parse( Split( ':' ) );
-                if ( Contains( "MaxBPM:" ) ) _song.maxBpm = int.Parse( Split( ':' ) );
-                if ( Contains( "MainBPM:" ) ) _song.mainBPM = double.Parse( Split( ':' ) );
-
+                if ( Contains( "BPM:" ) )
+                {
+                    string[] splitDatas = line.Split( ':' );
+                    _song.minBpm = int.Parse( splitDatas[1] );
+                    _song.maxBpm = int.Parse( splitDatas[2] );
+                    _song.mainBPM = double.Parse( splitDatas[3] );
+                }
                 if ( Contains( "DataExist:" ) )
                 {
                     string[] splitDatas = line.Split( ':' );
                     _song.isOnlyKeySound = int.Parse( splitDatas[1] ) == 1;
-                    _song.hasKeySound = int.Parse( splitDatas[2] ) == 1;
-                    _song.hasVideo = int.Parse( splitDatas[3] ) == 1;
-                    _song.hasSprite = int.Parse( splitDatas[4] ) == 1;
+                    _song.hasKeySound    = int.Parse( splitDatas[2] ) == 1;
+                    _song.hasVideo       = int.Parse( splitDatas[3] ) == 1;
+                    _song.hasSprite      = int.Parse( splitDatas[4] ) == 1;
                 }
+
+
+
+
+
+                //if ( Contains( "KeyCount:" ) )
+                //{
+                //    _song.keyCount = int.Parse( Split( ':' ) );
+                //    _song.keyCount = _song.keyCount == 8 ? 7 : _song.keyCount;
+                //}
+                //if ( Contains( "NumNote:" ) ) _song.noteCount = int.Parse( Split( ':' ) );
+                //if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( Split( ':' ) );
+                //if ( Contains( "NumDelNote:" ) ) _song.delNoteCount = int.Parse( Split( ':' ) );
+                //if ( Contains( "NumDelSlider:" ) ) _song.delSliderCount = int.Parse( Split( ':' ) );
+
+                //if ( Contains( "MinBPM:" ) ) _song.minBpm = int.Parse( Split( ':' ) );
+                //if ( Contains( "MaxBPM:" ) ) _song.maxBpm = int.Parse( Split( ':' ) );
+                //if ( Contains( "MainBPM:" ) ) _song.mainBPM = double.Parse( Split( ':' ) );
+
             }
 
             // delete 채보 제거

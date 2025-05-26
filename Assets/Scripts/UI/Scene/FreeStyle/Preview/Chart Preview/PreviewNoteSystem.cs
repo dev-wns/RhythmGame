@@ -28,7 +28,6 @@ public class PreviewNoteSystem : MonoBehaviour
     public static double Distance { get; private set; }
     private static double DistanceCache;
     private float noteStartPos;
-    private double soundOffset;
 
     public static float NoteWidth;
     public static float NoteHeight;
