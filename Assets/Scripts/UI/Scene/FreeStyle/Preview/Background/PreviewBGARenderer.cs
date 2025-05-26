@@ -17,6 +17,8 @@ public class PreviewBGARenderer : MonoBehaviour
     private float fadeOffset;
     private BackgroundType type;
     private bool isDestroy;
+    private double videoOffset = 0d;
+    private float pitch = 1f;
 
     [Header( "Image" )]
     public  Sprite defaultImage;
@@ -27,12 +29,11 @@ public class PreviewBGARenderer : MonoBehaviour
     private VideoPlayer vp;
     private WaitUntil waitPrepared;
 
-    [Header( "Video Player" )]
+    [Header( "Sprites Player" )]
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
 
     private int startIndex;
-    private double spriteOffset = 0d;
     private double previewTime;
     
 
@@ -44,7 +45,6 @@ public class PreviewBGARenderer : MonoBehaviour
         // Video
         vp = GetComponent<VideoPlayer>();
         vp.targetTexture = renderTexture;
-        vp.seekCompleted += OnSeekCompleted;
         waitPrepared = new WaitUntil( () => vp.isPrepared );
 
         // Image
@@ -71,12 +71,19 @@ public class PreviewBGARenderer : MonoBehaviour
 
     private void OnDestroy() => Clear();
 
+    public void UpdatePitch( float _pitch )
+    {
+        pitch = _pitch;
+        vp.playbackSpeed = pitch;
+    }
+
     public void SetInfo( PreviewBGASystem _system, Song _song )
     {
         // Default Setting
         system = _system;
         tf.SetAsFirstSibling();
         image.color = color;
+        videoOffset = _song.videoOffset;
 
         // Update BGA Type
         if ( _song.hasSprite )
@@ -97,13 +104,10 @@ public class PreviewBGARenderer : MonoBehaviour
                         continue;
 
                     sprite.start = double.Parse( split[1] );
-                    sprite.end = double.Parse( split[2] );
-                    sprite.name = split[3];
+                    sprite.end   = double.Parse( split[2] );
+                    sprite.name  = split[3];
 
-                    //if ( sprites.Count == 0 )
-                    //     offset = ( sprite.start - _song.audioOffset ) * .5f;
-
-                    if ( sprite.start < previewTime - spriteOffset )
+                    if ( sprite.start < previewTime - videoOffset )
                          startIndex = sprites.Count;
 
                     sprites.Add( sprite );
@@ -116,7 +120,6 @@ public class PreviewBGARenderer : MonoBehaviour
         else if ( _song.hasVideo )
         {
             type = BackgroundType.Video;
-            image.texture = renderTexture;
             StartCoroutine( LoadVideo( _song ) );
         }
         else
@@ -131,10 +134,10 @@ public class PreviewBGARenderer : MonoBehaviour
         SpriteSample curSample = new SpriteSample();
         int curIndex = startIndex;
         if ( curIndex < sprites.Count )
-            curSample = sprites[curIndex];
+             curSample = sprites[curIndex];
 
-        WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= AudioManager.Inst.Position - spriteOffset );
-        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= AudioManager.Inst.Position - spriteOffset );
+        WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= AudioManager.Inst.Position - videoOffset );
+        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= AudioManager.Inst.Position - videoOffset );
         yield return waitSampleStart;
 
         // Wait First Texture
@@ -153,7 +156,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
             yield return waitSampleEnd;
             if ( ++curIndex < sprites.Count )
-                curSample = sprites[curIndex];
+                 curSample = sprites[curIndex];
         }
     }
 
@@ -202,30 +205,20 @@ public class PreviewBGARenderer : MonoBehaviour
     private IEnumerator LoadVideo( Song _song )
     {
         vp.enabled = true;
+        image.texture = renderTexture;
         vp.url = @$"{_song.videoPath}";
+        vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.Prepare();
 
         yield return waitPrepared;
 
-        //float spb = ( float )( 60f / _song.mainBPM ) * 1000f;
-        //float offset = _song.videoOffset > 1f ? _song.videoOffset * .75f :
-        //               _song.audioOffset > 1f ? _song.audioOffset * .75f :
-        //               _song.isOnlyKeySound   ? -spb                : 0f;
-
-        //vp.playbackSpeed = GameSetting.CurrentPitch;
-        //vp.time = ( AudioManager.Inst.Position + offset ) * .001f;
-        vp.time = ( AudioManager.Inst.Position + _song.videoOffset ) * .001f;
+        vp.time = ( AudioManager.Inst.Position + videoOffset ) * .001f;
 
         tf.sizeDelta  = new Vector2( Global.Screen.Width, Global.Screen.Height );
         image.enabled = true;
-
-    }
-
-    private void OnSeekCompleted( VideoPlayer source )
-    {
         vp.Play();
-    }
 
+    }
     private IEnumerator LoadImage( string _path )
     {
         bool isExist = System.IO.File.Exists( _path );
