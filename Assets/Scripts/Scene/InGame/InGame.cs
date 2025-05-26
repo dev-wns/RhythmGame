@@ -29,7 +29,6 @@ public class InGame : Scene
     [Header( "Loading" )]
     public TextMeshProUGUI loadingText;
     private Timer timer  = new Timer();
-    private uint loadingTime;
 
     public TextMeshProUGUI soundText;
     public TextMeshProUGUI etcText;
@@ -40,9 +39,9 @@ public class InGame : Scene
 
         int antiAliasing = ( int )SystemSetting.CurrentAntiAliasing;
         QualitySettings.antiAliasing = antiAliasing == 1 ? 2 :
-                                        antiAliasing == 2 ? 4 :
-                                        antiAliasing == 3 ? 8 :
-                                        antiAliasing == 4 ? 16 : 0;
+                                       antiAliasing == 2 ? 4 :
+                                       antiAliasing == 3 ? 8 :
+                                       antiAliasing == 4 ? 16 : 0;
 
         isHitLastNotes = new bool[NowPlaying.KeyCount];
         IsGameInputLock = true;
@@ -146,7 +145,7 @@ public class InGame : Scene
 
     public void BackToLobby()
     {
-        NowPlaying.Inst.ResetData();
+        GameManager.Inst.Clear();
         LoadScene( SceneType.FreeStyle );
     }
 

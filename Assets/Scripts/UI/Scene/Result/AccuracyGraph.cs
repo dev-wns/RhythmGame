@@ -32,7 +32,7 @@ public class AccuracyGraph : MonoBehaviour
         if ( !TryGetComponent( out rdr ) )
             return;
 
-        var    hitDatas   = NowPlaying.Inst.HitDatas.FindAll( ( HitData _data ) => _data.type == NoteType.Default );
+        var    hitDatas   = GameManager.Inst.HitDatas.FindAll( ( HitData _data ) => _data.type == NoteType.Default );
         float  posY       = ( transform as RectTransform ).anchoredPosition.y;
         float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) /   ( TotalJudge + 2 );
 

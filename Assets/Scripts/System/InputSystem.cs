@@ -160,7 +160,7 @@ public class InputSystem : MonoBehaviour
 
         notePool.AllDespawn();
 
-        NowPlaying.Inst.ResetData();
+        GameManager.Inst.Clear();
         noteSpawnIndex = 0;
         curNote = null;
         curSound = new KeySound();
@@ -333,7 +333,7 @@ public class InputSystem : MonoBehaviour
 
         if ( !curNote.IsSlider )
         {
-            if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff, NoteType.Default ) )
+            if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff ) )
             {
                 OnHitNote?.Invoke( NoteType.Default, InputType.Down );
                 judge.ResultUpdate( startDiff, NoteType.Default );
@@ -351,7 +351,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( !curNote.IsKeyDown )
             {
-                if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff, NoteType.Default ) )
+                if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff ) )
                 {
                     curNote.IsKeyDown = true;
 
@@ -390,7 +390,7 @@ public class InputSystem : MonoBehaviour
                 if ( Input.GetKeyUp( key ) )
                 {
                     OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
-                    if ( judge.CanBeHit( endDiff, NoteType.Slider ) )
+                    if ( judge.CanBeHit( endDiff ) )
                     {
                         judge.ResultUpdate( endDiff, NoteType.Slider );
                         sliderEarlyQueue.Enqueue( curNote );

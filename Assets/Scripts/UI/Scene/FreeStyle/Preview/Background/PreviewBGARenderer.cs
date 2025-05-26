@@ -11,7 +11,6 @@ public class PreviewBGARenderer : MonoBehaviour
     public Color color;
     private RectTransform tf;
     private PreviewBGASystem system;
-    private bool isDefault;
 
     private readonly float fadeTime = .25f;
     private float fadeOffset;
@@ -286,7 +285,7 @@ public class PreviewBGARenderer : MonoBehaviour
         else
         {
             image.texture = defaultImage.texture;
-            isDefault = true;
+
         }
 
         tf.sizeDelta = Global.Math.GetScreenRatio( image.texture, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
@@ -298,7 +297,6 @@ public class PreviewBGARenderer : MonoBehaviour
     {
         StopAllCoroutines();
         isDestroy = false;
-        isDefault = false;
         image.enabled = false;
         vp.enabled = false;
 
@@ -328,16 +326,7 @@ public class PreviewBGARenderer : MonoBehaviour
             {
 
                 if ( defaultImage.texture != image.texture )
-                {
-                    DestroyImmediate( image.texture, true );
-                    Debug.Log( "Destroy Default Texture" );
-                }
-
-                if ( !isDefault && image.texture )
-                {
-                    DestroyImmediate( image.texture, true );
-                    Debug.Log( "Destroy Default Texture ( is not Destroy Plz)" );
-                }
+                     DestroyImmediate( image.texture, true );
             }
             break;
         }

@@ -1,6 +1,5 @@
 #define START_FREESTYLE
 
-using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,56 +7,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-
-public struct HitData
-{
-    public NoteType type;
-    public double diff;
-    public double time;
-
-    public HitData( NoteType _type, double _diff, double _time )
-    {
-        type = _type;
-        diff = _diff;
-        time = _time;
-    }
-}
-
-public struct ResultData
-{
-    // counts
-    public int maximum;
-    public int perfect;
-    public int great;
-    public int good;
-    public int bad;
-    public int miss;
-    public int fast;
-    public int slow;
-    public int accuracy;
-    public int combo;
-    public int score;
-
-    public int random;
-    public int pitch;
-
-    public ResultData( int _random, int _pitch )
-    {
-        random = _random;
-        pitch = _pitch;
-        maximum = perfect = great = good = bad = miss = 0;
-        fast = slow = accuracy = combo = score = 0;
-    }
-}
-
-public struct RecordData
-{
-    public int score;
-    public int accuracy;
-    public int random;
-    public float pitch;
-    public string date;
-}
 
 public class NowPlaying : Singleton<NowPlaying>
 {
@@ -87,11 +36,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public  static double Distance { get; private set; }
     private static double DistanceCache;
     #endregion
-    public List<HitData> HitDatas { get; private set; } = new List<HitData>();
-    public  ResultData CurrentResult => currentResult;
-    private ResultData currentResult = new ResultData();
-
-    public static RecordData CurrentRecord { get; private set; } = new RecordData();
 
     public int TotalFileCount { get; private set; }
     public static event Action<Song> OnParsing;
@@ -147,6 +91,7 @@ public class NowPlaying : Singleton<NowPlaying>
         OnSpawnObjects?.Invoke( Distance );
     }
     #endregion
+
     #region Parsing
     private void ConvertSong()
     {
@@ -278,122 +223,8 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #endregion
-    #region Record
-    public bool UpdateRecord()
-    {
-        string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
-        if ( !File.Exists( path ) )
-        {
-            //var newRecord = new RecordData()
-            //{
-            //    score    = UnityEngine.Random.Range( 0, 1000000 ),
-            //    accuracy = UnityEngine.Random.Range( 0, 10000 ),
-            //    random   = ( int )GameSetting.CurrentRandom,
-            //    pitch    = GameSetting.CurrentPitch,
-            //    date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
-            //};
-
-            CurrentRecord = new RecordData();
-
-            return false;
-        }
-
-        using ( StreamReader stream = new StreamReader( path ) )
-        {
-            try
-            {
-                CurrentRecord = JsonConvert.DeserializeObject<RecordData>( stream.ReadToEnd() );
-            }
-            catch ( Exception )
-            {
-                Debug.LogWarning( $"Record Deserialize Error : {CurrentSong.filePath}" );
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public RecordData MakeNewRecord()
-    {
-        var newRecord = new RecordData()
-        {
-            score    = currentResult.score,
-            accuracy = currentResult.accuracy,
-            random   = ( int )GameSetting.CurrentRandom,
-            pitch    = GameSetting.CurrentPitch,
-            date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
-        };
-
-        if ( CurrentRecord.score > newRecord.score )
-            return CurrentRecord;
-
-        string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( CurrentSong.filePath )}{GameSetting.RecordFileName}" );
-        try
-        {
-            FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
-            using ( FileStream stream = new FileStream( path, mode ) )
-            {
-                using ( StreamWriter writer = new StreamWriter( stream, System.Text.Encoding.UTF8 ) )
-                {
-                    writer.Write( JsonConvert.SerializeObject( newRecord, Formatting.Indented ) );
-                }
-            }
-            CurrentRecord = newRecord;
-        }
-        catch ( Exception )
-        {
-            if ( File.Exists( path ) )
-                File.Delete( path );
-
-            Debug.LogError( $"Record Write Error : {path}" );
-        }
-
-        return newRecord;
-    }
-    #endregion
-    #region Result
-    public void ResetData()
-    {
-        currentResult = new ResultData( ( int )GameSetting.CurrentRandom, Mathf.RoundToInt( GameSetting.CurrentPitch * 100f ) );
-        HitDatas.Clear();
-    }
-
-    public void AddHitData( NoteType _type, double _diff )
-    {
-        HitDatas.Add( new HitData( _type, _diff, Playback ) );
-    }
-
-    public void SetResult( HitResult _key, int _count )
-    {
-        switch ( _key )
-        {
-            case HitResult.Accuracy: currentResult.accuracy = _count; break;
-            case HitResult.Combo:    currentResult.combo    = _count; break;
-            case HitResult.Score:    currentResult.score    = _count; break;
-        }
-    }
-
-    public void IncreaseResult( HitResult _type, int _count = 1 )
-    {
-        for ( int i = 0; i < _count; i++ )
-        {
-            switch ( _type )
-            {
-                case HitResult.Maximum: currentResult.maximum++; break;
-                case HitResult.Perfect: currentResult.perfect++; break;
-                case HitResult.Great: currentResult.great++; break;
-                case HitResult.Good: currentResult.good++; break;
-                case HitResult.Bad: currentResult.bad++; break;
-                case HitResult.Miss: currentResult.miss++; break;
-                case HitResult.Fast: currentResult.fast++; break;
-                case HitResult.Slow: currentResult.slow++; break;
-            }
-        }
-    }
-    #endregion
+   
     #region Sound Process
-
     public void Play()
     {
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );

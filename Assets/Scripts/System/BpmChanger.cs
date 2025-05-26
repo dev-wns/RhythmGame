@@ -22,10 +22,10 @@ public class BpmChanger : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
-        scene.OnReLoad += ReLoad;
+        scene.OnReLoad += OnReLoad;
     }
 
-    private void ReLoad()
+    private void OnReLoad()
     {
         StopAllCoroutines();
         curIndex = 0;

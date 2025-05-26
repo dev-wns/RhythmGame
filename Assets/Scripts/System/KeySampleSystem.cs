@@ -13,17 +13,16 @@ public class KeySampleSystem : MonoBehaviour
     private List<KeySound> samples = new List<KeySound>();
     private int curIndex;
     private double curTime;
-    //private double offset;
     private bool isStart;
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnGameStart += GameStart;
-        scene.OnReLoad += ReLoad;
+        scene.OnReLoad += OnReLoad;
     }
 
-    private void ReLoad()
+    private void OnReLoad()
     {
         StopAllCoroutines();
         curIndex = 0;

@@ -24,7 +24,7 @@ public class Result : Scene
                                                                                          // GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
                                                                                          // GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         if ( !shouldMakeRecord )
-            NowPlaying.Inst.MakeNewRecord();
+             GameManager.Inst.CreateNewRecord();
 
         isStart = true;
     }
@@ -48,7 +48,7 @@ public class Result : Scene
 
     public void BackToLobby()
     {
-        NowPlaying.Inst.ResetData();
+        GameManager.Inst.Clear();
         LoadScene( SceneType.FreeStyle );
         AudioManager.Inst.Play( SFX.MainClick );
     }

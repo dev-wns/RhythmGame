@@ -16,15 +16,9 @@ public class ScoreSystem : MonoBehaviour
 
     private double targetScore;
     private double curScore;
-    //private double maxHitScore;
 
     private float countDuration = 0.1f; // 카운팅에 걸리는 시간 설정.
     private float countOffset;
-
-    // Combo ( Bonus Score )
-    //private double maxBonusScore;
-    //private int curCombo;
-    //private int highCombo;
 
     public TextMeshProUGUI text;
 
@@ -41,7 +35,7 @@ public class ScoreSystem : MonoBehaviour
 
     private void OnResult()
     {
-        NowPlaying.Inst.SetResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
+        GameManager.Inst.UpdateResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
     }
 
     private void OnReLoad()
@@ -50,8 +44,6 @@ public class ScoreSystem : MonoBehaviour
         targetScore   = 0d;
         curScore      = 0d;
         bonus         = 100;
-        //curCombo      = 0;
-        //highCombo     = 0;
     }
 
     private void Initialize( Chart _chart )
@@ -61,9 +53,6 @@ public class ScoreSystem : MonoBehaviour
         var note   = hasKeyConversion ? NowPlaying.CurrentSong.noteCount   - NowPlaying.CurrentSong.delNoteCount   : NowPlaying.CurrentSong.noteCount;
 
         totalNotes = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + ( slider * 2 );
-
-        //maxBonusScore = 100000d / maxJudgeCount;
-        //maxHitScore   = 1000000d / maxJudgeCount;
         StartCoroutine( Count() );
     }
 

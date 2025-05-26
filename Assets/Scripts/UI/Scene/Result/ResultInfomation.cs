@@ -74,7 +74,7 @@ public class ResultInfomation : MonoBehaviour
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
 
         var song   = NowPlaying.CurrentSong;
-        var result = NowPlaying.Inst.CurrentResult;
+        var result = GameManager.CurrentResult;
 
         // Song Infomation
         title.text = $"{song.title} [{song.version}]";

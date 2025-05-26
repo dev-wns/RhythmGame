@@ -78,7 +78,6 @@ public class GameSetting
     public static readonly string SoundDirectoryPath = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
     public static readonly string FailedPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
     public static readonly string RecordPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Records" );
-    public static readonly string RecordFileName     = "Record.json";
 
     // Measure
     public static float MeasureHeight = 2.5f;
@@ -86,7 +85,7 @@ public class GameSetting
     // Jugdement
     private static float DefaultJudgePos = -435f;
     public static float JudgePos => DefaultJudgePos + JudgeOffset;
-    public static int JudgeOffset = -33;
+    public static int   JudgeOffset = -33;
     public static float JudgeHeight = 50f;
 
     // note

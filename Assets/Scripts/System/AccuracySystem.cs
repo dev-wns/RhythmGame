@@ -36,7 +36,7 @@ public class AccuracySystem : MonoBehaviour
 
     private void OnResult()
     {
-        NowPlaying.Inst.SetResult( HitResult.Accuracy, ( int )( Accuracy * 100f ) );
+        GameManager.Inst.UpdateResult( HitResult.Accuracy, ( int )( Accuracy * 100f ) );
     }
 
     private void OnReLoad()

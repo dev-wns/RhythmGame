@@ -55,7 +55,7 @@ public class Record : MonoBehaviour
 
     public void UpdateRecord( Song _song )
     {
-        if ( !NowPlaying.Inst.UpdateRecord() )
+        if ( !GameManager.Inst.UpdateRecord() )
         {
             noRecord.SetActive( true );
             infomation.SetActive( false );
@@ -65,7 +65,7 @@ public class Record : MonoBehaviour
             noRecord.SetActive( false );
             infomation.SetActive( true );
 
-            RecordData data = NowPlaying.CurrentRecord;
+            RecordData data = GameManager.CurrentRecord;
             chaos.text = $"{( ( GameRandom )data.random ).ToString().Replace( '_', ' ' )}";
             score.text = $"{data.score:N0}";
             rate.text = $"x{data.pitch:N1}";
@@ -83,6 +83,5 @@ public class Record : MonoBehaviour
         
         rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );
         isStart = true;
-        // sequence.Restart();
     }
 }

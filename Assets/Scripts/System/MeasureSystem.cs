@@ -25,7 +25,7 @@ public class MeasureSystem : MonoBehaviour
             {
                 scene.OnSystemInitialize += Initialize;
                 NowPlaying.OnSpawnObjects += SpawnMeasures;
-                scene.OnReLoad += ReLoad;
+                scene.OnReLoad += OnReLoad;
             }
         }
 
@@ -39,7 +39,7 @@ public class MeasureSystem : MonoBehaviour
         //StopAllCoroutines();
     }
 
-    private void ReLoad()
+    private void OnReLoad()
     {
         curIndex = 0;
         curTime = measures[curIndex];
