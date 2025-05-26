@@ -20,16 +20,20 @@ public struct JudgeResult
 public class Judgement : MonoBehaviour
 {
     private InGame scene;
-    public int TotalJudge { get; private set; }
+    /// <summary> 전체 판정 개수 </summary>
+    public int Total { get; private set; }
+
     private int curJudge;
 
+    // 판정 범위 ( ms )
     public static double Maximum => .0165d * Multiply;
     public static double Perfect => .0405d * Multiply;
-    public static double Great => .0735d * Multiply;
-    public static double Good => .1035d * Multiply;
-    public static double Bad => .1275d * Multiply;
-    public static double Miss => .1500d * Multiply;
+    public static double Great   => .0735d * Multiply;
+    public static double Good    => .1035d * Multiply;
+    public static double Bad     => .1275d * Multiply;
+    public static double Miss    => .1500d * Multiply;
     private static  double Multiply;
+
 
     public event Action<JudgeResult> OnJudge;
 
@@ -47,7 +51,7 @@ public class Judgement : MonoBehaviour
 
         var slider = hasKeyConversion ? song.sliderCount - song.delSliderCount : song.sliderCount;
         var note   = hasKeyConversion ? song.noteCount   - song.delNoteCount   : song.noteCount;
-        TotalJudge = note + ( slider * 2 );
+        Total = note + ( slider * 2 );
     }
 
     public bool CanBeHit( double _diff, NoteType _noteType )
@@ -69,21 +73,21 @@ public class Judgement : MonoBehaviour
         double diffAbs = result.diffAbs = Math.Abs( _diff );
         result.hitResult = diffAbs <= Maximum ? HitResult.Maximum :
                            diffAbs > Maximum && diffAbs <= Perfect ? HitResult.Perfect :
-                           diffAbs > Perfect && diffAbs <= Great ? HitResult.Great :
-                           diffAbs > Great && diffAbs <= Good ? HitResult.Good :
-                           diffAbs > Good && diffAbs <= Bad ? HitResult.Bad :
-                                                                      HitResult.None;
+                           diffAbs > Perfect && diffAbs <= Great   ? HitResult.Great :
+                           diffAbs > Great   && diffAbs <= Good    ? HitResult.Good :
+                           diffAbs > Good    && diffAbs <= Bad     ? HitResult.Bad :
+                                                                     HitResult.None;
 
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
             NowPlaying.Inst.IncreaseResult( _diff >= 0d ? HitResult.Fast : HitResult.Slow );
         }
 
-        OnJudge?.Invoke( result );
         NowPlaying.Inst.IncreaseResult( result.hitResult );
         NowPlaying.Inst.AddHitData( _noteType, _diff );
+        OnJudge?.Invoke( result );
 
-        if ( ++curJudge >= TotalJudge )
+        if ( ++curJudge >= Total )
         {
             StartCoroutine( scene.GameEnd() );
             Debug.Log( $"All lanes are empty ( {curJudge} judgement )" );
@@ -97,7 +101,7 @@ public class Judgement : MonoBehaviour
 
         NowPlaying.Inst.IncreaseResult( _result, _count );
 
-        if ( _result != HitResult.None && ( curJudge += _count ) >= TotalJudge )
+        if ( _result != HitResult.None && ( curJudge += _count ) >= Total )
         {
             StartCoroutine( scene.GameEnd() );
             Debug.Log( $"All lanes are empty ( {curJudge} judgement )" );

@@ -13,7 +13,7 @@ public class KeySampleSystem : MonoBehaviour
     private List<KeySound> samples = new List<KeySound>();
     private int curIndex;
     private double curTime;
-    private double offset;
+    //private double offset;
     private bool isStart;
 
     private void Awake()
@@ -28,7 +28,7 @@ public class KeySampleSystem : MonoBehaviour
         StopAllCoroutines();
         curIndex = 0;
         curTime = 0d;
-        offset = 0d;
+        //offset = 0d;
         UseAllSamples = false;
     }
 
@@ -36,7 +36,7 @@ public class KeySampleSystem : MonoBehaviour
     {
         UseAllSamples = false;
 
-        offset = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0 : ( GameSetting.SoundOffset * .001d );
+        //offset = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? 0 : ( GameSetting.SoundOffset * .001d );
         //offset = NowPlaying.CurrentSong.audioPath == string.Empty || NowPlaying.CurrentSong.isOnlyKeySound ? 0d : ( GameSetting.SoundOffset - 50 ) * .001d;
 
         isStart = true;
@@ -64,7 +64,7 @@ public class KeySampleSystem : MonoBehaviour
     private void LateUpdate()
     {
         while ( isStart && curIndex < samples.Count &&
-                samples[curIndex].time + offset < NowPlaying.Playback )
+                samples[curIndex].time < NowPlaying.Playback )
         {
             AudioManager.Inst.Play( samples[curIndex++] );
 

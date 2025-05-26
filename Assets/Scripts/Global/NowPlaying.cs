@@ -355,8 +355,8 @@ public class NowPlaying : Singleton<NowPlaying>
         switch ( _key )
         {
             case HitResult.Accuracy: currentResult.accuracy = _count; break;
-            case HitResult.Combo: currentResult.combo = _count; break;
-            case HitResult.Score: currentResult.score = _count; break;
+            case HitResult.Combo:    currentResult.combo    = _count; break;
+            case HitResult.Score:    currentResult.score    = _count; break;
         }
     }
 

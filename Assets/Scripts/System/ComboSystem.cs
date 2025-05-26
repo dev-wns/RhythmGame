@@ -106,7 +106,6 @@ public class ComboSystem : MonoBehaviour
     {
         switch ( _result.hitResult )
         {
-
             case HitResult.None:
             case HitResult.Maximum:
             case HitResult.Perfect:

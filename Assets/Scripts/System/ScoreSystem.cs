@@ -8,12 +8,23 @@ public class ScoreSystem : MonoBehaviour
     private Judgement judge;
 
     [Header("ScoreSystem")]
+    private int    totalNotes;
+    
+    private double baseScore;
+    private double bonusScore;
+    private int    bonus = 100;
+
     private double targetScore;
     private double curScore;
-    private double maxScore;
+    //private double maxHitScore;
 
     private float countDuration = 0.1f; // 카운팅에 걸리는 시간 설정.
     private float countOffset;
+
+    // Combo ( Bonus Score )
+    //private double maxBonusScore;
+    //private int curCombo;
+    //private int highCombo;
 
     public TextMeshProUGUI text;
 
@@ -35,8 +46,12 @@ public class ScoreSystem : MonoBehaviour
 
     private void OnReLoad()
     {
-        targetScore = 0d;
-        curScore = 0d;
+        baseScore     = 0d;
+        targetScore   = 0d;
+        curScore      = 0d;
+        bonus         = 100;
+        //curCombo      = 0;
+        //highCombo     = 0;
     }
 
     private void Initialize( Chart _chart )
@@ -45,22 +60,78 @@ public class ScoreSystem : MonoBehaviour
         var slider = hasKeyConversion ? NowPlaying.CurrentSong.sliderCount - NowPlaying.CurrentSong.delSliderCount : NowPlaying.CurrentSong.sliderCount;
         var note   = hasKeyConversion ? NowPlaying.CurrentSong.noteCount   - NowPlaying.CurrentSong.delNoteCount   : NowPlaying.CurrentSong.noteCount;
 
-        int maxJudgeCount = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + ( slider * 2 );
-        maxScore = 1000000d / maxJudgeCount;
+        totalNotes = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + ( slider * 2 );
+
+        //maxBonusScore = 100000d / maxJudgeCount;
+        //maxHitScore   = 1000000d / maxJudgeCount;
         StartCoroutine( Count() );
     }
 
+    
     private void ScoreUpdate( JudgeResult _result )
     {
-        switch ( _result.hitResult )
+        HitResult hitResult = _result.hitResult;
+        if ( hitResult == HitResult.None )
+             return;
+
+        int hitBonus      = 0; // 판정에 따른 보너스 추가량
+        int hitPunishment = 0; // 판정에 따른 보너스 감소량
+        int hitScoreValue = 0; // 기본 스코어 판정 밸류
+        int hitBonusValue = 0; // 기본 스코어 판정 보너스 밸류
+        switch ( hitResult )
         {
-            case HitResult.Maximum: targetScore += maxScore; break;
-            case HitResult.Perfect: targetScore += maxScore * .70d; break;
-            case HitResult.Great: targetScore += maxScore * .50d; break;
-            case HitResult.Good: targetScore += maxScore * .30d; break;
-            case HitResult.Bad: targetScore += maxScore * .15d; break;
+            case HitResult.Maximum:
+            {
+                hitScoreValue = 320;
+                hitBonusValue = 32;
+                hitBonus = 2;
+            } break;
+
+            case HitResult.Perfect:
+            {
+                hitScoreValue = 300;
+                hitBonusValue = 32;
+                hitBonus = 1;
+            } break;
+
+            case HitResult.Great:
+            {
+                hitScoreValue = 200;
+                hitBonusValue = 16;
+                hitPunishment = 8;
+                hitBonus      = 0;
+            } break;
+
+            case HitResult.Good:
+            {
+                hitScoreValue = 100;
+                hitBonusValue = 8;
+                hitPunishment = 24;
+                hitBonus      = 0;
+            } break;
+
+            case HitResult.Bad:
+            { 
+                hitScoreValue = 50;
+                hitBonusValue = 4;
+                hitPunishment = 44;
+                hitBonus      = 0;
+            } break;
+
+            case HitResult.Miss:
+            {
+                hitScoreValue = 0;
+                hitBonusValue = 0;
+                hitPunishment = int.MaxValue;
+                hitBonus      = 0;
+            } break;
             default: return;
         }
+
+        bonus       = ( Global.Math.Clamp( ( bonus + hitBonus - hitPunishment ), 0, 100 ) );
+        baseScore   = ( ( 1000000d * .5d ) / totalNotes ) * ( hitScoreValue / 320d );
+        bonusScore  = ( ( 1000000d * .5d ) / totalNotes ) * ( hitBonusValue * Mathf.Sqrt( bonus ) / 320d );
+        targetScore += baseScore + bonusScore;
 
         countOffset = ( float )( targetScore - curScore ) / countDuration;
     }
@@ -74,7 +145,7 @@ public class ScoreSystem : MonoBehaviour
 
             curScore += countOffset * Time.deltaTime;
             if ( curScore >= targetScore )
-                curScore = targetScore;
+                 curScore  = targetScore;
 
             text.text = $"{( ( int )Global.Math.Round( curScore ) ):D7}";
         }

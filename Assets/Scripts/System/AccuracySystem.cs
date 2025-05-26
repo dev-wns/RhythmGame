@@ -7,10 +7,22 @@ public class AccuracySystem : MonoBehaviour
     private InGame scene;
     private Judgement judge;
 
-    private int curMaxCount;
-    private double curAccuracy;
+    //private int curMaxCount;
+    //private double curAccuracy;
 
     public TextMeshProUGUI text;
+
+    // Judge Count
+    private int maximum;
+    private int perfect;
+    private int great;
+    private int good;
+    private int bad;
+    private int miss;
+
+    private float Total => ( 300f * ( maximum + perfect ) ) + ( 200f * great ) + ( 100f * good ) + ( 50f * bad );
+    private float Max => 300f * ( maximum + perfect + great + good + bad + miss );
+    public float Accuracy => ( Total / Max ) * 100f;
 
     private void Awake()
     {
@@ -24,13 +36,20 @@ public class AccuracySystem : MonoBehaviour
 
     private void OnResult()
     {
-        NowPlaying.Inst.SetResult( HitResult.Accuracy, ( int )( curAccuracy / curMaxCount ) );
+        NowPlaying.Inst.SetResult( HitResult.Accuracy, ( int )( Accuracy * 100f ) );
     }
 
     private void OnReLoad()
     {
-        curMaxCount = 0;
-        curAccuracy = 0d;
+        maximum = 0;
+        perfect = 0;
+        great   = 0;
+        good    = 0;
+        bad     = 0;
+        miss    = 0;
+
+        //curMaxCount = 0;
+        //curAccuracy = 0d;
 
         text.text = $"100.00%";
     }
@@ -39,20 +58,33 @@ public class AccuracySystem : MonoBehaviour
     {
         HitResult hitResult = _result.hitResult;
         if ( hitResult == HitResult.None )
-            return;
+             return;
 
         switch ( hitResult )
         {
-            case HitResult.Maximum:
-            case HitResult.Perfect: curAccuracy += 10000d; break;
-            case HitResult.Great: curAccuracy += 9000d; break;
-            case HitResult.Good: curAccuracy += 8000d; break;
-            case HitResult.Bad: curAccuracy += 7000d; break;
-            case HitResult.Miss: curAccuracy += .0001d; break;
+            case HitResult.Maximum: maximum++; break;
+            case HitResult.Perfect: perfect++; break;
+            case HitResult.Great:   great++;   break;
+            case HitResult.Good:    good++;    break;
+            case HitResult.Bad:     bad++;     break;
+            case HitResult.Miss:    miss++;    break;
             default: return;
         }
-        ++curMaxCount;
 
-        text.text = $"{( ( int )( curAccuracy / curMaxCount ) * .01d ):F2}%";
+        text.text = $"{ Accuracy:F2}%";
+
+        //switch ( hitResult )
+        //{
+        //    case HitResult.Maximum:
+        //    case HitResult.Perfect: curAccuracy += 10000d;  break;
+        //    case HitResult.Great:   curAccuracy += 6250d;   break;
+        //    case HitResult.Good:    curAccuracy += 3125d;   break;
+        //    case HitResult.Bad:     curAccuracy += 1562.5d; break;
+        //    case HitResult.Miss:    curAccuracy += .0001d;  break;
+        //    default: return;
+        //}
+        //++curMaxCount;
+
+        //text.text = $"{( ( int )( curAccuracy / curMaxCount ) * .01d ):F2}%";
     }
 }

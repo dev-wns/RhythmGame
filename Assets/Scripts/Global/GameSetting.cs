@@ -68,10 +68,10 @@ public class GameSetting
     public static float MinDistance => 1200f / Weight;
 
     // Sound
-    public static int SoundOffset = -50;
+    public static int SoundOffset  = -50;
 
     // Opacity Percentage ( 0 ~ 100 )
-    public static int BGAOpacity   = 100;
+    public static int BGAOpacity   = 10;
     public static int PanelOpacity = 100;
 
     // IO
@@ -86,7 +86,7 @@ public class GameSetting
     // Jugdement
     private static float DefaultJudgePos = -435f;
     public static float JudgePos => DefaultJudgePos + JudgeOffset;
-    public static int JudgeOffset = -55;
+    public static int JudgeOffset = -33;
     public static float JudgeHeight = 50f;
 
     // note

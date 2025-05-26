@@ -66,7 +66,7 @@ public class LaneSystem : MonoBehaviour
         if ( !NowPlaying.CurrentSong.isOnlyKeySound )
         {
             if ( AudioManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
-                keySampleSystem.AddSample( new KeySound( NowPlaying.CurrentSong.audioOffset * .001f, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
+                 keySampleSystem.AddSample( new KeySound( GameSetting.SoundOffset * .001f, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
         }
 
         var dir = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
