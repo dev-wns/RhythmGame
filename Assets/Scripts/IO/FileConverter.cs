@@ -224,7 +224,7 @@ public class FileConverter : FileReader
     public void Load( string _path )
     {
         if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-            Convert( _path, false );
+             Convert( _path, false );
 
         //Convert( _path, true );
     }
@@ -515,18 +515,6 @@ public class FileConverter : FileReader
                                                  $"{( _song.hasKeySound    ? 1 : 0 )}:" +
                                                  $"{( _song.hasVideo       ? 1 : 0 )}:" +
                                                  $"{( _song.hasSprite      ? 1 : 0 )}" );
-
-
-                    //writer.WriteLine( $"KeyCount: {_song.keyCount}" );
-                    //writer.WriteLine( $"NumNote: {_song.noteCount}" );
-                    //writer.WriteLine( $"NumSlider: {_song.sliderCount}" );
-                    //writer.WriteLine( $"NumDelNote: {_song.delNoteCount}" );
-                    //writer.WriteLine( $"NumDelSlider: {_song.delSliderCount}" );
-
-                    //writer.WriteLine( $"MinBPM: {_song.minBpm}" );
-                    //writer.WriteLine( $"MaxBPM: {_song.maxBpm}" );
-                    //writer.WriteLine( $"MainBPM: {_song.mainBPM}" );
-
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );

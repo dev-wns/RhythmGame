@@ -73,25 +73,6 @@ public class FileParser : FileReader
                     _song.hasVideo       = int.Parse( splitDatas[3] ) == 1;
                     _song.hasSprite      = int.Parse( splitDatas[4] ) == 1;
                 }
-
-
-
-
-
-                //if ( Contains( "KeyCount:" ) )
-                //{
-                //    _song.keyCount = int.Parse( Split( ':' ) );
-                //    _song.keyCount = _song.keyCount == 8 ? 7 : _song.keyCount;
-                //}
-                //if ( Contains( "NumNote:" ) ) _song.noteCount = int.Parse( Split( ':' ) );
-                //if ( Contains( "NumSlider:" ) ) _song.sliderCount = int.Parse( Split( ':' ) );
-                //if ( Contains( "NumDelNote:" ) ) _song.delNoteCount = int.Parse( Split( ':' ) );
-                //if ( Contains( "NumDelSlider:" ) ) _song.delSliderCount = int.Parse( Split( ':' ) );
-
-                //if ( Contains( "MinBPM:" ) ) _song.minBpm = int.Parse( Split( ':' ) );
-                //if ( Contains( "MaxBPM:" ) ) _song.maxBpm = int.Parse( Split( ':' ) );
-                //if ( Contains( "MainBPM:" ) ) _song.mainBPM = double.Parse( Split( ':' ) );
-
             }
 
             // delete 채보 제거

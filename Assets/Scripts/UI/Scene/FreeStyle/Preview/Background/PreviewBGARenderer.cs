@@ -27,7 +27,10 @@ public class PreviewBGARenderer : MonoBehaviour
     [Header( "Video Player" )]
     public RenderTexture renderTexture;
     private VideoPlayer vp;
-    private WaitUntil waitPrepared;
+    private WaitUntil   waitPrepared;
+    private Coroutine   CorUpdateVideo;
+    private Timer       delayTimer = new Timer();
+
 
     [Header( "Sprites Player" )]
     private List<SpriteSample> sprites = new List<SpriteSample>();
@@ -35,7 +38,6 @@ public class PreviewBGARenderer : MonoBehaviour
 
     private int spriteIndex; // Sprite Start Index
     private Coroutine CorUpdateSprites;
-    private double previewTime;
     
 
 
@@ -95,11 +97,14 @@ public class PreviewBGARenderer : MonoBehaviour
 
             case BackgroundType.Video:
             {
-                vp.time = ( AudioManager.Inst.Position + videoOffset ) * .001f;
-                vp.Play();
+                if ( !ReferenceEquals( CorUpdateVideo, null ) )
+                {
+                    StopCoroutine( CorUpdateVideo );
+                    CorUpdateVideo = null;
+                }
+                CorUpdateVideo = StartCoroutine( LoadVideo( _song ) );
             } break;
         }
-
     }
 
     public void SetInfo( PreviewBGASystem _system, Song _song )
@@ -114,7 +119,6 @@ public class PreviewBGARenderer : MonoBehaviour
         if ( _song.hasSprite )
         {
             type = BackgroundType.Sprite;
-            previewTime = _song.previewTime <= 0 ? _song.totalTime * .314f : _song.previewTime;
             using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
             {
                 string line;
@@ -132,7 +136,7 @@ public class PreviewBGARenderer : MonoBehaviour
                     sprite.end   = double.Parse( split[2] );
                     sprite.name  = split[3];
 
-                    if ( sprite.start < previewTime - videoOffset )
+                    if ( sprite.start < _song.previewTime - videoOffset )
                          spriteIndex = sprites.Count;
 
                     sprites.Add( sprite );
@@ -145,7 +149,7 @@ public class PreviewBGARenderer : MonoBehaviour
         else if ( _song.hasVideo )
         {
             type = BackgroundType.Video;
-            StartCoroutine( LoadVideo( _song ) );
+            CorUpdateVideo = StartCoroutine( LoadVideo( _song ) );
         }
         else
         {
@@ -229,6 +233,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
     private IEnumerator LoadVideo( Song _song )
     {
+        delayTimer.Start();
         vp.enabled = true;
         image.texture = renderTexture;
         vp.url = @$"{_song.videoPath}";
@@ -240,10 +245,10 @@ public class PreviewBGARenderer : MonoBehaviour
         image.enabled = true;
         tf.sizeDelta  = new Vector2( Global.Screen.Width, Global.Screen.Height );
 
-        vp.time = ( AudioManager.Inst.Position + videoOffset ) * .001f;
+        vp.time = ( _song.previewTime + videoOffset + delayTimer.ElapsedMilliSeconds ) * .001f;
         vp.Play();
-
     }
+
     private IEnumerator LoadImage( string _path )
     {
         bool isExist = System.IO.File.Exists( _path );
@@ -321,9 +326,17 @@ public class PreviewBGARenderer : MonoBehaviour
 
             case BackgroundType.Image:
             {
+
+                if ( defaultImage.texture != image.texture )
+                {
+                    DestroyImmediate( image.texture, true );
+                    Debug.Log( "Destroy Default Texture" );
+                }
+
                 if ( !isDefault && image.texture )
                 {
                     DestroyImmediate( image.texture, true );
+                    Debug.Log( "Destroy Default Texture ( is not Destroy Plz)" );
                 }
             }
             break;

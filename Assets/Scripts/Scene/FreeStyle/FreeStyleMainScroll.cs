@@ -107,14 +107,14 @@ public class FreeStyleMainScroll : ScrollBase
 
         playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
 
-        if ( endTime > 0f && ( endTime + waitPreviewTime < playback ) )
+        if ( endTime > 0f && ( endTime + waitPreviewTime + curSong.audioOffset < playback ) )
         {
             AudioManager.Inst.Play( 0f );
             AudioManager.Inst.Position = ( uint )curSong.previewTime;
             playback = curSong.previewTime;
             OnSoundRestart?.Invoke( curSong );
             
-            AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.volume == 0 ? 1f : curSong.volume * .01f, .5f );
+            AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.volume * .01f, .5f );
         }
     }
 
@@ -265,14 +265,14 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void UpdateSong()
     {
+        // ÀÌÀü À½¾Ç ÆäÀÌµå¾Æ¿ô
+        Music prevMusic = new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel );
+        AudioManager.Inst.FadeVolume( prevMusic, curSong.volume * .01f, 0f, .5f, () => AudioManager.Inst.Stop( prevMusic ) );
+
+        // »õ·Î¿î À½¾Ç ·Îµù
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.CurrentSong;
 
-        // ÀÌÀü À½¾Ç ÆäÀÌµå¾Æ¿ô
-        Music prevMusic = new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel );
-        AudioManager.Inst.FadeVolume( prevMusic, 1f, 0f, .5f, () => AudioManager.Inst.Stop( prevMusic ) );
-
-        // »õ·Î¿î À½¾Ç ·Îµù
         AudioManager.Inst.Load( curSong.audioPath, false, true );
         endTime = ( int )AudioManager.Inst.Length;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
@@ -282,7 +282,7 @@ public class FreeStyleMainScroll : ScrollBase
         AudioManager.Inst.Play( 0f );
         AudioManager.Inst.Position = ( uint )curSong.previewTime;
         OnSelectSong?.Invoke( curSong );
-        AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.volume == 0 ? 1f : curSong.volume * .01f, .5f );
+        AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.volume * .01f, .5f );
     }
 
     private void OnBufferSetting()

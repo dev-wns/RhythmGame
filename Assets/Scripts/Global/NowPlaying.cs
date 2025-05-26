@@ -80,15 +80,15 @@ public class NowPlaying : Singleton<NowPlaying>
     public double SaveTime { get; private set; }
     private double startTime;
     public static double WaitTime { get; private set; }
-    public  static readonly double StartWaitTime = -3d;
-    public  static readonly double PauseWaitTime = -2d;
+    public static readonly double StartWaitTime = -3d;
+    public static readonly double PauseWaitTime = -2d;
     public static float GameTime { get; private set; }
     public static double Playback { get; private set; }
-    public static double Distance { get; private set; }
+    public  static double Distance { get; private set; }
     private static double DistanceCache;
     #endregion
     public List<HitData> HitDatas { get; private set; } = new List<HitData>();
-    public ResultData CurrentResult => currentResult;
+    public  ResultData CurrentResult => currentResult;
     private ResultData currentResult = new ResultData();
 
     public static RecordData CurrentRecord { get; private set; } = new RecordData();
