@@ -34,6 +34,12 @@ public class FreeStyleSearch : MonoBehaviour
         }
     }
 
+    public void Clear()
+    {
+        SearchText = string.Empty;
+        field.text = string.Empty;
+    }
+
     public void EnableInputField()
     {
         field.interactable = true;

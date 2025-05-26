@@ -6,8 +6,8 @@ public class PreviewBGASystem : MonoBehaviour
     public FreeStyleMainScroll scroller;
     public SoundPitchOption    soundPitch;
     public PreviewBGARenderer  bgPrefab;
-    private ObjectPool<PreviewBGARenderer> bgPool;
     private PreviewBGARenderer background;
+    private ObjectPool<PreviewBGARenderer> bgPool;
 
     private void Awake()
     {
@@ -15,11 +15,6 @@ public class PreviewBGASystem : MonoBehaviour
         scroller.OnSelectSong    += UpdateBGA;
         scroller.OnSoundRestart  += Restart;
         soundPitch.OnPitchUpdate += UpdatePitch;
-    }
-
-    private void OnDestroy()
-    {
-        StopAllCoroutines();
     }
 
     private void Restart( Song _song )

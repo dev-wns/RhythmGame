@@ -16,6 +16,7 @@ public class FreeStyleReLoad : MonoBehaviour
 
     private Coroutine ShowParsingText;
     private bool isParsingEnd;
+    private Song prevSelectedSong;
 
     private void Awake()
     {
@@ -28,9 +29,12 @@ public class FreeStyleReLoad : MonoBehaviour
         NowPlaying.OnParsing += AddText;
         NowPlaying.OnParsingEnd += ParsingEnd;
         isParsingEnd = false;
-        ShowParsingText = StartCoroutine( ShowText() );
+        prevSelectedSong = NowPlaying.CurrentSong;
 
+        ShowParsingText = StartCoroutine( ShowText() );
         await Task.Run( NowPlaying.Inst.Load );
+
+        NowPlaying.Inst.Search( prevSelectedSong );
     }
 
     private void OnDisable()

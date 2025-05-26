@@ -48,9 +48,9 @@ public class PreviewNoteSystem : MonoBehaviour
     {
         notePool.AllDespawn();
         noteSpawnIndex = 0;
-        timingIndex = 0;
-        Distance = 0d;
-        DistanceCache = 0d;
+        timingIndex    = 0;
+        Distance       = 0d;
+        DistanceCache  = 0d;
 
         for ( int i = 0; i < chart.notes.Count; i++ )
         {

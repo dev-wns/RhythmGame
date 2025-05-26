@@ -245,24 +245,38 @@ public class NowPlaying : Singleton<NowPlaying>
             if ( isSV )
             {
                 if ( OriginSongs[i].minBpm != OriginSongs[i].maxBpm )
-                    Songs.Add( OriginSongs[i] );
+                     Songs.Add( OriginSongs[i] );
             }
             else
             {
-                if ( OriginSongs[i].title.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
                      OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].artist.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].source.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
-                {
-                    Songs.Add( OriginSongs[i] );
-                }
+                     OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+                     Songs.Add( OriginSongs[i] );
             }
         }
 
         SearchCount = Songs.Count;
         if ( SearchCount != 0 )
-            UpdateSong( 0 );
+             UpdateSong( 0 );
     }
+
+    public void Search( Song _song )
+    {
+        for ( int i = 0; i < OriginSongs.Count; i++ )
+        {
+            if ( OriginSongs[i].title.Contains(   _song.title,   StringComparison.OrdinalIgnoreCase ) &&
+                 OriginSongs[i].version.Contains( _song.version, StringComparison.OrdinalIgnoreCase ) )
+            { 
+                UpdateSong( i );
+                return;
+            }
+        }
+
+        UpdateSong( 0 );
+    }
+
     #endregion
     #region Record
     public bool UpdateRecord()
