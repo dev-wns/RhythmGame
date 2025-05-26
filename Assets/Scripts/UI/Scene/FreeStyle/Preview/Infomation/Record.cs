@@ -23,16 +23,34 @@ public class Record : MonoBehaviour
     public TextMeshProUGUI date;
 
     [Header("Effect")]
-    private Sequence sequence;
-    private float startPosX = -2700f;
+    private float startPosX = -1350f;
+    private float endPosX = 0f;
+    private readonly float duration = .25f;
+    private float time;
+    private bool isStart;
 
     private void Awake()
     {
         mainScroll.OnSelectSong += UpdateRecord;
         rt = transform as RectTransform;
 
-        sequence = DOTween.Sequence().Pause().SetAutoKill( false ).SetEase( Ease.OutBack );
-        sequence.Append( rt.DOAnchorPosX( rt.anchoredPosition.x, 1f ) );
+        endPosX = rt.anchoredPosition.x;
+    }
+
+    private void Update()
+    {
+        if ( !isStart )
+             return;
+
+        time += Time.deltaTime / duration;
+        
+        float posX = Global.Math.Lerp( startPosX, endPosX, time );
+        if ( posX > endPosX )
+        {
+            time    = 0f;
+            isStart = false;
+        }
+        rt.anchoredPosition = new Vector2( Global.Math.Clamp( posX, startPosX, endPosX ), rt.anchoredPosition.y );
     }
 
     public void UpdateRecord( Song _song )
@@ -61,7 +79,10 @@ public class Record : MonoBehaviour
                                                        rankAtlas.GetSprite( "Ranking-D" );
 
         }
+
+        
         rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );
-        sequence.Restart();
+        isStart = true;
+        // sequence.Restart();
     }
 }
