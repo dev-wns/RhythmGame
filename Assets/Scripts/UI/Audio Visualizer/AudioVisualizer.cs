@@ -9,7 +9,7 @@ public class AudioVisualizer : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( AudioManager.Inst.IsLoad )
+        if ( AudioManager.Inst.IsStop )
             return;
 
         AudioManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out FMOD.DSP fftWindowDSP );

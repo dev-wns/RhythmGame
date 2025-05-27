@@ -25,7 +25,7 @@ public class FreqSpark : MonoBehaviour
     private float[] bandBuffer;
     private int     freqCount;
 
-    public float offset = 1f;
+    public float dropAmount = 1f;
     [Range(1f, 2f)] public float sclOffset;
 
     [Header( "Normalize" )]
@@ -115,22 +115,25 @@ public class FreqSpark : MonoBehaviour
                 value = Global.Math.Clamp( sumValue / ( end - start + 1 ), 0f, maxHeight );
             }
 
-            //bandBuffer[i] -= ( ( ( Global.Math.Lerp( 0f, 1f, ( Global.Math.Abs( bandBuffer[i] - value ) ) ) ) * decreasePower ) * Time.deltaTime );
-            bandBuffer[i] -= ( bandBuffer[i] * offset ) * Time.deltaTime;
-            bandBuffer[i] = bandBuffer[i] < value ? value : bandBuffer[i];
+            //bandBuffer[i] -= Global.Math.Lerp( 0f, 1f, Global.Math.Abs( bandBuffer[i] - value ) ) * dropAmount * Time.deltaTime;
+            bandBuffer[i] -= ( bandBuffer[i] * dropAmount ) * Time.deltaTime;
+            if ( bandBuffer[i] < value )
+                 bandBuffer[i] = value;
+
+            //bandBuffer[i] = bandBuffer[i] < value ? value : bandBuffer[i];
             //: bandBuffer[i] - ( Global.Math.Abs( bandBuffer[i] - value ) * decreasePower * Time.deltaTime);// Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
             // : bandBuffer[i] - ( ( .05f + Global.Math.Abs( bandBuffer[i] - value ) ) * decreasePower * Time.deltaTime );
 
             int number = ( index * 2 );
-            positions[( freqCount * 2 ) - number] = isAxisX ? new Vector3( positions[( freqCount * 2 ) - number].x, pos.y - bandBuffer[i] )
-                                                               : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) - number].y );
+            positions[( freqCount * 2 ) - number]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) - number].x, pos.y - bandBuffer[i] )
+                                                                : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) - number].y );
             positions[( freqCount * 2 ) - number - 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) - number - 1].x, pos.y + bandBuffer[i] )
-                                                               : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) - number - 1].y );
+                                                                : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) - number - 1].y );
 
-            positions[( freqCount * 2 ) + number] = isAxisX ? new Vector3( positions[( freqCount * 2 ) + number].x, pos.y - bandBuffer[i] )
-                                                               : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) + number].y );
+            positions[( freqCount * 2 ) + number]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) + number].x, pos.y - bandBuffer[i] )
+                                                                : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) + number].y );
             positions[( freqCount * 2 ) + number + 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) + number + 1].x, pos.y + bandBuffer[i] )
-                                                               : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) + number + 1].y );
+                                                                : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) + number + 1].y );
         }
 
         rdr.SetPositions( positions );

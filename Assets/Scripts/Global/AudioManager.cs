@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Text;
 using UnityEngine;
+using FMOD;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SFX
@@ -126,13 +128,13 @@ public class AudioManager : Singleton<AudioManager>
             return channels;
         }
     }
-    public bool IsLoad { get; private set; }
+    public bool IsStop { get; private set; }
     public float Volume { get; set; }
     #endregion
     #endregion
     #region System
     FMOD.ADVANCEDSETTINGS advancedSettings;
-    public void Initialize()
+    public async void Initialize()
     {
         Timer timer = new Timer();
         // System
@@ -213,6 +215,8 @@ public class AudioManager : Singleton<AudioManager>
         SetVolume( .3f, ChannelType.SFX );
         SetVolume( .8f, ChannelType.Clap );
         #endregion
+
+        await Task.Run( SystemUpdate );
         Debug.Log( $"AudioManager Initialization {timer.End} ms" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
     }
@@ -265,6 +269,8 @@ public class AudioManager : Singleton<AudioManager>
 
     public void Release()
     {
+        IsStop = true;
+
         // Sounds
         foreach ( var sfx in sfxSounds.Values )
         {
@@ -325,9 +331,9 @@ public class AudioManager : Singleton<AudioManager>
         Debug.Log( "AudioManager Release" );
     }
 
-    public void ReLoad()
+    public async void ReLoad()
     {
-        IsLoad = true;
+        IsStop = true;
         AllStop();
 
         // caching
@@ -349,7 +355,8 @@ public class AudioManager : Singleton<AudioManager>
         foreach ( var group in groups.Values )
             ErrorCheck( group.setVolume( volumes[groupCount++] ) );
 
-        IsLoad = false;
+        IsStop = false;
+        await Task.Run( SystemUpdate );
     }
     #endregion
     #region Unity Event Function
@@ -359,14 +366,24 @@ public class AudioManager : Singleton<AudioManager>
         Initialize();
     }
 
-    private void Update()
+    //private void Update()
+    //{
+    //    if ( !IsLoad )
+    //        system.update();
+    //}
+
+    private void SystemUpdate()
     {
-        if ( !IsLoad )
+        while ( !IsStop )
+        {
             system.update();
+            System.Threading.Thread.Sleep( 1 );
+        }
     }
 
     private void OnDestroy()
     {
+        IsStop = true;
         // 매니저격 클래스라 가장 마지막에 제거되어야 한다.
         // OnApplicationQuit -> OnDisable -> OnDestroy 순으로 호출 되기 때문에
         // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후
@@ -464,7 +481,7 @@ public class AudioManager : Singleton<AudioManager>
     #endregion
     #region Effect
 
-    private Coroutine volumeEffectCoroutine;
+    private Coroutine corVolumeEffect;
 
     /// <summary>
     /// FadeIn when _end is greater than _start. <br/>
@@ -473,51 +490,51 @@ public class AudioManager : Singleton<AudioManager>
     public void FadeVolume( float _start, float _end, float _t )
     {
         StopFadeEffect();
-        volumeEffectCoroutine = StartCoroutine( Fade( _start, _end, _t ) );
+        corVolumeEffect = StartCoroutine( Fade( _start, _end, _t ) );
     }
 
     public void StopFadeEffect()
     {
-        if ( !ReferenceEquals( volumeEffectCoroutine, null ) )
+        if ( !ReferenceEquals( corVolumeEffect, null ) )
         {
-            StopCoroutine( volumeEffectCoroutine );
-            volumeEffectCoroutine = null;
+            StopCoroutine( corVolumeEffect );
+            corVolumeEffect = null;
         }
     }
 
-    public void FadeVolume( Music _music, float _start, float _end, float _t, Action _OnCompleted = null )
+    public Coroutine FadeVolume( Music _music, float _start, float _end, float _t, Action _OnCompleted = null )
     {
-        StartCoroutine( Fade( _music, _start, _end, _t, _OnCompleted ) );
+        return StartCoroutine( Fade( _music.channel, _start, _end, _t, _OnCompleted ) );
     }
 
-    public IEnumerator Fade( Music _music, float _start, float _end, float _t, Action _OnCompleted )
+    public IEnumerator Fade( Channel _channel, float _start, float _end, float _t, Action _OnCompleted )
     {
         // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
         // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
-        _music.channel.isPlaying( out bool isPlaying );
+        _channel.isPlaying( out bool isPlaying );
         if ( !isPlaying )
-            yield break;
+             yield break;
 
         // 같은 값일 때 계산 없이 종료.
         if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
         {
-            ErrorCheck( _music.channel.setVolume( _end ) );
+            ErrorCheck( _channel.setVolume( _end ) );
             yield break;
         }
 
         float elapsedVolume = _start;
         float offset = _end - _start;
-        ErrorCheck( _music.channel.setVolume( _start ) );
+        ErrorCheck( _channel.setVolume( _start ) );
         while ( _start < _end ? elapsedVolume < _end : // FADEIN
                                 elapsedVolume > _end ) // FADEOUT
         {
             yield return YieldCache.WaitForEndOfFrame;
             elapsedVolume += ( offset * Time.deltaTime ) / _t;
-            ErrorCheck( _music.channel.setVolume( elapsedVolume ) );
+            ErrorCheck( _channel.setVolume( elapsedVolume ) );
         }
 
         // 페이드 인 기준으로 반복문이 끝난 시점에서 볼륨이 _end 값을 넘어가기 때문에 초기화해준다.
-        ErrorCheck( _music.channel.setVolume( _end ) );
+        ErrorCheck( _channel.setVolume( _end ) );
         _OnCompleted?.Invoke();
     }
 
@@ -587,13 +604,17 @@ public class AudioManager : Singleton<AudioManager>
         ErrorCheck( groups[_type].setVolume( chlVolume ) );
     }
 
-    public void Stop( Music _music )
+    public void Release( Music _music )
     {
         _music.channel.isPlaying( out bool isPlaying );
         if ( isPlaying )
             ErrorCheck( _music.channel.stop() );
-        ErrorCheck( _music.sound.release() );
-        _music.sound.clearHandle();
+
+        if ( _music.sound.hasHandle() )
+        {
+            ErrorCheck( _music.sound.release() );
+            _music.sound.clearHandle();
+        }
     }
 
     public void AllStop()

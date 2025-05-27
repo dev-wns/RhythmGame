@@ -4971,7 +4971,7 @@ MonoBehaviour:
   freqBand: {fileID: 746346381}
   maxHeight: 80
   posOffset: 7.5
-  offset: 1
+  dropAmount: 1
   sclOffset: 0
   isNormalized: 1
   NormalizedRange: 1
@@ -16038,7 +16038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visuzlizer: {fileID: 1923945052}
-  power: 6000
+  power: 4500
   freqCount: 72
   startIndex: 48
   multipleCount: 1
@@ -23091,7 +23091,7 @@ MonoBehaviour:
   freqBand: {fileID: 746346381}
   maxHeight: 50
   posOffset: 6.6875
-  offset: 10
+  dropAmount: 10
   sclOffset: 1.525
   isNormalized: 1
   NormalizedRange: 2
