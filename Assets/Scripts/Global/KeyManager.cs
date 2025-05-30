@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
+public enum KeyState { None, Down, Hold, Up, }
 public class KeyManager : Singleton<KeyManager>
 {
     private static readonly Dictionary<int/* Virtual Key */, KeyCode> vKeyToUnity = new();
@@ -74,13 +75,13 @@ public class KeyManager : Singleton<KeyManager>
     private void Update()
     {
         if ( Input.GetKeyDown( KeyCode.A ) )
-            Debug.Log( $"Unity   \"{KeyCode.A}\" Down {( uint )( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime )} ms" );
+            Debug.Log( $"Unity \"{KeyCode.A}\" Down {( uint )( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime )} ms" );
 
         if ( Input.GetKeyDown( KeyCode.S ) )
-            Debug.Log( $"Unity   \"{KeyCode.S}\" Down {( uint )( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime )} ms" );
+            Debug.Log( $"Unity \"{KeyCode.S}\" Down {( uint )( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime )} ms" );
 
         if ( Input.GetKeyDown( KeyCode.D ) )
-            Debug.Log( $"Unity   \"{KeyCode.D}\" Down {( uint )( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime )} ms" );
+            Debug.Log( $"Unity \"{KeyCode.D}\" Down {( uint )( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime )} ms" );
     }
 
     private void KeyMapping()

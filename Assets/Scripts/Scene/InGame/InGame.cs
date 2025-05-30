@@ -48,7 +48,7 @@ public class InGame : Scene
         IsInputLock = true;
 
         timer.Start();
-        NowPlaying.Inst.ParseChart();
+        NowPlaying.Inst.Initalize();
         loadingText.text = $"{timer.End} ms";
     }
 
@@ -85,7 +85,7 @@ public class InGame : Scene
 
     private void Stop()
     {
-        NowPlaying.Inst.Stop();
+        NowPlaying.Inst.Clear();
         IsEnd = false;
         for ( int i = 0; i < isHitLastNotes.Length; i++ )
         {
@@ -159,7 +159,7 @@ public class InGame : Scene
 
         ImmediateDisableCanvas( ActionType.Main, pause );
         ImmediateDisableCanvas( ActionType.Main, gameOver );
-        NowPlaying.Inst.Stop();
+        NowPlaying.Inst.Clear();
         AudioManager.Inst.AllStop();
 
         Disconnect();

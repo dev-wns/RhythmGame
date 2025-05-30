@@ -24,19 +24,30 @@ public class MeasureSystem : MonoBehaviour
             if ( shouldShowMeasure )
             {
                 scene.OnSystemInitialize += Initialize;
-                NowPlaying.OnSpawnObjects += SpawnMeasures;
                 scene.OnReLoad += OnReLoad;
             }
         }
 
         pool = new ObjectPool<MeasureRenderer>( mPrefab, 10 );
     }
+    private void Update()
+    {
+        if ( !NowPlaying.IsStart )
+             return;
+
+        while ( curIndex < measures.Count && curTime <= NowPlaying.Distance + GameSetting.MinDistance )
+        {
+            MeasureRenderer measure = pool.Spawn();
+            measure.SetInfo( curTime );
+
+            if ( ++curIndex < measures.Count )
+                 curTime = measures[curIndex];
+        }
+    }
 
     private void OnDestroy()
     {
         MeasureCalcTime = 0;
-        NowPlaying.OnSpawnObjects -= SpawnMeasures;
-        //StopAllCoroutines();
     }
 
     private void OnReLoad()
@@ -85,17 +96,5 @@ public class MeasureSystem : MonoBehaviour
 
         if ( measures.Count > 0 )
             curTime = measures[curIndex];
-    }
-
-    private void SpawnMeasures( double _distance )
-    {
-        while ( curIndex < measures.Count && curTime <= _distance + GameSetting.MinDistance )
-        {
-            MeasureRenderer measure = pool.Spawn();
-            measure.SetInfo( curTime );
-
-            if ( ++curIndex < measures.Count )
-                curTime = measures[curIndex];
-        }
     }
 }

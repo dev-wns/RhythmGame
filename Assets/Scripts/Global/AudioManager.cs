@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text;
 using UnityEngine;
 using FMOD;
+using System.Threading;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SFX
@@ -18,9 +19,9 @@ public enum SFX
 
 public struct Music
 {
-    public FMOD.Sound sound;
-    public FMOD.Channel channel;
-    public Music( FMOD.Sound _sound, FMOD.Channel _channel )
+    public Sound sound;
+    public Channel channel;
+    public Music( Sound _sound, Channel _channel )
     {
         sound = _sound;
         channel = _channel;
@@ -30,29 +31,30 @@ public struct Music
 public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
 public class AudioManager : Singleton<AudioManager>
 {
-    #region variables
     private static readonly int MaxSoftwareChannel = 128;
     private static readonly int MaxVirtualChannel  = 1000;
     private FMOD.System system;
-    private Dictionary<ChannelType, FMOD.ChannelGroup>   groups    = new Dictionary<ChannelType, FMOD.ChannelGroup>();
-    private Dictionary<SFX, FMOD.Sound>                  sfxSounds = new Dictionary<SFX, FMOD.Sound>();
-    private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
-    private Dictionary<FMOD.DSP_TYPE, FMOD.DSP>          dsps      = new Dictionary<FMOD.DSP_TYPE, FMOD.DSP>();
+    private Dictionary<ChannelType, ChannelGroup> groups    = new Dictionary<ChannelType, ChannelGroup>();
+    private Dictionary<SFX, Sound> sfxSounds = new Dictionary<SFX, Sound>();
+    private Dictionary<string/* 키음 이름 */, Sound> keySounds = new Dictionary<string, Sound>();
+    private Dictionary<DSP_TYPE, DSP> dsps      = new Dictionary<DSP_TYPE, DSP>();
     public event Action OnReload;
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
     public struct SoundDriver : IEquatable<SoundDriver>
     {
         public int index; // OUTPUTTYPE에 해당하는 출력장치 인덱스
-        public FMOD.OUTPUTTYPE outputType;
+        public OUTPUTTYPE outputType;
         public Guid guid;
         public string name;
         public int systemRate, speakModeChannels;
-        public FMOD.SPEAKERMODE mode;
+        public SPEAKERMODE mode;
 
         public bool Equals( SoundDriver _other ) => index == _other.index;
         public override bool Equals( object _obj ) => Equals( ( SoundDriver )_obj );
         public override int GetHashCode() => base.GetHashCode();
     }
+
+    #region Properties
     public int CurrentDriverIndex
     {
         get => curDriverIndex;
@@ -69,32 +71,14 @@ public class AudioManager : Singleton<AudioManager>
             curDriverIndex = value;
         }
     }
-    #region Properties
     private int curDriverIndex = -1;
-    public FMOD.Sound MainSound { get; private set; }
-    public FMOD.Channel MainChannel { get; private set; }
-    /// <summary>
-    /// The accuratetime flag is required.
-    /// </summary>
-    public uint Length
-    {
-        get
-        {
-            //if ( !hasAccurateFlag || !IsPlaying( ChannelType.BGM ) )
-            //{
-            //    Debug.LogWarning( $"No AccurateTime flag or BGM Sound." );
-            //    return uint.MaxValue;
-            //}
-
-
-            return ErrorCheck( MainSound.getLength( out uint length, FMOD.TIMEUNIT.MS ) ) ? length : uint.MaxValue;
-        }
-    }
+    public Sound MainSound { get; private set; }
+    public Channel MainChannel { get; private set; }
+    /// <summary> The accuratetime flag is required. /// </summary>
+    public uint Length => ErrorCheck( MainSound.getLength( out uint length, TIMEUNIT.MS ) ) ? length : uint.MaxValue;
     public int KeySoundCount => keySounds.Count;
     public int TotalKeySoundCount { get; private set; }
-    /// <summary>
-    /// BGM Position
-    /// </summary>
+    /// <summary> BGM Position </summary>
     public uint Position
     {
         get
@@ -105,7 +89,7 @@ public class AudioManager : Singleton<AudioManager>
                 return 0;
             }
 
-            ErrorCheck( MainChannel.getPosition( out uint pos, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( MainChannel.getPosition( out uint pos, TIMEUNIT.MS ) );
             return pos;
         }
 
@@ -117,7 +101,7 @@ public class AudioManager : Singleton<AudioManager>
                 return;
             }
 
-            ErrorCheck( MainChannel.setPosition( value, FMOD.TIMEUNIT.MS ) );
+            ErrorCheck( MainChannel.setPosition( value, TIMEUNIT.MS ) );
         }
     }
     public int ChannelsInUse
@@ -131,40 +115,43 @@ public class AudioManager : Singleton<AudioManager>
     public bool IsStop { get; private set; }
     public float Volume { get; set; }
     #endregion
-    #endregion
     #region System
-    FMOD.ADVANCEDSETTINGS advancedSettings;
+    private Coroutine corVolumeEffect;
+    private ADVANCEDSETTINGS advancedSettings;
+    private CancellationTokenSource cancelSource = new CancellationTokenSource();
+
+
     public async void Initialize()
     {
         Timer timer = new Timer();
         // System
-        ErrorCheck( FMOD.Factory.System_Create( out system ) );
-        ErrorCheck( system.setOutput( FMOD.OUTPUTTYPE.AUTODETECT ) );
+        ErrorCheck( Factory.System_Create( out system ) );
+        ErrorCheck( system.setOutput( OUTPUTTYPE.AUTODETECT ) );
 
         // To do Before System Initialize
-        ErrorCheck( system.getSoftwareFormat( out int sampleRate, out FMOD.SPEAKERMODE mode, out int numRawSpeakers ) );
-        ErrorCheck( system.setSoftwareFormat( sampleRate, FMOD.SPEAKERMODE.STEREO, numRawSpeakers ) );
+        ErrorCheck( system.getSoftwareFormat( out int sampleRate, out SPEAKERMODE mode, out int numRawSpeakers ) );
+        ErrorCheck( system.setSoftwareFormat( sampleRate, SPEAKERMODE.STEREO, numRawSpeakers ) );
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
         ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
 
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
-        ErrorCheck( system.init( MaxVirtualChannel, FMOD.INITFLAGS.NORMAL, extraDriverData ) );
+        ErrorCheck( system.init( MaxVirtualChannel, INITFLAGS.NORMAL, extraDriverData ) );
 
         ErrorCheck( system.getVersion( out uint version ) );
-        if ( version < FMOD.VERSION.number )
+        if ( version < VERSION.number )
             Debug.LogWarning( "using the old version." );
 
         // Sound Driver
         List<SoundDriver> drivers = new List<SoundDriver>();
-        MakeDriverInfomation( FMOD.OUTPUTTYPE.WASAPI, drivers );
-        //MakeDriverInfomation( FMOD.OUTPUTTYPE.ASIO,   drivers );
+        CreateDriverInfo( OUTPUTTYPE.WASAPI, drivers );
+        //MakeDriverInfomation( OUTPUTTYPE.ASIO,   drivers );
         Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
         if ( curDriverIndex < 0 )
         {
             ErrorCheck( system.getDriver( out int driverIndex ) );
             ErrorCheck( system.getDriverInfo( driverIndex, out string name, 256, out Guid guid, out int rate,
-                                              out FMOD.SPEAKERMODE driverSpeakMode, out int channels ) );
+                                              out SPEAKERMODE driverSpeakMode, out int channels ) );
             for ( int i = 0; i < Drivers.Count; i++ )
             {
                 if ( guid.CompareTo( Drivers[i].guid ) == 0 )
@@ -179,16 +166,12 @@ public class AudioManager : Singleton<AudioManager>
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
         {
             ChannelType type = ( ChannelType )i;
-            ErrorCheck( system.createChannelGroup( type.ToString(), out FMOD.ChannelGroup group ) );
+            ErrorCheck( system.createChannelGroup( type.ToString(), out ChannelGroup group ) );
             if ( type != ChannelType.Master )
                 ErrorCheck( groups[ChannelType.Master].addGroup( group ) );
 
             groups.Add( type, group );
         }
-
-#if UNITY_EDITOR
-        //PrintSystemSetting();
-#endif
 
         #region Details
         // DSP
@@ -218,23 +201,13 @@ public class AudioManager : Singleton<AudioManager>
 
         Debug.Log( $"AudioManager Initialization {timer.End} ms" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
-        await Task.Run( SystemUpdate );
+
+        await Task.Run( () => SystemUpdate( cancelSource.Token ) );
     }
 
-    private void PrintSystemSetting()
+    private void CreateDriverInfo( OUTPUTTYPE _type, List<SoundDriver> _list )
     {
-        ErrorCheck( system.getSoftwareFormat( out int sampleRate, out FMOD.SPEAKERMODE mode, out int numRawSpeakers ) );
-        Debug.Log( $"SampleRate : {sampleRate}  Mode : {mode}  RawSpeakers : {numRawSpeakers}" );
-        ErrorCheck( system.getSoftwareChannels( out int softwareChannels ) );
-        Debug.Log( $"SoftwareChannel {softwareChannels}" );
-        ErrorCheck( system.getDSPBufferSize( out uint bufferSize, out int numbuffers ) );
-        Debug.Log( $"Buffers : {numbuffers}  BufferSize : {bufferSize}" );
-        Debug.Log( $"Current Sound Device : {Drivers[curDriverIndex].name}" );
-    }
-
-    private void MakeDriverInfomation( FMOD.OUTPUTTYPE _type, List<SoundDriver> _list )
-    {
-        ErrorCheck( system.getOutput( out FMOD.OUTPUTTYPE prevType ) );
+        ErrorCheck( system.getOutput( out OUTPUTTYPE prevType ) );
         ErrorCheck( system.setOutput( _type ) );
 
         ErrorCheck( system.getNumDrivers( out int numDriver ) );
@@ -304,8 +277,8 @@ public class AudioManager : Singleton<AudioManager>
             ErrorCheck( groups[( ChannelType )i].getNumChannels( out int numChannels ) );
             for ( int j = 0; j < numChannels; j++ )
             {
-                ErrorCheck( groups[( ChannelType )i].getChannel( j, out FMOD.Channel channel ) );
-                ErrorCheck( channel.getCurrentSound( out FMOD.Sound sound ) );
+                ErrorCheck( groups[( ChannelType )i].getChannel( j, out Channel channel ) );
+                ErrorCheck( channel.getCurrentSound( out Sound sound ) );
                 ErrorCheck( channel.stop() );
                 ErrorCheck( sound.release() );
                 sound.clearHandle();
@@ -326,12 +299,14 @@ public class AudioManager : Singleton<AudioManager>
         dsps.Clear();
 
         // System
+        cancelSource?.Cancel();
         ErrorCheck( system.release() ); // 내부에서 close 함.
         system.clearHandle();
+
         Debug.Log( "AudioManager Release" );
     }
 
-    public async void ReLoad()
+    public void ReLoad()
     {
         IsStop = true;
         AllStop();
@@ -345,7 +320,6 @@ public class AudioManager : Singleton<AudioManager>
         // reload
         Release();
         Initialize();
-
         OnReload?.Invoke();
 
         // rollback
@@ -356,9 +330,9 @@ public class AudioManager : Singleton<AudioManager>
             ErrorCheck( group.setVolume( volumes[groupCount++] ) );
 
         IsStop = false;
-        await Task.Run( SystemUpdate );
     }
     #endregion
+
     #region Unity Event Function
     protected override void Awake()
     {
@@ -366,18 +340,13 @@ public class AudioManager : Singleton<AudioManager>
         Initialize();
     }
 
-    //private void Update()
-    //{
-    //    if ( !IsLoad )
-    //        system.update();
-    //}
-
-    private void SystemUpdate()
+    private async void SystemUpdate( CancellationToken _token )
     {
-        while ( !IsStop )
+        while ( !_token.IsCancellationRequested )
         {
             system.update();
-            System.Threading.Thread.Sleep( 1 );
+
+            await Task.Delay( 1 );
         }
     }
 
@@ -391,15 +360,16 @@ public class AudioManager : Singleton<AudioManager>
         Release();
     }
     #endregion
+
     #region Load
     /// <summary> Load Main BGM </summary>
     public void Load( string _path, bool _isLoop, bool _isStream )
     {
-        FMOD.MODE mode = _isStream ? FMOD.MODE.CREATESTREAM : FMOD.MODE.CREATESAMPLE;
-        mode = _isLoop ? mode |= FMOD.MODE.LOOP_NORMAL : mode |= FMOD.MODE.LOOP_OFF;
-        mode |= FMOD.MODE.ACCURATETIME | FMOD.MODE.LOWMEM;// | FMOD.MODE.IGNORETAGS;
+        MODE mode = _isStream ? MODE.CREATESTREAM : MODE.CREATESAMPLE;
+        mode = _isLoop ? mode |= MODE.LOOP_NORMAL : mode |= MODE.LOOP_OFF;
+        mode |= MODE.ACCURATETIME | MODE.LOWMEM;// | MODE.IGNORETAGS;
 
-        ErrorCheck( system.createSound( _path, mode, out FMOD.Sound sound ) );
+        ErrorCheck( system.createSound( _path, mode, out Sound sound ) );
 
         MainSound = sound;
     }
@@ -413,7 +383,7 @@ public class AudioManager : Singleton<AudioManager>
             return;
         }
 
-        ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE | FMOD.MODE.VIRTUAL_PLAYFROMSTART, out FMOD.Sound sound ) );
+        ErrorCheck( system.createSound( _path, MODE.LOOP_OFF | MODE.CREATESAMPLE | MODE.VIRTUAL_PLAYFROMSTART, out Sound sound ) );
         sfxSounds.Add( _type, sound );
     }
 
@@ -428,14 +398,14 @@ public class AudioManager : Singleton<AudioManager>
         }
         else if ( System.IO.File.Exists( @_path ) )
         {
-            ErrorCheck( system.createSound( _path, FMOD.MODE.LOOP_OFF | FMOD.MODE.CREATESAMPLE | FMOD.MODE.LOWMEM, out FMOD.Sound sound ) );
+            ErrorCheck( system.createSound( _path, MODE.LOOP_OFF | MODE.CREATESAMPLE | MODE.LOWMEM, out Sound sound ) );
             keySounds.Add( name, sound );
         }
         //   if ( !System.IO.File.Exists( @_path ) )
         else
         {
             // throw new Exception( $"File Exists  {_path}" );
-            //_sound = new FMOD.Sound();
+            //_sound = new Sound();
             return false;
         }
 
@@ -446,7 +416,7 @@ public class AudioManager : Singleton<AudioManager>
     /// <summary> Play Background Music </summary>
     public void Play( float _volume = 1f )
     {
-        ErrorCheck( system.playSound( MainSound, groups[ChannelType.BGM], false, out FMOD.Channel channel ) );
+        ErrorCheck( system.playSound( MainSound, groups[ChannelType.BGM], false, out Channel channel ) );
         ErrorCheck( channel.setVolume( _volume ) );
         MainChannel = channel;
     }
@@ -460,9 +430,7 @@ public class AudioManager : Singleton<AudioManager>
             return;
         }
 
-        // if ( _type == SFX.Clap ) ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.Clap], false, out FMOD.Channel channel ) );
-        // else                     ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX],  false, out FMOD.Channel channel ) );
-        ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX], false, out FMOD.Channel channel ) );
+        ErrorCheck( system.playSound( sfxSounds[_type], groups[ChannelType.SFX], false, out Channel channel ) );
     }
 
     /// <summary> Play Key Sound Effects </summary>
@@ -474,16 +442,13 @@ public class AudioManager : Singleton<AudioManager>
             return;
         }
 
-        ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], true, out FMOD.Channel channel ) );
+        ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], true, out Channel channel ) );
         ErrorCheck( channel.setVolume( _sound.volume ) );
         ErrorCheck( channel.setPaused( false ) );
     }
     #endregion
     #region Effect
-
-    private Coroutine corVolumeEffect;
-
-    /// <summary>
+/// <summary>
     /// FadeIn when _end is greater than _start. <br/>
     /// FadeOut in the opposite case.
     /// </summary>
@@ -626,51 +591,29 @@ public class AudioManager : Singleton<AudioManager>
             if ( IsPlaying( group.Key ) )
                 ErrorCheck( group.Value.stop() );
         }
-
-        //MainChannel.isPlaying( out bool isPlaying );
-        //if ( isPlaying ) ErrorCheck( MainChannel.stop() );
-        //MainSound.release();
-        //MainSound.clearHandle();
     }
     #endregion
     #region DSP
-    private void PrintDSPDesc( FMOD.DSP_TYPE _type )
-    {
-        FMOD.DSP dsp;
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out dsp ) );
-
-        int num = 0;
-        ErrorCheck( dsp.getNumParameters( out num ) );
-        FMOD.DSP_PARAMETER_DESC[] descs = new FMOD.DSP_PARAMETER_DESC[num];
-        for ( int i = 0; i < num; i++ )
-        {
-            ErrorCheck( dsp.getParameterInfo( i, out descs[i] ) );
-            Debug.Log( $"Desc[{i}] : {System.Text.Encoding.Default.GetString( descs[i].name )} {descs[i].type} {System.Text.Encoding.Default.GetString( descs[i].label )} {descs[i].description}" );
-        }
-
-        dsp.release();
-    }
-
     public string GetAppliedDSPName()
     {
         StringBuilder text = new StringBuilder();
         ErrorCheck( groups[ChannelType.BGM].getNumDSPs( out int num ) );
         for ( int i = 0; i < num; i++ )
         {
-            ErrorCheck( groups[ChannelType.BGM].getDSP( i, out FMOD.DSP dsp ) );
-            ErrorCheck( dsp.getType( out FMOD.DSP_TYPE type ) );
+            ErrorCheck( groups[ChannelType.BGM].getDSP( i, out DSP dsp ) );
+            ErrorCheck( dsp.getType( out DSP_TYPE type ) );
             text.Append( type ).Append( $" " );
         }
 
         return text.ToString();
     }
 
-    public bool GetDSP( FMOD.DSP_TYPE _type, out FMOD.DSP _dsp )
+    public bool GetDSP( DSP_TYPE _type, out DSP _dsp )
     {
         if ( !dsps.ContainsKey( _type ) )
         {
             Debug.LogError( "DSP is not loaded." );
-            _dsp = new FMOD.DSP();
+            _dsp = new DSP();
             return false;
         }
 
@@ -678,15 +621,15 @@ public class AudioManager : Singleton<AudioManager>
         return true;
     }
 
-    public void AddDSP( FMOD.DSP_TYPE _dspType, ChannelType _channelType )
+    public void AddDSP( DSP_TYPE _dspType, ChannelType _channelType )
     {
         if ( !dsps.ContainsKey( _dspType ) )
             return;
 
-        ErrorCheck( groups[_channelType].addDSP( FMOD.CHANNELCONTROL_DSP_INDEX.TAIL, dsps[_dspType] ) );
+        ErrorCheck( groups[_channelType].addDSP( CHANNELCONTROL_DSP_INDEX.TAIL, dsps[_dspType] ) );
     }
 
-    public void RemoveDSP( FMOD.DSP_TYPE _dspType, ChannelType _channelType )
+    public void RemoveDSP( DSP_TYPE _dspType, ChannelType _channelType )
     {
         if ( !dsps.ContainsKey( _dspType ) )
             return;
@@ -722,13 +665,13 @@ public class AudioManager : Singleton<AudioManager>
 
     private void CreateFFTWindow()
     {
-        if ( dsps.ContainsKey( FMOD.DSP_TYPE.FFT ) )
+        if ( dsps.ContainsKey( DSP_TYPE.FFT ) )
             return;
 
-        ErrorCheck( system.createDSPByType( FMOD.DSP_TYPE.FFT, out FMOD.DSP dsp ) );
-        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWSIZE, 4096 ) );
-        ErrorCheck( dsp.setParameterInt( ( int )FMOD.DSP_FFT.WINDOWTYPE, ( int )FMOD.DSP_FFT_WINDOW.BLACKMANHARRIS ) );
-        dsps.Add( FMOD.DSP_TYPE.FFT, dsp );
+        ErrorCheck( system.createDSPByType( DSP_TYPE.FFT, out DSP dsp ) );
+        ErrorCheck( dsp.setParameterInt( ( int )DSP_FFT.WINDOWSIZE, 4096 ) );
+        ErrorCheck( dsp.setParameterInt( ( int )DSP_FFT.WINDOWTYPE, ( int )DSP_FFT_WINDOW.BLACKMANHARRIS ) );
+        dsps.Add( DSP_TYPE.FFT, dsp );
     }
 
     private void CreateNormalizeDSP()
@@ -829,21 +772,21 @@ public class AudioManager : Singleton<AudioManager>
     #region DSP Update
     public void UpdatePitchShift()
     {
-        if ( !dsps.ContainsKey( FMOD.DSP_TYPE.PITCHSHIFT ) )
+        if ( !dsps.ContainsKey( DSP_TYPE.PITCHSHIFT ) )
             return;
 
         float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f    / GameSetting.CurrentPitch :
                        GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.1f  / GameSetting.CurrentPitch : 1f;
 
-        ErrorCheck( dsps[FMOD.DSP_TYPE.PITCHSHIFT].setParameterFloat( ( int )FMOD.DSP_PITCHSHIFT.PITCH, offset ) );
+        ErrorCheck( dsps[DSP_TYPE.PITCHSHIFT].setParameterFloat( ( int )DSP_PITCHSHIFT.PITCH, offset ) );
     }
     #endregion
 
     #endregion
-    private bool ErrorCheck( FMOD.RESULT _result )
+    private bool ErrorCheck( RESULT _result )
     {
 #if UNITY_EDITOR
-        if ( FMOD.RESULT.OK != _result )
+        if ( RESULT.OK != _result )
         {
             Debug.LogError( FMOD.Error.String( _result ) );
             return false;

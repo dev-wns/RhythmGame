@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum KeyState { None, Down, Hold, Up, }
 public class KeyAction
 {
     private Dictionary<KeyCode, Dictionary<KeyState, Action>> keyActions = new Dictionary<KeyCode, Dictionary<KeyState, Action>>();

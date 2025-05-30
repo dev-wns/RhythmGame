@@ -8,29 +8,26 @@ public enum NoteType { None, Default, Slider }
 
 public class InputSystem : MonoBehaviour
 {
-    #region Variables
     #region Objects
-    private Lane lane;
-    private InGame scene;
+    private Lane      lane;
+    private InGame    scene;
     private Judgement judge;
     #endregion
 
     #region Note
-    private ObjectPool<NoteRenderer> notePool;
     public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */, noteMedian;
-    private List<Note> noteDatas = new List<Note>();
-    private int noteSpawnIndex;
-    private double endNoteTime;
+    private ObjectPool<NoteRenderer> notePool;
+    private Queue<NoteRenderer>      notes            = new Queue<NoteRenderer>();
+    private Queue<NoteRenderer>      sliderMissQueue  = new Queue<NoteRenderer>();
+    private Queue<NoteRenderer>      sliderEarlyQueue = new Queue<NoteRenderer>();
+
+    private List<Note>   noteDatas = new List<Note>();
+    private NoteRenderer curNote;
+    private Note         curData;
+    private int          noteIndex;
     #endregion
 
-    private Queue<NoteRenderer> notes            = new Queue<NoteRenderer>();
-    private Queue<NoteRenderer> sliderMissQueue  = new Queue<NoteRenderer>();
-    private Queue<NoteRenderer> sliderEarlyQueue = new Queue<NoteRenderer>();
-
-    private Note curData;
-    private NoteRenderer curNote;
-
-    public event Action<NoteType, KeyState>  OnHitNote;
+    public event Action<NoteType, KeyState> OnHitNote;
     public event Action<KeyState> OnInputEvent;
     public event Action OnStopEffect;
 
@@ -46,16 +43,15 @@ public class InputSystem : MonoBehaviour
     #region Auto
     private double target;
     #endregion
-    #endregion
 
     #region Unity Event Function
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnGameStart += StartProcess;
-        scene.OnGameOver += GameOver;
-        scene.OnReLoad += ReLoad;
-        scene.OnPause += Pause;
+        scene.OnGameStart += GameStart;
+        scene.OnGameOver  += GameOver;
+        scene.OnReLoad    += ReLoad;
+        scene.OnPause     += Pause;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
 
@@ -63,13 +59,27 @@ public class InputSystem : MonoBehaviour
         lane.OnLaneInitialize += Initialize;
 
         isAuto = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );
-
-        NowPlaying.OnSpawnObjects += SpawnNotes;
     }
 
     private void Start()
     {
         target = UnityEngine.Random.Range( -( float )Judgement.Bad, ( float )Judgement.Bad );
+    }
+
+    private void Update()
+    {
+        if ( !NowPlaying.IsStart )
+             return;
+
+        while ( noteIndex < noteDatas.Count && curData.noteDistance <= NowPlaying.Distance + GameSetting.MinDistance )
+        {
+            NoteRenderer note = notePool.Spawn();
+            note.SetInfo( lane.Key, in curData );
+            notes.Enqueue( note );
+
+            if ( ++noteIndex < noteDatas.Count )
+                 curData = noteDatas[noteIndex];
+        }
     }
 
     private void LateUpdate()
@@ -108,7 +118,6 @@ public class InputSystem : MonoBehaviour
     private void OnDestroy()
     {
         StopAllCoroutines();
-        NowPlaying.OnSpawnObjects -= SpawnNotes;
     }
     #endregion
 
@@ -118,19 +127,19 @@ public class InputSystem : MonoBehaviour
         key = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.KeyCount][_key];
 
         NoteRenderer note = note1;
-        if ( NowPlaying.KeyCount == 4 ) note = _key == 1 || _key == 2 ? note2 : note1;
+        if (      NowPlaying.KeyCount == 4 ) note = _key == 1 || _key == 2 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 6 ) note = _key == 1 || _key == 4 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 7 ) note = _key == 1 || _key == 5 ? note2 : _key == 3 ? noteMedian : note1;
         notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
 
         if ( noteDatas.Count > 0 )
         {
-            curData = noteDatas[noteSpawnIndex];
-            curSound = noteDatas[noteSpawnIndex].keySound;
+            curData = noteDatas[noteIndex];
+            curSound = noteDatas[noteIndex].keySound;
         }
     }
 
-    private void StartProcess()
+    private void GameStart()
     {
         StartCoroutine( SliderMissCheck() );
         StartCoroutine( SliderEarlyCheck() );
@@ -161,14 +170,13 @@ public class InputSystem : MonoBehaviour
         notePool.AllDespawn();
 
         GameManager.Inst.Clear();
-        noteSpawnIndex = 0;
+        noteIndex = 0;
         curNote = null;
         curSound = new KeySound();
     }
 
     public void AddNote( in Note _note )
     {
-        endNoteTime = endNoteTime < _note.time ? _note.time : endNoteTime;
         noteDatas.Add( _note );
     }
 
@@ -203,19 +211,6 @@ public class InputSystem : MonoBehaviour
     #endregion
 
     #region Note Process
-
-    private void SpawnNotes( double _distance )
-    {
-        while ( noteSpawnIndex < noteDatas.Count && curData.noteDistance <= _distance + GameSetting.MinDistance )
-        {
-            NoteRenderer note = notePool.Spawn();
-            note.SetInfo( lane.Key, in curData );
-            notes.Enqueue( note );
-
-            if ( ++noteSpawnIndex < noteDatas.Count )
-                curData = noteDatas[noteSpawnIndex];
-        }
-    }
 
     private IEnumerator SliderEarlyCheck()
     {
