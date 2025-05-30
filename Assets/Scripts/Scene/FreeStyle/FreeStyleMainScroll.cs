@@ -34,7 +34,7 @@ public class FreeStyleMainScroll : ScrollBase
     private bool isEnd;
     private readonly float ScrollUpdateTime = .075f;
     private readonly float KeyHoldWaitTime  = .5f;
-    private readonly uint  FadeDuration     = 1500; // ms
+    private readonly uint  FadeDuration     = 2500; // ms
     private float fadeStartPos;
     private float keyPressTime;
     private bool  isKeyDown;
@@ -127,7 +127,7 @@ public class FreeStyleMainScroll : ScrollBase
                 playback = curSong.previewTime;
                 OnSoundRestart?.Invoke( curSong );
                 isEnd = false;
-            } );
+            }, .5f );
         }
     }
 
@@ -138,7 +138,6 @@ public class FreeStyleMainScroll : ScrollBase
         if ( isEnd && !ReferenceEquals( corVolumeFade, null ) )
         {
             AudioManager.Inst.StopCoroutine( corVolumeFade );
-            AudioManager.Inst.Release( curMusic );
             corVolumeFade = null;
         }
         corVolumeFade = AudioManager.Inst.FadeVolume( curMusic, curSong.volume * .01f, 0f, .5f, () => AudioManager.Inst.Release( curMusic ) );
@@ -385,15 +384,15 @@ public class FreeStyleMainScroll : ScrollBase
     {
         CurrentScene.Bind( ActionType.Main, KeyCode.Return, SelectChart );
 
-        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.UpArrow, ScrollDown );
-        CurrentScene.Bind( ActionType.Main, InputType.Down, KeyCode.DownArrow, ScrollUp );
+        CurrentScene.Bind( ActionType.Main, KeyState.Down, KeyCode.UpArrow, ScrollDown );
+        CurrentScene.Bind( ActionType.Main, KeyState.Down, KeyCode.DownArrow, ScrollUp );
 
         // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
-        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.UpArrow, () => KeyHold( ScrollDown ) );
-        CurrentScene.Bind( ActionType.Main, InputType.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
+        CurrentScene.Bind( ActionType.Main, KeyState.Hold, KeyCode.UpArrow, () => KeyHold( ScrollDown ) );
+        CurrentScene.Bind( ActionType.Main, KeyState.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
 
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
-        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.UpArrow, KeyUp );
-        CurrentScene.Bind( ActionType.Main, InputType.Up, KeyCode.DownArrow, KeyUp );
+        CurrentScene.Bind( ActionType.Main, KeyState.Up, KeyCode.UpArrow, KeyUp );
+        CurrentScene.Bind( ActionType.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
     }
 }

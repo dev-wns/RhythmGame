@@ -216,9 +216,9 @@ public class AudioManager : Singleton<AudioManager>
         SetVolume( .8f, ChannelType.Clap );
         #endregion
 
-        await Task.Run( SystemUpdate );
         Debug.Log( $"AudioManager Initialization {timer.End} ms" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
+        await Task.Run( SystemUpdate );
     }
 
     private void PrintSystemSetting()
@@ -502,12 +502,12 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-    public Coroutine FadeVolume( Music _music, float _start, float _end, float _t, Action _OnCompleted = null )
+    public Coroutine FadeVolume( Music _music, float _start, float _end, float _t, Action _OnCompleted = null, float _OnCompletedDelay = 0f )
     {
-        return StartCoroutine( Fade( _music.channel, _start, _end, _t, _OnCompleted ) );
+        return StartCoroutine( Fade( _music.channel, _start, _end, _t, _OnCompleted, _OnCompletedDelay ) );
     }
 
-    public IEnumerator Fade( Channel _channel, float _start, float _end, float _t, Action _OnCompleted )
+    public IEnumerator Fade( Channel _channel, float _start, float _end, float _t, Action _OnCompleted, float _OnCompletedDelay )
     {
         // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
         // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
@@ -515,7 +515,7 @@ public class AudioManager : Singleton<AudioManager>
         if ( !isPlaying )
              yield break;
 
-        // 같은 값일 때 계산 없이 종료.
+        // 같은 값일 때 계산 없이 종료
         if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
         {
             ErrorCheck( _channel.setVolume( _end ) );
@@ -535,6 +535,8 @@ public class AudioManager : Singleton<AudioManager>
 
         // 페이드 인 기준으로 반복문이 끝난 시점에서 볼륨이 _end 값을 넘어가기 때문에 초기화해준다.
         ErrorCheck( _channel.setVolume( _end ) );
+
+        yield return YieldCache.WaitForSeconds( _OnCompletedDelay );
         _OnCompleted?.Invoke();
     }
 

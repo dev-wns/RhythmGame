@@ -30,8 +30,8 @@ public class InputSystem : MonoBehaviour
     private Note curData;
     private NoteRenderer curNote;
 
-    public event Action<NoteType, InputType>  OnHitNote;
-    public event Action<InputType> OnInputEvent;
+    public event Action<NoteType, KeyState>  OnHitNote;
+    public event Action<KeyState> OnInputEvent;
     public event Action OnStopEffect;
 
     private KeyCode key;
@@ -93,14 +93,14 @@ public class InputSystem : MonoBehaviour
             // Input Effect
             if ( Input.GetKeyDown( key ) )
             {
-                OnInputEvent?.Invoke( InputType.Down );
+                OnInputEvent?.Invoke( KeyState.Down );
                 AudioManager.Inst.Play( curSound );
                 //if ( GameSetting.UseClapSound )
                 //     AudioManager.Inst.Play( SFX.Clap );
             }
             else if ( Input.GetKeyUp( key ) )
             {
-                OnInputEvent?.Invoke( InputType.Up );
+                OnInputEvent?.Invoke( KeyState.Up );
             }
         }
     }
@@ -273,10 +273,10 @@ public class InputSystem : MonoBehaviour
             {
                 target = UnityEngine.Random.Range( -( float )Judgement.Bad, ( float )Judgement.Bad );
 
-                OnInputEvent?.Invoke( InputType.Down );
-                OnInputEvent?.Invoke( InputType.Up );
+                OnInputEvent?.Invoke( KeyState.Down );
+                OnInputEvent?.Invoke( KeyState.Up );
 
-                OnHitNote?.Invoke( NoteType.Default, InputType.Down );
+                OnHitNote?.Invoke( NoteType.Default, KeyState.Down );
                 judge.ResultUpdate( GameSetting.IsAutoRandom ? target : 0d, NoteType.Default );
                 AudioManager.Inst.Play( curSound );
                 //if ( GameSetting.UseClapSound )
@@ -290,10 +290,10 @@ public class InputSystem : MonoBehaviour
             {
                 if ( startDiff < 0d )
                 {
-                    OnInputEvent?.Invoke( InputType.Down );
+                    OnInputEvent?.Invoke( KeyState.Down );
 
                     curNote.IsKeyDown = true;
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
+                    OnHitNote?.Invoke( NoteType.Slider, KeyState.Down );
                     AudioManager.Inst.Play( curSound );
                     //if ( GameSetting.UseClapSound )
                     //    AudioManager.Inst.Play( SFX.Clap );
@@ -307,9 +307,9 @@ public class InputSystem : MonoBehaviour
             {
                 if ( endDiff < 0d )
                 {
-                    OnInputEvent?.Invoke( InputType.Up );
+                    OnInputEvent?.Invoke( KeyState.Up );
 
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+                    OnHitNote?.Invoke( NoteType.Slider, KeyState.Up );
                     judge.ResultUpdate( 0d, NoteType.Slider );
                     SelectNextNote();
                 }
@@ -335,7 +335,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( Input.GetKeyDown( key ) && judge.CanBeHit( startDiff ) )
             {
-                OnHitNote?.Invoke( NoteType.Default, InputType.Down );
+                OnHitNote?.Invoke( NoteType.Default, KeyState.Down );
                 judge.ResultUpdate( startDiff, NoteType.Default );
                 SelectNextNote();
                 return;
@@ -355,7 +355,7 @@ public class InputSystem : MonoBehaviour
                 {
                     curNote.IsKeyDown = true;
 
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Down );
+                    OnHitNote?.Invoke( NoteType.Slider, KeyState.Down );
                     judge.ResultUpdate( startDiff, NoteType.Default );
 
                     inputStartTime = NowPlaying.Playback;
@@ -375,7 +375,7 @@ public class InputSystem : MonoBehaviour
                 if ( endDiff < 0d )
                 {
                     judge.ResultUpdate( 0d, NoteType.Slider );
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+                    OnHitNote?.Invoke( NoteType.Slider, KeyState.Up );
                     SelectNextNote();
                     return;
                 }
@@ -389,7 +389,7 @@ public class InputSystem : MonoBehaviour
 
                 if ( Input.GetKeyUp( key ) )
                 {
-                    OnHitNote?.Invoke( NoteType.Slider, InputType.Up );
+                    OnHitNote?.Invoke( NoteType.Slider, KeyState.Up );
                     if ( judge.CanBeHit( endDiff ) )
                     {
                         judge.ResultUpdate( endDiff, NoteType.Slider );

@@ -22,11 +22,10 @@ public class FreqSpark : MonoBehaviour
     [Range(0f, 100f)] public float posOffset;
 
     [Header("Frequency")]
-    private float[] bandBuffer;
+    private float[] buffer;
     private int     freqCount;
-
-    public float dropAmount = 1f;
-    [Range(1f, 2f)] public float sclOffset;
+    [Range(1f, 2f)]   public float sclOffset;
+    [Range(1f, 100f)] public float dropAmount = 1f;
 
     [Header( "Normalize" )]
     public bool isNormalized;
@@ -40,7 +39,7 @@ public class FreqSpark : MonoBehaviour
         freqBand.OnUpdateBand += UpdateLineRenderer;
         freqCount = freqBand.freqCount;
 
-        bandBuffer = new float[freqCount];
+        buffer = new float[freqCount];
         maxCount = freqCount * 4;
 
         rdr = GetComponent<LineRenderer>();
@@ -65,18 +64,18 @@ public class FreqSpark : MonoBehaviour
 
     //private void OnEnable()
     //{
-    //        DOTween.To( () => 0f, ( float _alpha ) =>
+    //    DOTween.To( () => 0f, ( float _alpha ) =>
+    //        {
+    //            var keys = gradient.alphaKeys;
+    //            for ( int i = 0; i < keys.Length; i++ )
     //            {
-    //                var keys = gradient.alphaKeys;
-    //                for ( int i = 0; i < keys.Length; i++ )
-    //                {
-    //                    keys[i].alpha = gradientAlphaKeys[i].alpha * _alpha;
-    //                }
+    //                keys[i].alpha = gradientAlphaKeys[i].alpha * _alpha;
+    //            }
 
-    //                gradient.alphaKeys = keys;
-    //                rdr.colorGradient  = gradient;
+    //            gradient.alphaKeys = keys;
+    //            rdr.colorGradient = gradient;
 
-    //            }, 1f, Global.Const.OptionFadeDuration );
+    //        }, 1f, Global.Const.OptionFadeDuration );
     //}
 
     //private void OnDisable()
@@ -90,7 +89,7 @@ public class FreqSpark : MonoBehaviour
     //        }
 
     //        gradient.alphaKeys = keys;
-    //        rdr.colorGradient  = gradient;
+    //        rdr.colorGradient = gradient;
 
     //    }, 0f, Global.Const.OptionFadeDuration );
     //}
@@ -100,7 +99,7 @@ public class FreqSpark : MonoBehaviour
         for ( int i = 0; i < freqCount; i++ )
         {
             int index = isReverse ? freqCount - i - 1 : i;
-            float value = Global.Math.Clamp( _values[i] - Global.Math.Lerp(0f, freqBand.Average, sclOffset ), 0f, maxHeight );
+            float value = Global.Math.Clamp( _values[i] - Global.Math.Lerp( 0f, freqBand.Average, sclOffset ), 0f, maxHeight );
 
             if ( isNormalized )
             {
@@ -115,25 +114,21 @@ public class FreqSpark : MonoBehaviour
                 value = Global.Math.Clamp( sumValue / ( end - start + 1 ), 0f, maxHeight );
             }
 
-            //bandBuffer[i] -= Global.Math.Lerp( 0f, 1f, Global.Math.Abs( bandBuffer[i] - value ) ) * dropAmount * Time.deltaTime;
-            bandBuffer[i] -= ( bandBuffer[i] * dropAmount ) * Time.deltaTime;
-            if ( bandBuffer[i] < value )
-                 bandBuffer[i] = value;
+            // 최소 감소량 + 데이터의 크기 차이에 따른 감소량
+            buffer[i] -= ( 30f * Time.deltaTime ) + ( Global.Math.Abs( buffer[i] - value ) * dropAmount * Time.deltaTime );
+            buffer[i] = buffer[i] < value ? value : buffer[i];
 
-            //bandBuffer[i] = bandBuffer[i] < value ? value : bandBuffer[i];
-            //: bandBuffer[i] - ( Global.Math.Abs( bandBuffer[i] - value ) * decreasePower * Time.deltaTime);// Mathf.Lerp( bandBuffer[i], value, decreasePower * Time.deltaTime );
-            // : bandBuffer[i] - ( ( .05f + Global.Math.Abs( bandBuffer[i] - value ) ) * decreasePower * Time.deltaTime );
-
+            // UI 갱신
             int number = ( index * 2 );
-            positions[( freqCount * 2 ) - number]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) - number].x, pos.y - bandBuffer[i] )
-                                                                : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) - number].y );
-            positions[( freqCount * 2 ) - number - 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) - number - 1].x, pos.y + bandBuffer[i] )
-                                                                : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) - number - 1].y );
+            positions[( freqCount * 2 ) - number]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) - number].x, pos.y - buffer[i] )
+                                                                : new Vector3( pos.x - buffer[i], positions[( freqCount * 2 ) - number].y );
+            positions[( freqCount * 2 ) - number - 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) - number - 1].x, pos.y + buffer[i] )
+                                                                : new Vector3( pos.x + buffer[i], positions[( freqCount * 2 ) - number - 1].y );
 
-            positions[( freqCount * 2 ) + number]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) + number].x, pos.y - bandBuffer[i] )
-                                                                : new Vector3( pos.x - bandBuffer[i], positions[( freqCount * 2 ) + number].y );
-            positions[( freqCount * 2 ) + number + 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) + number + 1].x, pos.y + bandBuffer[i] )
-                                                                : new Vector3( pos.x + bandBuffer[i], positions[( freqCount * 2 ) + number + 1].y );
+            positions[( freqCount * 2 ) + number]     = isAxisX ? new Vector3( positions[( freqCount * 2 ) + number].x, pos.y - buffer[i] )
+                                                                : new Vector3( pos.x - buffer[i], positions[( freqCount * 2 ) + number].y );
+            positions[( freqCount * 2 ) + number + 1] = isAxisX ? new Vector3( positions[( freqCount * 2 ) + number + 1].x, pos.y + buffer[i] )
+                                                                : new Vector3( pos.x + buffer[i], positions[( freqCount * 2 ) + number + 1].y );
         }
 
         rdr.SetPositions( positions );

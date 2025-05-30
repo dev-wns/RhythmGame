@@ -28,16 +28,16 @@ public abstract class SceneKeyAction : MonoBehaviour
     {
         if ( keyActions.ContainsKey( _actionType ) )
         {
-            keyActions[_actionType].Bind( _keyCode, InputType.Down, _action );
+            keyActions[_actionType].Bind( _keyCode, KeyState.Down, _action );
         }
         else
         {
             KeyAction keyAction = new KeyAction();
-            keyAction.Bind( _keyCode, InputType.Down, _action );
+            keyAction.Bind( _keyCode, KeyState.Down, _action );
             keyActions.Add( _actionType, keyAction );
         }
     }
-    public void Bind( ActionType _actionType, InputType _inputType, KeyCode _keyCode, Action _action )
+    public void Bind( ActionType _actionType, KeyState _inputType, KeyCode _keyCode, Action _action )
     {
         if ( keyActions.ContainsKey( _actionType ) )
         {
@@ -54,9 +54,9 @@ public abstract class SceneKeyAction : MonoBehaviour
     {
         if ( !keyActions.ContainsKey( _actionType ) ) return;
 
-        keyActions[_actionType].Remove( _keyCode, InputType.Down, _action );
+        keyActions[_actionType].Remove( _keyCode, KeyState.Down, _action );
     }
-    public void Remove( ActionType _actionType, InputType _keyType, KeyCode _keyCode, Action _action )
+    public void Remove( ActionType _actionType, KeyState _keyType, KeyCode _keyCode, Action _action )
     {
         if ( !keyActions.ContainsKey( _actionType ) ) return;
 

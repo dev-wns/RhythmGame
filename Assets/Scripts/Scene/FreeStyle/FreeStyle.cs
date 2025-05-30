@@ -17,6 +17,8 @@ public class FreeStyle : Scene
     {
         base.Awake();
 
+        var key = KeyManager.Inst;
+
         if ( !Network.Inst.IsConnected )
             Network.Inst.Connect( "127.0.0.1" );
 
@@ -75,13 +77,13 @@ public class FreeStyle : Scene
     public override void KeyBind()
     {
         // Main
-        Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Main, InputType.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
+        Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
+        Bind( ActionType.Main, KeyState.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
 
-        Bind( ActionType.Main, InputType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Main, InputType.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
+        Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
+        Bind( ActionType.Main, KeyState.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // GameSetting
         Bind( ActionType.Main, KeyCode.Space, () => { EnableCanvas( ActionType.GameOption, gameSetting ); } );

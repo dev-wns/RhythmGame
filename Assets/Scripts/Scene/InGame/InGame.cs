@@ -214,13 +214,13 @@ public class InGame : Scene
     {
         // Main
         // Scroll Speed Down
-        Bind( ActionType.Main, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Main, InputType.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
+        Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
+        Bind( ActionType.Main, KeyState.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
         // Scroll Speed Up                               
-        Bind( ActionType.Main, InputType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( ActionType.Main, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Main, InputType.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
+        Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
+        Bind( ActionType.Main, KeyState.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // Pause
         Bind( ActionType.Main, KeyCode.Escape, () => { Pause( true ); } );
@@ -228,20 +228,20 @@ public class InGame : Scene
         Bind( ActionType.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
         Bind( ActionType.Pause, KeyCode.UpArrow, () => { MoveToPrevOption( pause ); } );
         // Scroll Speed Down
-        Bind( ActionType.Pause, InputType.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( ActionType.Pause, InputType.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Pause, InputType.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Pause, KeyState.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
+        Bind( ActionType.Pause, KeyState.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
+        Bind( ActionType.Pause, KeyState.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
         // Scroll Speed Up
-        Bind( ActionType.Pause, InputType.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( ActionType.Pause, InputType.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Pause, InputType.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Pause, KeyState.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
+        Bind( ActionType.Pause, KeyState.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
+        Bind( ActionType.Pause, KeyState.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // GameOver
         Bind( ActionType.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );
         Bind( ActionType.GameOver, KeyCode.UpArrow, () => { MoveToPrevOption( gameOver ); } );
 
         // Etc.
-        Bind( ActionType.Main, InputType.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
-        Bind( ActionType.Main, InputType.Down, KeyCode.F2, () => GameSetting.UseClapSound = !GameSetting.UseClapSound );
+        Bind( ActionType.Main, KeyState.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
+        Bind( ActionType.Main, KeyState.Down, KeyCode.F2, () => GameSetting.UseClapSound = !GameSetting.UseClapSound );
     }
 }

@@ -17,7 +17,7 @@ public class HitEffectSystem : MonoBehaviour
     private SpriteRenderer rdr;
     private int curIndex = 0;
     private bool isPlay;
-    private InputType inputType;
+    private KeyState inputType;
 
     protected void Awake()
     {
@@ -54,9 +54,9 @@ public class HitEffectSystem : MonoBehaviour
         transform.localScale = new Vector2( size, size );
     }
 
-    private void SetCurrentInput() => inputType = InputType.Up;
+    private void SetCurrentInput() => inputType = KeyState.Up;
 
-    private void HitEffect( NoteType _noteType, InputType _inputType )
+    private void HitEffect( NoteType _noteType, KeyState _inputType )
     {
         type = _noteType;
         inputType = _inputType;
@@ -73,7 +73,7 @@ public class HitEffectSystem : MonoBehaviour
 
             case NoteType.Slider:
             {
-                if ( inputType == InputType.Down )
+                if ( inputType == KeyState.Down )
                 {
                     Play();
                     curIndex = 0;
@@ -115,7 +115,7 @@ public class HitEffectSystem : MonoBehaviour
                     }
                     else
                     {
-                        if ( inputType == InputType.Up )
+                        if ( inputType == KeyState.Up )
                             Stop();
                         else
                         {

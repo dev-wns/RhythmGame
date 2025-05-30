@@ -31,15 +31,15 @@ public class Lane : MonoBehaviour
         offset = StartAlpha / Duration;
     }
 
-    private void LaneEffect( InputType _type )
+    private void LaneEffect( KeyState _type )
     {
-        if ( _type == InputType.Down )
+        if ( _type == KeyState.Down )
         {
             ShouldPlayLaneEffect = false;
             laneEffect.color = color;
             alpha = StartAlpha;
         }
-        else if ( _type == InputType.Up )
+        else if ( _type == KeyState.Up )
         {
             ShouldPlayLaneEffect = true;
         }
