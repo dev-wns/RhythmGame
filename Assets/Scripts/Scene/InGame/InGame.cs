@@ -93,23 +93,9 @@ public class InGame : Scene
         }
     }
 
-    public IEnumerator GameEnd()
-    {
-        IsEnd = true;
-
-        if ( NowPlaying.CurrentSong.isOnlyKeySound )
-            yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
-
-        AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
-        yield return YieldCache.WaitForSeconds( 3f );
-
-        Stop();
-        OnResult?.Invoke();
-        LoadScene( SceneType.Result );
-    }
-
     private IEnumerator Play()
     {
+        // GameStart
         WaitUntil waitLoadDatas = new WaitUntil( () => NowPlaying.IsLoadKeySound && NowPlaying.IsLoadBGA );
         yield return waitLoadDatas;
 
@@ -130,17 +116,25 @@ public class InGame : Scene
             loadingCanvas.SetActive( false );
         }
 
-        //if ( !GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) &&
-        //     scoreMeterCanvas.TryGetComponent( out CanvasGroup scoreMeterGroup ) )
-        //{
-        //    scoreMeterCanvas.SetActive( true );
-        //    DOTween.To( () => 0f, x => scoreMeterGroup.alpha = x, 1f, Global.Const.OptionFadeDuration );
-        //}
-
         OnGameStart?.Invoke();
         IsGameInputLock = false;
         IsInputLock     = false;
         NowPlaying.Inst.Play();
+
+        // GameEnd
+        yield return new WaitUntil( () => NowPlaying.TotalNotes <= GameManager.ResultCount );
+        Debug.Log( $"All lanes are empty ( {GameManager.ResultCount} Judgements )" );
+
+        IsEnd = true;
+        if ( NowPlaying.CurrentSong.isOnlyKeySound )
+             yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
+
+        AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
+        yield return YieldCache.WaitForSeconds( 3f );
+
+        Stop();
+        OnResult?.Invoke();
+        LoadScene( SceneType.Result );
     }
 
     public void BackToLobby()

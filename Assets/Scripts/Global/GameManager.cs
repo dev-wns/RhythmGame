@@ -36,6 +36,7 @@ public struct ResultData
     public int good;
     public int bad;
     public int miss;
+
     public int fast;
     public int slow;
     public int accuracy;
@@ -44,6 +45,8 @@ public struct ResultData
 
     public int random;
     public int pitch;
+
+    public int Count => maximum + perfect + great + good + bad + miss;
 
     public ResultData( int _random, int _pitch )
     {
@@ -68,6 +71,14 @@ public class GameManager : Singleton<GameManager>
     private static RecordData recordData = new RecordData();
     public  static ResultData CurrentResult => resultData;
     private static ResultData resultData = new ResultData();
+
+    public static int ResultCount => CurrentResult.Count;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        var key = KeySetting.Inst;
+    }
 
     public bool UpdateRecord()
     {
@@ -104,6 +115,7 @@ public class GameManager : Singleton<GameManager>
             case HitResult.Good:     resultData.good    += _value; break;
             case HitResult.Bad:      resultData.bad     += _value; break;
             case HitResult.Miss:     resultData.miss    += _value; break;
+
             case HitResult.Fast:     resultData.fast    += _value; break;
             case HitResult.Slow:     resultData.slow    += _value; break;
             case HitResult.Accuracy: resultData.accuracy = _value; break;

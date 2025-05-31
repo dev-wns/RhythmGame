@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8 };
+public enum KeyState { None, Down, Hold, Up, }
 public class KeySetting : Singleton<KeySetting>
 {
     // 사용자가 설정한 게임에서 사용되는 키
@@ -15,16 +16,7 @@ public class KeySetting : Singleton<KeySetting>
     private static readonly Dictionary<int/* Virtual Key */, KeyCode>        vKeyToUnity   = new ();
     private static readonly Dictionary<KeyCode, int/* Virtual Key */>        unityToVKey   = new ();
     private static readonly Dictionary<KeyCode, string/*keyCode to string*/> unityToString = new ();
-
-    private readonly Dictionary<int, KeyState> keyStates = new();
     
-    // Thread
-    private CancellationTokenSource cancelSource = new();
-    private double startTime;
-
-    [DllImport( "user32.dll" )]
-    private static extern short GetAsyncKeyState( int _vKey );
-
     public Dictionary<KeyCode, string>.KeyCollection AvailableKeys => unityToString.Keys;
     public bool IsAvailable( KeyCode _key )      => unityToString.ContainsKey( _key );
     public KeyCode GetKeyCode( int _vKey )       => vKeyToUnity.TryGetValue( _vKey, out KeyCode keyCode ) ? keyCode : KeyCode.None;
@@ -43,18 +35,6 @@ public class KeySetting : Singleton<KeySetting>
         StringMapping();
     }
 
-    private async void Start()
-    {
-        startTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
-
-        await Task.Run( () => Process( cancelSource.Token ) );
-    }
-
-    private void OnApplicationQuit()
-    {
-        cancelSource?.Cancel();
-    }
-
     private void Initialize( GameKeyCount _key, KeyCode[] _code )
     {
         int count = ( int )_key;
@@ -70,39 +50,6 @@ public class KeySetting : Singleton<KeySetting>
         }
 
         Keys.Add( _key, _code );
-    }
-
-    private async void Process( CancellationToken _token )
-    {
-        while ( !_token.IsCancellationRequested )
-        {
-            for ( int key = 0; key < 256; key++ )
-            {
-                // 마우스 제외
-                if ( key >= 0x01 && key <= 0x06 )
-                    continue;
-
-                // 키 상태 생성
-                if ( !keyStates.ContainsKey( key ) )
-                     keyStates[key] = KeyState.None;
-
-                // 키 체크
-                KeyState previous = keyStates[key];
-                if ( ( GetAsyncKeyState( key ) & 0x8000 ) != 0 )
-                {
-                    keyStates[key] = previous == KeyState.None || previous == KeyState.Up ? KeyState.Down : KeyState.Hold;
-
-                    if ( keyStates[key] == KeyState.Down )
-                        Debug.Log( $"WinAPI [Unity : {GetKeyCode( key )}] [vKey : {key}]Down {( uint )( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime )} ms" );
-                }
-                else
-                {
-                    keyStates[key] = previous == KeyState.Down || previous == KeyState.Hold ? KeyState.Up : KeyState.None;
-                }
-            }
-
-            await Task.Delay( 1 ); // 1000Hz
-        }
     }
 
     #region Mapping
@@ -194,8 +141,6 @@ public class KeySetting : Singleton<KeySetting>
         AddMapping( 0x6D, KeyCode.KeypadMinus );
         AddMapping( 0x6E, KeyCode.KeypadPeriod );
         AddMapping( 0x6F, KeyCode.KeypadDivide );
-        
-        StringMapping();
     }
 
     private void StringMapping()

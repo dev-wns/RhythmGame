@@ -7,9 +7,9 @@ public class FreeStyle : Scene
     public GameObject gameSetting;
     public GameObject systemSetting;
     public FreeStyleKeySetting keySetting;
-    public FreeStyleReLoad     reload;
-    public FreeStyleSearch     search;
-    public FreeStyleComment    comment;
+    public FreeStyleReLoad reload;
+    public FreeStyleSearch search;
+    public FreeStyleComment comment;
 
     public TextMeshProUGUI speedText;
 
@@ -17,10 +17,8 @@ public class FreeStyle : Scene
     {
         base.Awake();
 
-        var key = KeyManager.Inst;
-
         if ( !Network.Inst.IsConnected )
-            Network.Inst.Connect( "127.0.0.1" );
+             Network.Inst.Connect( "127.0.0.1" );
 
         QualitySettings.antiAliasing = 0;
 

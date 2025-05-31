@@ -20,11 +20,21 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public static Song CurrentSong { get; private set; }
     public static Chart CurrentChart { get; private set; }
-    public static string Directory { get; private set; }
     public static int OriginKeyCount => CurrentSong.keyCount;
     public static int KeyCount => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && OriginKeyCount == 7 ? 6 : OriginKeyCount;
     public int CurrentSongIndex { get; private set; }
     public int SearchCount { get; private set; }
+    public static int TotalNotes 
+    {
+        get 
+        {
+            bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7;
+            var note   = hasKeyConversion ? CurrentSong.noteCount   - CurrentSong.delNoteCount   : CurrentSong.noteCount;
+            var slider = hasKeyConversion ? CurrentSong.sliderCount - CurrentSong.delSliderCount : CurrentSong.sliderCount;
+            return note + ( slider * 2 );
+        }
+    }
+
     private double mainBPM;
     private int timingIndex;
 
@@ -80,7 +90,7 @@ public class NowPlaying : Singleton<NowPlaying>
                     double bpm  = timings[i].bpm / mainBPM;
 
                     if ( Playback < time )
-                         break; 
+                        break;
 
                     if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
                     {
@@ -93,7 +103,6 @@ public class NowPlaying : Singleton<NowPlaying>
                     Distance = DistanceCache + ( bpm * ( Playback - time ) );
                 }
             }
-
             await Task.Delay( 1 );
         }
     }
@@ -115,7 +124,6 @@ public class NowPlaying : Singleton<NowPlaying>
             else
                 CurrentChart = chart;
         }
-
         Stop();
     }
 
@@ -326,7 +334,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
         CurrentSongIndex = _index;
         CurrentSong = Songs[_index];
-        Directory = Path.GetDirectoryName( Songs[_index].filePath );
     }
     #endregion
 

@@ -19,12 +19,6 @@ public struct JudgeResult
 
 public class Judgement : MonoBehaviour
 {
-    private InGame scene;
-    /// <summary> 전체 판정 개수 </summary>
-    public int TotalNotes { get; private set; }
-
-    private int curJudge;
-
     // 판정 범위 ( ms )
     public static double Maximum => .016d * Multiply;
     public static double Perfect => .064d * Multiply;
@@ -34,31 +28,27 @@ public class Judgement : MonoBehaviour
     public static double Miss    => .188d * Multiply;
     private static  double Multiply;
 
-
     public event Action<JudgeResult> OnJudge;
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += () => curJudge = 0;
-
         Multiply = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? .75d : 1d;
 
-        var song = NowPlaying.CurrentSong;
-        bool hasNoSlider      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
+        //var song = NowPlaying.CurrentSong;
+        //bool hasNoSlider      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        //bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
 
-        var note   = hasKeyConversion ? song.noteCount   - song.delNoteCount   : song.noteCount;
-        var slider = hasKeyConversion ? song.sliderCount - song.delSliderCount : song.sliderCount;
-        TotalNotes = note + ( slider * 2 );
+        //var note   = hasKeyConversion ? song.noteCount   - song.delNoteCount   : song.noteCount;
+        //var slider = hasKeyConversion ? song.sliderCount - song.delSliderCount : song.sliderCount;
+        //TotalNotes = note + ( slider * 2 );
     }
 
-    public bool CanBeHit( double _diff )
+    public static bool CanBeHit( double _diff )
     {
         return Global.Math.Abs( _diff ) <= Bad;
     }
 
-    public bool IsMiss( double _diff, NoteType _noteType )
+    public static bool IsMiss( double _diff )
     {
         return _diff < -Bad;
     }
@@ -86,12 +76,6 @@ public class Judgement : MonoBehaviour
         GameManager.Inst.UpdateResult( result.hitResult );
 
         OnJudge?.Invoke( result );
-
-        if ( ++curJudge >= TotalNotes )
-        {
-            StartCoroutine( scene.GameEnd() );
-            Debug.Log( $"All lanes are empty ( {curJudge} judgement )" );
-        }
     }
 
     public void ResultUpdate( HitResult _result, NoteType _type, int _count = 1 )
@@ -100,11 +84,5 @@ public class Judgement : MonoBehaviour
             OnJudge?.Invoke( new JudgeResult( _result, _type ) );
 
         GameManager.Inst.UpdateResult( _result, _count );
-
-        if ( _result != HitResult.None && ( curJudge += _count ) >= TotalNotes )
-        {
-            StartCoroutine( scene.GameEnd() );
-            Debug.Log( $"All lanes are empty ( {curJudge} judgement )" );
-        }
     }
 }
