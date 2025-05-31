@@ -66,7 +66,7 @@ public class FreeStyleKeySetting : OptionController
 
     private void Process( KeyCode _key )
     {
-        if ( KeySetting.Inst.IsAvailableKey( _key ) )
+        if ( KeySetting.Inst.IsAvailable( _key ) )
         {
             for ( int i = 0; i < KeySetting.Inst.Keys[curKeyCount].Length; i++ )
             {
@@ -84,10 +84,8 @@ public class FreeStyleKeySetting : OptionController
     protected override void Update()
     {
         base.Update();
-
-        foreach ( var key in KeySetting.Inst.AvailableKeys )
+        foreach ( var keyCode in KeySetting.Inst.AvailableKeys )
         {
-            var keyCode = key.Key;
             if ( Input.GetKeyDown( keyCode ) )
             {
                 curKeyCode = keyCode;

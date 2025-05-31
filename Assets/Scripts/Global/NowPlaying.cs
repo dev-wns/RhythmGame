@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -33,7 +34,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public static double WaitTime { get; private set; }
     public static readonly double StartWaitTime = -3d;
     public static readonly double PauseWaitTime = -2d;
-    public static float GameTime { get; private set; }
     public static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
@@ -52,24 +52,11 @@ public class NowPlaying : Singleton<NowPlaying>
     private CancellationTokenSource cancelSource = new CancellationTokenSource();
 
     #region Unity Callback
-    protected override void Awake()
+    protected override async void Awake()
     {
         base.Awake();
         Load();
-    }
-
-    private async void Start()
-    {
         await Task.Run( () => UpdateTime( cancelSource.Token ) );
-    }
-
-    private void Update()
-    {
-        GameTime += Time.deltaTime;
-        if ( !IsStart ) return;
-
-        //Debug.Log( Playback );
-        //Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime );
     }
 
     private void OnApplicationQuit()
@@ -93,7 +80,7 @@ public class NowPlaying : Singleton<NowPlaying>
                     double bpm  = timings[i].bpm / mainBPM;
 
                     if ( Playback < time )
-                         break;
+                         break; 
 
                     if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
                     {
@@ -114,7 +101,6 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Parsing
     public void Initalize()
     {
-        Clear();
         WaitTime = StartWaitTime;
         mainBPM  = CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
@@ -129,6 +115,8 @@ public class NowPlaying : Singleton<NowPlaying>
             else
                 CurrentChart = chart;
         }
+
+        Stop();
     }
 
     private void ConvertSong()
@@ -247,10 +235,9 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Play()
     {
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
-
-        startTime     = DateTime.Now.TimeOfDay.TotalMilliseconds;
-        SaveTime      = WaitTime;
-        IsStart       = true;
+        startTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
+        SaveTime       = WaitTime;
+        IsStart        = true;
     }
 
     public void Clear()
@@ -262,9 +249,15 @@ public class NowPlaying : Singleton<NowPlaying>
         DistanceCache  = 0d;
         timingIndex    = 0;
         IsStart        = false;
+    }
+
+    public void Stop()
+    {
+        Clear();
         IsLoadBGA      = false;
         IsLoadKeySound = false;
     }
+
 
     public IEnumerator GameOver()
     {

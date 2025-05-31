@@ -12,7 +12,7 @@ public class KeySettingOption : OptionButton
     {
         curKeyCode = _key;
         KeySetting.Inst.Keys[_keyCount][lane] = curKeyCode;
-        keyText.text = KeySetting.Inst.KeyCodeToString( KeySetting.Inst.Keys[_keyCount][lane] );
+        keyText.text = KeySetting.Inst.GetString( KeySetting.Inst.Keys[_keyCount][lane] );
     }
 
     public override void Process()

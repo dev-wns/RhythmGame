@@ -14,8 +14,8 @@ public struct Song
     public string filePath;
     public string imagePath;
     public string audioPath;
-    public int    audioOffset;
     public string videoPath;
+    public int    audioOffset;
     public int    videoOffset;
     public int    volume;
 

@@ -85,7 +85,7 @@ public class InGame : Scene
 
     private void Stop()
     {
-        NowPlaying.Inst.Clear();
+        NowPlaying.Inst.Stop();
         IsEnd = false;
         for ( int i = 0; i < isHitLastNotes.Length; i++ )
         {
@@ -139,7 +139,7 @@ public class InGame : Scene
 
         OnGameStart?.Invoke();
         IsGameInputLock = false;
-        IsInputLock = false;
+        IsInputLock     = false;
         NowPlaying.Inst.Play();
     }
 
