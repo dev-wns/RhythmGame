@@ -70,44 +70,44 @@ public struct Timing
 
 public struct Note
 {
-    public int lane;
-    public double time;
-    public double sliderTime;
-    public bool isSlider;
-    public double noteDistance;
-    public double sliderDistance;
+    public int      lane;
+    public double   time;
+    public double   sliderTime;
+    public double   noteDistance;
+    public double   sliderDistance;
+    public bool     isSlider;
     public KeySound keySound;
 
     public Note( int _lane, double _time, double _sliderTime, KeySound _sound )
     {
-        lane = _lane;
-        time = _time;
-        sliderTime = _sliderTime;
-        noteDistance = 0d;
+        lane           = _lane;
+        time           = _time;
+        sliderTime     = _sliderTime;
+        noteDistance   = 0d;
         sliderDistance = 0d;
-        isSlider = sliderTime > 0d ? true : false;
-        keySound = _sound;
+        isSlider       = sliderTime > 0d ? true : false;
+        keySound       = _sound;
     }
 }
 
 public struct KeySound
 {
-    public string name;
-    public float volume;
     public double time;
+    public string name;
+    public float  volume;
 
     public KeySound( double _time, string _name, float _volume )
     {
-        time = _time;
+        time   = _time;
+        name   = _name;
         volume = _volume < .1f ? 100f : _volume;
-        name = _name;
     }
 
     public KeySound( Note _note )
     {
-        name = _note.keySound.name;
+        time   = _note.time;
+        name   = _note.keySound.name;
         volume = _note.keySound.volume < .1f ? 100f : _note.keySound.volume;
-        time = _note.time;
     }
 }
 
@@ -120,10 +120,10 @@ public struct SpriteSample
 
     public SpriteSample( SpriteType _type, double _start, double _end, string _name )
     {
-        type = _type;
+        type  = _type;
         start = _start;
-        end = _end;
-        name = _name;
+        end   = _end;
+        name  = _name;
     }
 }
 

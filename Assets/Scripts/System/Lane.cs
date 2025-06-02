@@ -22,7 +22,7 @@ public class Lane : MonoBehaviour
     {
         InputSys = GetComponent<InputSystem>();
 
-        if ( ( GameSetting.CurrentVisualFlag & GameVisualFlag.LaneEffect ) != 0 )
+        if ( ( GameSetting.CurrentVisualFlag & VisualFlag.LaneEffect ) != 0 )
         {
             InputSys.OnInputEvent += LaneEffect;
             InputSys.OnStopEffect += () => ShouldPlayLaneEffect = true;
@@ -81,7 +81,7 @@ public class Lane : MonoBehaviour
     {
         transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * _key ) + ( GameSetting.NoteBlank * _key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 0f );
 
-        if ( GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) )
+        if ( GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.LaneEffect ) )
         {
             laneEffect.transform.position = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
             laneEffect.transform.localScale = new Vector3( GameSetting.NoteWidth, 250f, 1f );

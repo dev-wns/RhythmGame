@@ -38,8 +38,7 @@ public class FreeStyleMainScroll : ScrollBase
     private float fadeStartPos;
     private float keyPressTime;
     private bool  isKeyDown;
-    public  static double Playback => playback * .001d;
-    private static float  playback;
+    public  static double Playback;
     private float endTime; // End NoteTime
     private Coroutine corVolumeFade;
 
@@ -108,9 +107,9 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
+        Playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
 
-        if ( !isEnd && fadeStartPos < playback )
+        if ( !isEnd && fadeStartPos < Playback )
         {
             isEnd = true;
             if ( !ReferenceEquals( corVolumeFade, null ) )
@@ -124,7 +123,7 @@ public class FreeStyleMainScroll : ScrollBase
                 AudioManager.Inst.Play( 0f );
                 AudioManager.Inst.Position = ( uint )curSong.previewTime;
                 AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.volume * .01f, FadeDuration * .5f * .001f );
-                playback = curSong.previewTime;
+                Playback = curSong.previewTime;
                 OnSoundRestart?.Invoke( curSong );
                 isEnd = false;
             }, .5f );
@@ -149,7 +148,7 @@ public class FreeStyleMainScroll : ScrollBase
         AudioManager.Inst.Load( curSong.audioPath, false, true );
         endTime = curSong.totalTime;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
-        playback = curSong.previewTime;
+        Playback = curSong.previewTime;
 
         float diff = AudioManager.Inst.Length - endTime;
         fadeStartPos = diff > FadeDuration ? endTime : AudioManager.Inst.Length - FadeDuration;
@@ -311,7 +310,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         AudioManager.Inst.Load( curSong.audioPath, false, true );
         AudioManager.Inst.Play();
-        AudioManager.Inst.Position = ( uint )playback;
+        AudioManager.Inst.Position = ( uint )Playback;
     }
 
     private uint GetPreviewTime( int _time ) => _time > endTime || _time <= 0 ? ( uint )( endTime * .35f ) : ( uint )_time;

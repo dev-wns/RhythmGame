@@ -345,7 +345,6 @@ public class AudioManager : Singleton<AudioManager>
         while ( !_token.IsCancellationRequested )
         {
             system.update();
-
             await Task.Delay( 1 );
         }
     }

@@ -43,12 +43,12 @@ public struct ResultData
     public int combo;
     public int score;
 
-    public int random;
-    public int pitch;
+    public int   random;
+    public float pitch;
 
     public int Count => maximum + perfect + great + good + bad + miss;
 
-    public ResultData( int _random, int _pitch )
+    public ResultData( int _random, float _pitch )
     {
         random  = _random;
         pitch   = _pitch;
@@ -77,7 +77,7 @@ public class GameManager : Singleton<GameManager>
     protected override void Awake()
     {
         base.Awake();
-        var key = KeySetting.Inst;
+        KeySetting keySetting = KeySetting.Inst;
     }
 
     public bool UpdateRecord()
@@ -136,7 +136,7 @@ public class GameManager : Singleton<GameManager>
         };
 
         if ( recordData.score > newRecord.score )
-            return recordData;
+             return recordData;
 
         string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );
         try
@@ -169,7 +169,7 @@ public class GameManager : Singleton<GameManager>
 
     public void Clear()
     {
-        resultData = new ResultData( ( int )GameSetting.CurrentRandom, Mathf.RoundToInt( GameSetting.CurrentPitch * 100f ) );
+        resultData = new ResultData( ( int )GameSetting.CurrentRandom, GameSetting.CurrentPitch );
         HitDatas.Clear();
     }
 }

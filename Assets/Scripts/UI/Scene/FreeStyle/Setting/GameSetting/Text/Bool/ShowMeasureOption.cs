@@ -2,7 +2,7 @@ public class ShowMeasureOption : OptionText
 {
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.ShowMeasure ) ? 1 : 0;
+        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.ShowMeasure ) ? 1 : 0;
         ChangeText( texts[CurrentIndex] );
     }
 
@@ -16,7 +16,7 @@ public class ShowMeasureOption : OptionText
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.ShowMeasure;
-        else GameSetting.CurrentVisualFlag |= GameVisualFlag.ShowMeasure;
+        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~VisualFlag.ShowMeasure;
+        else                     GameSetting.CurrentVisualFlag |=  VisualFlag.ShowMeasure;
     }
 }

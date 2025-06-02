@@ -48,7 +48,7 @@ public class KeySampleSystem : MonoBehaviour
     {
         samples.Sort( delegate ( KeySound _A, KeySound _B )
         {
-            if ( _A.time > _B.time ) return 1;
+            if ( _A.time > _B.time )      return 1;
             else if ( _A.time < _B.time ) return -1;
             else return 0;
         } );
@@ -69,9 +69,9 @@ public class KeySampleSystem : MonoBehaviour
             // 같은 시간에 재생되는 사운드 한번에 처리
             while ( curIndex < samples.Count && samples[curIndex].time < NowPlaying.Playback )
             {
-                AudioManager.Inst.Play( samples[curIndex++] );
+                AudioManager.Inst.Play( samples[curIndex] );
 
-                if ( curIndex < samples.Count )
+                if ( ++curIndex < samples.Count )
                      UseAllSamples = true;
             }
 

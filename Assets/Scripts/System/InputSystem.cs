@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -130,7 +131,7 @@ public class InputSystem : MonoBehaviour
         StartCoroutine( SliderMissCheck() );
         StartCoroutine( SliderEarlyCheck() );
 
-        await Task.Run( () => Process( cancelSource.Token ) );
+        //await Task.Run( () => Process( cancelSource.Token ) );
     }
 
     private IEnumerator SpawnNotes()
@@ -257,7 +258,6 @@ public class InputSystem : MonoBehaviour
         KeyState keyState = KeyState.None;
         bool isEntry = false; // 하나의 입력으로 하나의 노트만 처리하기위한 노트 진입점
         Debug.Log( " Input Process Start " );
-
         try
         {
             while ( !_token.IsCancellationRequested )
@@ -271,7 +271,7 @@ public class InputSystem : MonoBehaviour
                 if ( !isEntry && Judgement.IsMiss( startDiff ) )
                 {
                     isEntry = false;
-                    index   = ++index;
+                    index = ++index;
                     inputQueue.Enqueue( new InputData( NowPlaying.Playback, startDiff, KeyState.None, NoteState.Miss ) );
 
                     continue;
@@ -289,38 +289,34 @@ public class InputSystem : MonoBehaviour
                         {
                             // 일반노트는 끝판정 처리를 무시한다.
                             isEntry = noteDatas[index].isSlider;
-                            index   = noteDatas[index].isSlider ? index : ++index;
+                            index = noteDatas[index].isSlider ? index : ++index;
 
                             inputQueue.Enqueue( new InputData( NowPlaying.Playback, startDiff, KeyState.Down, NoteState.Hit ) );
                         }
+                    }
+
+                    if ( isEntry && keyState == KeyState.Hold && endDiff < 0d )
+                    {
+                        isEntry = false;
+                        index = ++index;
+                        inputQueue.Enqueue( new InputData( NowPlaying.Playback, 0d, KeyState.None, NoteState.Hit ) );
                     }
                 }
                 else
                 {
                     keyState = previous == KeyState.Down || previous == KeyState.Hold ? KeyState.Up : KeyState.None;
 
-                    // 롱노트 끝 점에 도달하면 퍼펙트 판정
-                    if ( isEntry && previous == KeyState.Hold && endDiff < 0d )
-                    {
-                        isEntry = false;
-                        index   = ++index;
-                        inputQueue.Enqueue( new InputData( NowPlaying.Playback, 0d, KeyState.None, NoteState.Hit ) );
-
-                        continue;
-                    }
-
                     if ( isEntry && keyState == KeyState.Up )
                     {
                         isEntry = false;
-                        index   = ++index;
+                        index = ++index;
                         inputQueue.Enqueue( new InputData( NowPlaying.Playback, endDiff, KeyState.Up,
                                                            Judgement.CanBeHit( endDiff ) ? NoteState.Hit : NoteState.Miss ) );
                     }
-
                 }
             }
 
-            await Task.Delay( 1 ); // 1000Hz
+            await Task.Delay( 1 );
         }
         catch( Exception _ex )
         {

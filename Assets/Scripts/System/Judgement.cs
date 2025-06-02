@@ -20,12 +20,12 @@ public struct JudgeResult
 public class Judgement : MonoBehaviour
 {
     // 판정 범위 ( ms )
-    public static double Maximum => .016d * Multiply;
-    public static double Perfect => .064d * Multiply;
-    public static double Great   => .097d * Multiply;
-    public static double Good    => .127d * Multiply;
-    public static double Bad     => .151d * Multiply;
-    public static double Miss    => .188d * Multiply;
+    public static double Maximum => 16d  * Multiply;
+    public static double Perfect => 64d  * Multiply;
+    public static double Great   => 97d  * Multiply;
+    public static double Good    => 127d * Multiply;
+    public static double Bad     => 151d * Multiply;
+    public static double Miss    => 188d * Multiply;
     private static  double Multiply;
 
     public event Action<JudgeResult> OnJudge;
@@ -33,14 +33,6 @@ public class Judgement : MonoBehaviour
     private void Awake()
     {
         Multiply = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? .75d : 1d;
-
-        //var song = NowPlaying.CurrentSong;
-        //bool hasNoSlider      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        //bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
-
-        //var note   = hasKeyConversion ? song.noteCount   - song.delNoteCount   : song.noteCount;
-        //var slider = hasKeyConversion ? song.sliderCount - song.delSliderCount : song.sliderCount;
-        //TotalNotes = note + ( slider * 2 );
     }
 
     public static bool CanBeHit( double _diff )
@@ -60,11 +52,12 @@ public class Judgement : MonoBehaviour
         result.diff = _diff;
 
         double diffAbs = result.diffAbs = Math.Abs( _diff );
-        result.hitResult = diffAbs <= Maximum ? HitResult.Maximum :
+        result.hitResult =                      diffAbs <= Maximum ? HitResult.Maximum :
                            diffAbs > Maximum && diffAbs <= Perfect ? HitResult.Perfect :
-                           diffAbs > Perfect && diffAbs <= Great   ? HitResult.Great :
-                           diffAbs > Great   && diffAbs <= Good    ? HitResult.Good :
-                           diffAbs > Good    && diffAbs <= Bad     ? HitResult.Bad :
+                           diffAbs > Perfect && diffAbs <= Great   ? HitResult.Great   :
+                           diffAbs > Great   && diffAbs <= Good    ? HitResult.Good    :
+                           diffAbs > Good    && diffAbs <= Bad     ? HitResult.Bad     :
+                           diffAbs > Bad     && diffAbs <= Miss    ? HitResult.Miss    :
                                                                      HitResult.None;
 
         if ( diffAbs > Perfect && diffAbs <= Bad )

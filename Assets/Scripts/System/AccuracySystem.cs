@@ -7,9 +7,6 @@ public class AccuracySystem : MonoBehaviour
     private InGame scene;
     private Judgement judge;
 
-    //private int curMaxCount;
-    //private double curAccuracy;
-
     public TextMeshProUGUI text;
 
     // Judge Count
@@ -20,9 +17,9 @@ public class AccuracySystem : MonoBehaviour
     private int bad;
     private int miss;
 
-    private float Total => ( 300f * ( maximum + perfect ) ) + ( 200f * great ) + ( 100f * good ) + ( 50f * bad );
-    private float Max => 300f * ( maximum + perfect + great + good + bad + miss );
-    public float Accuracy => ( Total / Max ) * 100f;
+    private float Total   => ( 300f * ( maximum + perfect ) ) + ( 200f * great ) + ( 100f * good ) + ( 50f * bad );
+    private float Max     => 3f * ( maximum + perfect + great + good + bad + miss );
+    public float Accuracy => Total / Max;
 
     private void Awake()
     {
@@ -47,9 +44,6 @@ public class AccuracySystem : MonoBehaviour
         good    = 0;
         bad     = 0;
         miss    = 0;
-
-        //curMaxCount = 0;
-        //curAccuracy = 0d;
 
         text.text = $"100.00%";
     }

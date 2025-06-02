@@ -2,7 +2,7 @@ public class LineEffectOption : OptionText
 {
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( GameVisualFlag.LaneEffect ) ? 1 : 0;
+        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.LaneEffect ) ? 1 : 0;
         ChangeText( texts[CurrentIndex] );
     }
 
@@ -16,7 +16,7 @@ public class LineEffectOption : OptionText
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~GameVisualFlag.LaneEffect;
-        else GameSetting.CurrentVisualFlag |= GameVisualFlag.LaneEffect;
+        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~VisualFlag.LaneEffect;
+        else                     GameSetting.CurrentVisualFlag |=  VisualFlag.LaneEffect;
     }
 }

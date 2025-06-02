@@ -18,7 +18,7 @@ public class MeasureSystem : MonoBehaviour
     private void Awake()
     {
         var sceneObj = GameObject.FindGameObjectWithTag( "Scene" );
-        shouldShowMeasure = ( GameSetting.CurrentVisualFlag & GameVisualFlag.ShowMeasure ) != 0;
+        shouldShowMeasure = ( GameSetting.CurrentVisualFlag & VisualFlag.ShowMeasure ) != 0;
         if ( sceneObj.TryGetComponent( out scene ) )
         {
             if ( shouldShowMeasure )
@@ -62,15 +62,16 @@ public class MeasureSystem : MonoBehaviour
         Timer timer = new Timer();
         var timings   = _chart.timings;
         var totalTime = NowPlaying.CurrentSong.totalTime;
-
+        double startNoteTime = _chart.notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
             if ( timings[i].isUninherited == 0 )
-                continue;
+                 continue;
 
             double time      = timings[i].time;
             double nextTime  = 0d;
             bool hasNextTime = false;
+
             for ( int j = i + 1; j < timings.Count; j++ )
             {
                 if ( timings[j].isUninherited == 1 )

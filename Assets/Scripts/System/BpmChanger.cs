@@ -11,7 +11,7 @@ public class BpmChanger : MonoBehaviour
     [Header("BPM Changer")]
 
     [Header("Time")]
-    private const double DelayTime = 1d / 60d;
+    private const double DelayTime = ( 1d / 60d ) * 1000d;
     private Timing curTiming;
     private bool isStart;
     private double time;

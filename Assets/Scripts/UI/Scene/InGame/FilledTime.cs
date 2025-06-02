@@ -16,7 +16,7 @@ public class FilledTime : MonoBehaviour
 
     private void Initialize()
     {
-        length = NowPlaying.CurrentSong.totalTime * .001d / GameSetting.CurrentPitch;
+        length = NowPlaying.CurrentSong.totalTime / GameSetting.CurrentPitch;
     }
 
     private void Update()

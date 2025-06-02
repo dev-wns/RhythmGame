@@ -103,14 +103,11 @@ public class LaneSystem : MonoBehaviour
             Note newNote = notes[i];
             if ( hasConversion && isSevenButton )
             {
-                newNote.time       /= GameSetting.CurrentPitch;
-                newNote.sliderTime /= GameSetting.CurrentPitch;
-
                 if ( newNote.lane == 3 )
                 {
                     soundTimer.Start();
                     if ( AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
-                        keySampleSystem.AddSample( new KeySound( newNote ) );
+                         keySampleSystem.AddSample( new KeySound( newNote ) );
 
                     keySoundTime += soundTimer.End;
                     continue;

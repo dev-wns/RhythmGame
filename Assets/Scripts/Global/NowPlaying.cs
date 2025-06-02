@@ -4,22 +4,25 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
+
+#pragma warning disable CS0162
 
 public class NowPlaying : Singleton<NowPlaying>
 {
     #region Variables
     public static Scene CurrentScene;
-    private ReadOnlyCollection<Song> OriginSongs;
     public List<Song> Songs = new List<Song>();
+    private ReadOnlyCollection<Song> OriginSongs;
 
     public static Song CurrentSong { get; private set; }
     public static Chart CurrentChart { get; private set; }
+    public static ReadOnlyCollection<Timing> Timings { get; private set; }
     public static int OriginKeyCount => CurrentSong.keyCount;
     public static int KeyCount => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && OriginKeyCount == 7 ? 6 : OriginKeyCount;
     public int CurrentSongIndex { get; private set; }
@@ -35,12 +38,10 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
 
-    private double mainBPM;
-    private int timingIndex;
 
     #region Time
-    public double SaveTime { get; private set; }
     private double startTime;
+    public double  SaveTime { get; private set; }
     public static double WaitTime { get; private set; }
     public static readonly double StartWaitTime = -3000d;
     public static readonly double PauseWaitTime = -2000d;
@@ -59,6 +60,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public static bool IsLoadKeySound { get; set; }
     #endregion
 
+    private double mainBPM;
+    private int numTiming;
     private CancellationTokenSource cancelSource = new CancellationTokenSource();
 
     #region Unity Callback
@@ -77,32 +80,55 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private async void UpdateTime( CancellationToken _token )
     {
+        //Stopwatch stopwatch = Stopwatch.StartNew();
+        //long interval  = 10000000L / 8000L;
+        //long prevTick  = stopwatch.ElapsedTicks;
+        //long startTick = stopwatch.ElapsedTicks;
+        //int _8000Hz    = 0;
+        //int noLimitHz  = 0;
+
         while ( !_token.IsCancellationRequested )
         {
+            //noLimitHz++;
+            //long curTick  = stopwatch.ElapsedTicks;
+            //if ( ( curTick - prevTick ) >= interval )
+            //{
+            //    prevTick = curTick;
+            //    _8000Hz++;
+            //}
+
+            //if ( ( curTick - startTick ) >= 10000000L )
+            //{
+            //    //Debug.Log( $"NOLIMIT : {noLimitHz}" );
+            //    //Debug.Log( $"8000HZ  : {_8000Hz}" );
+            //    _8000Hz   = 0;
+            //    noLimitHz = 0;
+            //    startTick = stopwatch.ElapsedTicks;
+            //}
+
             if ( IsStart )
             {
+
                 Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime );
-
-                var timings = CurrentChart.timings;
-                for ( int i = timingIndex; i < timings.Count; i++ )
+                for ( int i = numTiming; i < Timings.Count; i++ )
                 {
-                    double time = timings[i].time;
-                    double bpm  = timings[i].bpm / mainBPM;
+                    double time = Timings[i].time;
+                    double bpm  = Timings[i].bpm / mainBPM;
 
-                    // 첫번째 타이밍은 무조건 계산을 진행한다. ( 음악 시작 전 대기시간 포함 )
                     // 지나간 타이밍에 대한 거리
-                    if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
+                    if ( i + 1 < Timings.Count && Timings[i + 1].time < Playback )
                     {
-                        timingIndex += 1;
-                        DistanceCache += bpm * ( timings[i + 1].time - time );
-                        continue;
+                        numTiming += 1;
+                        DistanceCache += bpm * ( Timings[i + 1].time - time );
+                        break;
                     }
 
-                    // 지나간 타이밍( 캐싱 ) + 현재 타이밍에 대한 거리
+                    // 이전 타이밍까지의 거리( 캐싱 ) + 현재 타이밍에 대한 거리
                     Distance = DistanceCache + ( bpm * ( Playback - time ) );
                     break;
                 }
             }
+
             await Task.Delay( 1 );
         }
     }
@@ -122,7 +148,10 @@ public class NowPlaying : Singleton<NowPlaying>
                 Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
             }
             else
-                CurrentChart = chart;
+            {
+                CurrentChart   = chart;
+                Timings = chart.timings;
+            }
         }
         Stop();
     }
@@ -255,7 +284,7 @@ public class NowPlaying : Singleton<NowPlaying>
         SaveTime       = WaitTime;
         Distance       = 0d;
         DistanceCache  = 0d;
-        timingIndex    = 0;
+        numTiming      = 0;
         IsStart        = false;
     }
 
@@ -273,11 +302,10 @@ public class NowPlaying : Singleton<NowPlaying>
         float slowTimeOffset = 1f / 3f;
         float speed = 1f;
         float pitchOffset = GameSetting.CurrentPitch * .3f;
-        Timing timing = CurrentChart.timings[timingIndex];
         while ( true )
         {
             Playback += speed * Time.deltaTime;
-            Distance = DistanceCache + ( ( timing.bpm / mainBPM ) * ( Playback - timing.time ) );
+            Distance = DistanceCache + ( ( Timings[numTiming].bpm / mainBPM ) * ( Playback - Timings[numTiming].time ) );
 
             CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
@@ -305,13 +333,12 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private IEnumerator Continue()
     {
-        Timing timing = CurrentChart.timings[timingIndex];
         while ( Playback > SaveTime )
         {
             yield return null;
 
             Playback -= Time.deltaTime * 1.2f;
-            Distance = DistanceCache + ( ( timing.bpm / mainBPM ) * ( Playback - timing.time ) );
+            Distance = DistanceCache + ( ( Timings[numTiming].bpm / mainBPM ) * ( Playback - Timings[numTiming].time ) );
         }
 
         startTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
@@ -337,62 +364,18 @@ public class NowPlaying : Singleton<NowPlaying>
     }
     #endregion
 
-    /// <returns> Time including BPM. </returns>
-    //public double GetScaledPlayback( double _time )
-    //{
-    //    var timings = CurrentChart.timings;
-    //    double newTime = 0d;
-    //    double prevBpm = 0d;
-    //    for ( int i = 0; i < timings.Count; i++ )
-    //    {
-    //        double time = timings[i].time;
-    //        double bpm  = timings[i].bpm / mainBPM;
-    //
-    //        if ( time > _time ) break;
-    //
-    //        newTime += ( bpm - prevBpm ) * ( _time - time );
-    //        prevBpm = bpm;
-    //    }
-    //    return newTime;
-    //}
-
-    /// <returns> _time까지 이동한 거리 </returns>
-    //public double GetDistance( double _time )
-    //{
-    //    double result = 0d;
-    //    var timings = CurrentChart.timings;
-    //    for ( int i = 0; i < timings.Count; i++ )
-    //    {
-    //        double time = timings[i].time;
-    //        double bpm  = timings[i].bpm / mainBPM;
-
-    //        // 구간별 타이밍에 대한 거리 추가
-    //        if ( i + 1 < timings.Count && timings[i + 1].time < _time )
-    //        {
-    //            result += bpm * ( timings[i + 1].time - time );
-    //            continue;
-    //        }
-
-    //        // 마지막 타이밍에 대한 거리 추가
-    //        result += bpm * ( _time - time );
-    //        break;
-    //    }
-    //    return result;
-    //}
-
     public double GetDistance( double _time )
     {
         double result = 0d;
-        var timings = CurrentChart.timings;
-        for ( int i = 0; i < timings.Count; i++ )
+        for ( int i = 0; i < Timings.Count; i++ )
         {
-            double time = timings[i].time;
-            double bpm  = timings[i].bpm / mainBPM;
+            double time = Timings[i].time;
+            double bpm  = Timings[i].bpm / mainBPM;
 
             // 지나간 타이밍에 대한 거리
-            if ( i + 1 < timings.Count && timings[i + 1].time < _time )
+            if ( i + 1 < Timings.Count && Timings[i + 1].time < _time )
             {
-                result += bpm * ( timings[i + 1].time - time );
+                result += bpm * ( Timings[i + 1].time - time );
                 continue;
             }
 

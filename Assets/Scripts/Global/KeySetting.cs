@@ -27,9 +27,9 @@ public class KeySetting : Singleton<KeySetting>
     {
         base.Awake();
 
-        Initialize( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.Delete, KeyCode.End } );
-        Initialize( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Delete, KeyCode.End, KeyCode.PageDown } );
-        Initialize( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.Delete, KeyCode.End, KeyCode.PageDown, } );
+        Initialize( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket } );
+        Initialize( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket } );
+        Initialize( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
 
         KeyMapping();
         StringMapping();

@@ -4971,8 +4971,8 @@ MonoBehaviour:
   freqBand: {fileID: 746346381}
   maxHeight: 80
   posOffset: 7.5
-  dropAmount: 1
   sclOffset: 0
+  dropAmount: 1
   isNormalized: 1
   NormalizedRange: 1
   isReverse: 0
@@ -15333,8 +15333,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba58c4d09fed8ba4096f538343b5673c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 7.5
   minAlpha: 0.95
+  speed: 7.5
 --- !u!114 &698774405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23091,8 +23091,8 @@ MonoBehaviour:
   freqBand: {fileID: 746346381}
   maxHeight: 50
   posOffset: 6.6875
-  dropAmount: 10.5
   sclOffset: 1.525
+  dropAmount: 10.5
   isNormalized: 1
   NormalizedRange: 2
   isReverse: 0

@@ -32,7 +32,7 @@ public enum GameMode
 }
 
 [Flags]
-public enum GameVisualFlag
+public enum VisualFlag
 {
     None           = 0,
     TouchEffect    = 1 << 0,
@@ -45,14 +45,14 @@ public enum GameVisualFlag
 public class GameSetting
 {
     // Mode
-    public static GameVisualFlag CurrentVisualFlag    = GameVisualFlag.All;
-    public static GameMode       CurrentGameMode      = GameMode.NoFail; //GameMode.AutoPlay | GameMode.NoFail;
+    public static VisualFlag     CurrentVisualFlag    = VisualFlag.All;
+    public static GameMode       CurrentGameMode      = GameMode.NoFail; // | GameMode.AutoPlay;
     public static GameRandom     CurrentRandom        = GameRandom.None;
-    public static Alignment      CurrentGearAlignment = Alignment.Center;
+    public static Alignment      CurrentAlignment     = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;
 
     // Speed
-    private static float OriginScrollSpeed = 6.5f;
+    private static float OriginScrollSpeed = 31f;
     public static float ScrollSpeed
     {
 
@@ -64,11 +64,11 @@ public class GameSetting
         }
     }
 
-    public static float Weight => ScrollSpeed * ( 1f / Mathf.PI ); // 350f;
+    public static float Weight => ScrollSpeed / 12.7037f; // ( 13720 / 1080 )
     public static float MinDistance => 1200f / Weight;
 
     // Sound
-    public static int SoundOffset  = -28;
+    public static int SoundOffset  = -50;
 
     // Opacity Percentage ( 0 ~ 100 )
     public static int BGAOpacity   = 10;
@@ -84,26 +84,26 @@ public class GameSetting
 
     // Jugdement
     private static float DefaultJudgePos = -435f;
-    public static float JudgePos => DefaultJudgePos + JudgeOffset;
+    public static float JudgePos    => DefaultJudgePos + JudgeOffset;
     public static int   JudgeOffset = -33;
     public static float JudgeHeight = 50f;
 
     // note
     public static float NoteSizeMultiplier = 1f;
-    public static float NoteWidth => 110.5f * NoteSizeMultiplier; // 111
+    public static float NoteWidth     => 110.5f * NoteSizeMultiplier; // 111
+    public static float NoteHeight    => 63f    * NoteSizeMultiplier;
     public static float NoteBodyWidth => 110.5f * NoteSizeMultiplier;
-    public static float NoteHeight => 63f * NoteSizeMultiplier;
-    public static float NoteBlank  = 0f;
-    public static float NoteStartPos => GearOffsetX + -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
+    public static float NoteBlank     =  0f;
+    public static float NoteStartPos  => GearOffsetX + -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 
     // Gear
-    public static float GearOffsetX = 0f;
+    public static float GearOffsetX  = 0f;
     public static float GearStartPos => GearOffsetX + ( -( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f );
-    public static float GearWidth => ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) );
+    public static float GearWidth    => ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) );
 
     // Pitch
-    private static int pitch = 100;
-    public static float CurrentPitch { get { return pitch * .01f; } set { pitch = ( int )value; } }
+    private static float pitch = 1f;
+    public static float CurrentPitch { get => pitch; set => pitch = value; }
 
     // PPU
     public static int PPU = 100; // pixel per unit

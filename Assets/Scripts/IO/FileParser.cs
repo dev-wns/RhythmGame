@@ -112,7 +112,7 @@ public class FileParser : FileReader
             { }
 
             #region Timings
-            Timing curTiming = new Timing();
+            Timing curTiming  = new Timing();
             Timing prevTiming = new Timing( double.MinValue, double.MinValue );
             List<Timing> timings = new List<Timing>();
             List<Timing> uninheritedTimings = new List<Timing>();
@@ -122,25 +122,14 @@ public class FileParser : FileReader
             {
                 var split = line.Split( ',' );
 
-                curTiming.time = double.Parse( split[0] );
-                curTiming.beatLength = double.Parse( split[1] );
-                curTiming.bpm = ( 1d / curTiming.beatLength ) * 60000d;
+                curTiming.time          = double.Parse( split[0] ) / GameSetting.CurrentPitch;
+                curTiming.beatLength    = double.Parse( split[1] ) / GameSetting.CurrentPitch;
+                curTiming.bpm           = ( 1d / curTiming.beatLength ) * 60000d;
                 curTiming.isUninherited = int.Parse( split[2] );
-                //if ( uninheritedTimings.Count == 0 )
-                //{
-                //    double firstTime = curTiming.time;
-                //    double spb       = ( 60d / curTiming.bpm ) * 4;
-                //    while ( firstTime > NowPlaying.WaitTime )
-                //    {
-                //        firstTime -= spb;
-                //    }
-
-                //    curTiming.time = firstTime;
-                //}
 
                 if ( hasFixedBPM )
                 {
-                    curTiming.bpm = NowPlaying.CurrentSong.mainBPM * GameSetting.CurrentPitch;
+                    curTiming.bpm = NowPlaying.CurrentSong.mainBPM;
                     uninheritedTimings.Add( curTiming );
                     timings.Add( curTiming );
 
@@ -166,8 +155,8 @@ public class FileParser : FileReader
                 var split = line.Split( ',' );
 
                 sprite.type  = ( SpriteType )int.Parse( split[0] );
-                sprite.start = double.Parse( split[1] );
-                sprite.end   = double.Parse( split[2] );
+                sprite.start = double.Parse( split[1] ) / GameSetting.CurrentPitch;
+                sprite.end   = double.Parse( split[2] ) / GameSetting.CurrentPitch;
                 sprite.name  = split[3];
 
                 sprites.Add( sprite );
@@ -182,7 +171,7 @@ public class FileParser : FileReader
                 KeySound sample;
                 var split = line.Split( ',' );
 
-                sample.time   = double.Parse( split[0] );
+                sample.time   = double.Parse( split[0] ) / GameSetting.CurrentPitch;
                 sample.volume = float.Parse( split[1] ) * .01f;
                 sample.name   = split[2];
 
@@ -198,11 +187,11 @@ public class FileParser : FileReader
                 var split = line.Split( ',' );
 
                 note.lane       = int.Parse( split[0] );
-                note.time       = double.Parse( split[1] );
-                note.sliderTime = double.Parse( split[2] );
+                note.time       = double.Parse( split[1] ) / GameSetting.CurrentPitch;
+                note.sliderTime = double.Parse( split[2] ) / GameSetting.CurrentPitch;
                 note.isSlider   = note.sliderTime > 0d ? true : false;
 
-                var keySoundSplit = split[3].Split( ':' );
+                var keySoundSplit    = split[3].Split( ':' );
                 note.keySound.volume = float.Parse( keySoundSplit[0] ) * .01f;
                 note.keySound.name   = keySoundSplit[1];
 
@@ -241,9 +230,9 @@ public class FileParser : FileReader
             {
                 var split = line.Split( ',' );
 
-                curTiming.time = double.Parse( split[0] ) * .001d;
+                curTiming.time       = double.Parse( split[0] );
                 curTiming.beatLength = double.Parse( split[1] );
-                curTiming.bpm = ( 1d / curTiming.beatLength ) * 60000d;
+                curTiming.bpm        = ( 1d / curTiming.beatLength ) * 60000d;
 
                 timings.Add( curTiming );
             }
@@ -260,10 +249,10 @@ public class FileParser : FileReader
                 Note note = new Note();
                 var split = line.Split( ',' );
 
-                note.lane = int.Parse( split[0] );
-                note.time = double.Parse( split[1] ) * .001d;
-                note.sliderTime = double.Parse( split[2] ) * .001d;
-                note.isSlider = note.sliderTime > 0d ? true : false;
+                note.lane       = int.Parse( split[0] );
+                note.time       = double.Parse( split[1] );
+                note.sliderTime = double.Parse( split[2] );
+                note.isSlider   = note.sliderTime > 0d ? true : false;
 
                 notes.Add( note );
             }

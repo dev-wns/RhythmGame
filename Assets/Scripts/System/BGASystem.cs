@@ -26,7 +26,6 @@ public class BGASystem : MonoBehaviour
     [Header( "Loading" )]
     public TextMeshProUGUI loadingText;
     private Timer timer  = new Timer();
-    private uint loadingTime;
 
     private struct SpriteBGA
     {
@@ -103,29 +102,35 @@ public class BGASystem : MonoBehaviour
         switch ( type )
         {
             case BackgroundType.Video:
-            StartCoroutine( LoadVideo() );
-            scene.OnGameStart += PlayVideo;
-            scene.OnPause += OnPause;
-            foreground.gameObject.SetActive( false );
+            {
+                StartCoroutine( LoadVideo() );
+                scene.OnGameStart += PlayVideo;
+                scene.OnPause += OnPause;
+                foreground.gameObject.SetActive( false );
+            }
             break;
 
             case BackgroundType.Sprite:
-            scene.OnGameStart += SpriteProcess;
-            foreground.gameObject.SetActive( true );
-            StartCoroutine( LoadSamples( _chart.sprites ) );
+            {
+                scene.OnGameStart += SpriteProcess;
+                foreground.gameObject.SetActive( true );
+                StartCoroutine( LoadSamples( _chart.sprites ) );
+            }
             break;
 
             case BackgroundType.Image:
-            if ( !System.IO.File.Exists( NowPlaying.CurrentSong.imagePath ) )
             {
-                transform.root.gameObject.SetActive( false );
-                type = BackgroundType.None;
-                loadingText.text = $"0 ms";
-                NowPlaying.IsLoadBGA = true;
-            }
-            else
-            {
-                StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
+                if ( !System.IO.File.Exists( NowPlaying.CurrentSong.imagePath ) )
+                {
+                    transform.root.gameObject.SetActive( false );
+                    type = BackgroundType.None;
+                    loadingText.text = $"0 ms";
+                    NowPlaying.IsLoadBGA = true;
+                }
+                else
+                {
+                    StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
+                }
             }
             break;
         }
@@ -148,7 +153,7 @@ public class BGASystem : MonoBehaviour
     private void UpdatePitch( float _pitch )
     {
         if ( type != BackgroundType.Video )
-            return;
+             return;
 
         vp.playbackSpeed = _pitch;
     }
@@ -164,8 +169,10 @@ public class BGASystem : MonoBehaviour
             case BackgroundType.Video:
             {
                 ClearRenderTexture();
-                // background.texture = Texture2D.blackTexture;
-                if ( !vp.isPlaying ) vp.Play();
+                
+                if ( !vp.isPlaying ) 
+                     vp.Play();
+
                 vp.Pause();
                 vp.frame = 0;
             }
@@ -201,11 +208,11 @@ public class BGASystem : MonoBehaviour
     {
         timer.Start();
         vp.enabled = true;
-        vp.playbackSpeed = GameSetting.CurrentPitch;
-        vp.url = @$"{NowPlaying.CurrentSong.videoPath}";
-        vp.targetTexture = renderTexture;
+        vp.url             = @$"{NowPlaying.CurrentSong.videoPath}";
+        vp.playbackSpeed   = GameSetting.CurrentPitch;
+        vp.targetTexture   = renderTexture;
         background.texture = renderTexture;
-        background.color = color;
+        background.color   = color;
 
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
@@ -245,7 +252,7 @@ public class BGASystem : MonoBehaviour
 
             yield return waitSampleEnd;
             if ( ++curBackIndex < backgrounds.Count )
-                curSample = backgrounds[curBackIndex];
+                 curSample = backgrounds[curBackIndex];
         }
     }
 
@@ -254,7 +261,7 @@ public class BGASystem : MonoBehaviour
         SpriteBGA curSample = new SpriteBGA();
 
         if ( foregrounds.Count > 0 )
-            curSample = foregrounds[curForeIndex];
+             curSample = foregrounds[curForeIndex];
         else if ( foregrounds.Count == 0 )
         {
             foreground.gameObject.SetActive( false );
@@ -275,7 +282,7 @@ public class BGASystem : MonoBehaviour
 
             yield return waitSampleEnd;
             if ( ++curForeIndex < foregrounds.Count )
-                curSample = foregrounds[curForeIndex];
+                 curSample = foregrounds[curForeIndex];
         }
     }
 
@@ -292,12 +299,14 @@ public class BGASystem : MonoBehaviour
                 switch ( _samples[i].type )
                 {
                     case SpriteType.Background:
-                    backgrounds.Add( new SpriteBGA( _samples[i], tex ) );
-                    break;
+                    {
+                        backgrounds.Add( new SpriteBGA( _samples[i], tex ) );
+                    } break;
 
                     case SpriteType.Foreground:
-                    foregrounds.Add( new SpriteBGA( _samples[i], tex ) );
-                    break;
+                    {
+                        foregrounds.Add( new SpriteBGA( _samples[i], tex ) );
+                    } break;
                 }
 
                 OnUpdateData?.Invoke( textures.Count, ++duplicateTextureCount, backgrounds.Count, foregrounds.Count );
@@ -305,20 +314,6 @@ public class BGASystem : MonoBehaviour
             else
                 yield return StartCoroutine( LoadSample( dir, _samples[i] ) );
         }
-
-        //backgrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
-        //{
-        //    if ( _A.start > _B.start )      return 1;
-        //    else if ( _A.start < _B.start ) return -1;
-        //    else                            return 0;
-        //} );
-
-        //foregrounds.Sort( delegate ( SpriteBGA _A, SpriteBGA _B )
-        //{
-        //    if ( _A.start > _B.start )      return 1;
-        //    else if ( _A.start < _B.start ) return -1;
-        //    else                            return 0;
-        //} );
 
         loadingText.text = $"{timer.End} ms";
         yield return YieldCache.WaitForEndOfFrame;
@@ -416,7 +411,7 @@ public class BGASystem : MonoBehaviour
                     if ( www.result == UnityWebRequest.Result.ConnectionError ||
                          www.result == UnityWebRequest.Result.ProtocolError )
                     {
-                        throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
+                        throw new Exception( $"UnityWebRequest Error : {www.error}" );
                     }
 
                     tex = handler.texture;

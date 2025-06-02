@@ -6,16 +6,11 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
     public ObjectPool<PreviewNoteRenderer> pool { get; set; }
     protected Note note;
     public Image head, body, tail;
-    public float HeadPos => transform.position.y;
-    public float TailPos => transform.position.y + BodyLength;
     public double Time => note.time;
     public double Distance => note.noteDistance;
     public double SliderTime => note.sliderTime;
     public double SliderDistance => note.sliderDistance;
     public bool IsSlider => note.isSlider;
-    public bool IsKeyDown { get; set; }
-    public float BodyLength { get; private set; }
-    public KeySound Sound => note.keySound;
 
     protected float column;
     protected static readonly Color NoteFailColor = new Color( .5f, .5f, .5f, 1f );
@@ -61,9 +56,9 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
             if ( Distance < PreviewNoteSystem.Distance )
                 newDistance = PreviewNoteSystem.Distance;
 
-            BodyLength = ( float )( ( SliderDistance - newDistance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight );
+            float bodyLength = ( float )( ( SliderDistance - newDistance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight );
 
-            float length = Global.Math.Clamp( IsOnlyBody ? BodyLength : BodyLength - PreviewNoteSystem.NoteHeight, 0f, float.MaxValue );
+            float length = Global.Math.Clamp( IsOnlyBody ? bodyLength : bodyLength - PreviewNoteSystem.NoteHeight, 0f, float.MaxValue );
             body.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, length );
             tail.rectTransform.anchoredPosition = new Vector2( 0f, length );
 
