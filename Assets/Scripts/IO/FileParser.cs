@@ -122,21 +122,21 @@ public class FileParser : FileReader
             {
                 var split = line.Split( ',' );
 
-                curTiming.time = ( double.Parse( split[0] ) * .001d ) / GameSetting.CurrentPitch;
+                curTiming.time = double.Parse( split[0] );
                 curTiming.beatLength = double.Parse( split[1] );
-                curTiming.bpm = ( 1d / curTiming.beatLength ) * 60000d * GameSetting.CurrentPitch;
+                curTiming.bpm = ( 1d / curTiming.beatLength ) * 60000d;
                 curTiming.isUninherited = int.Parse( split[2] );
-                if ( uninheritedTimings.Count == 0 )
-                {
-                    double firstTime = curTiming.time;
-                    double spb       = ( 60d / curTiming.bpm ) * 4;
-                    while ( firstTime > NowPlaying.WaitTime )
-                    {
-                        firstTime -= spb;
-                    }
+                //if ( uninheritedTimings.Count == 0 )
+                //{
+                //    double firstTime = curTiming.time;
+                //    double spb       = ( 60d / curTiming.bpm ) * 4;
+                //    while ( firstTime > NowPlaying.WaitTime )
+                //    {
+                //        firstTime -= spb;
+                //    }
 
-                    curTiming.time = firstTime;
-                }
+                //    curTiming.time = firstTime;
+                //}
 
                 if ( hasFixedBPM )
                 {
@@ -149,22 +149,11 @@ public class FileParser : FileReader
                 }
 
                 if ( curTiming.isUninherited == 1 )
-                {
-                    uninheritedTimings.Add( curTiming );
-                }
+                     uninheritedTimings.Add( curTiming );
 
-                // 필요없는 타이밍 제외하고 추가
-                //if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
-                //     Global.Math.Abs( curTiming.bpm  - prevTiming.bpm )  > double.Epsilon )
                 timings.Add( curTiming );
-
                 prevTiming = curTiming;
             }
-
-            // 마지막 타이밍 추가
-            //if ( Global.Math.Abs( curTiming.time - prevTiming.time ) > double.Epsilon &&
-            //     Global.Math.Abs( curTiming.bpm  - prevTiming.bpm  ) > double.Epsilon )
-            //     timings.Add( curTiming );
 
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
             #endregion
@@ -176,10 +165,10 @@ public class FileParser : FileReader
                 SpriteSample sprite;
                 var split = line.Split( ',' );
 
-                sprite.type = ( SpriteType )int.Parse( split[0] );
-                sprite.start = ( double.Parse( split[1] ) * .001d ) / GameSetting.CurrentPitch;
-                sprite.end = ( double.Parse( split[2] ) * .001d ) / GameSetting.CurrentPitch;
-                sprite.name = split[3];
+                sprite.type  = ( SpriteType )int.Parse( split[0] );
+                sprite.start = double.Parse( split[1] );
+                sprite.end   = double.Parse( split[2] );
+                sprite.name  = split[3];
 
                 sprites.Add( sprite );
             }
@@ -193,11 +182,9 @@ public class FileParser : FileReader
                 KeySound sample;
                 var split = line.Split( ',' );
 
-                sample.time = ( double.Parse( split[0] ) * .001d ) / GameSetting.CurrentPitch;
+                sample.time   = double.Parse( split[0] );
                 sample.volume = float.Parse( split[1] ) * .01f;
-                sample.name = split[2];
-                //sample.sound = new FMOD.Sound();
-                //sample.hasSound = sample.name == string.Empty ? false : true;
+                sample.name   = split[2];
 
                 keySounds.Add( sample );
             }
@@ -210,24 +197,15 @@ public class FileParser : FileReader
                 Note note = new Note();
                 var split = line.Split( ',' );
 
-                note.lane = int.Parse( split[0] );
-                note.time = ( double.Parse( split[1] ) * .001d ) / GameSetting.CurrentPitch;
-                note.sliderTime = ( double.Parse( split[2] ) * .001d ) / GameSetting.CurrentPitch;
-                note.isSlider = note.sliderTime > 0d ? true : false;
+                note.lane       = int.Parse( split[0] );
+                note.time       = double.Parse( split[1] );
+                note.sliderTime = double.Parse( split[2] );
+                note.isSlider   = note.sliderTime > 0d ? true : false;
 
                 var keySoundSplit = split[3].Split( ':' );
                 note.keySound.volume = float.Parse( keySoundSplit[0] ) * .01f;
-                note.keySound.name = keySoundSplit[1];
+                note.keySound.name   = keySoundSplit[1];
 
-                //for ( int i = 0; i < keySounds.Count; i++ )
-                //{
-                //    if ( Global.Math.Abs( keySounds[i].time - note.time ) < .005d &&
-                //         keySounds[i].name.CompareTo( note.keySound.name ) == 0 )
-                //    {
-                //        note.keySound.name = string.Empty;
-                //        break;
-                //    }
-                //}
                 notes.Add( note );
             }
 

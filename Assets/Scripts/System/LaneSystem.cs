@@ -66,7 +66,7 @@ public class LaneSystem : MonoBehaviour
         if ( !NowPlaying.CurrentSong.isOnlyKeySound )
         {
             if ( AudioManager.Inst.Load( NowPlaying.CurrentSong.audioPath ) )
-                 keySampleSystem.AddSample( new KeySound( GameSetting.SoundOffset * .001f, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
+                 keySampleSystem.AddSample( new KeySound( GameSetting.SoundOffset, Path.GetFileName( NowPlaying.CurrentSong.audioPath ), 1f ) );
         }
 
         var dir = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
@@ -74,7 +74,7 @@ public class LaneSystem : MonoBehaviour
         {
             var sample = _chart.samples[i];
             if ( AudioManager.Inst.Load( Path.Combine( dir, sample.name ) ) )
-                keySampleSystem.AddSample( sample );
+                 keySampleSystem.AddSample( sample );
         }
         soundSampleTime += soundTimer.End;
 
@@ -103,6 +103,9 @@ public class LaneSystem : MonoBehaviour
             Note newNote = notes[i];
             if ( hasConversion && isSevenButton )
             {
+                newNote.time       /= GameSetting.CurrentPitch;
+                newNote.sliderTime /= GameSetting.CurrentPitch;
+
                 if ( newNote.lane == 3 )
                 {
                     soundTimer.Start();
@@ -113,7 +116,7 @@ public class LaneSystem : MonoBehaviour
                     continue;
                 }
                 else if ( newNote.lane > 3 )
-                    newNote.lane -= 1;
+                          newNote.lane -= 1;
 
                 //if ( newNote.lane == 6 )
                 //{
@@ -125,7 +128,7 @@ public class LaneSystem : MonoBehaviour
             }
 
             if ( hasNoSlider )
-                newNote.isSlider = false;
+                 newNote.isSlider = false;
 
             switch ( GameSetting.CurrentRandom )
             {
@@ -134,7 +137,7 @@ public class LaneSystem : MonoBehaviour
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.noteDistance = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     soundTimer.Start();
@@ -168,7 +171,7 @@ public class LaneSystem : MonoBehaviour
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
                     prevTimes[selectLane] = newNote.isSlider ? newNote.sliderTime : newNote.time;
 
-                    newNote.noteDistance = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     soundTimer.Start();

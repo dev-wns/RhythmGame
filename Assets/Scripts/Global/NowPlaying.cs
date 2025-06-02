@@ -42,8 +42,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public double SaveTime { get; private set; }
     private double startTime;
     public static double WaitTime { get; private set; }
-    public static readonly double StartWaitTime = -3d;
-    public static readonly double PauseWaitTime = -2d;
+    public static readonly double StartWaitTime = -3000d;
+    public static readonly double PauseWaitTime = -2000d;
     public static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
@@ -81,7 +81,7 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             if ( IsStart )
             {
-                Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime ) * .001d;
+                Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime );
 
                 var timings = CurrentChart.timings;
                 for ( int i = timingIndex; i < timings.Count; i++ )
@@ -89,18 +89,18 @@ public class NowPlaying : Singleton<NowPlaying>
                     double time = timings[i].time;
                     double bpm  = timings[i].bpm / mainBPM;
 
-                    if ( Playback < time )
-                        break;
-
+                    // 첫번째 타이밍은 무조건 계산을 진행한다. ( 음악 시작 전 대기시간 포함 )
+                    // 지나간 타이밍에 대한 거리
                     if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
                     {
-                        timingIndex++;
+                        timingIndex += 1;
                         DistanceCache += bpm * ( timings[i + 1].time - time );
-                        Distance = DistanceCache;
-                        break;
+                        continue;
                     }
 
+                    // 지나간 타이밍( 캐싱 ) + 현재 타이밍에 대한 거리
                     Distance = DistanceCache + ( bpm * ( Playback - time ) );
+                    break;
                 }
             }
             await Task.Delay( 1 );
@@ -357,6 +357,29 @@ public class NowPlaying : Singleton<NowPlaying>
     //}
 
     /// <returns> _time까지 이동한 거리 </returns>
+    //public double GetDistance( double _time )
+    //{
+    //    double result = 0d;
+    //    var timings = CurrentChart.timings;
+    //    for ( int i = 0; i < timings.Count; i++ )
+    //    {
+    //        double time = timings[i].time;
+    //        double bpm  = timings[i].bpm / mainBPM;
+
+    //        // 구간별 타이밍에 대한 거리 추가
+    //        if ( i + 1 < timings.Count && timings[i + 1].time < _time )
+    //        {
+    //            result += bpm * ( timings[i + 1].time - time );
+    //            continue;
+    //        }
+
+    //        // 마지막 타이밍에 대한 거리 추가
+    //        result += bpm * ( _time - time );
+    //        break;
+    //    }
+    //    return result;
+    //}
+
     public double GetDistance( double _time )
     {
         double result = 0d;
@@ -366,14 +389,14 @@ public class NowPlaying : Singleton<NowPlaying>
             double time = timings[i].time;
             double bpm  = timings[i].bpm / mainBPM;
 
-            // 구간별 타이밍에 대한 거리 추가
+            // 지나간 타이밍에 대한 거리
             if ( i + 1 < timings.Count && timings[i + 1].time < _time )
             {
                 result += bpm * ( timings[i + 1].time - time );
                 continue;
             }
 
-            // 마지막 타이밍에 대한 거리 추가
+            // 현재 타이밍에 대한 거리
             result += bpm * ( _time - time );
             break;
         }

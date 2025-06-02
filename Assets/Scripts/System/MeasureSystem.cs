@@ -61,7 +61,7 @@ public class MeasureSystem : MonoBehaviour
     {
         Timer timer = new Timer();
         var timings   = _chart.timings;
-        var totalTime = NowPlaying.CurrentSong.totalTime * .001d;
+        var totalTime = NowPlaying.CurrentSong.totalTime;
 
         for ( int i = 0; i < timings.Count; i++ )
         {
@@ -82,9 +82,9 @@ public class MeasureSystem : MonoBehaviour
             }
 
             if ( !hasNextTime )
-                nextTime = ( double )( totalTime + 60d );
+                 nextTime = ( double )( totalTime + 60000d );
 
-            double spb = ( 60d / timings[i].bpm ) * Beat; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
+            double spb = ( 60d / timings[i].bpm ) * Beat * 1000d; // 4박에 1개 생성 ( 60BPM일때 4초마다 1개 생성 )
             while ( time < nextTime )
             {
                 measures.Add( NowPlaying.Inst.GetDistance( time ) );
