@@ -24,7 +24,7 @@ public class InGame : Scene
     public bool IsEnd { get; private set; }
     private bool[] isHitLastNotes;
 
-    private readonly float AdditionalLoadTime = 5f;
+    private readonly float AdditionalLoadTime = 3.5f;
 
     [Header( "Loading" )]
     public TextMeshProUGUI loadingText;
@@ -52,14 +52,11 @@ public class InGame : Scene
         loadingText.text = $"{timer.End} ms";
     }
 
-    protected async override void Start()
+    protected override void Start()
     {
         base.Start();
 
         OnSystemInitialize?.Invoke( NowPlaying.CurrentChart );
-        await Task.Run( () => OnSystemInitializeThread?.Invoke( NowPlaying.CurrentChart ) );
-
-        soundText.text = $"{LaneSystem.soundSampleTime + LaneSystem.keySoundTime} ms";
 
         StartCoroutine( Play() );
     }
@@ -74,13 +71,13 @@ public class InGame : Scene
     {
         AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
         if ( GameSetting.CurrentPitchType != PitchType.None )
-            AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+             AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     public override void Disconnect()
     {
         if ( GameSetting.CurrentPitchType != PitchType.None )
-            AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+             AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
     private void Stop()

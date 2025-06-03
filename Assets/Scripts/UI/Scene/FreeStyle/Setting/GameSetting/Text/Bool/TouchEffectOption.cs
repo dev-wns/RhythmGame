@@ -2,7 +2,7 @@ public class TouchEffectOption : OptionText
 {
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.TouchEffect ) ? 1 : 0;
+        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.HitEffect ) ? 1 : 0;
         ChangeText( texts[CurrentIndex] );
     }
 
@@ -16,7 +16,7 @@ public class TouchEffectOption : OptionText
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~VisualFlag.TouchEffect;
-        else                     GameSetting.CurrentVisualFlag |=  VisualFlag.TouchEffect;
+        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~VisualFlag.HitEffect;
+        else                     GameSetting.CurrentVisualFlag |=  VisualFlag.HitEffect;
     }
 }

@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3506509254756183123}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 90}
   m_LocalScale: {x: 100, y: 100, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3506509255338831058}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3506509254756183120
 SpriteRenderer:
@@ -50,6 +50,9 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -144,13 +147,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3506509254848744140}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -1.9266666, z: 90}
   m_LocalScale: {x: 100, y: 1000, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3506509255338831058}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!222 &3506509254848744129
 CanvasRenderer:
@@ -177,6 +180,9 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -222,7 +228,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3506509255338831058}
   - component: {fileID: 3506509255338831063}
-  - component: {fileID: 3506509255338831057}
   m_Layer: 5
   m_Name: Lane
   m_TagString: Untagged
@@ -237,6 +242,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3506509255338831059}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -245,7 +251,6 @@ Transform:
   - {fileID: 3506509254848744131}
   - {fileID: 3506509254756183122}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3506509255338831063
 MonoBehaviour:
@@ -259,20 +264,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81ec43c4a032d6c4690e77a99fd8c0d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laneEffect: {fileID: 3506509254848744130}
---- !u!114 &3506509255338831057
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3506509255338831059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b3a4a6abe54835469170575c4d4f221, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  hitEffect: {fileID: 3506509254756183121}
   note1: {fileID: -7792808250688496138, guid: d758459a692b1a94faae221c13f2d4e7, type: 3}
   note2: {fileID: -7792808250688496138, guid: dfb3cf77c8d02d448b08572886f4dc93, type: 3}
   noteMedian: {fileID: -7792808250688496138, guid: 7b4e4efc4f28e174e926a6bf8a594a4a,
     type: 3}
+  sprite: {fileID: 3506509254848744130}

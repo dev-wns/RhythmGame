@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 public class LaneSystem : MonoBehaviour
@@ -16,6 +19,7 @@ public class LaneSystem : MonoBehaviour
 
     [Header( "Loading" )]
     private Timer soundTimer = new Timer();
+    public TextMeshProUGUI soundText;
     public static uint soundSampleTime;
     public static uint keySoundTime;
 
@@ -27,14 +31,14 @@ public class LaneSystem : MonoBehaviour
         keyCount = NowPlaying.KeyCount;
         keySampleSystem = GetComponent<KeySampleSystem>();
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnSystemInitializeThread += Initialize;
-        scene.OnGameStart += () =>
-        {
-            for ( int i = 0; i < keyCount; i++ )
-            {
-                lanes[i].SetLane( i );
-            }
-        };
+        scene.OnSystemInitialize += Initialize;
+        //scene.OnGameStart += () =>
+        //{
+        //    for ( int i = 0; i < keyCount; i++ )
+        //    {
+        //        lanes[i].SetLane( i );
+        //    }
+        //};
 
         lanes.AddRange( GetComponentsInChildren<Lane>() );
         if ( lanes.Count < keyCount )
@@ -47,10 +51,10 @@ public class LaneSystem : MonoBehaviour
             Debug.Log( $"Create {addCount} lanes." );
         }
 
-        for ( int i = 0; i < keyCount; i++ )
-        {
-            lanes[i].UpdatePosition( i );
-        }
+        //for ( int i = 0; i < keyCount; i++ )
+        //{
+        //    lanes[i].UpdatePosition( i );
+        //}
     }
 
     private void OnDestroy()
@@ -60,7 +64,7 @@ public class LaneSystem : MonoBehaviour
         noteTime = 0;
     }
 
-    private void Initialize( Chart _chart )
+    private async void Initialize( Chart _chart )
     {
         soundTimer.Start();
         if ( !NowPlaying.CurrentSong.isOnlyKeySound )
@@ -79,14 +83,20 @@ public class LaneSystem : MonoBehaviour
         soundSampleTime += soundTimer.End;
 
         noteTimer.Start();
-        CreateNotes( _chart );
+        await Task.Run( () => DivideNotes( _chart ) );
         noteTime += noteTimer.End;
+
+        soundText.text = $"{soundSampleTime + keySoundTime} ms";
 
         keySampleSystem.SortSamples();
         NowPlaying.IsLoadKeySound = true;
+
+        for ( int i = 0; i < keyCount; i++ )
+              lanes[i].Initialize( i );
     }
 
-    private void CreateNotes( Chart _chart )
+    // 노트 분할 및 분배, 키음 로딩
+    private void DivideNotes( Chart _chart )
     {
         var notes          = _chart.notes;
         string dir         = Path.GetDirectoryName( NowPlaying.CurrentSong.filePath );
@@ -114,14 +124,6 @@ public class LaneSystem : MonoBehaviour
                 }
                 else if ( newNote.lane > 3 )
                           newNote.lane -= 1;
-
-                //if ( newNote.lane == 6 )
-                //{
-                //    if ( AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) ) )
-                //         keySampleSystem.AddSample( new KeySound( newNote ) );
-
-                //    continue;
-                //}
             }
 
             if ( hasNoSlider )
@@ -141,7 +143,7 @@ public class LaneSystem : MonoBehaviour
                     AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     keySoundTime += soundTimer.End;
 
-                    lanes[newNote.lane].InputSys.AddNote( in newNote );
+                    lanes[newNote.lane].AddNote( in newNote );
                 }
                 break;
 
@@ -152,7 +154,7 @@ public class LaneSystem : MonoBehaviour
                     for ( int j = 0; j < keyCount; j++ )
                     {
                         if ( secondPerBeat < ( newNote.time - prevTimes[j] ) )
-                            emptyLanes.Add( j );
+                             emptyLanes.Add( j );
                     }
 
                     // 자리가 없을 때 보정되지않은 상태로 배치
@@ -175,9 +177,8 @@ public class LaneSystem : MonoBehaviour
                     AudioManager.Inst.Load( Path.Combine( dir, newNote.keySound.name ) );
                     keySoundTime += soundTimer.End;
 
-                    lanes[selectLane].InputSys.AddNote( in newNote );
-                }
-                break;
+                    lanes[selectLane].AddNote( in newNote );
+                } break;
             }
         }
 

@@ -34,10 +34,10 @@ public enum GameMode
 [Flags]
 public enum VisualFlag
 {
-    None           = 0,
-    TouchEffect    = 1 << 0,
-    LaneEffect     = 1 << 1,
-    ShowMeasure    = 1 << 2,
+    None        = 0,
+    HitEffect   = 1 << 0,
+    LaneEffect  = 1 << 1,
+    ShowMeasure = 1 << 2,
 
     All         = int.MaxValue,
 }

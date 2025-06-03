@@ -1,8 +1,11 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Newtonsoft.Json;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
 
 public struct HitData
 {
@@ -74,10 +77,46 @@ public class GameManager : Singleton<GameManager>
 
     public static int ResultCount => CurrentResult.Count;
 
+    [Header( "Addressable" )]
+    private List<AsyncOperationHandle> handles = new List<AsyncOperationHandle>();
+
     protected override void Awake()
     {
         base.Awake();
         KeySetting keySetting = KeySetting.Inst;
+        InputManager inputManager = InputManager.Inst;
+    }
+
+    public void LoadAssetsAsync<T>( string _label, Action<T> _OnCompleted ) where T : UnityEngine.Object
+    {
+        AsyncOperationHandle<IList<IResourceLocation>> locationHandle = Addressables.LoadResourceLocationsAsync( _label, typeof( T ) );
+        handles.Add( locationHandle );
+
+        locationHandle.Completed += ( AsyncOperationHandle<IList<IResourceLocation>> _handle ) =>
+        {
+            if ( _handle.Status != AsyncOperationStatus.Succeeded )
+            {
+                Debug.LogWarning( "Load Location Async Failed" );
+                return;
+            }
+
+            foreach ( IResourceLocation location in _handle.Result )
+            {
+                AsyncOperationHandle<T> assetHandle = Addressables.LoadAssetAsync<T>( location );
+                handles.Add( assetHandle );
+
+                assetHandle.Completed += ( AsyncOperationHandle<T> _handle ) =>
+                {
+                    if ( _handle.Status != AsyncOperationStatus.Succeeded )
+                    {
+                        Debug.LogError( "Load Asset Async Failed" );
+                        return;
+                    }
+
+                    _OnCompleted?.Invoke( _handle.Result );
+                };
+            }
+        };
     }
 
     public bool UpdateRecord()

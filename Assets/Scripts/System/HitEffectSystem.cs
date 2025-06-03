@@ -24,7 +24,7 @@ public class HitEffectSystem : MonoBehaviour
         lane = GetComponentInParent<Lane>();
         rdr = GetComponent<SpriteRenderer>();
 
-        if ( ( GameSetting.CurrentVisualFlag & VisualFlag.TouchEffect ) != 0 )
+        if ( ( GameSetting.CurrentVisualFlag & VisualFlag.HitEffect ) != 0 )
         {
             lane.OnLaneInitialize += Initialize;
 
@@ -39,17 +39,17 @@ public class HitEffectSystem : MonoBehaviour
         }
     }
 
-    private void UpdatePosition()
-    {
-        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * lane.Key ) + ( GameSetting.NoteBlank * lane.Key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 90f );
-    }
+    //private void UpdatePosition()
+    //{
+    //    transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * lane.Key ) + ( GameSetting.NoteBlank * lane.Key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 90f );
+    //}
 
-    private void Initialize( int _key )
+    private void Initialize( int _lane )
     {
-        lane.InputSys.OnHitNote += HitEffect;
-        lane.InputSys.OnStopEffect += SetCurrentInput;
+        lane.OnHitNote    += HitEffect;
+        lane.OnStopEffect += SetCurrentInput;
 
-        UpdatePosition();
+        //UpdatePosition();
         float size = GameSetting.NoteWidth * 2;
         transform.localScale = new Vector2( size, size );
     }
