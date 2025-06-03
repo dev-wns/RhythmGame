@@ -51,6 +51,30 @@ public class GameSetting
     public static Alignment      CurrentAlignment     = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;
 
+    public static bool HasFlag<T>( T _type ) where T : Enum
+    {
+        bool ret = false;
+        try
+        { 
+            switch ( _type )
+            {
+                case VisualFlag: ret = CurrentVisualFlag.HasFlag( _type ); break;
+                case GameMode:   ret = CurrentGameMode.HasFlag(   _type ); break;
+                case GameRandom: ret = CurrentRandom.HasFlag(     _type ); break;
+                case Alignment:  ret = CurrentAlignment.HasFlag(  _type ); break;
+                case PitchType:  ret = CurrentPitchType.HasFlag(  _type ); break;
+                default:
+                    throw new Exception( $"{_type} is Invalid Value" );
+            }
+        }
+        catch( Exception _e )
+        {
+            Debug.LogError( _e );
+        }
+
+        return ret;
+    }
+
     // Speed
     private static float OriginScrollSpeed = 31f;
     public static float ScrollSpeed

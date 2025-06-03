@@ -102,7 +102,7 @@ public class FreeStyle : Scene
         Bind( ActionType.KeySetting, KeyCode.LeftArrow, () => { MoveToPrevOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.Tab, keySetting.ChangeButtonCount );
 
-        if ( !GameManager.IsMultiPlaying )
+        if ( !DataStorage.IsMultiPlaying )
         {
             // Search
             Bind( ActionType.Main, KeyCode.F2, () => { EnableCanvas( ActionType.Search, search.canvas ); } );

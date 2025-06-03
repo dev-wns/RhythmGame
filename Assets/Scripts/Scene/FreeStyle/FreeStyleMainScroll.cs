@@ -57,7 +57,7 @@ public class FreeStyleMainScroll : ScrollBase
         CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
 
-        if ( !GameManager.IsMultiPlaying )
+        if ( !DataStorage.IsMultiPlaying )
         {
             AudioManager.Inst.OnReload += OnBufferSetting;
             search.OnSearch += UpdateLayoutAndSong;
@@ -176,7 +176,7 @@ public class FreeStyleMainScroll : ScrollBase
         int medianCounts = 0;
         medianNode?.Value.Select( false );
         medianNode = songs.First;
-        Select( NowPlaying.Inst.CurrentSongIndex );
+        Select( NowPlaying.Inst.CurrentIndex );
         int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
                                                 ( CurrentIndex - median ) % Length;
 
@@ -241,8 +241,8 @@ public class FreeStyleMainScroll : ScrollBase
     {
         UpdateSongElements();
 
-        if ( curSong.UID != NowPlaying.CurrentSong.UID )
-            UpdateSong();
+        if ( curSong.index != NowPlaying.Inst.CurrentIndex )
+             UpdateSong();
     }
 
     public override void PrevMove()
@@ -371,8 +371,8 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        if ( NowPlaying.Inst.CurrentSongIndex != CurrentIndex )
-            UpdateSong();
+        if ( NowPlaying.Inst.CurrentIndex != CurrentIndex )
+             UpdateSong();
 
         isKeyDown = false;
         keyPressTime = 0f;

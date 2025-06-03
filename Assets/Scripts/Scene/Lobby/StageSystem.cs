@@ -50,7 +50,7 @@ public class StageSystem : MonoBehaviour
         {
             case Error.OK:
             {
-                GameManager.StageInfo = Packet.FromJson<STAGE_INFO>( _packet );
+                DataStorage.StageInfo = Packet.FromJson<STAGE_INFO>( _packet );
                 scene.LoadScene( SceneType.Stage );
                 AudioManager.Inst.Play( SFX.MainClick );
             }

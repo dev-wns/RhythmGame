@@ -35,7 +35,7 @@ public class ScoreSystem : MonoBehaviour
 
     private void OnResult()
     {
-        GameManager.Inst.UpdateResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
+        DataStorage.Inst.UpdateResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
     }
 
     private void OnReLoad()

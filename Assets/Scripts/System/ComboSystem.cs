@@ -54,7 +54,7 @@ public class ComboSystem : MonoBehaviour
 
     private void OnResult()
     {
-        GameManager.Inst.UpdateResult( HitResult.Combo, Mathf.RoundToInt( highestCombo ) );
+        DataStorage.Inst.UpdateResult( HitResult.Combo, Mathf.RoundToInt( highestCombo ) );
     }
 
     private void OnReLoad()

@@ -307,7 +307,7 @@ public enum NoteType { None, Default, Slider }
 
 //        notePool.AllDespawn();
 
-//        GameManager.Inst.Clear();
+//        DataStorage.Inst.Clear();
 //        curNote = null;
 //    }
 

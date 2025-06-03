@@ -12,7 +12,6 @@ public class Lane : MonoBehaviour
     public int     Key  { get; private set; } // Lane Index
     public int     VKey { get; private set; } // Virtual KeyCode
     public KeyCode UKey { get; private set; } // Unity KeyCode
-    //public InputSystem InputSys { get; private set; }
 
     public event Action<int/*Lane Key*/> OnLaneInitialize;
 
@@ -23,7 +22,7 @@ public class Lane : MonoBehaviour
     private Queue<NoteRenderer>      notes            = new Queue<NoteRenderer>();
     private Queue<NoteRenderer>      sliderMissQueue  = new Queue<NoteRenderer>();
     private Queue<NoteRenderer>      sliderEarlyQueue = new Queue<NoteRenderer>();
-    private Queue<InputData>         inputQueue       = new ();
+    private Queue<InputData>         dataQueue        = new ();
 
     private List<Note>   noteDatas = new List<Note>();
     private NoteRenderer curNote;
@@ -39,9 +38,7 @@ public class Lane : MonoBehaviour
     private float alpha;
     private readonly float LaneEffectOffset = 1f / .15f;
 
-    [Header( "Hit Effect" )]
-    private int adsf;
-
+    //[Header( "Hit Effect" )]
     #endregion
 
     private void Awake()
@@ -55,14 +52,11 @@ public class Lane : MonoBehaviour
         // InputSys = GetComponent<InputSystem>();
         //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
     }
-    private void OnDestroy()
-    {
-        StopAllCoroutines();
-    }
+
 
     private void Update()
     {
-        if ( !NowPlaying.IsStart && ( GameSetting.CurrentVisualFlag & VisualFlag.LaneEffect ) == 0 )
+        if ( !NowPlaying.IsStart && !GameSetting.HasFlag( VisualFlag.LaneEffect ) )
               return;
 
         float increment = LaneEffectOffset * Time.deltaTime;
@@ -75,8 +69,6 @@ public class Lane : MonoBehaviour
     
     private void LateUpdate()
     {
-        return;
-
         //if ( scene.IsGameInputLock )
         //    return;
 
@@ -85,7 +77,7 @@ public class Lane : MonoBehaviour
              curNote = notes.Dequeue();
 
         // 판정 처리 ( Virtual Key 사용 )
-        if ( curNote == null || !inputQueue.TryDequeue( out InputData data ) )
+        if ( curNote == null || !dataQueue.TryDequeue( out InputData data ) )
              return;
 
         switch ( data.keyState )
@@ -154,10 +146,12 @@ public class Lane : MonoBehaviour
         }
     }
 
-    public void AddNote( in Note _note )
+    private void OnDestroy()
     {
-        noteDatas.Add( _note );
+        StopAllCoroutines();
     }
+
+    public void AddData( in InputData _data ) => dataQueue.Enqueue( _data );
 
     private IEnumerator SliderEarlyCheck()
     {
@@ -204,6 +198,9 @@ public class Lane : MonoBehaviour
 
     public void Initialize( int _lane )
     {
+        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
+        
+        
         Key  = _lane;
         UKey = KeySetting.Inst.Keys[( GameKeyCount )NowPlaying.KeyCount][Key];
         VKey = KeySetting.Inst.GetVirtualKey( UKey );
@@ -213,13 +210,12 @@ public class Lane : MonoBehaviour
         else if ( NowPlaying.KeyCount == 6 ) note = _lane == 1 || _lane == 4 ? note2 : note1;
         else if ( NowPlaying.KeyCount == 7 ) note = _lane == 1 || _lane == 5 ? note2 : _lane == 3 ? noteMedian : note1;
         notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
-        // InputManager.Inst.Connect( this );
 
         OnLaneInitialize?.Invoke( Key );
 
         // 인덱스에 맞는 위치에 레인 배치
         transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) + ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 0f );
-        if ( GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.LaneEffect ) )
+        if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
         {
             sprite.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
             sprite.transform.localScale = new Vector3( GameSetting.NoteWidth, 250f, 1f );
@@ -260,7 +256,7 @@ public class Lane : MonoBehaviour
 
         notePool.AllDespawn();
 
-        GameManager.Inst.Clear();
+        DataStorage.Inst.Clear();
         curNote = null;
     }
 
@@ -281,12 +277,14 @@ public class Lane : MonoBehaviour
             notes.Enqueue( note );
 
             if ( ++index < noteDatas.Count )
-                data = noteDatas[index];
+                 data = noteDatas[index];
         }
     }
 
-    private void GameStart()
+    public void GameStart( List<Note> _datas )
     {
+        noteDatas = _datas;
+
         StartCoroutine( SpawnNotes() );
         StartCoroutine( SliderMissCheck() );
         StartCoroutine( SliderEarlyCheck() );
@@ -305,7 +303,7 @@ public class Lane : MonoBehaviour
         if ( !_isPause || curNote == null || !curNote.IsSlider )
              return;
 
-        if ( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) )
+        if ( GameSetting.HasFlag( GameMode.AutoPlay ) )
         {
             judge.ResultUpdate( HitResult.Perfect, NoteType.Slider );
             SelectNextNote();

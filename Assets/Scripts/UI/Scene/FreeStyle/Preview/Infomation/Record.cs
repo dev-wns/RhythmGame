@@ -55,7 +55,7 @@ public class Record : MonoBehaviour
 
     public void UpdateRecord( Song _song )
     {
-        if ( !GameManager.Inst.UpdateRecord() )
+        if ( !DataStorage.Inst.UpdateRecord() )
         {
             noRecord.SetActive( true );
             infomation.SetActive( false );
@@ -65,7 +65,7 @@ public class Record : MonoBehaviour
             noRecord.SetActive( false );
             infomation.SetActive( true );
 
-            RecordData data = GameManager.CurrentRecord;
+            RecordData data = DataStorage.CurrentRecord;
             chaos.text = $"{( ( GameRandom )data.random ).ToString().Replace( '_', ' ' )}";
             score.text = $"{data.score:N0}";
             rate.text = $"x{data.pitch:N1}";

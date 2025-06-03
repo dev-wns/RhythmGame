@@ -18,7 +18,7 @@ public abstract class SceneKeyAction : MonoBehaviour
     protected virtual void LateUpdate()
     {
         if ( IsInputLock || !keyActions.ContainsKey( CurrentAction ) )
-            return;
+             return;
 
         keyActions[CurrentAction].ActionCheck();
     }

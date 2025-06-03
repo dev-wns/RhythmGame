@@ -14,13 +14,13 @@ public class Lobby : Scene
         if ( !Network.Inst.IsConnected )
             Network.Inst.Connect( "127.0.0.1" );
 
-        if ( GameManager.UserInfo is null )
+        if ( DataStorage.UserInfo is null )
         {
             EnableLoginCanvas();
         }
         else
         {
-            playerInfo.UpdateUserInfo( GameManager.UserInfo.Value );
+            playerInfo.UpdateUserInfo( DataStorage.UserInfo.Value );
             DisableLoginCanvas();
         }
     }

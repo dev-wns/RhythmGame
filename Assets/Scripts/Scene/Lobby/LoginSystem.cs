@@ -125,7 +125,7 @@ public class LoginSystem : MonoBehaviour
             case Error.OK:
             {
                 var data = Packet.FromJson<USER_INFO>( _packet );
-                GameManager.UserInfo = data;
+                DataStorage.UserInfo = data;
 
                 playerInfo.UpdateUserInfo( data );
                 loginCanvas.SetActive( false );

@@ -78,9 +78,9 @@ public class FreeStyleSearch : MonoBehaviour
 
         SearchText = field.text;
         NowPlaying.Inst.Search( fieldText );
-        noSearchResultText.SetActive( NowPlaying.Inst.SearchCount == 0 );
 
-        if ( NowPlaying.Inst.SearchCount != 0 )
+        noSearchResultText.SetActive( NowPlaying.Inst.Songs.Count == 0 );
+        if ( NowPlaying.Inst.Songs.Count != 0 )
         {
             //NowPlaying.Inst.UpdateSong( 0 );
             OnSearch?.Invoke();

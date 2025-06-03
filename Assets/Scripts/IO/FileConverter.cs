@@ -9,7 +9,7 @@ using UnityEngine;
 
 public struct Song
 {
-    public int UID;
+    public int index;
 
     public string filePath;
     public string imagePath;

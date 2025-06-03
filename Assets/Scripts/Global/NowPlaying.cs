@@ -4,48 +4,54 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
 
 #pragma warning disable CS0162
+
+public enum SoundType { BGM, KeySound, }
+
 
 public class NowPlaying : Singleton<NowPlaying>
 {
     #region Variables
     public static Scene CurrentScene;
-    public List<Song> Songs = new List<Song>();
-    private ReadOnlyCollection<Song> OriginSongs;
 
+    public  ReadOnlyCollection<Song> Songs;
+    private ReadOnlyCollection<Song> OriginSongs;
+    public int CurrentIndex { get; private set; }
     public static Song CurrentSong { get; private set; }
     public static Chart CurrentChart { get; private set; }
     public static ReadOnlyCollection<Timing> Timings { get; private set; }
-    public static int OriginKeyCount => CurrentSong.keyCount;
-    public static int KeyCount => GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && OriginKeyCount == 7 ? 6 : OriginKeyCount;
-    public int CurrentSongIndex { get; private set; }
-    public int SearchCount { get; private set; }
+    public static int KeyCount => GameSetting.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7 ? 6 : CurrentSong.keyCount;
     public static int TotalNotes 
     {
         get 
         {
-            bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7;
+            bool hasKeyConversion = GameSetting.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7;
             var note   = hasKeyConversion ? CurrentSong.noteCount   - CurrentSong.delNoteCount   : CurrentSong.noteCount;
             var slider = hasKeyConversion ? CurrentSong.sliderCount - CurrentSong.delSliderCount : CurrentSong.sliderCount;
             return note + ( slider * 2 );
         }
     }
 
+    #region Sample Sounds
+    private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
+    private List<KeySound> samples = new List<KeySound>();
+    private int sampleIndex;
+    public static bool UseAllSamples { get; private set; }
+    #endregion
 
     #region Time
     private double startTime;
     public double  SaveTime { get; private set; }
-    public static double WaitTime { get; private set; }
-    public static readonly double StartWaitTime = -3000d;
-    public static readonly double PauseWaitTime = -2000d;
-    public static double Playback { get; private set; }
+    public  static double WaitTime { get; private set; }
+    public  static readonly double StartWaitTime = -3000d;
+    public  static readonly double PauseWaitTime = -2000d;
+    public  static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
     #endregion
@@ -61,56 +67,42 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
 
     private double mainBPM;
-    private int numTiming;
+    private int timingIndex;
     private CancellationTokenSource cancelSource = new CancellationTokenSource();
 
     #region Unity Callback
     protected override async void Awake()
     {
         base.Awake();
+        
+        KeySetting   keySetting   = KeySetting.Inst;
+        InputManager inputManager = InputManager.Inst;
+
         Load();
         await Task.Run( () => UpdateTime( cancelSource.Token ) );
     }
 
     private void OnApplicationQuit()
     {
+        Stop();
         cancelSource?.Cancel();
     }
     #endregion
 
     private async void UpdateTime( CancellationToken _token )
     {
-        //Stopwatch stopwatch = Stopwatch.StartNew();
-        //long interval  = 10000000L / 8000L;
-        //long prevTick  = stopwatch.ElapsedTicks;
-        //long startTick = stopwatch.ElapsedTicks;
-        //int _8000Hz    = 0;
-        //int noLimitHz  = 0;
-
         while ( !_token.IsCancellationRequested )
         {
-            //noLimitHz++;
-            //long curTick  = stopwatch.ElapsedTicks;
-            //if ( ( curTick - prevTick ) >= interval )
-            //{
-            //    prevTick = curTick;
-            //    _8000Hz++;
-            //}
-
-            //if ( ( curTick - startTick ) >= 10000000L )
-            //{
-            //    //Debug.Log( $"NOLIMIT : {noLimitHz}" );
-            //    //Debug.Log( $"8000HZ  : {_8000Hz}" );
-            //    _8000Hz   = 0;
-            //    noLimitHz = 0;
-            //    startTick = stopwatch.ElapsedTicks;
-            //}
+            // FMOD System Update
+            AudioManager.Inst.SystemUpdate();
 
             if ( IsStart )
             {
-
+                // 시간 갱신
                 Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime );
-                for ( int i = numTiming; i < Timings.Count; i++ )
+
+                // 이동된 거리 계산
+                for ( int i = timingIndex; i < Timings.Count; i++ )
                 {
                     double time = Timings[i].time;
                     double bpm  = Timings[i].bpm / mainBPM;
@@ -118,7 +110,7 @@ public class NowPlaying : Singleton<NowPlaying>
                     // 지나간 타이밍에 대한 거리
                     if ( i + 1 < Timings.Count && Timings[i + 1].time < Playback )
                     {
-                        numTiming += 1;
+                        timingIndex   += 1;
                         DistanceCache += bpm * ( Timings[i + 1].time - time );
                         break;
                     }
@@ -126,6 +118,14 @@ public class NowPlaying : Singleton<NowPlaying>
                     // 이전 타이밍까지의 거리( 캐싱 ) + 현재 타이밍에 대한 거리
                     Distance = DistanceCache + ( bpm * ( Playback - time ) );
                     break;
+                }
+
+                // 시간의 흐름에 따라 자동재생되는 음악 처리 ( 사운드 샘플 )
+                while ( sampleIndex < samples.Count && samples[sampleIndex].time <= Playback )
+                {
+                    Play( samples[sampleIndex] );
+                    if ( ++sampleIndex < samples.Count )
+                         UseAllSamples = true;
                 }
             }
 
@@ -136,24 +136,62 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Parsing
     public void Initalize()
     {
+        Stop();
         WaitTime = StartWaitTime;
         mainBPM  = CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
         // 채보 파싱
         using ( FileParser parser = new FileParser() )
         {
-            if ( !parser.TryParse( CurrentSong.filePath, out Chart chart ) )
+            if ( parser.TryParse( CurrentSong.filePath, out Chart chart ) )
+            {
+                CurrentChart = chart;
+                Timings      = chart.timings;
+
+                // 단일 배경음은 자동재생되는 사운드샘플로 재생
+                if ( !CurrentSong.isOnlyKeySound )
+                      AddSample( new KeySound( GameSetting.SoundOffset, Path.GetFileName( CurrentSong.audioPath ), 1f ), SoundType.BGM );
+
+                // 사운드샘플 로딩 ( 자동재생 )
+                for ( int i = 0; i < chart.samples.Count; i++ )
+                      AddSample( chart.samples[i], SoundType.BGM );
+
+                InputManager.Inst.Initialize();
+            }
+            else
             {
                 CurrentScene.LoadScene( SceneType.FreeStyle );
                 Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
             }
-            else
-            {
-                CurrentChart   = chart;
-                Timings = chart.timings;
-            }
         }
-        Stop();
+    }
+
+
+    public void Play( in KeySound _sample )
+    {
+        if ( keySounds.ContainsKey( _sample.name ) )
+        {
+            AudioManager.Inst.Play( keySounds[_sample.name], _sample.volume );
+        }
+    }
+
+    /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드샘플 </summary>
+    public void AddSample( in KeySound _sample, SoundType _type )
+    {
+        if ( _type == SoundType.BGM )
+             samples.Add( _sample );
+
+        if ( keySounds.ContainsKey( _sample.name ) )
+        {
+            // 이미 로딩된 사운드
+        }
+        else
+        {
+            // 새로운 사운드 로딩
+            var dir = Path.GetDirectoryName( CurrentSong.filePath );
+            if ( AudioManager.Inst.Load( Path.Combine( dir, _sample.name ), out FMOD.Sound sound ) )
+                 keySounds.Add( _sample.name, sound );
+        }
     }
 
     private void ConvertSong()
@@ -173,7 +211,7 @@ public class NowPlaying : Singleton<NowPlaying>
         Timer timer = new Timer();
         IsParsing = true;
         ConvertSong();
-        List<Song> newSongList = new List<Song>();
+        List<Song> newSongs = new List<Song>();
 
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
         string[] files = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
@@ -184,26 +222,26 @@ public class NowPlaying : Singleton<NowPlaying>
             {
                 if ( parser.TryParse( files[i], out Song newSong ) )
                 {
-                    newSong.UID = newSongList.Count;
-                    newSongList.Add( newSong );
+                    newSong.index = newSongs.Count;
+                    newSongs.Add( newSong );
                     OnParsing?.Invoke( newSong );
                 }
             }
         }
 
-        newSongList.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
-        for ( int i = 0; i < newSongList.Count; i++ )
+        newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
+        for ( int i = 0; i < newSongs.Count; i++ )
         {
-            var song = newSongList[i];
-            song.UID = i;
-            newSongList[i] = song;
+            var song = newSongs[i];
+            song.index = i;
+            newSongs[i] = song;
         }
 
-        Songs = newSongList.ToList();
-        OriginSongs = new ReadOnlyCollection<Song>( Songs.ToList() );
+        Songs       = new ReadOnlyCollection<Song>( newSongs );
+        OriginSongs = new ReadOnlyCollection<Song>( Songs );
 
         if ( Songs.Count > 0 )
-            UpdateSong( 0 );
+             UpdateSong( 0 );
 
         OnParsingEnd?.Invoke();
         IsParsing = false;
@@ -216,25 +254,24 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Search( string _keyword )
     {
         if ( OriginSongs.Count == 0 )
-            return;
+             return;
 
         if ( _keyword.Replace( " ", string.Empty ) == string.Empty )
         {
-            Songs = OriginSongs.ToList();
-            SearchCount = OriginSongs.Count;
-            UpdateSong( CurrentSong.UID );
+            Songs = new ReadOnlyCollection<Song>( OriginSongs );
+            UpdateSong( CurrentSong.index );
 
             return;
         }
 
-        Songs.Clear();
+        List<Song> newSongs = new List<Song>();
         bool isSV = _keyword.Replace( " ", string.Empty ).ToUpper().CompareTo( "SV" ) == 0;
         for ( int i = 0; i < OriginSongs.Count; i++ )
         {
             if ( isSV )
             {
                 if ( OriginSongs[i].minBpm != OriginSongs[i].maxBpm )
-                     Songs.Add( OriginSongs[i] );
+                     newSongs.Add( OriginSongs[i] );
             }
             else
             {
@@ -242,12 +279,12 @@ public class NowPlaying : Singleton<NowPlaying>
                      OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
                      OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
                      OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
-                     Songs.Add( OriginSongs[i] );
+                     newSongs.Add( OriginSongs[i] );
             }
         }
 
-        SearchCount = Songs.Count;
-        if ( SearchCount != 0 )
+        Songs = new ReadOnlyCollection<Song>( newSongs );
+        if ( Songs.Count != 0 )
              UpdateSong( 0 );
     }
 
@@ -271,6 +308,14 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Sound Process
     public void Play()
     {
+        // 사운드샘플 오름차순 정렬 ( 시간기준 )
+        samples.Sort( delegate ( KeySound _A, KeySound _B )
+        {
+            if      ( _A.time > _B.time ) return 1;
+            else if ( _A.time < _B.time ) return -1;
+            else                          return 0;
+        } );
+
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
         startTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
         SaveTime       = WaitTime;
@@ -284,8 +329,10 @@ public class NowPlaying : Singleton<NowPlaying>
         SaveTime       = WaitTime;
         Distance       = 0d;
         DistanceCache  = 0d;
-        numTiming      = 0;
+        sampleIndex    = 0;
+        timingIndex    = 0;
         IsStart        = false;
+        UseAllSamples  = false;
     }
 
     public void Stop()
@@ -293,6 +340,18 @@ public class NowPlaying : Singleton<NowPlaying>
         Clear();
         IsLoadBGA      = false;
         IsLoadKeySound = false;
+
+        foreach ( var keySound in keySounds )
+        {
+            var sound = keySound.Value;
+            if ( sound.hasHandle() )
+            {
+                sound.release();
+                sound.clearHandle();
+            }
+        }
+        keySounds.Clear();
+        samples.Clear();
     }
 
 
@@ -305,7 +364,7 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( true )
         {
             Playback += speed * Time.deltaTime;
-            Distance = DistanceCache + ( ( Timings[numTiming].bpm / mainBPM ) * ( Playback - Timings[numTiming].time ) );
+            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / mainBPM ) * ( Playback - Timings[timingIndex].time ) );
 
             CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
@@ -338,7 +397,7 @@ public class NowPlaying : Singleton<NowPlaying>
             yield return null;
 
             Playback -= Time.deltaTime * 1.2f;
-            Distance = DistanceCache + ( ( Timings[numTiming].bpm / mainBPM ) * ( Playback - Timings[numTiming].time ) );
+            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / mainBPM ) * ( Playback - Timings[timingIndex].time ) );
         }
 
         startTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
@@ -357,10 +416,10 @@ public class NowPlaying : Singleton<NowPlaying>
     public void UpdateSong( int _index )
     {
         if ( _index >= Songs.Count )
-            throw new Exception( "out of range" );
+             throw new Exception( "out of range" );
 
-        CurrentSongIndex = _index;
-        CurrentSong = Songs[_index];
+        CurrentIndex = _index;
+        CurrentSong  = Songs[_index];
     }
     #endregion
 

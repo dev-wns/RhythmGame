@@ -32,7 +32,7 @@ public class Judgement : MonoBehaviour
 
     private void Awake()
     {
-        Multiply = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? .75d : 1d;
+        Multiply = GameSetting.HasFlag( GameMode.HardJudge ) ? .75d : 1d;
     }
 
     public static bool CanBeHit( double _diff )
@@ -42,7 +42,7 @@ public class Judgement : MonoBehaviour
 
     public static bool IsMiss( double _diff )
     {
-        return _diff < -Bad;
+        return _diff < -Miss;
     }
 
     public void ResultUpdate( double _diff, NoteType _noteType )
@@ -62,11 +62,11 @@ public class Judgement : MonoBehaviour
 
         if ( diffAbs > Perfect && diffAbs <= Bad )
         {
-            GameManager.Inst.UpdateResult( _diff >= 0d ? HitResult.Fast : HitResult.Slow );
+            DataStorage.Inst.UpdateResult( _diff >= 0d ? HitResult.Fast : HitResult.Slow );
         }
 
-        GameManager.Inst.AddHitData( _noteType, _diff );
-        GameManager.Inst.UpdateResult( result.hitResult );
+        DataStorage.Inst.AddHitData( _noteType, _diff );
+        DataStorage.Inst.UpdateResult( result.hitResult );
 
         OnJudge?.Invoke( result );
     }
@@ -76,6 +76,6 @@ public class Judgement : MonoBehaviour
         for ( int i = 0; i < _count; i++ )
             OnJudge?.Invoke( new JudgeResult( _result, _type ) );
 
-        GameManager.Inst.UpdateResult( _result, _count );
+        DataStorage.Inst.UpdateResult( _result, _count );
     }
 }

@@ -20,11 +20,11 @@ public class Result : Scene
 
         AudioManager.Inst.FadeVolume( 0f, AudioManager.Inst.Volume, 2f );
 
-        bool shouldMakeRecord = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay );// ||
-                                                                                         // GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )   ||
-                                                                                         // GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        bool shouldMakeRecord = GameSetting.HasFlag( GameMode.AutoPlay );// ||
+                                                                                         // GameSetting.HasFlag( GameMode.NoFail )   ||
+                                                                                         // GameSetting.HasFlag( GameMode.NoSlider );
         if ( !shouldMakeRecord )
-             GameManager.Inst.CreateNewRecord();
+             DataStorage.Inst.CreateNewRecord();
 
         isStart = true;
     }
@@ -48,7 +48,7 @@ public class Result : Scene
 
     public void BackToLobby()
     {
-        GameManager.Inst.Clear();
+        DataStorage.Inst.Clear();
         LoadScene( SceneType.FreeStyle );
         AudioManager.Inst.Play( SFX.MainClick );
     }

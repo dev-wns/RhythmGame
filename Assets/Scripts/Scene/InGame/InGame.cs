@@ -61,12 +61,6 @@ public class InGame : Scene
         StartCoroutine( Play() );
     }
 
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        AudioManager.Inst.KeyRelease();
-    }
-
     public override void Connect()
     {
         AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
@@ -82,7 +76,6 @@ public class InGame : Scene
 
     private void Stop()
     {
-        NowPlaying.Inst.Stop();
         IsEnd = false;
         for ( int i = 0; i < isHitLastNotes.Length; i++ )
         {
@@ -96,7 +89,7 @@ public class InGame : Scene
         WaitUntil waitLoadDatas = new WaitUntil( () => NowPlaying.IsLoadKeySound && NowPlaying.IsLoadBGA );
         yield return waitLoadDatas;
 
-        uint etcTime = ( LaneSystem.noteTime - LaneSystem.keySoundTime ) +
+        uint etcTime = ( InputManager.noteTime - InputManager.keySoundTime ) +
                          MeasureSystem.MeasureCalcTime;
 
         etcText.text = $"{etcTime} ms";
@@ -113,18 +106,19 @@ public class InGame : Scene
             loadingCanvas.SetActive( false );
         }
 
+        InputManager.Inst.GameStart();
         OnGameStart?.Invoke();
         IsGameInputLock = false;
         IsInputLock     = false;
         NowPlaying.Inst.Play();
 
         // GameEnd
-        yield return new WaitUntil( () => NowPlaying.TotalNotes <= GameManager.ResultCount );
-        Debug.Log( $"All lanes are empty ( {GameManager.ResultCount} Judgements )" );
+        yield return new WaitUntil( () => NowPlaying.TotalNotes <= DataStorage.ResultCount );
+        Debug.Log( $"All lanes are empty ( {DataStorage.ResultCount} Judgements )" );
 
         IsEnd = true;
         if ( NowPlaying.CurrentSong.isOnlyKeySound )
-             yield return new WaitUntil( () => KeySampleSystem.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
+             yield return new WaitUntil( () => NowPlaying.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
 
         AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );
@@ -136,7 +130,7 @@ public class InGame : Scene
 
     public void BackToLobby()
     {
-        GameManager.Inst.Clear();
+        DataStorage.Inst.Clear();
         LoadScene( SceneType.FreeStyle );
     }
 

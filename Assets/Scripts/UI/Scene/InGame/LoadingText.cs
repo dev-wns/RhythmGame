@@ -64,7 +64,7 @@ public class LoadingText : RotateImage
     {
         while ( !NowPlaying.IsStart )
         {
-            numSound.text = $"{AudioManager.Inst.KeySoundCount}";
+            //numSound.text = $"{AudioManager.Inst.KeySoundCount}";
             numDuplicateSound.text = $"{AudioManager.Inst.TotalKeySoundCount}";
             yield return null;
         }

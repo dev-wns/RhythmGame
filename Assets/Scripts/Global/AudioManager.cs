@@ -36,7 +36,7 @@ public class AudioManager : Singleton<AudioManager>
     private FMOD.System system;
     private Dictionary<ChannelType, ChannelGroup> groups    = new Dictionary<ChannelType, ChannelGroup>();
     private Dictionary<SFX, Sound> sfxSounds = new Dictionary<SFX, Sound>();
-    private Dictionary<string/* 키음 이름 */, Sound> keySounds = new Dictionary<string, Sound>();
+    //private Dictionary<string/* 키음 이름 */, Sound> keySounds = new Dictionary<string, Sound>();
     private Dictionary<DSP_TYPE, DSP> dsps      = new Dictionary<DSP_TYPE, DSP>();
     public event Action OnReload;
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
@@ -76,7 +76,7 @@ public class AudioManager : Singleton<AudioManager>
     public Channel MainChannel { get; private set; }
     /// <summary> The accuratetime flag is required. /// </summary>
     public uint Length => ErrorCheck( MainSound.getLength( out uint length, TIMEUNIT.MS ) ) ? length : uint.MaxValue;
-    public int KeySoundCount => keySounds.Count;
+    //public int KeySoundCount => keySounds.Count;
     public int TotalKeySoundCount { get; private set; }
     /// <summary> BGM Position </summary>
     public uint Position
@@ -118,10 +118,9 @@ public class AudioManager : Singleton<AudioManager>
     #region System
     private Coroutine corVolumeEffect;
     private ADVANCEDSETTINGS advancedSettings;
-    private CancellationTokenSource cancelSource = new CancellationTokenSource();
 
 
-    public async void Initialize()
+    public void Initialize()
     {
         Timer timer = new Timer();
         // System
@@ -201,8 +200,6 @@ public class AudioManager : Singleton<AudioManager>
 
         Debug.Log( $"AudioManager Initialization {timer.End} ms" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
-
-        await Task.Run( () => SystemUpdate( cancelSource.Token ) );
     }
 
     private void CreateDriverInfo( OUTPUTTYPE _type, List<SoundDriver> _list )
@@ -225,21 +222,6 @@ public class AudioManager : Singleton<AudioManager>
         ErrorCheck( system.setOutput( prevType ) );
     }
 
-    public void KeyRelease()
-    {
-        TotalKeySoundCount = 0;
-        foreach ( var keySound in keySounds )
-        {
-            var sound = keySound.Value;
-            if ( sound.hasHandle() )
-            {
-                ErrorCheck( sound.release() );
-                sound.clearHandle();
-            }
-        }
-        keySounds.Clear();
-    }
-
     public void Release()
     {
         IsStop = true;
@@ -254,17 +236,6 @@ public class AudioManager : Singleton<AudioManager>
             }
         }
         sfxSounds.Clear();
-
-        foreach ( var keySound in keySounds )
-        {
-            var sound = keySound.Value;
-            if ( sound.hasHandle() )
-            {
-                ErrorCheck( sound.release() );
-                sound.clearHandle();
-            }
-        }
-        keySounds.Clear();
 
         // ChannelGroup
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
@@ -299,7 +270,6 @@ public class AudioManager : Singleton<AudioManager>
         dsps.Clear();
 
         // System
-        cancelSource?.Cancel();
         ErrorCheck( system.release() ); // 내부에서 close 함.
         system.clearHandle();
 
@@ -340,18 +310,19 @@ public class AudioManager : Singleton<AudioManager>
         Initialize();
     }
 
-    private async void SystemUpdate( CancellationToken _token )
+    public void SystemUpdate()
     {
-        while ( !_token.IsCancellationRequested )
-        {
-            system.update();
-            await Task.Delay( 1 );
-        }
+        if ( !IsStop )
+             system.update();
+    }
+
+    private void OnApplicationQuit()
+    {
+        IsStop = true;
     }
 
     private void OnDestroy()
     {
-        IsStop = true;
         // 매니저격 클래스라 가장 마지막에 제거되어야 한다.
         // OnApplicationQuit -> OnDisable -> OnDestroy 순으로 호출 되기 때문에
         // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후
@@ -387,27 +358,38 @@ public class AudioManager : Singleton<AudioManager>
     }
 
     /// <summary> Load KeySound </summary>
-    public bool Load( string _path )
-    {
-        var name = System.IO.Path.GetFileName( _path );
-        if ( keySounds.ContainsKey( name ) )
-        {
-            ++TotalKeySoundCount;
-            //_sound = keySounds[name];
-        }
-        else if ( System.IO.File.Exists( @_path ) )
-        {
-            ErrorCheck( system.createSound( _path, MODE.LOOP_OFF | MODE.CREATESAMPLE | MODE.LOWMEM, out Sound sound ) );
-            keySounds.Add( name, sound );
-        }
-        //   if ( !System.IO.File.Exists( @_path ) )
-        else
-        {
-            // throw new Exception( $"File Exists  {_path}" );
-            //_sound = new Sound();
-            return false;
-        }
+    //public bool Load( string _path )
+    //{
+    //    var name = System.IO.Path.GetFileName( _path );
+    //    if ( keySounds.ContainsKey( name ) )
+    //    {
+    //        ++TotalKeySoundCount;
+    //        //_sound = keySounds[name];
+    //    }
+    //    else if ( System.IO.File.Exists( @_path ) )
+    //    {
+    //        ErrorCheck( system.createSound( _path, MODE.LOOP_OFF | MODE.CREATESAMPLE | MODE.LOWMEM, out Sound sound ) );
+    //        keySounds.Add( name, sound );
+    //    }
+    //    //   if ( !System.IO.File.Exists( @_path ) )
+    //    else
+    //    {
+    //        // throw new Exception( $"File Exists  {_path}" );
+    //        //_sound = new Sound();
+    //        return false;
+    //    }
 
+    //    return true;
+    //}
+
+    public bool Load( string _path, out Sound _sound )
+    {
+        _sound = new Sound();
+        
+        if ( !System.IO.File.Exists( @_path ) )
+             return false;
+
+        ErrorCheck( system.createSound( _path, MODE.LOOP_OFF | MODE.CREATESAMPLE | MODE.LOWMEM, out _sound ) );
         return true;
     }
     #endregion
@@ -433,18 +415,26 @@ public class AudioManager : Singleton<AudioManager>
     }
 
     /// <summary> Play Key Sound Effects </summary>
-    public void Play( KeySound _sound )
-    {
-        if ( !keySounds.ContainsKey( _sound.name ) )
-        {
-            //Debug.LogWarning( $"keySound[{_keySound.name}] is not loaded." );
-            return;
-        }
 
-        ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], true, out Channel channel ) );
-        ErrorCheck( channel.setVolume( _sound.volume ) );
+    public void Play( FMOD.Sound _sound, float _volume )
+    {
+        ErrorCheck( system.playSound( _sound, groups[ChannelType.BGM], true, out Channel channel ) );
+        ErrorCheck( channel.setVolume( _volume ) );
         ErrorCheck( channel.setPaused( false ) );
     }
+
+    //public void Play( KeySound _sound )
+    //{
+    //    if ( !keySounds.ContainsKey( _sound.name ) )
+    //    {
+    //        //Debug.LogWarning( $"keySound[{_keySound.name}] is not loaded." );
+    //        return;
+    //    }
+
+    //    ErrorCheck( system.playSound( keySounds[_sound.name], groups[ChannelType.BGM], true, out Channel channel ) );
+    //    ErrorCheck( channel.setVolume( _sound.volume ) );
+    //    ErrorCheck( channel.setPaused( false ) );
+    //}
     #endregion
     #region Effect
 /// <summary>

@@ -154,20 +154,13 @@ public class PreviewNoteSystem : MonoBehaviour
         while ( spawnIndex < chart.notes.Count && curData.noteDistance <= _distance + MinDistance )
         {
             PreviewNoteRenderer note = notePool.Spawn();
-            Color color = Color.white;
-            if ( NowPlaying.OriginKeyCount == 4 )
-            {
-                color = curData.lane == 1 || curData.lane == 2 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
-            }
-            else if ( NowPlaying.OriginKeyCount == 6 )
-            {
-                color = curData.lane == 1 || curData.lane == 4 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
-            }
-            else if ( NowPlaying.OriginKeyCount == 7 )
-            {
-                color = curData.lane == 1 || curData.lane == 5 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) :
-                                             curData.lane == 3 ? new Color( 1f, 0.8274511f, 0.2117647f, 1f ) : Color.white;
-            }
+            
+            Color color  = Color.white;
+            int keyCount = NowPlaying.CurrentSong.keyCount;
+            if      ( keyCount == 4 ) color = curData.lane == 1 || curData.lane == 2 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
+            else if ( keyCount == 6 ) color = curData.lane == 1 || curData.lane == 4 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
+            else if ( keyCount == 7 ) color = curData.lane == 1 || curData.lane == 5 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) :
+                                              curData.lane == 3                      ? new Color( 1f, 0.8274511f, 0.2117647f, 1f ) : Color.white;
 
             note.SetInfo( curData, noteStartPos, color );
             if ( ++spawnIndex < chart.notes.Count )
