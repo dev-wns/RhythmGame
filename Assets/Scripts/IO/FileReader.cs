@@ -4,9 +4,11 @@ using System.IO;
 public abstract class FileReader : IDisposable
 {
     private StreamReader streamReader;
+    
     protected string path { get; private set; }
     protected string dir { get; private set; }
     protected string line { get; private set; }
+    protected string buffer { get; private set; }
 
     public void Dispose() => streamReader?.Dispose();
 
@@ -18,7 +20,8 @@ public abstract class FileReader : IDisposable
             Dispose();
 
             streamReader = new StreamReader( @$"\\?\{_path}" );
-            dir = Path.GetDirectoryName( _path );
+            dir          = Path.GetDirectoryName( _path );
+
         }
         catch ( Exception _error )
         {
@@ -33,7 +36,7 @@ public abstract class FileReader : IDisposable
         {
             line = streamReader.ReadLine();
             while ( line == string.Empty )
-                line = streamReader.ReadLine();
+                    line = streamReader.ReadLine();
 
             return true;
         }
@@ -51,7 +54,7 @@ public abstract class FileReader : IDisposable
     protected bool Contains( string _str )
     {
         if ( line == null )
-            return false;
+             return false;
 
         return line.Contains( _str );
     }
@@ -75,9 +78,9 @@ public abstract class FileReader : IDisposable
     protected void Move( string _sourceFilePath, string _destFolderPath )
     {
         if ( !Directory.Exists( _destFolderPath ) )
-            Directory.CreateDirectory( _destFolderPath );
+              Directory.CreateDirectory( _destFolderPath );
 
         if ( File.Exists( _sourceFilePath ) )
-            File.Move( _sourceFilePath, Path.Combine( _destFolderPath, Path.GetFileName( _sourceFilePath ) ) );
+             File.Move( _sourceFilePath, Path.Combine( _destFolderPath, Path.GetFileName( _sourceFilePath ) ) );
     }
 }

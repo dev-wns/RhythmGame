@@ -48,7 +48,7 @@ public class InGame : Scene
         IsInputLock = true;
 
         timer.Start();
-        NowPlaying.Inst.Initalize();
+        NowPlaying.Inst.LoadChart();
         loadingText.text = $"{timer.End} ms";
     }
 
@@ -86,7 +86,7 @@ public class InGame : Scene
     private IEnumerator Play()
     {
         // GameStart
-        WaitUntil waitLoadDatas = new WaitUntil( () => NowPlaying.IsLoadKeySound && NowPlaying.IsLoadBGA );
+        WaitUntil waitLoadDatas = new WaitUntil( () => NowPlaying.IsLoadBGA );
         yield return waitLoadDatas;
 
         uint etcTime = ( InputManager.noteTime - InputManager.keySoundTime ) +

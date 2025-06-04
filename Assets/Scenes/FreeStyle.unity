@@ -41527,8 +41527,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851e8dab11c8d15449d77b7ab200db70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textPrefab: {fileID: 3767383445417737074, guid: a424f812169c4bf43aafeb51ba567033,
-    type: 3}
+  prefab: {fileID: 3767383445417737074, guid: a424f812169c4bf43aafeb51ba567033, type: 3}
   maxShowCount: 22
   OnReLoadEnd:
     m_PersistentCalls:

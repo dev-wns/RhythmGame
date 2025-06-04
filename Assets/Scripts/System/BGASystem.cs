@@ -120,7 +120,7 @@ public class BGASystem : MonoBehaviour
 
             case BackgroundType.Image:
             {
-                if ( !System.IO.File.Exists( NowPlaying.CurrentSong.imagePath ) )
+                if ( !System.IO.File.Exists( NowPlaying.CurrentSong.imageName ) )
                 {
                     transform.root.gameObject.SetActive( false );
                     type = BackgroundType.None;
@@ -129,7 +129,7 @@ public class BGASystem : MonoBehaviour
                 }
                 else
                 {
-                    StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
+                    StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imageName ) );
                 }
             }
             break;
@@ -208,7 +208,7 @@ public class BGASystem : MonoBehaviour
     {
         timer.Start();
         vp.enabled = true;
-        vp.url             = @$"{NowPlaying.CurrentSong.videoPath}";
+        vp.url             = @$"{NowPlaying.CurrentSong.videoName}";
         vp.playbackSpeed   = GameSetting.CurrentPitch;
         vp.targetTexture   = renderTexture;
         background.texture = renderTexture;

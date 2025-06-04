@@ -145,7 +145,7 @@ public class FreeStyleMainScroll : ScrollBase
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.CurrentSong;
 
-        AudioManager.Inst.Load( curSong.audioPath, false, true );
+        AudioManager.Inst.Load( curSong.audioName, false, true );
         endTime = curSong.totalTime;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         Playback = curSong.previewTime;
@@ -308,7 +308,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void OnBufferSetting()
     {
-        AudioManager.Inst.Load( curSong.audioPath, false, true );
+        AudioManager.Inst.Load( curSong.audioName, false, true );
         AudioManager.Inst.Play();
         AudioManager.Inst.Position = ( uint )Playback;
     }

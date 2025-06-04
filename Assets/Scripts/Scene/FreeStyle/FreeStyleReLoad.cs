@@ -7,114 +7,93 @@ using UnityEngine.Events;
 
 public class FreeStyleReLoad : MonoBehaviour
 {
-    public TextMeshProUGUI textPrefab;
+    public TextMeshProUGUI prefab;
     public int maxShowCount;
     private Queue<string> dataQueue = new Queue<string>();
     private ObjectPool<TextMeshProUGUI> textPool;
     private Queue<TextMeshProUGUI> textQueue = new Queue<TextMeshProUGUI>();
     public UnityEvent OnReLoadEnd;
 
-    private Coroutine ShowParsingText;
-    private bool isParsingEnd;
+    private Coroutine corUpdateTexts;
     private Song prevSelectedSong;
+    private int fileCount;
 
     private void Awake()
     {
-        textPool = new ObjectPool<TextMeshProUGUI>( textPrefab, transform, maxShowCount + 2 );
+        textPool = new ObjectPool<TextMeshProUGUI>( prefab, transform, maxShowCount + 2 );
+        NowPlaying.OnParsing += AddText;
+    }
+
+    private void OnDestroy()
+    {
+        NowPlaying.OnParsing -= AddText;
     }
 
     private async void OnEnable()
     {
         NowPlaying.CurrentScene.IsInputLock = true;
-        NowPlaying.OnParsing += AddText;
-        NowPlaying.OnParsingEnd += ParsingEnd;
-        isParsingEnd = false;
-        prevSelectedSong = NowPlaying.CurrentSong;
 
-        ShowParsingText = StartCoroutine( ShowText() );
-        await Task.Run( NowPlaying.Inst.Load );
+        fileCount        = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" ).Length;
+        prevSelectedSong = NowPlaying.CurrentSong;
+        corUpdateTexts   = StartCoroutine( UpdateTexts() );
+
+        await Task.Run( NowPlaying.Inst.LoadSongs );
+        if ( NowPlaying.Inst.OriginSongs.Count == 0 )
+        {
+            if ( !ReferenceEquals( corUpdateTexts, null ) )
+            {
+                StopCoroutine( corUpdateTexts );
+                corUpdateTexts = null;
+            }
+
+            var text  = textPool.Spawn();
+            text.transform.SetAsLastSibling();
+            text.text = $"성공 : {NowPlaying.Inst.OriginSongs.Count}  실패 : {fileCount - NowPlaying.Inst.OriginSongs.Count}";
+            DisableText( text );
+
+            NowPlaying.CurrentScene.IsInputLock = false;
+        }
 
         NowPlaying.Inst.Search( prevSelectedSong );
     }
 
     private void OnDisable()
     {
-        NowPlaying.OnParsing -= AddText;
-        NowPlaying.OnParsingEnd -= ParsingEnd;
         while ( textQueue.Count > 0 )
             textPool.Despawn( textQueue.Dequeue() );
     }
 
-    private void ParsingEnd() => isParsingEnd = true;
+    private void AddText( Song _song ) => dataQueue.Enqueue( _song.title );
 
-    private void AddText( Song _song ) => dataQueue.Enqueue( System.IO.Path.GetFileNameWithoutExtension( _song.filePath ) );
-
-    private void Update()
+    private IEnumerator UpdateTexts()
     {
-        if ( isParsingEnd )
-        {
-            if ( NowPlaying.Inst.TotalFileCount == 0 )
-            {
-                if ( !ReferenceEquals( ShowParsingText, null ) )
-                {
-                    StopCoroutine( ShowParsingText );
-                    ShowParsingText = null;
-                }
-
-                OnReLoadEnd?.Invoke();
-                var text  = textPool.Spawn();
-                text.transform.SetAsLastSibling();
-                text.text = $"성공 : {NowPlaying.Inst.Songs.Count}  실패 : {NowPlaying.Inst.TotalFileCount - NowPlaying.Inst.Songs.Count}";
-                DisabledText( text );
-
-                NowPlaying.CurrentScene.IsInputLock = false;
-            }
-
-            isParsingEnd = false;
-        }
-    }
-
-    private IEnumerator ShowText()
-    {
-        yield return new WaitUntil( () => NowPlaying.IsParsing );
-
-        // 파싱 중일 때
-        while ( NowPlaying.IsParsing )
+        int index     = 0;
+        while ( index < fileCount )
         {
             if ( dataQueue.Count > 0 )
             {
                 var text = textPool.Spawn();
                 text.transform.SetAsLastSibling();
                 text.text = dataQueue.Dequeue();
-                DisabledText( text );
+                index    += 1;
+                DisableText( text );
             }
 
-            yield return YieldCache.WaitForSeconds( .001f );
+            yield return YieldCache.WaitForSeconds( .005f );
         }
 
-        // 나머지 데이터 보여주기
-        while ( dataQueue.Count > 0 )
-        {
-            var text = textPool.Spawn();
-            text.transform.SetAsLastSibling();
-            text.text = dataQueue.Dequeue();
-            DisabledText( text );
-            yield return YieldCache.WaitForSeconds( .001f );
-        }
-
-        OnReLoadEnd?.Invoke();
-        var endText  = textPool.Spawn();
+        var endText = textPool.Spawn();
         endText.transform.SetAsLastSibling();
-        endText.text = $"성공 : {NowPlaying.Inst.Songs.Count}  실패 : {NowPlaying.Inst.TotalFileCount - NowPlaying.Inst.Songs.Count}";
-        DisabledText( endText );
+        endText.text = $"성공 : {NowPlaying.Inst.OriginSongs.Count}  실패 : {fileCount - NowPlaying.Inst.OriginSongs.Count}";
+        DisableText( endText );
 
         NowPlaying.CurrentScene.IsInputLock = false;
     }
 
-    private void DisabledText( TextMeshProUGUI _text )
+    private void DisableText( TextMeshProUGUI _text )
     {
         textQueue.Enqueue( _text );
         if ( textPool.ActiveCount > maxShowCount )
-            textPool.Despawn( textQueue.Dequeue() );
+             textPool.Despawn( textQueue.Dequeue() );
     }
 }

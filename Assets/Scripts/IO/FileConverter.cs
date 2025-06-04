@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,9 +13,9 @@ public struct Song
     public int index;
 
     public string filePath;
-    public string imagePath;
-    public string audioPath;
-    public string videoPath;
+    public string imageName;
+    public string audioName;
+    public string videoName;
     public int    audioOffset;
     public int    videoOffset;
     public int    volume;
@@ -129,30 +130,27 @@ public struct SpriteSample
 
 public struct Chart
 {
-    public ReadOnlyCollection<Timing> timings;
-    public ReadOnlyCollection<Note> notes;
-    public ReadOnlyCollection<KeySound> samples;
+    public ReadOnlyCollection<Timing>       timings;
+    public ReadOnlyCollection<Note>         notes;
+    public ReadOnlyCollection<KeySound>     samples;
     public ReadOnlyCollection<SpriteSample> sprites;
 }
 
 public class FileConverter : FileReader
 {
-    private List<Timing> uninheritedTimings = new List<Timing>();
-    private List<Timing> timings            = new List<Timing>();
-    private List<Note> notes                = new List<Note>();
-    private List<KeySound> samples          = new List<KeySound>();
-    private List<SpriteSample> sprites      = new List<SpriteSample>();
+    [Header( "Datas" )]
+    private Song               song               = new Song();
+    private List<Note>         notes              = new List<Note>();
+    private List<Timing>       timings            = new List<Timing>();
+    private List<KeySound>     samples            = new List<KeySound>();
+    private List<SpriteSample> sprites            = new List<SpriteSample>();
+    private List<Timing>       uninheritedTimings = new List<Timing>();
+
+    [Header( "Write" )]
+    private bool isAppended = false;
+    private StringBuilder writeString = new StringBuilder();
 
     private readonly string[] virtualAudioName = { "preview.wav", "preview2.mp3", "preview.mp3", "preview.ogg" };
-    private class IntegerComparer : IComparer<int>
-    {
-        int IComparer<int>.Compare( int _left, int _right )
-        {
-            if ( _left > _right ) return 1;
-            else if ( _left < _right ) return -1;
-            else return 0;
-        }
-    }
     private class DeleteKey
     {
         public BitArray bits { get; private set; }
@@ -185,7 +183,6 @@ public class FileConverter : FileReader
 
         public bool this[int _key] => bits[_key];
     }
-
     private class LaneData : IEquatable<LaneData>
     {
         public int px;
@@ -209,31 +206,25 @@ public class FileConverter : FileReader
             lane = -1;
         }
     }
-    private class AccumulateTiming
+    private class Accumulate
     {
         public double time;
         public double bpm;
 
-        public AccumulateTiming( double _time, double _bpm )
+        public Accumulate( double _time, double _bpm )
         {
             time = _time;
-            bpm = _bpm;
+            bpm  = _bpm;
         }
     }
 
-    public void Load( string _path )
-    {
-        if ( !File.Exists( Path.ChangeExtension( _path, "wns" ) ) )
-             Convert( _path, false );
-
-        //Convert( _path, true );
-    }
-
-    private void Convert( string _path, bool isReConvert = false )
+    protected void Convert( string _path )
     {
         try
         {
-            Song song = new Song();
+            song        = new Song(); 
+            song.volume = 100;
+
             OpenFile( _path );
 
             #region General
@@ -241,21 +232,23 @@ public class FileConverter : FileReader
             int mode = 0;
             while ( ReadLine() != "[Metadata]" )
             {
-                if ( Contains( "AudioFilename:" ) ) song.audioPath = Split( ':' );
+                if ( Contains( "AudioFilename:" ) ) song.audioName   = Split( ':' );
                 if ( Contains( "PreviewTime:" ) )   song.previewTime = int.Parse( Split( ':' ) );
-                if ( Contains( "Mode:" ) )          mode = int.Parse( Split( ':' ) );
+                if ( Contains( "Mode:" ) )          mode             = int.Parse( Split( ':' ) );
             }
 
             // 건반형 모드가 아니면 읽지 않음.
-            if ( mode != 3 ) return;
+            if ( mode != 3 ) 
+                 return;
+
             // [Metadata] ~ [Difficulty]
             while ( ReadLine() != "[Difficulty]" )
             {
-                if ( Contains( "Title:" ) && !Contains( "TitleUnicode:" ) ) song.title = Replace( "Title:", string.Empty );
-                if ( Contains( "Artist:" ) && !Contains( "ArtistUnicode:" ) ) song.artist = Replace( "Artist:", string.Empty );
-                if ( Contains( "Source:" ) ) song.source = Replace( "Source:", string.Empty );
-                if ( Contains( "Creator:" ) ) song.creator = Replace( "Creator:", string.Empty );
-                if ( Contains( "Version:" ) ) song.version = Replace( "Version:", string.Empty );
+                if ( Contains( "Title:"   ) && !Contains( "TitleUnicode:"  ) ) song.title   = Replace( "Title:",   string.Empty );
+                if ( Contains( "Artist:"  ) && !Contains( "ArtistUnicode:" ) ) song.artist  = Replace( "Artist:",  string.Empty );
+                if ( Contains( "Source:"  ) )                                  song.source  = Replace( "Source:",  string.Empty );
+                if ( Contains( "Creator:" ) )                                  song.creator = Replace( "Creator:", string.Empty );
+                if ( Contains( "Version:" ) )                                  song.version = Replace( "Version:", string.Empty );
             }
 
             // [Metadata] ~ [Difficulty]
@@ -266,13 +259,13 @@ public class FileConverter : FileReader
 
             // 키음만으로 재생되는 노래는 프리뷰 음악이 대부분 없다.
             // preview.wav는 따로 프로그램을 통해 만들어놓은 파일이다.
-            if ( song.audioPath == null || song.audioPath == string.Empty || song.audioPath == "virtual" )
+            if ( song.audioName == null || song.audioName == string.Empty || song.audioName == "virtual" )
             {
                 for ( int i = 0; i < virtualAudioName.Length; i++ )
                 {
                     if ( File.Exists( Path.Combine( dir, virtualAudioName[i] ) ) )
                     {
-                        song.audioPath = virtualAudioName[i];
+                        song.audioName      = virtualAudioName[i];
                         song.isOnlyKeySound = true;
 
                         break;
@@ -289,7 +282,7 @@ public class FileConverter : FileReader
             {
                 // Image
                 if ( Contains( "0,0," ) && !( Contains( ".mp3" ) || Contains( ".wav" ) || Contains( ".ogg" ) || Contains( "Video," ) || Contains( "Sprite," ) ) )
-                    song.imagePath = Split( '"' );
+                    song.imageName = Split( '"' );
 
                 // Video
                 if ( Contains( "Video," ) )
@@ -298,9 +291,9 @@ public class FileConverter : FileReader
                     var path = splitData[2].Split( '"' )[1].Trim();
                     if ( Path.GetExtension( path ) != ".mpg" )
                     {
-                        song.videoPath = path;
+                        song.videoName   = path;
                         song.videoOffset = int.Parse( splitData[1] );
-                        song.hasVideo = File.Exists( Path.Combine( directory, song.videoPath ) );
+                        song.hasVideo    = File.Exists( Path.Combine( directory, song.videoName ) );
                     }
                 }
 
@@ -326,9 +319,9 @@ public class FileConverter : FileReader
 
             sprites.Sort( delegate ( SpriteSample _A, SpriteSample _B )
             {
-                if ( _A.start > _B.start ) return 1;
+                if      ( _A.start > _B.start ) return 1;
                 else if ( _A.start < _B.start ) return -1;
-                else return 0;
+                else                            return 0;
             } );
 
             if ( sprites.Count > 0 )
@@ -429,51 +422,35 @@ public class FileConverter : FileReader
             // BMS2Osu로 뽑은 파일은 Pixel값 기준으로 정렬되어 있기 때문에 시간 순으로 다시 정렬해준다.
             samples.Sort( delegate ( KeySound _A, KeySound _B )
             {
-                if ( _A.time > _B.time ) return 1;
+                if      ( _A.time > _B.time ) return 1;
                 else if ( _A.time < _B.time ) return -1;
-                else return 0;
+                else                          return 0;
             } );
             notes.Sort( delegate ( Note _A, Note _B )
             {
-                if ( _A.time > _B.time ) return 1;
+                if      ( _A.time > _B.time ) return 1;
                 else if ( _A.time < _B.time ) return -1;
-                else return 0;
+                else                          return 0;
             } );
 
             #endregion
             song.mainBPM = GetMainBPM();
 
-            if ( isReConvert )
-            {
-                // 만들어져있는 파일에서 필요한 정보 읽기
-                string __path = Path.ChangeExtension( _path, "wns" );
-                using ( FileParser parser = new FileParser() )
-                {
-                    if ( parser.TryParse( __path, out Song _song ) )
-                    {
-                        song.audioOffset   = _song.audioOffset;
-                        song.videoOffset   = _song.videoOffset;
-                        song.previewTime   = _song.previewTime;
-                        song.volume        = _song.volume;
-                    }
-                }
-            }
-
-            Write( in song );
+            Write();
             Dispose();
         }
         catch ( System.Exception _error )
         {
             Dispose();
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             // 에러 위치 찾기
             System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
             Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
-#endif
+            #endif
         }
     }
 
-    private void Write( in Song _song )
+    private void Write()
     {
         try
         {
@@ -485,36 +462,36 @@ public class FileConverter : FileReader
                 using ( var writer = new StreamWriter( stream ) )
                 {
                     writer.WriteLine( "[General]" );
-                    writer.WriteLine( $"Title: {_song.title}" );
-                    writer.WriteLine( $"Artist: {_song.artist}" );
-                    writer.WriteLine( $"Source: {_song.source}" );
-                    writer.WriteLine( $"Creator: {_song.creator}" );
-                    writer.WriteLine( $"Version: {_song.version}" );
+                    writer.WriteLine( $"Title: {song.title}" );
+                    writer.WriteLine( $"Artist: {song.artist}" );
+                    writer.WriteLine( $"Source: {song.source}" );
+                    writer.WriteLine( $"Creator: {song.creator}" );
+                    writer.WriteLine( $"Version: {song.version}" );
 
-                    writer.WriteLine( $"AudioOffset: {_song.audioOffset}" );
-                    writer.WriteLine( $"VideoOffset: {_song.videoOffset}" );
-                    writer.WriteLine( $"PreviewTime: {_song.previewTime}" );
-                    writer.WriteLine( $"Volume: {_song.volume}" );
+                    writer.WriteLine( $"AudioOffset: {song.audioOffset}" );
+                    writer.WriteLine( $"VideoOffset: {song.videoOffset}" );
+                    writer.WriteLine( $"PreviewTime: {song.previewTime}" );
+                    writer.WriteLine( $"Volume: {song.volume}" );
 
-                    writer.WriteLine( $"ImagePath: {_song.imagePath}" );
-                    writer.WriteLine( $"AudioPath: {_song.audioPath}" );
-                    writer.WriteLine( $"VideoPath: {_song.videoPath}" );
+                    writer.WriteLine( $"ImageName: {song.imageName}" );
+                    writer.WriteLine( $"AudioName: {song.audioName}" );
+                    writer.WriteLine( $"VideoName: {song.videoName}" );
 
-                    writer.WriteLine( $"TotalTime: {_song.totalTime}" );
-                    writer.WriteLine( $"Notes: {_song.keyCount}:" +
-                                             $"{_song.noteCount}:" +
-                                             $"{_song.sliderCount}:" +
-                                             $"{_song.delNoteCount}:" +
-                                             $"{_song.delSliderCount}" );
+                    writer.WriteLine( $"TotalTime: {song.totalTime}" );
+                    writer.WriteLine( $"Notes: {song.keyCount}:" +
+                                             $"{song.noteCount}:" +
+                                             $"{song.sliderCount}:" +
+                                             $"{song.delNoteCount}:" +
+                                             $"{song.delSliderCount}" );
 
-                    writer.WriteLine( $"BPM: {_song.minBpm}:" +
-                                           $"{_song.maxBpm}:" +
-                                           $"{_song.mainBPM}" );
+                    writer.WriteLine( $"BPM: {song.minBpm}:" +
+                                           $"{song.maxBpm}:" +
+                                           $"{song.mainBPM}" );
 
-                    writer.WriteLine( $"DataExist: {( _song.isOnlyKeySound ? 1 : 0 )}:" +
-                                                 $"{( _song.hasKeySound    ? 1 : 0 )}:" +
-                                                 $"{( _song.hasVideo       ? 1 : 0 )}:" +
-                                                 $"{( _song.hasSprite      ? 1 : 0 )}" );
+                    writer.WriteLine( $"DataExist: {( song.isOnlyKeySound ? 1 : 0 )}:" +
+                                                 $"{( song.hasKeySound    ? 1 : 0 )}:" +
+                                                 $"{( song.hasVideo       ? 1 : 0 )}:" +
+                                                 $"{( song.hasSprite      ? 1 : 0 )}" );
 
                     StringBuilder text = new StringBuilder();
                     writer.WriteLine( "[Timings]" );
@@ -583,7 +560,7 @@ public class FileConverter : FileReader
 
     private double GetMainBPM()
     {
-        List<AccumulateTiming> accumulateTimings = new List<AccumulateTiming>();
+        List<Accumulate> accumulate = new List<Accumulate>();
         // 상속되지않은 BPM으로 계산한다.
         for ( int i = 0; i < uninheritedTimings.Count; i++ )
         {
@@ -592,33 +569,87 @@ public class FileConverter : FileReader
 
             // 타이밍 지속시간 누적
             bool isFind = false;
-            for ( int j = 0; j < accumulateTimings.Count; j++ )
+            for ( int j = 0; j < accumulate.Count; j++ )
             {
-                double diff = Math.Round( accumulateTimings[j].bpm - uninheritedTimings[i].bpm );
+                double diff = Math.Round( accumulate[j].bpm - uninheritedTimings[i].bpm );
                 if ( Math.Abs( diff ) < double.Epsilon )
                 {
                     isFind = true;
-                    accumulateTimings[j].time += nextTime - uninheritedTimings[i].time;
+                    accumulate[j].time += nextTime - uninheritedTimings[i].time;
                     break;
                 }
             }
 
             // 비교될 새로운 타이밍 추가
             if ( !isFind )
-                accumulateTimings.Add( new AccumulateTiming( nextTime - uninheritedTimings[i].time, uninheritedTimings[i].bpm ) );
+                accumulate.Add( new Accumulate( nextTime - uninheritedTimings[i].time, uninheritedTimings[i].bpm ) );
         }
 
-        if ( accumulateTimings.Count == 0 )
+        if ( accumulate.Count == 0 )
             throw new Exception( "The MainBPM was not found." );
 
         // 가장 오래 지속되는 BPM이 첫번째 요소가 되도록 내림차순 정렬
-        accumulateTimings.Sort( delegate ( AccumulateTiming _left, AccumulateTiming _right )
+        accumulate.Sort( delegate ( Accumulate _left, Accumulate _right )
         {
-            if ( _left.time < _right.time ) return 1;
+            if      ( _left.time < _right.time ) return 1;
             else if ( _left.time > _right.time ) return -1;
-            else return 0;
+            else                                 return 0;
         } );
 
-        return accumulateTimings[0].bpm;
+        return accumulate[0].bpm;
+    }
+
+    public void ReWrite( in Song _song )
+    {
+        try
+        {
+            OpenFile( _song.filePath );
+
+            while ( ReadLineEndOfStream() )
+            {
+                isAppended = false;
+
+                if ( Contains( "AudioOffset:" ) ) AppendString( $"AudioOffset: {_song.audioOffset}" );
+                if ( Contains( "VideoOffset:" ) ) AppendString( $"VideoOffset: {_song.videoOffset}" );
+                if ( Contains( "PreviewTime:" ) ) AppendString( $"PreviewTime: {_song.previewTime}" );
+                if ( Contains( "Volume:"      ) ) AppendString( $"Volume: {_song.volume}" );
+
+                
+                //if ( Contains( "ImagePath:" ) ) AppendString( $"ImageName: {Path.GetFileName( _song.imageName )}" );
+                //if ( Contains( "AudioPath:" ) ) AppendString( $"AudioName: {Path.GetFileName( _song.audioName )}" );
+                //if ( Contains( "VideoPath:" ) ) AppendString( $"VideoName: {Path.GetFileName( _song.videoName )}" );
+
+                if ( !isAppended ) 
+                      AppendString( line );
+            }
+
+            Dispose();
+
+            string fileName = $"{Path.GetFileNameWithoutExtension( _song.filePath )}.wns";
+            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( _song.filePath ), fileName )}";
+            using ( var stream = new FileStream( filePath, FileMode.Create ) )
+            {
+                using ( var writer = new StreamWriter( stream ) )
+                {
+                    writer.Write( writeString );
+                }
+            }
+        }
+        catch ( System.Exception _error )
+        {
+            Dispose();
+            #if UNITY_EDITOR
+            // 에러 위치 찾기
+            System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
+            Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
+            #endif
+        }
+    }
+
+    public void AppendString( in string _string )
+    {
+        writeString.Append( _string );
+        writeString.Append( "\n" );
+        isAppended = true;
     }
 }

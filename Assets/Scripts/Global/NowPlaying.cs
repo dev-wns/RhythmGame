@@ -20,8 +20,8 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Variables
     public static Scene CurrentScene;
 
-    public  ReadOnlyCollection<Song> Songs;
-    private ReadOnlyCollection<Song> OriginSongs;
+    public ReadOnlyCollection<Song> Songs;
+    public ReadOnlyCollection<Song> OriginSongs;
     public int CurrentIndex { get; private set; }
     public static Song CurrentSong { get; private set; }
     public static Chart CurrentChart { get; private set; }
@@ -39,9 +39,9 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #region Sample Sounds
-    private Dictionary<string/* 키음 이름 */, FMOD.Sound> keySounds = new Dictionary<string, FMOD.Sound>();
-    private List<KeySound> samples = new List<KeySound>();
-    private int sampleIndex;
+    private Dictionary<string/* 키음 이름 */, FMOD.Sound> loadedSounds = new Dictionary<string, FMOD.Sound>();
+    private List<KeySound> bgms = new List<KeySound>();
+    private int bgmIndex;
     public static bool UseAllSamples { get; private set; }
     #endregion
 
@@ -63,12 +63,11 @@ public class NowPlaying : Singleton<NowPlaying>
     public static bool IsStart { get; private set; }
     public static bool IsParsing { get; private set; }
     public static bool IsLoadBGA { get; set; }
-    public static bool IsLoadKeySound { get; set; }
     #endregion
 
     private double mainBPM;
     private int timingIndex;
-    private CancellationTokenSource cancelSource = new CancellationTokenSource();
+    private CancellationTokenSource breakPoint = new CancellationTokenSource();
 
     #region Unity Callback
     protected override async void Awake()
@@ -78,14 +77,14 @@ public class NowPlaying : Singleton<NowPlaying>
         KeySetting   keySetting   = KeySetting.Inst;
         InputManager inputManager = InputManager.Inst;
 
-        Load();
-        await Task.Run( () => UpdateTime( cancelSource.Token ) );
+        LoadSongs();
+        await Task.Run( () => UpdateTime( breakPoint.Token ) );
     }
 
     private void OnApplicationQuit()
     {
         Stop();
-        cancelSource?.Cancel();
+        breakPoint?.Cancel();
     }
     #endregion
 
@@ -121,10 +120,10 @@ public class NowPlaying : Singleton<NowPlaying>
                 }
 
                 // 시간의 흐름에 따라 자동재생되는 음악 처리 ( 사운드 샘플 )
-                while ( sampleIndex < samples.Count && samples[sampleIndex].time <= Playback )
+                while ( bgmIndex < bgms.Count && bgms[bgmIndex].time <= Playback )
                 {
-                    Play( samples[sampleIndex] );
-                    if ( ++sampleIndex < samples.Count )
+                    Play( bgms[bgmIndex] );
+                    if ( ++bgmIndex < bgms.Count )
                          UseAllSamples = true;
                 }
             }
@@ -134,7 +133,7 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #region Parsing
-    public void Initalize()
+    public void LoadChart()
     {
         Stop();
         WaitTime = StartWaitTime;
@@ -150,7 +149,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
                 // 단일 배경음은 자동재생되는 사운드샘플로 재생
                 if ( !CurrentSong.isOnlyKeySound )
-                      AddSample( new KeySound( GameSetting.SoundOffset, Path.GetFileName( CurrentSong.audioPath ), 1f ), SoundType.BGM );
+                      AddSample( new KeySound( GameSetting.SoundOffset, Path.GetFileName( CurrentSong.audioName ), 1f ), SoundType.BGM );
 
                 // 사운드샘플 로딩 ( 자동재생 )
                 for ( int i = 0; i < chart.samples.Count; i++ )
@@ -166,55 +165,15 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
 
-
-    public void Play( in KeySound _sample )
-    {
-        if ( keySounds.ContainsKey( _sample.name ) )
-        {
-            AudioManager.Inst.Play( keySounds[_sample.name], _sample.volume );
-        }
-    }
-
-    /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드샘플 </summary>
-    public void AddSample( in KeySound _sample, SoundType _type )
-    {
-        if ( _type == SoundType.BGM )
-             samples.Add( _sample );
-
-        if ( keySounds.ContainsKey( _sample.name ) )
-        {
-            // 이미 로딩된 사운드
-        }
-        else
-        {
-            // 새로운 사운드 로딩
-            var dir = Path.GetDirectoryName( CurrentSong.filePath );
-            if ( AudioManager.Inst.Load( Path.Combine( dir, _sample.name ), out FMOD.Sound sound ) )
-                 keySounds.Add( _sample.name, sound );
-        }
-    }
-
-    private void ConvertSong()
-    {
-        string[] files = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
-        for ( int i = 0; i < files.Length; i++ )
-        {
-            using ( FileConverter converter = new FileConverter() )
-            {
-                converter.Load( files[i] );
-            }
-        }
-    }
-
-    public void Load()
+    public bool LoadSongs()
     {
         Timer timer = new Timer();
         IsParsing = true;
-        ConvertSong();
+        //ConvertSong();
         List<Song> newSongs = new List<Song>();
 
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
-        string[] files = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" );
+        string[] files = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
         TotalFileCount = files.Length;
         for ( int i = 0; i < TotalFileCount; i++ )
         {
@@ -225,6 +184,7 @@ public class NowPlaying : Singleton<NowPlaying>
                     newSong.index = newSongs.Count;
                     newSongs.Add( newSong );
                     OnParsing?.Invoke( newSong );
+
                 }
             }
         }
@@ -232,8 +192,8 @@ public class NowPlaying : Singleton<NowPlaying>
         newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
         for ( int i = 0; i < newSongs.Count; i++ )
         {
-            var song = newSongs[i];
-            song.index = i;
+            var song    = newSongs[i];
+            song.index  = i;
             newSongs[i] = song;
         }
 
@@ -247,9 +207,46 @@ public class NowPlaying : Singleton<NowPlaying>
         IsParsing = false;
 
         Debug.Log( $"Update Songs {timer.End} ms" );
+
+        // 파일 수정하고 싶을 때 사용
+        //for ( int i = 0; i < OriginSongs.Count; i++ )
+        //{
+        //    using ( FileParser parser = new FileParser() )
+        //        parser.ReWrite( OriginSongs[i] );
+        //}
+
+        return true;
     }
     #endregion
 
+    #region KeySound
+    public void Play( in KeySound _sample )
+    {
+        if ( loadedSounds.ContainsKey( _sample.name ) )
+        {
+            AudioManager.Inst.Play( loadedSounds[_sample.name], _sample.volume );
+        }
+    }
+
+    /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드샘플 </summary>
+    public void AddSample( in KeySound _sample, SoundType _type )
+    {
+        if ( _type == SoundType.BGM )
+             bgms.Add( _sample );
+
+        if ( loadedSounds.ContainsKey( _sample.name ) )
+        {
+            // 이미 로딩된 사운드
+        }
+        else
+        {
+            // 새로운 사운드 로딩
+            var dir = Path.GetDirectoryName( CurrentSong.filePath );
+            if ( AudioManager.Inst.Load( Path.Combine( dir, _sample.name ), out FMOD.Sound sound ) )
+                 loadedSounds.Add( _sample.name, sound );
+        }
+    }
+    #endregion
     #region Search
     public void Search( string _keyword )
     {
@@ -309,7 +306,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Play()
     {
         // 사운드샘플 오름차순 정렬 ( 시간기준 )
-        samples.Sort( delegate ( KeySound _A, KeySound _B )
+        bgms.Sort( delegate ( KeySound _A, KeySound _B )
         {
             if      ( _A.time > _B.time ) return 1;
             else if ( _A.time < _B.time ) return -1;
@@ -329,7 +326,7 @@ public class NowPlaying : Singleton<NowPlaying>
         SaveTime       = WaitTime;
         Distance       = 0d;
         DistanceCache  = 0d;
-        sampleIndex    = 0;
+        bgmIndex       = 0;
         timingIndex    = 0;
         IsStart        = false;
         UseAllSamples  = false;
@@ -339,9 +336,8 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         Clear();
         IsLoadBGA      = false;
-        IsLoadKeySound = false;
 
-        foreach ( var keySound in keySounds )
+        foreach ( var keySound in loadedSounds )
         {
             var sound = keySound.Value;
             if ( sound.hasHandle() )
@@ -350,8 +346,8 @@ public class NowPlaying : Singleton<NowPlaying>
                 sound.clearHandle();
             }
         }
-        keySounds.Clear();
-        samples.Clear();
+        loadedSounds.Clear();
+        bgms.Clear();
     }
 
 

@@ -207,8 +207,6 @@ public class InputManager : Singleton<InputManager>
 
         } );
         noteTime += noteTimer.End;
-
-        NowPlaying.IsLoadKeySound = true;
     }
 
     private void DivideDatas( ReadOnlyCollection<Note> _datas )

@@ -153,7 +153,7 @@ public class PreviewBGARenderer : MonoBehaviour
         else
         {
             type = BackgroundType.Image;
-            StartCoroutine( LoadImage( _song.imagePath ) );
+            StartCoroutine( LoadImage( _song.imageName ) );
         }
     }
 
@@ -235,7 +235,7 @@ public class PreviewBGARenderer : MonoBehaviour
         delayTimer.Start();
         vp.enabled = true;
         image.texture = renderTexture;
-        vp.url = @$"{_song.videoPath}";
+        vp.url = @$"{_song.videoName}";
         vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.Prepare();
 

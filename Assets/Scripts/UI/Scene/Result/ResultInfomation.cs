@@ -167,7 +167,7 @@ public class ResultInfomation : MonoBehaviour
         date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
         // Background
-        StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
+        StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imageName ) );
     }
 
     private void OnDestroy()

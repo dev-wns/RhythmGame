@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class InitScene : Scene
 {
+    private bool isCompleted;
+
     protected override void Awake()
     {
         base.Awake();
@@ -57,14 +59,14 @@ public class InitScene : Scene
     protected async override void Start()
     {
         StartCoroutine( ParsingAfterSwitchScene() );
-        await Task.Run( NowPlaying.Inst.Load );
+        isCompleted = await Task.Run( NowPlaying.Inst.LoadSongs );
     }
 
     private IEnumerator ParsingAfterSwitchScene()
     {
         yield return StartCoroutine( FadeIn() );
 
-        yield return new WaitUntil( () => !NowPlaying.IsParsing );
+        yield return new WaitUntil( () => isCompleted );
 
         yield return YieldCache.WaitForSeconds( 3f );
 

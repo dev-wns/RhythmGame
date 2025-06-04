@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 
-public class FileParser : FileReader
+public class FileParser : FileConverter
 {
     public bool TryParse( string _path, out Song _song )
     {
         _song = new Song();
+
         try
         {
-            OpenFile( _path );
+            string convertedPath = Path.ChangeExtension( _path, "wns" );
+            string directory     = Path.GetDirectoryName( convertedPath );
+            _song.filePath       = convertedPath;
 
-            string directory = Path.GetDirectoryName( _path );
-            _song.filePath = _path;
+            if ( !File.Exists( convertedPath ) )
+                 Convert( _path );
 
+            OpenFile( convertedPath );
             while ( ReadLine() != "[Timings]" )
             {
                 // General
@@ -29,23 +33,23 @@ public class FileParser : FileReader
                 if ( Contains( "PreviewTime:" ) ) _song.previewTime = int.Parse( Split( ':' ) );
                 if ( Contains( "Volume:" ) )      _song.volume      = int.Parse( Split( ':' ) );
 
-                if ( Contains( "ImagePath:" ) )
+                if ( Contains( "ImageName:" ) )
                 {
                     var imageName = Split( ':' );
-                    _song.imagePath = imageName == string.Empty ? string.Empty :
+                    _song.imageName = imageName == string.Empty ? string.Empty :
                                                                   Path.Combine( directory, imageName );
                 }
-                if ( Contains( "AudioPath:" ) )
+                if ( Contains( "AudioName:" ) )
                 {
                     var soundName = Split( ':' );
-                    _song.audioPath = soundName == string.Empty ? string.Empty :
+                    _song.audioName = soundName == string.Empty ? string.Empty :
                                                                   Path.Combine( directory, soundName );
                 }
-                if ( Contains( "VideoPath:" ) )
+                if ( Contains( "VideoName:" ) )
                 {
                     string videoName = Split( ':' );
                     _song.hasVideo = videoName != string.Empty;
-                    _song.videoPath = _song.hasVideo ? Path.Combine( directory, videoName ) : string.Empty;
+                    _song.videoName = _song.hasVideo ? Path.Combine( directory, videoName ) : string.Empty;
                 }
                 if ( Contains( "TotalTime:" ) ) _song.totalTime = int.Parse( Split( ':' ) );
                 if ( Contains( "Notes:" ) )
@@ -77,24 +81,24 @@ public class FileParser : FileReader
 
             // delete 채보 제거
             if ( _song.noteCount + _song.sliderCount < 10 )
-                throw new Exception( $"Too few notes." );
+                 throw new Exception( $"Too few notes." );
 
             Dispose();
         }
         catch ( Exception _error )
         {
             Dispose();
-#if !UNITY_EDITOR
+            #if !UNITY_EDITOR
             // 에러 내용 텍스트 파일로 작성하기
             // ------------------------------
             // 미처리된 파일 Failed 폴더로 이동
             Move( Path.Combine( dir, $"{Path.GetFileNameWithoutExtension( path )}.osu" ), GameSetting.FailedPath ); // 원본파일
             Move( path,                                                                   GameSetting.FailedPath ); // 변환파일
-#else
+            #else
             // 에러 위치 찾기
             System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
             Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
-#endif
+            #endif
 
             return false;
         }

@@ -38,7 +38,7 @@ public class ImagePreview : FreeStylePreview
         if ( !_song.hasVideo && !_song.hasSprite )
         {
             ClearPreviewTexture();
-            coroutine = StartCoroutine( LoadPreviewImage( _song.imagePath ) );
+            coroutine = StartCoroutine( LoadPreviewImage( _song.imageName ) );
         }
     }
 
