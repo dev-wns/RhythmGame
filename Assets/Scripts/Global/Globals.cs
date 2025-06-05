@@ -4,16 +4,48 @@ using UnityEngine;
 
 namespace Global
 {
+    public struct Path
+    {
+        public static readonly string SoundDirectory  = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
+        public static readonly string FailedDirectory = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
+        public static readonly string RecordDirectory = System.IO.Path.Combine( Application.streamingAssetsPath, "Records" );
+
+        public static string[] GetFilesInSubDirectories( string _dir, string _extension )
+        {
+            List<string> paths = new List<string>();
+            try
+            {
+                string[] subDirectories = System.IO.Directory.GetDirectories( _dir );
+                paths.Capacity = subDirectories.Length;
+                for ( int i = 0; i < subDirectories.Length; i++ )
+                {
+                    System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo( subDirectories[i] );
+                    System.IO.FileInfo[] files      = dirInfo.GetFiles( _extension );
+
+                    for ( int j = 0; j < files.Length; j++ )
+                        paths.Add( files[j].FullName );
+                }
+            }
+            catch ( System.Exception _error )
+            {
+                // 대부분 폴더가 없는 경우
+                Debug.LogError( $"{_error}, {_dir}" );
+            }
+
+            return paths.ToArray();
+        }
+    }
+
     /// <summary> 가벼운 Math </summary>
     public struct Math
     {
-        public static float Lerp( float _start, float _end, float _t ) => _start + ( _end - _start ) * _t;
+        public static float  Lerp( float _start, float _end, float _t )    => _start + ( _end - _start ) * _t;
         public static double Lerp( double _start, double _end, double _t ) => _start + ( _end - _start ) * _t;
-        public static double Abs( double _value ) => _value >= 0d ? _value : -_value;
-        public static float Abs( float _value ) => _value >= 0f ? _value : -_value;
-        public static int Abs( int _value ) => _value >= 0 ? _value : -_value;
-        public static double Round( double _value ) => _value - ( int )_value >= .5d ? ( int )_value + 1d : ( int )_value;
-        public static float Round( float _value ) => _value - ( int )_value >= .5f ? ( int )_value + 1f : ( int )_value;
+        public static double Abs( double _value )                          => _value >= 0d ? _value : -_value;
+        public static float  Abs( float _value )                           => _value >= 0f ? _value : -_value;
+        public static int    Abs( int _value )                             => _value >= 0 ? _value : -_value;
+        public static double Round( double _value )                        => _value - ( int )_value >= .5d ? ( int )_value + 1d : ( int )_value;
+        public static float  Round( float _value )                         => _value - ( int )_value >= .5f ? ( int )_value + 1f : ( int )_value;
         public static int Clamp( int _value, int _min, int _max )
         {
             return _value < _min ? _min :
@@ -40,51 +72,34 @@ namespace Global
                    ( _value >= 10u ) ? 1 : 0;
         }
 
-        /// <summary> Returns the calculated value of the ratio to the screen. </summary> 
-        /// <param name="_screen"> The value is adjusted based on this value. </param>
-        public static Vector3 GetScreenRatio( Texture2D _tex, Vector2 _screen )
-        {
-            float width  = _tex.width;
-            float height = _tex.height;
-
-            float offsetX = _screen.x / width;
-            width *= offsetX;
-            height *= offsetX;
-
-            float offsetY = _screen.y / height;
-            if ( offsetY > 1f )
-            {
-                width *= offsetY;
-                height *= offsetY;
-            }
-
-            return new Vector3( width, height, 1f );
-        }
-        public static Vector3 GetScreenRatio( Texture _tex, Vector2 _screen )
-        {
-            float width  = _tex.width;
-            float height = _tex.height;
-
-            float offsetX = _screen.x / width;
-            width *= offsetX;
-            height *= offsetX;
-
-            float offsetY = _screen.y / height;
-            if ( offsetY > 1f )
-            {
-                width *= offsetY;
-                height *= offsetY;
-            }
-
-            return new Vector3( width, height, 1f );
-        }
     }
 
     public struct Screen
     {
         public static int Width  = 1920;
         public static int Height = 1080;
+
+        /// <returns> 스크린 해상도에 맞춰진 텍스처의 해상도를 반환합니다. </returns>
+        public static Vector2 GetRatio<T>( in T _tex ) where T : UnityEngine.Texture
+        {
+            float texWidth  = _tex.width;
+            float texHeight = _tex.height;
+
+            float offsetX = Width / texWidth;
+            texWidth  *= offsetX;
+            texHeight *= offsetX;
+
+            float offsetY = Height / texHeight;
+            if ( offsetY > 1f )
+            {
+                texWidth  *= offsetY;
+                texHeight *= offsetY;
+            }
+
+            return new Vector2( texWidth, texHeight );
+        }
     }
+
     public struct Color
     {
         /// <summary> Clear All ( 0, 0, 0, 0 ) </summary>
@@ -93,34 +108,6 @@ namespace Global
         public static UnityEngine.Color ClearA   = new UnityEngine.Color( 1f, 1f, 1f, 0f );
         /// <summary> Clear Red, Blue, Green ( 0, 0, 0, 1 ) </summary>
         public static UnityEngine.Color ClearRGB = new UnityEngine.Color( 0f, 0f, 0f, 1f );
-    }
-
-    public struct FILE
-    {
-        public static string[] GetFilesInSubDirectories( string _dirPath, string _extension )
-        {
-            List<string> paths = new List<string>();
-            try
-            {
-                string[] subDirectories = System.IO.Directory.GetDirectories( _dirPath );
-                paths.Capacity = subDirectories.Length;
-                for ( int i = 0; i < subDirectories.Length; i++ )
-                {
-                    System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo( subDirectories[i] );
-                    System.IO.FileInfo[] files      = dirInfo.GetFiles( _extension );
-
-                    for ( int j = 0; j < files.Length; j++ )
-                        paths.Add( files[j].FullName );
-                }
-            }
-            catch ( System.Exception _error )
-            {
-                // 대부분 폴더가 없는 경우.
-                Debug.LogError( $"{_error}, {_dirPath}" );
-            }
-
-            return paths.ToArray();
-        }
     }
 
     public struct Const

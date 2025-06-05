@@ -38,7 +38,7 @@ public class ImagePreview : FreeStylePreview
         if ( !_song.hasVideo && !_song.hasSprite )
         {
             ClearPreviewTexture();
-            coroutine = StartCoroutine( LoadPreviewImage( _song.imageName ) );
+            coroutine = StartCoroutine( LoadPreviewImage( _song.imagePath ) );
         }
     }
 
@@ -80,7 +80,7 @@ public class ImagePreview : FreeStylePreview
             prevTexture = defaultSprite.texture;
 
 
-        tf.sizeDelta = Global.Math.GetScreenRatio( prevTexture, sizeCache );
+        tf.sizeDelta = Global.Screen.GetRatio( prevTexture );
         previewImage.texture = prevTexture;
         previewImage.enabled = true;
         //PlayScaleEffect();

@@ -11,14 +11,14 @@ public class FileParser : FileConverter
 
         try
         {
-            string convertedPath = Path.ChangeExtension( _path, "wns" );
-            string directory     = Path.GetDirectoryName( convertedPath );
-            _song.filePath       = convertedPath;
+            _song.filePath  = Path.ChangeExtension( _path, "wns" );
+            _song.directory = Path.GetDirectoryName( _path );
 
-            if ( !File.Exists( convertedPath ) )
-                 Convert( _path );
+            if ( !File.Exists( _song.filePath ) )
+                  Convert( _path ); // osu to wns
 
-            OpenFile( convertedPath );
+            // .wns parsing
+            OpenFile( _song.filePath );
             while ( ReadLine() != "[Timings]" )
             {
                 // General
@@ -35,22 +35,20 @@ public class FileParser : FileConverter
 
                 if ( Contains( "ImageName:" ) )
                 {
-                    var imageName = Split( ':' );
-                    _song.imageName = imageName == string.Empty ? string.Empty :
-                                                                  Path.Combine( directory, imageName );
+                    _song.imageName = Split( ':' );
+                    _song.imagePath = Path.Combine( directory, _song.imageName );
                 }
                 if ( Contains( "AudioName:" ) )
                 {
-                    var soundName = Split( ':' );
-                    _song.audioName = soundName == string.Empty ? string.Empty :
-                                                                  Path.Combine( directory, soundName );
+                    _song.audioName = Split( ':' );
+                    _song.audioPath = Path.Combine( directory, _song.audioName );
                 }
                 if ( Contains( "VideoName:" ) )
                 {
-                    string videoName = Split( ':' );
-                    _song.hasVideo = videoName != string.Empty;
-                    _song.videoName = _song.hasVideo ? Path.Combine( directory, videoName ) : string.Empty;
+                    _song.videoName = Split( ':' );
+                    _song.videoPath = Path.Combine( directory, _song.videoName );
                 }
+
                 if ( Contains( "TotalTime:" ) ) _song.totalTime = int.Parse( Split( ':' ) );
                 if ( Contains( "Notes:" ) )
                 {
@@ -97,7 +95,7 @@ public class FileParser : FileConverter
             #else
             // 에러 위치 찾기
             System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace( _error, true );
-            Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( path )}" );
+            Debug.LogWarning( $"{trace.GetFrame( 0 ).GetFileLineNumber()} {_error.Message}  {Path.GetFileName( _path )}" );
             #endif
 
             return false;

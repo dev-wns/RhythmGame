@@ -1,11 +1,10 @@
 #define START_FREESTYLE
 
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -47,21 +46,17 @@ public class NowPlaying : Singleton<NowPlaying>
 
     #region Time
     private double startTime;
-    public double  SaveTime { get; private set; }
-    public  static double WaitTime { get; private set; }
-    public  static readonly double StartWaitTime = -3000d;
-    public  static readonly double PauseWaitTime = -2000d;
+    public static double SaveTime { get; private set; }
+    public static readonly double WaitStartTime = -3000d;
+    public static readonly double WaitPauseTime = -2000d;
     public  static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
     #endregion
 
-    public int TotalFileCount { get; private set; }
     public static event Action<Song> OnParsing;
-    public static event Action       OnParsingEnd;
 
     public static bool IsStart { get; private set; }
-    public static bool IsParsing { get; private set; }
     public static bool IsLoadBGA { get; set; }
     #endregion
 
@@ -69,25 +64,34 @@ public class NowPlaying : Singleton<NowPlaying>
     private int timingIndex;
     private CancellationTokenSource breakPoint = new CancellationTokenSource();
 
+    public static Action OnPreInitialize;
+    public static Action OnPostInitialize;
+
     #region Unity Callback
     protected override async void Awake()
     {
         base.Awake();
-        
+
+        LoadSongs();
+
+        OnPreInitialize += Initialize; // 변수 초기화
+        OnPreInitialize += LoadChart;
+
+
         KeySetting   keySetting   = KeySetting.Inst;
         InputManager inputManager = InputManager.Inst;
 
-        LoadSongs();
         await Task.Run( () => UpdateTime( breakPoint.Token ) );
     }
 
     private void OnApplicationQuit()
     {
-        Stop();
+        Release();
         breakPoint?.Cancel();
     }
     #endregion
 
+    public Texture2D tex;
     private async void UpdateTime( CancellationToken _token )
     {
         while ( !_token.IsCancellationRequested )
@@ -135,10 +139,6 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Parsing
     public void LoadChart()
     {
-        Stop();
-        WaitTime = StartWaitTime;
-        mainBPM  = CurrentSong.mainBPM * GameSetting.CurrentPitch;
-
         // 채보 파싱
         using ( FileParser parser = new FileParser() )
         {
@@ -149,13 +149,11 @@ public class NowPlaying : Singleton<NowPlaying>
 
                 // 단일 배경음은 자동재생되는 사운드샘플로 재생
                 if ( !CurrentSong.isOnlyKeySound )
-                      AddSample( new KeySound( GameSetting.SoundOffset, Path.GetFileName( CurrentSong.audioName ), 1f ), SoundType.BGM );
+                      AddSample( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ), SoundType.BGM );
 
                 // 사운드샘플 로딩 ( 자동재생 )
                 for ( int i = 0; i < chart.samples.Count; i++ )
                       AddSample( chart.samples[i], SoundType.BGM );
-
-                InputManager.Inst.Initialize();
             }
             else
             {
@@ -167,15 +165,12 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public bool LoadSongs()
     {
-        Timer timer = new Timer();
-        IsParsing = true;
-        //ConvertSong();
         List<Song> newSongs = new List<Song>();
+        Timer timer = new Timer();
 
         // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
-        string[] files = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.osu" );
-        TotalFileCount = files.Length;
-        for ( int i = 0; i < TotalFileCount; i++ )
+        string[] files = Global.Path.GetFilesInSubDirectories( Global.Path.SoundDirectory, "*.osu" );
+        for ( int i = 0; i < files.Length; i++ )
         {
             using ( FileParser parser = new FileParser() )
             {
@@ -184,7 +179,6 @@ public class NowPlaying : Singleton<NowPlaying>
                     newSong.index = newSongs.Count;
                     newSongs.Add( newSong );
                     OnParsing?.Invoke( newSong );
-
                 }
             }
         }
@@ -202,9 +196,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
         if ( Songs.Count > 0 )
              UpdateSong( 0 );
-
-        OnParsingEnd?.Invoke();
-        IsParsing = false;
 
         Debug.Log( $"Update Songs {timer.End} ms" );
 
@@ -241,8 +232,7 @@ public class NowPlaying : Singleton<NowPlaying>
         else
         {
             // 새로운 사운드 로딩
-            var dir = Path.GetDirectoryName( CurrentSong.filePath );
-            if ( AudioManager.Inst.Load( Path.Combine( dir, _sample.name ), out FMOD.Sound sound ) )
+            if ( AudioManager.Inst.Load( Path.Combine( CurrentSong.directory, _sample.name ), out FMOD.Sound sound ) )
                  loadedSounds.Add( _sample.name, sound );
         }
     }
@@ -302,7 +292,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     #endregion
    
-    #region Sound Process
+    #region Playing
     public void Play()
     {
         // 사운드샘플 오름차순 정렬 ( 시간기준 )
@@ -315,28 +305,28 @@ public class NowPlaying : Singleton<NowPlaying>
 
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
         startTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
-        SaveTime       = WaitTime;
+        SaveTime       = WaitStartTime;
         IsStart        = true;
     }
 
-    public void Clear()
+    public void Initialize()
     {
-        StopAllCoroutines();
-        Playback       = WaitTime;
-        SaveTime       = WaitTime;
-        Distance       = 0d;
-        DistanceCache  = 0d;
-        bgmIndex       = 0;
-        timingIndex    = 0;
-        IsStart        = false;
-        UseAllSamples  = false;
+        mainBPM       = CurrentSong.mainBPM * GameSetting.CurrentPitch;
+        SaveTime      = WaitStartTime;
+        Playback      = 0d;
+        Distance      = 0d;
+        DistanceCache = 0d;
+        bgmIndex      = 0;
+        timingIndex   = 0;
+        IsStart       = false;
+        UseAllSamples = false;
     }
 
-    public void Stop()
+    public void Release()
     {
-        Clear();
-        IsLoadBGA      = false;
-
+        IsLoadBGA = false;
+        
+        StopAllCoroutines();
         foreach ( var keySound in loadedSounds )
         {
             var sound = keySound.Value;
@@ -346,6 +336,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 sound.clearHandle();
             }
         }
+
         loadedSounds.Clear();
         bgms.Clear();
     }
@@ -371,13 +362,13 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
 
-    /// <returns>   FALSE : Playback is higher than the last note time. </returns>
+    /// <returns> FALSE : Playback is higher than the last note time. </returns>
     public void Pause( bool _isPause )
     {
         if ( _isPause )
         {
             IsStart = false;
-            SaveTime = Playback + PauseWaitTime;
+            SaveTime = Playback + WaitPauseTime;
             AudioManager.Inst.SetPaused( true, ChannelType.BGM );
         }
         else
@@ -399,7 +390,7 @@ public class NowPlaying : Singleton<NowPlaying>
         startTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
         IsStart = true;
 
-        WaitUntil waitPlayback = new WaitUntil( () => Playback > SaveTime - PauseWaitTime );
+        WaitUntil waitPlayback = new WaitUntil( () => Playback > SaveTime - WaitPauseTime );
         yield return waitPlayback;
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
 
@@ -438,6 +429,7 @@ public class NowPlaying : Singleton<NowPlaying>
             result += bpm * ( _time - time );
             break;
         }
+
         return result;
     }
 }

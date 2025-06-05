@@ -1,11 +1,14 @@
+using Newtonsoft.Json;
 using System;
-using System.IO;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
-using Newtonsoft.Json;
+using UnityEngine.Networking;
 
 public struct HitData
 {
@@ -67,8 +70,8 @@ public class DataStorage : Singleton<DataStorage>
     public static USER_INFO? UserInfo { get; set; }
     public static STAGE_INFO? StageInfo { get; set; }
 
-    [Header( "Play Data" )]
-    public  List<HitData> HitDatas { get; private set; } = new List<HitData>();
+    [Header( "Result Data" )]
+    public  List<HitData> HitDatas { get; private set; } = new ();
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
     public  static ResultData CurrentResult => resultData;
@@ -76,14 +79,65 @@ public class DataStorage : Singleton<DataStorage>
     public static int ResultCount => CurrentResult.Count;
 
     [Header( "Addressable" )]
-    private List<AsyncOperationHandle> handles = new List<AsyncOperationHandle>();
+    private List<AsyncOperationHandle> handles = new ();
 
-    protected override void Awake()
+    [Header( "Resource Data" )]
+    private static BMPLoader BitmapLoader = new BMPLoader();
+    private static Dictionary<string/*name*/, Texture2D> Textures = new ();
+
+    public void Release()
     {
-        base.Awake();
-        KeySetting   keySetting   = KeySetting.Inst;
-        InputManager inputManager = InputManager.Inst;
+        StopAllCoroutines();
+        foreach ( var tex in Textures )
+            DestroyImmediate( tex.Value, true );
+
+        Textures.Clear();
     }
+
+    public static Texture2D GetTexture( string _name )
+    {
+        if ( !Textures.TryGetValue( _name, out Texture2D tex ) )
+              throw new Exception( "This is Unregisterd Data" );
+
+        return tex;
+    }
+
+    public static IEnumerator LoadTexture( SpriteSample _sprite )
+    {
+        var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
+        
+        // 이미 로딩 되었거나 존재하는 파일인지 확인
+        if ( Textures.ContainsKey( _sprite.name ) || !File.Exists( path ) )
+             yield break;
+        
+        if ( Path.GetExtension( path ) == ".bmp" )
+        {
+            // 비트맵 파일은 런타임에서 읽히지 않음( 외부 도움 )
+            BitmapLoader.ForceAlphaReadWhenPossible = true;
+            BMPImage img = BitmapLoader.LoadBMP( path );
+            Textures.Add( _sprite.name, img.ToTexture2D( TextureFormat.RGB24 ) );
+        }
+        else
+        {
+            // 그 외 JPG, JPEG, PNG 등 이미지 파일 로딩
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path, true ) )
+            {
+                www.method = UnityWebRequest.kHttpVerbGET;
+                using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
+                {
+                    www.downloadHandler = handler;
+                    yield return www.SendWebRequest();
+
+                    if ( www.result == UnityWebRequest.Result.ConnectionError ||
+                         www.result == UnityWebRequest.Result.ProtocolError )
+                         throw new System.Exception( www.error );
+
+                    Textures.Add( _sprite.name, handler.texture );
+                }
+            }
+        }
+    }
+
 
     public void LoadAssetsAsync<T>( string _label, Action<T> _OnCompleted ) where T : UnityEngine.Object
     {
@@ -117,7 +171,8 @@ public class DataStorage : Singleton<DataStorage>
         };
     }
 
-    #region Play Data
+
+    #region Result Data
     public RecordData CreateNewRecord()
     {
         var newRecord = new RecordData()
@@ -132,7 +187,7 @@ public class DataStorage : Singleton<DataStorage>
         if ( recordData.score > newRecord.score )
              return recordData;
 
-        string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );
+        string path = Path.Combine( Global.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );
         try
         {
             FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
@@ -157,7 +212,7 @@ public class DataStorage : Singleton<DataStorage>
     }
     public bool UpdateRecord()
     {
-        string path = Path.Combine( GameSetting.RecordPath, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );
+        string path = Path.Combine( Global.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );
         if ( !File.Exists( path ) )
         {
             recordData = new RecordData();
@@ -198,6 +253,7 @@ public class DataStorage : Singleton<DataStorage>
             case HitResult.Score:    resultData.score    = _value; break;
         }
     }
+
     public void AddHitData( NoteType _type, double _diff )
     {
         HitDatas.Add( new HitData( _type, _diff, NowPlaying.Playback ) );

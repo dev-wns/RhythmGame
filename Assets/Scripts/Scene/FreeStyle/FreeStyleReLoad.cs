@@ -33,7 +33,7 @@ public class FreeStyleReLoad : MonoBehaviour
     {
         NowPlaying.CurrentScene.IsInputLock = true;
 
-        fileCount        = Global.FILE.GetFilesInSubDirectories( GameSetting.SoundDirectoryPath, "*.wns" ).Length;
+        fileCount        = Global.Path.GetFilesInSubDirectories( Global.Path.SoundDirectory, "*.wns" ).Length;
         prevSelectedSong = NowPlaying.CurrentSong;
         corUpdateTexts   = StartCoroutine( UpdateTexts() );
 

@@ -87,13 +87,12 @@ public class SpritePreview : FreeStylePreview
 
     private IEnumerator LoadTexture( Song _song )
     {
-        var dir = Path.GetDirectoryName( _song.filePath );
         for ( int i = startIndex; i < sprites.Count; i++ )
         {
             if ( !textures.ContainsKey( sprites[i].name ) )
             {
                 Texture2D tex;
-                var path = @Path.Combine( dir, sprites[i].name );
+                var path = @Path.Combine( _song.directory, sprites[i].name );
                 if ( Path.GetExtension( path ).Contains( ".bmp" ) )
                 {
                     BMPLoader loader = new BMPLoader();
@@ -139,7 +138,7 @@ public class SpritePreview : FreeStylePreview
 
         // Wait First Texture
         yield return new WaitUntil( () => textures.ContainsKey( curSample.name ) );
-        tf.sizeDelta = Global.Math.GetScreenRatio( textures[curSample.name], sizeCache );
+        tf.sizeDelta = Global.Screen.GetRatio( textures[curSample.name] );
         previewImage.enabled = true;
 
         while ( curIndex < sprites.Count )

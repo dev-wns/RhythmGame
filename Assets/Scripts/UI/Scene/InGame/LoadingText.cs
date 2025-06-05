@@ -30,8 +30,8 @@ public class LoadingText : RotateImage
         scene.OnLoadEnd += IconDisable;
         transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
 
-        bgaSys.OnInitialize += Initialize;
-        bgaSys.OnUpdateData += UpdateBackground;
+        //bgaSys.OnInitialize += Initialize;
+        //bgaSys.OnUpdateData += UpdateBackground;
 
         loadingText.color = Color.white;
         completedText.color = new Color( 1f, 1f, 1f, 0f );
@@ -45,20 +45,20 @@ public class LoadingText : RotateImage
             StartCoroutine( ChangeText() );
     }
 
-    private void Initialize( BackgroundType _type )
-    {
-        backgroundType.text = $"{_type}";
-        if ( _type == BackgroundType.Sprite )
-            spriteGroup.SetActive( true );
-    }
+    //private void Initialize( BackgroundType _type )
+    //{
+    //    backgroundType.text = $"{_type}";
+    //    if ( _type == BackgroundType.Sprite )
+    //         spriteGroup.SetActive( true );
+    //}
 
-    private void UpdateBackground( int _count, int _duplicate, int _background, int _foreground )
-    {
-        numTexture.text = $"{_count}";
-        numDuplicateTexture.text = $"{_duplicate}";
-        background.text = $"{_background}";
-        foreground.text = $"{_foreground}";
-    }
+    //private void UpdateBackground( int _count, int _duplicate, int _background, int _foreground )
+    //{
+    //    numTexture.text = $"{_count}";
+    //    numDuplicateTexture.text = $"{_duplicate}";
+    //    background.text = $"{_background}";
+    //    foreground.text = $"{_foreground}";
+    //}
 
     private IEnumerator UpdateKeySoundCount()
     {

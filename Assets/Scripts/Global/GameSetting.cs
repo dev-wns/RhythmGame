@@ -94,19 +94,14 @@ public class GameSetting
     // Sound
     public static int SoundOffset  = -50;
 
-    // Opacity Percentage ( 0 ~ 100 )
+    // Opacity ( 0 ~ 100 )
     public static int BGAOpacity   = 10;
     public static int PanelOpacity = 100;
-
-    // IO
-    public static readonly string SoundDirectoryPath = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
-    public static readonly string FailedPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
-    public static readonly string RecordPath         = System.IO.Path.Combine( Application.streamingAssetsPath, "Records" );
 
     // Measure
     public static float MeasureHeight = 2.5f;
 
-    // Jugdement
+    // Judgement
     private static float DefaultJudgePos = -435f;
     public static float JudgePos    => DefaultJudgePos + JudgeOffset;
     public static int   JudgeOffset = -33;

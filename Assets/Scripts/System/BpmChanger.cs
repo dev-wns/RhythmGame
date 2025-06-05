@@ -5,7 +5,6 @@ using UnityEngine;
 public class BpmChanger : MonoBehaviour
 {
     private InGame scene;
-    private ReadOnlyCollection<Timing> timings;
     private int curIndex;
 
     [Header("BPM Changer")]
@@ -22,27 +21,13 @@ public class BpmChanger : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnSystemInitialize += Initialize;
-        scene.OnReLoad += OnReLoad;
-    }
-
-    private void OnReLoad()
-    {
-        StopAllCoroutines();
-        curIndex = 0;
-        time = 0d;
-        Initialize();
-    }
-
-    private void Initialize( Chart _chart )
-    {
-        timings = _chart.timings;
-        Initialize();
+        scene.OnReLoad           += Initialize;
     }
 
     private void Initialize()
     {
         curIndex = 0;
-        curTiming = timings[curIndex];
+        curTiming = NowPlaying.CurrentChart.timings[curIndex];
         time = curTiming.time;
         text.text = $"{( int )curTiming.bpm}";
         isStart = true;
@@ -50,15 +35,15 @@ public class BpmChanger : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ( isStart && curIndex < timings.Count &&
+        if ( isStart && curIndex < NowPlaying.CurrentChart.timings.Count &&
              time < NowPlaying.Playback )
         {
             text.text = $"{( int )curTiming.bpm}";
 
-            if ( ++curIndex < timings.Count )
+            if ( ++curIndex < NowPlaying.CurrentChart.timings.Count )
             {
-                curTiming = timings[curIndex];
-                time = curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
+                curTiming = NowPlaying.CurrentChart.timings[curIndex];
+                time = curIndex + 1 < NowPlaying.CurrentChart.timings.Count && Global.Math.Abs( NowPlaying.CurrentChart.timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
                        curTiming.time + DelayTime : curTiming.time;
             }
         }

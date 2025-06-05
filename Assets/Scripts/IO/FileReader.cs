@@ -6,21 +6,20 @@ public abstract class FileReader : IDisposable
     private StreamReader streamReader;
     
     protected string path { get; private set; }
-    protected string dir { get; private set; }
+    protected string directory { get; private set; }
     protected string line { get; private set; }
-    protected string buffer { get; private set; }
 
     public void Dispose() => streamReader?.Dispose();
 
     public void OpenFile( string _path )
     {
-        path = _path;
         try
         {
             Dispose();
 
+            path         = _path;
+            directory    = Path.GetDirectoryName( _path );
             streamReader = new StreamReader( @$"\\?\{_path}" );
-            dir          = Path.GetDirectoryName( _path );
 
         }
         catch ( Exception _error )

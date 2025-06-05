@@ -46,7 +46,7 @@ public class ScoreSystem : MonoBehaviour
         bonus         = 100;
     }
 
-    private void Initialize( Chart _chart )
+    private void Initialize()
     {
         bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) &&  NowPlaying.CurrentSong.keyCount == 7;
         var slider = hasKeyConversion ? NowPlaying.CurrentSong.sliderCount - NowPlaying.CurrentSong.delSliderCount : NowPlaying.CurrentSong.sliderCount;

@@ -167,7 +167,7 @@ public class ResultInfomation : MonoBehaviour
         date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
 
         // Background
-        StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imageName ) );
+        StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );
     }
 
     private void OnDestroy()
@@ -182,7 +182,7 @@ public class ResultInfomation : MonoBehaviour
         if ( !System.IO.File.Exists( _path ) )
         {
             originBg.sprite = defaultOrigin;
-            originBg.rectTransform.sizeDelta = Global.Math.GetScreenRatio( defaultOrigin.texture, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
+            originBg.rectTransform.sizeDelta = Global.Screen.GetRatio( defaultOrigin.texture );
             yield break;
         }
 
@@ -218,6 +218,6 @@ public class ResultInfomation : MonoBehaviour
         }
 
         originBg.sprite = spriteBg;
-        originBg.rectTransform.sizeDelta = Global.Math.GetScreenRatio( spriteBg.texture, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
+        originBg.rectTransform.sizeDelta = Global.Screen.GetRatio( spriteBg.texture );
     }
 }

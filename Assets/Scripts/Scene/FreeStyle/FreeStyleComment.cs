@@ -48,7 +48,7 @@ public class FreeStyleComment : MonoBehaviour
 
     private void UpdateComment( Song _song )
     {
-        path = Path.Combine( Path.GetDirectoryName( _song.filePath ), $"{Path.GetFileNameWithoutExtension( _song.filePath )}_Comment.txt" );
+        path = Path.Combine( _song.directory, $"{Path.GetFileNameWithoutExtension( _song.filePath )}_Comment.txt" );
         if ( File.Exists( path ) )
         {
             using ( StreamReader reader = new StreamReader( path ) )

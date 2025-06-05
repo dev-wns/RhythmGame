@@ -54,7 +54,7 @@ public class VideoPreview : FreeStylePreview
     private IEnumerator LoadVideo( Song _song )
     {
         ClearRenderTexture();
-        vp.url = @$"{_song.videoName}";
+        vp.url = @$"{_song.videoPath}";
         vp.Prepare();
 
         yield return waitPrepared;

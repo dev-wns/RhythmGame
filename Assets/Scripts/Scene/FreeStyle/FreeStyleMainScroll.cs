@@ -1,8 +1,9 @@
-using DG.Tweening;
 using System;
+using System.IO;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using DG.Tweening;
+using TMPro;
 
 public class FreeStyleMainScroll : ScrollBase
 {
@@ -145,7 +146,7 @@ public class FreeStyleMainScroll : ScrollBase
         NowPlaying.Inst.UpdateSong( CurrentIndex );
         curSong = NowPlaying.CurrentSong;
 
-        AudioManager.Inst.Load( curSong.audioName, false, true );
+        AudioManager.Inst.Load( curSong.audioPath, false, true );
         endTime = curSong.totalTime;
         curSong.previewTime = ( int )GetPreviewTime( curSong.previewTime );
         Playback = curSong.previewTime;
@@ -308,7 +309,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void OnBufferSetting()
     {
-        AudioManager.Inst.Load( curSong.audioName, false, true );
+        AudioManager.Inst.Load( curSong.audioPath, false, true );
         AudioManager.Inst.Play();
         AudioManager.Inst.Position = ( uint )Playback;
     }

@@ -57,12 +57,12 @@ public class MeasureSystem : MonoBehaviour
         pool.AllDespawn();
     }
 
-    private void Initialize( Chart _chart )
+    private void Initialize()
     {
         Timer timer = new Timer();
-        var timings   = _chart.timings;
+        var timings   = NowPlaying.CurrentChart.timings;
         var totalTime = NowPlaying.CurrentSong.totalTime;
-        double startNoteTime = _chart.notes[0].time;
+        double startNoteTime = NowPlaying.CurrentChart.notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
             if ( timings[i].isUninherited == 0 )

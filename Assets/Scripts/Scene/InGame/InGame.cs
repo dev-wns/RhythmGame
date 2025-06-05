@@ -12,8 +12,8 @@ public class InGame : Scene
     //public GameObject scoreMeterCanvas;
     public OptionController pause, gameOver;
 
-    public event Action<Chart> OnSystemInitialize;
-    public event Action<Chart> OnSystemInitializeThread;
+    public event Action OnSystemInitialize;
+    //public event Action<Chart> OnSystemInitializeThread;
 
     public event Action OnGameStart;
     public event Action OnGameOver;
@@ -48,7 +48,11 @@ public class InGame : Scene
         IsInputLock = true;
 
         timer.Start();
-        NowPlaying.Inst.LoadChart();
+        //NowPlaying.Inst.LoadChart();
+
+        NowPlaying.OnPreInitialize();
+        NowPlaying.OnPostInitialize();
+
         loadingText.text = $"{timer.End} ms";
     }
 
@@ -56,7 +60,7 @@ public class InGame : Scene
     {
         base.Start();
 
-        OnSystemInitialize?.Invoke( NowPlaying.CurrentChart );
+        OnSystemInitialize?.Invoke();
 
         StartCoroutine( Play() );
     }
@@ -144,7 +148,7 @@ public class InGame : Scene
 
         ImmediateDisableCanvas( ActionType.Main, pause );
         ImmediateDisableCanvas( ActionType.Main, gameOver );
-        NowPlaying.Inst.Clear();
+        NowPlaying.Inst.Initialize();
         AudioManager.Inst.AllStop();
 
         Disconnect();

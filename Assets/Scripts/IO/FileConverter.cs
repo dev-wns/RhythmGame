@@ -10,9 +10,22 @@ using UnityEngine;
 
 public struct Song
 {
+    // 파싱 단계에서 갱신
     public int index;
-
     public string filePath;
+    public string directory;
+
+    public string imagePath;
+    public string audioPath;
+    public string videoPath;
+
+    // 파일 내 데이터
+    public string title;
+    public string artist;
+    public string creator;
+    public string version;
+    public string source;
+
     public string imageName;
     public string audioName;
     public string videoName;
@@ -20,19 +33,13 @@ public struct Song
     public int    videoOffset;
     public int    volume;
 
+    public int totalTime;
+    public int previewTime;
+
     public bool hasVideo;
     public bool hasSprite;
     public bool hasKeySound;    // 노트 키음이 하나라도 있을 때 ( 배경음은 상관 X )
     public bool isOnlyKeySound; // 키음으로만 이루어진 노래 ( 배경음악과 노트 전부 키음으로 이루어짐 )
-
-    public string title;
-    public string artist;
-    public string creator;
-    public string version;
-    public string source;
-
-    public int totalTime;
-    public int previewTime;
 
     public int keyCount;
     public int noteCount;
@@ -119,12 +126,20 @@ public struct SpriteSample
     public string name;
     public double start, end;
 
+    public SpriteSample( string _name )
+    {
+        type  = SpriteType.Background;
+        name  = _name;
+        start = 0d;
+        end   = 0d;
+    }
+
     public SpriteSample( SpriteType _type, double _start, double _end, string _name )
     {
         type  = _type;
+        name  = _name;
         start = _start;
         end   = _end;
-        name  = _name;
     }
 }
 
@@ -263,7 +278,7 @@ public class FileConverter : FileReader
             {
                 for ( int i = 0; i < virtualAudioName.Length; i++ )
                 {
-                    if ( File.Exists( Path.Combine( dir, virtualAudioName[i] ) ) )
+                    if ( File.Exists( Path.Combine( directory, virtualAudioName[i] ) ) )
                     {
                         song.audioName      = virtualAudioName[i];
                         song.isOnlyKeySound = true;
@@ -277,7 +292,6 @@ public class FileConverter : FileReader
             samples?.Clear();
             sprites?.Clear();
 
-            var directory = Path.GetDirectoryName( _path );
             while ( ReadLine() != "[TimingPoints]" )
             {
                 // Image
@@ -288,12 +302,12 @@ public class FileConverter : FileReader
                 if ( Contains( "Video," ) )
                 {
                     var splitData = line.Split( ',' );
-                    var path = splitData[2].Split( '"' )[1].Trim();
+                    var name = splitData[2].Split( '"' )[1].Trim();
                     if ( Path.GetExtension( path ) != ".mpg" )
                     {
-                        song.videoName   = path;
+                        song.videoName   = name;
                         song.videoOffset = int.Parse( splitData[1] );
-                        song.hasVideo    = File.Exists( Path.Combine( directory, song.videoName ) );
+                        song.hasVideo    = File.Exists( Path.Combine( directory, name ) );
                     }
                 }
 
@@ -455,7 +469,7 @@ public class FileConverter : FileReader
         try
         {
             string fileName = $"{Path.GetFileNameWithoutExtension( path )}.wns";
-            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( path ), fileName )}";
+            string filePath = @$"\\?\{Path.Combine( directory, fileName )}";
 
             using ( var stream = new FileStream( filePath, FileMode.Create ) )
             {
@@ -626,7 +640,7 @@ public class FileConverter : FileReader
             Dispose();
 
             string fileName = $"{Path.GetFileNameWithoutExtension( _song.filePath )}.wns";
-            string filePath = @$"\\?\{Path.Combine( Path.GetDirectoryName( _song.filePath ), fileName )}";
+            string filePath = @$"\\?\{Path.Combine( directory, fileName )}";
             using ( var stream = new FileStream( filePath, FileMode.Create ) )
             {
                 using ( var writer = new StreamWriter( stream ) )

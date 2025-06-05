@@ -153,7 +153,7 @@ public class PreviewBGARenderer : MonoBehaviour
         else
         {
             type = BackgroundType.Image;
-            StartCoroutine( LoadImage( _song.imageName ) );
+            StartCoroutine( LoadImage( _song.imagePath ) );
         }
     }
 
@@ -170,7 +170,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
         // Wait First Texture
         yield return new WaitUntil( () => textures.ContainsKey( curSample.name ) );
-        tf.sizeDelta  = Global.Math.GetScreenRatio( textures[curSample.name], new Vector2( Global.Screen.Width, Global.Screen.Height ) );
+        tf.sizeDelta  = Global.Screen.GetRatio( textures[curSample.name] );
         image.enabled = true;
 
         while ( curIndex < sprites.Count )
@@ -191,13 +191,12 @@ public class PreviewBGARenderer : MonoBehaviour
     #region Load
     private IEnumerator LoadSprites( Song _song )
     {
-        var dir = Path.GetDirectoryName( _song.filePath );
         for ( int i = spriteIndex; i < sprites.Count; i++ )
         {
             if ( !textures.ContainsKey( sprites[i].name ) )
             {
                 Texture2D tex;
-                var path = @Path.Combine( dir, sprites[i].name );
+                var path = @Path.Combine( _song.directory, sprites[i].name );
                 if ( Path.GetExtension( path ).Contains( ".bmp" ) )
                 {
                     BMPLoader loader = new BMPLoader();
@@ -235,7 +234,7 @@ public class PreviewBGARenderer : MonoBehaviour
         delayTimer.Start();
         vp.enabled = true;
         image.texture = renderTexture;
-        vp.url = @$"{_song.videoName}";
+        vp.url = @$"{_song.videoPath}";
         vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.Prepare();
 
@@ -288,7 +287,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
         }
 
-        tf.sizeDelta = Global.Math.GetScreenRatio( image.texture, new Vector2( Global.Screen.Width, Global.Screen.Height ) );
+        tf.sizeDelta = Global.Screen.GetRatio( image.texture );
         image.enabled = true;
     }
     #endregion

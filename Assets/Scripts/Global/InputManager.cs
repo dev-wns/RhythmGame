@@ -73,6 +73,9 @@ public class InputManager : Singleton<InputManager>
     protected override void Awake()
     {
         base.Awake();
+
+        NowPlaying.OnPostInitialize += Initialize;
+
         DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
         {
             if ( !_lane.TryGetComponent( out prefab ) )
@@ -188,8 +191,7 @@ public class InputManager : Singleton<InputManager>
         notes = null;
     }
 
-
-    public async void Initialize()
+    private void Initialize()
     {
         notes = new List<Note>[NowPlaying.KeyCount];
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
@@ -201,11 +203,7 @@ public class InputManager : Singleton<InputManager>
         Debug.Log( $"Create {lanes.Count} lanes." );
 
         noteTimer.Start();
-        await Task.Run( () =>
-        {
-            DivideDatas( NowPlaying.CurrentChart.notes );
-
-        } );
+        DivideDatas( NowPlaying.CurrentChart.notes );
         noteTime += noteTimer.End;
     }
 
@@ -222,18 +220,24 @@ public class InputManager : Singleton<InputManager>
         {
             Note newNote = _datas[i];
 
-            if ( isConvert && newNote.lane == 3 )
+            if ( isConvert )
             {
-                soundTimer.Start();
-
-                // 잘린 노트의 키음은 자동재생되도록 한다.
-                NowPlaying.Inst.AddSample( new KeySound( newNote ), SoundType.BGM );
-
-                keySoundTime += soundTimer.End;
-                continue;
+                switch ( newNote.lane )
+                {
+                    // 잘려진 노트는 키음만 자동재생되도록 한다.
+                    case 3:
+                    {
+                        soundTimer.Start();
+                        NowPlaying.Inst.AddSample( new KeySound( newNote ), SoundType.BGM );
+                        keySoundTime += soundTimer.End;
+                        
+                    } continue;
+                    
+                    // 잘려진 옆 노트를 한칸씩 이동한다.
+                    case > 3: newNote.lane -= 1; 
+                    break;
+                }
             }
-            else if ( isConvert && newNote.lane > 3 )
-                      newNote.lane -= 1;
             
             if ( isNoSlider )
                  newNote.isSlider = false;

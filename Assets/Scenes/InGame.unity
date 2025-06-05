@@ -2401,7 +2401,6 @@ MonoBehaviour:
   foreground: {fileID: 532474327}
   vp: {fileID: 1610119569}
   renderTexture: {fileID: 8400000, guid: 2dd77d849aeb58b43ac4fbb5c274b11c, type: 2}
-  loadingText: {fileID: 1002975610}
 --- !u!222 &376532910
 CanvasRenderer:
   m_ObjectHideFlags: 0
