@@ -37,8 +37,8 @@ public class FreeStyleReLoad : MonoBehaviour
         prevSelectedSong = NowPlaying.CurrentSong;
         corUpdateTexts   = StartCoroutine( UpdateTexts() );
 
-        await Task.Run( NowPlaying.Inst.LoadSongs );
-        if ( NowPlaying.Inst.OriginSongs.Count == 0 )
+        await Task.Run( DataStorage.Inst.LoadSongs );
+        if ( DataStorage.OriginSongs.Count == 0 )
         {
             if ( !ReferenceEquals( corUpdateTexts, null ) )
             {
@@ -48,7 +48,7 @@ public class FreeStyleReLoad : MonoBehaviour
 
             var text  = textPool.Spawn();
             text.transform.SetAsLastSibling();
-            text.text = $"성공 : {NowPlaying.Inst.OriginSongs.Count}  실패 : {fileCount - NowPlaying.Inst.OriginSongs.Count}";
+            text.text = $"성공 : {DataStorage.OriginSongs.Count}  실패 : {fileCount - DataStorage.OriginSongs.Count}";
             DisableText( text );
 
             NowPlaying.CurrentScene.IsInputLock = false;
@@ -84,7 +84,7 @@ public class FreeStyleReLoad : MonoBehaviour
 
         var endText = textPool.Spawn();
         endText.transform.SetAsLastSibling();
-        endText.text = $"성공 : {NowPlaying.Inst.OriginSongs.Count}  실패 : {fileCount - NowPlaying.Inst.OriginSongs.Count}";
+        endText.text = $"성공 : {DataStorage.OriginSongs.Count}  실패 : {fileCount - DataStorage.OriginSongs.Count}";
         DisableText( endText );
 
         NowPlaying.CurrentScene.IsInputLock = false;

@@ -6,7 +6,7 @@ public class BpmChanger : MonoBehaviour
 {
     private InGame scene;
     private int curIndex;
-
+    private ReadOnlyCollection<Timing> timings;
     [Header("BPM Changer")]
 
     [Header("Time")]
@@ -26,24 +26,25 @@ public class BpmChanger : MonoBehaviour
 
     private void Initialize()
     {
-        curIndex = 0;
-        curTiming = NowPlaying.CurrentChart.timings[curIndex];
-        time = curTiming.time;
+        timings   = DataStorage.Timings;
+        curIndex  = 0;
+        curTiming = timings[curIndex];
+        time      = curTiming.time;
         text.text = $"{( int )curTiming.bpm}";
-        isStart = true;
+        isStart   = true;
     }
 
     private void LateUpdate()
     {
-        if ( isStart && curIndex < NowPlaying.CurrentChart.timings.Count &&
+        if ( isStart && curIndex < timings.Count &&
              time < NowPlaying.Playback )
         {
             text.text = $"{( int )curTiming.bpm}";
 
-            if ( ++curIndex < NowPlaying.CurrentChart.timings.Count )
+            if ( ++curIndex < timings.Count )
             {
-                curTiming = NowPlaying.CurrentChart.timings[curIndex];
-                time = curIndex + 1 < NowPlaying.CurrentChart.timings.Count && Global.Math.Abs( NowPlaying.CurrentChart.timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
+                curTiming = timings[curIndex];
+                time = curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
                        curTiming.time + DelayTime : curTiming.time;
             }
         }

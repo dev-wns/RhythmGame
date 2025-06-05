@@ -207,12 +207,13 @@ public class InputManager : Singleton<InputManager>
         Debug.Log( $"Create {lanes.Count} lanes." );
 
         noteTimer.Start();
-        DivideDatas( NowPlaying.CurrentChart.notes );
+        DivideDatas();
         noteTime += noteTimer.End;
     }
 
-    private void DivideDatas( ReadOnlyCollection<Note> _datas )
+    private void DivideDatas()
     {
+        ReadOnlyCollection<Note> datas = DataStorage.Notes;
         bool isConvert  = GameSetting.HasFlag( GameMode.KeyConversion ) && NowPlaying.CurrentSong.keyCount == 7;
         bool isNoSlider = GameSetting.HasFlag( GameMode.NoSlider );
         random = new System.Random( ( int )DateTime.Now.Ticks );
@@ -220,9 +221,9 @@ public class InputManager : Singleton<InputManager>
         List<int/* lane */> emptyLanes = new List<int>( NowPlaying.KeyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, NowPlaying.KeyCount ).ToArray();
         double   secondPerBeat         = ( ( ( 60d / NowPlaying.CurrentSong.mainBPM ) * 4d ) / 32d );
-        for ( int i = 0; i < _datas.Count; i++ )
+        for ( int i = 0; i < datas.Count; i++ )
         {
-            Note newNote = _datas[i];
+            Note newNote = datas[i];
 
             if ( isConvert )
             {
@@ -232,7 +233,7 @@ public class InputManager : Singleton<InputManager>
                     case 3:
                     {
                         soundTimer.Start();
-                        NowPlaying.Inst.AddSample( new KeySound( newNote ), SoundType.BGM );
+                        NowPlaying.Inst.AddSound( new KeySound( newNote ), SoundType.BGM );
                         keySoundTime += soundTimer.End;
                         
                     } continue;
@@ -259,7 +260,7 @@ public class InputManager : Singleton<InputManager>
 
                     soundTimer.Start();
 
-                    NowPlaying.Inst.AddSample( newNote.keySound, SoundType.KeySound );
+                    NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
                     keySoundTime += soundTimer.End;
 
                     notes[newNote.lane].Add( newNote );
@@ -293,7 +294,7 @@ public class InputManager : Singleton<InputManager>
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
                     soundTimer.Start();
-                    NowPlaying.Inst.AddSample( newNote.keySound, SoundType.KeySound );
+                    NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
                     keySoundTime += soundTimer.End;
 
                     notes[selectLane].Add( newNote );

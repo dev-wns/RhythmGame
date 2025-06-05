@@ -16,65 +16,54 @@ public enum SoundType { BGM, KeySound, }
 
 public class NowPlaying : Singleton<NowPlaying>
 {
-    #region Variables
     public static Scene CurrentScene;
 
-    public ReadOnlyCollection<Song> Songs;
-    public ReadOnlyCollection<Song> OriginSongs;
-    public int CurrentIndex { get; private set; }
+    [Header( "Song" )]
+    public ReadOnlyCollection<Song> Songs { get; private set; }
     public static Song CurrentSong { get; private set; }
-    public static Chart CurrentChart { get; private set; }
-    public static ReadOnlyCollection<Timing> Timings { get; private set; }
-    public static int KeyCount => GameSetting.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7 ? 6 : CurrentSong.keyCount;
-    public static int TotalNotes 
-    {
-        get 
-        {
-            bool hasKeyConversion = GameSetting.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7;
-            var note   = hasKeyConversion ? CurrentSong.noteCount   - CurrentSong.delNoteCount   : CurrentSong.noteCount;
-            var slider = hasKeyConversion ? CurrentSong.sliderCount - CurrentSong.delSliderCount : CurrentSong.sliderCount;
-            return note + ( slider * 2 );
-        }
-    }
+    public static int  CurrentIndex { get; private set; }
+    public static int  KeyCount => GameSetting.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7 ? 6 : CurrentSong.keyCount;
+    public static double MainBPM => CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
-    #region Sample Sounds
-    private List<KeySound> bgms = new List<KeySound>();
-    private int bgmIndex;
-    public static bool UseAllSamples { get; private set; }
-    #endregion
-
-    #region Time
-    private double startTime;
-    public static double SaveTime { get; private set; }
-    public static readonly double WaitStartTime = -3000d;
-    public static readonly double WaitPauseTime = -2000d;
+    [Header( "Time" )]
     public  static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
-    #endregion
 
-    public static event Action<Song> OnParsing;
+    private static readonly double AudioLeadIn   = 3000d;
+    private static readonly double WaitPauseTime = 2000d;
 
+    private static double StartTime;
+    private static double SaveTime;
+
+    [Header( "BGM" )]
+    private List<KeySound> bgms = new ();
+    private int bgmIndex;
+    public static bool UseAllSamples { get; private set; }
+
+    [Header( "Thread" )]
+    private CancellationTokenSource breakPoint = new ();
+    private int timingIndex;
+
+    //
     public static bool IsStart { get; private set; }
     public static bool IsLoadBGA { get; set; }
-    #endregion
-
-    private double mainBPM;
-    private int timingIndex;
-    private CancellationTokenSource breakPoint = new CancellationTokenSource();
 
     public static Action OnPreInitialize;
     public static Action OnPostInitialize;
+    public static event Action<Song> OnParsing;
 
-    #region Unity Callback
     protected override async void Awake()
     {
         base.Awake();
 
-        LoadSongs();
+        DataStorage.Inst.LoadSongs();
+        Songs = DataStorage.OriginSongs;
+        if ( Songs.Count > 0 )
+             UpdateSong( 0 );
 
         OnPreInitialize += Initialize; // 변수 초기화
-        OnPreInitialize += LoadChart;
+        OnPreInitialize += () => DataStorage.Inst.LoadChart();
 
 
         KeySetting   keySetting   = KeySetting.Inst;
@@ -88,11 +77,10 @@ public class NowPlaying : Singleton<NowPlaying>
         Release();
         breakPoint?.Cancel();
     }
-    #endregion
 
-    public Texture2D tex;
     private async void UpdateTime( CancellationToken _token )
     {
+        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
         while ( !_token.IsCancellationRequested )
         {
             // FMOD System Update
@@ -101,19 +89,19 @@ public class NowPlaying : Singleton<NowPlaying>
             if ( IsStart )
             {
                 // 시간 갱신
-                Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - startTime );
+                Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - StartTime );
 
                 // 이동된 거리 계산
-                for ( int i = timingIndex; i < Timings.Count; i++ )
+                for ( int i = timingIndex; i < timings.Count; i++ )
                 {
-                    double time = Timings[i].time;
-                    double bpm  = Timings[i].bpm / mainBPM;
+                    double time = timings[i].time;
+                    double bpm  = timings[i].bpm / MainBPM;
 
                     // 지나간 타이밍에 대한 거리
-                    if ( i + 1 < Timings.Count && Timings[i + 1].time < Playback )
+                    if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
                     {
                         timingIndex   += 1;
-                        DistanceCache += bpm * ( Timings[i + 1].time - time );
+                        DistanceCache += bpm * ( timings[i + 1].time - time );
                         break;
                     }
 
@@ -138,98 +126,100 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #region Parsing
-    public void LoadChart()
-    {
-        // 채보 파싱
-        using ( FileParser parser = new FileParser() )
-        {
-            if ( parser.TryParse( CurrentSong.filePath, out Chart chart ) )
-            {
-                CurrentChart = chart;
-                Timings      = chart.timings;
+    //public void LoadChart()
+    //{
+    //    // 채보 파싱
+    //    using ( FileParser parser = new FileParser() )
+    //    {
+    //        if ( parser.TryParse( CurrentSong.filePath, out Chart chart ) )
+    //        {
+    //            CurrentChart = chart;
+    //            Timings      = chart.timings;
 
-                // 단일 배경음은 자동재생되는 사운드샘플로 재생
-                if ( !CurrentSong.isOnlyKeySound )
-                      AddSample( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ), SoundType.BGM );
+    //            // 단일 배경음은 자동재생되는 사운드샘플로 재생
+    //            if ( !CurrentSong.isOnlyKeySound )
+    //                  AddSample( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ), SoundType.BGM );
 
-                // 사운드샘플 로딩 ( 자동재생 )
-                for ( int i = 0; i < chart.samples.Count; i++ )
-                      AddSample( chart.samples[i], SoundType.BGM );
-            }
-            else
-            {
-                CurrentScene.LoadScene( SceneType.FreeStyle );
-                Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
-            }
-        }
-    }
+    //            // 사운드샘플 로딩 ( 자동재생 )
+    //            for ( int i = 0; i < chart.samples.Count; i++ )
+    //                  AddSample( chart.samples[i], SoundType.BGM );
+    //        }
+    //        else
+    //        {
+    //            CurrentScene.LoadScene( SceneType.FreeStyle );
+    //            Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
+    //        }
+    //    }
+    //}
 
-    public bool LoadSongs()
-    {
-        List<Song> newSongs = new List<Song>();
-        Timer timer = new Timer();
+    //public bool LoadSongs()
+    //{
+    //    List<Song> newSongs = new List<Song>();
+    //    Timer timer = new Timer();
 
-        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
-        string[] files = Global.Path.GetFilesInSubDirectories( Global.Path.SoundDirectory, "*.osu" );
-        for ( int i = 0; i < files.Length; i++ )
-        {
-            using ( FileParser parser = new FileParser() )
-            {
-                if ( parser.TryParse( files[i], out Song newSong ) )
-                {
-                    newSong.index = newSongs.Count;
-                    newSongs.Add( newSong );
-                    OnParsing?.Invoke( newSong );
-                }
-            }
-        }
+    //    // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
+    //    string[] files = Global.Path.GetFilesInSubDirectories( Global.Path.SoundDirectory, "*.osu" );
+    //    for ( int i = 0; i < files.Length; i++ )
+    //    {
+    //        using ( FileParser parser = new FileParser() )
+    //        {
+    //            if ( parser.TryParse( files[i], out Song newSong ) )
+    //            {
+    //                newSong.index = newSongs.Count;
+    //                newSongs.Add( newSong );
+    //                OnParsing?.Invoke( newSong );
+    //            }
+    //        }
+    //    }
 
-        newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
-        for ( int i = 0; i < newSongs.Count; i++ )
-        {
-            var song    = newSongs[i];
-            song.index  = i;
-            newSongs[i] = song;
-        }
+    //    newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
+    //    for ( int i = 0; i < newSongs.Count; i++ )
+    //    {
+    //        var song    = newSongs[i];
+    //        song.index  = i;
+    //        newSongs[i] = song;
+    //    }
 
-        Songs       = new ReadOnlyCollection<Song>( newSongs );
-        OriginSongs = new ReadOnlyCollection<Song>( Songs );
+    //    Songs       = new ReadOnlyCollection<Song>( newSongs );
+    //    OriginSongs = new ReadOnlyCollection<Song>( Songs );
 
-        if ( Songs.Count > 0 )
-             UpdateSong( 0 );
+    //    if ( Songs.Count > 0 )
+    //         UpdateSong( 0 );
 
-        Debug.Log( $"Update Songs {timer.End} ms" );
+    //    Debug.Log( $"Update Songs {timer.End} ms" );
 
-        // 파일 수정하고 싶을 때 사용
-        //for ( int i = 0; i < OriginSongs.Count; i++ )
-        //{
-        //    using ( FileParser parser = new FileParser() )
-        //        parser.ReWrite( OriginSongs[i] );
-        //}
+    //    // 파일 수정하고 싶을 때 사용
+    //    //for ( int i = 0; i < OriginSongs.Count; i++ )
+    //    //{
+    //    //    using ( FileParser parser = new FileParser() )
+    //    //        parser.ReWrite( OriginSongs[i] );
+    //    //}
 
-        return true;
-    }
+    //    return true;
+    //}
     #endregion
 
-    #region KeySound
+    #region Sound
 
     /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드샘플 </summary>
-    public void AddSample( in KeySound _sample, SoundType _type )
+    public void AddSound( in KeySound _sample, SoundType _type )
     {
         DataStorage.Inst.LoadSound( _sample );
         if ( _type == SoundType.BGM )
              bgms.Add( _sample );
     }
     #endregion
+
     #region Search
     public void Search( string _keyword )
     {
-        if ( OriginSongs.Count == 0 )
+        ReadOnlyCollection<Song> originSongs = DataStorage.OriginSongs;
+        if ( originSongs.Count == 0 )
              return;
 
         if ( _keyword.Replace( " ", string.Empty ) == string.Empty )
         {
-            Songs = new ReadOnlyCollection<Song>( OriginSongs );
+            Songs = originSongs;
             UpdateSong( CurrentSong.index );
 
             return;
@@ -237,20 +227,20 @@ public class NowPlaying : Singleton<NowPlaying>
 
         List<Song> newSongs = new List<Song>();
         bool isSV = _keyword.Replace( " ", string.Empty ).ToUpper().CompareTo( "SV" ) == 0;
-        for ( int i = 0; i < OriginSongs.Count; i++ )
+        for ( int i = 0; i < originSongs.Count; i++ )
         {
             if ( isSV )
             {
-                if ( OriginSongs[i].minBpm != OriginSongs[i].maxBpm )
-                     newSongs.Add( OriginSongs[i] );
+                if ( originSongs[i].minBpm != originSongs[i].maxBpm )
+                     newSongs.Add( originSongs[i] );
             }
             else
             {
-                if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
-                     newSongs.Add( OriginSongs[i] );
+                if ( originSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     originSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     originSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     originSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+                     newSongs.Add( originSongs[i] );
             }
         }
 
@@ -261,10 +251,11 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Search( Song _song )
     {
-        for ( int i = 0; i < OriginSongs.Count; i++ )
+        ReadOnlyCollection<Song> originSongs = DataStorage.OriginSongs;
+        for ( int i = 0; i < originSongs.Count; i++ )
         {
-            if ( OriginSongs[i].title.Contains(   _song.title,   StringComparison.OrdinalIgnoreCase ) &&
-                 OriginSongs[i].version.Contains( _song.version, StringComparison.OrdinalIgnoreCase ) )
+            if ( originSongs[i].title.Contains(   _song.title,   StringComparison.OrdinalIgnoreCase ) &&
+                 originSongs[i].version.Contains( _song.version, StringComparison.OrdinalIgnoreCase ) )
             { 
                 UpdateSong( i );
                 return;
@@ -277,6 +268,18 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
    
     #region Playing
+    public void Initialize()
+    {
+        SaveTime      = -AudioLeadIn;
+        Playback      = 0d;
+        Distance      = 0d;
+        DistanceCache = 0d;
+        bgmIndex      = 0;
+        timingIndex   = 0;
+        IsStart       = false;
+        UseAllSamples = false;
+    }
+
     public void Play()
     {
         // 사운드샘플 오름차순 정렬 ( 시간기준 )
@@ -288,22 +291,9 @@ public class NowPlaying : Singleton<NowPlaying>
         } );
 
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
-        startTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
-        SaveTime       = WaitStartTime;
+        StartTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
+        SaveTime       = -AudioLeadIn;
         IsStart        = true;
-    }
-
-    public void Initialize()
-    {
-        mainBPM       = CurrentSong.mainBPM * GameSetting.CurrentPitch;
-        SaveTime      = WaitStartTime;
-        Playback      = 0d;
-        Distance      = 0d;
-        DistanceCache = 0d;
-        bgmIndex      = 0;
-        timingIndex   = 0;
-        IsStart       = false;
-        UseAllSamples = false;
     }
 
     public void Release()
@@ -314,17 +304,17 @@ public class NowPlaying : Singleton<NowPlaying>
         bgms.Clear();
     }
 
-
     public IEnumerator GameOver()
     {
         IsStart = false;
         float slowTimeOffset = 1f / 3f;
         float speed = 1f;
         float pitchOffset = GameSetting.CurrentPitch * .3f;
+        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
         while ( true )
         {
             Playback += speed * Time.deltaTime;
-            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / mainBPM ) * ( Playback - Timings[timingIndex].time ) );
+            Distance = DistanceCache + ( ( timings[timingIndex].bpm / MainBPM ) * ( Playback - timings[timingIndex].time ) );
 
             CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
@@ -341,7 +331,7 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( _isPause )
         {
             IsStart = false;
-            SaveTime = Playback + WaitPauseTime;
+            SaveTime = Playback - WaitPauseTime;
             AudioManager.Inst.SetPaused( true, ChannelType.BGM );
         }
         else
@@ -352,18 +342,19 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private IEnumerator Continue()
     {
+        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
         while ( Playback > SaveTime )
         {
             yield return null;
 
             Playback -= Time.deltaTime * 1.2f;
-            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / mainBPM ) * ( Playback - Timings[timingIndex].time ) );
+            Distance = DistanceCache + ( ( timings[timingIndex].bpm / MainBPM ) * ( Playback - timings[timingIndex].time ) );
         }
 
-        startTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
+        StartTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
         IsStart = true;
 
-        WaitUntil waitPlayback = new WaitUntil( () => Playback > SaveTime - WaitPauseTime );
+        WaitUntil waitPlayback = new WaitUntil( () => Playback > SaveTime + WaitPauseTime );
         yield return waitPlayback;
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
 
@@ -386,15 +377,16 @@ public class NowPlaying : Singleton<NowPlaying>
     public double GetDistance( double _time )
     {
         double result = 0d;
-        for ( int i = 0; i < Timings.Count; i++ )
+        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
+        for ( int i = 0; i < timings.Count; i++ )
         {
-            double time = Timings[i].time;
-            double bpm  = Timings[i].bpm / mainBPM;
+            double time = timings[i].time;
+            double bpm  = timings[i].bpm / MainBPM;
 
             // 지나간 타이밍에 대한 거리
-            if ( i + 1 < Timings.Count && Timings[i + 1].time < _time )
+            if ( i + 1 < timings.Count && timings[i + 1].time < _time )
             {
-                result += bpm * ( Timings[i + 1].time - time );
+                result += bpm * ( timings[i + 1].time - time );
                 continue;
             }
 

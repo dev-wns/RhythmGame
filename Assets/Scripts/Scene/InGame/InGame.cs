@@ -117,8 +117,14 @@ public class InGame : Scene
         NowPlaying.Inst.Play();
 
         // GameEnd
-        yield return new WaitUntil( () => NowPlaying.TotalNotes <= DataStorage.ResultCount );
-        Debug.Log( $"All lanes are empty ( {DataStorage.ResultCount} Judgements )" );
+        Song curSong = NowPlaying.CurrentSong;
+        bool isConvert = GameSetting.HasFlag( GameMode.KeyConversion ) && curSong.keyCount == 7;
+        var note   = isConvert ? curSong.noteCount   - curSong.delNoteCount   : curSong.noteCount;
+        var slider = isConvert ? curSong.sliderCount - curSong.delSliderCount : curSong.sliderCount;
+        int totalNotes = note + ( slider * 2 );
+
+        yield return new WaitUntil( () => totalNotes <= DataStorage.CurrentResult.Count );
+        Debug.Log( $"All lanes are empty ( {DataStorage.CurrentResult.Count} Judgements )" );
 
         IsEnd = true;
         if ( NowPlaying.CurrentSong.isOnlyKeySound )

@@ -64,9 +64,9 @@ public class BGASystem : MonoBehaviour
             yield break;
         }
 
-        type = NowPlaying.CurrentSong.hasVideo           ? BackgroundType.Video  :
-               NowPlaying.CurrentChart.sprites.Count > 0 ? BackgroundType.Sprite :
-                                                           BackgroundType.Image;
+        type = NowPlaying.CurrentSong.hasVideo    ? BackgroundType.Video  :
+               DataStorage.Sprites.Count > 0 ? BackgroundType.Sprite :
+                                                    BackgroundType.Image;
 
         switch ( type )
         {
@@ -95,7 +95,7 @@ public class BGASystem : MonoBehaviour
                 foreground.gameObject.SetActive( true );
                 scene.OnGameStart += SpriteProcess;
 
-                var sprites = NowPlaying.CurrentChart.sprites;
+                var sprites = DataStorage.Sprites;
                 for ( int i = 0; i < sprites.Count; i++ )
                 {
                     yield return StartCoroutine( DataStorage.Inst.LoadTexture( sprites[i] ) );
@@ -181,15 +181,15 @@ public class BGASystem : MonoBehaviour
     private void OnPause( bool _isPause )
     {
         if ( type != BackgroundType.Video )
-            return;
+             return;
 
-        if ( _isPause ) vp?.Pause();
+        if ( _isPause ) vp.Pause();
         else StartCoroutine( WaitVideoTime() );
     }
 
     private IEnumerator WaitVideoTime()
     {
-        yield return new WaitUntil( () => NowPlaying.Playback > NowPlaying.SaveTime - NowPlaying.WaitPauseTime );
+        yield return new WaitUntil( () => NowPlaying.Playback > vp.time );
         vp.Play();
     }
 

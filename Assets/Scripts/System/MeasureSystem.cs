@@ -60,9 +60,9 @@ public class MeasureSystem : MonoBehaviour
     private void Initialize()
     {
         Timer timer = new Timer();
-        var timings   = NowPlaying.CurrentChart.timings;
-        var totalTime = NowPlaying.CurrentSong.totalTime;
-        double startNoteTime = NowPlaying.CurrentChart.notes[0].time;
+        var timings          = DataStorage.Timings;
+        var totalTime        = NowPlaying.CurrentSong.totalTime;
+        double startNoteTime = DataStorage.Notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
             if ( timings[i].isUninherited == 0 )

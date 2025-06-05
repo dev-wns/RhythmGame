@@ -59,7 +59,7 @@ public class InitScene : Scene
     protected async override void Start()
     {
         StartCoroutine( ParsingAfterSwitchScene() );
-        isCompleted = await Task.Run( NowPlaying.Inst.LoadSongs );
+        isCompleted = await Task.Run( DataStorage.Inst.LoadSongs );
     }
 
     private IEnumerator ParsingAfterSwitchScene()

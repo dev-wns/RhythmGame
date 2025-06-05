@@ -66,10 +66,24 @@ public struct ResultData
 
 public class DataStorage : Singleton<DataStorage>
 {
-    [Header( "MultiPlay" )]
+    [Header( "Network" )]
     public static bool IsMultiPlaying { get; set; } = false;
     public static USER_INFO? UserInfo { get; set; }
     public static STAGE_INFO? StageInfo { get; set; }
+
+    [Header( "Parsing Data" )]
+    public static ReadOnlyCollection<Song>         OriginSongs { get; private set; } // 원본 음악 리스트
+    public static ReadOnlyCollection<Note>         Notes       { get; private set; }
+    public static ReadOnlyCollection<Timing>       Timings     { get; private set; }
+    public static ReadOnlyCollection<KeySound>     Samples     { get; private set; }
+    public static ReadOnlyCollection<SpriteSample> Sprites     { get; private set; }
+
+    [Header( "Texture" )]
+    private BMPLoader bitmapLoader = new ();
+    private Dictionary<string/* name */, Texture2D> loadedTextures = new ();
+
+    [Header( "Sound" )]
+    private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
 
     [Header( "Result Data" )]
     public  List<HitData> HitDatas { get; private set; } = new ();
@@ -77,16 +91,63 @@ public class DataStorage : Singleton<DataStorage>
     private static RecordData recordData = new RecordData();
     public  static ResultData CurrentResult => resultData;
     private static ResultData resultData = new ResultData();
-    public  static int ResultCount => CurrentResult.Count;
 
-    [Header( "Texture" )]
-    private BMPLoader bitmapLoader = new ();
-    private Dictionary<string/* name */, Texture2D> loadedTextures = new ();
+    #region Parsing
+    public bool LoadSongs()
+    {
+        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
+        List<Song> newSongs = new List<Song>();
+        string[] files = Global.Path.GetFilesInSubDirectories( Global.Path.SoundDirectory, "*.osu" );
+        for ( int i = 0; i < files.Length; i++ )
+        {
+            using ( FileParser parser = new FileParser() )
+            {
+                if ( parser.TryParse( files[i], out Song newSong ) )
+                {
+                    newSong.index = newSongs.Count;
+                    newSongs.Add( newSong );
+                }
+            }
+        }
 
-    [Header(" Sound" )]
+        newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
+        for ( int i = 0; i < newSongs.Count; i++ )
+        {
+            var song    = newSongs[i];
+            song.index  = i;
+            newSongs[i] = song;
+        }
 
-    private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
+        OriginSongs = new ReadOnlyCollection<Song>( newSongs );
 
+        // 파일 수정하고 싶을 때 사용
+        //for ( int i = 0; i < OriginSongs.Count; i++ )
+        //{
+        //    using ( FileParser parser = new FileParser() )
+        //        parser.ReWrite( OriginSongs[i] );
+        //}
+
+        return true;
+    }
+
+    public bool LoadChart()
+    {
+        using ( FileParser parser = new FileParser() )
+        {
+            if ( parser.TryParse( NowPlaying.CurrentSong.filePath, out Chart chart ) )
+            {
+                Notes   = chart.notes;
+                Timings = chart.timings;
+                Sprites = chart.sprites;
+                Samples = chart.samples;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+    #endregion
 
     public void Release()
     {

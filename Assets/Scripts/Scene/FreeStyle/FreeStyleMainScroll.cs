@@ -177,7 +177,7 @@ public class FreeStyleMainScroll : ScrollBase
         int medianCounts = 0;
         medianNode?.Value.Select( false );
         medianNode = songs.First;
-        Select( NowPlaying.Inst.CurrentIndex );
+        Select( NowPlaying.CurrentIndex );
         int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
                                                 ( CurrentIndex - median ) % Length;
 
@@ -242,7 +242,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         UpdateSongElements();
 
-        if ( curSong.index != NowPlaying.Inst.CurrentIndex )
+        if ( curSong.index != NowPlaying.CurrentIndex )
              UpdateSong();
     }
 
@@ -372,7 +372,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        if ( NowPlaying.Inst.CurrentIndex != CurrentIndex )
+        if ( NowPlaying.CurrentIndex != CurrentIndex )
              UpdateSong();
 
         isKeyDown = false;
