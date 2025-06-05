@@ -38,7 +38,6 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #region Sample Sounds
-    private Dictionary<string/* 키음 이름 */, FMOD.Sound> loadedSounds = new Dictionary<string, FMOD.Sound>();
     private List<KeySound> bgms = new List<KeySound>();
     private int bgmIndex;
     public static bool UseAllSamples { get; private set; }
@@ -123,10 +122,12 @@ public class NowPlaying : Singleton<NowPlaying>
                     break;
                 }
 
-                // 시간의 흐름에 따라 자동재생되는 음악 처리 ( 사운드 샘플 )
+                // 배경음 처리( 시간의 흐름에 따라 자동재생 )
                 while ( bgmIndex < bgms.Count && bgms[bgmIndex].time <= Playback )
                 {
-                    Play( bgms[bgmIndex] );
+                    if ( DataStorage.Inst.TryGetSound( bgms[bgmIndex].name, out FMOD.Sound sound ) )
+                         AudioManager.Inst.Play( sound, bgms[bgmIndex].volume );
+
                     if ( ++bgmIndex < bgms.Count )
                          UseAllSamples = true;
                 }
@@ -211,30 +212,13 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
 
     #region KeySound
-    public void Play( in KeySound _sample )
-    {
-        if ( loadedSounds.ContainsKey( _sample.name ) )
-        {
-            AudioManager.Inst.Play( loadedSounds[_sample.name], _sample.volume );
-        }
-    }
 
     /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드샘플 </summary>
     public void AddSample( in KeySound _sample, SoundType _type )
     {
+        DataStorage.Inst.LoadSound( _sample );
         if ( _type == SoundType.BGM )
              bgms.Add( _sample );
-
-        if ( loadedSounds.ContainsKey( _sample.name ) )
-        {
-            // 이미 로딩된 사운드
-        }
-        else
-        {
-            // 새로운 사운드 로딩
-            if ( AudioManager.Inst.Load( Path.Combine( CurrentSong.directory, _sample.name ), out FMOD.Sound sound ) )
-                 loadedSounds.Add( _sample.name, sound );
-        }
     }
     #endregion
     #region Search
@@ -327,17 +311,6 @@ public class NowPlaying : Singleton<NowPlaying>
         IsLoadBGA = false;
         
         StopAllCoroutines();
-        foreach ( var keySound in loadedSounds )
-        {
-            var sound = keySound.Value;
-            if ( sound.hasHandle() )
-            {
-                sound.release();
-                sound.clearHandle();
-            }
-        }
-
-        loadedSounds.Clear();
         bgms.Clear();
     }
 

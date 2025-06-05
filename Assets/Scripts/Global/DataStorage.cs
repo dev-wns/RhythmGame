@@ -1,14 +1,15 @@
-using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 public struct HitData
 {
@@ -76,46 +77,97 @@ public class DataStorage : Singleton<DataStorage>
     private static RecordData recordData = new RecordData();
     public  static ResultData CurrentResult => resultData;
     private static ResultData resultData = new ResultData();
-    public static int ResultCount => CurrentResult.Count;
+    public  static int ResultCount => CurrentResult.Count;
 
-    [Header( "Addressable" )]
-    private List<AsyncOperationHandle> handles = new ();
+    [Header( "Texture" )]
+    private BMPLoader bitmapLoader = new ();
+    private Dictionary<string/* name */, Texture2D> loadedTextures = new ();
 
-    [Header( "Resource Data" )]
-    private static BMPLoader BitmapLoader = new BMPLoader();
-    private static Dictionary<string/*name*/, Texture2D> Textures = new ();
+    [Header(" Sound" )]
+
+    private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
+
 
     public void Release()
     {
         StopAllCoroutines();
-        foreach ( var tex in Textures )
-            DestroyImmediate( tex.Value, true );
 
-        Textures.Clear();
+        foreach ( var texture in loadedTextures )
+            DestroyImmediate( texture.Value, true );
+
+        foreach ( var sound in loadedSounds )
+            AudioManager.Inst.Release( sound.Value );
+
+
+        loadedTextures.Clear();
+        loadedSounds.Clear();
     }
 
-    public static Texture2D GetTexture( string _name )
+    #region Addressable
+    public void LoadAssetsAsync<T>( string _label, Action<T> _OnCompleted ) where T : UnityEngine.Object
     {
-        if ( !Textures.TryGetValue( _name, out Texture2D tex ) )
-              throw new Exception( "This is Unregisterd Data" );
+        AsyncOperationHandle<IList<IResourceLocation>> locationHandle = Addressables.LoadResourceLocationsAsync( _label, typeof( T ) );
+        locationHandle.Completed += ( AsyncOperationHandle<IList<IResourceLocation>> _handle ) =>
+        {
+            if ( _handle.Status != AsyncOperationStatus.Succeeded )
+            {
+                Debug.LogWarning( "Load Location Async Failed" );
+                Addressables.Release( locationHandle );
+                return;
+            }
 
-        return tex;
+            foreach ( IResourceLocation location in _handle.Result )
+            {
+                AsyncOperationHandle<T> assetHandle = Addressables.LoadAssetAsync<T>( location );
+                assetHandle.Completed += ( AsyncOperationHandle<T> _handle ) =>
+                {
+                    if ( _handle.Status != AsyncOperationStatus.Succeeded )
+                    {
+                        Debug.LogError( "Load Asset Async Failed" );
+                        Addressables.Release( assetHandle );
+                        return;
+                    }
+
+                    _OnCompleted?.Invoke( _handle.Result );
+                    Addressables.Release( assetHandle );
+                };
+            }
+
+            Addressables.Release( locationHandle );
+        };
     }
+    #endregion
 
-    public static IEnumerator LoadTexture( SpriteSample _sprite )
+    #region Sound
+    public bool TryGetSound( string _name, out FMOD.Sound _sound ) => loadedSounds.TryGetValue( _name, out _sound );
+
+    public void LoadSound( in KeySound _sound )
+    {
+        if ( !loadedSounds.ContainsKey( _sound.name ) )
+        {
+            string path = Path.Combine( NowPlaying.CurrentSong.directory, _sound.name );
+            if ( AudioManager.Inst.Load( path, out FMOD.Sound sound ) )
+                 loadedSounds.Add( _sound.name, sound );
+        }
+    }
+    #endregion
+
+    #region Texture
+    public bool TryGetTexture( string _name, out Texture2D _tex ) => loadedTextures.TryGetValue( _name, out _tex );
+
+    public IEnumerator LoadTexture( SpriteSample _sprite )
     {
         var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
         
         // 이미 로딩 되었거나 존재하는 파일인지 확인
-        if ( Textures.ContainsKey( _sprite.name ) || !File.Exists( path ) )
+        if ( loadedTextures.ContainsKey( _sprite.name ) || !File.Exists( path ) )
              yield break;
         
         if ( Path.GetExtension( path ) == ".bmp" )
         {
             // 비트맵 파일은 런타임에서 읽히지 않음( 외부 도움 )
-            BitmapLoader.ForceAlphaReadWhenPossible = true;
-            BMPImage img = BitmapLoader.LoadBMP( path );
-            Textures.Add( _sprite.name, img.ToTexture2D( TextureFormat.RGB24 ) );
+            BMPImage img = bitmapLoader.LoadBMP( path );
+            loadedTextures.Add( _sprite.name, img.ToTexture2D( TextureFormat.RGB24 ) );
         }
         else
         {
@@ -132,45 +184,12 @@ public class DataStorage : Singleton<DataStorage>
                          www.result == UnityWebRequest.Result.ProtocolError )
                          throw new System.Exception( www.error );
 
-                    Textures.Add( _sprite.name, handler.texture );
+                    loadedTextures.Add( _sprite.name, handler.texture );
                 }
             }
         }
     }
-
-
-    public void LoadAssetsAsync<T>( string _label, Action<T> _OnCompleted ) where T : UnityEngine.Object
-    {
-        AsyncOperationHandle<IList<IResourceLocation>> locationHandle = Addressables.LoadResourceLocationsAsync( _label, typeof( T ) );
-        handles.Add( locationHandle );
-
-        locationHandle.Completed += ( AsyncOperationHandle<IList<IResourceLocation>> _handle ) =>
-        {
-            if ( _handle.Status != AsyncOperationStatus.Succeeded )
-            {
-                Debug.LogWarning( "Load Location Async Failed" );
-                return;
-            }
-
-            foreach ( IResourceLocation location in _handle.Result )
-            {
-                AsyncOperationHandle<T> assetHandle = Addressables.LoadAssetAsync<T>( location );
-                handles.Add( assetHandle );
-
-                assetHandle.Completed += ( AsyncOperationHandle<T> _handle ) =>
-                {
-                    if ( _handle.Status != AsyncOperationStatus.Succeeded )
-                    {
-                        Debug.LogError( "Load Asset Async Failed" );
-                        return;
-                    }
-
-                    _OnCompleted?.Invoke( _handle.Result );
-                };
-            }
-        };
-    }
-
+    #endregion
 
     #region Result Data
     public RecordData CreateNewRecord()

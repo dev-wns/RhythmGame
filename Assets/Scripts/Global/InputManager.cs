@@ -120,7 +120,11 @@ public class InputManager : Singleton<InputManager>
 
                 //  키음 선 실행
                 if ( keyStates[i] == KeyState.Down )
-                     NowPlaying.Inst.Play( keySounds[i] );
+                {
+                    // 노트에 키음이 없을 수도 있다. 
+                    if ( DataStorage.Inst.TryGetSound( keySounds[i].name, out FMOD.Sound sound ) )
+                         AudioManager.Inst.Play( sound, keySounds[i].volume );
+                }
 
                 // 데이터 소진 시 계산 불필요
                 if ( indexes[i] >= notes[i].Count )

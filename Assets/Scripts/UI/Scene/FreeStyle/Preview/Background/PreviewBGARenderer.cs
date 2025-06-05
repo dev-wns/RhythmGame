@@ -30,7 +30,6 @@ public class PreviewBGARenderer : MonoBehaviour
     private Coroutine   CorUpdateVideo;
     private Timer       delayTimer = new Timer();
 
-
     [Header( "Sprites Player" )]
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();

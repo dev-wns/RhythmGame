@@ -98,7 +98,7 @@ public class BGASystem : MonoBehaviour
                 var sprites = NowPlaying.CurrentChart.sprites;
                 for ( int i = 0; i < sprites.Count; i++ )
                 {
-                    yield return StartCoroutine( DataStorage.LoadTexture( sprites[i] ) );
+                    yield return StartCoroutine( DataStorage.Inst.LoadTexture( sprites[i] ) );
 
                     if ( sprites[i].type == SpriteType.Background ) backgrounds.Add( sprites[i] );
                     else                                            foregrounds.Add( sprites[i] );
@@ -110,11 +110,14 @@ public class BGASystem : MonoBehaviour
                 if ( System.IO.File.Exists( NowPlaying.CurrentSong.imagePath ) )
                 {
                     string name = NowPlaying.CurrentSong.imageName;
-                    yield return StartCoroutine( DataStorage.LoadTexture( new SpriteSample( name ) ) );
+                    yield return StartCoroutine( DataStorage.Inst.LoadTexture( new SpriteSample( name ) ) );
 
-                    background.color = color;
-                    background.texture = DataStorage.GetTexture( name );
-                    background.rectTransform.sizeDelta = Global.Screen.GetRatio( background.texture );
+                    if ( DataStorage.Inst.TryGetTexture( name, out Texture2D texture ) )
+                    {
+                        background.texture = texture;
+                        background.color   = color;
+                        background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
+                    }
                 }
                 else
                 {
@@ -201,7 +204,6 @@ public class BGASystem : MonoBehaviour
         int index           = 0;
         DataStorage  datas  = DataStorage.Inst;
         SpriteSample sprite = 0 < _samples.Count ? _samples[index]    : new SpriteSample();
-        _renderer.texture   = 0 < _samples.Count ? DataStorage.GetTexture( sprite.name ) : null;
 
         WaitUntil waitStart = new WaitUntil( () => sprite.start <= NowPlaying.Playback );
         WaitUntil waitEnd   = new WaitUntil( () => sprite.end   <= NowPlaying.Playback );
@@ -213,8 +215,11 @@ public class BGASystem : MonoBehaviour
         while ( index < _samples.Count )
         {
             yield return waitStart;
-            _renderer.texture = DataStorage.GetTexture( sprite.name );
-            _renderer.rectTransform.sizeDelta = Global.Screen.GetRatio( _renderer.texture );
+            if ( DataStorage.Inst.TryGetTexture( sprite.name, out Texture2D texture ) )
+            {
+                _renderer.texture = texture;
+                _renderer.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
+            }
 
             yield return waitEnd;
             if ( ++index < _samples.Count )
