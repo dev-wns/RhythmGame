@@ -92,6 +92,13 @@ public class DataStorage : Singleton<DataStorage>
     public  static ResultData CurrentResult => resultData;
     private static ResultData resultData = new ResultData();
 
+    protected override void Awake()
+    {
+        base.Awake();
+
+        NowPlaying.OnPreInitAsync += LoadChart;
+    }
+
     #region Parsing
     public bool LoadSongs()
     {
@@ -130,7 +137,7 @@ public class DataStorage : Singleton<DataStorage>
         return true;
     }
 
-    public bool LoadChart()
+    public void LoadChart()
     {
         using ( FileParser parser = new FileParser() )
         {
@@ -140,12 +147,8 @@ public class DataStorage : Singleton<DataStorage>
                 Timings = chart.timings;
                 Sprites = chart.sprites;
                 Samples = chart.samples;
-
-                return true;
             }
         }
-
-        return false;
     }
     #endregion
 

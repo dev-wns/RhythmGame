@@ -13,23 +13,31 @@ public class MeasureSystem : MonoBehaviour
 
     private bool shouldShowMeasure;
 
-    public static uint MeasureCalcTime;
-
     private void Awake()
     {
         var sceneObj = GameObject.FindGameObjectWithTag( "Scene" );
         shouldShowMeasure = ( GameSetting.CurrentVisualFlag & VisualFlag.ShowMeasure ) != 0;
         if ( sceneObj.TryGetComponent( out scene ) )
         {
-            if ( shouldShowMeasure )
+            if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
             {
-                scene.OnSystemInitialize += Initialize;
+                NowPlaying.OnPostInitialize += Initialize;
+                //scene.OnSystemInitialize += Initialize;
                 scene.OnReLoad += OnReLoad;
             }
         }
 
         pool = new ObjectPool<MeasureRenderer>( mPrefab, 10 );
     }
+
+    private void OnDestroy()
+    {
+        if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
+        {
+            NowPlaying.OnPostInitialize -= Initialize;
+        }
+    }
+
     private void Update()
     {
         if ( !NowPlaying.IsStart )
@@ -45,10 +53,6 @@ public class MeasureSystem : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        MeasureCalcTime = 0;
-    }
 
     private void OnReLoad()
     {
@@ -59,7 +63,6 @@ public class MeasureSystem : MonoBehaviour
 
     private void Initialize()
     {
-        Timer timer = new Timer();
         var timings          = DataStorage.Timings;
         var totalTime        = NowPlaying.CurrentSong.totalTime;
         double startNoteTime = DataStorage.Notes[0].time;
@@ -92,8 +95,6 @@ public class MeasureSystem : MonoBehaviour
                 time += spb;
             }
         }
-
-        MeasureCalcTime = timer.End;
 
         if ( measures.Count > 0 )
             curTime = measures[curIndex];

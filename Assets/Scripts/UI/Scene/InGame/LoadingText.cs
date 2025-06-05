@@ -27,7 +27,11 @@ public class LoadingText : RotateImage
     private void Awake()
     {
         InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnLoadEnd += IconDisable;
+        scene.OnLoadEnd += () =>
+        {
+            loadingText.DOFade( 0f, .5f );
+            completedText.DOFade( 1f, .5f );
+        };
         transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
 
         //bgaSys.OnInitialize += Initialize;
@@ -42,38 +46,16 @@ public class LoadingText : RotateImage
     private void Start()
     {
         if ( !ReferenceEquals( loadingText, null ) )
-            StartCoroutine( ChangeText() );
+              StartCoroutine( ChangeText() );
     }
-
-    //private void Initialize( BackgroundType _type )
-    //{
-    //    backgroundType.text = $"{_type}";
-    //    if ( _type == BackgroundType.Sprite )
-    //         spriteGroup.SetActive( true );
-    //}
-
-    //private void UpdateBackground( int _count, int _duplicate, int _background, int _foreground )
-    //{
-    //    numTexture.text = $"{_count}";
-    //    numDuplicateTexture.text = $"{_duplicate}";
-    //    background.text = $"{_background}";
-    //    foreground.text = $"{_foreground}";
-    //}
 
     private IEnumerator UpdateKeySoundCount()
     {
         while ( !NowPlaying.IsStart )
         {
-            //numSound.text = $"{AudioManager.Inst.KeySoundCount}";
             numDuplicateSound.text = $"{AudioManager.Inst.TotalKeySoundCount}";
             yield return null;
         }
-    }
-
-    public void IconDisable()
-    {
-        loadingText.DOFade( 0f, .5f );
-        completedText.DOFade( 1f, .5f );
     }
 
     private IEnumerator ChangeText()

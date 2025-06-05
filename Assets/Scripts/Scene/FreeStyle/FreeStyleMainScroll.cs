@@ -322,7 +322,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        GameSetting.NoteSizeMultiplier = NowPlaying.KeyCount == 4 ? 1.25f : 1f;
+        GameSetting.NoteSizeMultiplier = NowPlaying.CurrentSong.keyCount == 4 ? 1.25f : 1f;
 
         AudioManager.Inst.Play( SFX.MainClick );
         CurrentScene.LoadScene( SceneType.Game );

@@ -9,11 +9,9 @@ public class InGame : Scene
 {
     [Header( "InGame" )]
     public GameObject loadingCanvas;
-    //public GameObject scoreMeterCanvas;
     public OptionController pause, gameOver;
 
-    public event Action OnSystemInitialize;
-    //public event Action<Chart> OnSystemInitializeThread;
+    //public event Action OnSystemInitialize;
 
     public event Action OnGameStart;
     public event Action OnGameOver;
@@ -22,13 +20,11 @@ public class InGame : Scene
     public event Action OnLoadEnd;
     public event Action<bool/* isPause */> OnPause;
     public bool IsEnd { get; private set; }
-    private bool[] isHitLastNotes;
 
     private readonly float AdditionalLoadTime = 3.5f;
 
     [Header( "Loading" )]
     public TextMeshProUGUI loadingText;
-    private Timer timer  = new Timer();
 
     public TextMeshProUGUI soundText;
     public TextMeshProUGUI etcText;
@@ -43,24 +39,17 @@ public class InGame : Scene
                                        antiAliasing == 3 ? 8 :
                                        antiAliasing == 4 ? 16 : 0;
 
-        isHitLastNotes = new bool[NowPlaying.KeyCount];
         IsGameInputLock = true;
-        IsInputLock = true;
+        IsInputLock     = true;
 
-        timer.Start();
-        //NowPlaying.Inst.LoadChart();
-
-        NowPlaying.OnPreInitialize();
-        NowPlaying.OnPostInitialize();
-
-        loadingText.text = $"{timer.End} ms";
+        NowPlaying.Inst.Initialize();
+        //OnSystemInitialize?.Invoke();
     }
 
     protected override void Start()
     {
         base.Start();
 
-        OnSystemInitialize?.Invoke();
 
         StartCoroutine( Play() );
     }
@@ -78,29 +67,13 @@ public class InGame : Scene
              AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
-    private void Stop()
-    {
-        IsEnd = false;
-        for ( int i = 0; i < isHitLastNotes.Length; i++ )
-        {
-            isHitLastNotes[i] = false;
-        }
-    }
-
     private IEnumerator Play()
     {
-        // GameStart
-        WaitUntil waitLoadDatas = new WaitUntil( () => NowPlaying.IsLoadBGA );
-        yield return waitLoadDatas;
-
-        uint etcTime = ( InputManager.noteTime - InputManager.keySoundTime ) +
-                         MeasureSystem.MeasureCalcTime;
-
-        etcText.text = $"{etcTime} ms";
+        // Load Check
+        yield return new WaitUntil( () => NowPlaying.IsLoaded );
         OnLoadEnd?.Invoke();
 
         yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
-
         if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
         {
             DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.OptionFadeDuration );
@@ -110,6 +83,7 @@ public class InGame : Scene
             loadingCanvas.SetActive( false );
         }
 
+        // Game Start
         InputManager.Inst.GameStart();
         OnGameStart?.Invoke();
         IsGameInputLock = false;
@@ -117,13 +91,7 @@ public class InGame : Scene
         NowPlaying.Inst.Play();
 
         // GameEnd
-        Song curSong = NowPlaying.CurrentSong;
-        bool isConvert = GameSetting.HasFlag( GameMode.KeyConversion ) && curSong.keyCount == 7;
-        var note   = isConvert ? curSong.noteCount   - curSong.delNoteCount   : curSong.noteCount;
-        var slider = isConvert ? curSong.sliderCount - curSong.delSliderCount : curSong.sliderCount;
-        int totalNotes = note + ( slider * 2 );
-
-        yield return new WaitUntil( () => totalNotes <= DataStorage.CurrentResult.Count );
+        yield return new WaitUntil( () => NowPlaying.TotalJudge <= DataStorage.CurrentResult.Count );
         Debug.Log( $"All lanes are empty ( {DataStorage.CurrentResult.Count} Judgements )" );
 
         IsEnd = true;
@@ -133,7 +101,6 @@ public class InGame : Scene
         AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );
 
-        Stop();
         OnResult?.Invoke();
         LoadScene( SceneType.Result );
     }
@@ -154,7 +121,7 @@ public class InGame : Scene
 
         ImmediateDisableCanvas( ActionType.Main, pause );
         ImmediateDisableCanvas( ActionType.Main, gameOver );
-        NowPlaying.Inst.Initialize();
+        NowPlaying.Inst.Clear();
         AudioManager.Inst.AllStop();
 
         Disconnect();
@@ -173,7 +140,6 @@ public class InGame : Scene
     {
         if ( IsEnd )
         {
-            Stop();
             OnResult?.Invoke();
             LoadScene( SceneType.Result );
         }

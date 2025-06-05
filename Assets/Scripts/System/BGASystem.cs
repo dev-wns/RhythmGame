@@ -27,8 +27,9 @@ public class BGASystem : MonoBehaviour
 
     private void Awake()
     {
+        NowPlaying.OnPostInitialize += LoadBGA;
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnSystemInitialize += Initialize;
+        //scene.OnSystemInitialize += Initialize;
         scene.OnReLoad           += OnReLoad;
         scene.OnUpdatePitch      += UpdatePitch;
 
@@ -43,6 +44,8 @@ public class BGASystem : MonoBehaviour
     {
         StopAllCoroutines();
         ClearRenderTexture();
+
+        NowPlaying.OnPostInitialize -= LoadBGA;
     }
 
     private void ClearRenderTexture()
@@ -53,19 +56,18 @@ public class BGASystem : MonoBehaviour
         RenderTexture.active = rt;
     }
 
-    private void Initialize() => StartCoroutine( Load() );
+    private void LoadBGA() => StartCoroutine( Load() );
 
     private IEnumerator Load()
     {
         if ( GameSetting.BGAOpacity == 0 )
         {
             transform.root.gameObject.SetActive( false );
-            NowPlaying.IsLoadBGA = true;
             yield break;
         }
 
         type = NowPlaying.CurrentSong.hasVideo    ? BackgroundType.Video  :
-               DataStorage.Sprites.Count > 0 ? BackgroundType.Sprite :
+               DataStorage.Sprites.Count > 0      ? BackgroundType.Sprite :
                                                     BackgroundType.Image;
 
         switch ( type )
@@ -125,8 +127,6 @@ public class BGASystem : MonoBehaviour
                 }
             } break;
         }
-
-        NowPlaying.IsLoadBGA = true;
     }
 
     private void PlayVideo()

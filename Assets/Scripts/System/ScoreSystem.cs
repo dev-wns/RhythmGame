@@ -8,8 +8,6 @@ public class ScoreSystem : MonoBehaviour
     private Judgement judge;
 
     [Header("ScoreSystem")]
-    private int    totalNotes;
-    
     private double baseScore;
     private double bonusScore;
     private int    bonus = 100;
@@ -25,12 +23,19 @@ public class ScoreSystem : MonoBehaviour
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnSystemInitialize += Initialize;
         scene.OnReLoad += OnReLoad;
         scene.OnResult += OnResult;
+        
+        // scene.OnSystemInitialize += Initialize;
+        NowPlaying.OnPostInitialize += Initialize;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         judge.OnJudge += ScoreUpdate;
+    }
+
+    private void OnDestroy()
+    {
+        NowPlaying.OnPostInitialize -= Initialize;
     }
 
     private void OnResult()
@@ -48,11 +53,6 @@ public class ScoreSystem : MonoBehaviour
 
     private void Initialize()
     {
-        bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) &&  NowPlaying.CurrentSong.keyCount == 7;
-        var slider = hasKeyConversion ? NowPlaying.CurrentSong.sliderCount - NowPlaying.CurrentSong.delSliderCount : NowPlaying.CurrentSong.sliderCount;
-        var note   = hasKeyConversion ? NowPlaying.CurrentSong.noteCount   - NowPlaying.CurrentSong.delNoteCount   : NowPlaying.CurrentSong.noteCount;
-
-        totalNotes = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? note : note + ( slider * 2 );
         StartCoroutine( Count() );
     }
 
@@ -118,8 +118,8 @@ public class ScoreSystem : MonoBehaviour
         }
 
         bonus       = ( Global.Math.Clamp( ( bonus + hitBonus - hitPunishment ), 0, 100 ) );
-        baseScore   = ( ( 1000000d * .5d ) / totalNotes ) * ( hitScoreValue / 320d );
-        bonusScore  = ( ( 1000000d * .5d ) / totalNotes ) * ( hitBonusValue * Mathf.Sqrt( bonus ) / 320d );
+        baseScore   = ( ( 1000000d * .5d ) / NowPlaying.TotalJudge ) * ( hitScoreValue / 320d );
+        bonusScore  = ( ( 1000000d * .5d ) / NowPlaying.TotalJudge ) * ( hitBonusValue * Mathf.Sqrt( bonus ) / 320d );
         targetScore += baseScore + bonusScore;
 
         countOffset = ( float )( targetScore - curScore ) / countDuration;

@@ -45,41 +45,28 @@ public struct NoteDatas
 
 public class InputManager : Singleton<InputManager>
 {
-    #region Lane
+    [Header( "Lane" )]
     [SerializeField] Lane prefab;
     [SerializeField] List<Lane> lanes = new();
     [SerializeField] List<Note>[] notes;
-    #endregion
-
-    #region Thread
-
-    private CancellationTokenSource cancelSource = new();
-    
-    [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
-    #endregion
-
-    [Header( "Loading" )]
-    private Timer soundTimer = new Timer();
-    public TextMeshProUGUI soundText;
-    public static uint soundSampleTime;
-    public static uint keySoundTime;
-
-    private Timer noteTimer  = new Timer();
-    public static uint noteTime;
-
-    [Header( "Lane" )]
     private System.Random random;
+
+    [Header( "Thread" )]
+    private CancellationTokenSource cancelSource = new();
+    [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
+
 
     protected override void Awake()
     {
         base.Awake();
 
-        NowPlaying.OnPostInitialize += Initialize;
+        NowPlaying.OnPreInitialize += Initialize;
+        NowPlaying.OnPostInitAsync += DivideNotes;
 
         DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
         {
             if ( !_lane.TryGetComponent( out prefab ) )
-                 Debug.LogError( $"Load Asset Failed ( Lane )" );
+                  Debug.LogError( $"Load Asset Failed ( Lane )" );
         } );
     }
 
@@ -87,6 +74,18 @@ public class InputManager : Singleton<InputManager>
     {
         cancelSource?.Cancel();
         Release();
+    }
+
+    private void Initialize()
+    {
+        notes = new List<Note>[NowPlaying.KeyCount];
+        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
+        {
+            lanes.Add( Instantiate( prefab, transform ) );
+            lanes[i].Initialize( i );
+            notes[i] = new List<Note>();
+        }
+        Debug.Log( $"Create {lanes.Count} lanes." );
     }
 
     public async void GameStart()
@@ -195,23 +194,7 @@ public class InputManager : Singleton<InputManager>
         notes = null;
     }
 
-    private void Initialize()
-    {
-        notes = new List<Note>[NowPlaying.KeyCount];
-        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
-        {
-            lanes.Add( Instantiate( prefab, transform ) );
-            lanes[i].Initialize( i );
-            notes[i] = new List<Note>();
-        }
-        Debug.Log( $"Create {lanes.Count} lanes." );
-
-        noteTimer.Start();
-        DivideDatas();
-        noteTime += noteTimer.End;
-    }
-
-    private void DivideDatas()
+    private void DivideNotes()
     {
         ReadOnlyCollection<Note> datas = DataStorage.Notes;
         bool isConvert  = GameSetting.HasFlag( GameMode.KeyConversion ) && NowPlaying.CurrentSong.keyCount == 7;
@@ -224,19 +207,13 @@ public class InputManager : Singleton<InputManager>
         for ( int i = 0; i < datas.Count; i++ )
         {
             Note newNote = datas[i];
-
             if ( isConvert )
             {
                 switch ( newNote.lane )
                 {
                     // 잘려진 노트는 키음만 자동재생되도록 한다.
-                    case 3:
-                    {
-                        soundTimer.Start();
-                        NowPlaying.Inst.AddSound( new KeySound( newNote ), SoundType.BGM );
-                        keySoundTime += soundTimer.End;
-                        
-                    } continue;
+                    case 3: NowPlaying.Inst.AddSound( new KeySound( newNote ), SoundType.BGM );
+                    continue;
                     
                     // 잘려진 옆 노트를 한칸씩 이동한다.
                     case > 3: newNote.lane -= 1; 
@@ -258,11 +235,7 @@ public class InputManager : Singleton<InputManager>
                     newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
-                    soundTimer.Start();
-
                     NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
-                    keySoundTime += soundTimer.End;
-
                     notes[newNote.lane].Add( newNote );
                 } break;
 
@@ -293,10 +266,7 @@ public class InputManager : Singleton<InputManager>
                     newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
                     newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
 
-                    soundTimer.Start();
                     NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
-                    keySoundTime += soundTimer.End;
-
                     notes[selectLane].Add( newNote );
                 } break;
             }

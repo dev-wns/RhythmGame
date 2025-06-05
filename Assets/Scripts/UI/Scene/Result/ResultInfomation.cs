@@ -77,57 +77,52 @@ public class ResultInfomation : MonoBehaviour
         var result = DataStorage.CurrentResult;
 
         // Song Infomation
-        title.text = $"{song.title} [{song.version}]";
+        title.text  = $"{song.title} [{song.version}]";
         artist.text = song.artist;
 
         // Note Infomation
-        bool hasNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        bool hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
-
-        var slider       = hasKeyConversion ? song.sliderCount - song.delSliderCount : song.sliderCount;
-        var note         = hasKeyConversion ? song.noteCount   - song.delNoteCount   : song.noteCount;
-        totalNotes.text = $"{note + slider}";
-        noteCount.text = hasNoSlider ? $"{note + slider}" : $"{note}";
-        sliderCount.text = hasNoSlider ? $"{0}" : $"{slider}";
+        totalNotes.text  = $"{NowPlaying.TotalNote + NowPlaying.TotalSlider}";
+        noteCount.text   = $"{NowPlaying.TotalNote}";
+        sliderCount.text = $"{NowPlaying.TotalSlider}";
 
         // Clear Type
         if ( result.great + result.good + result.bad + result.miss == 0 )
         {
             allPerfect.color = Color.white;
-            fullCombo.color = DisableColor;
-            clear.color = DisableColor;
+            fullCombo.color  = DisableColor;
+            clear.color      = DisableColor;
         }
         else if ( result.miss == 0 )
         {
             allPerfect.color = DisableColor;
-            fullCombo.color = Color.white;
-            clear.color = DisableColor;
+            fullCombo.color  = Color.white;
+            clear.color      = DisableColor;
         }
         else
         {
             allPerfect.color = DisableColor;
-            fullCombo.color = DisableColor;
-            clear.color = Color.white;
+            fullCombo.color  = DisableColor;
+            clear.color      = Color.white;
         }
 
         //Mode
-        noSlider.color = hasNoSlider ? Color.white : DisableColor;
-        autoPlay.color = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? Color.white : DisableColor;
-        noFail.color = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail ) ? Color.white : DisableColor;
-        fixedBPM.color = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? Color.white : DisableColor;
-        hardJudge.color = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? Color.white : DisableColor;
+        noSlider.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider      ) ? Color.white : DisableColor;
+        autoPlay.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay      ) ? Color.white : DisableColor;
+        noFail.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail        ) ? Color.white : DisableColor;
+        fixedBPM.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM      ) ? Color.white : DisableColor;
+        hardJudge.color   = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge     ) ? Color.white : DisableColor;
         onlyPerfect.color = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) ? Color.white : DisableColor;
 
         // Judgement
-        totalJudge.text = hasNoSlider ? $"{note + slider}" : $"{note + ( slider * 2 )}";
-        DOTween.To( () => 0, x => TextProgressEffect( maximum, x ), result.maximum, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( perfect, x ), result.perfect, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( great, x ), result.great, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( good, x ), result.good, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( bad, x ), result.bad, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( miss, x ), result.miss, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), result.combo, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( score, x ), result.score, duration );
+        totalJudge.text = $"{NowPlaying.TotalJudge}";
+        DOTween.To( () => 0, x => TextProgressEffect( maximum,  x ), result.maximum, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( perfect,  x ), result.perfect, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( great,    x ), result.great,   duration );
+        DOTween.To( () => 0, x => TextProgressEffect( good,     x ), result.good,    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( bad,      x ), result.bad,     duration );
+        DOTween.To( () => 0, x => TextProgressEffect( miss,     x ), result.miss,    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), result.combo,   duration );
+        DOTween.To( () => 0, x => TextProgressEffect( score,    x ), result.score,   duration );
         DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.accuracy, duration );
 
         // fast slow

@@ -1,10 +1,11 @@
 #define START_FREESTYLE
 
 using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -19,13 +20,17 @@ public class NowPlaying : Singleton<NowPlaying>
     public static Scene CurrentScene;
 
     [Header( "Song" )]
-    public ReadOnlyCollection<Song> Songs { get; private set; }
+    public  ReadOnlyCollection<Song> Songs { get; private set; }
     public static Song CurrentSong { get; private set; }
-    public static int  CurrentIndex { get; private set; }
-    public static int  KeyCount => GameSetting.HasFlag( GameMode.KeyConversion ) && CurrentSong.keyCount == 7 ? 6 : CurrentSong.keyCount;
-    public static double MainBPM => CurrentSong.mainBPM * GameSetting.CurrentPitch;
+    public static int CurrentIndex { get; private set; }
+    public static int KeyCount     { get; private set; }
+    public static int TotalJudge   { get; private set; }
+    public static int TotalNote    { get; private set; }
+    public static int TotalSlider  { get; private set; }
+    public static double MainBPM   { get; private set; }
 
     [Header( "Time" )]
+    private ReadOnlyCollection<Timing> Timings;
     public  static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
@@ -47,27 +52,66 @@ public class NowPlaying : Singleton<NowPlaying>
 
     //
     public static bool IsStart { get; private set; }
-    public static bool IsLoadBGA { get; set; }
 
-    public static Action OnPreInitialize;
-    public static Action OnPostInitialize;
+    [Header( "Event" )]
+    public static bool IsLoaded { get; private set; }
+    public static event Action OnPreInitialize;  // Main  Thread
+    public static event Action OnPostInitialize; // Main  Thread
+    public static event Action OnPreInitAsync;   // Other Thread
+    public static event Action OnPostInitAsync;  // Other Thread
+
     public static event Action<Song> OnParsing;
+
+    public async void Initialize()
+    {
+        Clear(); // 기본 변수 초기화
+        MainBPM = CurrentSong.mainBPM * GameSetting.CurrentPitch;
+
+        // 모드를 선택한 상태로 InGame 진입 후 계산
+        bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) &&  CurrentSong.keyCount == 7;
+        KeyCount        = isConvert  ? 6 : CurrentSong.keyCount;
+        TotalNote       = isConvert  ? CurrentSong.noteCount - CurrentSong.delNoteCount : CurrentSong.noteCount;
+        TotalSlider     = isNoSlider ? 0 :
+                          isConvert  ? CurrentSong.sliderCount - CurrentSong.delSliderCount : 
+                                       CurrentSong.sliderCount;
+        TotalNote       = isNoSlider ? TotalNote + TotalSlider : TotalNote;
+        TotalJudge      = TotalNote + ( TotalSlider * 2 );
+
+        // 선 파싱
+        await Task.Run( () => OnPreInitAsync?.Invoke() );
+        OnPreInitialize?.Invoke();
+
+        // 가독성을 위한 자주쓰는 변수 캐싱
+        Timings = DataStorage.Timings;
+
+        // 후 계산
+        await Task.Run( () => OnPostInitAsync?.Invoke() );
+        OnPostInitialize?.Invoke();
+
+        // 특정모드 선택으로 잘린 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
+        bgms.Sort( delegate ( KeySound _A, KeySound _B )
+        {
+            if      ( _A.time > _B.time ) return 1;
+            else if ( _A.time < _B.time ) return -1;
+            else                          return 0;
+        } );
+        IsLoaded = true;
+    }
 
     protected override async void Awake()
     {
         base.Awake();
 
+        InputManager inputManager = InputManager.Inst;
+        KeySetting   keySetting   = KeySetting.Inst;
+
+        OnPostInitAsync += LoadSoundsAsync;
+
         DataStorage.Inst.LoadSongs();
         Songs = DataStorage.OriginSongs;
         if ( Songs.Count > 0 )
              UpdateSong( 0 );
-
-        OnPreInitialize += Initialize; // 변수 초기화
-        OnPreInitialize += () => DataStorage.Inst.LoadChart();
-
-
-        KeySetting   keySetting   = KeySetting.Inst;
-        InputManager inputManager = InputManager.Inst;
 
         await Task.Run( () => UpdateTime( breakPoint.Token ) );
     }
@@ -80,7 +124,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private async void UpdateTime( CancellationToken _token )
     {
-        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
         while ( !_token.IsCancellationRequested )
         {
             // FMOD System Update
@@ -92,16 +135,16 @@ public class NowPlaying : Singleton<NowPlaying>
                 Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - StartTime );
 
                 // 이동된 거리 계산
-                for ( int i = timingIndex; i < timings.Count; i++ )
+                for ( int i = timingIndex; i < Timings.Count; i++ )
                 {
-                    double time = timings[i].time;
-                    double bpm  = timings[i].bpm / MainBPM;
+                    double time = Timings[i].time;
+                    double bpm  = Timings[i].bpm / MainBPM;
 
                     // 지나간 타이밍에 대한 거리
-                    if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
+                    if ( i + 1 < Timings.Count && Timings[i + 1].time < Playback )
                     {
                         timingIndex   += 1;
-                        DistanceCache += bpm * ( timings[i + 1].time - time );
+                        DistanceCache += bpm * ( Timings[i + 1].time - time );
                         break;
                     }
 
@@ -201,12 +244,24 @@ public class NowPlaying : Singleton<NowPlaying>
 
     #region Sound
 
-    /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드샘플 </summary>
-    public void AddSound( in KeySound _sample, SoundType _type )
+    private void LoadSoundsAsync()
     {
-        DataStorage.Inst.LoadSound( _sample );
+        // 배경음 로딩
+        if ( !CurrentSong.isOnlyKeySound )
+             AddSound( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ), SoundType.BGM );
+
+        // 사운드샘플 로딩 ( 자동재생 )
+        var samples = DataStorage.Samples;
+        for ( int i = 0; i < samples.Count; i++ )
+              AddSound( samples[i], SoundType.BGM );
+    }
+
+    /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드 </summary>
+    public void AddSound( in KeySound _sound, SoundType _type )
+    {
+        DataStorage.Inst.LoadSound( _sound );
         if ( _type == SoundType.BGM )
-             bgms.Add( _sample );
+             bgms.Add( _sound );
     }
     #endregion
 
@@ -268,7 +323,8 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
    
     #region Playing
-    public void Initialize()
+    /// <summary> 기본 변수 초기화 </summary>
+    public void Clear()
     {
         SaveTime      = -AudioLeadIn;
         Playback      = 0d;
@@ -282,14 +338,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Play()
     {
-        // 사운드샘플 오름차순 정렬 ( 시간기준 )
-        bgms.Sort( delegate ( KeySound _A, KeySound _B )
-        {
-            if      ( _A.time > _B.time ) return 1;
-            else if ( _A.time < _B.time ) return -1;
-            else                          return 0;
-        } );
-
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
         StartTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
         SaveTime       = -AudioLeadIn;
@@ -298,8 +346,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Release()
     {
-        IsLoadBGA = false;
-        
+        IsLoaded  = false;
         StopAllCoroutines();
         bgms.Clear();
     }
@@ -310,11 +357,10 @@ public class NowPlaying : Singleton<NowPlaying>
         float slowTimeOffset = 1f / 3f;
         float speed = 1f;
         float pitchOffset = GameSetting.CurrentPitch * .3f;
-        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
         while ( true )
         {
             Playback += speed * Time.deltaTime;
-            Distance = DistanceCache + ( ( timings[timingIndex].bpm / MainBPM ) * ( Playback - timings[timingIndex].time ) );
+            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / MainBPM ) * ( Playback - Timings[timingIndex].time ) );
 
             CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
             speed -= slowTimeOffset * Time.deltaTime;
@@ -342,13 +388,12 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private IEnumerator Continue()
     {
-        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
         while ( Playback > SaveTime )
         {
             yield return null;
 
             Playback -= Time.deltaTime * 1.2f;
-            Distance = DistanceCache + ( ( timings[timingIndex].bpm / MainBPM ) * ( Playback - timings[timingIndex].time ) );
+            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / MainBPM ) * ( Playback - Timings[timingIndex].time ) );
         }
 
         StartTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
@@ -377,16 +422,15 @@ public class NowPlaying : Singleton<NowPlaying>
     public double GetDistance( double _time )
     {
         double result = 0d;
-        ReadOnlyCollection<Timing> timings = DataStorage.Timings;
-        for ( int i = 0; i < timings.Count; i++ )
+        for ( int i = 0; i < Timings.Count; i++ )
         {
-            double time = timings[i].time;
-            double bpm  = timings[i].bpm / MainBPM;
+            double time = Timings[i].time;
+            double bpm  = Timings[i].bpm / MainBPM;
 
             // 지나간 타이밍에 대한 거리
-            if ( i + 1 < timings.Count && timings[i + 1].time < _time )
+            if ( i + 1 < Timings.Count && Timings[i + 1].time < _time )
             {
-                result += bpm * ( timings[i + 1].time - time );
+                result += bpm * ( Timings[i + 1].time - time );
                 continue;
             }
 
