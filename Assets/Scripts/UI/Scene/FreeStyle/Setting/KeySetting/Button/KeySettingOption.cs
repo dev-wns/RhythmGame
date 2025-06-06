@@ -11,8 +11,8 @@ public class KeySettingOption : OptionButton
     public void Change( GameKeyCount _keyCount, KeyCode _key )
     {
         curKeyCode = _key;
-        KeySetting.Inst.Keys[_keyCount][lane] = curKeyCode;
-        keyText.text = KeySetting.Inst.GetString( KeySetting.Inst.Keys[_keyCount][lane] );
+        InputManager.Keys[_keyCount][lane] = curKeyCode;
+        keyText.text = InputManager.GetString( InputManager.Keys[_keyCount][lane] );
     }
 
     public override void Process()

@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class MeasureSystem : MonoBehaviour
 {
-    private InGame scene;
     public ObjectPool<MeasureRenderer> pool;
     public MeasureRenderer mPrefab;
     private List<double/* ScaledTime */> measures = new List<double>();
@@ -11,20 +10,16 @@ public class MeasureSystem : MonoBehaviour
     private double curTime;
     private static readonly int Beat = 4;
 
-    private bool shouldShowMeasure;
+    private bool isShowMeasure;
 
     private void Awake()
     {
-        var sceneObj = GameObject.FindGameObjectWithTag( "Scene" );
-        shouldShowMeasure = ( GameSetting.CurrentVisualFlag & VisualFlag.ShowMeasure ) != 0;
-        if ( sceneObj.TryGetComponent( out scene ) )
+        InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
+        if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
         {
-            if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
-            {
-                NowPlaying.OnPostInitialize += Initialize;
-                //scene.OnSystemInitialize += Initialize;
-                scene.OnReLoad += OnReLoad;
-            }
+            NowPlaying.OnPostInitAsync += CreateMeasure;
+            NowPlaying.OnPreUpdate     += SpawnMeasure;
+            scene.OnReLoad += OnReLoad;
         }
 
         pool = new ObjectPool<MeasureRenderer>( mPrefab, 10 );
@@ -34,34 +29,12 @@ public class MeasureSystem : MonoBehaviour
     {
         if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
         {
-            NowPlaying.OnPostInitialize -= Initialize;
+            NowPlaying.OnPostInitAsync -= CreateMeasure;
+            NowPlaying.OnPreUpdate     -= SpawnMeasure;
         }
     }
 
-    private void Update()
-    {
-        if ( !NowPlaying.IsStart )
-             return;
-
-        while ( curIndex < measures.Count && curTime <= NowPlaying.Distance + GameSetting.MinDistance )
-        {
-            MeasureRenderer measure = pool.Spawn();
-            measure.SetInfo( curTime );
-
-            if ( ++curIndex < measures.Count )
-                 curTime = measures[curIndex];
-        }
-    }
-
-
-    private void OnReLoad()
-    {
-        curIndex = 0;
-        curTime = measures[curIndex];
-        pool.AllDespawn();
-    }
-
-    private void Initialize()
+    private void CreateMeasure()
     {
         var timings          = DataStorage.Timings;
         var totalTime        = NowPlaying.CurrentSong.totalTime;
@@ -97,6 +70,29 @@ public class MeasureSystem : MonoBehaviour
         }
 
         if ( measures.Count > 0 )
-            curTime = measures[curIndex];
+             curTime = measures[curIndex];
     }
+
+    private void SpawnMeasure()
+    {
+        if ( curIndex >= measures.Count )
+             return;
+
+        if ( curTime <= NowPlaying.Distance + GameSetting.MinDistance )
+        {
+            MeasureRenderer measure = pool.Spawn();
+            measure.SetInfo( curTime );
+
+            if ( ++curIndex < measures.Count )
+                 curTime = measures[curIndex];
+        }
+    }
+
+    private void OnReLoad()
+    {
+        curIndex = 0;
+        curTime = measures[curIndex];
+        pool.AllDespawn();
+    }
+
 }

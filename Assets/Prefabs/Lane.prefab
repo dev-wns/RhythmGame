@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3506509254756183122}
   - component: {fileID: 3506509254756183120}
-  - component: {fileID: 3506509254756183121}
   m_Layer: 5
   m_Name: HitEffect
   m_TagString: Untagged
@@ -88,40 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3506509254756183121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3506509254756183123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2edae7e8bb5cd244ad5b4f4537a956c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spritesN:
-  - {fileID: 21300000, guid: aa47195c120b318489cf9c342e748530, type: 3}
-  - {fileID: 21300000, guid: aa87bc8e99bc67140a20cf43e013d727, type: 3}
-  - {fileID: 21300000, guid: baf86781036f1c645b8acc068fdc27da, type: 3}
-  - {fileID: 21300000, guid: be80623a0dd7d3a4d9c35251842bd096, type: 3}
-  - {fileID: 21300000, guid: 79e06109e4a8cc545b5244492debec3b, type: 3}
-  - {fileID: 21300000, guid: 243c335e1ebd1be43a40c076978e5c26, type: 3}
-  - {fileID: 21300000, guid: 2123955309d47884f97383b5f1eb5eaa, type: 3}
-  - {fileID: 21300000, guid: 0dcbe98cf8fa15a45b6a16d762222584, type: 3}
-  - {fileID: 21300000, guid: a4d106b6701aa724ba5bc98ee80938c6, type: 3}
-  - {fileID: 21300000, guid: d9b69809da31e1441a003d1cab095a31, type: 3}
-  - {fileID: 21300000, guid: dc8196a2ce679db4da5dd32b0d6a8ff8, type: 3}
-  - {fileID: 21300000, guid: 1758c187cc9af974d9602ef7710fdfdf, type: 3}
-  spritesL:
-  - {fileID: 21300000, guid: 391c9c7d766fb75448428b4723f5f188, type: 3}
-  - {fileID: 21300000, guid: 41e837a17fa25654da12920c43796b45, type: 3}
-  - {fileID: 21300000, guid: 9363f5a34cff06d49a3a8bdc9877ac3d, type: 3}
-  - {fileID: 21300000, guid: 81466c48c5d16594485950559964ea39, type: 3}
-  - {fileID: 21300000, guid: 5e739406190254148a62bf0a08064d6d, type: 3}
-  - {fileID: 21300000, guid: fab0ee61abe07b942baf5395386a2a50, type: 3}
-  - {fileID: 21300000, guid: 03e78fa3de3ca5145afd93b4883636c7, type: 3}
-  - {fileID: 21300000, guid: 54473152a6f8a6d4a9150208def8a9ea, type: 3}
 --- !u!1 &3506509254848744140
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,9 +229,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81ec43c4a032d6c4690e77a99fd8c0d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitEffect: {fileID: 3506509254756183121}
+  hitEffect: {fileID: 0}
   note1: {fileID: -7792808250688496138, guid: d758459a692b1a94faae221c13f2d4e7, type: 3}
   note2: {fileID: -7792808250688496138, guid: dfb3cf77c8d02d448b08572886f4dc93, type: 3}
   noteMedian: {fileID: -7792808250688496138, guid: 7b4e4efc4f28e174e926a6bf8a594a4a,
     type: 3}
-  sprite: {fileID: 3506509254848744130}
+  laneRenderer: {fileID: 3506509254848744130}
+  hitRenderer: {fileID: 3506509254756183120}
+  spritesN:
+  - {fileID: 21300000, guid: 391c9c7d766fb75448428b4723f5f188, type: 3}
+  - {fileID: 21300000, guid: 41e837a17fa25654da12920c43796b45, type: 3}
+  - {fileID: 21300000, guid: 9363f5a34cff06d49a3a8bdc9877ac3d, type: 3}
+  - {fileID: 21300000, guid: 81466c48c5d16594485950559964ea39, type: 3}
+  - {fileID: 21300000, guid: 5e739406190254148a62bf0a08064d6d, type: 3}
+  - {fileID: 21300000, guid: fab0ee61abe07b942baf5395386a2a50, type: 3}
+  - {fileID: 21300000, guid: 03e78fa3de3ca5145afd93b4883636c7, type: 3}
+  - {fileID: 21300000, guid: 54473152a6f8a6d4a9150208def8a9ea, type: 3}
+  spritesL:
+  - {fileID: 21300000, guid: 391c9c7d766fb75448428b4723f5f188, type: 3}
+  - {fileID: 21300000, guid: 41e837a17fa25654da12920c43796b45, type: 3}
+  - {fileID: 21300000, guid: 9363f5a34cff06d49a3a8bdc9877ac3d, type: 3}
+  - {fileID: 21300000, guid: 81466c48c5d16594485950559964ea39, type: 3}
+  - {fileID: 21300000, guid: 5e739406190254148a62bf0a08064d6d, type: 3}
+  - {fileID: 21300000, guid: fab0ee61abe07b942baf5395386a2a50, type: 3}
+  - {fileID: 21300000, guid: 03e78fa3de3ca5145afd93b4883636c7, type: 3}
+  - {fileID: 21300000, guid: 54473152a6f8a6d4a9150208def8a9ea, type: 3}

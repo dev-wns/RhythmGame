@@ -1,18 +1,17 @@
-using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using TMPro;
-using UnityEditor.Search;
 using UnityEngine;
-using UnityEngine.UIElements;
 
+public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
+public enum KeyState { None, Down, Hold, Up, }
+public enum NoteState { None, Hit, Miss, }
+public enum NoteType { None, Default, Slider, }
 public struct InputData
 {
     public double    time;
@@ -29,40 +28,50 @@ public struct InputData
     }
 }
 
-public enum NoteState { None, Hit, Miss, }
-
-public struct NoteDatas
-{
-    public int index;
-    public Note[] notes;
-
-    public Note this[int i, int j]
-    {
-        get => notes[i + j];
-        set => notes[i + j] = value;
-    }
-}
-
 public class InputManager : Singleton<InputManager>
 {
+    [Header( "Input Key" )]
+    // 게임에서 사용되는 사용자가 설정한 키
+    public static Dictionary<GameKeyCount, KeyCode[]> Keys { get; private set; } = new();
+    // 상호 변환을 위해 매핑된 키
+    private static readonly Dictionary<int/* Virtual Key */, KeyCode>        VKeyToUnity   = new ();
+    private static readonly Dictionary<KeyCode, int/* Virtual Key */>        UnityToVKey   = new ();
+    private static readonly Dictionary<KeyCode, string/*keyCode to string*/> UnityToString = new ();
+    #region Properties
+    public static Dictionary<KeyCode, string>.KeyCollection AvailableKeys => UnityToString.Keys;
+    public static bool IsAvailable( KeyCode _key )      => UnityToString.ContainsKey( _key );
+    public static KeyCode GetKeyCode( int _vKey )       => VKeyToUnity.TryGetValue( _vKey, out KeyCode keyCode ) ? keyCode : KeyCode.None;
+    public static int GetVirtualKey( KeyCode _keyCode ) => UnityToVKey.TryGetValue( _keyCode, out int vKey ) ? vKey : -1;
+    public static string GetString( KeyCode _code )     => UnityToString.ContainsKey( _code ) ? UnityToString[_code] : "None";
+    #endregion
+
     [Header( "Lane" )]
-    [SerializeField] Lane prefab;
-    [SerializeField] List<Lane> lanes = new();
-    [SerializeField] List<Note>[] notes;
-    private System.Random random;
+    private List<Lane>   lanes = new();
+    private List<Note>[] notes;
+    private Lane         prefab;
 
     [Header( "Thread" )]
-    private CancellationTokenSource cancelSource = new();
+    private CancellationTokenSource breakPoint = new();
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
 
+    private System.Random random;
 
     protected override void Awake()
     {
         base.Awake();
+        // Key Setting
+        KeyBind( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket } );
+        KeyBind( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket } );
+        KeyBind( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
 
-        NowPlaying.OnPreInitialize += Initialize;
-        NowPlaying.OnPostInitAsync += DivideNotes;
+        KeyMapping();
 
+        // Event Bind
+        NowPlaying.OnPreInitialize  += CreateLanes;
+        NowPlaying.OnPostInitAsync  += DivideNotes;
+        NowPlaying.OnPostInitialize += SetLanes;
+
+        // Load Asset
         DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
         {
             if ( !_lane.TryGetComponent( out prefab ) )
@@ -72,34 +81,13 @@ public class InputManager : Singleton<InputManager>
 
     private void OnApplicationQuit()
     {
-        cancelSource?.Cancel();
+        breakPoint?.Cancel();
         Release();
     }
-
-    private void Initialize()
+    public async void UpdateInput( CancellationToken _token )
     {
-        notes = new List<Note>[NowPlaying.KeyCount];
-        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
-        {
-            lanes.Add( Instantiate( prefab, transform ) );
-            lanes[i].Initialize( i );
-            notes[i] = new List<Note>();
-        }
-        Debug.Log( $"Create {lanes.Count} lanes." );
-    }
+        Debug.Log( $"Input Thread Start" );
 
-    public async void GameStart()
-    {
-        for ( int i = 0; i < lanes.Count; i++ )
-        {
-            lanes[i].GameStart( notes[i] );
-        }
-
-        await Task.Run( () => Process( cancelSource.Token ) );
-    }
-
-    public async void Process( CancellationToken _token )
-    {
         int[]      indexes   = new int     [lanes.Count];
         bool[]     isEntries = new bool    [lanes.Count]; // 하나의 입력으로 하나의 노트만 처리하기위한 노트 진입점
         KeyState[] keyStates = new KeyState[lanes.Count]; // 레인별 입력 상태
@@ -107,7 +95,6 @@ public class InputManager : Singleton<InputManager>
         for ( int i = 0; i < lanes.Count; i++ )
               keySounds[i] = notes[i][0].keySound;
 
-        Debug.Log( " Input Process Start " );
         while ( !_token.IsCancellationRequested )
         {
             for ( int i = 0; i < lanes.Count; i++ )
@@ -178,20 +165,7 @@ public class InputManager : Singleton<InputManager>
             await Task.Delay( 1 );
         }
 
-        Debug.Log( " Input Process End " );
-    }
-
-    public void Release()
-    {
-        for ( int i = 0; i < lanes.Count; i++ )
-            DestroyImmediate( lanes[i] );
-        
-        lanes.Clear();
-
-        for ( int i = 0; i < notes.Length; i++ )
-            notes[i].Clear();
-
-        notes = null;
+        Debug.Log( $"Input Thread End" );
     }
 
     private void DivideNotes()
@@ -294,6 +268,41 @@ public class InputManager : Singleton<InputManager>
         }
     }
 
+    private void CreateLanes()
+    {
+        notes = new List<Note>[NowPlaying.KeyCount];
+        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
+        {
+            lanes.Add( Instantiate( prefab, transform ) );
+            notes[i] = new List<Note>();
+        }
+        Debug.Log( $"Create {lanes.Count} lanes." );
+    }
+
+    private void SetLanes()
+    {
+        for ( int i = 0; i < lanes.Count; i++ )
+              lanes[i].Initialize( i, notes[i] );
+    }
+
+    public async void GameStart()
+    {
+        await Task.Run( () => UpdateInput( breakPoint.Token ) );
+    }
+
+    public void Release()
+    {
+        for ( int i = 0; i < lanes.Count; i++ )
+            DestroyImmediate( lanes[i], true );
+        
+        lanes.Clear();
+
+        for ( int i = 0; i < notes.Length; i++ )
+            notes[i].Clear();
+
+        notes = null;
+    }
+
     private void Swap( int _min, int _max )
     {
         for ( int i = 0; i < 10; i++ )
@@ -306,4 +315,115 @@ public class InputManager : Singleton<InputManager>
             notes[randB] = tmp;
         }
     }
+
+    #region Key Setting
+    private void KeyBind( GameKeyCount _key, KeyCode[] _code )
+    {
+        int count = ( int )_key;
+        if ( count != _code.Length )
+        {
+            Debug.LogError( "key count and length do not match. " );
+            return;
+        }
+        if ( Keys.ContainsKey( _key ) )
+        {
+            Debug.LogWarning( "The key already exists." );
+            return;
+        }
+
+        Keys.Add( _key, _code );
+    }
+
+    private void AddMapping( int _vKey, KeyCode _keyCode, string _string )
+    {
+        VKeyToUnity[_vKey]    = _keyCode;
+        UnityToVKey[_keyCode] = _vKey;
+    }
+
+    private void KeyMapping()
+    {
+        // 숫자 (0~9)
+        for ( int i = 0; i <= 9; i++ )
+        {
+            int vKey     = 0x30 + i; // '0' ~ '9'
+            KeyCode uKey = KeyCode.Alpha0 + i;
+            AddMapping( vKey, uKey, uKey.ToString() );
+        }
+
+
+        // 알파벳 (A~Z)
+        for ( int i = 0; i < 26; i++ )
+        {
+            int vKey     = 0x41 + i; // 'A' ~ 'Z'
+            KeyCode uKey = KeyCode.A + i;
+            AddMapping( vKey, uKey, uKey.ToString() );
+        }
+
+        // 특수키
+        //AddMapping( 0x08, KeyCode.Backspace, "Backspace" );
+        AddMapping( 0xDC, KeyCode.Backslash, "\\"       );
+        AddMapping( 0xC0, KeyCode.BackQuote, "`"        ); 
+        AddMapping( 0x14, KeyCode.CapsLock,  "CapsLock" );
+        AddMapping( 0x0D, KeyCode.Return,    "Return"   );
+        AddMapping( 0x1B, KeyCode.Escape,    "Escape"   );
+        AddMapping( 0x20, KeyCode.Space,     "Space"    );
+        AddMapping( 0x09, KeyCode.Tab,       "Tab"      );
+        AddMapping( 0xBB, KeyCode.Plus,      "="        );
+        AddMapping( 0xBD, KeyCode.Minus,     "-"        ); 
+        
+
+        AddMapping( 0xDD, KeyCode.RightBracket, "["  );
+        AddMapping( 0xDB, KeyCode.LeftBracket,  "]"  );
+        AddMapping( 0xBA, KeyCode.Semicolon,    ";"  );
+        AddMapping( 0xDE, KeyCode.Quote,        "\'" );
+        AddMapping( 0xBC, KeyCode.Comma,        ","  );
+        AddMapping( 0xBE, KeyCode.Period,       "."  );
+        AddMapping( 0xBF, KeyCode.Slash,        "/"  );
+
+        AddMapping( 0xA0, KeyCode.LeftShift,    "LShift" );  
+        AddMapping( 0xA2, KeyCode.LeftControl,  "LCtrl"  );  
+        AddMapping( 0xA4, KeyCode.LeftAlt,      "LAlt"   );      
+        AddMapping( 0xA1, KeyCode.RightShift,   "RShift" ); 
+        AddMapping( 0x19, KeyCode.RightControl, "RCtrl"  ); // 한자
+        AddMapping( 0x15, KeyCode.RightAlt,     "RAlt"   ); // 한영
+         
+        AddMapping( 0x23, KeyCode.End,      "End"    );
+        AddMapping( 0x24, KeyCode.Home,     "Home"   );
+        AddMapping( 0x2E, KeyCode.Delete,   "Delete" );
+        AddMapping( 0x2D, KeyCode.Insert,   "Insert" );
+        AddMapping( 0x21, KeyCode.PageUp,   "PgUp"   );
+        AddMapping( 0x22, KeyCode.PageDown, "PgDn"   );
+
+        AddMapping( 0x26, KeyCode.UpArrow,    "Up"    );
+        AddMapping( 0x28, KeyCode.DownArrow,  "Down"  );
+        AddMapping( 0x25, KeyCode.LeftArrow,  "Left"  );
+        AddMapping( 0x27, KeyCode.RightArrow, "Right" );
+
+
+        // 넘버패드
+        AddMapping( 0x60, KeyCode.Keypad0,        "Pad 0" );
+        AddMapping( 0x61, KeyCode.Keypad1,        "Pad 1" );
+        AddMapping( 0x62, KeyCode.Keypad2,        "Pad 2" );
+        AddMapping( 0x63, KeyCode.Keypad3,        "Pad 3" );
+        AddMapping( 0x64, KeyCode.Keypad4,        "Pad 4" );
+        AddMapping( 0x65, KeyCode.Keypad5,        "Pad 5" );
+        AddMapping( 0x66, KeyCode.Keypad6,        "Pad 6" );
+        AddMapping( 0x67, KeyCode.Keypad7,        "Pad 7" );
+        AddMapping( 0x68, KeyCode.Keypad8,        "Pad 8" );
+        AddMapping( 0x69, KeyCode.Keypad9,        "Pad 9" );
+        AddMapping( 0x6A, KeyCode.KeypadMultiply, "Pad *" );
+        AddMapping( 0x6B, KeyCode.KeypadPlus,     "Pad +" );
+        AddMapping( 0x6D, KeyCode.KeypadMinus,    "Pad -" );
+        AddMapping( 0x6E, KeyCode.KeypadPeriod,   "Pad ." );
+        AddMapping( 0x6F, KeyCode.KeypadDivide,   "Pad /" );
+
+        //// 펑션키
+        //for ( int i = 0; i < 12; i++ )
+        //{
+        //    int vKey = 0x70 + i;       // F1~F12
+        //    KeyCode uKey = KeyCode.F1 + i;
+        //    AddMapping( vKey, uKey, uKey.ToString() );
+        //}
+    }
+    #endregion
 }

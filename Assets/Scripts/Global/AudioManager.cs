@@ -119,10 +119,8 @@ public class AudioManager : Singleton<AudioManager>
     private Coroutine corVolumeEffect;
     private ADVANCEDSETTINGS advancedSettings;
 
-
     public void Initialize()
     {
-        Timer timer = new Timer();
         // System
         ErrorCheck( Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( OUTPUTTYPE.AUTODETECT ) );
@@ -198,7 +196,7 @@ public class AudioManager : Singleton<AudioManager>
         SetVolume( .8f, ChannelType.Clap );
         #endregion
 
-        Debug.Log( $"AudioManager Initialization {timer.End} ms" );
+        Debug.Log( $"AudioManager Initialization" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
     }
 

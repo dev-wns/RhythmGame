@@ -95,8 +95,8 @@ public class InGame : Scene
         Debug.Log( $"All lanes are empty ( {DataStorage.CurrentResult.Count} Judgements )" );
 
         IsEnd = true;
-        if ( NowPlaying.CurrentSong.isOnlyKeySound )
-             yield return new WaitUntil( () => NowPlaying.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
+        //if ( NowPlaying.CurrentSong.isOnlyKeySound )
+        //     yield return new WaitUntil( () => NowPlaying.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
 
         AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 3f );

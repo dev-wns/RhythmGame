@@ -20,7 +20,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static Scene CurrentScene;
 
     [Header( "Song" )]
-    public  ReadOnlyCollection<Song> Songs { get; private set; }
+    public ReadOnlyCollection<Song> Songs { get; private set; }
     public static Song CurrentSong { get; private set; }
     public static int CurrentIndex { get; private set; }
     public static int KeyCount     { get; private set; }
@@ -59,6 +59,9 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action OnPostInitialize; // Main  Thread
     public static event Action OnPreInitAsync;   // Other Thread
     public static event Action OnPostInitAsync;  // Other Thread
+
+    public static event Action OnPreUpdate;
+    public static event Action OnPostUpdate;
 
     public static event Action<Song> OnParsing;
 
@@ -102,9 +105,10 @@ public class NowPlaying : Singleton<NowPlaying>
     protected override async void Awake()
     {
         base.Awake();
-
+        
+        // 싱글톤 활성화
+        AudioManager audioManager = AudioManager.Inst;
         InputManager inputManager = InputManager.Inst;
-        KeySetting   keySetting   = KeySetting.Inst;
 
         OnPostInitAsync += LoadSoundsAsync;
 
@@ -116,6 +120,15 @@ public class NowPlaying : Singleton<NowPlaying>
         await Task.Run( () => UpdateTime( breakPoint.Token ) );
     }
 
+    private void Update()
+    {
+        if ( !IsStart )
+             return;
+
+        OnPreUpdate?.Invoke();  // 스폰
+        OnPostUpdate?.Invoke(); // 계산
+    }
+
     private void OnApplicationQuit()
     {
         Release();
@@ -124,6 +137,8 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private async void UpdateTime( CancellationToken _token )
     {
+        Debug.Log( $"Time Thread Start" );
+
         while ( !_token.IsCancellationRequested )
         {
             // FMOD System Update
@@ -159,13 +174,15 @@ public class NowPlaying : Singleton<NowPlaying>
                     if ( DataStorage.Inst.TryGetSound( bgms[bgmIndex].name, out FMOD.Sound sound ) )
                          AudioManager.Inst.Play( sound, bgms[bgmIndex].volume );
 
-                    if ( ++bgmIndex < bgms.Count )
-                         UseAllSamples = true;
+                    if ( bgmIndex < bgms.Count )
+                         bgmIndex++;
                 }
             }
 
             await Task.Delay( 1 );
         }
+
+        Debug.Log( $"Time Thread End" );
     }
 
     #region Parsing
@@ -243,20 +260,20 @@ public class NowPlaying : Singleton<NowPlaying>
     #endregion
 
     #region Sound
-
+    /// <summary> 배경음 로딩 summary>
     private void LoadSoundsAsync()
     {
-        // 배경음 로딩
+        // 배경음 하나로 재생될 때
         if ( !CurrentSong.isOnlyKeySound )
              AddSound( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ), SoundType.BGM );
 
-        // 사운드샘플 로딩 ( 자동재생 )
+        // 키음 및 배경음으로 이루어진 채보
         var samples = DataStorage.Samples;
         for ( int i = 0; i < samples.Count; i++ )
               AddSound( samples[i], SoundType.BGM );
     }
 
-    /// <summary> 시간의 흐름에 따라 자동으로 재생되는 사운드 </summary>
+    /// <summary> 키음, 배경음 구분 및 로딩 </summary>
     public void AddSound( in KeySound _sound, SoundType _type )
     {
         DataStorage.Inst.LoadSound( _sound );
@@ -333,7 +350,6 @@ public class NowPlaying : Singleton<NowPlaying>
         bgmIndex      = 0;
         timingIndex   = 0;
         IsStart       = false;
-        UseAllSamples = false;
     }
 
     public void Play()

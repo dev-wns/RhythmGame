@@ -16,7 +16,6 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public bool IsSlider => note.isSlider;
     public bool IsKeyDown { get; set; }
     public float BodyLength { get; private set; }
-    public KeySound Sound => note.keySound;
 
     private float column;
     private static readonly Color NoteFailColor = new Color( .5f, .5f, .5f, 1f );

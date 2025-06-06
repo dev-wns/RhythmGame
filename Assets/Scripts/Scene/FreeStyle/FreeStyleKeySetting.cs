@@ -36,14 +36,14 @@ public class FreeStyleKeySetting : OptionController
         curKeyIndex = _curIndex;
         curKeyCount = changeKeyCount[curKeyIndex];
 
-        Length = KeySetting.Inst.Keys[curKeyCount].Length;
+        Length = InputManager.Keys[curKeyCount].Length;
         for ( int i = 0; i < 7; i++ )
         {
             tracks[i].ActiveOutline( false );
             if ( i < Length )
             {
                 tracks[i].gameObject.SetActive( true );
-                tracks[i].Change( curKeyCount, KeySetting.Inst.Keys[curKeyCount][i] );
+                tracks[i].Change( curKeyCount, InputManager.Keys[curKeyCount][i] );
             }
             else
             {
@@ -66,12 +66,12 @@ public class FreeStyleKeySetting : OptionController
 
     private void Process( KeyCode _key )
     {
-        if ( KeySetting.Inst.IsAvailable( _key ) )
+        if ( InputManager.IsAvailable( _key ) )
         {
-            for ( int i = 0; i < KeySetting.Inst.Keys[curKeyCount].Length; i++ )
+            for ( int i = 0; i < InputManager.Keys[curKeyCount].Length; i++ )
             {
-                if ( KeySetting.Inst.Keys[curKeyCount][i] == _key )
-                    tracks[i].Change( curKeyCount, KeyCode.None );
+                if ( InputManager.Keys[curKeyCount][i] == _key )
+                     tracks[i].Change( curKeyCount, KeyCode.None );
             }
 
             AudioManager.Inst.Play( SFX.MenuSelect );
@@ -84,7 +84,7 @@ public class FreeStyleKeySetting : OptionController
     protected override void Update()
     {
         base.Update();
-        foreach ( var keyCode in KeySetting.Inst.AvailableKeys )
+        foreach ( var keyCode in InputManager.AvailableKeys )
         {
             if ( Input.GetKeyDown( keyCode ) )
             {

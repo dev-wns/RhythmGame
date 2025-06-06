@@ -26,16 +26,15 @@ public class ScoreSystem : MonoBehaviour
         scene.OnReLoad += OnReLoad;
         scene.OnResult += OnResult;
         
-        // scene.OnSystemInitialize += Initialize;
-        NowPlaying.OnPostInitialize += Initialize;
+        NowPlaying.OnPostUpdate += UpdateText;
 
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += ScoreUpdate;
+        judge.OnJudge += UpdateScore;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnPostInitialize -= Initialize;
+        NowPlaying.OnPostUpdate -= UpdateText;
     }
 
     private void OnResult()
@@ -50,14 +49,8 @@ public class ScoreSystem : MonoBehaviour
         curScore      = 0d;
         bonus         = 100;
     }
-
-    private void Initialize()
-    {
-        StartCoroutine( Count() );
-    }
-
     
-    private void ScoreUpdate( JudgeResult _result )
+    private void UpdateScore( JudgeResult _result )
     {
         HitResult hitResult = _result.hitResult;
         if ( hitResult == HitResult.None )
@@ -125,16 +118,13 @@ public class ScoreSystem : MonoBehaviour
         countOffset = ( float )( targetScore - curScore ) / countDuration;
     }
 
-    private IEnumerator Count()
+    private void UpdateText()
     {
-        WaitUntil waitNextValue = new WaitUntil( () => targetScore > curScore );
-        while ( true )
+        if ( targetScore > curScore )
         {
-            yield return waitNextValue;
-
             curScore += countOffset * Time.deltaTime;
             if ( curScore >= targetScore )
-                 curScore  = targetScore;
+                 curScore = targetScore;
 
             text.text = $"{( ( int )Global.Math.Round( curScore ) ):D7}";
         }

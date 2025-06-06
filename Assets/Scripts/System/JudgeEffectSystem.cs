@@ -38,7 +38,7 @@ public class JudgeEffectSystem : MonoBehaviour
     private void HitEffect( JudgeResult _result )
     {
         if ( _result.noteType == NoteType.Slider )
-            return;
+             return;
 
         HitResult hitResult = _result.hitResult;
         if ( prevResult != hitResult )
@@ -47,10 +47,10 @@ public class JudgeEffectSystem : MonoBehaviour
             {
                 case HitResult.Maximum:
                 case HitResult.Perfect: rdr.sprite = sprites[4]; break;
-                case HitResult.Great: rdr.sprite = sprites[3]; break;
-                case HitResult.Good: rdr.sprite = sprites[2]; break;
-                case HitResult.Bad: rdr.sprite = sprites[1]; break;
-                case HitResult.Miss: rdr.sprite = sprites[0]; break;
+                case HitResult.Great:   rdr.sprite = sprites[3]; break;
+                case HitResult.Good:    rdr.sprite = sprites[2]; break;
+                case HitResult.Bad:     rdr.sprite = sprites[1]; break;
+                case HitResult.Miss:    rdr.sprite = sprites[0]; break;
                 default: return;
             }
             prevResult = hitResult;
