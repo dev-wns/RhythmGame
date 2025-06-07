@@ -62,6 +62,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public static event Action OnPreUpdate;
     public static event Action OnPostUpdate;
+    public static event Action OnUpdateInThread;
 
     public static event Action<Song> OnParsing;
 
@@ -167,6 +168,8 @@ public class NowPlaying : Singleton<NowPlaying>
                     Distance = DistanceCache + ( bpm * ( Playback - time ) );
                     break;
                 }
+
+                OnUpdateInThread?.Invoke();
 
                 // 배경음 처리( 시간의 흐름에 따라 자동재생 )
                 while ( bgmIndex < bgms.Count && bgms[bgmIndex].time <= Playback )

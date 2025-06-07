@@ -48,7 +48,7 @@ public class Result : Scene
 
     public void BackToLobby()
     {
-        DataStorage.Inst.Clear();
+        //DataStorage.Inst.Clear();
         LoadScene( SceneType.FreeStyle );
         AudioManager.Inst.Play( SFX.MainClick );
     }

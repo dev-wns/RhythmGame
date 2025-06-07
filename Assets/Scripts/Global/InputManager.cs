@@ -10,21 +10,19 @@ using UnityEngine;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
 public enum KeyState { None, Down, Hold, Up, }
-public enum NoteState { None, Hit, Miss, }
 public enum NoteType { None, Default, Slider, }
-public struct InputData
-{
-    public double    time;
-    public double    diff;
-    public KeyState  keyState;
-    public NoteState noteState;
 
-    public InputData( double _time, double _diff, KeyState _keyState = KeyState.None, NoteState _noteState = NoteState.None )
+public struct HitData
+{
+    public double    time; // 누르거나 뗀 시간
+    public HitResult hitResult;
+    public KeyState  keyState;
+
+    public HitData( double _time, HitResult _hitResult, KeyState _keyState )
     {
         time      = _time;
-        diff      = _diff;
+        hitResult = _hitResult;
         keyState  = _keyState;
-        noteState = _noteState;
     }
 }
 
@@ -54,6 +52,17 @@ public class InputManager : Singleton<InputManager>
     private CancellationTokenSource breakPoint = new();
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
 
+    private static Queue<HitData> HitDataQueue = new ();
+    private static List<HitData>  HitDatas     = new ();
+    private static int[]          Indexes   ; //= new int     [lanes.Count];
+    private static bool[]         IsEntries ; //= new bool    [lanes.Count]; // 하나의 입력으로 하나의 노트만 처리하기위한 노트 진입점
+    private static bool[]         Previous  ; //= new bool[lanes.Count];
+    private static KeyState[]     KeyStates ; //= new KeyState[lanes.Count]; // 레인별 입력 상태
+    private static KeySound[]     KeySounds ; //= new KeySound[lanes.Count];
+
+    public  static event Action<HitData> OnHitNote;
+
+
     private System.Random random;
 
     protected override void Awake()
@@ -63,13 +72,13 @@ public class InputManager : Singleton<InputManager>
         KeyBind( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket } );
         KeyBind( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket } );
         KeyBind( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
-
         KeyMapping();
 
         // Event Bind
         NowPlaying.OnPreInitialize  += CreateLanes;
         NowPlaying.OnPostInitAsync  += DivideNotes;
         NowPlaying.OnPostInitialize += SetLanes;
+        NowPlaying.OnUpdateInThread += UpdateInput;
 
         // Load Asset
         DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
@@ -79,97 +88,113 @@ public class InputManager : Singleton<InputManager>
         } );
     }
 
+    private void Update()
+    {
+        if ( HitDataQueue.TryDequeue( out HitData hitData ) )
+        {
+            HitDatas.Add( hitData );
+            OnHitNote?.Invoke( hitData );
+        }
+    }
+
     private void OnApplicationQuit()
     {
         breakPoint?.Cancel();
         Release();
     }
-    public async void UpdateInput( CancellationToken _token )
+
+    private void SelectNextNote( int _lane )
     {
-        Debug.Log( $"Input Thread Start" );
+        int prev = Indexes[_lane];
+        Indexes[_lane]++;
+        IsEntries[_lane] = false;
 
-        int[]      indexes   = new int     [lanes.Count];
-        bool[]     isEntries = new bool    [lanes.Count]; // 하나의 입력으로 하나의 노트만 처리하기위한 노트 진입점
-        KeyState[] keyStates = new KeyState[lanes.Count]; // 레인별 입력 상태
-        KeySound[] keySounds = new KeySound[lanes.Count];
-        for ( int i = 0; i < lanes.Count; i++ )
-              keySounds[i] = notes[i][0].keySound;
-
-        while ( !_token.IsCancellationRequested )
-        {
-            for ( int i = 0; i < lanes.Count; i++ )
-            {
-                // 입력 상태 체크
-                KeyState previous = keyStates[i];
-                if ( ( GetAsyncKeyState( lanes[i].VKey ) & 0x8000 ) != 0 ) keyStates[i] = previous == KeyState.None || previous == KeyState.Up   ? KeyState.Down : KeyState.Hold;
-                else                                                       keyStates[i] = previous == KeyState.Down || previous == KeyState.Hold ? KeyState.Up   : KeyState.None;
-
-                //  키음 선 실행
-                if ( keyStates[i] == KeyState.Down )
-                {
-                    // 노트에 키음이 없을 수도 있다. 
-                    if ( DataStorage.Inst.TryGetSound( keySounds[i].name, out FMOD.Sound sound ) )
-                         AudioManager.Inst.Play( sound, keySounds[i].volume );
-                }
-
-                // 데이터 소진 시 계산 불필요
-                if ( indexes[i] >= notes[i].Count )
-                     continue;
-                
-                Note note        = notes[i][indexes[i]];
-                double startDiff = note.time       - NowPlaying.Playback;
-                double endDiff   = note.sliderTime - NowPlaying.Playback;
-
-                // 미스 체크
-                if ( !isEntries[i] && Judgement.IsMiss( startDiff ) )
-                {
-                    indexes[i]  += 1;
-                    isEntries[i] = false;
-                    lanes[i].AddData( new InputData( NowPlaying.Playback, startDiff, KeyState.None, NoteState.Miss ) );
-
-                    continue;
-                }
-
-                // 입력 상태에 따른 노트 처리
-                if ( !isEntries[i] && keyStates[i] == KeyState.Down )
-                {
-                    if ( Judgement.CanBeHit( startDiff ) )
-                    {
-                        isEntries[i] = note.isSlider;
-                        indexes[i]   = note.isSlider ? indexes[i] : ++indexes[i];
-
-                        lanes[i].AddData( new InputData( NowPlaying.Playback, startDiff, KeyState.Down, NoteState.Hit ) );
-                    }
-                }
-
-                if ( isEntries[i] && keyStates[i] == KeyState.Hold && endDiff < 0d )
-                {
-                    indexes[i]  += 1;
-                    isEntries[i] = false;
-                    lanes[i].AddData( new InputData( NowPlaying.Playback, 0d, KeyState.None, NoteState.Hit ) );
-                }
-
-                if ( isEntries[i] && keyStates[i] == KeyState.Up )
-                {
-                    indexes[i]  += 1;
-                    isEntries[i] = false;
-                    lanes[i].AddData( new InputData( NowPlaying.Playback, endDiff, KeyState.Up,
-                                                     Judgement.CanBeHit( endDiff ) ? NoteState.Hit : NoteState.Miss ) );
-                }
-
-                // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
-                if ( indexes[i] < notes[i].Count )
-                     keySounds[i] = notes[i][indexes[i]].keySound;
-            }
-
-            await Task.Delay( 1 );
-        }
-
-        Debug.Log( $"Input Thread End" );
+        // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
+        if ( Indexes[_lane]   < notes[_lane].Count )
+             KeySounds[_lane] = notes[_lane][Indexes[_lane]].keySound;
     }
 
+    private void UpdateInput()
+    {
+        for ( int i = 0; i < lanes.Count; i++ )
+        {
+
+            //KeyState previous = KeyStates[i];
+            //if ( ( GetAsyncKeyState( lanes[i].VKey ) & 0x8000 ) != 0 ) KeyStates[i] = previous == KeyState.None || previous == KeyState.Up   ? KeyState.Down : KeyState.Hold;
+            //else                                                       KeyStates[i] = previous == KeyState.Down || previous == KeyState.Hold ? KeyState.Up   : KeyState.None;
+
+            // 입력 상태 체크
+            bool current = ( GetAsyncKeyState( lanes[i].VKey ) & 0x8000 ) != 0;
+            KeyStates[i] = (Previous[i], current) switch
+            {
+                ( false, true ) => KeyState.Down,
+                ( true, true  ) => KeyState.Hold,
+                ( true, false ) => KeyState.Up,
+                _               => KeyState.None
+            };
+            Previous[i] = current;
+
+            //  키음 선 실행
+            if ( KeyStates[i] == KeyState.Down )
+            {
+                // 노트에 키음이 없을 수도 있다. 
+                if ( DataStorage.Inst.TryGetSound( KeySounds[i].name, out FMOD.Sound sound ) )
+                     AudioManager.Inst.Play( sound, KeySounds[i].volume );
+            }
+
+            // 데이터 소진 시 계산 불필요
+            if ( Indexes[i] >= notes[i].Count )
+                 continue;
+            
+            Note note        = notes[i][Indexes[i]];
+            double playback  = NowPlaying.Playback;
+            double startDiff = note.time       - playback;
+            double endDiff   = note.sliderTime - playback;
+
+            if ( !IsEntries[i] ) // 노트 시작판정
+            {
+                if ( KeyStates[i] == KeyState.Down && Judgement.CanBeHit( startDiff ) )
+                {
+                    if ( note.isSlider ) IsEntries[i] = true;
+                    else                 SelectNextNote( i );
+
+                    HitData hitData = new HitData( playback, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down );
+                    HitDataQueue.Enqueue( hitData );
+                    lanes[i].AddData( hitData );
+                }
+                else if ( Judgement.IsMiss( startDiff ) )
+                {
+                    SelectNextNote( i );
+                    // 롱노트 시작에서 Miss일 때, 시작판정, 끝판정 2번의 Miss 처리가 되게끔 한다.
+                    HitData hitData = new HitData( playback, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.None );
+                    HitDataQueue.Enqueue( hitData );
+                    lanes[i].AddData( hitData );
+                }
+            }
+            else // 롱노트 끝판정
+            {
+                if ( KeyStates[i] == KeyState.Up )
+                {
+                    SelectNextNote( i );
+                    HitData hitData = new HitData( playback, Judgement.UpdateResult( endDiff ), KeyState.Up );
+                    HitDataQueue.Enqueue( hitData );
+                    lanes[i].AddData( hitData );
+                }
+                else if ( Judgement.IsMiss( endDiff ) )
+                {
+                    SelectNextNote( i );
+                    HitData hitData = new HitData( playback, Judgement.UpdateResult( endDiff ), KeyState.None );
+                    HitDataQueue.Enqueue( hitData );
+                    lanes[i].AddData( hitData );
+                }
+            }
+        }
+    }
+
+    
     private void DivideNotes()
     {
+        Debug.Log( NowPlaying.TotalJudge );
         ReadOnlyCollection<Note> datas = DataStorage.Notes;
         bool isConvert  = GameSetting.HasFlag( GameMode.KeyConversion ) && NowPlaying.CurrentSong.keyCount == 7;
         bool isNoSlider = GameSetting.HasFlag( GameMode.NoSlider );
@@ -266,10 +291,20 @@ public class InputManager : Singleton<InputManager>
                 Swap( keyCountHalf + 1, NowPlaying.KeyCount );
             } break;
         }
+
+
+        for ( int i = 0; i < lanes.Count; i++ )
+              KeySounds[i] = notes[i][0].keySound;
     }
 
     private void CreateLanes()
     {
+        Indexes   = new int     [NowPlaying.KeyCount]; // 노트 인덱스
+        IsEntries = new bool    [NowPlaying.KeyCount]; // 롱노트 진입점
+        Previous  = new bool    [NowPlaying.KeyCount]; // 이전 키 상태
+        KeyStates = new KeyState[NowPlaying.KeyCount]; // 레인별 입력 상태
+        KeySounds = new KeySound[NowPlaying.KeyCount];
+
         notes = new List<Note>[NowPlaying.KeyCount];
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
@@ -285,10 +320,10 @@ public class InputManager : Singleton<InputManager>
               lanes[i].Initialize( i, notes[i] );
     }
 
-    public async void GameStart()
-    {
-        await Task.Run( () => UpdateInput( breakPoint.Token ) );
-    }
+    //public async void GameStart()
+    //{
+    //    await Task.Run( () => UpdateInput( breakPoint.Token ) );
+    //}
 
     public void Release()
     {

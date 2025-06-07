@@ -26,63 +26,63 @@ public class AccuracyGraph : MonoBehaviour
         //    hitDatas.Add( new HitData( HitResult.Default, diff, times ) );
         //}
 
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
-        scene.IsInputLock = true;
+        //scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
+        //scene.IsInputLock = true;
 
-        if ( !TryGetComponent( out rdr ) )
-            return;
+        //if ( !TryGetComponent( out rdr ) )
+        //    return;
 
-        var    hitDatas   = DataStorage.Inst.HitDatas.FindAll( ( HitData _data ) => _data.type == NoteType.Default );
-        float  posY       = ( transform as RectTransform ).anchoredPosition.y;
-        float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) /   ( TotalJudge + 2 );
+        //var    hitDatas   = InputManager.HitDatas.FindAll( ( HitData _data ) => _data.type == NoteType.Default );
+        //float  posY       = ( transform as RectTransform ).anchoredPosition.y;
+        //float  posOffset  = Global.Math.Abs( StartPosX - EndPosX ) /   ( TotalJudge + 2 );
 
-        List<HitData> datas    = new List<HitData>();
-        double sumDivideDiff   = 0d;
-        double totalSumMinDiff = 0d, totalSumMaxDiff = 0d;
-        int    totalMinCount   = 0,  totalMaxCount   = 0;
+        //List<HitData> datas    = new List<HitData>();
+        //double sumDivideDiff   = 0d;
+        //double totalSumMinDiff = 0d, totalSumMaxDiff = 0d;
+        //int    totalMinCount   = 0,  totalMaxCount   = 0;
 
-        int step = ( hitDatas.Count / TotalJudge );
-        float stepInverse = 1f / step;
-        positions.Add( new Vector3( StartPosX, posY, 0f ) );
-        for ( int i = 0; i < hitDatas.Count; i++ )
-        {
-            var diff = hitDatas[i].diff;
-            if ( diff < 0d )
-            {
-                totalSumMinDiff += diff * 1000d;
-                totalMinCount++;
-            }
+        //int step = ( hitDatas.Count / TotalJudge );
+        //float stepInverse = 1f / step;
+        //positions.Add( new Vector3( StartPosX, posY, 0f ) );
+        //for ( int i = 0; i < hitDatas.Count; i++ )
+        //{
+        //    var diff = hitDatas[i].diff;
+        //    if ( diff < 0d )
+        //    {
+        //        totalSumMinDiff += diff * 1000d;
+        //        totalMinCount++;
+        //    }
 
-            if ( diff > double.Epsilon )
-            {
-                totalSumMaxDiff += diff * 1000d;
-                totalMaxCount++;
-            }
+        //    if ( diff > double.Epsilon )
+        //    {
+        //        totalSumMaxDiff += diff * 1000d;
+        //        totalMaxCount++;
+        //    }
 
-            sumDivideDiff += diff;
-            if ( i % step == 0 )
-            {
-                datas.Add( new HitData( NoteType.Default, sumDivideDiff * stepInverse, hitDatas[i].time ) );
-                sumDivideDiff = 0d;
-            }
-        }
+        //    sumDivideDiff += diff;
+        //    if ( i % step == 0 )
+        //    {
+        //        datas.Add( new HitData( NoteType.Default, sumDivideDiff * stepInverse, hitDatas[i].time ) );
+        //        sumDivideDiff = 0d;
+        //    }
+        //}
 
-        for ( int i = 0; i < datas.Count; i++ )
-        {
-            if ( positions.Count == TotalJudge + 1 )
-                break;
+        //for ( int i = 0; i < datas.Count; i++ )
+        //{
+        //    if ( positions.Count == TotalJudge + 1 )
+        //        break;
 
-            var avg = datas[i].diff * 1000d * Power;
-            avg = Mathf.Round( ( float )( avg - ( avg % ( 5d * Power ) ) ) );
-            positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )avg, -170f, 50f ), 0 ) );
-        }
-        positions.Add( new Vector3( EndPosX - posOffset, posY, 0f ) );
-        positions.Add( new Vector3( EndPosX, posY, 0f ) );
+        //    var avg = datas[i].diff * 1000d * Power;
+        //    avg = Mathf.Round( ( float )( avg - ( avg % ( 5d * Power ) ) ) );
+        //    positions.Add( new Vector3( StartPosX + ( posOffset * positions.Count ), Global.Math.Clamp( posY + ( float )avg, -170f, 50f ), 0 ) );
+        //}
+        //positions.Add( new Vector3( EndPosX - posOffset, posY, 0f ) );
+        //positions.Add( new Vector3( EndPosX, posY, 0f ) );
 
-        int minAverageMS = totalMinCount == 0 ? 0 : Mathf.RoundToInt( ( float )( totalSumMinDiff / totalMinCount ) );
-        int maxAverageMS = totalMaxCount == 0 ? 0 : Mathf.RoundToInt( ( float )( totalSumMaxDiff / totalMaxCount ) );
-        accuracyRangeText.text = $"{minAverageMS} ms ~ {maxAverageMS} ms";
-        StartCoroutine( UpdatePosition() );
+        //int minAverageMS = totalMinCount == 0 ? 0 : Mathf.RoundToInt( ( float )( totalSumMinDiff / totalMinCount ) );
+        //int maxAverageMS = totalMaxCount == 0 ? 0 : Mathf.RoundToInt( ( float )( totalSumMaxDiff / totalMaxCount ) );
+        //accuracyRangeText.text = $"{minAverageMS} ms ~ {maxAverageMS} ms";
+        //StartCoroutine( UpdatePosition() );
     }
 
     private IEnumerator UpdatePosition()

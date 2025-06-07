@@ -74,7 +74,7 @@ public class ResultInfomation : MonoBehaviour
         Result scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Result>();
 
         var song   = NowPlaying.CurrentSong;
-        var result = DataStorage.CurrentResult;
+        var result = Judgement.CurrentResult;
 
         // Song Infomation
         title.text  = $"{song.title} [{song.version}]";
@@ -86,13 +86,13 @@ public class ResultInfomation : MonoBehaviour
         sliderCount.text = $"{NowPlaying.TotalSlider}";
 
         // Clear Type
-        if ( result.great + result.good + result.bad + result.miss == 0 )
+        if ( result.Great + result.Good + result.Bad + result.Miss == 0 )
         {
             allPerfect.color = Color.white;
             fullCombo.color  = DisableColor;
             clear.color      = DisableColor;
         }
-        else if ( result.miss == 0 )
+        else if ( result.Miss == 0 )
         {
             allPerfect.color = DisableColor;
             fullCombo.color  = Color.white;
@@ -115,19 +115,19 @@ public class ResultInfomation : MonoBehaviour
 
         // Judgement
         totalJudge.text = $"{NowPlaying.TotalJudge}";
-        DOTween.To( () => 0, x => TextProgressEffect( maximum,  x ), result.maximum, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( perfect,  x ), result.perfect, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( great,    x ), result.great,   duration );
-        DOTween.To( () => 0, x => TextProgressEffect( good,     x ), result.good,    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( bad,      x ), result.bad,     duration );
-        DOTween.To( () => 0, x => TextProgressEffect( miss,     x ), result.miss,    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), result.combo,   duration );
-        DOTween.To( () => 0, x => TextProgressEffect( score,    x ), result.score,   duration );
-        DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.accuracy, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maximum,  x ), result.Maximum, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( perfect,  x ), result.Perfect, duration );
+        DOTween.To( () => 0, x => TextProgressEffect( great,    x ), result.Great,   duration );
+        DOTween.To( () => 0, x => TextProgressEffect( good,     x ), result.Good,    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( bad,      x ), result.Bad,     duration );
+        DOTween.To( () => 0, x => TextProgressEffect( miss,     x ), result.Miss,    duration );
+        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), result.Combo,   duration );
+        DOTween.To( () => 0, x => TextProgressEffect( score,    x ), ( int )result.Score,   duration );
+        DOTween.To( () => 0, x => accuracy.text = $"{( x * .01d ):F2}%", result.Accuracy, duration );
 
         // fast slow
-        fast.text = $"{result.fast}";
-        slow.text = $"{result.slow}";
+        fast.text = $"{result.Fast}";
+        slow.text = $"{result.Slow}";
 
         // bpm
         var pitch = GameSetting.CurrentPitch;
@@ -147,10 +147,10 @@ public class ResultInfomation : MonoBehaviour
                     pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Score
-        rank.sprite = result.accuracy >= 9500 ? rankAtlas.GetSprite( "Ranking-S" ) :
-                      result.accuracy >= 9000 ? rankAtlas.GetSprite( "Ranking-A" ) :
-                      result.accuracy >= 8500 ? rankAtlas.GetSprite( "Ranking-B" ) :
-                      result.accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
+        rank.sprite = result.Accuracy >= 9500 ? rankAtlas.GetSprite( "Ranking-S" ) :
+                      result.Accuracy >= 9000 ? rankAtlas.GetSprite( "Ranking-A" ) :
+                      result.Accuracy >= 8500 ? rankAtlas.GetSprite( "Ranking-B" ) :
+                      result.Accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
                                                 rankAtlas.GetSprite( "Ranking-D" );
 
 

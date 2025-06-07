@@ -37,13 +37,20 @@ public class HealthSystem : MonoBehaviour
         scene.OnReLoad += Clear;
         scene.OnGameStart += () => StartCoroutine( InitHealthEffect() );
 
-        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += HealthUpdate;
+        //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
+        //judge.OnJudge += HealthUpdate;
+
+        InputManager.OnHitNote += UpdateHealth;
 
         healthTileCached = healthRenderer.size;
         healthTileOffset = healthRenderer.size.y;
 
         Clear();
+    }
+
+    private void OnDestroy()
+    {
+        InputManager.OnHitNote -= UpdateHealth;
     }
 
     private IEnumerator InitHealthEffect()
@@ -99,16 +106,17 @@ public class HealthSystem : MonoBehaviour
         healthRenderer.size = new Vector2( healthTileCached.x, 0f );
     }
 
-    private void HealthUpdate( JudgeResult _result )
+    private void UpdateHealth( HitData _hitData )
     {
-        switch ( _result.hitResult )
+        HitResult hitResult = _hitData.hitResult;
+        switch ( hitResult )
         {
             case HitResult.Maximum: healthCached += .017f; break;
             case HitResult.Perfect: healthCached += .011f; break;
-            case HitResult.Great: healthCached -= .005f; break;
-            case HitResult.Good: healthCached -= .017f; break;
-            case HitResult.Bad: healthCached -= .028f; break;
-            case HitResult.Miss: healthCached -= .041f; break;
+            case HitResult.Great:   healthCached -= .005f; break;
+            case HitResult.Good:    healthCached -= .017f; break;
+            case HitResult.Bad:     healthCached -= .028f; break;
+            case HitResult.Miss:    healthCached -= .041f; break;
             default: return;
         }
         healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );

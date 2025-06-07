@@ -5,18 +5,16 @@ using UnityEngine;
 public class JudgeEffectSystem : MonoBehaviour
 {
     public List<Sprite> sprites = new List<Sprite>();
-    private Judgement judge;
     private SpriteRenderer rdr;
     private Sequence sequence;
-    private Vector2 endScale;
+    private Vector2  endScale;
 
     private HitResult prevResult = HitResult.None;
 
     private void Awake()
     {
         rdr = GetComponent<SpriteRenderer>();
-        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += HitEffect;
+        InputManager.OnHitNote += HitEffect;
 
         endScale = transform.localScale;
         transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
@@ -25,6 +23,7 @@ public class JudgeEffectSystem : MonoBehaviour
     private void OnDestroy()
     {
         sequence?.Kill();
+        InputManager.OnHitNote -= HitEffect;
     }
 
     private void Start()
@@ -35,16 +34,17 @@ public class JudgeEffectSystem : MonoBehaviour
                  Append( rdr.DOFade( 0f, .5f ) );
     }
 
-    private void HitEffect( JudgeResult _result )
+    private void HitEffect( HitData _hitData )
     {
-        if ( _result.noteType == NoteType.Slider )
+        if ( _hitData.keyState != KeyState.Down )
              return;
 
-        HitResult hitResult = _result.hitResult;
+        HitResult hitResult = _hitData.hitResult;
         if ( prevResult != hitResult )
         {
             switch ( hitResult )
             {
+
                 case HitResult.Maximum:
                 case HitResult.Perfect: rdr.sprite = sprites[4]; break;
                 case HitResult.Great:   rdr.sprite = sprites[3]; break;

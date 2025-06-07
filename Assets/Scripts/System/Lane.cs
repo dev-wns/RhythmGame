@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using WNS.Time.Control;
 
 public class Lane : MonoBehaviour
 {
@@ -15,38 +17,39 @@ public class Lane : MonoBehaviour
     [Header( "Note" )]
     public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */, noteMedian;
     private ObjectPool<NoteRenderer> notePool;
-    private Queue<NoteRenderer>      notes            = new ();
-    private Queue<NoteRenderer>      sliderMissQueue  = new ();
-    private Queue<NoteRenderer>      sliderEarlyQueue = new ();
-    private Queue<InputData>         dataQueue        = new ();
+    private Queue<NoteRenderer> notes            = new ();
+    private Queue<NoteRenderer> sliderMissQueue  = new ();
+    private Queue<NoteRenderer> sliderEarlyQueue = new ();
+    private Queue<HitData>      dataQueue        = new ();
 
     private List<Note>   noteDatas = new ();
     private Note         spawnData;
     private NoteRenderer curNote;
-    private int          dataIndex;
+    private int          spawnIndex;
 
     [Header( "Lane Effect" )]
-    private readonly float LaneEffectOffset = 1f / .15f;
+    private readonly float LaneOffset = 1f / .15f;
     public  SpriteRenderer laneRenderer;
     private Color          laneColor;
     private float          laneAlpha;
 
     [Header( "Hit Effect" )]
+    private KeyState       keyState;
     public SpriteRenderer  hitRenderer;
-    public List<Sprite>    spritesN = new ();
-    public List<Sprite>    spritesL = new ();
-    private KeyState       inputState;
-    private NoteType       noteType;
-    private float          offsetN;
-    private float          offsetL;
-    private int            hitEffectIndex;
-    private float          hitEffectTimer;
+    public List<Sprite>    hitSprites = new ();
+    private float          hitOffset;
+    private int            hitIndex;
+    private float          hitTimer;
+    private bool           isHitLoop;
 
 
     private void Awake()
     {
         NowPlaying.OnPreUpdate  += PreUpdate;
         NowPlaying.OnPostUpdate += PostUpdate;
+        
+        //laneRenderer.color = Color.clear;
+        //hitRenderer.color  = Color.clear;
 
         //InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         //scene.OnGameStart += GameStart;
@@ -71,13 +74,14 @@ public class Lane : MonoBehaviour
     }
 
     #region Initialize
-    public void AddData( in InputData _data ) => dataQueue.Enqueue( _data );
+    public void AddData( in HitData _data ) => dataQueue.Enqueue( _data );
 
     public void Initialize( int _lane, List<Note> _datas )
     {
         judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
         noteDatas = _datas;
-        spawnData = noteDatas.Count > 0 ? noteDatas[dataIndex] : new Note();
+        spawnIndex = 0;
+        spawnData = noteDatas.Count > 0 ? noteDatas[spawnIndex] : new Note();
 
         Key  = _lane;
         UKey = InputManager.Keys[( GameKeyCount )NowPlaying.KeyCount][Key];
@@ -106,8 +110,7 @@ public class Lane : MonoBehaviour
         // 타격 이펙트 세팅
         if ( GameSetting.HasFlag( VisualFlag.HitEffect ) )
         {
-            offsetN = .16f / spritesN.Count;
-            offsetL = .16f / spritesL.Count;
+            hitOffset = .16f / hitSprites.Count;
             hitRenderer.transform.localScale = new Vector2( GameSetting.NoteWidth * 2, GameSetting.NoteWidth * 2 );
             hitRenderer.color = Color.clear;
         }
@@ -133,79 +136,97 @@ public class Lane : MonoBehaviour
              curNote = notes.Dequeue();
 
         // 판정 처리 ( Virtual Key 사용 )
-        if ( curNote == null || !dataQueue.TryDequeue( out InputData data ) )
+        if ( curNote == null || !dataQueue.TryDequeue( out HitData data ) )
              return;
 
-        switch ( data.keyState )
+        keyState = data.keyState;
+        if ( data.hitResult >= 0 )
         {
-            case KeyState.Down:
+            HitEffect( curNote.IsSlider );
+
+            if ( !curNote.IsKeyDown )
             {
-                if ( data.noteState == NoteState.Hit )
-                {
-                    HitEffect( curNote.IsSlider ? NoteType.Slider : NoteType.Default, KeyState.Down );
-                    judge.ResultUpdate( data.diff, NoteType.Default );
-
-                    if ( !curNote.IsSlider )
-                          SelectNextNote();
-                }
-            } break;
-
-            case KeyState.Up:
+                if ( curNote.IsSlider ) curNote.IsKeyDown = true;
+                else                    SelectNextNote();
+            }
+            else
             {
-                if ( data.noteState == NoteState.Hit )
-                {
-                    HitEffect( NoteType.Slider, KeyState.Up );
-                    sliderEarlyQueue.Enqueue( curNote );
-
-                    judge.ResultUpdate( data.diff, NoteType.Slider );
-                    SelectNextNote( false );
-                }
-                else if ( data.noteState == NoteState.Miss )
-                {
-                    HitEffect( NoteType.Slider, KeyState.Up );
-                    curNote.SetSliderFail();
-                    sliderMissQueue.Enqueue( curNote );
-
-                    judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
-                    SelectNextNote( false );
-                }
-            } break;
-
-            case KeyState.None:
-            {
-                // 롱노트 끝점까지 Holding 한 경우 ( 자동처리 보정 )
-                if ( data.noteState == NoteState.Hit )
-                {
-                    HitEffect( NoteType.Slider, KeyState.Up );
-
-                    judge.ResultUpdate( data.diff, NoteType.Slider );
-                    SelectNextNote();
-                }
-                // 아무런 입력을 하지않아 Miss 처리된 경우
-                else if ( data.noteState == NoteState.Miss )
-                {
-                    if ( !curNote.IsSlider )
-                    {
-                        judge.ResultUpdate( HitResult.Miss, NoteType.Default );
-                        SelectNextNote();
-                    }
-                    else
-                    {
-                        curNote.SetSliderFail();
-                        sliderMissQueue.Enqueue( curNote );
-
-                        // 입력이 없어 처리된 판정이므로 시작과 끝 판정을 Miss 처리한다.
-                        judge.ResultUpdate( HitResult.Miss, NoteType.Slider, 2 );
-                        SelectNextNote( false );
-                    }
-                }
-            } break;
+                sliderEarlyQueue.Enqueue( curNote );
+                SelectNextNote( false );
+            }
         }
+        else
+        {
+            HitEffect();
+            if ( !curNote.IsSlider )
+            {
+                SelectNextNote();
+            }
+            else
+            {
+                curNote.SetSliderFail();
+                sliderMissQueue.Enqueue( curNote );
+                SelectNextNote( false );
+            }
+        }
+
+        //switch ( data.keyState )
+        //{
+        //    case KeyState.Down:
+        //    {
+        //        Debug.Log( $"Down : {data.hitResult}" );
+        //        if ( data.hitResult >= 0 ) // Hit
+        //        {
+
+        //            if ( curNote.IsSlider ) curNote.IsKeyDown = true;
+        //            else                    SelectNextNote();
+        //        }
+        //        else if ( data.hitResult < 0 ) // Miss
+        //             SelectNextNote();
+
+        //    } break;
+
+        //    case KeyState.Up:
+        //    {
+        //        Debug.Log( $"Up : {data.hitResult}" );
+
+        //        HitEffect( NoteType.Slider, KeyState.Up );
+        //        if ( data.hitResult >= 0 ) // Hit
+        //        {
+        //            sliderEarlyQueue.Enqueue( curNote );
+        //            SelectNextNote( false );
+        //        }
+        //        else if ( data.hitResult < 0 ) // Miss
+        //        {
+        //            curNote.SetSliderFail();
+        //            sliderMissQueue.Enqueue( curNote );
+        //            SelectNextNote( false );
+        //        }
+        //    } break;
+
+        //    case KeyState.None:
+        //    {
+        //        //Debug.Log( $"None : {data.hitResult}" );
+
+        //        HitEffect( NoteType.Slider, KeyState.Up );
+        //        if ( !curNote.IsSlider )
+        //        {
+        //            SelectNextNote();
+        //        }
+        //        else
+        //        {
+        //            curNote.SetSliderFail();
+        //            sliderMissQueue.Enqueue( curNote );
+        //            SelectNextNote( false );
+        //        }
+        //    } break;
+        //}
+
     }
 
     private void SpawnNote()
     {
-        if ( dataIndex >= noteDatas.Count )
+        if ( spawnIndex >= noteDatas.Count )
              return;
 
         if ( spawnData.noteDistance <= NowPlaying.Distance + GameSetting.MinDistance )
@@ -214,17 +235,17 @@ public class Lane : MonoBehaviour
             note.SetInfo( Key, in spawnData );
             notes.Enqueue( note );
 
-            if ( ++dataIndex < noteDatas.Count )
-                 spawnData = noteDatas[dataIndex];
+            if ( ++spawnIndex < noteDatas.Count )
+                   spawnData = noteDatas[spawnIndex];
         }
     }
 
     private void UpdateLaneEffect()
     {
-        if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
+        if ( !GameSetting.HasFlag( VisualFlag.LaneEffect ) )
              return;
 
-        float increment = LaneEffectOffset * Time.deltaTime;
+        float increment = LaneOffset * Time.deltaTime;
         laneAlpha = Input.GetKey( UKey ) ? Global.Math.Clamp( laneAlpha + increment, 0f, 1f ) :
                                            Global.Math.Clamp( laneAlpha - increment, 0f, 1f );
 
@@ -234,75 +255,69 @@ public class Lane : MonoBehaviour
 
     private void UpdateHitEffect()
     {
-        hitEffectTimer += Time.deltaTime;
+        hitTimer += Time.deltaTime;
 
-        if ( noteType == NoteType.Default &&
-             hitEffectTimer > hitEffectIndex * offsetN )
+        if ( !isHitLoop )
         {
-            if ( hitEffectIndex < spritesN.Count )
+            if ( hitTimer > hitIndex * hitOffset )
             {
-                hitRenderer.sprite = spritesN[hitEffectIndex];
-                hitEffectIndex += 1;
-            }
-            else
-            {
-                hitRenderer.color = Color.clear;
+                if ( hitIndex < hitSprites.Count )
+                     hitRenderer.sprite = hitSprites[hitIndex++];
+                else
+                     hitRenderer.color = Color.clear;
             }
         }
-        else if ( noteType == NoteType.Slider &&
-                  hitEffectTimer > hitEffectIndex * offsetL )
+        else
         {
-            if ( hitEffectIndex < spritesL.Count )
+            if ( hitTimer > hitIndex * hitOffset )
             {
-                hitRenderer.sprite = spritesL[hitEffectIndex];
-                hitEffectIndex += 1;
-
-                if ( hitEffectIndex >= spritesL.Count )
+                if ( hitIndex < hitSprites.Count )
                 {
-                    if ( inputState == KeyState.Down )
-                    {
-                        hitEffectTimer = 0f;
-                        hitEffectIndex = 0;
-                    }
-                    else
-                        hitRenderer.color = Color.clear;
+                    hitRenderer.sprite = hitSprites[hitIndex++];
+                }
+                else
+                {
+                    hitTimer = 0f;
+                    hitIndex = 0;
                 }
             }
         }
     }
 
-    public void HitEffect( NoteType _noteType, KeyState _inputState )
+    public void HitEffect( bool _isLoop = false )
     {
-        noteType   = _noteType;
-        inputState = _inputState;
-        if ( _inputState == KeyState.Down )
+        isHitLoop = _isLoop;
+
+        if ( keyState == KeyState.Down )
         {
-            hitEffectTimer = 0f;
-            hitEffectIndex = 0;
+            hitTimer = 0f;
+            hitIndex = 0;
             hitRenderer.color = Color.white;
         }
+
+        if ( keyState == KeyState.Up )
+             hitRenderer.color = Color.clear;
     }
 
     public void CheckSliderDespawn()
     {
         // 일찍 처리된 롱노트 판정선에 닿을 때 디스폰
-        if ( sliderEarlyQueue.Count > 0 )
+        if ( sliderEarlyQueue.TryPeek( out NoteRenderer earlySlider ) )
         {
-            NoteRenderer slider = sliderEarlyQueue.Peek();
-            if ( slider.SliderTime < NowPlaying.Playback )
+            if ( earlySlider.SliderTime < NowPlaying.Playback )
             {
-                slider.Despawn();
+                earlySlider.Despawn();
                 sliderEarlyQueue.Dequeue();
             }
         }
 
         // 미스처리된 롱노트 화면 밖에서 디스폰 
-        if ( sliderMissQueue.Count > 0 )
+        if ( sliderMissQueue.TryPeek( out NoteRenderer missSlider ) )
         {
-            NoteRenderer slider = sliderMissQueue.Peek();
-            if ( slider.TailPos < -( ( Global.Screen.Height * .5f ) + 100f ) )
+            //Debug.Log( $"MissSlider : {missSlider.TailPos} {-( ( Global.Screen.Height * .5f ) + 100f)}" );
+            if ( missSlider.TailPos < -( ( Global.Screen.Height * .5f ) + 100f ) )
             {
-                slider.Despawn();
+                missSlider.Despawn();
                 sliderMissQueue.Dequeue();
             }
         }
@@ -342,10 +357,9 @@ public class Lane : MonoBehaviour
         }
         notePool.AllDespawn();
 
-        DataStorage.Inst.Clear();
-        dataIndex = 0;
-        spawnData = new Note();
-        curNote   = null;
+        spawnIndex = 0;
+        spawnData  = new Note();
+        curNote    = null;
     }
 
     private void GameOver()
@@ -361,13 +375,13 @@ public class Lane : MonoBehaviour
 
         if ( GameSetting.HasFlag( GameMode.AutoPlay ) )
         {
-            judge.ResultUpdate( HitResult.Perfect, NoteType.Slider );
+            //judge.ResultUpdate( HitResult.Perfect, NoteType.Slider );
             SelectNextNote();
         }
         else
         {
             curNote.SetSliderFail();
-            judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
+            //judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
             sliderMissQueue.Enqueue( curNote );
             SelectNextNote( false );
         }

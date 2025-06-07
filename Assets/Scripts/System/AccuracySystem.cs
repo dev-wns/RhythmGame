@@ -10,62 +10,69 @@ public class AccuracySystem : MonoBehaviour
     public TextMeshProUGUI text;
 
     // Judge Count
-    private int maximum;
-    private int perfect;
-    private int great;
-    private int good;
-    private int bad;
-    private int miss;
+    //private int maximum;
+    //private int perfect;
+    //private int great;
+    //private int good;
+    //private int bad;
+    //private int miss;
 
-    private float Total   => ( 300f * ( maximum + perfect ) ) + ( 200f * great ) + ( 100f * good ) + ( 50f * bad );
-    private float Max     => 3f * ( maximum + perfect + great + good + bad + miss );
-    public float Accuracy => Total / Max;
+    //private float Total   => ( 300f * ( maximum + perfect ) ) + ( 200f * great ) + ( 100f * good ) + ( 50f * bad );
+    //private float Max     => 3f * ( maximum + perfect + great + good + bad + miss );
+    //public float Accuracy => Total / Max;
 
     private void Awake()
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += OnReLoad;
-        scene.OnResult += OnResult;
+        //scene.OnResult += OnResult;
 
-        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        judge.OnJudge += AccuracyUpdate;
+        //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
+        //judge.OnJudge += AccuracyUpdate;
+
+        InputManager.OnHitNote += UpdateAccuracy;
     }
 
-    private void OnResult()
+    private void OnDestroy()
     {
-        DataStorage.Inst.UpdateResult( HitResult.Accuracy, ( int )( Accuracy * 100f ) );
+        InputManager.OnHitNote -= UpdateAccuracy;
     }
+
+    //private void OnResult()
+    //{
+    //    DataStorage.Inst.UpdateResult( HitResult.Accuracy, ( int )( Accuracy * 100f ) );
+    //}
 
     private void OnReLoad()
     {
-        maximum = 0;
-        perfect = 0;
-        great   = 0;
-        good    = 0;
-        bad     = 0;
-        miss    = 0;
+        //maximum = 0;
+        //perfect = 0;
+        //great   = 0;
+        //good    = 0;
+        //bad     = 0;
+        //miss    = 0;
 
         text.text = $"100.00%";
     }
 
-    private void AccuracyUpdate( JudgeResult _result )
+    private void UpdateAccuracy( HitData _hitData )
     {
-        HitResult hitResult = _result.hitResult;
-        if ( hitResult == HitResult.None )
-             return;
+        //HitResult hitResult = _hitData.hitResult;
+        //if ( hitResult == HitResult.None )
+        //     return;
 
-        switch ( hitResult )
-        {
-            case HitResult.Maximum: maximum++; break;
-            case HitResult.Perfect: perfect++; break;
-            case HitResult.Great:   great++;   break;
-            case HitResult.Good:    good++;    break;
-            case HitResult.Bad:     bad++;     break;
-            case HitResult.Miss:    miss++;    break;
-            default: return;
-        }
+        //switch ( hitResult )
+        //{
+        //    case HitResult.Maximum: maximum++; break;
+        //    case HitResult.Perfect: perfect++; break;
+        //    case HitResult.Great:   great++;   break;
+        //    case HitResult.Good:    good++;    break;
+        //    case HitResult.Bad:     bad++;     break;
+        //    case HitResult.Miss:    miss++;    break;
+        //    default: return;
+        //}
 
-        text.text = $"{ Accuracy:F2}%";
+        text.text = $"{ Judgement.CurrentResult.Accuracy:F2}%";
 
         //switch ( hitResult )
         //{

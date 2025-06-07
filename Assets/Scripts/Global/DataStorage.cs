@@ -11,20 +11,6 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 
-public struct HitData
-{
-    public NoteType type;
-    public double   diff;
-    public double   time;
-
-    public HitData( NoteType _type, double _diff, double _time )
-    {
-        type = _type;
-        diff = _diff;
-        time = _time;
-    }
-}
-
 public struct RecordData
 {
     public int    score;
@@ -32,36 +18,6 @@ public struct RecordData
     public int    random;
     public float  pitch;
     public string date;
-}
-
-public struct ResultData
-{
-    // counts
-    public int maximum;
-    public int perfect;
-    public int great;
-    public int good;
-    public int bad;
-    public int miss;
-
-    public int fast;
-    public int slow;
-    public int accuracy;
-    public int combo;
-    public int score;
-
-    public int   random;
-    public float pitch;
-
-    public int Count => maximum + perfect + great + good + bad + miss;
-
-    public ResultData( int _random, float _pitch )
-    {
-        random = _random;
-        pitch = _pitch;
-        maximum = perfect = great = good = bad = miss = 0;
-        fast = slow = accuracy = combo = score = 0;
-    }
 }
 
 public class DataStorage : Singleton<DataStorage>
@@ -86,11 +42,11 @@ public class DataStorage : Singleton<DataStorage>
     private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
 
     [Header( "Result Data" )]
-    public  List<HitData> HitDatas { get; private set; } = new ();
+    //public  List<HitData> HitDatas { get; private set; } = new ();
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
-    public  static ResultData CurrentResult => resultData;
-    private static ResultData resultData = new ResultData();
+    //public  static ResultData CurrentResult => resultData;
+    //private static ResultData resultData = new ResultData();
 
     protected override void Awake()
     {
@@ -118,13 +74,6 @@ public class DataStorage : Singleton<DataStorage>
         }
 
         newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
-        for ( int i = 0; i < newSongs.Count; i++ )
-        {
-            var song    = newSongs[i];
-            song.index  = i;
-            newSongs[i] = song;
-        }
-
         OriginSongs = new ReadOnlyCollection<Song>( newSongs );
 
         // 파일 수정하고 싶을 때 사용
@@ -260,8 +209,8 @@ public class DataStorage : Singleton<DataStorage>
     {
         var newRecord = new RecordData()
         {
-            score    = resultData.score,
-            accuracy = resultData.accuracy,
+            score    = ( int )Judgement.CurrentResult.Score,
+            accuracy = ( int )Judgement.CurrentResult.Accuracy,
             random   = ( int )GameSetting.CurrentRandom,
             pitch    = GameSetting.CurrentPitch,
             date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
@@ -316,36 +265,6 @@ public class DataStorage : Singleton<DataStorage>
         }
 
         return true;
-    }
-
-    public void UpdateResult( HitResult _type, int _value = 1 )
-    {
-        switch ( _type )
-        {
-            case HitResult.Maximum:  resultData.maximum += _value; break;
-            case HitResult.Perfect:  resultData.perfect += _value; break;
-            case HitResult.Great:    resultData.great   += _value; break;
-            case HitResult.Good:     resultData.good    += _value; break;
-            case HitResult.Bad:      resultData.bad     += _value; break;
-            case HitResult.Miss:     resultData.miss    += _value; break;
-
-            case HitResult.Fast:     resultData.fast    += _value; break;
-            case HitResult.Slow:     resultData.slow    += _value; break;
-            case HitResult.Accuracy: resultData.accuracy = _value; break;
-            case HitResult.Combo:    resultData.combo    = _value; break;
-            case HitResult.Score:    resultData.score    = _value; break;
-        }
-    }
-
-    public void AddHitData( NoteType _type, double _diff )
-    {
-        HitDatas.Add( new HitData( _type, _diff, NowPlaying.Playback ) );
-    }
-
-    public void Clear()
-    {
-        resultData = new ResultData( ( int )GameSetting.CurrentRandom, GameSetting.CurrentPitch );
-        HitDatas.Clear();
     }
     #endregion
 }

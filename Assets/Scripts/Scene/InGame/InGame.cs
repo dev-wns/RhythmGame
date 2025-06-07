@@ -84,15 +84,15 @@ public class InGame : Scene
         }
 
         // Game Start
-        InputManager.Inst.GameStart();
+        //InputManager.Inst.GameStart();
         OnGameStart?.Invoke();
         IsGameInputLock = false;
         IsInputLock     = false;
         NowPlaying.Inst.Play();
 
         // GameEnd
-        yield return new WaitUntil( () => NowPlaying.TotalJudge <= DataStorage.CurrentResult.Count );
-        Debug.Log( $"All lanes are empty ( {DataStorage.CurrentResult.Count} Judgements )" );
+        yield return new WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.TotalCount );
+        Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.TotalCount} Judgements )" );
 
         IsEnd = true;
         //if ( NowPlaying.CurrentSong.isOnlyKeySound )
@@ -107,7 +107,7 @@ public class InGame : Scene
 
     public void BackToLobby()
     {
-        DataStorage.Inst.Clear();
+        //DataStorage.Inst.Clear();
         LoadScene( SceneType.FreeStyle );
     }
 
