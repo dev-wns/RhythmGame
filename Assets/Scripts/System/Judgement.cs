@@ -90,8 +90,9 @@ public class Judgement : MonoBehaviour
             case HitResult.Miss:    Results.Miss    += _isDoubleMiss ? 2 : 1; break;
         }
 
-        Results.Combo    = hitResult == HitResult.Miss || hitResult == HitResult.None ? 0 : Results.Combo += 1;
+        Results.Combo    = hitResult == HitResult.Miss ? 0 : Results.Combo += 1;
         Results.MaxCombo = Results.Combo > Results.MaxCombo ? Results.Combo : Results.MaxCombo;
+
         if ( diffAbs > HitRange.Perfect && diffAbs <= HitRange.Bad )
         {
             Results.Fast += _diff > 0d ? 1 : 0;

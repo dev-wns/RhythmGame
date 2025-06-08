@@ -173,7 +173,7 @@ public class InputManager : Singleton<InputManager>
             }
             else // 롱노트 끝판정
             {
-                if ( KeyStates[i] == KeyState.Up )
+                if ( KeyStates[i] == KeyState.Up || endDiff <= 0d )
                 {
                     SelectNextNote( i );
                     HitData hitData = new HitData( playback, Judgement.UpdateResult( endDiff ), KeyState.Up );

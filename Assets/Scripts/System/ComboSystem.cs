@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System.Collections;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 
@@ -8,12 +9,10 @@ public class ComboSystem : MonoBehaviour
     private InGame scene;
 
     [Header("ComboSystem")]
-    //private Judgement judge;
-
-    private const float ElapsedPower = 100;
-    private float curCombo = 0f;
+    private float curCombo;
     private float targetCombo;
-
+    private float ComboPos;
+    private float diffCached;
 
     public TextMeshProUGUI text;
 
@@ -27,14 +26,10 @@ public class ComboSystem : MonoBehaviour
         scene.OnReLoad += OnReLoad;
         //scene.OnResult += OnResult;
 
-        //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        //judge.OnJudge += ComboUpdate;
-
         InputManager.OnHitNote += UpdateCombo;
 
         var rt = transform as RectTransform;
         rt.anchoredPosition = new Vector2( rt.anchoredPosition.x + GameSetting.GearOffsetX, rt.anchoredPosition.y );
-
         startPos = transform.localPosition;
     }
 
@@ -43,7 +38,7 @@ public class ComboSystem : MonoBehaviour
         effectSeq = DOTween.Sequence().Pause().SetAutoKill( false );
         effectSeq.Append( transform.DOMoveY( startPos.y + 10f, .115f ) );
 
-        //StartCoroutine( BreakCombo() );
+        StartCoroutine( BreakCombo() );
     }
 
     private void OnDestroy()
@@ -60,54 +55,34 @@ public class ComboSystem : MonoBehaviour
     private void OnReLoad()
     {
         StopAllCoroutines();
-        curCombo = 0f;
+        curCombo    = 0f;
+        ComboPos    = 0f;
         targetCombo = 0f;
         transform.position = startPos;
 
-        text.text = $"{( int )curCombo}";
+        text.text  = $"{( int )curCombo}";
         text.color = Color.white;
 
-        //StartCoroutine( BreakCombo() );
+        StartCoroutine( BreakCombo() );
     }
 
-    //private IEnumerator BreakCombo()
-    //{
-    //    WaitUntil waitNextValue = new WaitUntil( () => Global.Math.Abs( targetCombo - curCombo ) > float.Epsilon );
-    //    while ( true )
-    //    {
-    //        yield return waitNextValue;
-
-    //        if ( isMissing )
-    //        {
-    //            curCombo -= ( ElapsedPower + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
-    //            if ( curCombo <= targetCombo || curCombo <= 0f )
-    //            {
-    //                curCombo = targetCombo;
-    //                text.color = Color.white;
-    //            }
-    //        }
-    //        else
-    //        {
-    //            curCombo += ( ( ElapsedPower * 2.5f ) + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
-
-    //            if ( curCombo > targetCombo )
-    //                curCombo = targetCombo;
-    //        }
-
-    //        text.text = $"{( int )curCombo}";
-    //    }
-    //}
-
-    private void Update()
+    private IEnumerator BreakCombo()
     {
-        if ( targetCombo <= curCombo )
+        WaitUntil waitNextValue = new WaitUntil( () => Global.Math.Abs( curCombo - targetCombo ) > float.Epsilon );
+        while ( true )
         {
-            text.color = Color.gray;
-            curCombo -= ( ElapsedPower + Global.Math.Abs( curCombo - targetCombo ) * 5f ) * Time.deltaTime;
+            yield return waitNextValue;
+            curCombo -= diffCached  * Time.deltaTime;
             if ( curCombo <= targetCombo || curCombo <= 0f )
             {
-                curCombo   = targetCombo;
+                curCombo = targetCombo;
                 text.color = Color.white;
+            }
+
+            if ( ( int )ComboPos != ( int )curCombo )
+            {
+                ComboPos = curCombo;
+                text.text = $"{( int )curCombo}";
             }
         }
     }
@@ -115,27 +90,12 @@ public class ComboSystem : MonoBehaviour
     private void UpdateCombo( HitData _hitData )
     {
         targetCombo = Judgement.CurrentResult.Combo;
-
-        HitResult hitResult = _hitData.hitResult;
-        switch ( hitResult )
+        if ( _hitData.hitResult == HitResult.Miss )
         {
-            case HitResult.None:
-            case HitResult.Maximum:
-            case HitResult.Perfect:
-            case HitResult.Great:
-            case HitResult.Good:
-            case HitResult.Bad: ++targetCombo; break;
-
-            case HitResult.Miss:
-            {
-                text.color  = curCombo > double.Epsilon ? Color.gray : Color.white;
-                targetCombo = 0;
-            } break;
-
-            default: return;
+            diffCached = Global.Math.Clamp( Global.Math.Abs( curCombo - targetCombo ), 100f, 1000f );
+            text.color = curCombo > double.Epsilon ? Color.gray : Color.white;
         }
-
-        //highestCombo = highestCombo < targetCombo ? targetCombo : highestCombo;
+        
         transform.position = startPos;
         effectSeq.Restart();
     }
