@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent( typeof( Image ) )]
-public class ButtonHoverEffect : ButtonEffect
+public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private Image image;
     public float targetAlpha = 1f;
@@ -31,17 +31,15 @@ public class ButtonHoverEffect : ButtonEffect
         DOTween.Kill( image );
     }
 
-    public override void OnPointerEnter( PointerEventData eventData )
+    public void OnPointerEnter( PointerEventData _eventData )
     {
-        base.OnPointerEnter( eventData );
         image.DOFade( targetAlpha, duration );
         if ( isSfxPlay )
-            AudioManager.Inst.Play( SFX.MenuHover );
+             AudioManager.Inst.Play( SFX.MenuHover );
     }
 
-    public override void OnPointerExit( PointerEventData eventData )
+    public void OnPointerExit( PointerEventData _eventData )
     {
-        base.OnPointerExit( eventData );
         image.DOFade( 0f, duration );
     }
 }

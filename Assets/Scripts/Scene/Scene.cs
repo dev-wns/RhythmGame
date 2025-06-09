@@ -14,10 +14,7 @@ public enum SceneType : int
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
 {
-    #region Variables
-    public bool IsGameInputLock { get; set; }
     public Action<float/* pitch */> OnUpdatePitch;
-    #endregion
 
     #region Unity Callback
     protected virtual void Awake()

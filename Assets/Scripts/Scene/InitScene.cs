@@ -5,6 +5,11 @@ using UnityEngine;
 
 public class InitScene : Scene
 {
+    [Header( "Rotate Loading Icon" )]
+    public GameObject icon;
+    public float rotateSpeed = 100f;
+    private float curValue;
+
     private bool isCompleted;
 
     protected override void Awake()
@@ -40,7 +45,7 @@ public class InitScene : Scene
         {
             case FrameRate.vSync:
             case FrameRate.No_Limit:
-            Application.targetFrameRate = 0;
+                Application.targetFrameRate = 0;
             break;
 
             case FrameRate._60:
@@ -54,10 +59,12 @@ public class InitScene : Scene
             }
             break;
         }
+
     }
 
     protected async override void Start()
     {
+        StartCoroutine( RotateLoadingIcon() );
         StartCoroutine( ParsingAfterSwitchScene() );
         isCompleted = await Task.Run( DataStorage.Inst.LoadSongs );
     }
@@ -71,6 +78,17 @@ public class InitScene : Scene
         yield return YieldCache.WaitForSeconds( 3f );
 
         LoadScene( SceneType.FreeStyle );
+    }
+
+    private IEnumerator RotateLoadingIcon()
+    {
+        while ( true )
+        {
+            yield return null;
+
+            curValue -= Time.deltaTime * rotateSpeed;
+            icon.transform.rotation = Quaternion.Euler( new Vector3( 0f, 0f, curValue ) );
+        }
     }
 
     public override void KeyBind()

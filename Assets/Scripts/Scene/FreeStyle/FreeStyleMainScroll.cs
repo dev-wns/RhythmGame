@@ -7,7 +7,7 @@ using TMPro;
 
 public class FreeStyleMainScroll : ScrollBase
 {
-    public SongInfomation prefab;
+    public SongUI prefab;
     public FreeStyleSearch search;
 
     private RectTransform rt => transform as RectTransform;
@@ -27,8 +27,8 @@ public class FreeStyleMainScroll : ScrollBase
 
     public Scene CurrentScene { get; private set; }
     [Header( "Scene" )]
-    private LinkedList<SongInfomation> songs = new LinkedList<SongInfomation>();
-    private LinkedListNode<SongInfomation> medianNode;
+    private LinkedList<SongUI> songs = new LinkedList<SongUI>();
+    private LinkedListNode<SongUI> medianNode;
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
@@ -40,7 +40,7 @@ public class FreeStyleMainScroll : ScrollBase
     private float keyPressTime;
     private bool  isKeyDown;
     public  static double Playback;
-    private float endTime; // End NoteTime
+    private float endTime; // 마지막 노트의 처리시간
     private Coroutine corVolumeFade;
 
     [Header("Contents")]

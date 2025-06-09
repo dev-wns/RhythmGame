@@ -4,6 +4,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InGame : Scene
 {
@@ -23,11 +24,9 @@ public class InGame : Scene
 
     private readonly float AdditionalLoadTime = 3.5f;
 
-    [Header( "Loading" )]
-    public TextMeshProUGUI loadingText;
-
-    public TextMeshProUGUI soundText;
-    public TextMeshProUGUI etcText;
+    [Header("Fill Timer")]
+    public Image timeImage;
+    private double length;
 
     protected override void Awake()
     {
@@ -39,8 +38,8 @@ public class InGame : Scene
                                        antiAliasing == 3 ? 8 :
                                        antiAliasing == 4 ? 16 : 0;
 
-        IsGameInputLock = true;
-        IsInputLock     = true;
+        length = NowPlaying.CurrentSong.totalTime / GameSetting.CurrentPitch;
+        IsInputLock = true;
 
         NowPlaying.Inst.Initialize();
         //OnSystemInitialize?.Invoke();
@@ -52,6 +51,11 @@ public class InGame : Scene
 
 
         StartCoroutine( Play() );
+    }
+
+    private void Update()
+    {
+        timeImage.fillAmount = ( float )Global.Math.Clamp( ( NowPlaying.Playback / length ), 0d, 1d );
     }
 
     public override void Connect()
@@ -86,7 +90,6 @@ public class InGame : Scene
         // Game Start
         //InputManager.Inst.GameStart();
         OnGameStart?.Invoke();
-        IsGameInputLock = false;
         IsInputLock     = false;
         NowPlaying.Inst.Play();
 
@@ -116,7 +119,6 @@ public class InGame : Scene
     protected IEnumerator RestartProcess()
     {
         IsInputLock = true;
-        IsGameInputLock = true;
         yield return StartCoroutine( FadeOut() );
 
         ImmediateDisableCanvas( ActionType.Main, pause );
@@ -133,7 +135,6 @@ public class InGame : Scene
         OnGameStart?.Invoke();
         NowPlaying.Inst.Play();
         IsInputLock = false;
-        IsGameInputLock = false;
     }
 
     public void Pause( bool _isPause )
@@ -145,7 +146,6 @@ public class InGame : Scene
         }
         else
         {
-            IsGameInputLock = _isPause;
             NowPlaying.Inst.Pause( _isPause );
             ShowPauseCanvas( _isPause );
             OnPause?.Invoke( _isPause );
@@ -164,7 +164,6 @@ public class InGame : Scene
 
         yield return StartCoroutine( NowPlaying.Inst.GameOver() );
 
-        IsGameInputLock = true;
         IsInputLock = false;
         EnableCanvas( ActionType.GameOver, gameOver, false );
 

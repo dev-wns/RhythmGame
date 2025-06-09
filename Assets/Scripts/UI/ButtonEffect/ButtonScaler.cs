@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent( typeof( Image ) )]
-public class ButtonScaler : ButtonEffect
+public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Range(1f, 2f)]
     public float multiplier;
@@ -29,15 +29,13 @@ public class ButtonScaler : ButtonEffect
         tf.localScale = Vector3.one;
     }
 
-    public override void OnPointerEnter( PointerEventData eventData )
+    public void OnPointerEnter( PointerEventData _eventData )
     {
-        base.OnPointerEnter( eventData );
         tf.DOScale( targetSize, duration );
     }
 
-    public override void OnPointerExit( PointerEventData eventData )
+    public void OnPointerExit( PointerEventData _eventData )
     {
-        base.OnPointerExit( eventData );
         tf.DOScale( Vector3.one, duration );
     }
 }
