@@ -73,7 +73,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         // 모드를 선택한 상태로 InGame 진입 후 계산
         bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) &&  CurrentSong.keyCount == 7;
+        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  CurrentSong.keyCount == 7;
         KeyCount        = isConvert  ? 6 : CurrentSong.keyCount;
         TotalNote       = isConvert  ? CurrentSong.noteCount - CurrentSong.delNoteCount : CurrentSong.noteCount;
         TotalSlider     = isNoSlider ? 0 :
@@ -110,6 +110,9 @@ public class NowPlaying : Singleton<NowPlaying>
         // 싱글톤 활성화
         AudioManager audioManager = AudioManager.Inst;
         InputManager inputManager = InputManager.Inst;
+        DataStorage  dataStorage  = DataStorage.Inst;
+        Judgement    judgement    = Judgement.Inst;
+        Network      network      = Network.Inst;
 
         OnPostInitAsync += LoadSoundsAsync;
 
@@ -169,8 +172,6 @@ public class NowPlaying : Singleton<NowPlaying>
                     break;
                 }
 
-                OnUpdateInThread?.Invoke();
-
                 // 배경음 처리( 시간의 흐름에 따라 자동재생 )
                 while ( bgmIndex < bgms.Count && bgms[bgmIndex].time <= Playback )
                 {
@@ -180,6 +181,8 @@ public class NowPlaying : Singleton<NowPlaying>
                     if ( bgmIndex < bgms.Count )
                          bgmIndex++;
                 }
+
+                OnUpdateInThread?.Invoke();
             }
 
             await Task.Delay( 1 );

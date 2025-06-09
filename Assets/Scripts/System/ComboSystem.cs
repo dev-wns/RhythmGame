@@ -63,15 +63,16 @@ public class ComboSystem : MonoBehaviour
         text.text  = $"{( int )curCombo}";
         text.color = Color.white;
 
-        StartCoroutine( BreakCombo() );
+        //StartCoroutine( BreakCombo() );
     }
 
     private IEnumerator BreakCombo()
     {
-        WaitUntil waitNextValue = new WaitUntil( () => Global.Math.Abs( curCombo - targetCombo ) > float.Epsilon );
+        WaitUntil waitNextValue = new WaitUntil( () => Global.Math.Abs( targetCombo - curCombo ) > float.Epsilon );
         while ( true )
         {
             yield return waitNextValue;
+
             curCombo -= diffCached  * Time.deltaTime;
             if ( curCombo <= targetCombo || curCombo <= 0f )
             {

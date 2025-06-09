@@ -68,9 +68,9 @@ public struct Timing
 
     public Timing( double _time, double _bpm, double _beatLength, int _isUninherited )
     {
-        time = _time;
-        beatLength = _beatLength;
-        bpm = _bpm;
+        time          = _time;
+        bpm           = _bpm;
+        beatLength    = _beatLength;
         isUninherited = _isUninherited;
     }
 }
@@ -79,21 +79,21 @@ public struct Note
 {
     public int      lane;
     public double   time;
-    public double   sliderTime;
-    public double   noteDistance;
-    public double   sliderDistance;
+    public double   endTime;
+    public double   distance;
+    public double   endDistance;
     public bool     isSlider;
     public KeySound keySound;
 
-    public Note( int _lane, double _time, double _sliderTime, KeySound _sound )
+    public Note( int _lane, double _time, double _endTime, KeySound _sound )
     {
-        lane           = _lane;
-        time           = _time;
-        sliderTime     = _sliderTime;
-        noteDistance   = 0d;
-        sliderDistance = 0d;
-        isSlider       = sliderTime > 0d ? true : false;
-        keySound       = _sound;
+        lane        = _lane;
+        time        = _time;
+        endTime     = _endTime;
+        distance    = 0d;
+        endDistance = 0d;
+        isSlider    = endTime > 0d;
+        keySound    = _sound;
     }
 }
 
@@ -386,9 +386,9 @@ public class FileConverter : FileReader
                 string[] splitDatas = line.Split( ',' );
                 string[] objParams = splitDatas[5].Split( ':' );
                 double noteTime    = double.Parse( splitDatas[2] );
-                double sliderTime  = 0d;
+                double endTime  = 0d;
                 if ( int.Parse( splitDatas[3] ) == 2 << 6 )
-                    sliderTime = double.Parse( objParams[0] );
+                    endTime = double.Parse( objParams[0] );
 
                 // 제거된 노트의 키음은 자동으로 재생되는 배경음으로 재생한다.
                 int originLane    = Mathf.FloorToInt( int.Parse( splitDatas[0] ) * song.keyCount / 512 );
@@ -402,9 +402,9 @@ public class FileConverter : FileReader
                 }
                 else
                 {
-                    if ( sliderTime > 0d )
+                    if ( endTime > 0d )
                     {
-                        song.totalTime = song.totalTime >= sliderTime ? song.totalTime : ( int )sliderTime;
+                        song.totalTime = song.totalTime >= endTime ? song.totalTime : ( int )endTime;
                         song.sliderCount++;
 
                         if ( finalLane == 3 )
@@ -419,7 +419,7 @@ public class FileConverter : FileReader
                             song.delNoteCount++;
                     }
 
-                    notes.Add( new Note( finalLane, noteTime, sliderTime, keySound ) );
+                    notes.Add( new Note( finalLane, noteTime, endTime, keySound ) );
 
                     if ( !isCheckKeySoundOnce )
                     {
@@ -547,7 +547,7 @@ public class FileConverter : FileReader
                         text.Clear();
                         text.Append( notes[i].lane ).Append( "," );
                         text.Append( notes[i].time ).Append( "," );
-                        text.Append( notes[i].sliderTime ).Append( "," );
+                        text.Append( notes[i].endTime ).Append( "," );
 
                         text.Append( notes[i].keySound.volume ).Append( ":" );
                         text.Append( notes[i].keySound.name );

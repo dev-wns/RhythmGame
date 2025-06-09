@@ -7,9 +7,9 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
     protected Note note;
     public Image head, body, tail;
     public double Time => note.time;
-    public double Distance => note.noteDistance;
-    public double SliderTime => note.sliderTime;
-    public double SliderDistance => note.sliderDistance;
+    public double Distance => note.distance;
+    public double SliderTime => note.endTime;
+    public double SliderDistance => note.endDistance;
     public bool IsSlider => note.isSlider;
 
     protected float column;
@@ -31,7 +31,7 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
         note = _note;
 
         column = _startPos + ( note.lane * ( PreviewNoteSystem.NoteWidth ) ) + ( ( note.lane + 1 ) * GameSetting.NoteBlank );
-        newDistance = note.noteDistance;
+        newDistance = note.distance;
 
         head.enabled = IsOnlyBody && IsSlider ? false :
                        IsOnlyBody && !IsSlider ? true : true;

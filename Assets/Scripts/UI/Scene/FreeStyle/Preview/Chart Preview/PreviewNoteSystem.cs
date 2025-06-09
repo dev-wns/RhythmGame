@@ -63,9 +63,9 @@ public class PreviewNoteSystem : MonoBehaviour
             if ( notes[spawnIndex].time > Playback )
             {
                 curData = notes[spawnIndex];
-                curData.noteDistance = GetDistance( curData.time );
+                curData.distance = GetDistance( curData.time );
                 if ( curData.isSlider )
-                     curData.sliderDistance = GetDistance( curData.sliderTime );
+                     curData.endDistance = GetDistance( curData.endTime );
 
                 break;
             }
@@ -151,7 +151,7 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void SpawnNotes( double _distance )
     {
-        while ( spawnIndex < chart.notes.Count && curData.noteDistance <= _distance + MinDistance )
+        while ( spawnIndex < chart.notes.Count && curData.distance <= _distance + MinDistance )
         {
             PreviewNoteRenderer note = notePool.Spawn();
             
@@ -166,9 +166,9 @@ public class PreviewNoteSystem : MonoBehaviour
             if ( ++spawnIndex < chart.notes.Count )
             {
                 curData = chart.notes[spawnIndex];
-                curData.noteDistance = GetDistance( curData.time );
+                curData.distance = GetDistance( curData.time );
                 if ( curData.isSlider )
-                     curData.sliderDistance = GetDistance( curData.sliderTime );
+                     curData.endDistance = GetDistance( curData.endTime );
             }
         }
     }

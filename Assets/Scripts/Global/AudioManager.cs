@@ -1,12 +1,13 @@
+using FMOD;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Text;
-using UnityEngine;
-using FMOD;
 using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SFX
@@ -75,7 +76,7 @@ public class AudioManager : Singleton<AudioManager>
     public Sound MainSound { get; private set; }
     public Channel MainChannel { get; private set; }
     /// <summary> The accuratetime flag is required. /// </summary>
-    public uint Length => ErrorCheck( MainSound.getLength( out uint length, TIMEUNIT.MS ) ) ? length : uint.MaxValue;
+    public uint Length => MainSound.getLength( out uint length, TIMEUNIT.MS ) == RESULT.OK ? length : uint.MaxValue;
     //public int KeySoundCount => keySounds.Count;
     public int TotalKeySoundCount { get; private set; }
     /// <summary> BGM Position </summary>
@@ -83,7 +84,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         get
         {
-            if ( !IsPlaying( ChannelType.BGM ) )
+            if ( groups[ChannelType.BGM].isPlaying( out bool isPlaying ) != RESULT.OK )
             {
                 Debug.LogError( "bgm is not playing" );
                 return 0;
@@ -95,7 +96,7 @@ public class AudioManager : Singleton<AudioManager>
 
         set
         {
-            if ( !IsPlaying( ChannelType.BGM ) )
+            if ( groups[ChannelType.BGM].isPlaying( out bool isPlaying ) != RESULT.OK )
             {
                 Debug.LogError( "bgm is not playing" );
                 return;
@@ -321,7 +322,6 @@ public class AudioManager : Singleton<AudioManager>
 
     private void OnDestroy()
     {
-        // 매니저격 클래스라 가장 마지막에 제거되어야 한다.
         // OnApplicationQuit -> OnDisable -> OnDestroy 순으로 호출 되기 때문에
         // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후
         // AudioManager OnDestroy가 실행될 수 있도록 한다.
@@ -422,8 +422,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
         // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
-        _channel.isPlaying( out bool isPlaying );
-        if ( !isPlaying )
+        if ( _channel.isPlaying( out bool isPlaying ) != RESULT.OK )
              yield break;
 
         // 같은 값일 때 계산 없이 종료
@@ -478,9 +477,9 @@ public class AudioManager : Singleton<AudioManager>
     #region ChannelGroup
     public bool IsPlaying( ChannelType _type )
     {
-        ErrorCheck( groups[_type].isPlaying( out bool isPlay ) );
+        ErrorCheck( groups[_type].isPlaying( out bool isPlaying ) );
 
-        return isPlay;
+        return isPlaying;
     }
 
     public void SetPitch( float _pitch, ChannelType _type )
@@ -519,9 +518,8 @@ public class AudioManager : Singleton<AudioManager>
 
     public void Release( Music _music )
     {
-        _music.channel.isPlaying( out bool isPlaying );
-        if ( isPlaying )
-            ErrorCheck( _music.channel.stop() );
+        if ( _music.channel.isPlaying( out bool isPlaying ) == RESULT.OK )
+             ErrorCheck( _music.channel.stop() );
 
         if ( _music.sound.hasHandle() )
         {
@@ -543,8 +541,8 @@ public class AudioManager : Singleton<AudioManager>
     {
         foreach ( var group in groups )
         {
-            if ( IsPlaying( group.Key ) )
-                ErrorCheck( group.Value.stop() );
+            if ( groups[group.Key].isPlaying( out bool isPlaying ) == RESULT.OK ) 
+                 ErrorCheck( group.Value.stop() );
         }
     }
     #endregion

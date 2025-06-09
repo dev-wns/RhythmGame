@@ -190,8 +190,8 @@ public class FileParser : FileConverter
 
                 note.lane       = int.Parse( split[0] );
                 note.time       = double.Parse( split[1] ) / GameSetting.CurrentPitch;
-                note.sliderTime = double.Parse( split[2] ) / GameSetting.CurrentPitch;
-                note.isSlider   = note.sliderTime > 0d ? true : false;
+                note.endTime = double.Parse( split[2] ) / GameSetting.CurrentPitch;
+                note.isSlider   = note.endTime > 0d ? true : false;
 
                 var keySoundSplit    = split[3].Split( ':' );
                 note.keySound.volume = float.Parse( keySoundSplit[0] ) * .01f;
@@ -253,8 +253,8 @@ public class FileParser : FileConverter
 
                 note.lane       = int.Parse( split[0] );
                 note.time       = double.Parse( split[1] );
-                note.sliderTime = double.Parse( split[2] );
-                note.isSlider   = note.sliderTime > 0d ? true : false;
+                note.endTime = double.Parse( split[2] );
+                note.isSlider   = note.endTime > 0d ? true : false;
 
                 notes.Add( note );
             }

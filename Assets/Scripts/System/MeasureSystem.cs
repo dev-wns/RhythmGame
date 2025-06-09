@@ -5,12 +5,10 @@ public class MeasureSystem : MonoBehaviour
 {
     public ObjectPool<MeasureRenderer> pool;
     public MeasureRenderer mPrefab;
-    private List<double/* ScaledTime */> measures = new List<double>();
+    private List<double/* Distance */> measures = new List<double>();
     private int curIndex;
-    private double curTime;
+    private double distance;
     private static readonly int Beat = 4;
-
-    private bool isShowMeasure;
 
     private void Awake()
     {
@@ -70,7 +68,7 @@ public class MeasureSystem : MonoBehaviour
         }
 
         if ( measures.Count > 0 )
-             curTime = measures[curIndex];
+             distance = measures[curIndex];
     }
 
     private void SpawnMeasure()
@@ -78,20 +76,20 @@ public class MeasureSystem : MonoBehaviour
         if ( curIndex >= measures.Count )
              return;
 
-        if ( curTime <= NowPlaying.Distance + GameSetting.MinDistance )
+        if ( distance <= NowPlaying.Distance + GameSetting.MinDistance )
         {
             MeasureRenderer measure = pool.Spawn();
-            measure.SetInfo( curTime );
+            measure.SetInfo( distance );
 
             if ( ++curIndex < measures.Count )
-                 curTime = measures[curIndex];
+                 distance = measures[curIndex];
         }
     }
 
     private void OnReLoad()
     {
         curIndex = 0;
-        curTime = measures[curIndex];
+        distance = measures[curIndex];
         pool.AllDespawn();
     }
 

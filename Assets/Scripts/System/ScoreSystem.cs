@@ -7,8 +7,6 @@ public class ScoreSystem : MonoBehaviour
     private InGame scene;
 
     [Header("ScoreSystem")]
-
-
     private double targetScore;
     private double curScore;
 

@@ -10,17 +10,18 @@ using UnityEngine;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
 public enum KeyState { None, Down, Hold, Up, }
-public enum NoteType { None, Default, Slider, }
 
 public struct HitData
 {
     public double    time; // 누르거나 뗀 시간
+    public double    diff;
     public HitResult hitResult;
     public KeyState  keyState;
 
-    public HitData( double _time, HitResult _hitResult, KeyState _keyState )
+    public HitData( double _time, double _diff, HitResult _hitResult, KeyState _keyState )
     {
         time      = _time;
+        diff      = _diff;
         hitResult = _hitResult;
         keyState  = _keyState;
     }
@@ -29,12 +30,30 @@ public struct HitData
 public class InputManager : Singleton<InputManager>
 {
     [Header( "Input Key" )]
-    // 게임에서 사용되는 사용자가 설정한 키
+    // 사용자가 설정한 키
     public static Dictionary<GameKeyCount, KeyCode[]> Keys { get; private set; } = new();
     // 상호 변환을 위해 매핑된 키
-    private static readonly Dictionary<int/* Virtual Key */, KeyCode>        VKeyToUnity   = new ();
-    private static readonly Dictionary<KeyCode, int/* Virtual Key */>        UnityToVKey   = new ();
-    private static readonly Dictionary<KeyCode, string/*keyCode to string*/> UnityToString = new ();
+    private static readonly Dictionary<int/* Virtual Key */, KeyCode>     VKeyToUnity   = new ();
+    private static readonly Dictionary<KeyCode, int/* Virtual Key */>     UnityToVKey   = new ();
+    private static readonly Dictionary<KeyCode, string/*keyCode String*/> UnityToString = new ();
+
+    [Header( "Input Process" )]
+    private static Queue<HitData> HitDataQueue = new ();
+    private static List<HitData>  HitDatas     = new ();
+    private static int[]          Indexes;   // 노트 인덱스
+    private static bool[]         IsEntries; // 롱노트 진입점
+    private static bool[]         Previous;  // 이전 키 상태
+    private static KeyState[]     KeyStates; // 레인별 입력 상태
+    private static KeySound[]     KeySounds; 
+
+    [Header( "Lane" )]
+    private List<Lane>   lanes = new();
+    private List<Note>[] notes;
+    private Lane         prefab;
+
+    [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
+    public static event Action<HitData> OnHitNote;
+
     #region Properties
     public static Dictionary<KeyCode, string>.KeyCollection AvailableKeys => UnityToString.Keys;
     public static bool IsAvailable( KeyCode _key )      => UnityToString.ContainsKey( _key );
@@ -43,44 +62,24 @@ public class InputManager : Singleton<InputManager>
     public static string GetString( KeyCode _code )     => UnityToString.ContainsKey( _code ) ? UnityToString[_code] : "None";
     #endregion
 
-    [Header( "Lane" )]
-    private List<Lane>   lanes = new();
-    private List<Note>[] notes;
-    private Lane         prefab;
-
-    [Header( "Thread" )]
-    private CancellationTokenSource breakPoint = new();
-    [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
-
-    private static Queue<HitData> HitDataQueue = new ();
-    private static List<HitData>  HitDatas     = new ();
-    private static int[]          Indexes   ; //= new int     [lanes.Count];
-    private static bool[]         IsEntries ; //= new bool    [lanes.Count]; // 하나의 입력으로 하나의 노트만 처리하기위한 노트 진입점
-    private static bool[]         Previous  ; //= new bool[lanes.Count];
-    private static KeyState[]     KeyStates ; //= new KeyState[lanes.Count]; // 레인별 입력 상태
-    private static KeySound[]     KeySounds ; //= new KeySound[lanes.Count];
-
-    public  static event Action<HitData> OnHitNote;
-
-
     private System.Random random;
 
     protected override void Awake()
     {
         base.Awake();
-        // Key Setting
+        // 기본 키 설정
         KeyBind( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket } );
         KeyBind( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket } );
         KeyBind( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
         KeyMapping();
 
-        // Event Bind
-        NowPlaying.OnPreInitialize  += CreateLanes;
+        // 이벤트 연결
+        NowPlaying.OnPreInitialize  += PreInitialize;
         NowPlaying.OnPostInitAsync  += DivideNotes;
-        NowPlaying.OnPostInitialize += SetLanes;
+        NowPlaying.OnPostInitialize += PostInitialize;
         NowPlaying.OnUpdateInThread += UpdateInput;
 
-        // Load Asset
+        // 에셋 로딩
         DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
         {
             if ( !_lane.TryGetComponent( out prefab ) )
@@ -99,7 +98,6 @@ public class InputManager : Singleton<InputManager>
 
     private void OnApplicationQuit()
     {
-        breakPoint?.Cancel();
         Release();
     }
 
@@ -118,11 +116,6 @@ public class InputManager : Singleton<InputManager>
     {
         for ( int i = 0; i < lanes.Count; i++ )
         {
-
-            //KeyState previous = KeyStates[i];
-            //if ( ( GetAsyncKeyState( lanes[i].VKey ) & 0x8000 ) != 0 ) KeyStates[i] = previous == KeyState.None || previous == KeyState.Up   ? KeyState.Down : KeyState.Hold;
-            //else                                                       KeyStates[i] = previous == KeyState.Down || previous == KeyState.Hold ? KeyState.Up   : KeyState.None;
-
             // 입력 상태 체크
             bool current = ( GetAsyncKeyState( lanes[i].VKey ) & 0x8000 ) != 0;
             KeyStates[i] = (Previous[i], current) switch
@@ -148,55 +141,54 @@ public class InputManager : Singleton<InputManager>
             
             Note note        = notes[i][Indexes[i]];
             double playback  = NowPlaying.Playback;
-            double startDiff = note.time       - playback;
-            double endDiff   = note.sliderTime - playback;
+            double startDiff = note.time    - playback;
+            double endDiff   = note.endTime - playback;
 
             if ( !IsEntries[i] ) // 노트 시작판정
             {
                 if ( KeyStates[i] == KeyState.Down && Judgement.CanBeHit( startDiff ) )
                 {
-                    if ( note.isSlider ) IsEntries[i] = true;
+                    if ( note.isSlider ) IsEntries[i] = true; // 롱노트는 끝지점도 판정한다.( 다음노트진입X )
                     else                 SelectNextNote( i );
 
-                    HitData hitData = new HitData( playback, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down );
+                    HitData hitData = new HitData( playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down );
                     HitDataQueue.Enqueue( hitData );
                     lanes[i].AddData( hitData );
                 }
                 else if ( Judgement.IsMiss( startDiff ) )
                 {
                     SelectNextNote( i );
-                    // 롱노트 시작에서 Miss일 때, 시작판정, 끝판정 2번의 Miss 처리가 되게끔 한다.
-                    HitData hitData = new HitData( playback, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.None );
+                    // 롱노트 시작에서 Miss일 때, 시작판정, 끝판정 모두 미스처리한다.
+                    HitData hitData = new HitData( playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.None );
                     HitDataQueue.Enqueue( hitData );
                     lanes[i].AddData( hitData );
                 }
             }
             else // 롱노트 끝판정
             {
+                // 롱노트는 판정선까지 Hold 상태를 유지하면 Perfect처리한다.
                 if ( KeyStates[i] == KeyState.Up || endDiff <= 0d )
                 {
                     SelectNextNote( i );
-                    HitData hitData = new HitData( playback, Judgement.UpdateResult( endDiff ), KeyState.Up );
+                    HitData hitData = new HitData( playback, 0d, Judgement.UpdateResult( endDiff ), KeyState.Up );
                     HitDataQueue.Enqueue( hitData );
                     lanes[i].AddData( hitData );
                 }
                 else if ( Judgement.IsMiss( endDiff ) )
                 {
                     SelectNextNote( i );
-                    HitData hitData = new HitData( playback, Judgement.UpdateResult( endDiff ), KeyState.None );
+                    HitData hitData = new HitData( playback, endDiff, Judgement.UpdateResult( endDiff ), KeyState.None );
                     HitDataQueue.Enqueue( hitData );
                     lanes[i].AddData( hitData );
                 }
             }
         }
     }
-
     
     private void DivideNotes()
     {
-        Debug.Log( NowPlaying.TotalJudge );
         ReadOnlyCollection<Note> datas = DataStorage.Notes;
-        bool isConvert  = GameSetting.HasFlag( GameMode.KeyConversion ) && NowPlaying.CurrentSong.keyCount == 7;
+        bool isConvert  = GameSetting.HasFlag( GameMode.ConvertKey ) && NowPlaying.CurrentSong.keyCount == 7;
         bool isNoSlider = GameSetting.HasFlag( GameMode.NoSlider );
         random = new System.Random( ( int )DateTime.Now.Ticks );
 
@@ -231,8 +223,8 @@ public class InputManager : Singleton<InputManager>
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
-                    newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
+                    newNote.distance       = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
                     NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
                     notes[newNote.lane].Add( newNote );
@@ -260,10 +252,10 @@ public class InputManager : Singleton<InputManager>
                     }
 
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
-                    prevTimes[selectLane] = newNote.isSlider ? newNote.sliderTime : newNote.time;
+                    prevTimes[selectLane] = newNote.isSlider ? newNote.endTime : newNote.time;
 
-                    newNote.noteDistance   = NowPlaying.Inst.GetDistance( newNote.time );
-                    newNote.sliderDistance = NowPlaying.Inst.GetDistance( newNote.sliderTime );
+                    newNote.distance   = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
                     NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
                     notes[selectLane].Add( newNote );
@@ -271,19 +263,11 @@ public class InputManager : Singleton<InputManager>
             }
         }
 
+        // 기본방식의 랜덤은 노트분배가 끝난 후, 완성된 데이터를 스왑한다.
         switch ( GameSetting.CurrentRandom )
         {
-            // 레인은 유지하고, 분배된 노트 데이터만 스왑한다.
-            case GameRandom.Mirror:
-            {
-                notes.Reverse();
-            } break;
-
-            case GameRandom.Basic_Random:
-            {
-                Swap( 0, NowPlaying.KeyCount );
-            } break;
-
+            case GameRandom.Mirror:       notes.Reverse();                break;
+            case GameRandom.Basic_Random: Swap( 0, NowPlaying.KeyCount ); break;
             case GameRandom.Half_Random:
             { 
                 int keyCountHalf = Mathf.FloorToInt( NowPlaying.KeyCount * .5f );
@@ -291,21 +275,16 @@ public class InputManager : Singleton<InputManager>
                 Swap( keyCountHalf + 1, NowPlaying.KeyCount );
             } break;
         }
-
-
-        for ( int i = 0; i < lanes.Count; i++ )
-              KeySounds[i] = notes[i][0].keySound;
     }
 
-    private void CreateLanes()
+    private void PreInitialize()
     {
-        Indexes   = new int     [NowPlaying.KeyCount]; // 노트 인덱스
-        IsEntries = new bool    [NowPlaying.KeyCount]; // 롱노트 진입점
-        Previous  = new bool    [NowPlaying.KeyCount]; // 이전 키 상태
-        KeyStates = new KeyState[NowPlaying.KeyCount]; // 레인별 입력 상태
-        KeySounds = new KeySound[NowPlaying.KeyCount];
-
-        notes = new List<Note>[NowPlaying.KeyCount];
+        Indexes   = new int       [NowPlaying.KeyCount];
+        IsEntries = new bool      [NowPlaying.KeyCount];
+        Previous  = new bool      [NowPlaying.KeyCount];
+        KeyStates = new KeyState  [NowPlaying.KeyCount];
+        KeySounds = new KeySound  [NowPlaying.KeyCount];
+        notes     = new List<Note>[NowPlaying.KeyCount];
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
             lanes.Add( Instantiate( prefab, transform ) );
@@ -314,10 +293,13 @@ public class InputManager : Singleton<InputManager>
         Debug.Log( $"Create {lanes.Count} lanes." );
     }
 
-    private void SetLanes()
+    private void PostInitialize()
     {
         for ( int i = 0; i < lanes.Count; i++ )
-              lanes[i].Initialize( i, notes[i] );
+        {
+            KeySounds[i] = notes[i][0].keySound;
+            lanes[i].Initialize( i, notes[i] );
+        }
     }
 
     //public async void GameStart()
@@ -371,8 +353,9 @@ public class InputManager : Singleton<InputManager>
 
     private void AddMapping( int _vKey, KeyCode _keyCode, string _string )
     {
-        VKeyToUnity[_vKey]    = _keyCode;
-        UnityToVKey[_keyCode] = _vKey;
+        VKeyToUnity[_vKey]      = _keyCode;
+        UnityToVKey[_keyCode]   = _vKey;
+        UnityToString[_keyCode] = _string;
     }
 
     private void KeyMapping()
@@ -396,61 +379,61 @@ public class InputManager : Singleton<InputManager>
 
         // 특수키
         //AddMapping( 0x08, KeyCode.Backspace, "Backspace" );
-        AddMapping( 0xDC, KeyCode.Backslash, "\\"       );
-        AddMapping( 0xC0, KeyCode.BackQuote, "`"        ); 
-        AddMapping( 0x14, KeyCode.CapsLock,  "CapsLock" );
-        AddMapping( 0x0D, KeyCode.Return,    "Return"   );
-        AddMapping( 0x1B, KeyCode.Escape,    "Escape"   );
-        AddMapping( 0x20, KeyCode.Space,     "Space"    );
-        AddMapping( 0x09, KeyCode.Tab,       "Tab"      );
-        AddMapping( 0xBB, KeyCode.Plus,      "="        );
-        AddMapping( 0xBD, KeyCode.Minus,     "-"        ); 
+        AddMapping( 0xDC, KeyCode.Backslash,      "\\"       );
+        AddMapping( 0xC0, KeyCode.BackQuote,      "`"        ); 
+        AddMapping( 0x14, KeyCode.CapsLock,       "CapsLock" );
+        AddMapping( 0x0D, KeyCode.Return,         "Return"   );
+        AddMapping( 0x1B, KeyCode.Escape,         "Escape"   );
+        AddMapping( 0x20, KeyCode.Space,          "Space"    );
+        AddMapping( 0x09, KeyCode.Tab,            "Tab"      );
+        AddMapping( 0xBB, KeyCode.Plus,           "="        );
+        AddMapping( 0xBD, KeyCode.Minus,          "-"        ); 
         
 
-        AddMapping( 0xDD, KeyCode.RightBracket, "["  );
-        AddMapping( 0xDB, KeyCode.LeftBracket,  "]"  );
-        AddMapping( 0xBA, KeyCode.Semicolon,    ";"  );
-        AddMapping( 0xDE, KeyCode.Quote,        "\'" );
-        AddMapping( 0xBC, KeyCode.Comma,        ","  );
-        AddMapping( 0xBE, KeyCode.Period,       "."  );
-        AddMapping( 0xBF, KeyCode.Slash,        "/"  );
-
-        AddMapping( 0xA0, KeyCode.LeftShift,    "LShift" );  
-        AddMapping( 0xA2, KeyCode.LeftControl,  "LCtrl"  );  
-        AddMapping( 0xA4, KeyCode.LeftAlt,      "LAlt"   );      
-        AddMapping( 0xA1, KeyCode.RightShift,   "RShift" ); 
-        AddMapping( 0x19, KeyCode.RightControl, "RCtrl"  ); // 한자
-        AddMapping( 0x15, KeyCode.RightAlt,     "RAlt"   ); // 한영
-         
-        AddMapping( 0x23, KeyCode.End,      "End"    );
-        AddMapping( 0x24, KeyCode.Home,     "Home"   );
-        AddMapping( 0x2E, KeyCode.Delete,   "Delete" );
-        AddMapping( 0x2D, KeyCode.Insert,   "Insert" );
-        AddMapping( 0x21, KeyCode.PageUp,   "PgUp"   );
-        AddMapping( 0x22, KeyCode.PageDown, "PgDn"   );
-
-        AddMapping( 0x26, KeyCode.UpArrow,    "Up"    );
-        AddMapping( 0x28, KeyCode.DownArrow,  "Down"  );
-        AddMapping( 0x25, KeyCode.LeftArrow,  "Left"  );
-        AddMapping( 0x27, KeyCode.RightArrow, "Right" );
+        AddMapping( 0xDD, KeyCode.RightBracket,   "["        );
+        AddMapping( 0xDB, KeyCode.LeftBracket,    "]"        );
+        AddMapping( 0xBA, KeyCode.Semicolon,      ";"        );
+        AddMapping( 0xDE, KeyCode.Quote,          "\'"       );
+        AddMapping( 0xBC, KeyCode.Comma,          ","        );
+        AddMapping( 0xBE, KeyCode.Period,         "."        );
+        AddMapping( 0xBF, KeyCode.Slash,          "/"        );
+                                                  
+        AddMapping( 0xA0, KeyCode.LeftShift,      "LShift"   );  
+        AddMapping( 0xA2, KeyCode.LeftControl,    "LCtrl"    );  
+        AddMapping( 0xA4, KeyCode.LeftAlt,        "LAlt"     );      
+        AddMapping( 0xA1, KeyCode.RightShift,     "RShift"   ); 
+        AddMapping( 0x19, KeyCode.RightControl,   "RCtrl"    ); // 한자
+        AddMapping( 0x15, KeyCode.RightAlt,       "RAlt"     ); // 한영
+                                                             
+        AddMapping( 0x23, KeyCode.End,            "End"      );
+        AddMapping( 0x24, KeyCode.Home,           "Home"     );
+        AddMapping( 0x2E, KeyCode.Delete,         "Delete"   );
+        AddMapping( 0x2D, KeyCode.Insert,         "Insert"   );
+        AddMapping( 0x21, KeyCode.PageUp,         "PgUp"     );
+        AddMapping( 0x22, KeyCode.PageDown,       "PgDn"     );
+                                                  
+        AddMapping( 0x26, KeyCode.UpArrow,        "Up"       );
+        AddMapping( 0x28, KeyCode.DownArrow,      "Down"     );
+        AddMapping( 0x25, KeyCode.LeftArrow,      "Left"     );
+        AddMapping( 0x27, KeyCode.RightArrow,     "Right"    );
 
 
         // 넘버패드
-        AddMapping( 0x60, KeyCode.Keypad0,        "Pad 0" );
-        AddMapping( 0x61, KeyCode.Keypad1,        "Pad 1" );
-        AddMapping( 0x62, KeyCode.Keypad2,        "Pad 2" );
-        AddMapping( 0x63, KeyCode.Keypad3,        "Pad 3" );
-        AddMapping( 0x64, KeyCode.Keypad4,        "Pad 4" );
-        AddMapping( 0x65, KeyCode.Keypad5,        "Pad 5" );
-        AddMapping( 0x66, KeyCode.Keypad6,        "Pad 6" );
-        AddMapping( 0x67, KeyCode.Keypad7,        "Pad 7" );
-        AddMapping( 0x68, KeyCode.Keypad8,        "Pad 8" );
-        AddMapping( 0x69, KeyCode.Keypad9,        "Pad 9" );
-        AddMapping( 0x6A, KeyCode.KeypadMultiply, "Pad *" );
-        AddMapping( 0x6B, KeyCode.KeypadPlus,     "Pad +" );
-        AddMapping( 0x6D, KeyCode.KeypadMinus,    "Pad -" );
-        AddMapping( 0x6E, KeyCode.KeypadPeriod,   "Pad ." );
-        AddMapping( 0x6F, KeyCode.KeypadDivide,   "Pad /" );
+        AddMapping( 0x60, KeyCode.Keypad0,        "Pad 0"    );
+        AddMapping( 0x61, KeyCode.Keypad1,        "Pad 1"    );
+        AddMapping( 0x62, KeyCode.Keypad2,        "Pad 2"    );
+        AddMapping( 0x63, KeyCode.Keypad3,        "Pad 3"    );
+        AddMapping( 0x64, KeyCode.Keypad4,        "Pad 4"    );
+        AddMapping( 0x65, KeyCode.Keypad5,        "Pad 5"    );
+        AddMapping( 0x66, KeyCode.Keypad6,        "Pad 6"    );
+        AddMapping( 0x67, KeyCode.Keypad7,        "Pad 7"    );
+        AddMapping( 0x68, KeyCode.Keypad8,        "Pad 8"    );
+        AddMapping( 0x69, KeyCode.Keypad9,        "Pad 9"    );
+        AddMapping( 0x6A, KeyCode.KeypadMultiply, "Pad *"    );
+        AddMapping( 0x6B, KeyCode.KeypadPlus,     "Pad +"    );
+        AddMapping( 0x6D, KeyCode.KeypadMinus,    "Pad -"    );
+        AddMapping( 0x6E, KeyCode.KeypadPeriod,   "Pad ."    );
+        AddMapping( 0x6F, KeyCode.KeypadDivide,   "Pad /"    );
 
         //// 펑션키
         //for ( int i = 0; i < 12; i++ )

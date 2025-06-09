@@ -10,14 +10,14 @@ public class SettingInfomation : MonoBehaviour
     {
         var scene = GameObject.FindGameObjectWithTag( "Scene" );
         if ( scene.TryGetComponent( out InGame inGame ) )
-            inGame.OnScrollChange += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
+             inGame.OnScrollChange += () => scrollSpeed.text = $"{GameSetting.ScrollSpeed}";
 
         UpdateInfomation();
     }
 
     public void UpdateInfomation()
     {
-        scrollSpeed.text = $"{GameSetting.ScrollSpeed:F1}";
+        scrollSpeed.text = $"{GameSetting.ScrollSpeed}";
         random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
         pitch.text = $"x{GameSetting.CurrentPitch:F1}";
         pitch.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :

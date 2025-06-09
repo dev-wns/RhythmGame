@@ -6,7 +6,7 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
     public ObjectPool<ScoreMeterRenderer> pool { get; set; }
 
     private Image image;
-    private Color colorCache;
+    private Color32 colorCache;
     private RectTransform rectTransform;
 
     private static readonly float Duration = 2.5f;
@@ -46,7 +46,7 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
         pool.Despawn( this );
     }
 
-    public void SetInfo( Color _color, Vector2 _pos )
+    public void SetInfo( Color32 _color, Vector2 _pos )
     {
         colorCache = image.color = _color;
         alpha = offset = _color.a;

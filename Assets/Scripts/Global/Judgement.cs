@@ -3,48 +3,48 @@ using UnityEngine;
 
 public enum HitResult : int { None = -2, Miss, Maximum, Perfect, Great, Good, Bad }
 
-public class Judgement : MonoBehaviour
+public class Judgement : Singleton<Judgement>
 {
     private static class HitRange
     {
-        public static readonly double Maximum = 16d;
-        public static readonly double Perfect = 64d;
-        public static readonly double Great   = 97d;
-        public static readonly double Good    = 127d;
-        public static readonly double Bad     = 151d;
-        public static readonly double Miss    = 188d;
+        public static readonly int Maximum = 16;
+        public static readonly int Perfect = 64;
+        public static readonly int Great   = 97;
+        public static readonly int Good    = 127;
+        public static readonly int Bad     = 151;
+        public static readonly int Miss    = 188;
     }
     private static class HitScore
     {
-        public static readonly double Maximum = 320d;
-        public static readonly double Perfect = 300d;
-        public static readonly double Great   = 200d;
-        public static readonly double Good    = 100d;
-        public static readonly double Bad     =  50d;
-        public static readonly double Miss    =   0d;
+        public static readonly int Maximum = 320;
+        public static readonly int Perfect = 300;
+        public static readonly int Great   = 200;
+        public static readonly int Good    = 100;
+        public static readonly int Bad     =  50;
+        public static readonly int Miss    =   0;
     }
     private static class HitBonus
     {
-        public static readonly double Maximum = 2d;
-        public static readonly double Perfect = 1d;
-        public static readonly double Great   = -8d;
-        public static readonly double Good    = -24d;
-        public static readonly double Bad     = -44d;
-        public static readonly double Miss    = -100d;
+        public static readonly int Maximum = 2;
+        public static readonly int Perfect = 1;
+        public static readonly int Great   = -8;
+        public static readonly int Good    = -24;
+        public static readonly int Bad     = -44;
+        public static readonly int Miss    = -100;
     }
     public struct ResultData
     {
-        public int Maximum ;//{ get; set; }
-        public int Perfect ;//{ get; set; }
-        public int Great   ;//{ get; set; }
-        public int Good    ;//{ get; set; }
-        public int Bad     ;//{ get; set; }
-        public int Miss    ;//{ get; set; }
-        public int Fast    ;//{ get; set; }
-        public int Slow    ;//{ get; set; }
-        public double Score;//{ get; set; }
-        public int MaxCombo;//{ get; set; }
+        public int Maximum;
+        public int Perfect;
+        public int Great;
+        public int Good;
+        public int Bad;
+        public int Miss;
+        public int Fast;
+        public int Slow;
         public int Combo;
+        public int MaxCombo;
+        public double Score;
 
         public double Accuracy
         {
@@ -57,27 +57,29 @@ public class Judgement : MonoBehaviour
         }
         public int TotalCount => Maximum + Perfect + Great + Good + Bad + Miss;
     }
+
     private static ResultData Results;
     private static double     MaxScore;
-    private static double     Bonus;
+    private static int        Bonus;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         NowPlaying.OnPostInitialize += Initialize;
     }
 
     private void Initialize()
     {
         MaxScore = 500000d / NowPlaying.TotalJudge;
-        Bonus    = 100d; // 게임시작시 100으로 시작
+        Bonus    = 100; // 게임시작시 100으로 시작
     }
 
     public static ResultData CurrentResult => Results;
-    public static bool CanBeHit( double _diff ) => Global.Math.Abs( _diff ) <= HitRange.Bad;
-    public static bool IsMiss( double _diff ) => _diff < -HitRange.Bad;
+    public static bool CanBeHit( double _diff ) => Math.Abs( _diff ) <= HitRange.Bad;
+    public static bool IsMiss( double _diff )   => _diff < -HitRange.Bad;
     public static HitResult UpdateResult( double _diff, bool _isDoubleMiss = false )
     {
-        double diffAbs      = Global.Math.Abs( _diff );
+        double diffAbs      = Math.Abs( _diff );
         HitResult hitResult = GetHitResult( diffAbs );
 
         switch ( hitResult ) 
@@ -93,6 +95,7 @@ public class Judgement : MonoBehaviour
         Results.Combo    = hitResult == HitResult.Miss ? 0 : Results.Combo += 1;
         Results.MaxCombo = Results.Combo > Results.MaxCombo ? Results.Combo : Results.MaxCombo;
 
+        // Maximum과 Miss 판정은 제외한다.
         if ( diffAbs > HitRange.Perfect && diffAbs <= HitRange.Bad )
         {
             Results.Fast += _diff > 0d ? 1 : 0;
@@ -100,16 +103,17 @@ public class Judgement : MonoBehaviour
         }
 
         // 스코어
-        double hitScore = GetHitScore( hitResult ); // 320, 300, 200, 100, 50, 0
-        double hitBonus = GetHitBonus( hitResult ); // 2, 1, -8, -16, -44, -100
-        Bonus = Math.Clamp( Bonus + hitBonus, 0d, 100d ); // 판정에 따라 변동됨
-        double bonusScore = Math.Sqrt( Bonus ) * Math.Clamp( 64 >> Convert.ToInt32( hitResult ), 0d, HitScore.Maximum / 10d ); // 최대 32 * 10
+        int hitScore = GetHitScore( hitResult ); // 320, 300, 200, 100, 50, 0
+        int hitBonus = GetHitBonus( hitResult ); // 2, 1, -8, -16, -44, -100
+        Bonus = Math.Clamp( Bonus + hitBonus, 0, 100 ); // 판정에 따라 변동됨
+        double bonusScore = Math.Sqrt( Bonus ) * Math.Clamp( 64 >> Convert.ToInt32( hitResult ), 0, HitScore.Maximum / 10 ); // 최대 32 * 10
 
         // 기본 500,000, 보너스 500,000 => 최대 : ( 50만 / 전체판정수 ) * ( 320 + 320 ) / 320;
         Results.Score += MaxScore * ( hitScore + bonusScore ) / HitScore.Maximum;
 
         if ( hitResult == HitResult.None )
              Debug.LogError( $"{hitResult} {diffAbs} " );
+
         return hitResult;
     }
 
@@ -121,10 +125,10 @@ public class Judgement : MonoBehaviour
                _diffAbs > HitRange.Great   && _diffAbs <= HitRange.Good    ? HitResult.Good    :
                _diffAbs > HitRange.Good    && _diffAbs <= HitRange.Bad     ? HitResult.Bad     :
                _diffAbs > HitRange.Bad     && _diffAbs <= HitRange.Miss    ? HitResult.Miss    :
-                                                                             HitResult.Miss;
+                                                                             HitResult.Miss; // 롱노트 Up을 빨리 했을 경우
     }
 
-    private static double GetHitScore( HitResult _result )
+    private static int GetHitScore( HitResult _result )
     {
         return _result switch
         { 
@@ -137,7 +141,7 @@ public class Judgement : MonoBehaviour
             _                 => HitScore.Miss
         };
     }
-    private static double GetHitBonus( HitResult _result )
+    private static int GetHitBonus( HitResult _result )
     {
         return _result switch
         { 

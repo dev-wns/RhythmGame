@@ -1,15 +1,16 @@
+using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Networking;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
-using UnityEngine.Networking;
-using Newtonsoft.Json;
 
 public struct RecordData
 {
@@ -42,7 +43,6 @@ public class DataStorage : Singleton<DataStorage>
     private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
 
     [Header( "Result Data" )]
-    //public  List<HitData> HitDatas { get; private set; } = new ();
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
     //public  static ResultData CurrentResult => resultData;

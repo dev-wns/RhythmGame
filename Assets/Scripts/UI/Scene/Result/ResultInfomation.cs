@@ -106,12 +106,11 @@ public class ResultInfomation : MonoBehaviour
         }
 
         //Mode
-        noSlider.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider      ) ? Color.white : DisableColor;
-        autoPlay.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay      ) ? Color.white : DisableColor;
-        noFail.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail        ) ? Color.white : DisableColor;
-        fixedBPM.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM      ) ? Color.white : DisableColor;
-        hardJudge.color   = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge     ) ? Color.white : DisableColor;
-        onlyPerfect.color = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) ? Color.white : DisableColor;
+        noSlider.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider   ) ? Color.white : DisableColor;
+        autoPlay.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay   ) ? Color.white : DisableColor;
+        noFail.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail     ) ? Color.white : DisableColor;
+        fixedBPM.color    = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM   ) ? Color.white : DisableColor;
+        onlyPerfect.color = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) ? Color.white : DisableColor;
 
         // Judgement
         totalJudge.text = $"{NowPlaying.TotalJudge}";

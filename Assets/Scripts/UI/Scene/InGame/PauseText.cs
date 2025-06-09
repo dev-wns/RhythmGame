@@ -31,16 +31,15 @@ public class PauseInfomation : MonoBehaviour
                       GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Game Mode
-        autoPlay.color = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) ? Color.white : disableColor;
-        noFail.color = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail ) ? Color.white : disableColor;
-        noSlider.color = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider ) ? Color.white : disableColor;
-        fixedBPM.color = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? Color.white : disableColor;
-        hardJudge.color = GameSetting.CurrentGameMode.HasFlag( GameMode.HardJudge ) ? Color.white : disableColor;
-        keyConversion.color = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) ? Color.white : disableColor;
+        autoPlay.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay )   ? Color.white : disableColor;
+        noFail.color        = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail )     ? Color.white : disableColor;
+        noSlider.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider )   ? Color.white : disableColor;
+        fixedBPM.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM )   ? Color.white : disableColor;
+        keyConversion.color = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) ? Color.white : disableColor;
     }
 
     private void UpdateScrollSpeedText()
     {
-        speed.text = $"{GameSetting.ScrollSpeed:F1}";
+        speed.text = $"{GameSetting.ScrollSpeed}";
     }
 }

@@ -16,10 +16,6 @@ public class FreeStyle : Scene
     protected override void Awake()
     {
         base.Awake();
-
-        if ( !Network.Inst.IsConnected )
-             Network.Inst.Connect( "127.0.0.1" );
-
         QualitySettings.antiAliasing = 0;
 
         AudioManager.Inst.OnReload += Connect;
@@ -27,7 +23,7 @@ public class FreeStyle : Scene
         var judge = GameObject.FindGameObjectWithTag( "Judgement" );
         if ( judge ) Destroy( judge );
 
-        OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed:F1}";
+        OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed}";
     }
 
     public override void Connect()

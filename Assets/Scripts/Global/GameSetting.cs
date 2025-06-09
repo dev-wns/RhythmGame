@@ -20,13 +20,12 @@ public enum GameRandom
 [Flags]
 public enum GameMode
 {
-    None          = 0,
-    AutoPlay      = 1 << 0,
-    NoFail        = 1 << 1,
-    NoSlider      = 1 << 2,
-    FixedBPM      = 1 << 3,
-    HardJudge     = 1 << 4,
-    KeyConversion = 1 << 5,
+    None       = 0,
+    AutoPlay   = 1 << 0,
+    NoFail     = 1 << 1,
+    NoSlider   = 1 << 2,
+    FixedBPM   = 1 << 3,
+    ConvertKey = 1 << 4,
 
     All      = int.MaxValue,
 }
@@ -76,14 +75,14 @@ public class GameSetting
     }
 
     // Speed
-    private static float OriginScrollSpeed = 31f;
-    public static float ScrollSpeed
+    private static int OriginScrollSpeed = 31;
+    public static int ScrollSpeed
     {
 
         get => OriginScrollSpeed;
         set
         {
-            if ( value < 1d ) return;
+            if ( value < 1 ) return;
             OriginScrollSpeed = value;
         }
     }

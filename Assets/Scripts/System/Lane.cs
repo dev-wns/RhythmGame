@@ -229,7 +229,7 @@ public class Lane : MonoBehaviour
         if ( spawnIndex >= noteDatas.Count )
              return;
 
-        if ( spawnData.noteDistance <= NowPlaying.Distance + GameSetting.MinDistance )
+        if ( spawnData.distance <= NowPlaying.Distance + GameSetting.MinDistance )
         {
             NoteRenderer note = notePool.Spawn();
             note.SetInfo( Key, in spawnData );
@@ -304,7 +304,7 @@ public class Lane : MonoBehaviour
         // 일찍 처리된 롱노트 판정선에 닿을 때 디스폰
         if ( sliderEarlyQueue.TryPeek( out NoteRenderer earlySlider ) )
         {
-            if ( earlySlider.SliderTime < NowPlaying.Playback )
+            if ( earlySlider.EndTime < NowPlaying.Playback )
             {
                 earlySlider.Despawn();
                 sliderEarlyQueue.Dequeue();

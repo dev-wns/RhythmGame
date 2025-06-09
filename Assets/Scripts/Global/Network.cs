@@ -51,6 +51,9 @@ public sealed class Network : Singleton<Network>
         recvArgs = new SocketAsyncEventArgs();
         recvArgs.SetBuffer( recvBuf, 0, MaxDataSize );
         recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>( OnReceiveCompleted );
+
+
+        Connect( "127.0.0.1" );
     }
 
     private void OnDestroy()

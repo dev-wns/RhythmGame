@@ -8,7 +8,7 @@ public class SongPreview : MonoBehaviour
     public SoundPitchOption    pitchOption;
     public NoSliderOption      noSliderOption;
     public FixedBPMOption      fixedBPMOption;
-    public KeyConversionOption keyConversionOption;
+    public KeyConvertOption    keyConvertOption;
 
     [Header("Horizontal")]
     [Header("Line 0")]
@@ -38,11 +38,11 @@ public class SongPreview : MonoBehaviour
 
     private void Awake()
     {
-        scroller.OnSelectSong += SelectChangedSoundInfo;
-        pitchOption.OnPitchUpdate += UpdateInfo;
-        fixedBPMOption.OnChangeOption += UpdateBPMInfo;
-        noSliderOption.OnChangeOption += UpdateNoteInfo;
-        keyConversionOption.OnChangeOption += UpdateButton;
+        scroller.OnSelectSong           += SelectChangedSoundInfo;
+        pitchOption.OnPitchUpdate       += UpdateInfo;
+        fixedBPMOption.OnChangeOption   += UpdateBPMInfo;
+        noSliderOption.OnChangeOption   += UpdateNoteInfo;
+        keyConvertOption.OnChangeOption += UpdateButton;
     }
 
     private void SelectChangedSoundInfo( Song _song )
@@ -54,7 +54,7 @@ public class SongPreview : MonoBehaviour
 
         //keySound.color = song.hasKeySound ? Color.white : new Color( 1f, 1f, 1f, .25f );
 
-        speed.text = $"{GameSetting.ScrollSpeed:F1}";
+        speed.text = $"{GameSetting.ScrollSpeed}";
         random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
         rate.text = $"x{GameSetting.CurrentPitch:F2}";
         rate.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
@@ -81,7 +81,7 @@ public class SongPreview : MonoBehaviour
 
     private void UpdateButton()
     {
-        hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.KeyConversion ) && song.keyCount == 7;
+        hasKeyConversion = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) && song.keyCount == 7;
         keyCount.color = hasKeyConversion ? new Color( .5f, 1f, .5f, 1f ) : Color.white;
         keyCount.text = hasKeyConversion ? $"{6}K" : $"{song.keyCount}K";
 

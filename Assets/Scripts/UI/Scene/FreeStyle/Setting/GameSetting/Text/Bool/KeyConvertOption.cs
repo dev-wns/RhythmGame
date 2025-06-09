@@ -1,12 +1,12 @@
 using System;
 
-public class KeyConversionOption : OptionText
+public class KeyConvertOption : OptionText
 {
     public Action OnChangeOption;
 
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.HasFlag( GameMode.KeyConversion ) ? 1 : 0;
+        CurrentIndex = GameSetting.HasFlag( GameMode.ConvertKey ) ? 1 : 0;
         ChangeText( texts[CurrentIndex] );
     }
 
@@ -20,8 +20,8 @@ public class KeyConversionOption : OptionText
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.KeyConversion;
-        else                     GameSetting.CurrentGameMode |=  GameMode.KeyConversion;
+        if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.ConvertKey;
+        else                     GameSetting.CurrentGameMode |=  GameMode.ConvertKey;
 
         OnChangeOption?.Invoke();
     }

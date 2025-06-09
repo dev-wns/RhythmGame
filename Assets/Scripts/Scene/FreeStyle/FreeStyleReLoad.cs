@@ -8,7 +8,7 @@ using UnityEngine.Events;
 public class FreeStyleReLoad : MonoBehaviour
 {
     public TextMeshProUGUI prefab;
-    public int maxShowCount;
+    public uint maxShowCount;
     private Queue<string> dataQueue = new Queue<string>();
     private ObjectPool<TextMeshProUGUI> textPool;
     private Queue<TextMeshProUGUI> textQueue = new Queue<TextMeshProUGUI>();

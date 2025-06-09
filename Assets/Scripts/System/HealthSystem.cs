@@ -16,7 +16,6 @@ public struct HealthData
 public class HealthSystem : MonoBehaviour
 {
     private InGame scene;
-    private Judgement judge;
 
     [Header("Health")]
     public SpriteRenderer healthRenderer;
@@ -36,10 +35,6 @@ public class HealthSystem : MonoBehaviour
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += Clear;
         scene.OnGameStart += () => StartCoroutine( InitHealthEffect() );
-
-        //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        //judge.OnJudge += HealthUpdate;
-
         InputManager.OnHitNote += UpdateHealth;
 
         healthTileCached = healthRenderer.size;

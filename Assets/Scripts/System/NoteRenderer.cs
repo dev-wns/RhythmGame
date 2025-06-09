@@ -5,21 +5,21 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 {
     public ObjectPool<NoteRenderer> pool { get; set; }
 
-    private Note note;
+    //private Note note;
     public SpriteRenderer head, body, tail;
-    public float HeadPos => transform.position.y;
-    public float TailPos => transform.position.y + BodyLength;
-    public double Time => note.time;
-    public double Distance => note.noteDistance;
-    public double SliderTime => note.sliderTime;
-    public double SliderDistance => note.sliderDistance;
-    public bool IsSlider => note.isSlider;
-    public bool IsKeyDown { get; set; }
-    public float BodyLength { get; private set; }
+    //public float HeadPos => transform.position.y;
+    public float TailPos => transform.position.y + bodyLength;
+    public double Time        { get; private set; }
+    public double Distance    { get; private set; }
+    public double EndTime     { get; private set; }
+    public double EndDistance { get; private set; }
+    public bool IsSlider      { get; private set; }
+    public bool IsKeyDown     { get; set; }
 
     private float column;
     private static readonly Color NoteFailColor = new Color( .5f, .5f, .5f, 1f );
     private double newDistance;
+    private float bodyLength;
 
     private static bool IsOnlyBody = false;
 
@@ -33,10 +33,14 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public void SetInfo( int _lane, in Note _note )
     {
         IsKeyDown = false;
-        note = _note;
+        //note = _note;
+        Time = _note.time;
+        newDistance = Distance = _note.distance;
+        EndTime     = _note.endTime;
+        EndDistance = _note.endDistance;
+        IsSlider       = _note.isSlider;
 
         column = GameSetting.NoteStartPos + ( _lane * GameSetting.NoteWidth ) + ( ( _lane + 1 ) * GameSetting.NoteBlank );
-        newDistance = note.noteDistance;
 
         head.enabled = IsOnlyBody && IsSlider ? false :
                        IsOnlyBody && !IsSlider ? true : true;
@@ -87,12 +91,12 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
         if ( IsSlider )
         {
             if ( IsKeyDown && Distance < NowPlaying.Distance )
-                newDistance = NowPlaying.Distance;
+                 newDistance = NowPlaying.Distance;
 
-            BodyLength = ( float )( ( SliderDistance - newDistance ) * GameSetting.Weight );
+            bodyLength = ( float )( ( EndDistance - newDistance ) * GameSetting.Weight );
 
-            float length = Global.Math.Clamp( IsOnlyBody ? BodyLength : BodyLength - GameSetting.NoteHeight, 0f, float.MaxValue );
-            body.transform.localScale = new Vector2( GameSetting.NoteWidth, length );
+            float length = Global.Math.Clamp( IsOnlyBody ? bodyLength : bodyLength - GameSetting.NoteHeight, 0f, float.MaxValue );
+            body.transform.localScale    = new Vector2( GameSetting.NoteWidth, length );
             tail.transform.localPosition = new Vector2( 0f, length );
         }
 

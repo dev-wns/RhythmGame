@@ -12,10 +12,10 @@ public class ObjectPool<T> where T : MonoBehaviour
     private Transform parent;
     private List<T>  totalObjects = new List<T>();
     private Queue<T> waitObjects  = new Queue<T>();
-    private int allocateCount;
-    public int ActiveCount { get; private set; }
+    private uint allocateCount;
+    public uint ActiveCount { get; private set; }
 
-    public ObjectPool( T _prefab, int _initializeCount, int _allocateCount = 1 )
+    public ObjectPool( T _prefab, uint _initializeCount, uint _allocateCount = 1 )
     {
         allocateCount = _allocateCount;
 
@@ -41,7 +41,8 @@ public class ObjectPool<T> where T : MonoBehaviour
         parent = parentObj.transform;
         Allocate( _initializeCount );
     }
-    public ObjectPool( T _prefab, Transform _parent, int _initializeCount, int _allocateCount = 1 )
+
+    public ObjectPool( T _prefab, Transform _parent, uint _initializeCount, uint _allocateCount = 1 )
     {
         allocateCount = _allocateCount;
 
@@ -53,24 +54,19 @@ public class ObjectPool<T> where T : MonoBehaviour
         parent = _parent;
         Allocate( _initializeCount );
     }
-    private void Allocate( int _allocateCount )
-    {
-        if ( _allocateCount < 0 )
-            return;
 
-        T[] objects = new T[_allocateCount];
+    private void Allocate( uint _allocateCount )
+    {
         for ( int i = 0; i < _allocateCount; i++ )
         {
             T obj = UnityEngine.GameObject.Instantiate( prefab, parent );
             if ( obj.TryGetComponent( out IObjectPool<T> _base ) )
-                _base.pool = this;
+                 _base.pool = this;
 
             obj.gameObject.SetActive( false );
-            objects[i] = obj;
+            totalObjects.Add( obj );
             waitObjects.Enqueue( obj );
         }
-
-        totalObjects.AddRange( objects );
     }
 
     public T Spawn()
@@ -91,12 +87,13 @@ public class ObjectPool<T> where T : MonoBehaviour
         waitObjects.Enqueue( _obj );
         ActiveCount--;
     }
+
     public void AllDespawn()
     {
         for ( int i = 0; i < totalObjects.Count; i++ )
         {
             if ( totalObjects[i].gameObject.activeInHierarchy )
-                Despawn( totalObjects[i] );
+                 Despawn( totalObjects[i] );
         }
     }
 }

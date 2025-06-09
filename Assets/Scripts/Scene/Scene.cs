@@ -15,7 +15,6 @@ public enum SceneType : int
 public abstract class Scene : SceneKeyAction
 {
     #region Variables
-    //public Camera UICamera;
     public bool IsGameInputLock { get; set; }
     public Action<float/* pitch */> OnUpdatePitch;
     #endregion
@@ -25,11 +24,6 @@ public abstract class Scene : SceneKeyAction
     {
         Connect();
         CreateFadeSprite();
-
-        //Camera.main.orthographicSize = ( Screen.height / ( GameSetting.PPU * 2f ) ) * GameSetting.PPU;
-
-        //if ( UICamera is not null )
-        //     UICamera.orthographicSize = 540;
 
         NowPlaying.CurrentScene = this;
         KeyBind();
@@ -216,14 +210,14 @@ public abstract class Scene : SceneKeyAction
         if ( _isPlus )
         {
             AudioManager.Inst.Play( SFX.Slider );
-            GameSetting.ScrollSpeed += .1f;
+            GameSetting.ScrollSpeed += 1;
         }
         else
         {
-            if ( GameSetting.ScrollSpeed > 1.0001d )
-                AudioManager.Inst.Play( SFX.Slider );
+            if ( GameSetting.ScrollSpeed > 1 )
+                 AudioManager.Inst.Play( SFX.Slider );
 
-            GameSetting.ScrollSpeed -= .1f;
+            GameSetting.ScrollSpeed -= 1;
         }
 
         OnScrollChange?.Invoke();
@@ -238,8 +232,6 @@ public abstract class Scene : SceneKeyAction
 
     private void CreateFadeSprite()
     {
-        //gameObject.layer = 6; // 3d
-
         Texture2D tex = Texture2D.whiteTexture;
         blackSprite = GetComponent<SpriteRenderer>();
         blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
