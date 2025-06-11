@@ -36,10 +36,11 @@ public class AudioManager : Singleton<AudioManager>
     private static readonly int MaxVirtualChannel  = 1000;
     private FMOD.System system;
     private Dictionary<ChannelType, ChannelGroup> groups    = new Dictionary<ChannelType, ChannelGroup>();
-    private Dictionary<SFX, Sound> sfxSounds = new Dictionary<SFX, Sound>();
-    //private Dictionary<string/* 키음 이름 */, Sound> keySounds = new Dictionary<string, Sound>();
-    private Dictionary<DSP_TYPE, DSP> dsps      = new Dictionary<DSP_TYPE, DSP>();
-    public event Action OnReload;
+    private Dictionary<SFX, Sound>                sfxSounds = new Dictionary<SFX, Sound>();
+    private Dictionary<DSP_TYPE, DSP>             dsps      = new Dictionary<DSP_TYPE, DSP>();
+    public static event Action OnReload;
+    public static event Action<float> OnUpdatePitch;
+
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
     public struct SoundDriver : IEquatable<SoundDriver>
     {
@@ -75,11 +76,8 @@ public class AudioManager : Singleton<AudioManager>
     private int curDriverIndex = -1;
     public Sound MainSound { get; private set; }
     public Channel MainChannel { get; private set; }
-    /// <summary> The accuratetime flag is required. /// </summary>
     public uint Length => MainSound.getLength( out uint length, TIMEUNIT.MS ) == RESULT.OK ? length : uint.MaxValue;
-    //public int KeySoundCount => keySounds.Count;
     public int TotalKeySoundCount { get; private set; }
-    /// <summary> BGM Position </summary>
     public uint Position
     {
         get
@@ -486,6 +484,8 @@ public class AudioManager : Singleton<AudioManager>
     {
         ErrorCheck( groups[_type].setPitch( _pitch ) );
         UpdatePitchShift();
+
+        OnUpdatePitch?.Invoke( _pitch );
     }
 
     public void PitchReset()

@@ -4,7 +4,6 @@ using UnityEngine;
 public class PreviewBGASystem : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
-    public SoundPitchOption    soundPitch;
     public PreviewBGARenderer  bgPrefab;
     private PreviewBGARenderer background;
     private ObjectPool<PreviewBGARenderer> bgPool;
@@ -14,7 +13,12 @@ public class PreviewBGASystem : MonoBehaviour
         bgPool = new ObjectPool<PreviewBGARenderer>( bgPrefab, 1 );
         scroller.OnSelectSong    += UpdateBGA;
         scroller.OnSoundRestart  += Restart;
-        soundPitch.OnPitchUpdate += UpdatePitch;
+        AudioManager.OnUpdatePitch += UpdatePitch;
+    }
+
+    private void OnDestroy()
+    {
+        AudioManager.OnUpdatePitch -= UpdatePitch;
     }
 
     private void Restart( Song _song )

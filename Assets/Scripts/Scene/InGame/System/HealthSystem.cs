@@ -20,7 +20,7 @@ public class HealthSystem : MonoBehaviour
     [Header("Health")]
     public SpriteRenderer healthRenderer;
     public static readonly float MaxHealth = 1f;
-    public float smoothHealthControlSpeed = 1;
+    public float smoothHealthSpeed = 1;
     private float curHealth, healthCached;
     private float healthOffset;
 
@@ -34,13 +34,13 @@ public class HealthSystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += Clear;
-        scene.OnGameStart += () => StartCoroutine( InitHealthEffect() );
+        //scene.OnGameStart += () => StartCoroutine( InitHealthEffect() );
         InputManager.OnHitNote += UpdateHealth;
 
         healthTileCached = healthRenderer.size;
         healthTileOffset = healthRenderer.size.y;
 
-        Clear();
+        StartCoroutine( InitHealthEffect() );
     }
 
     private void OnDestroy()
@@ -50,6 +50,8 @@ public class HealthSystem : MonoBehaviour
 
     private IEnumerator InitHealthEffect()
     {
+        yield return new WaitUntil( () => NowPlaying.IsStart );
+
         StartCoroutine( SmoothHealthScaler() );
         while ( curHealth < MaxHealth )
         {
@@ -79,13 +81,13 @@ public class HealthSystem : MonoBehaviour
         bool isNoFailed = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail );
         while ( true )
         {
-            curHealth += healthOffset * smoothHealthControlSpeed * Time.deltaTime;
+            curHealth += healthOffset * smoothHealthSpeed * Time.deltaTime;
             if ( healthOffset > 0f ? healthCached < curHealth : healthCached > curHealth )
-                curHealth = healthCached;
+                 curHealth = healthCached;
 
             if ( !isNoFailed && curHealth < 0f )
             {
-                StartCoroutine( scene.GameOver() );
+                StartCoroutine( ( NowPlaying.CurrentScene as InGame ).GameOver() );
                 break;
             }
             yield return null;
@@ -106,8 +108,8 @@ public class HealthSystem : MonoBehaviour
         HitResult hitResult = _hitData.hitResult;
         switch ( hitResult )
         {
-            case HitResult.Maximum: healthCached += .017f; break;
-            case HitResult.Perfect: healthCached += .011f; break;
+            case HitResult.Maximum: healthCached += .015f; break;
+            case HitResult.Perfect: healthCached += .009f; break;
             case HitResult.Great:   healthCached -= .005f; break;
             case HitResult.Good:    healthCached -= .017f; break;
             case HitResult.Bad:     healthCached -= .028f; break;

@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class AccuracyGraph : MonoBehaviour
 {
-    private Result scene;
+    private Result scene = null;
     public TextMeshProUGUI accuracyRangeText;
-    private LineRenderer rdr;
+    private LineRenderer rdr=null;
     private List<Vector3> positions = new List<Vector3>();
     private const float StartPosX  = 200f;
     private const float EndPosX    = 900f;

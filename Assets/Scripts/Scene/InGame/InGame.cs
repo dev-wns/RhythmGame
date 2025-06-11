@@ -1,8 +1,6 @@
 using DG.Tweening;
 using System;
 using System.Collections;
-using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,17 +10,12 @@ public class InGame : Scene
     public GameObject loadingCanvas;
     public OptionController pause, gameOver;
 
-    //public event Action OnSystemInitialize;
+    public static event Action OnGameOver;
 
     public event Action OnGameStart;
-    public event Action OnGameOver;
     public event Action OnReLoad;
-    public event Action OnResult;
     public event Action OnLoadEnd;
     public event Action<bool/* isPause */> OnPause;
-    public bool IsEnd { get; private set; }
-
-    private readonly float AdditionalLoadTime = 3.5f;
 
     [Header("Fill Timer")]
     public Image timeImage;
@@ -32,17 +25,16 @@ public class InGame : Scene
     {
         base.Awake();
 
+        IsInputLock = true;
         int antiAliasing = ( int )SystemSetting.CurrentAntiAliasing;
         QualitySettings.antiAliasing = antiAliasing == 1 ? 2 :
                                        antiAliasing == 2 ? 4 :
                                        antiAliasing == 3 ? 8 :
                                        antiAliasing == 4 ? 16 : 0;
 
-        length = NowPlaying.CurrentSong.totalTime / GameSetting.CurrentPitch;
-        IsInputLock = true;
 
+        length = NowPlaying.CurrentSong.totalTime / GameSetting.CurrentPitch;
         NowPlaying.Inst.Initialize();
-        //OnSystemInitialize?.Invoke();
     }
 
     protected override void Start()
@@ -73,38 +65,34 @@ public class InGame : Scene
 
     private IEnumerator Play()
     {
-        // Load Check
+        // 로딩 완료 체크
         yield return new WaitUntil( () => NowPlaying.IsLoaded );
         OnLoadEnd?.Invoke();
 
-        yield return YieldCache.WaitForSeconds( AdditionalLoadTime );
+        // 로딩 후 대기시간
+        yield return YieldCache.WaitForSeconds( 3.5f );
         if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
         {
-            DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.OptionFadeDuration );
-
-            WaitUntil waitCanvasDisabled = new WaitUntil( () => loadingGroup.alpha <= 0f );
-            yield return waitCanvasDisabled;
+            DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.CanvasFadeDuration );
+            
+            yield return new WaitUntil( () => loadingGroup.alpha <= 0f );
             loadingCanvas.SetActive( false );
         }
 
-        // Game Start
-        //InputManager.Inst.GameStart();
-        OnGameStart?.Invoke();
-        IsInputLock     = false;
+        // 게임 시작
+        IsInputLock = false;
         NowPlaying.Inst.Play();
 
-        // GameEnd
-        yield return new WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.TotalCount );
-        Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.TotalCount} Judgements )" );
+        // 게임 종료
+        yield return new WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count );
+        Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.Count} Judgements )" );
 
-        IsEnd = true;
         //if ( NowPlaying.CurrentSong.isOnlyKeySound )
         //     yield return new WaitUntil( () => NowPlaying.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
 
         AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
-        yield return YieldCache.WaitForSeconds( 3f );
+        yield return YieldCache.WaitForSeconds( 5f ); // 5초 후 결과창으로
 
-        OnResult?.Invoke();
         LoadScene( SceneType.Result );
     }
 
@@ -139,15 +127,15 @@ public class InGame : Scene
 
     public void Pause( bool _isPause )
     {
-        if ( IsEnd )
+        if ( NowPlaying.TotalJudge <= Judgement.CurrentResult.Count )
         {
-            OnResult?.Invoke();
             LoadScene( SceneType.Result );
         }
         else
         {
             NowPlaying.Inst.Pause( _isPause );
-            ShowPauseCanvas( _isPause );
+            if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
+            else            DisableCanvas( ActionType.Main, pause );
             OnPause?.Invoke( _isPause );
         }
     }
@@ -155,19 +143,17 @@ public class InGame : Scene
     private void ShowPauseCanvas( bool _isPause )
     {
         if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
-        else DisableCanvas( ActionType.Main, pause );
+        else            DisableCanvas( ActionType.Main, pause );
     }
 
     public IEnumerator GameOver()
     {
         IsInputLock = true;
-
+        OnGameOver?.Invoke();
         yield return StartCoroutine( NowPlaying.Inst.GameOver() );
 
-        IsInputLock = false;
         EnableCanvas( ActionType.GameOver, gameOver, false );
-
-        OnGameOver?.Invoke();
+        IsInputLock = false;
     }
 
     public override void KeyBind()
@@ -176,32 +162,28 @@ public class InGame : Scene
         // Scroll Speed Down
         Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
         Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Main, KeyState.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Main, KeyState.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
         // Scroll Speed Up                               
         Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
         Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Main, KeyState.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Main, KeyState.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // Pause
-        Bind( ActionType.Main, KeyCode.Escape, () => { Pause( true ); } );
-        Bind( ActionType.Pause, KeyCode.Escape, () => { Pause( false ); } );
+        Bind( ActionType.Main,  KeyCode.Escape,    () => { Pause( true ); } );
+        Bind( ActionType.Pause, KeyCode.Escape,    () => { Pause( false ); } );
         Bind( ActionType.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
-        Bind( ActionType.Pause, KeyCode.UpArrow, () => { MoveToPrevOption( pause ); } );
+        Bind( ActionType.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
         // Scroll Speed Down
         Bind( ActionType.Pause, KeyState.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
         Bind( ActionType.Pause, KeyState.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Pause, KeyState.Up, KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( ActionType.Pause, KeyState.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
         // Scroll Speed Up
         Bind( ActionType.Pause, KeyState.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
         Bind( ActionType.Pause, KeyState.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Pause, KeyState.Up, KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( ActionType.Pause, KeyState.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
 
         // GameOver
         Bind( ActionType.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );
-        Bind( ActionType.GameOver, KeyCode.UpArrow, () => { MoveToPrevOption( gameOver ); } );
-
-        // Etc.
-        Bind( ActionType.Main, KeyState.Down, KeyCode.F1, () => GameSetting.IsAutoRandom = !GameSetting.IsAutoRandom );
-        Bind( ActionType.Main, KeyState.Down, KeyCode.F2, () => GameSetting.UseClapSound = !GameSetting.UseClapSound );
+        Bind( ActionType.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
     }
 }

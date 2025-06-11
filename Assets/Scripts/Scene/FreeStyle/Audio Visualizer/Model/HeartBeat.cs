@@ -21,10 +21,30 @@ public class HeartBeat : MonoBehaviour
     {
         mainScroll.OnSelectSong   += UpdateSong;
         mainScroll.OnSoundRestart += UpdateSong;
-        pitchOption.OnPitchUpdate += UpdatePitch;
+        AudioManager.OnUpdatePitch += UpdatePitch;
+        // pitchOption.OnPitchUpdate += UpdatePitch;
 
         startSize = rt.sizeDelta.x;
         endSize = startSize * power;
+    }
+
+    private void Update()
+    {
+        if ( isStop ) return;
+
+        time += Time.deltaTime;
+        if ( spb < time )
+             time %= spb;
+
+        float cos  = Mathf.Cos( ( Global.Math.Clamp( time, 0f, duration ) / duration ) * Mathf.PI );
+        float t    = ( 1f + cos ) * .5f; // 1 -> 0
+        float size = Global.Math.Clamp( Global.Math.Lerp( startSize, endSize, t ), startSize, endSize );
+        rt.sizeDelta = new Vector2( size, size );
+    }
+
+    private void OnDestroy()
+    {
+        AudioManager.OnUpdatePitch -= UpdatePitch;
     }
 
     private void UpdatePitch( float _pitch )
@@ -47,18 +67,4 @@ public class HeartBeat : MonoBehaviour
         rt.sizeDelta = new Vector2( startSize, startSize );
     }
 
-    private void Update()
-    {
-        if ( isStop ) return;
-
-        time += Time.deltaTime;
-        if ( spb < time )
-             time %= spb;
-
-        //float t = ( 1f + Mathf.Cos( time ) ) * .5f;
-        float cos  = Mathf.Cos( ( Global.Math.Clamp( time, 0f, duration ) / duration ) * Mathf.PI );
-        float t    = ( 1f + cos ) * .5f; // 1 -> 0
-        float size = Global.Math.Clamp( Global.Math.Lerp( startSize, endSize, t ), startSize, endSize );
-        rt.sizeDelta = new Vector2( size, size );
-    }
 }

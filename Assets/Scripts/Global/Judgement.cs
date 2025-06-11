@@ -55,7 +55,7 @@ public class Judgement : Singleton<Judgement>
                 return Global.Math.Abs( max ) <= double.Epsilon ? 0d : total / max;
             }
         }
-        public int TotalCount => Maximum + Perfect + Great + Good + Bad + Miss;
+        public int Count => Maximum + Perfect + Great + Good + Bad + Miss;
     }
 
     private static ResultData Results;

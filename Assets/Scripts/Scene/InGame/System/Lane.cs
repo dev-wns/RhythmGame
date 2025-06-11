@@ -41,6 +41,7 @@ public class Lane : MonoBehaviour
 
     private void Awake()
     {
+        InGame.OnGameOver += GameOver;
         //InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         //scene.OnGameStart += GameStart;
         //scene.OnGameOver  += GameOver;
@@ -51,18 +52,53 @@ public class Lane : MonoBehaviour
         //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
     }
 
+    private void OnDestroy()
+    {
+        InGame.OnGameOver -= GameOver;
+    }
+
+
     private void Update()
     {
-        // Input Lock 여부와 상관없이 재생
+        // 노트 스폰 후 데이터 체크
+        if ( NowPlaying.IsLoaded )
+        {
+            SpawnNote();
+            CheckHitData();
+        }
+
+        // 일찍 처리된 롱노트 판정선에 닿을 때 디스폰
+        if ( sliderEarlyQueue.TryPeek( out NoteRenderer earlySlider ) )
+        {
+            if ( earlySlider.EndTime < NowPlaying.Playback )
+            {
+                earlySlider.Despawn();
+                sliderEarlyQueue.Dequeue();
+            }
+        }
+
+        // 미스처리된 롱노트 화면 밖에서 디스폰 
+        if ( sliderMissQueue.TryPeek( out NoteRenderer missSlider ) )
+        {
+            if ( missSlider.TailPos < -( ( Global.Screen.Height * .5f ) + 100f ) )
+            {
+                missSlider.Despawn();
+                sliderMissQueue.Dequeue();
+            }
+        }
+
+        // 이펙트
+        if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
+        {
+            float increment = LaneOffset * Time.deltaTime;
+            laneAlpha = !NowPlaying.IsStart   ? Global.Math.Clamp( laneAlpha - increment, 0f, 1f ) :
+                         Input.GetKey( UKey ) ? Global.Math.Clamp( laneAlpha + increment, 0f, 1f ) :
+                                                Global.Math.Clamp( laneAlpha - increment, 0f, 1f );
+
+            if ( Global.Math.Abs( laneAlpha - laneRenderer.color.a ) > float.Epsilon )
+                 laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha );
+        }
         UpdateHitEffect();
-
-        if ( !NowPlaying.IsStart )
-             return;
-
-        UpdateLaneEffect();
-        SpawnNote();
-        CheckHitData();
-        CheckSliderDespawn();
     }
 
     #region Initialize
@@ -148,59 +184,6 @@ public class Lane : MonoBehaviour
                 SelectNextNote( false );
             }
         }
-
-        //switch ( data.keyState )
-        //{
-        //    case KeyState.Down:
-        //    {
-        //        Debug.Log( $"Down : {data.hitResult}" );
-        //        if ( data.hitResult >= 0 ) // Hit
-        //        {
-
-        //            if ( curNote.IsSlider ) curNote.IsKeyDown = true;
-        //            else                    SelectNextNote();
-        //        }
-        //        else if ( data.hitResult < 0 ) // Miss
-        //             SelectNextNote();
-
-        //    } break;
-
-        //    case KeyState.Up:
-        //    {
-        //        Debug.Log( $"Up : {data.hitResult}" );
-
-        //        HitEffect( NoteType.Slider, KeyState.Up );
-        //        if ( data.hitResult >= 0 ) // Hit
-        //        {
-        //            sliderEarlyQueue.Enqueue( curNote );
-        //            SelectNextNote( false );
-        //        }
-        //        else if ( data.hitResult < 0 ) // Miss
-        //        {
-        //            curNote.SetSliderFail();
-        //            sliderMissQueue.Enqueue( curNote );
-        //            SelectNextNote( false );
-        //        }
-        //    } break;
-
-        //    case KeyState.None:
-        //    {
-        //        //Debug.Log( $"None : {data.hitResult}" );
-
-        //        HitEffect( NoteType.Slider, KeyState.Up );
-        //        if ( !curNote.IsSlider )
-        //        {
-        //            SelectNextNote();
-        //        }
-        //        else
-        //        {
-        //            curNote.SetSliderFail();
-        //            sliderMissQueue.Enqueue( curNote );
-        //            SelectNextNote( false );
-        //        }
-        //    } break;
-        //}
-
     }
 
     private void SpawnNote()
@@ -217,19 +200,6 @@ public class Lane : MonoBehaviour
             if ( ++spawnIndex < noteDatas.Count )
                    spawnData = noteDatas[spawnIndex];
         }
-    }
-
-    private void UpdateLaneEffect()
-    {
-        if ( !GameSetting.HasFlag( VisualFlag.LaneEffect ) )
-             return;
-
-        float increment = LaneOffset * Time.deltaTime;
-        laneAlpha = Input.GetKey( UKey ) ? Global.Math.Clamp( laneAlpha + increment, 0f, 1f ) :
-                                           Global.Math.Clamp( laneAlpha - increment, 0f, 1f );
-
-        if ( Global.Math.Abs( laneAlpha - laneRenderer.color.a ) > float.Epsilon )
-             laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha );
     }
 
     private void UpdateHitEffect()
@@ -278,30 +248,6 @@ public class Lane : MonoBehaviour
              hitRenderer.color = Color.clear;
     }
 
-    public void CheckSliderDespawn()
-    {
-        // 일찍 처리된 롱노트 판정선에 닿을 때 디스폰
-        if ( sliderEarlyQueue.TryPeek( out NoteRenderer earlySlider ) )
-        {
-            if ( earlySlider.EndTime < NowPlaying.Playback )
-            {
-                earlySlider.Despawn();
-                sliderEarlyQueue.Dequeue();
-            }
-        }
-
-        // 미스처리된 롱노트 화면 밖에서 디스폰 
-        if ( sliderMissQueue.TryPeek( out NoteRenderer missSlider ) )
-        {
-            //Debug.Log( $"MissSlider : {missSlider.TailPos} {-( ( Global.Screen.Height * .5f ) + 100f)}" );
-            if ( missSlider.TailPos < -( ( Global.Screen.Height * .5f ) + 100f ) )
-            {
-                missSlider.Despawn();
-                sliderMissQueue.Dequeue();
-            }
-        }
-    }
-
     private void SelectNextNote( bool _isDespawn = true )
     {
         if ( _isDespawn )
@@ -343,7 +289,9 @@ public class Lane : MonoBehaviour
 
     private void GameOver()
     {
-        laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha = 0f );
+        HitEffect(); // Up
+        if ( curNote != null )
+             curNote.IsKeyDown = false;
     }
 
     private void Pause( bool _isPause )

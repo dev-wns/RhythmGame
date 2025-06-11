@@ -2,10 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 using UnityEngine.Video;
 
 public enum BackgroundType : byte { None, Video, Sprite, Image, }
@@ -24,12 +22,13 @@ public class BGASystem : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnPreInit += Initialize;
+        NowPlaying.OnPreInit       += Initialize;
+        AudioManager.OnUpdatePitch += UpdatePitch;
+
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += OnReLoad;
 
         color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
-
         foreground.enabled = false;
         ClearRenderTexture();
     }
@@ -39,7 +38,14 @@ public class BGASystem : MonoBehaviour
         StopAllCoroutines();
         ClearRenderTexture();
 
-        NowPlaying.OnPreInit -= Initialize;
+        NowPlaying.OnPreInit       -= Initialize;
+        AudioManager.OnUpdatePitch -= UpdatePitch;
+    }
+
+    private void UpdatePitch( float _pitch )
+    {
+        if ( type == BackgroundType.Video )
+             vp.playbackSpeed = _pitch;
     }
 
     private void ClearRenderTexture()

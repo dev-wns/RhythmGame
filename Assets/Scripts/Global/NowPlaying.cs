@@ -36,7 +36,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private static double StartTime;
     private static double SaveTime;
-    private int timingIndex;
+    private int bpmIndex;
 
     [Header( "BGM" )]
     private int bgmIndex;
@@ -49,20 +49,13 @@ public class NowPlaying : Singleton<NowPlaying>
 
     [Header( "Event" )]
     public static bool IsLoaded { get; private set; }
-    // public static event Action OnPreInitialize;  // Main  Thread
-    // public static event Action OnPostInitialize; // Main  Thread
-    // public static event Action OnPreInitAsync;   // Other Thread
-    // public static event Action OnPostInitAsync;  // Other Thread
 
     public static event Action OnPreInit;     // Main  Thread
     public static event Action OnPostInit;    // Main  Thread
     public static event Action OnAsyncInit;   // Other Thread
-
-
-
     public static event Action OnUpdateInThread;
 
-    public static event Action<Song> OnParsing;
+    //public static event Action<Song> OnParsing;
 
 
     protected override async void Awake()
@@ -134,9 +127,9 @@ public class NowPlaying : Singleton<NowPlaying>
             {
                 // 시간 갱신
                 Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - StartTime );
-
+                
                 // 이동된 거리 계산
-                for ( int i = timingIndex; i < Timings.Count; i++ )
+                for ( int i = bpmIndex; i < Timings.Count; i++ )
                 {
                     double time = Timings[i].time;
                     double bpm  = Timings[i].bpm / MainBPM;
@@ -144,7 +137,7 @@ public class NowPlaying : Singleton<NowPlaying>
                     // 지나간 타이밍에 대한 거리
                     if ( i + 1 < Timings.Count && Timings[i + 1].time < Playback )
                     {
-                        timingIndex   += 1;
+                        bpmIndex += 1;
                         DistanceCache += bpm * ( Timings[i + 1].time - time );
                         break;
                     }
@@ -163,7 +156,7 @@ public class NowPlaying : Singleton<NowPlaying>
                     bgmIndex += 1;
                 }
 
-                OnUpdateInThread?.Invoke();
+                 OnUpdateInThread?.Invoke();
             }
 
             await Task.Delay( 1 );
@@ -261,11 +254,11 @@ public class NowPlaying : Singleton<NowPlaying>
     public void Clear()
     {
         SaveTime      = -AudioLeadIn;
-        Playback      = 0d;
-        Distance      = 0d;
+        Playback      = double.MinValue;
+        Distance      = double.MinValue;
         DistanceCache = 0d;
         bgmIndex      = 0;
-        timingIndex   = 0;
+        bpmIndex      = 0;
         IsStart       = false;
     }
 
@@ -273,7 +266,6 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
         StartTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
-        SaveTime       = -AudioLeadIn;
         IsStart        = true;
     }
 
@@ -285,20 +277,18 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public IEnumerator GameOver()
     {
-        IsStart = false;
-        float slowTimeOffset = 1f / 3f;
+        IsStart     = false;
         float speed = 1f;
-        float pitchOffset = GameSetting.CurrentPitch * .3f;
-        while ( true )
+
+        while ( speed > 0f )
         {
-            Playback += speed * Time.deltaTime;
-            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / MainBPM ) * ( Playback - Timings[timingIndex].time ) );
+            speed -= ( 1f / 3f ) * Time.deltaTime;
+            float decrease = ( 1f - speed ) * GameSetting.CurrentPitch * .3f;
+            AudioManager.Inst.SetPitch( GameSetting.CurrentPitch - decrease, ChannelType.BGM );
 
-            CurrentScene.UpdatePitch( GameSetting.CurrentPitch - ( ( 1f - speed ) * pitchOffset ) );
-            speed -= slowTimeOffset * Time.deltaTime;
-            if ( speed < 0f )
-                 break;
-
+            Playback += speed * ( 1000f * Time.deltaTime );
+            Distance  = DistanceCache + ( Playback - Timings[bpmIndex].time );
+            
             yield return null;
         }
     }
@@ -325,7 +315,7 @@ public class NowPlaying : Singleton<NowPlaying>
             yield return null;
 
             Playback -= Time.deltaTime * 1.2f;
-            Distance = DistanceCache + ( ( Timings[timingIndex].bpm / MainBPM ) * ( Playback - Timings[timingIndex].time ) );
+            Distance = DistanceCache + ( ( Timings[bpmIndex].bpm / MainBPM ) * ( Playback - Timings[bpmIndex].time ) );
         }
 
         StartTime = DateTime.Now.TimeOfDay.TotalMilliseconds;

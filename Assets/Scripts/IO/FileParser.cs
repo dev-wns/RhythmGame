@@ -215,7 +215,7 @@ public class FileParser : FileConverter
                  throw new Exception( "Note Parsing Error" );
 
             // 배경음이 없으면, 프리뷰 음악을 재생한다.
-            if ( samples.Count < 0 )
+            if ( samples.Count == 0 )
                  samples.Add( new KeySound( GameSetting.SoundOffset, NowPlaying.CurrentSong.audioName, 1f ) );
 
             // 특정모드 선택으로 잘린 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )

@@ -60,7 +60,7 @@ public class FreeStyleMainScroll : ScrollBase
 
         if ( !DataStorage.IsMultiPlaying )
         {
-            AudioManager.Inst.OnReload += OnBufferSetting;
+            AudioManager.OnReload += OnBufferSetting;
             search.OnSearch += UpdateLayoutAndSong;
         }
 
@@ -77,6 +77,12 @@ public class FreeStyleMainScroll : ScrollBase
             songs.AddLast( song );
         }
     }
+
+    private void OnDestroy()
+    {
+        AudioManager.OnReload -= OnBufferSetting;
+    }
+
     private void Start()
     {
         UpdateScrollView();
@@ -160,11 +166,6 @@ public class FreeStyleMainScroll : ScrollBase
         AudioManager.Inst.Position = ( uint )curSong.previewTime;
         AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.volume * .01f, .5f );
         OnSelectSong?.Invoke( curSong );
-    }
-
-    private void OnDestroy()
-    {
-        AudioManager.Inst.OnReload -= OnBufferSetting;
     }
     #endregion
 

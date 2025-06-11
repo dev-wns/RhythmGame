@@ -14,8 +14,6 @@ public enum SceneType : int
 [RequireComponent( typeof( SpriteRenderer ) )]
 public abstract class Scene : SceneKeyAction
 {
-    public Action<float/* pitch */> OnUpdatePitch;
-
     #region Unity Callback
     protected virtual void Awake()
     {
@@ -39,12 +37,6 @@ public abstract class Scene : SceneKeyAction
     {
         Disconnect();
     }
-
-    public void UpdatePitch( float _pitch )
-    {
-        AudioManager.Inst.SetPitch( _pitch, ChannelType.BGM );
-        OnUpdatePitch?.Invoke( _pitch );
-    }
     #endregion
 
     #region Scene Load
@@ -62,7 +54,6 @@ public abstract class Scene : SceneKeyAction
         DOTween.ClearCachedTweens();
 
         IsInputLock = true;
-
         yield return StartCoroutine( FadeOut() );
 
         AudioManager.Inst.AllStop();
@@ -91,7 +82,7 @@ public abstract class Scene : SceneKeyAction
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 0f;
-            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.OptionFadeDuration );
+            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.CanvasFadeDuration );
         }
         ChangeAction( _changeType );
 
@@ -109,7 +100,7 @@ public abstract class Scene : SceneKeyAction
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 0f;
-            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.OptionFadeDuration );
+            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.CanvasFadeDuration );
         }
 
         ChangeAction( _changeType );
@@ -137,7 +128,7 @@ public abstract class Scene : SceneKeyAction
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 1f;
-            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.OptionFadeDuration ).OnComplete( () => root.SetActive( false ) );
+            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.CanvasFadeDuration ).OnComplete( () => root.SetActive( false ) );
         }
         else
         {
@@ -158,7 +149,7 @@ public abstract class Scene : SceneKeyAction
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 1f;
-            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.OptionFadeDuration ).OnComplete( () => root.SetActive( false ) );
+            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.CanvasFadeDuration ).OnComplete( () => root.SetActive( false ) );
         }
         else
         {

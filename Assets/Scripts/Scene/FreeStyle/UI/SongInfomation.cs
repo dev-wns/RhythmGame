@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class SongInfomation : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
-    public SoundPitchOption    pitchOption;
     public NoSliderOption      noSliderOption;
     public FixedBPMOption      fixedBPMOption;
     public KeyConvertOption    keyConvertOption;
@@ -36,10 +35,15 @@ public class SongInfomation : MonoBehaviour
     private void Awake()
     {
         scroller.OnSelectSong           += SelectChangedSoundInfo;
-        pitchOption.OnPitchUpdate       += UpdateInfo;
         fixedBPMOption.OnChangeOption   += UpdateBPMInfo;
         noSliderOption.OnChangeOption   += UpdateNoteInfo;
         keyConvertOption.OnChangeOption += UpdateButton;
+        AudioManager.OnUpdatePitch      += UpdatePitchInfo;
+    }
+
+    private void OnDestroy()
+    {
+        AudioManager.OnUpdatePitch -= UpdatePitchInfo;
     }
 
     private void SelectChangedSoundInfo( Song _song )
@@ -58,10 +62,10 @@ public class SongInfomation : MonoBehaviour
         rate.color =     GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                          GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
-        UpdateInfo( GameSetting.CurrentPitch );
+        UpdatePitchInfo( GameSetting.CurrentPitch );
     }
 
-    private void UpdateInfo( float _pitch )
+    private void UpdatePitchInfo( float _pitch )
     {
         pitch = _pitch;
 

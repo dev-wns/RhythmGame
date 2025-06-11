@@ -122,8 +122,4 @@ public class GameSetting
 
     // PPU
     public static int PPU = 100; // pixel per unit
-
-    // Debug
-    public static bool IsAutoRandom = false;
-    public static bool UseClapSound = false;
 }

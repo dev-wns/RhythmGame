@@ -27,8 +27,6 @@ public class PreviewNoteSystem : MonoBehaviour
     private double bpmTime;
     private Timing curTiming;
 
-    public SoundPitchOption pitchOption;
-
     public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset;
     public static double Distance { get; private set; }
     private static double DistanceCache;
@@ -44,9 +42,14 @@ public class PreviewNoteSystem : MonoBehaviour
     {
         scroll.OnSelectSong += Parse;
         scroll.OnSoundRestart += Restart;
-        pitchOption.OnPitchUpdate += OnPitchUpdate;
+        AudioManager.OnUpdatePitch += UpdatePitch;
 
         notePool ??= new ObjectPool<PreviewNoteRenderer>( notePrefab, transform, 5 );
+    }
+
+    private void OnDestroy()
+    {
+        AudioManager.OnUpdatePitch -= UpdatePitch;
     }
 
     private void Restart( Song _song )
@@ -109,7 +112,7 @@ public class PreviewNoteSystem : MonoBehaviour
         Restart( _song );
     }
 
-    private void OnPitchUpdate( float _pitch )
+    private void UpdatePitch( float _pitch )
     {
         bpmText.text = $"{Mathf.RoundToInt( ( float )( curTiming.bpm * _pitch ) )}";
     }

@@ -112,7 +112,7 @@ namespace Global
 
     public struct Const
     {
-        public static readonly float OptionFadeDuration = .15f;
+        public static readonly float CanvasFadeDuration = .15f;
     }
 }
 
