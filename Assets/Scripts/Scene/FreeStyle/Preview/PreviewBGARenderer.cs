@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -26,16 +24,11 @@ public class PreviewBGARenderer : MonoBehaviour
     [Header( "Video Player" )]
     public RenderTexture renderTexture;
     private VideoPlayer vp;
-    private WaitUntil   waitPrepared;
     private Coroutine   CorUpdateVideo;
-    private Timer       delayTimer = new Timer();
 
-    [Header( "Sprites Player" )]
-    private List<SpriteSample> sprites = new List<SpriteSample>();
-    private Dictionary<string/* Sprite Name */, Texture2D> textures = new Dictionary<string, Texture2D>();
-
-    private int spriteIndex; // Sprite Start Index
-    private Coroutine CorUpdateSprites;
+    //[Header( "Sprites Player" )]
+    //private List<SpriteSample> sprites = new List<SpriteSample>();
+    //private Coroutine CorUpdateSprites;
     
 
 
@@ -46,7 +39,6 @@ public class PreviewBGARenderer : MonoBehaviour
         // Video
         vp = GetComponent<VideoPlayer>();
         vp.targetTexture = renderTexture;
-        waitPrepared = new WaitUntil( () => vp.isPrepared );
 
         // Image
         image = GetComponent<RawImage>();
@@ -82,16 +74,16 @@ public class PreviewBGARenderer : MonoBehaviour
     {
         switch ( type )
         {
-            case BackgroundType.Sprite:
-            {
-                if ( !ReferenceEquals( CorUpdateSprites, null ) )
-                {
-                    StopCoroutine( CorUpdateSprites );
-                    CorUpdateSprites = null;
-                }
+            //case BackgroundType.Sprite:
+            //{
+            //    if ( !ReferenceEquals( CorUpdateSprites, null ) )
+            //    {
+            //        StopCoroutine( CorUpdateSprites );
+            //        CorUpdateSprites = null;
+            //    }
 
-                CorUpdateSprites = StartCoroutine( UpdateSprites() );
-            } break;
+            //    CorUpdateSprites = StartCoroutine( UpdateSprites() );
+            //} break;
 
             case BackgroundType.Video:
             {
@@ -114,37 +106,36 @@ public class PreviewBGARenderer : MonoBehaviour
         videoOffset = _song.videoOffset;
 
         // Update BGA Type
-        if ( _song.hasSprite )
-        {
-            type = BackgroundType.Sprite;
-            using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
-            {
-                string line;
-                while ( ( line = reader.ReadLine() ) != "[Sprites]" ) { }
-                while ( ( line = reader.ReadLine() ) != "[Samples]" )
-                {
-                    SpriteSample sprite;
-                    var split = line.Split( ',' );
+        //if ( _song.hasSprite )
+        //{
+        //    type = BackgroundType.Sprite;
+        //    using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
+        //    {
+        //        string line;
+        //        while ( ( line = reader.ReadLine() ) != "[Sprites]" ) { }
+        //        while ( ( line = reader.ReadLine() ) != "[Samples]" )
+        //        {
+        //            SpriteSample sprite;
+        //            var split = line.Split( ',' );
 
-                    sprite.type = ( SpriteType )int.Parse( split[0] );
-                    if ( sprite.type != SpriteType.Background )
-                        continue;
+        //            sprite.type = ( SpriteType )int.Parse( split[0] );
+        //            if ( sprite.type != SpriteType.Background )
+        //                continue;
 
-                    sprite.start = double.Parse( split[1] );
-                    sprite.end   = double.Parse( split[2] );
-                    sprite.name  = split[3];
+        //            sprite.start = double.Parse( split[1] );
+        //            sprite.end   = double.Parse( split[2] );
+        //            sprite.name  = split[3];
 
-                    if ( sprite.start < _song.previewTime - videoOffset )
-                         spriteIndex = sprites.Count;
+        //            if ( sprite.start > _song.previewTime - videoOffset )
+        //                 sprites.Add( sprite );
+        //        }
+        //    }
 
-                    sprites.Add( sprite );
-                }
-            }
-
-            StartCoroutine( LoadSprites( _song ) );
-            CorUpdateSprites = StartCoroutine( UpdateSprites() );
-        }
-        else if ( _song.hasVideo )
+        //    DataStorage.Inst.LoadTextures( sprites );
+        //    CorUpdateSprites = StartCoroutine( UpdateSprites() );
+        //}
+        //else if ( _song.hasVideo )
+        if ( _song.hasVideo )
         {
             type = BackgroundType.Video;
             CorUpdateVideo = StartCoroutine( LoadVideo( _song ) );
@@ -152,142 +143,69 @@ public class PreviewBGARenderer : MonoBehaviour
         else
         {
             type = BackgroundType.Image;
-            StartCoroutine( LoadImage( _song.imagePath ) );
-        }
-    }
-
-    private IEnumerator UpdateSprites()
-    {
-        SpriteSample curSample = new SpriteSample();
-        int curIndex = spriteIndex;
-        if ( curIndex < sprites.Count )
-             curSample = sprites[curIndex];
-
-        WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= AudioManager.Inst.Position - videoOffset );
-        WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= AudioManager.Inst.Position - videoOffset );
-        yield return waitSampleStart;
-
-        // Wait First Texture
-        yield return new WaitUntil( () => textures.ContainsKey( curSample.name ) );
-        tf.sizeDelta  = Global.Screen.GetRatio( textures[curSample.name] );
-        image.enabled = true;
-
-        while ( curIndex < sprites.Count )
-        {
-            yield return waitSampleStart;
-
-            if ( textures.ContainsKey( curSample.name ) )
+            DataStorage.Inst.LoadTexture( new SpriteSample( _song.imageName ), () =>
             {
-                image.texture = textures[curSample.name];
-            }
-
-            yield return waitSampleEnd;
-            if ( ++curIndex < sprites.Count )
-                 curSample = sprites[curIndex];
+                image.enabled = true;
+                if ( DataStorage.Inst.TryGetTexture( _song.imageName, out Texture2D texture ) ) image.texture = texture;
+                else                                                                            image.texture = DataStorage.Inst.GetDefaultTexture();
+                tf.sizeDelta  = Global.Screen.GetRatio( image.texture );
+            } );
         }
     }
+
+    //private IEnumerator UpdateSprites()
+    //{
+    //    int curIndex = 0;
+    //    SpriteSample curSample = curIndex < sprites.Count ? sprites[curIndex] : new SpriteSample();
+
+    //    WaitUntil waitSampleStart = new WaitUntil( () => curSample.start <= AudioManager.Inst.Position - videoOffset );
+    //    WaitUntil waitSampleEnd   = new WaitUntil( () => curSample.end   <= AudioManager.Inst.Position - videoOffset );
+        
+    //    yield return waitSampleStart;
+
+    //    // Wait First Texture
+    //    yield return new WaitUntil( () =>
+    //    {
+    //        if ( DataStorage.Inst.TryGetTexture( curSample.name, out Texture2D texture ) )
+    //        {
+    //            tf.sizeDelta = Global.Screen.GetRatio( texture );
+    //            image.enabled = true;
+    //            return true;
+    //        }
+    //        return false;
+    //    } );
+
+    //    while ( curIndex < sprites.Count )
+    //    {
+    //        yield return waitSampleStart;
+
+    //        if ( DataStorage.Inst.TryGetTexture( curSample.name, out Texture2D texture ) )
+    //             image.texture = texture;
+
+    //        yield return waitSampleEnd;
+    //        if ( ++curIndex < sprites.Count )
+    //             curSample = sprites[curIndex];
+    //    }
+    //}
 
     #region Load
-    private IEnumerator LoadSprites( Song _song )
-    {
-        for ( int i = spriteIndex; i < sprites.Count; i++ )
-        {
-            if ( !textures.ContainsKey( sprites[i].name ) )
-            {
-                Texture2D tex;
-                var path = @Path.Combine( _song.directory, sprites[i].name );
-                if ( Path.GetExtension( path ).Contains( ".bmp" ) )
-                {
-                    BMPLoader loader = new BMPLoader();
-                    BMPImage img = loader.LoadBMP( path );
-                    tex = img.ToTexture2D( TextureFormat.RGB24 );
-                }
-                else
-                {
-                    using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path, true ) )
-                    {
-                        www.method = UnityWebRequest.kHttpVerbGET;
-                        using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
-                        {
-                            www.downloadHandler = handler;
-                            yield return www.SendWebRequest();
-
-                            if ( www.result == UnityWebRequest.Result.ConnectionError ||
-                                 www.result == UnityWebRequest.Result.ProtocolError )
-                            {
-                                Debug.LogError( $"UnityWebRequest Error : {www.error}" );
-                                throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
-                            }
-                            tex = handler.texture;
-                        }
-                    }
-                }
-                textures.Add( sprites[i].name, tex );
-                yield return null;
-            }
-        }
-    }
-
     private IEnumerator LoadVideo( Song _song )
     {
-        delayTimer.Start();
+        double startDelay = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+
         vp.enabled = true;
         image.texture = renderTexture;
         vp.url = @$"{_song.videoPath}";
         vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.Prepare();
 
-        yield return waitPrepared;
+        yield return  new WaitUntil( () => vp.isPrepared );
 
         image.enabled = true;
         tf.sizeDelta  = new Vector2( Global.Screen.Width, Global.Screen.Height );
 
-        vp.time = ( _song.previewTime + videoOffset + delayTimer.ElapsedMilliSeconds ) * .001f;
+        vp.time = ( _song.previewTime + videoOffset + ( System.DateTime.Now.TimeOfDay.TotalMilliseconds - startDelay ) ) * .001f;
         vp.Play();
-    }
-
-    private IEnumerator LoadImage( string _path )
-    {
-        bool isExist = System.IO.File.Exists( _path );
-        if ( isExist )
-        {
-            var ext = System.IO.Path.GetExtension( _path );
-            if ( ext.Contains( ".bmp" ) )
-            {
-                BMPLoader loader = new BMPLoader();
-                BMPImage img = loader.LoadBMP( _path );
-                image.texture = img.ToTexture2D();
-            }
-            else
-            {
-                using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path, true ) )
-                {
-                    www.method = UnityWebRequest.kHttpVerbGET;
-                    using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
-                    {
-                        www.downloadHandler = handler;
-                        yield return www.SendWebRequest();
-
-                        if ( www.result == UnityWebRequest.Result.ConnectionError ||
-                             www.result == UnityWebRequest.Result.ProtocolError )
-                        {
-                            Debug.LogError( $"UnityWebRequest Error : {www.error}" );
-                            throw new System.Exception( $"UnityWebRequest Error : {www.error}" );
-                        }
-
-                        image.texture = handler.texture;
-                    }
-                }
-            }
-        }
-        else
-        {
-            image.texture = defaultImage.texture;
-
-        }
-
-        tf.sizeDelta = Global.Screen.GetRatio( image.texture );
-        image.enabled = true;
     }
     #endregion
 
@@ -302,12 +220,12 @@ public class PreviewBGARenderer : MonoBehaviour
         {
             case BackgroundType.Sprite:
             {
-                foreach ( Texture2D texture in textures.Values )
-                {
-                    DestroyImmediate( texture, true );
-                }
-                textures.Clear();
-                sprites.Clear();
+                //foreach ( Texture2D texture in textures.Values )
+                //{
+                //    DestroyImmediate( texture, true );
+                //}
+                //textures.Clear();
+                //sprites.Clear();
             }
             break;
 
@@ -323,8 +241,8 @@ public class PreviewBGARenderer : MonoBehaviour
             case BackgroundType.Image:
             {
 
-                if ( defaultImage.texture != image.texture )
-                     DestroyImmediate( image.texture, true );
+                //if ( defaultImage.texture != image.texture )
+                //     DestroyImmediate( image.texture, true );
             }
             break;
         }

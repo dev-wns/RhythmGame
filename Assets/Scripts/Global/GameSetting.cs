@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 public enum BooleanOption { Off, On, Count }
 
@@ -52,30 +51,28 @@ public class GameSetting
 
     public static bool HasFlag<T>( T _type ) where T : Enum
     {
-        bool ret = false;
         try
         { 
             switch ( _type )
             {
-                case VisualFlag: ret = CurrentVisualFlag.HasFlag( _type ); break;
-                case GameMode:   ret = CurrentGameMode.HasFlag(   _type ); break;
-                case GameRandom: ret = CurrentRandom.HasFlag(     _type ); break;
-                case Alignment:  ret = CurrentAlignment.HasFlag(  _type ); break;
-                case PitchType:  ret = CurrentPitchType.HasFlag(  _type ); break;
-                default:
-                    throw new Exception( $"{_type} is Invalid Value" );
+                case VisualFlag: return CurrentVisualFlag.HasFlag( _type );
+                case GameMode:   return CurrentGameMode.HasFlag(   _type );
+                case GameRandom: return CurrentRandom.HasFlag(     _type );
+                case Alignment:  return CurrentAlignment.HasFlag(  _type );
+                case PitchType:  return CurrentPitchType.HasFlag(  _type );
+                default:         throw new Exception( $"{_type} is Invalid Value" );
             }
         }
-        catch( Exception _e )
+        catch( Exception _error )
         {
-            Debug.LogError( _e );
+            Debug.LogError( _error );
         }
 
-        return ret;
+        return false;
     }
 
     // Speed
-    private static int OriginScrollSpeed = 31;
+    private static int OriginScrollSpeed = 30;
     public static int ScrollSpeed
     {
 

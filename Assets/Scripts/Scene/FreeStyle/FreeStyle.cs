@@ -18,16 +18,13 @@ public class FreeStyle : Scene
         base.Awake();
         QualitySettings.antiAliasing = 0;
 
-        AudioManager.Inst.OnReload += Connect;
-
-        var judge = GameObject.FindGameObjectWithTag( "Judgement" );
-        if ( judge ) Destroy( judge );
-
         OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed}";
     }
 
     public override void Connect()
     {
+        AudioManager.Inst.OnReload += Connect;
+
         AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
@@ -36,6 +33,8 @@ public class FreeStyle : Scene
 
     public override void Disconnect()
     {
+        AudioManager.Inst.OnReload -= Connect;
+
         AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
     }

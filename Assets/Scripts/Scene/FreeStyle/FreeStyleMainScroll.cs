@@ -77,19 +77,6 @@ public class FreeStyleMainScroll : ScrollBase
             songs.AddLast( song );
         }
     }
-
-    public void UpdateScrollView()
-    {
-        Length = NowPlaying.Inst.Songs.Count;
-
-        noContents.SetActive( !HasAnySongs );
-        if ( HasAnySongs )
-        {
-            UpdateSongElements();
-            UpdateSong();
-        }
-    }
-
     private void Start()
     {
         UpdateScrollView();
@@ -103,6 +90,19 @@ public class FreeStyleMainScroll : ScrollBase
             AudioManager.Inst.FadeVolume( 0f, 1f, .5f );
         }
     }
+
+    public void UpdateScrollView()
+    {
+        Length = NowPlaying.Inst.Songs.Count;
+
+        noContents.SetActive( !HasAnySongs );
+        if ( HasAnySongs )
+        {
+            UpdateSongElements();
+            UpdateSong();
+        }
+    }
+
 
     private void Update()
     {
@@ -158,8 +158,8 @@ public class FreeStyleMainScroll : ScrollBase
         // 음악 재생 및 페이드인
         AudioManager.Inst.Play( 0f );
         AudioManager.Inst.Position = ( uint )curSong.previewTime;
-        OnSelectSong?.Invoke( curSong );
         AudioManager.Inst.FadeVolume( new Music( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel ), 0f, curSong.volume * .01f, .5f );
+        OnSelectSong?.Invoke( curSong );
     }
 
     private void OnDestroy()
@@ -388,11 +388,11 @@ public class FreeStyleMainScroll : ScrollBase
         CurrentScene.Bind( ActionType.Main, KeyState.Down, KeyCode.DownArrow, ScrollUp );
 
         // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
-        CurrentScene.Bind( ActionType.Main, KeyState.Hold, KeyCode.UpArrow, () => KeyHold( ScrollDown ) );
+        CurrentScene.Bind( ActionType.Main, KeyState.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
         CurrentScene.Bind( ActionType.Main, KeyState.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
 
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
-        CurrentScene.Bind( ActionType.Main, KeyState.Up, KeyCode.UpArrow, KeyUp );
+        CurrentScene.Bind( ActionType.Main, KeyState.Up, KeyCode.UpArrow,   KeyUp );
         CurrentScene.Bind( ActionType.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
     }
 }

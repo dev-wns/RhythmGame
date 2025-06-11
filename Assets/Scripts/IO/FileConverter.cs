@@ -107,14 +107,7 @@ public struct KeySound
     {
         time   = _time;
         name   = _name;
-        volume = _volume < .1f ? 100f : _volume;
-    }
-
-    public KeySound( Note _note )
-    {
-        time   = _note.time;
-        name   = _note.keySound.name;
-        volume = _note.keySound.volume < .1f ? 100f : _note.keySound.volume;
+        volume = _volume < float.Epsilon ? 100f : _volume;
     }
 }
 
@@ -147,7 +140,8 @@ public struct Chart
     public ReadOnlyCollection<Timing>       timings;
     public ReadOnlyCollection<Note>         notes;
     public ReadOnlyCollection<KeySound>     samples;
-    public ReadOnlyCollection<SpriteSample> sprites;
+    public ReadOnlyCollection<SpriteSample> backgrounds;
+    public ReadOnlyCollection<SpriteSample> foregrounds;
 }
 
 public class FileConverter : FileReader

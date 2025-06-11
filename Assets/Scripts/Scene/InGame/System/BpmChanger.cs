@@ -19,14 +19,14 @@ public class BpmChanger : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnPostInitialize += Initialize;
+        NowPlaying.OnPreInit += Initialize;
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad              += Initialize;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnPostInitialize -= Initialize;
+        NowPlaying.OnPreInit -= Initialize;
     }
 
     private void Initialize()

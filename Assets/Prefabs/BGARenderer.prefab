@@ -117,7 +117,7 @@ MonoBehaviour:
   color: {r: 1, g: 1, b: 1, a: 1}
   defaultImage: {fileID: 3300398673291154399, guid: 9e99bf2e7a1b6e4499af27b677ce9610,
     type: 3}
-  renderTexture: {fileID: 8400000, guid: 7f49d19814148834bb606cb5e61139b8, type: 2}
+  renderTexture: {fileID: 8400000, guid: dbb3565862b4f42438bd3bb0827db517, type: 2}
 --- !u!222 &1419412381515201339
 CanvasRenderer:
   m_ObjectHideFlags: 0

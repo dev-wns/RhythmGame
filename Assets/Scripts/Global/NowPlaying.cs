@@ -4,16 +4,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
 #pragma warning disable CS0162
-
-public enum SoundType { BGM, KeySound, }
-
 
 public class NowPlaying : Singleton<NowPlaying>
 {
@@ -30,7 +25,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public static double MainBPM   { get; private set; }
 
     [Header( "Time" )]
-    private ReadOnlyCollection<Timing> Timings;
+    private ReadOnlyCollection<Timing>   Timings;
+    private ReadOnlyCollection<KeySound> Samples;
     public  static double Playback { get; private set; }
     public  static double Distance { get; private set; }
     private static double DistanceCache;
@@ -40,32 +36,61 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private static double StartTime;
     private static double SaveTime;
+    private int timingIndex;
 
     [Header( "BGM" )]
-    private List<KeySound> bgms = new ();
     private int bgmIndex;
-    public static bool UseAllSamples { get; private set; }
 
     [Header( "Thread" )]
     private CancellationTokenSource breakPoint = new ();
-    private int timingIndex;
 
     //
     public static bool IsStart { get; private set; }
 
     [Header( "Event" )]
     public static bool IsLoaded { get; private set; }
-    public static event Action OnPreInitialize;  // Main  Thread
-    public static event Action OnPostInitialize; // Main  Thread
-    public static event Action OnPreInitAsync;   // Other Thread
-    public static event Action OnPostInitAsync;  // Other Thread
+    // public static event Action OnPreInitialize;  // Main  Thread
+    // public static event Action OnPostInitialize; // Main  Thread
+    // public static event Action OnPreInitAsync;   // Other Thread
+    // public static event Action OnPostInitAsync;  // Other Thread
 
-    public static event Action OnPreUpdate;
-    public static event Action OnPostUpdate;
+    public static event Action OnPreInit;     // Main  Thread
+    public static event Action OnPostInit;    // Main  Thread
+    public static event Action OnAsyncInit;   // Other Thread
+
+
+
     public static event Action OnUpdateInThread;
 
     public static event Action<Song> OnParsing;
 
+
+    protected override async void Awake()
+    {
+        base.Awake();
+        
+        // 싱글톤 활성화
+        AudioManager audioManager = AudioManager.Inst;
+        InputManager inputManager = InputManager.Inst;
+        DataStorage  dataStorage  = DataStorage.Inst;
+        Judgement    judgement    = Judgement.Inst;
+        Network      network      = Network.Inst;
+
+        DataStorage.Inst.LoadSongs();
+        Songs = DataStorage.OriginSongs;
+        if ( Songs.Count > 0 )
+             UpdateSong( 0 );
+
+        await Task.Run( () => UpdateTime( breakPoint.Token ) );
+    }
+
+    private void OnApplicationQuit()
+    {
+        Release();
+        breakPoint?.Cancel();
+    }
+
+    /// <summary> 게임 시작할 때마다 초기화 </summary>
     public async void Initialize()
     {
         Clear(); // 기본 변수 초기화
@@ -83,60 +108,17 @@ public class NowPlaying : Singleton<NowPlaying>
         TotalJudge      = TotalNote + ( TotalSlider * 2 );
 
         // 선 파싱
-        await Task.Run( () => OnPreInitAsync?.Invoke() );
-        OnPreInitialize?.Invoke();
+        DataStorage.Inst.LoadChart();
 
         // 가독성을 위한 자주쓰는 변수 캐싱
         Timings = DataStorage.Timings;
+        Samples = DataStorage.Samples;
 
         // 후 계산
-        await Task.Run( () => OnPostInitAsync?.Invoke() );
-        OnPostInitialize?.Invoke();
-
-        // 특정모드 선택으로 잘린 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
-        bgms.Sort( delegate ( KeySound _A, KeySound _B )
-        {
-            if      ( _A.time > _B.time ) return 1;
-            else if ( _A.time < _B.time ) return -1;
-            else                          return 0;
-        } );
+        OnPreInit?.Invoke(); // 작업 전 클래스 초기화 등
+        await Task.Run( () => OnAsyncInit?.Invoke() );
+        OnPostInit?.Invoke();
         IsLoaded = true;
-    }
-
-    protected override async void Awake()
-    {
-        base.Awake();
-        
-        // 싱글톤 활성화
-        AudioManager audioManager = AudioManager.Inst;
-        InputManager inputManager = InputManager.Inst;
-        DataStorage  dataStorage  = DataStorage.Inst;
-        Judgement    judgement    = Judgement.Inst;
-        Network      network      = Network.Inst;
-
-        OnPostInitAsync += LoadSoundsAsync;
-
-        DataStorage.Inst.LoadSongs();
-        Songs = DataStorage.OriginSongs;
-        if ( Songs.Count > 0 )
-             UpdateSong( 0 );
-
-        await Task.Run( () => UpdateTime( breakPoint.Token ) );
-    }
-
-    private void Update()
-    {
-        if ( !IsStart )
-             return;
-
-        OnPreUpdate?.Invoke();  // 스폰
-        OnPostUpdate?.Invoke(); // 계산
-    }
-
-    private void OnApplicationQuit()
-    {
-        Release();
-        breakPoint?.Cancel();
     }
 
     private async void UpdateTime( CancellationToken _token )
@@ -173,13 +155,12 @@ public class NowPlaying : Singleton<NowPlaying>
                 }
 
                 // 배경음 처리( 시간의 흐름에 따라 자동재생 )
-                while ( bgmIndex < bgms.Count && bgms[bgmIndex].time <= Playback )
+                while ( bgmIndex < Samples.Count && Samples[bgmIndex].time <= Playback )
                 {
-                    if ( DataStorage.Inst.TryGetSound( bgms[bgmIndex].name, out FMOD.Sound sound ) )
-                         AudioManager.Inst.Play( sound, bgms[bgmIndex].volume );
+                    if ( DataStorage.Inst.TryGetSound( Samples[bgmIndex].name, out FMOD.Sound sound ) )
+                         AudioManager.Inst.Play( sound, Samples[bgmIndex].volume );
 
-                    if ( bgmIndex < bgms.Count )
-                         bgmIndex++;
+                    bgmIndex += 1;
                 }
 
                 OnUpdateInThread?.Invoke();
@@ -217,75 +198,6 @@ public class NowPlaying : Singleton<NowPlaying>
     //        }
     //    }
     //}
-
-    //public bool LoadSongs()
-    //{
-    //    List<Song> newSongs = new List<Song>();
-    //    Timer timer = new Timer();
-
-    //    // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
-    //    string[] files = Global.Path.GetFilesInSubDirectories( Global.Path.SoundDirectory, "*.osu" );
-    //    for ( int i = 0; i < files.Length; i++ )
-    //    {
-    //        using ( FileParser parser = new FileParser() )
-    //        {
-    //            if ( parser.TryParse( files[i], out Song newSong ) )
-    //            {
-    //                newSong.index = newSongs.Count;
-    //                newSongs.Add( newSong );
-    //                OnParsing?.Invoke( newSong );
-    //            }
-    //        }
-    //    }
-
-    //    newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
-    //    for ( int i = 0; i < newSongs.Count; i++ )
-    //    {
-    //        var song    = newSongs[i];
-    //        song.index  = i;
-    //        newSongs[i] = song;
-    //    }
-
-    //    Songs       = new ReadOnlyCollection<Song>( newSongs );
-    //    OriginSongs = new ReadOnlyCollection<Song>( Songs );
-
-    //    if ( Songs.Count > 0 )
-    //         UpdateSong( 0 );
-
-    //    Debug.Log( $"Update Songs {timer.End} ms" );
-
-    //    // 파일 수정하고 싶을 때 사용
-    //    //for ( int i = 0; i < OriginSongs.Count; i++ )
-    //    //{
-    //    //    using ( FileParser parser = new FileParser() )
-    //    //        parser.ReWrite( OriginSongs[i] );
-    //    //}
-
-    //    return true;
-    //}
-    #endregion
-
-    #region Sound
-    /// <summary> 배경음 로딩 summary>
-    private void LoadSoundsAsync()
-    {
-        // 배경음 하나로 재생될 때
-        if ( !CurrentSong.isOnlyKeySound )
-             AddSound( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ), SoundType.BGM );
-
-        // 키음 및 배경음으로 이루어진 채보
-        var samples = DataStorage.Samples;
-        for ( int i = 0; i < samples.Count; i++ )
-              AddSound( samples[i], SoundType.BGM );
-    }
-
-    /// <summary> 키음, 배경음 구분 및 로딩 </summary>
-    public void AddSound( in KeySound _sound, SoundType _type )
-    {
-        DataStorage.Inst.LoadSound( _sound );
-        if ( _type == SoundType.BGM )
-             bgms.Add( _sound );
-    }
     #endregion
 
     #region Search
@@ -342,7 +254,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
         UpdateSong( 0 );
     }
-
     #endregion
    
     #region Playing
@@ -370,7 +281,6 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         IsLoaded  = false;
         StopAllCoroutines();
-        bgms.Clear();
     }
 
     public IEnumerator GameOver()

@@ -69,15 +69,15 @@ public class InputManager : Singleton<InputManager>
         base.Awake();
         // 기본 키 설정
         KeyBind( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket } );
-        KeyBind( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket } );
+        KeyBind( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Delete, KeyCode.End, KeyCode.PageDown } );
         KeyBind( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
         KeyMapping();
 
         // 이벤트 연결
-        NowPlaying.OnPreInitialize  += PreInitialize;
-        NowPlaying.OnPostInitAsync  += DivideNotes;
-        NowPlaying.OnPostInitialize += PostInitialize;
-        NowPlaying.OnUpdateInThread += UpdateInput;
+        NowPlaying.OnPreInit         += PreInitialize;
+        NowPlaying.OnAsyncInit       += DivideNotes;
+        NowPlaying.OnPostInit        += PostInitialize;
+        NowPlaying.OnUpdateInThread  += UpdateInput;
 
         // 에셋 로딩
         DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
@@ -101,15 +101,47 @@ public class InputManager : Singleton<InputManager>
         Release();
     }
 
-    private void SelectNextNote( int _lane )
+    private void PreInitialize()
     {
-        int prev = Indexes[_lane];
-        Indexes[_lane]++;
-        IsEntries[_lane] = false;
+        Indexes   = new int       [NowPlaying.KeyCount];
+        IsEntries = new bool      [NowPlaying.KeyCount];
+        Previous  = new bool      [NowPlaying.KeyCount];
+        KeyStates = new KeyState  [NowPlaying.KeyCount];
+        KeySounds = new KeySound  [NowPlaying.KeyCount];
+        notes     = new List<Note>[NowPlaying.KeyCount];
+        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
+        {
+            lanes.Add( Instantiate( prefab, transform ) );
+            notes[i] = new List<Note>();
+        }
+        Debug.Log( $"Create {lanes.Count} lanes." );
+    }
 
-        // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
-        if ( Indexes[_lane]   < notes[_lane].Count )
-             KeySounds[_lane] = notes[_lane][Indexes[_lane]].keySound;
+    private void PostInitialize()
+    {
+        for ( int i = 0; i < lanes.Count; i++ )
+        {
+            KeySounds[i] = notes[i][0].keySound;
+            lanes[i].Initialize( i, notes[i] );
+        }
+    }
+
+    public void Release()
+    {
+        for ( int i = 0; i < lanes.Count; i++ )
+            DestroyImmediate( lanes[i], true );
+        
+        lanes.Clear();
+
+        for ( int i = 0; i < notes.Length; i++ )
+            notes[i].Clear();
+
+        Indexes   = null;
+        IsEntries = null;
+        Previous  = null;
+        KeyStates = null;
+        KeySounds = null;
+        notes     = null;
     }
 
     private void UpdateInput()
@@ -187,34 +219,15 @@ public class InputManager : Singleton<InputManager>
     
     private void DivideNotes()
     {
-        ReadOnlyCollection<Note> datas = DataStorage.Notes;
-        bool isConvert  = GameSetting.HasFlag( GameMode.ConvertKey ) && NowPlaying.CurrentSong.keyCount == 7;
-        bool isNoSlider = GameSetting.HasFlag( GameMode.NoSlider );
         random = new System.Random( ( int )DateTime.Now.Ticks );
 
+        ReadOnlyCollection<Note> datas = DataStorage.Notes;
         List<int/* lane */> emptyLanes = new List<int>( NowPlaying.KeyCount );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, NowPlaying.KeyCount ).ToArray();
         double   secondPerBeat         = ( ( ( 60d / NowPlaying.CurrentSong.mainBPM ) * 4d ) / 32d );
         for ( int i = 0; i < datas.Count; i++ )
         {
             Note newNote = datas[i];
-            if ( isConvert )
-            {
-                switch ( newNote.lane )
-                {
-                    // 잘려진 노트는 키음만 자동재생되도록 한다.
-                    case 3: NowPlaying.Inst.AddSound( new KeySound( newNote ), SoundType.BGM );
-                    continue;
-                    
-                    // 잘려진 옆 노트를 한칸씩 이동한다.
-                    case > 3: newNote.lane -= 1; 
-                    break;
-                }
-            }
-            
-            if ( isNoSlider )
-                 newNote.isSlider = false;
-
             switch ( GameSetting.CurrentRandom )
             {
                 // 레인 인덱스와 동일한 번호에 노트 분배
@@ -223,10 +236,10 @@ public class InputManager : Singleton<InputManager>
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.distance       = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.distance    = NowPlaying.Inst.GetDistance( newNote.time    );
                     newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
-                    NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
+                    DataStorage.Inst.LoadSound( newNote.keySound );
                     notes[newNote.lane].Add( newNote );
                 } break;
 
@@ -254,10 +267,10 @@ public class InputManager : Singleton<InputManager>
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
                     prevTimes[selectLane] = newNote.isSlider ? newNote.endTime : newNote.time;
 
-                    newNote.distance   = NowPlaying.Inst.GetDistance( newNote.time );
+                    newNote.distance    = NowPlaying.Inst.GetDistance( newNote.time    );
                     newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
-                    NowPlaying.Inst.AddSound( newNote.keySound, SoundType.KeySound );
+                    DataStorage.Inst.LoadSound( newNote.keySound );
                     notes[selectLane].Add( newNote );
                 } break;
             }
@@ -271,53 +284,10 @@ public class InputManager : Singleton<InputManager>
             case GameRandom.Half_Random:
             { 
                 int keyCountHalf = Mathf.FloorToInt( NowPlaying.KeyCount * .5f );
-                Swap( 0,                keyCountHalf );
+                Swap( 0,                keyCountHalf        );
                 Swap( keyCountHalf + 1, NowPlaying.KeyCount );
             } break;
         }
-    }
-
-    private void PreInitialize()
-    {
-        Indexes   = new int       [NowPlaying.KeyCount];
-        IsEntries = new bool      [NowPlaying.KeyCount];
-        Previous  = new bool      [NowPlaying.KeyCount];
-        KeyStates = new KeyState  [NowPlaying.KeyCount];
-        KeySounds = new KeySound  [NowPlaying.KeyCount];
-        notes     = new List<Note>[NowPlaying.KeyCount];
-        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
-        {
-            lanes.Add( Instantiate( prefab, transform ) );
-            notes[i] = new List<Note>();
-        }
-        Debug.Log( $"Create {lanes.Count} lanes." );
-    }
-
-    private void PostInitialize()
-    {
-        for ( int i = 0; i < lanes.Count; i++ )
-        {
-            KeySounds[i] = notes[i][0].keySound;
-            lanes[i].Initialize( i, notes[i] );
-        }
-    }
-
-    //public async void GameStart()
-    //{
-    //    await Task.Run( () => UpdateInput( breakPoint.Token ) );
-    //}
-
-    public void Release()
-    {
-        for ( int i = 0; i < lanes.Count; i++ )
-            DestroyImmediate( lanes[i], true );
-        
-        lanes.Clear();
-
-        for ( int i = 0; i < notes.Length; i++ )
-            notes[i].Clear();
-
-        notes = null;
     }
 
     private void Swap( int _min, int _max )
@@ -331,6 +301,17 @@ public class InputManager : Singleton<InputManager>
             notes[randA] = notes[randB];
             notes[randB] = tmp;
         }
+    }
+
+    private void SelectNextNote( int _lane )
+    {
+        int prev = Indexes[_lane];
+        Indexes[_lane]++;
+        IsEntries[_lane] = false;
+
+        // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
+        if ( Indexes[_lane] < notes[_lane].Count )
+            KeySounds[_lane] = notes[_lane][Indexes[_lane]].keySound;
     }
 
     #region Key Setting
@@ -382,10 +363,7 @@ public class InputManager : Singleton<InputManager>
         AddMapping( 0xDC, KeyCode.Backslash,      "\\"       );
         AddMapping( 0xC0, KeyCode.BackQuote,      "`"        ); 
         AddMapping( 0x14, KeyCode.CapsLock,       "CapsLock" );
-        AddMapping( 0x0D, KeyCode.Return,         "Return"   );
-        AddMapping( 0x1B, KeyCode.Escape,         "Escape"   );
         AddMapping( 0x20, KeyCode.Space,          "Space"    );
-        AddMapping( 0x09, KeyCode.Tab,            "Tab"      );
         AddMapping( 0xBB, KeyCode.Plus,           "="        );
         AddMapping( 0xBD, KeyCode.Minus,          "-"        ); 
         

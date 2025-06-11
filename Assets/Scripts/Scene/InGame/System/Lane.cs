@@ -1,14 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using WNS.Time.Control;
 
 public class Lane : MonoBehaviour
 {
-    private Judgement judge;
-
     [Header( "Input Key" )]
     public int     Key  { get; private set; } // Lane Index
     public int     VKey { get; private set; } // Virtual KeyCode
@@ -45,12 +41,6 @@ public class Lane : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnPreUpdate  += PreUpdate;
-        NowPlaying.OnPostUpdate += PostUpdate;
-        
-        //laneRenderer.color = Color.clear;
-        //hitRenderer.color  = Color.clear;
-
         //InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         //scene.OnGameStart += GameStart;
         //scene.OnGameOver  += GameOver;
@@ -63,14 +53,16 @@ public class Lane : MonoBehaviour
 
     private void Update()
     {
-        // Input Lock으로 인한 간섭이 없어야함
+        // Input Lock 여부와 상관없이 재생
         UpdateHitEffect();
-    }
 
-    private void OnDestroy()
-    {
-        NowPlaying.OnPreUpdate  -= PreUpdate;
-        NowPlaying.OnPostUpdate -= PostUpdate;
+        if ( !NowPlaying.IsStart )
+             return;
+
+        UpdateLaneEffect();
+        SpawnNote();
+        CheckHitData();
+        CheckSliderDespawn();
     }
 
     #region Initialize
@@ -78,10 +70,9 @@ public class Lane : MonoBehaviour
 
     public void Initialize( int _lane, List<Note> _datas )
     {
-        judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        noteDatas = _datas;
+        noteDatas  = _datas;
         spawnIndex = 0;
-        spawnData = noteDatas.Count > 0 ? noteDatas[spawnIndex] : new Note();
+        spawnData  = noteDatas.Count > 0 ? noteDatas[spawnIndex] : new Note();
 
         Key  = _lane;
         UKey = InputManager.Keys[( GameKeyCount )NowPlaying.KeyCount][Key];
@@ -118,18 +109,6 @@ public class Lane : MonoBehaviour
     #endregion
 
     #region Update
-    private void PreUpdate()
-    {
-        UpdateLaneEffect();
-        SpawnNote();
-    }
-
-    private void PostUpdate()
-    {
-        CheckHitData();
-        CheckSliderDespawn();
-    }
-
     private void CheckHitData()
     {
         if ( curNote == null && notes.Count > 0 )

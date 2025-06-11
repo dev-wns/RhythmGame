@@ -15,21 +15,32 @@ public class MeasureSystem : MonoBehaviour
         InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
         {
-            NowPlaying.OnPostInitAsync += CreateMeasure;
-            NowPlaying.OnPreUpdate     += SpawnMeasure;
+            NowPlaying.OnAsyncInit += CreateMeasure;
             scene.OnReLoad += OnReLoad;
         }
 
         pool = new ObjectPool<MeasureRenderer>( mPrefab, 10 );
     }
 
+    private void Update()
+    {
+        if ( !NowPlaying.IsStart ||curIndex >= measures.Count )
+             return;
+
+        if ( distance <= NowPlaying.Distance + GameSetting.MinDistance )
+        {
+            MeasureRenderer measure = pool.Spawn();
+            measure.SetInfo( distance );
+
+            if ( ++curIndex < measures.Count )
+                 distance = measures[curIndex];
+        }
+    }
+
     private void OnDestroy()
     {
         if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
-        {
-            NowPlaying.OnPostInitAsync -= CreateMeasure;
-            NowPlaying.OnPreUpdate     -= SpawnMeasure;
-        }
+             NowPlaying.OnAsyncInit -= CreateMeasure;
     }
 
     private void CreateMeasure()
@@ -71,20 +82,6 @@ public class MeasureSystem : MonoBehaviour
              distance = measures[curIndex];
     }
 
-    private void SpawnMeasure()
-    {
-        if ( curIndex >= measures.Count )
-             return;
-
-        if ( distance <= NowPlaying.Distance + GameSetting.MinDistance )
-        {
-            MeasureRenderer measure = pool.Spawn();
-            measure.SetInfo( distance );
-
-            if ( ++curIndex < measures.Count )
-                 distance = measures[curIndex];
-        }
-    }
 
     private void OnReLoad()
     {

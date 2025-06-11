@@ -4,8 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Runtime.InteropServices;
-using UnityEditor;
+using System.Runtime.Remoting.Lifetime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
@@ -32,27 +31,60 @@ public class DataStorage : Singleton<DataStorage>
     public static ReadOnlyCollection<Song>         OriginSongs { get; private set; } // 원본 음악 리스트
     public static ReadOnlyCollection<Note>         Notes       { get; private set; }
     public static ReadOnlyCollection<Timing>       Timings     { get; private set; }
-    public static ReadOnlyCollection<KeySound>     Samples     { get; private set; }
-    public static ReadOnlyCollection<SpriteSample> Sprites     { get; private set; }
+    public static ReadOnlyCollection<KeySound>     Samples     { get; private set; } // 배경음
+    public static ReadOnlyCollection<SpriteSample> Backgrounds { get; private set; }
+    public static ReadOnlyCollection<SpriteSample> Foregrounds { get; private set; }
 
     [Header( "Texture" )]
     private BMPLoader bitmapLoader = new ();
     private Dictionary<string/* name */, Texture2D> loadedTextures = new ();
+    private List<Texture2D> defaultTextures = new ();
+    private int             defaultTextureIndex = 0;
 
     [Header( "Sound" )]
     private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
+    public ReadOnlyCollection<KeySound>              BGM { get; private set; }
 
     [Header( "Result Data" )]
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
-    //public  static ResultData CurrentResult => resultData;
-    //private static ResultData resultData = new ResultData();
 
     protected override void Awake()
     {
         base.Awake();
 
-        NowPlaying.OnPreInitAsync += LoadChart;
+        NowPlaying.OnAsyncInit += () =>
+        {
+            // FMOD Sound는 Thread에서 로딩 가능
+            for ( int i = 0; i < Samples.Count; i++ )
+                  LoadSound( Samples[i] );
+        };
+
+        // UnityWebRequest( Coroutine ) 사용
+        NowPlaying.OnPostInit  += () => StartCoroutine( LoadTextures() );
+
+        LoadAssetsAsync( "DefaultTexture", ( Texture2D texture ) => defaultTextures.Add( texture ) );
+    }
+
+    private void OnApplicationQuit()
+    {
+        Release();
+    }
+
+    public void Release()
+    {
+        StopAllCoroutines();
+
+        foreach ( var texture in loadedTextures )
+            DestroyImmediate( texture.Value, true );
+
+        foreach ( var sound in loadedSounds )
+            AudioManager.Inst.Release( sound.Value );
+
+
+        loadedTextures.Clear();
+        loadedSounds.Clear();
+        Debug.Log( $"DataStorage Release" );
     }
 
     #region Parsing
@@ -92,29 +124,15 @@ public class DataStorage : Singleton<DataStorage>
         {
             if ( parser.TryParse( NowPlaying.CurrentSong.filePath, out Chart chart ) )
             {
-                Notes   = chart.notes;
-                Timings = chart.timings;
-                Sprites = chart.sprites;
-                Samples = chart.samples;
+                Notes       = chart.notes;
+                Timings     = chart.timings;
+                Samples     = chart.samples;
+                Backgrounds = chart.backgrounds;
+                Foregrounds = chart.foregrounds;
             }
         }
     }
     #endregion
-
-    public void Release()
-    {
-        StopAllCoroutines();
-
-        foreach ( var texture in loadedTextures )
-            DestroyImmediate( texture.Value, true );
-
-        foreach ( var sound in loadedSounds )
-            AudioManager.Inst.Release( sound.Value );
-
-
-        loadedTextures.Clear();
-        loadedSounds.Clear();
-    }
 
     #region Addressable
     public void LoadAssetsAsync<T>( string _label, Action<T> _OnCompleted ) where T : UnityEngine.Object
@@ -167,14 +185,26 @@ public class DataStorage : Singleton<DataStorage>
 
     #region Texture
     public bool TryGetTexture( string _name, out Texture2D _tex ) => loadedTextures.TryGetValue( _name, out _tex );
+    public Texture2D GetDefaultTexture() => defaultTextures[( ++defaultTextureIndex < defaultTextures.Count ? defaultTextureIndex : defaultTextureIndex = 0 )];
+    public void LoadTexture( SpriteSample _sprite, Action _OnCompleted = null ) => StartCoroutine( LoadExternalTexture(  _sprite,  _OnCompleted ) );
+    private IEnumerator LoadTextures()
+    {
+        // 스프라이트 배경 로딩 ( UnityWebRequest, Main Thread에서 사용 )
+        for ( int i = 0; i < Backgrounds.Count; i++ )
+              yield return StartCoroutine( LoadExternalTexture( Backgrounds[i], null ) );
 
-    public IEnumerator LoadTexture( SpriteSample _sprite )
+        for ( int i = 0; i < Foregrounds.Count; i++ )
+              yield return StartCoroutine( LoadExternalTexture( Foregrounds[i], null ) );
+    }
+    private IEnumerator LoadExternalTexture( SpriteSample _sprite, Action _OnCompleted  )
     {
         var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
-        
-        // 이미 로딩 되었거나 존재하는 파일인지 확인
-        if ( loadedTextures.ContainsKey( _sprite.name ) || !File.Exists( path ) )
-             yield break;
+        // 파일이 없거나, 이미 로딩된 파일일 경우
+        if ( !File.Exists( path ) || loadedTextures.ContainsKey( _sprite.name ) )
+        {
+            _OnCompleted?.Invoke();
+            yield break;
+        }
         
         if ( Path.GetExtension( path ) == ".bmp" )
         {
@@ -201,6 +231,8 @@ public class DataStorage : Singleton<DataStorage>
                 }
             }
         }
+
+        _OnCompleted?.Invoke();
     }
     #endregion
 

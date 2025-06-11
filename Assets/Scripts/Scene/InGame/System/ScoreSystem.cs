@@ -19,25 +19,15 @@ public class ScoreSystem : MonoBehaviour
     {
         scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnReLoad += OnReLoad;
-        //scene.OnResult += OnResult;
+
 
         InputManager.OnHitNote += UpdateScore;
-        NowPlaying.OnPostUpdate += UpdateText;
-
-        //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        //judge.OnJudge += UpdateScore;
     }
 
     private void OnDestroy()
     {
         InputManager.OnHitNote -= UpdateScore;
-        NowPlaying.OnPostUpdate -= UpdateText;
     }
-
-    //private void OnResult()
-    //{
-    //    DataStorage.Inst.UpdateResult( HitResult.Score, ( int )Global.Math.Round( targetScore ) );
-    //}
 
     private void OnReLoad()
     {
@@ -51,7 +41,7 @@ public class ScoreSystem : MonoBehaviour
         countOffset = ( float )( targetScore - curScore ) / countDuration;
     }
 
-    private void UpdateText()
+    private void Update()
     {
         if ( targetScore > curScore )
         {
