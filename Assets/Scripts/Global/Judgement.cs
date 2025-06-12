@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 public enum HitResult : int { None = -2, Miss, Maximum, Perfect, Great, Good, Bad }
 
@@ -66,12 +65,18 @@ public class Judgement : Singleton<Judgement>
     {
         base.Awake();
         NowPlaying.OnPreInit += Initialize;
+        NowPlaying.OnClear   += Clear;
     }
 
     private void Initialize()
     {
         MaxScore = 500000d / NowPlaying.TotalJudge;
-        Bonus    = 100; // 게임시작시 100으로 시작
+    }
+
+    private void Clear()
+    {
+        Bonus   = 100; // 게임시작시 100으로 시작
+        Results = new ResultData();
     }
 
     public static ResultData CurrentResult => Results;

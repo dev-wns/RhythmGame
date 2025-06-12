@@ -15,13 +15,12 @@ public struct HealthData
 
 public class HealthSystem : MonoBehaviour
 {
-    private InGame scene;
-
     [Header("Health")]
     public SpriteRenderer healthRenderer;
     public static readonly float MaxHealth = 1f;
     public float smoothHealthSpeed = 1;
-    private float curHealth, healthCached;
+    private float curHealth;
+    private float healthCached;
     private float healthOffset;
 
     [Header("Health Scaler")]
@@ -32,27 +31,38 @@ public class HealthSystem : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += Clear;
-        //scene.OnGameStart += () => StartCoroutine( InitHealthEffect() );
+        NowPlaying.OnGameStart += GameStart;
+        NowPlaying.OnClear     += Clear;
         InputManager.OnHitNote += UpdateHealth;
 
         healthTileCached = healthRenderer.size;
         healthTileOffset = healthRenderer.size.y;
-
-        StartCoroutine( InitHealthEffect() );
     }
 
     private void OnDestroy()
     {
+        NowPlaying.OnGameStart -= GameStart;
+        NowPlaying.OnClear     -= Clear;
         InputManager.OnHitNote -= UpdateHealth;
+    }
+
+    private void Clear()
+    {
+        StopAllCoroutines();
+        curHealth    = 0f;
+        healthOffset = 0f;
+        healthCached = MaxHealth;
+        healthRenderer.size = new Vector2( healthTileCached.x, 0f );
+    }
+
+    private void GameStart()
+    {
+        StartCoroutine( InitHealthEffect() );
     }
 
     private IEnumerator InitHealthEffect()
     {
-        yield return new WaitUntil( () => NowPlaying.IsStart );
-
-        StartCoroutine( SmoothHealthScaler() );
+        StartCoroutine( AutoScaling() );
         while ( curHealth < MaxHealth )
         {
             curHealth += Time.deltaTime;
@@ -63,7 +73,7 @@ public class HealthSystem : MonoBehaviour
         StartCoroutine( SmoothHealthControl() );
     }
 
-    private IEnumerator SmoothHealthScaler()
+    private IEnumerator AutoScaling()
     {
         while ( true )
         {
@@ -94,15 +104,6 @@ public class HealthSystem : MonoBehaviour
         }
     }
 
-    private void Clear()
-    {
-        StopAllCoroutines();
-        healthOffset = 0f;
-        curHealth = 0f;
-        healthCached = MaxHealth;
-        healthRenderer.size = new Vector2( healthTileCached.x, 0f );
-    }
-
     private void UpdateHealth( HitData _hitData )
     {
         HitResult hitResult = _hitData.hitResult;
@@ -116,8 +117,8 @@ public class HealthSystem : MonoBehaviour
             case HitResult.Miss:    healthCached -= .041f; break;
             default: return;
         }
-        healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );
 
+        healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );
         healthOffset = healthCached - curHealth;
     }
 }

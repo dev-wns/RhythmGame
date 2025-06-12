@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using UnityEngine;
 
 public class FileParser : FileConverter
 {
@@ -254,7 +253,6 @@ public class FileParser : FileConverter
             #region Timings
             Timing curTiming = new Timing();
             List<Timing> timings = new List<Timing>();
-
             while ( ReadLine() != "[Sprites]" )
             {
                 var split = line.Split( ',' );
@@ -265,6 +263,34 @@ public class FileParser : FileConverter
 
                 timings.Add( curTiming );
             }
+
+            //// 중복 제거
+            //int removeCount = 0;
+            //for ( int i = 0; i < timings.Count; i++ )
+            //{
+            //    ReCheck:
+            //    Timing current = timings[i];
+            //    if ( i + 1 < timings.Count )
+            //    {
+            //        Timing next = timings[i + 1];
+            //        if ( next.time - current.time < double.Epsilon )
+            //        {
+            //            timings.Remove( current );
+            //            removeCount++;
+            //            goto ReCheck;
+            //        }
+
+            //        if ( Global.Math.Abs( next.bpm - current.bpm ) < double.Epsilon )
+            //        {
+            //            timings.Remove( next );
+            //            removeCount++;
+            //            goto ReCheck;
+            //        }
+            //    }
+            //}
+
+            //if ( removeCount > 0 )
+            //     Debug.Log( $"Removed \"{NowPlaying.CurrentSong.title}\" {removeCount} Timings ( Alive : {timings.Count} )" );
 
             _chart.timings = new ReadOnlyCollection<Timing>( timings );
             #endregion

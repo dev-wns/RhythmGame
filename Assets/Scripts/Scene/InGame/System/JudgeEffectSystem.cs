@@ -36,7 +36,7 @@ public class JudgeEffectSystem : MonoBehaviour
 
     private void HitEffect( HitData _hitData )
     {
-        if ( _hitData.keyState != KeyState.Down )
+        if ( _hitData.keyState == KeyState.Up || _hitData.keyState == KeyState.Hold )
              return;
 
         HitResult hitResult = _hitData.hitResult;
@@ -44,12 +44,13 @@ public class JudgeEffectSystem : MonoBehaviour
         {
             switch ( hitResult )
             {
-
                 case HitResult.Maximum:
                 case HitResult.Perfect: rdr.sprite = sprites[4]; break;
                 case HitResult.Great:   rdr.sprite = sprites[3]; break;
                 case HitResult.Good:    rdr.sprite = sprites[2]; break;
                 case HitResult.Bad:     rdr.sprite = sprites[1]; break;
+
+                case HitResult.None:
                 case HitResult.Miss:    rdr.sprite = sprites[0]; break;
                 default: return;
             }

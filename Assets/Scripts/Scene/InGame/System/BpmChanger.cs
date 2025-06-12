@@ -1,57 +1,74 @@
-using System.Collections.ObjectModel;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class BpmChanger : MonoBehaviour
 {
-    private InGame scene;
-    private int curIndex;
-    private ReadOnlyCollection<Timing> timings;
-    [Header("BPM Changer")]
-
-    [Header("Time")]
     private const double DelayTime = ( 1d / 60d ) * 1000d;
-    private Timing curTiming;
-    private bool isStart;
-    private double time;
-
     public TextMeshProUGUI text;
 
     private void Awake()
     {
-        NowPlaying.OnPreInit += Initialize;
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad              += Initialize;
+        NowPlaying.OnGameStart += GameStart;
+        NowPlaying.OnPreInit   += Clear;
+        NowPlaying.OnClear     += Clear;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnPreInit -= Initialize;
+        NowPlaying.OnGameStart -= GameStart;
+        NowPlaying.OnPreInit   -= Clear;
+        NowPlaying.OnClear     -= Clear;
     }
 
-    private void Initialize()
+    private void Clear()
     {
-        timings   = DataStorage.Timings;
-        curIndex  = 0;
-        curTiming = timings[curIndex];
-        time      = curTiming.time;
-        text.text = $"{( int )curTiming.bpm}";
-        isStart   = true;
+        StopAllCoroutines();
+        text.text = $"{Mathf.RoundToInt( ( float ) ( DataStorage.Timings[0].bpm * GameSetting.CurrentPitch ) )}";
     }
 
-    private void LateUpdate()
+    private void GameStart() => StartCoroutine( UpdateBPM() );
+
+    private IEnumerator UpdateBPM()
     {
-        if ( isStart && curIndex < timings.Count &&
-             time < NowPlaying.Playback )
+        var    timings  = DataStorage.Timings;
+        int    bpmIndex = 0;
+        double bpmTime  = timings[bpmIndex].time;
+        while ( bpmIndex < timings.Count )
         {
-            text.text = $"{( int )curTiming.bpm}";
+            yield return new WaitUntil( () => bpmTime < NowPlaying.Playback );
 
-            if ( ++curIndex < timings.Count )
+            Timing current = timings[bpmIndex];
+            text.text = $"{Mathf.RoundToInt( ( float ) ( current.bpm * GameSetting.CurrentPitch ) )}";
+
+            // ´ÙÀ½ BPM
+            if ( ++bpmIndex < timings.Count )
             {
-                curTiming = timings[curIndex];
-                time = curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
-                       curTiming.time + DelayTime : curTiming.time;
+                bool needDelay = false;
+                current = timings[bpmIndex];
+                if ( bpmIndex + 1 < timings.Count )
+                {
+                    Timing next = timings[bpmIndex + 1];
+                    if ( Global.Math.Abs( next.time - current.time ) > DelayTime )
+                         needDelay = true;
+                }
+
+                bpmTime = needDelay ? current.time + DelayTime : current.time;
             }
         }
     }
+
+    // private void LateUpdate()
+    // {
+    //     if ( curIndex < timings.Count && time < NowPlaying.Playback )
+    //     {
+    //         text.text = $"{( int )curTiming.bpm}";
+    //         if ( ++curIndex < timings.Count )
+    //         {
+    //             curTiming = timings[curIndex];
+    //             time = curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
+    //                    curTiming.time + DelayTime : curTiming.time;
+    //         }
+    //     }
+    // }
 }

@@ -10,7 +10,6 @@ public enum BackgroundType : byte { None, Video, Sprite, Image, }
 
 public class BGASystem : MonoBehaviour
 {
-    private InGame scene;
     public RawImage background, foreground;
 
     [Header( "Video" )]
@@ -24,9 +23,9 @@ public class BGASystem : MonoBehaviour
     {
         NowPlaying.OnPreInit       += Initialize;
         AudioManager.OnUpdatePitch += UpdatePitch;
-
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += OnReLoad;
+        NowPlaying.OnPause         += Pause;
+        NowPlaying.OnClear         += Clear;
+        NowPlaying.OnGameStart     += GameStart;
 
         color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
         foreground.enabled = false;
@@ -40,6 +39,9 @@ public class BGASystem : MonoBehaviour
 
         NowPlaying.OnPreInit       -= Initialize;
         AudioManager.OnUpdatePitch -= UpdatePitch;
+        NowPlaying.OnPause         -= Pause;
+        NowPlaying.OnClear         -= Clear;
+        NowPlaying.OnGameStart     -= GameStart;
     }
 
     private void UpdatePitch( float _pitch )
@@ -73,18 +75,18 @@ public class BGASystem : MonoBehaviour
         {
             case BackgroundType.Video:
             {
-                scene.OnPause     += OnPause;
+                //scene.OnPause     += OnPause;
 
 
-                StartCoroutine( UpdateVideo() );
+                //StartCoroutine( UpdateVideo() );
             } break;
 
             case BackgroundType.Sprite:
             {
-                foreground.gameObject.SetActive( true );
+                //foreground.gameObject.SetActive( true );
 
-                StartCoroutine( UpdateSprites( background, SpriteType.Background ) );
-                StartCoroutine( UpdateSprites( foreground, SpriteType.Foreground ) );
+                //StartCoroutine( UpdateSprites( background, SpriteType.Background ) );
+                //StartCoroutine( UpdateSprites( foreground, SpriteType.Foreground ) );
             } break;
 
             case BackgroundType.Image:
@@ -105,48 +107,42 @@ public class BGASystem : MonoBehaviour
     }
 
 
-    private void OnReLoad()
+    private void GameStart()
     {
-        switch ( type )
+        if ( type == BackgroundType.Video )
         {
-            case BackgroundType.None:
-            case BackgroundType.Image:
-            break;
-
-            case BackgroundType.Video:
-            {
-                ClearRenderTexture();
-                
-                if ( !vp.isPlaying ) 
-                     vp.Play();
-
-                vp.Pause();
-                vp.frame = 0;
-            }
-            break;
-
-            case BackgroundType.Sprite:
-            {
-                background.texture = Texture2D.blackTexture;
-                foreground.texture = Texture2D.blackTexture;
-            }
-            break;
+            StartCoroutine( UpdateVideo() );
+        }
+        else if ( type == BackgroundType.Sprite )
+        {
+            foreground.gameObject.SetActive( true );
+            StartCoroutine( UpdateSprites( background, SpriteType.Background ) );
+            StartCoroutine( UpdateSprites( foreground, SpriteType.Foreground ) );
         }
     }
 
-    private void OnPause( bool _isPause )
+    private void Clear()
     {
-        if ( type != BackgroundType.Video )
-             return;
-
-        if ( _isPause ) vp.Pause();
-        else StartCoroutine( WaitVideoTime() );
+        StopAllCoroutines();
+        if (type == BackgroundType.Video )
+        {
+            vp.Stop();
+            ClearRenderTexture();
+        }
+        else if ( type == BackgroundType.Sprite )
+        {
+            background.texture = Texture2D.blackTexture;
+            foreground.texture = Texture2D.blackTexture;
+        }
     }
 
-    private IEnumerator WaitVideoTime()
+    private void Pause( bool _isPause )
     {
-        yield return new WaitUntil( () => NowPlaying.Playback > vp.time );
-        vp.Play();
+        if ( type == BackgroundType.Video )
+        {
+            if ( _isPause ) vp.Pause();
+            else            vp.Play();
+        }
     }
 
     private IEnumerator UpdateVideo()
@@ -162,8 +158,8 @@ public class BGASystem : MonoBehaviour
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
 
-        double videoOffset = 0d < DataStorage.Samples.Count ? DataStorage.Samples[0].time : 0d;
-        yield return new WaitUntil( () => videoOffset <= NowPlaying.Playback );
+        //double videoOffset = 0;//< DataStorage.Samples.Count ? DataStorage.Samples[0].time : 0d;
+        yield return new WaitUntil( () => NowPlaying.CurrentSong.videoOffset <= NowPlaying.Playback );
         vp.Play();
     }
 

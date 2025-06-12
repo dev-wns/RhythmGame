@@ -9,13 +9,7 @@ public class InGame : Scene
     [Header( "InGame" )]
     public GameObject loadingCanvas;
     public OptionController pause, gameOver;
-
-    public static event Action OnGameOver;
-
-    public event Action OnGameStart;
-    public event Action OnReLoad;
     public event Action OnLoadEnd;
-    public event Action<bool/* isPause */> OnPause;
 
     [Header("Fill Timer")]
     public Image timeImage;
@@ -41,7 +35,7 @@ public class InGame : Scene
     {
         base.Start();
 
-
+        NowPlaying.Inst.Load();
         StartCoroutine( Play() );
     }
 
@@ -81,7 +75,8 @@ public class InGame : Scene
 
         // 게임 시작
         IsInputLock = false;
-        NowPlaying.Inst.Play();
+        NowPlaying.Inst.GameStart();
+        //OnGameStart?.Invoke();
 
         // 게임 종료
         yield return new WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count );
@@ -93,35 +88,33 @@ public class InGame : Scene
         AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 5f ); // 5초 후 결과창으로
 
+        NowPlaying.Inst.Release();
         LoadScene( SceneType.Result );
     }
 
     public void BackToLobby()
     {
-        //DataStorage.Inst.Clear();
+        NowPlaying.Inst.Release();
         LoadScene( SceneType.FreeStyle );
     }
 
-    public void Restart() => StartCoroutine( RestartProcess() );
+    public void Restart() => StartCoroutine( RestartAfterFade() );
 
-    protected IEnumerator RestartProcess()
+    protected IEnumerator RestartAfterFade()
     {
         IsInputLock = true;
         yield return StartCoroutine( FadeOut() );
 
         ImmediateDisableCanvas( ActionType.Main, pause );
         ImmediateDisableCanvas( ActionType.Main, gameOver );
-        NowPlaying.Inst.Clear();
-        AudioManager.Inst.AllStop();
 
         Disconnect();
         Connect();
 
-        OnReLoad?.Invoke();
-
+        NowPlaying.Inst.Clear();
         yield return StartCoroutine( FadeIn() );
-        OnGameStart?.Invoke();
-        NowPlaying.Inst.Play();
+        NowPlaying.Inst.GameStart();
+
         IsInputLock = false;
     }
 
@@ -136,23 +129,17 @@ public class InGame : Scene
             NowPlaying.Inst.Pause( _isPause );
             if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
             else            DisableCanvas( ActionType.Main, pause );
-            OnPause?.Invoke( _isPause );
         }
-    }
-
-    private void ShowPauseCanvas( bool _isPause )
-    {
-        if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
-        else            DisableCanvas( ActionType.Main, pause );
     }
 
     public IEnumerator GameOver()
     {
         IsInputLock = true;
-        OnGameOver?.Invoke();
-        yield return StartCoroutine( NowPlaying.Inst.GameOver() );
 
+        //OnGameOver?.Invoke();
+        yield return StartCoroutine( NowPlaying.Inst.GameOver() );
         EnableCanvas( ActionType.GameOver, gameOver, false );
+
         IsInputLock = false;
     }
 

@@ -1,5 +1,3 @@
-#define START_FREESTYLE
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,10 +48,18 @@ public class NowPlaying : Singleton<NowPlaying>
     [Header( "Event" )]
     public static bool IsLoaded { get; private set; }
 
+    // Initialize Event
     public static event Action OnPreInit;     // Main  Thread
     public static event Action OnPostInit;    // Main  Thread
     public static event Action OnAsyncInit;   // Other Thread
     public static event Action OnUpdateInThread;
+
+    // Game Event
+    public static event Action OnGameStart;
+    public static event Action OnGameOver;
+    public static event Action OnClear;
+    public static event Action OnRelease;
+    public static event Action<bool> OnPause;
 
     //public static event Action<Song> OnParsing;
 
@@ -84,9 +90,8 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     /// <summary> 게임 시작할 때마다 초기화 </summary>
-    public async void Initialize()
+    public void Initialize()
     {
-        Clear(); // 기본 변수 초기화
         MainBPM = CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
         // 모드를 선택한 상태로 InGame 진입 후 계산
@@ -108,9 +113,14 @@ public class NowPlaying : Singleton<NowPlaying>
         Samples = DataStorage.Samples;
 
         // 후 계산
-        OnPreInit?.Invoke(); // 작업 전 클래스 초기화 등
-        await Task.Run( () => OnAsyncInit?.Invoke() );
-        OnPostInit?.Invoke();
+        OnPreInit?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
+    }
+
+    public async void Load()
+    {
+        await Task.Run( () => OnAsyncInit?.Invoke() ); // Other Thread Loading
+        OnPostInit?.Invoke();                          // Main  Thread Loading
+        Clear();                                       // 기본 변수 초기화 ( Restart 등 여러번 실행될 수 있음 )
         IsLoaded = true;
     }
 
@@ -253,6 +263,8 @@ public class NowPlaying : Singleton<NowPlaying>
     /// <summary> 기본 변수 초기화 </summary>
     public void Clear()
     {
+        AudioManager.Inst.AllStop();
+
         SaveTime      = -AudioLeadIn;
         Playback      = double.MinValue;
         Distance      = double.MinValue;
@@ -260,10 +272,13 @@ public class NowPlaying : Singleton<NowPlaying>
         bgmIndex      = 0;
         bpmIndex      = 0;
         IsStart       = false;
+
+        OnClear?.Invoke();
     }
 
-    public void Play()
+    public void GameStart()
     {
+        OnGameStart?.Invoke();
         AudioManager.Inst.SetPaused( false, ChannelType.BGM );
         StartTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
         IsStart        = true;
@@ -271,15 +286,16 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public void Release()
     {
-        IsLoaded  = false;
         StopAllCoroutines();
+        IsLoaded  = false;
+
+        OnRelease?.Invoke();
     }
 
     public IEnumerator GameOver()
     {
         IsStart     = false;
         float speed = 1f;
-
         while ( speed > 0f )
         {
             speed -= ( 1f / 3f ) * Time.deltaTime;
@@ -291,6 +307,8 @@ public class NowPlaying : Singleton<NowPlaying>
             
             yield return null;
         }
+
+        OnGameOver?.Invoke();
     }
 
     /// <returns> FALSE : Playback is higher than the last note time. </returns>
@@ -299,8 +317,9 @@ public class NowPlaying : Singleton<NowPlaying>
         if ( _isPause )
         {
             IsStart = false;
-            SaveTime = Playback - WaitPauseTime;
+            SaveTime = Playback;// - WaitPauseTime;
             AudioManager.Inst.SetPaused( true, ChannelType.BGM );
+            OnPause?.Invoke( true );
         }
         else
         {
@@ -310,20 +329,29 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private IEnumerator Continue()
     {
-        while ( Playback > SaveTime )
+        double recoil = Playback - WaitPauseTime;
+        while ( Playback > recoil )
         {
-            yield return null;
+            Playback -= Time.deltaTime * 1200f;
+            Distance = DistanceCache + ( Playback - Timings[bpmIndex].time );
 
-            Playback -= Time.deltaTime * 1.2f;
-            Distance = DistanceCache + ( ( Timings[bpmIndex].bpm / MainBPM ) * ( Playback - Timings[bpmIndex].time ) );
+            yield return null;
         }
 
+        while ( Playback < SaveTime )
+        {
+            Playback += Time.deltaTime * 1200f;
+            Distance = DistanceCache + ( Playback - Timings[bpmIndex].time );
+
+            yield return null;
+        }
+
+        OnPause?.Invoke( false );
+        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
         StartTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
         IsStart = true;
 
-        WaitUntil waitPlayback = new WaitUntil( () => Playback > SaveTime + WaitPauseTime );
-        yield return waitPlayback;
-        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
+        //yield return new WaitUntil( () => Playback > SaveTime + WaitPauseTime );
 
         yield return YieldCache.WaitForSeconds( 3f );
         CurrentScene.IsInputLock = false;

@@ -19,12 +19,11 @@ public class Lane : MonoBehaviour
     private Queue<HitData>      dataQueue        = new ();
 
     private List<Note>   noteDatas = new ();
-    private Note         spawnData;
     private NoteRenderer curNote;
     private int          spawnIndex;
 
     [Header( "Lane Effect" )]
-    private readonly float LaneOffset = 1f / .15f;
+    private readonly float LaneOffset = 1f / .1f;
     public  SpriteRenderer laneRenderer;
     private Color          laneColor;
     private float          laneAlpha;
@@ -41,7 +40,8 @@ public class Lane : MonoBehaviour
 
     private void Awake()
     {
-        InGame.OnGameOver += GameOver;
+        NowPlaying.OnClear    += Clear;
+        NowPlaying.OnGameOver += GameOver;
         //InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         //scene.OnGameStart += GameStart;
         //scene.OnGameOver  += GameOver;
@@ -54,7 +54,8 @@ public class Lane : MonoBehaviour
 
     private void OnDestroy()
     {
-        InGame.OnGameOver -= GameOver;
+        NowPlaying.OnClear    -= Clear;
+        NowPlaying.OnGameOver -= GameOver;
     }
 
 
@@ -108,7 +109,6 @@ public class Lane : MonoBehaviour
     {
         noteDatas  = _datas;
         spawnIndex = 0;
-        spawnData  = noteDatas.Count > 0 ? noteDatas[spawnIndex] : new Note();
 
         Key  = _lane;
         UKey = InputManager.Keys[( GameKeyCount )NowPlaying.KeyCount][Key];
@@ -188,17 +188,17 @@ public class Lane : MonoBehaviour
 
     private void SpawnNote()
     {
-        if ( spawnIndex >= noteDatas.Count )
-             return;
-
-        if ( spawnData.distance <= NowPlaying.Distance + GameSetting.MinDistance )
+        if ( spawnIndex < noteDatas.Count )
         {
-            NoteRenderer note = notePool.Spawn();
-            note.SetInfo( Key, in spawnData );
-            notes.Enqueue( note );
+            Note current = noteDatas[spawnIndex];
+            if ( current.distance <= NowPlaying.Distance + GameSetting.MinDistance )
+            {
+                NoteRenderer note = notePool.Spawn();
+                note.SetInfo( Key, in current );
+                notes.Enqueue( note );
 
-            if ( ++spawnIndex < noteDatas.Count )
-                   spawnData = noteDatas[spawnIndex];
+                spawnIndex++;
+            }
         }
     }
 
@@ -260,7 +260,7 @@ public class Lane : MonoBehaviour
     }
     #endregion
 
-    private void ReLoad()
+    private void Clear()
     {
         while ( sliderMissQueue.Count > 0 )
         {
@@ -274,16 +274,11 @@ public class Lane : MonoBehaviour
             slider.Despawn();
         }
 
-        curNote?.Despawn();
-        while ( notes.Count > 0 )
-        {
-            var note = notes.Dequeue();
-            note.Despawn();
-        }
+        dataQueue.Clear();
+        notes.Clear();
         notePool.AllDespawn();
 
         spawnIndex = 0;
-        spawnData  = new Note();
         curNote    = null;
     }
 

@@ -10105,7 +10105,6 @@ MonoBehaviour:
     type: 3}
   scroll: {fileID: 1702868222}
   bpmText: {fileID: 2014829267}
-  pitchOption: {fileID: 1839611852}
 --- !u!1 &452828879
 GameObject:
   m_ObjectHideFlags: 0
@@ -11343,7 +11342,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scroller: {fileID: 1702868222}
-  soundPitch: {fileID: 1839611852}
   bgPrefab: {fileID: 1419412381515201341, guid: 7c4fa7096f17bbb4199169bc7de8225f,
     type: 3}
 --- !u!1 &504544004
@@ -23041,7 +23039,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scroller: {fileID: 1702868222}
-  pitchOption: {fileID: 1839611852}
   noSliderOption: {fileID: 1309812286}
   fixedBPMOption: {fileID: 433318143}
   keyConvertOption: {fileID: 1924485810}

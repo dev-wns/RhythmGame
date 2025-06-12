@@ -3,32 +3,23 @@ using UnityEngine;
 
 public class AccuracySystem : MonoBehaviour
 {
-    [Header("RateSystem")]
-    private InGame scene;
-    private Judgement judge;
-
     public TextMeshProUGUI text;
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += OnReLoad;
-        //scene.OnResult += OnResult;
-
         InputManager.OnHitNote += UpdateAccuracy;
+        NowPlaying.OnPreInit   += Clear;
+        NowPlaying.OnClear     += Clear;
     }
 
     private void OnDestroy()
     {
         InputManager.OnHitNote -= UpdateAccuracy;
+        NowPlaying.OnPreInit   -= Clear;
+        NowPlaying.OnClear     -= Clear;
     }
 
-    //private void OnResult()
-    //{
-    //    DataStorage.Inst.UpdateResult( HitResult.Accuracy, ( int )( Accuracy * 100f ) );
-    //}
-
-    private void OnReLoad()
+    private void Clear()
     {
         text.text = $"100.00%";
     }

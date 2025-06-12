@@ -3,10 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
@@ -38,10 +35,10 @@ public class AudioManager : Singleton<AudioManager>
     private Dictionary<ChannelType, ChannelGroup> groups    = new Dictionary<ChannelType, ChannelGroup>();
     private Dictionary<SFX, Sound>                sfxSounds = new Dictionary<SFX, Sound>();
     private Dictionary<DSP_TYPE, DSP>             dsps      = new Dictionary<DSP_TYPE, DSP>();
+    public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
+
     public static event Action OnReload;
     public static event Action<float> OnUpdatePitch;
-
-    public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
     public struct SoundDriver : IEquatable<SoundDriver>
     {
         public int index; // OUTPUTTYPE에 해당하는 출력장치 인덱스

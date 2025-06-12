@@ -20,12 +20,7 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void Awake()
     {
-        InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += AllDespawn;
-
-        //Judgement judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
-        //judge.OnJudge += UpdateScoreMeter;
-
+        NowPlaying.OnClear     += AllDespawn;
         InputManager.OnHitNote += UpdateScoreMeter;
 
         pool = new ObjectPool<ScoreMeterRenderer>( prefab, contents, 5 );
@@ -33,6 +28,7 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void OnDestroy()
     {
+        NowPlaying.OnClear     -= AllDespawn;
         InputManager.OnHitNote -= UpdateScoreMeter;
     }
 

@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Runtime.Remoting.Lifetime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
@@ -196,7 +195,8 @@ public class DataStorage : Singleton<DataStorage>
         for ( int i = 0; i < Foregrounds.Count; i++ )
               yield return StartCoroutine( LoadExternalTexture( Foregrounds[i], null ) );
     }
-    private IEnumerator LoadExternalTexture( SpriteSample _sprite, Action _OnCompleted  )
+
+    public IEnumerator LoadExternalTexture( SpriteSample _sprite, Action _OnCompleted  )
     {
         var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
         // 파일이 없거나, 이미 로딩된 파일일 경우
@@ -225,7 +225,7 @@ public class DataStorage : Singleton<DataStorage>
 
                     if ( www.result == UnityWebRequest.Result.ConnectionError ||
                          www.result == UnityWebRequest.Result.ProtocolError )
-                         throw new System.Exception( www.error );
+                         throw new Exception( www.error );
 
                     loadedTextures.Add( _sprite.name, handler.texture );
                 }
@@ -233,6 +233,15 @@ public class DataStorage : Singleton<DataStorage>
         }
 
         _OnCompleted?.Invoke();
+    }
+
+    public void RemoveTexture( string _name )
+    {
+        if ( loadedTextures.ContainsKey( _name ) )
+        {
+            DestroyImmediate( loadedTextures[_name] );
+            loadedTextures.Remove( _name );
+        }
     }
     #endregion
 

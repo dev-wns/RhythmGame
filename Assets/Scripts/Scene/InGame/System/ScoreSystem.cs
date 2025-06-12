@@ -1,11 +1,8 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class ScoreSystem : MonoBehaviour
 {
-    private InGame scene;
-
     [Header("ScoreSystem")]
     private double targetScore;
     private double curScore;
@@ -17,22 +14,21 @@ public class ScoreSystem : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += OnReLoad;
-
-
         InputManager.OnHitNote += UpdateScore;
+        NowPlaying.OnClear     += Clear;
     }
 
     private void OnDestroy()
     {
         InputManager.OnHitNote -= UpdateScore;
+        NowPlaying.OnClear     -= Clear;
     }
 
-    private void OnReLoad()
+    private void Clear()
     {
         targetScore   = 0d;
         curScore      = 0d;
+        text.text     = $"{( ( int ) Global.Math.Round( curScore ) ):D7}";
     }
     
     private void UpdateScore( HitData _hitData )

@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
@@ -38,18 +35,18 @@ public class InputManager : Singleton<InputManager>
     private static readonly Dictionary<KeyCode, string/*keyCode String*/> UnityToString = new ();
 
     [Header( "Input Process" )]
+    public  static List<HitData>  HitDatas     = new ();
     private static Queue<HitData> HitDataQueue = new ();
-    private static List<HitData>  HitDatas     = new ();
     private static int[]          Indexes;   // 노트 인덱스
     private static bool[]         IsEntries; // 롱노트 진입점
-    private static bool[]         Previous;  // 이전 키 상태
+    private static bool[]         Previous;  // 이전 키 눌림 여부( 입력 2중 체크 )
     private static KeyState[]     KeyStates; // 레인별 입력 상태
-    private static KeySound[]     KeySounds; 
+    private static KeySound[]     KeySounds;
 
     [Header( "Lane" )]
-    private List<Lane>   lanes = new();
-    private List<Note>[] notes;
-    private Lane         prefab;
+    private static List<Lane>   Lanes = new();
+    private static List<Note>[] Notes;
+    private Lane                prefab;
 
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
     public static event Action<HitData> OnHitNote;
@@ -78,12 +75,14 @@ public class InputManager : Singleton<InputManager>
         NowPlaying.OnAsyncInit       += DivideNotes;
         NowPlaying.OnPostInit        += PostInitialize;
         NowPlaying.OnUpdateInThread  += UpdateInput;
+        NowPlaying.OnRelease         += Release;
+        NowPlaying.OnClear           += Clear;
 
         // 에셋 로딩
         DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
         {
             if ( !_lane.TryGetComponent( out prefab ) )
-                  Debug.LogError( $"Load Asset Failed ( Lane )" );
+                Debug.LogError( $"Load Asset Failed ( Lane )" );
         } );
     }
 
@@ -108,48 +107,64 @@ public class InputManager : Singleton<InputManager>
         Previous  = new bool      [NowPlaying.KeyCount];
         KeyStates = new KeyState  [NowPlaying.KeyCount];
         KeySounds = new KeySound  [NowPlaying.KeyCount];
-        notes     = new List<Note>[NowPlaying.KeyCount];
+        Notes     = new List<Note>[NowPlaying.KeyCount];
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
-            lanes.Add( Instantiate( prefab, transform ) );
-            notes[i] = new List<Note>();
+            Lanes.Add( Instantiate( prefab, transform ) );
+            Notes[i] = new List<Note>();
         }
-        Debug.Log( $"Create {lanes.Count} lanes." );
+        Debug.Log( $"Create {Lanes.Count} lanes." );
     }
 
     private void PostInitialize()
     {
-        for ( int i = 0; i < lanes.Count; i++ )
+        for ( int i = 0; i < Lanes.Count; i++ )
         {
-            KeySounds[i] = notes[i][0].keySound;
-            lanes[i].Initialize( i, notes[i] );
+            Lanes[i].Initialize( i, Notes[i] );
         }
     }
 
-    public void Release()
+    private void Clear()
     {
-        for ( int i = 0; i < lanes.Count; i++ )
-            DestroyImmediate( lanes[i], true );
-        
-        lanes.Clear();
+        HitDataQueue.Clear();
+        HitDatas.Clear();
 
-        for ( int i = 0; i < notes.Length; i++ )
-            notes[i].Clear();
+        for ( int i = 0; i < Lanes.Count; i++ )
+        {
+            Indexes[i]   = 0;  
+            IsEntries[i] = false;
+            Previous[i]  = false; 
+            KeyStates[i] = KeyState.None;
+            KeySounds[i] = Notes[i][0].keySound;
+        }
+    }
+
+    private void Release()
+    {
+        for ( int i = 0; i < Lanes.Count; i++ )
+            DestroyImmediate( Lanes[i], true );
+        
+        Lanes.Clear();
+        if ( Notes is not null )
+        {
+            for ( int i = 0; i < Notes.Length; i++ )
+                  Notes[i].Clear();
+        }
 
         Indexes   = null;
         IsEntries = null;
         Previous  = null;
         KeyStates = null;
         KeySounds = null;
-        notes     = null;
+        Notes     = null;
     }
 
     private void UpdateInput()
     {
-        for ( int i = 0; i < lanes.Count; i++ )
+        for ( int i = 0; i < Lanes.Count; i++ )
         {
             // 입력 상태 체크
-            bool current = ( GetAsyncKeyState( lanes[i].VKey ) & 0x8000 ) != 0;
+            bool current = ( GetAsyncKeyState( Lanes[i].VKey ) & 0x8000 ) != 0;
             KeyStates[i] = (Previous[i], current) switch
             {
                 ( false, true ) => KeyState.Down,
@@ -168,10 +183,10 @@ public class InputManager : Singleton<InputManager>
             }
 
             // 데이터 소진 시 계산 불필요
-            if ( Indexes[i] >= notes[i].Count )
+            if ( Indexes[i] >= Notes[i].Count )
                  continue;
             
-            Note note        = notes[i][Indexes[i]];
+            Note note        = Notes[i][Indexes[i]];
             double playback  = NowPlaying.Playback;
             double startDiff = note.time    - playback;
             double endDiff   = note.endTime - playback;
@@ -185,7 +200,7 @@ public class InputManager : Singleton<InputManager>
 
                     HitData hitData = new HitData( playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down );
                     HitDataQueue.Enqueue( hitData );
-                    lanes[i].AddData( hitData );
+                    Lanes[i].AddData( hitData );
                 }
                 else if ( Judgement.IsMiss( startDiff ) )
                 {
@@ -193,7 +208,7 @@ public class InputManager : Singleton<InputManager>
                     // 롱노트 시작에서 Miss일 때, 시작판정, 끝판정 모두 미스처리한다.
                     HitData hitData = new HitData( playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.None );
                     HitDataQueue.Enqueue( hitData );
-                    lanes[i].AddData( hitData );
+                    Lanes[i].AddData( hitData );
                 }
             }
             else // 롱노트 끝판정
@@ -204,14 +219,14 @@ public class InputManager : Singleton<InputManager>
                     SelectNextNote( i );
                     HitData hitData = new HitData( playback, 0d, Judgement.UpdateResult( endDiff ), KeyState.Up );
                     HitDataQueue.Enqueue( hitData );
-                    lanes[i].AddData( hitData );
+                    Lanes[i].AddData( hitData );
                 }
                 else if ( Judgement.IsMiss( endDiff ) )
                 {
                     SelectNextNote( i );
                     HitData hitData = new HitData( playback, endDiff, Judgement.UpdateResult( endDiff ), KeyState.None );
                     HitDataQueue.Enqueue( hitData );
-                    lanes[i].AddData( hitData );
+                    Lanes[i].AddData( hitData );
                 }
             }
         }
@@ -240,7 +255,7 @@ public class InputManager : Singleton<InputManager>
                     newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
                     DataStorage.Inst.LoadSound( newNote.keySound );
-                    notes[newNote.lane].Add( newNote );
+                    Notes[newNote.lane].Add( newNote );
                 } break;
 
                 // 맥스랜덤은 무작위 레인에 노트를 배치한다.
@@ -271,7 +286,7 @@ public class InputManager : Singleton<InputManager>
                     newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
                     DataStorage.Inst.LoadSound( newNote.keySound );
-                    notes[selectLane].Add( newNote );
+                    Notes[selectLane].Add( newNote );
                 } break;
             }
         }
@@ -279,7 +294,7 @@ public class InputManager : Singleton<InputManager>
         // 기본방식의 랜덤은 노트분배가 끝난 후, 완성된 데이터를 스왑한다.
         switch ( GameSetting.CurrentRandom )
         {
-            case GameRandom.Mirror:       notes.Reverse();                break;
+            case GameRandom.Mirror:       Notes.Reverse();                break;
             case GameRandom.Basic_Random: Swap( 0, NowPlaying.KeyCount ); break;
             case GameRandom.Half_Random:
             { 
@@ -297,9 +312,9 @@ public class InputManager : Singleton<InputManager>
             var randA = random.Next( _min, _max );
             var randB = random.Next( _min, _max );
 
-            var tmp      = notes[randA];
-            notes[randA] = notes[randB];
-            notes[randB] = tmp;
+            var tmp      = Notes[randA];
+            Notes[randA] = Notes[randB];
+            Notes[randB] = tmp;
         }
     }
 
@@ -310,8 +325,8 @@ public class InputManager : Singleton<InputManager>
         IsEntries[_lane] = false;
 
         // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
-        if ( Indexes[_lane] < notes[_lane].Count )
-            KeySounds[_lane] = notes[_lane][Indexes[_lane]].keySound;
+        if ( Indexes[_lane]   < Notes[_lane].Count )
+             KeySounds[_lane] = Notes[_lane][Indexes[_lane]].keySound;
     }
 
     #region Key Setting
@@ -380,8 +395,8 @@ public class InputManager : Singleton<InputManager>
         AddMapping( 0xA2, KeyCode.LeftControl,    "LCtrl"    );  
         AddMapping( 0xA4, KeyCode.LeftAlt,        "LAlt"     );      
         AddMapping( 0xA1, KeyCode.RightShift,     "RShift"   ); 
-        AddMapping( 0x19, KeyCode.RightControl,   "RCtrl"    ); // 한자
-        AddMapping( 0x15, KeyCode.RightAlt,       "RAlt"     ); // 한영
+        AddMapping( 0x19, KeyCode.RightControl,   "RCtrl"    ); // + 한자
+        AddMapping( 0x15, KeyCode.RightAlt,       "RAlt"     ); // + 한영
                                                              
         AddMapping( 0x23, KeyCode.End,            "End"      );
         AddMapping( 0x24, KeyCode.Home,           "Home"     );

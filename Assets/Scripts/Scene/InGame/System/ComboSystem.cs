@@ -1,13 +1,10 @@
 using DG.Tweening;
 using System.Collections;
-using System.Reflection;
 using TMPro;
 using UnityEngine;
 
 public class ComboSystem : MonoBehaviour
 {
-    private InGame scene;
-
     [Header("ComboSystem")]
     private float curCombo;
     private float targetCombo;
@@ -22,16 +19,22 @@ public class ComboSystem : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnReLoad += OnReLoad;
-        //scene.OnResult += OnResult;
-
         InputManager.OnHitNote += UpdateCombo;
+        NowPlaying.OnClear     += Clear;
 
         var rt = transform as RectTransform;
         rt.anchoredPosition = new Vector2( rt.anchoredPosition.x + GameSetting.GearOffsetX, rt.anchoredPosition.y );
         startPos = transform.localPosition;
     }
+
+    private void OnDestroy()
+    {
+        effectSeq?.Kill();
+
+        InputManager.OnHitNote -= UpdateCombo;
+        NowPlaying.OnClear     -= Clear;
+    }
+
 
     private void Start()
     {
@@ -41,20 +44,14 @@ public class ComboSystem : MonoBehaviour
         StartCoroutine( BreakCombo() );
     }
 
-    private void OnDestroy()
-    {
-        InputManager.OnHitNote -= UpdateCombo;
-        effectSeq?.Kill();
-    }
 
     //private void OnResult()
     //{
     //    DataStorage.Inst.UpdateResult( HitResult.Combo, Mathf.RoundToInt( highestCombo ) );
     //}
 
-    private void OnReLoad()
+    private void Clear()
     {
-        StopAllCoroutines();
         curCombo    = 0f;
         ComboPos    = 0f;
         targetCombo = 0f;
@@ -62,8 +59,6 @@ public class ComboSystem : MonoBehaviour
 
         text.text  = $"{( int )curCombo}";
         text.color = Color.white;
-
-        //StartCoroutine( BreakCombo() );
     }
 
     private IEnumerator BreakCombo()

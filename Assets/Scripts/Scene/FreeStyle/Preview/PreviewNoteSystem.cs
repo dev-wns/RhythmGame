@@ -139,13 +139,22 @@ public class PreviewNoteSystem : MonoBehaviour
 
         if ( bpmIndex < timings.Count && bpmTime < Playback )
         {
-            bpmText.text = $"{Mathf.RoundToInt( ( float )( timings[bpmIndex].bpm * GameSetting.CurrentPitch ) )}";
+            Timing current = timings[bpmIndex];
+            bpmText.text = $"{Mathf.RoundToInt( ( float )( current.bpm * GameSetting.CurrentPitch ) )}";
 
-            if ( ++bpmIndex < timings.Count )
+            // ´ÙÀ½ BPM
+            if ( bpmIndex + 1 < timings.Count )
             {
-                curTiming = timings[bpmIndex];
-                bpmTime = bpmIndex + 1 < timings.Count && Global.Math.Abs( timings[bpmIndex + 1].time - curTiming.time ) > DelayTime ?
-                          curTiming.time + DelayTime : curTiming.time;
+                current = timings[++bpmIndex];
+                bool needDelay = false;
+                if ( bpmIndex + 1 < timings.Count )
+                { 
+                    Timing next = timings[bpmIndex + 1];
+                    if ( Global.Math.Abs( next.time - current.time ) > DelayTime )
+                         needDelay = true;
+                }
+
+                bpmTime = needDelay ? current.time + DelayTime : current.time;
             }
         }
 
