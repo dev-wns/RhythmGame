@@ -98,10 +98,10 @@ public class GameSetting
     public static float MeasureHeight = 2.5f;
 
     // Judgement
+    public static float JudgePos         => DefaultJudgePos + JudgeOffset;
+    public static int   JudgeOffset      = -33;
+    public static float JudgeHeight      = 50f;
     private static float DefaultJudgePos = -435f;
-    public static float JudgePos    => DefaultJudgePos + JudgeOffset;
-    public static int   JudgeOffset = -33;
-    public static float JudgeHeight = 50f;
 
     // note
     public static float NoteSizeMultiplier = 1f;
@@ -109,17 +109,14 @@ public class GameSetting
     public static float NoteHeight    => 63f    * NoteSizeMultiplier;
     public static float NoteBodyWidth => 110.5f * NoteSizeMultiplier;
     public static float NoteBlank     =  0f;
-    public static float NoteStartPos  => GearOffsetX + -( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
+    public static float NoteStartPos  => GearOffsetX - ( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 
     // Gear
     public static float GearOffsetX  = 0f;
-    public static float GearStartPos => GearOffsetX + ( -( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f );
-    public static float GearWidth    => ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) );
+    public static float GearStartPos => GearOffsetX - ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
+    public static float GearWidth    => ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) );
 
     // Pitch
+    public  static float CurrentPitch { get => pitch; set => pitch = value; }
     private static float pitch = 1f;
-    public static float CurrentPitch { get => pitch; set => pitch = value; }
-
-    // PPU
-    public static int PPU = 100; // pixel per unit
 }

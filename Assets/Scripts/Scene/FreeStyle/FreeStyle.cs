@@ -26,10 +26,9 @@ public class FreeStyle : Scene
     {
         AudioManager.OnReload += Connect;
 
-        AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        AudioManager.Inst.Pitch = GameSetting.CurrentPitch;
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
-        Debug.Log( $"Applied DSP : {AudioManager.Inst.GetAppliedDSPName()}" );
     }
 
     public override void Disconnect()

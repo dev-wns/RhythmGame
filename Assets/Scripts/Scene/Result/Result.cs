@@ -13,15 +13,15 @@ public class Result : Scene
 
         QualitySettings.antiAliasing = 8;
 
-        AudioManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false );
-        AudioManager.Inst.Play();
-        soundLength = AudioManager.Inst.Length;
-        playback    = AudioManager.Inst.Position = highlightPos;
+        //AudioManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\{soundName}", true, false );
+        //AudioManager.Inst.Play();
+        //soundLength = AudioManager.Inst.Length;
+        //playback    = AudioManager.Inst.Position = highlightPos;
 
-        AudioManager.Inst.FadeVolume( 0f, AudioManager.Inst.Volume, 2f );
+        AudioManager.Inst.Fade( AudioManager.MainChannel, 0f, 1f, 2f );
 
         if ( !GameSetting.HasFlag( GameMode.AutoPlay ) )
-             DataStorage.Inst.CreateNewRecord();
+              DataStorage.Inst.CreateNewRecord();
 
         isStart = true;
     }

@@ -13,6 +13,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static Scene CurrentScene;
 
     [Header( "Song" )]
+    
     public ReadOnlyCollection<Song> Songs { get; private set; }
     public static Song CurrentSong { get; private set; }
     public static int CurrentIndex { get; private set; }
@@ -160,7 +161,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 // 배경음 처리( 시간의 흐름에 따라 자동재생 )
                 while ( bgmIndex < Samples.Count && Samples[bgmIndex].time <= Playback )
                 {
-                    if ( DataStorage.Inst.TryGetSound( Samples[bgmIndex].name, out FMOD.Sound sound ) )
+                    if ( DataStorage.Inst.GetSound( Samples[bgmIndex].name, out FMOD.Sound sound ) )
                          AudioManager.Inst.Play( sound, Samples[bgmIndex].volume );
 
                     bgmIndex += 1;
@@ -279,7 +280,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public void GameStart()
     {
         OnGameStart?.Invoke();
-        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
+        AudioManager.Inst.Pause = false;
         StartTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
         IsStart        = true;
     }
@@ -300,7 +301,7 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             speed -= ( 1f / 3f ) * Time.deltaTime;
             float decrease = ( 1f - speed ) * GameSetting.CurrentPitch * .3f;
-            AudioManager.Inst.SetPitch( GameSetting.CurrentPitch - decrease, ChannelType.BGM );
+            AudioManager.Inst.Pitch = GameSetting.CurrentPitch - decrease;
 
             Playback += speed * ( 1000f * Time.deltaTime );
             Distance  = DistanceCache + ( Playback - Timings[bpmIndex].time );
@@ -318,7 +319,7 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             IsStart = false;
             SaveTime = Playback;// - WaitPauseTime;
-            AudioManager.Inst.SetPaused( true, ChannelType.BGM );
+            AudioManager.Inst.Pause = true;
             OnPause?.Invoke( true );
         }
         else
@@ -347,7 +348,7 @@ public class NowPlaying : Singleton<NowPlaying>
         }
 
         OnPause?.Invoke( false );
-        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
+        AudioManager.Inst.Pause = false;
         StartTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
         IsStart = true;
 

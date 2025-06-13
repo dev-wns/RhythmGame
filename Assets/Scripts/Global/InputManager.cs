@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -178,7 +179,7 @@ public class InputManager : Singleton<InputManager>
             if ( KeyStates[i] == KeyState.Down )
             {
                 // 노트에 키음이 없을 수도 있다. 
-                if ( DataStorage.Inst.TryGetSound( KeySounds[i].name, out FMOD.Sound sound ) )
+                if ( DataStorage.Inst.GetSound( KeySounds[i].name, out FMOD.Sound sound ) )
                      AudioManager.Inst.Play( sound, KeySounds[i].volume );
             }
 
@@ -254,7 +255,7 @@ public class InputManager : Singleton<InputManager>
                     newNote.distance    = NowPlaying.Inst.GetDistance( newNote.time    );
                     newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
-                    DataStorage.Inst.LoadSound( newNote.keySound );
+                    DataStorage.Inst.LoadSound( newNote.keySound.name );
                     Notes[newNote.lane].Add( newNote );
                 } break;
 
@@ -285,7 +286,7 @@ public class InputManager : Singleton<InputManager>
                     newNote.distance    = NowPlaying.Inst.GetDistance( newNote.time    );
                     newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
 
-                    DataStorage.Inst.LoadSound( newNote.keySound );
+                    DataStorage.Inst.LoadSound( newNote.keySound.name );
                     Notes[selectLane].Add( newNote );
                 } break;
             }

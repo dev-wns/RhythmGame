@@ -109,6 +109,13 @@ public struct KeySound
         name   = _name;
         volume = _volume < float.Epsilon ? 100f : _volume;
     }
+
+    public KeySound( string _name )
+    {
+        time   = 0d;
+        name   = _name;
+        volume = 100f;
+    }
 }
 
 public enum SpriteType { None, Background, Foreground }

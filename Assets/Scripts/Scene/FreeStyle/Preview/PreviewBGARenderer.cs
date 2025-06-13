@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using static UnityEditor.MaterialProperty;
 
 public class PreviewBGARenderer : MonoBehaviour
 {
@@ -27,7 +30,8 @@ public class PreviewBGARenderer : MonoBehaviour
     private VideoPlayer vp;
     private Coroutine   CorUpdateVideo;
 
-    //[Header( "Sprites Player" )]
+
+    private Dictionary<string/* name */, Texture2D> textures = new ();
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Coroutine CorUpdateSprites;
 
@@ -47,35 +51,14 @@ public class PreviewBGARenderer : MonoBehaviour
         fadeOffset = color.a / fadeTime;
     }
 
-    private IEnumerator FadeAfterDespawn()
+    private void OnDestroy()
     {
-        while ( image.color.a >= 0f )
+        StopAllCoroutines();
+        foreach ( Texture2D texture in textures.Values )
         {
-            Color newColor = image.color;
-            newColor.a -= fadeOffset * Time.deltaTime;
-            image.color = newColor;
-
-            yield return null;
+            DestroyImmediate( texture );
         }
-
-        if ( type == BackgroundType.Image && !isDefault )
-        {
-            DataStorage.Inst.RemoveTexture( imageName );
-            imageName = string.Empty;
-        }
-        else if ( type == BackgroundType.Sprite )
-        {
-            for ( int i = 0; i < sprites.Count; i++ )
-            {
-                DataStorage.Inst.RemoveTexture( sprites[i].name );
-            }
-            sprites.Clear();
-        }
-
-        system.DeSpawn( this );
     }
-
-    private void OnDestroy() => Clear();
 
     public void UpdatePitch( float _pitch )
     {
@@ -151,24 +134,70 @@ public class PreviewBGARenderer : MonoBehaviour
         {
             type = BackgroundType.Image;
             imageName = _song.imageName;
-            DataStorage.Inst.LoadTexture( new SpriteSample( imageName ), () =>
+            StartCoroutine( LoadTexture( new SpriteSample( imageName ), BackgroundType.Image ) );
+        }
+    }
+
+    public IEnumerator LoadTexture( SpriteSample _sprite, BackgroundType _type )
+    {
+        var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
+        if ( !File.Exists( path ) || textures.ContainsKey( _sprite.name ) )
+        {
+            if ( _type == BackgroundType.Image )
             {
                 image.enabled = true;
-                if ( DataStorage.Inst.TryGetTexture( imageName, out Texture2D texture ) ) image.texture = texture;
-                else
-                {
-                    isDefault     = true;
-                    image.texture = DataStorage.Inst.GetDefaultTexture();
-                }
+                isDefault     = true;
+                image.texture = DataStorage.Inst.GetDefaultTexture();
                 tf.sizeDelta  = Global.Screen.GetRatio( image.texture );
-            } );
+            }
+            yield break;
         }
+
+        Texture2D tex;
+        if ( Path.GetExtension( path ) == ".bmp" )
+        {
+            // 비트맵 파일은 런타임에서 읽히지 않음( 외부 도움 )
+            BMPLoader bitmapLoader = new BMPLoader();
+            BMPImage img = bitmapLoader.LoadBMP( path );
+            tex = img.ToTexture2D( TextureFormat.RGB24 );
+        }
+        else
+        {
+            // 그 외 JPG, JPEG, PNG 등 이미지 파일 로딩
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path, true ) )
+            {
+                www.method = UnityWebRequest.kHttpVerbGET;
+                using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
+                {
+                    www.downloadHandler = handler;
+                    yield return www.SendWebRequest();
+
+                    if ( www.result == UnityWebRequest.Result.ConnectionError ||
+                         www.result == UnityWebRequest.Result.ProtocolError )
+                        throw new Exception( www.error );
+
+                    tex = handler.texture;
+                }
+            }
+        }
+
+        if ( _type == BackgroundType.Image )
+        {
+            image.enabled = true;
+            isDefault     = false;
+            image.texture = tex;
+            tf.sizeDelta  = Global.Screen.GetRatio( image.texture );
+        }
+
+        textures.Add( _sprite.name, tex );
     }
 
     private IEnumerator LoadSprites()
     {
         for ( int i = 0; i < sprites.Count; i++ )
-              yield return StartCoroutine( DataStorage.Inst.LoadExternalTexture( sprites[i], null ) );
+        {
+            yield return StartCoroutine( LoadTexture( sprites[i], BackgroundType.Sprite ) );
+        }
     }
 
     private IEnumerator UpdateSprites()
@@ -181,24 +210,17 @@ public class PreviewBGARenderer : MonoBehaviour
 
         yield return waitSampleStart;
 
-        // Wait First Texture
-        yield return new WaitUntil( () =>
-        {
-            if ( DataStorage.Inst.TryGetTexture( curSample.name, out Texture2D texture ) )
-            {
-                tf.sizeDelta = Global.Screen.GetRatio( texture );
-                image.enabled = true;
-                return true;
-            }
-            return false;
-        } );
 
+        image.enabled = true;
         while ( curIndex < sprites.Count )
         {
             yield return waitSampleStart;
 
-            if ( DataStorage.Inst.TryGetTexture( curSample.name, out Texture2D texture ) )
-                 image.texture = texture;
+            if ( textures.TryGetValue( curSample.name, out Texture2D texture ) )
+            {
+                tf.sizeDelta  = Global.Screen.GetRatio( texture );
+                image.texture = texture;
+            }
 
             yield return waitSampleEnd;
             if ( ++curIndex < sprites.Count )
@@ -229,7 +251,6 @@ public class PreviewBGARenderer : MonoBehaviour
 
     private void Clear()
     {
-        StopAllCoroutines();
         ClearRenderTexture();
         tf.SetAsFirstSibling();
         isDefault     = false;
@@ -245,5 +266,36 @@ public class PreviewBGARenderer : MonoBehaviour
         RenderTexture.active = rt;
     }
 
-    public void Despawn() => StartCoroutine( FadeAfterDespawn() );
+    public void Despawn()
+    {
+        StopAllCoroutines();
+        StartCoroutine( FadeAfterDespawn() );
+    }
+
+    private IEnumerator FadeAfterDespawn()
+    {
+        while ( image.color.a >= 0f )
+        {
+            Color newColor = image.color;
+            newColor.a -= fadeOffset * Time.deltaTime;
+            image.color = newColor;
+
+            yield return null;
+        }
+
+        if ( isDefault )
+        {
+            system.DeSpawn( this );
+            yield break;
+        }
+
+        foreach( Texture2D texture in textures.Values )
+        {
+            DestroyImmediate( texture );
+        }
+
+        textures.Clear();
+        sprites.Clear();
+        system.DeSpawn( this );
+    }
 }

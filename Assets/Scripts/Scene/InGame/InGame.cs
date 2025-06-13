@@ -46,7 +46,7 @@ public class InGame : Scene
 
     public override void Connect()
     {
-        AudioManager.Inst.SetPitch( GameSetting.CurrentPitch, ChannelType.BGM );
+        AudioManager.Inst.Pitch = GameSetting.CurrentPitch;
         if ( GameSetting.CurrentPitchType != PitchType.None )
              AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
@@ -85,7 +85,7 @@ public class InGame : Scene
         //if ( NowPlaying.CurrentSong.isOnlyKeySound )
         //     yield return new WaitUntil( () => NowPlaying.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
 
-        AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
+        //AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 5f ); // 5초 후 결과창으로
 
         NowPlaying.Inst.Release();

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
@@ -37,12 +38,12 @@ public class DataStorage : Singleton<DataStorage>
     [Header( "Texture" )]
     private BMPLoader bitmapLoader = new ();
     private Dictionary<string/* name */, Texture2D> loadedTextures = new ();
-    private List<Texture2D> defaultTextures = new ();
-    private int             defaultTextureIndex = 0;
+    private List<Texture2D> textures = new (); // Default Texture
+    private int             texIndex = 0;      // Default Texture
 
     [Header( "Sound" )]
     private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
-    public ReadOnlyCollection<KeySound>              BGM { get; private set; }
+    private Dictionary<SFX,              FMOD.Sound> sfxSounds    = new ();
 
     [Header( "Result Data" )]
     public  static RecordData CurrentRecord => recordData;
@@ -56,13 +57,22 @@ public class DataStorage : Singleton<DataStorage>
         {
             // FMOD Sound는 Thread에서 로딩 가능
             for ( int i = 0; i < Samples.Count; i++ )
-                  LoadSound( Samples[i] );
+                  LoadSound( Samples[i].name );
         };
 
         // UnityWebRequest( Coroutine ) 사용
-        NowPlaying.OnPostInit  += () => StartCoroutine( LoadTextures() );
+        NowPlaying.OnPostInit += () => StartCoroutine( LoadTextures() );
 
-        LoadAssetsAsync( "DefaultTexture", ( Texture2D texture ) => defaultTextures.Add( texture ) );
+        // Default Resource
+        LoadAssetsAsync( "DefaultTexture", ( Texture2D texture ) => textures.Add( texture ) );
+        LoadSound( SFX.MainClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav"  );
+        LoadSound( SFX.MenuClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav"  );
+        LoadSound( SFX.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
+        LoadSound( SFX.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
+        LoadSound( SFX.MainHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav"  );
+        LoadSound( SFX.MenuHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav"  );
+        LoadSound( SFX.MenuExit,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav"   );
+        LoadSound( SFX.Slider,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav"     );
     }
 
     private void OnApplicationQuit()
@@ -169,42 +179,47 @@ public class DataStorage : Singleton<DataStorage>
     #endregion
 
     #region Sound
-    public bool TryGetSound( string _name, out FMOD.Sound _sound ) => loadedSounds.TryGetValue( _name, out _sound );
-
-    public void LoadSound( in KeySound _sound )
+    public bool GetSound( SFX _type,    out FMOD.Sound _sound ) => sfxSounds.TryGetValue( _type, out _sound );
+    public bool GetSound( string _name, out FMOD.Sound _sound ) => loadedSounds.TryGetValue( _name, out _sound );
+    public void LoadSound( string _name )
     {
-        if ( !loadedSounds.ContainsKey( _sound.name ) )
+        if ( !loadedSounds.ContainsKey( _name ) )
         {
-            string path = Path.Combine( NowPlaying.CurrentSong.directory, _sound.name );
+            string path = Path.Combine( NowPlaying.CurrentSong.directory, _name );
             if ( AudioManager.Inst.Load( path, out FMOD.Sound sound ) )
-                 loadedSounds.Add( _sound.name, sound );
+                 loadedSounds.Add( _name, sound );
+        }
+    }
+    private void LoadSound( SFX _type, string _path )
+    {
+        if ( AudioManager.Inst.Load( _path, out FMOD.Sound sound ) )
+        {
+            if ( !sfxSounds.ContainsKey( _type ) )
+                  sfxSounds.Add( _type, sound );
         }
     }
     #endregion
 
     #region Texture
-    public bool TryGetTexture( string _name, out Texture2D _tex ) => loadedTextures.TryGetValue( _name, out _tex );
-    public Texture2D GetDefaultTexture() => defaultTextures[( ++defaultTextureIndex < defaultTextures.Count ? defaultTextureIndex : defaultTextureIndex = 0 )];
-    public void LoadTexture( SpriteSample _sprite, Action _OnCompleted = null ) => StartCoroutine( LoadExternalTexture(  _sprite,  _OnCompleted ) );
+    public bool GetTexture( string _name, out Texture2D _tex ) => loadedTextures.TryGetValue( _name, out _tex );
+    public Texture2D GetDefaultTexture() => textures[( ++texIndex < textures.Count ? texIndex : texIndex = 0 )];
+    public void LoadTexture( SpriteSample _sprite ) => StartCoroutine( LoadExternalTexture(  _sprite ) );
     private IEnumerator LoadTextures()
     {
         // 스프라이트 배경 로딩 ( UnityWebRequest, Main Thread에서 사용 )
         for ( int i = 0; i < Backgrounds.Count; i++ )
-              yield return StartCoroutine( LoadExternalTexture( Backgrounds[i], null ) );
+              yield return StartCoroutine( LoadExternalTexture( Backgrounds[i] ) );
 
         for ( int i = 0; i < Foregrounds.Count; i++ )
-              yield return StartCoroutine( LoadExternalTexture( Foregrounds[i], null ) );
+              yield return StartCoroutine( LoadExternalTexture( Foregrounds[i] ) );
     }
 
-    public IEnumerator LoadExternalTexture( SpriteSample _sprite, Action _OnCompleted  )
+    private IEnumerator LoadExternalTexture( SpriteSample _sprite  )
     {
         var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
         // 파일이 없거나, 이미 로딩된 파일일 경우
         if ( !File.Exists( path ) || loadedTextures.ContainsKey( _sprite.name ) )
-        {
-            _OnCompleted?.Invoke();
-            yield break;
-        }
+             yield break;
         
         if ( Path.GetExtension( path ) == ".bmp" )
         {
@@ -230,17 +245,6 @@ public class DataStorage : Singleton<DataStorage>
                     loadedTextures.Add( _sprite.name, handler.texture );
                 }
             }
-        }
-
-        _OnCompleted?.Invoke();
-    }
-
-    public void RemoveTexture( string _name )
-    {
-        if ( loadedTextures.ContainsKey( _name ) )
-        {
-            DestroyImmediate( loadedTextures[_name] );
-            loadedTextures.Remove( _name );
         }
     }
     #endregion

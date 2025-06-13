@@ -24,8 +24,8 @@ public abstract class Scene : SceneKeyAction
         KeyBind();
         ChangeAction( ActionType.Main );
 
-        AudioManager.Inst.SetVolume( AudioManager.Inst.Volume, ChannelType.BGM );
-        AudioManager.Inst.SetPaused( false, ChannelType.BGM );
+        //AudioManager.Inst.SetVolume( AudioManager.Volume, ChannelType.BGM );
+        AudioManager.Inst.Pause = false;
     }
 
     protected virtual void Start()
@@ -43,7 +43,6 @@ public abstract class Scene : SceneKeyAction
     public void LoadScene( SceneType _type )
     {
         StopAllCoroutines();
-        AudioManager.Inst.StopFadeEffect();
         StartCoroutine( SceneChange( _type ) );
     }
 
@@ -90,7 +89,7 @@ public abstract class Scene : SceneKeyAction
             AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
+             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
     }
 
     protected void EnableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -106,10 +105,10 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-            AudioManager.Inst.Play( SFX.MenuClick );
+             AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume * .5f, .5f );
+             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
     }
 
     protected void ImmediateDisableCanvas( ActionType _changeType, OptionController _controller )
@@ -119,7 +118,7 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         AudioManager.Inst.Play( SFX.MenuExit );
-        AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
+        AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
 
     protected void DisableCanvas( ActionType _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -140,7 +139,7 @@ public abstract class Scene : SceneKeyAction
             AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
-            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
+             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
 
     protected void DisableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -159,10 +158,10 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         if ( _isSfxPlay )
-            AudioManager.Inst.Play( SFX.MenuExit );
+             AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
-            AudioManager.Inst.FadeVolume( AudioManager.Inst.GetVolume( ChannelType.BGM ), AudioManager.Inst.Volume, .5f );
+             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
     #endregion
 
@@ -222,7 +221,7 @@ public abstract class Scene : SceneKeyAction
     {
         Texture2D tex = Texture2D.whiteTexture;
         blackSprite = GetComponent<SpriteRenderer>();
-        blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+        blackSprite.sprite = Sprite.Create( tex, new Rect( 0f, 0f, tex.width, tex.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
 
         blackSprite.drawMode = SpriteDrawMode.Sliced;
         blackSprite.size = new Vector2( 10000, 10000 );

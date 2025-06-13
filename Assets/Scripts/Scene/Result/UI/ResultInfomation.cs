@@ -190,7 +190,7 @@ public class ResultInfomation : MonoBehaviour
             BMPLoader loader = new BMPLoader();
             BMPImage img = loader.LoadBMP( _path );
             texture = img.ToTexture2D();
-            spriteBg = Sprite.Create( texture, new Rect( 0, 0, texture.width, texture.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+            spriteBg = Sprite.Create( texture, new Rect( 0, 0, texture.width, texture.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
         }
         else
         {
@@ -210,7 +210,7 @@ public class ResultInfomation : MonoBehaviour
                     }
 
                     texture = handler.texture;
-                    spriteBg = Sprite.Create( texture, new Rect( 0, 0, texture.width, texture.height ), new Vector2( .5f, .5f ), GameSetting.PPU, 0, SpriteMeshType.FullRect );
+                    spriteBg = Sprite.Create( texture, new Rect( 0, 0, texture.width, texture.height ), new Vector2( .5f, .5f ), 100, 0, SpriteMeshType.FullRect );
                 }
             }
         }

@@ -71,41 +71,21 @@ public class BGASystem : MonoBehaviour
                DataStorage.Foregrounds.Count > 0  ? BackgroundType.Sprite :
                                                     BackgroundType.Image;
 
-        switch ( type )
+        if ( type == BackgroundType.Image )
         {
-            case BackgroundType.Video:
+            // 이미 프리스타일에서 로딩된 이미지 사용
+            if ( DataStorage.Inst.GetTexture( NowPlaying.CurrentSong.imageName, out Texture2D texture ) )
             {
-                //scene.OnPause     += OnPause;
-
-
-                //StartCoroutine( UpdateVideo() );
-            } break;
-
-            case BackgroundType.Sprite:
+                background.texture = texture;
+                background.color   = color;
+                background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
+            }
+            else
             {
-                //foreground.gameObject.SetActive( true );
-
-                //StartCoroutine( UpdateSprites( background, SpriteType.Background ) );
-                //StartCoroutine( UpdateSprites( foreground, SpriteType.Foreground ) );
-            } break;
-
-            case BackgroundType.Image:
-            {
-                // 이미 프리스타일에서 로딩된 이미지 사용
-                if ( DataStorage.Inst.TryGetTexture( NowPlaying.CurrentSong.imageName, out Texture2D texture ) )
-                {
-                    background.texture = texture;
-                    background.color   = color;
-                    background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
-                }
-                else
-                {
-                    transform.root.gameObject.SetActive( false );
-                }
-            } break;
+                transform.root.gameObject.SetActive( false );
+            }
         }
     }
-
 
     private void GameStart()
     {
@@ -183,7 +163,7 @@ public class BGASystem : MonoBehaviour
         while ( index < sprites.Count )
         {
             yield return waitStart;
-            if ( DataStorage.Inst.TryGetTexture( sprite.name, out Texture2D texture ) )
+            if ( DataStorage.Inst.GetTexture( sprite.name, out Texture2D texture ) )
             {
                 _renderer.texture = texture;
                 _renderer.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );

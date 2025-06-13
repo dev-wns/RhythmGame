@@ -44,7 +44,7 @@ public class LoadingText : MonoBehaviour
         completedText.color = new Color( 1f, 1f, 1f, 0f );
 
         StartCoroutine( RotateLoadingIcon() );
-        StartCoroutine( UpdateKeySoundCount() );
+        //StartCoroutine( UpdateKeySoundCount() );
     }
 
     private void OnDisable()
@@ -58,14 +58,14 @@ public class LoadingText : MonoBehaviour
               StartCoroutine( ChangeText() );
     }
 
-    private IEnumerator UpdateKeySoundCount()
-    {
-        while ( !NowPlaying.IsStart )
-        {
-            numDuplicateSound.text = $"{AudioManager.Inst.TotalKeySoundCount}";
-            yield return null;
-        }
-    }
+    //private IEnumerator UpdateKeySoundCount()
+    //{
+    //    while ( !NowPlaying.IsStart )
+    //    {
+    //        numDuplicateSound.text = $"{AudioManager.Inst.TotalKeySoundCount}";
+    //        yield return null;
+    //    }
+    //}
 
     private IEnumerator ChangeText()
     {
