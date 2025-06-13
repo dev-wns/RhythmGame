@@ -89,7 +89,7 @@ public abstract class Scene : SceneKeyAction
             AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
+             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
     }
 
     protected void EnableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -108,7 +108,7 @@ public abstract class Scene : SceneKeyAction
              AudioManager.Inst.Play( SFX.MenuClick );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
+             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
     }
 
     protected void ImmediateDisableCanvas( ActionType _changeType, OptionController _controller )
@@ -118,7 +118,7 @@ public abstract class Scene : SceneKeyAction
         ChangeAction( _changeType );
 
         AudioManager.Inst.Play( SFX.MenuExit );
-        AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
+        AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
 
     protected void DisableCanvas( ActionType _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -139,7 +139,7 @@ public abstract class Scene : SceneKeyAction
             AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
+             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
 
     protected void DisableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
@@ -161,7 +161,7 @@ public abstract class Scene : SceneKeyAction
              AudioManager.Inst.Play( SFX.MenuExit );
 
         if ( _hasFadeVolume )
-             AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
+             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
     #endregion
 

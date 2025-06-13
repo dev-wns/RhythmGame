@@ -27,7 +27,7 @@ public class PreviewNoteSystem : MonoBehaviour
     private double bpmTime;
     private Timing curTiming;
 
-    public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset;
+    public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset + GameSetting.SoundOffset;
     public static double Distance { get; private set; }
     private static double DistanceCache;
     private float noteStartPos;

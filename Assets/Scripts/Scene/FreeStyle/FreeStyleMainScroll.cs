@@ -32,16 +32,15 @@ public class FreeStyleMainScroll : ScrollBase
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
-    private bool isEnd;
     private readonly float ScrollUpdateTime = .075f;
     private readonly float KeyHoldWaitTime  = .5f;
     private readonly float FadeDuration     = 2.5f;
+    public  static double Playback;
     private float fadeStartPos;
     private float keyPressTime;
-    private bool  isKeyDown;
-    public  static double Playback;
     private float endTime; // 마지막 노트의 처리시간
-    private Coroutine corVolumeFade;
+    private bool isKeyDown;
+    private bool canRestart = true;
 
     [Header("Contents")]
     public GameObject noContents;
@@ -109,61 +108,46 @@ public class FreeStyleMainScroll : ScrollBase
         }
     }
 
-
+    Coroutine corFadeVolume;
     private void Update()
     {
         if ( !HasAnySongs ) return;
 
         Playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
 
-        if ( !isEnd && fadeStartPos < Playback )
+        if ( canRestart && endTime < Playback )
         {
-            isEnd = true;
-            AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 0f, FadeDuration, () => 
+            if ( corFadeVolume is not null )
             {
-                //AudioManager.Inst.Play( 0f );
-                if ( DataStorage.Inst.GetSound( curSong.audioName, out FMOD.Sound sound ) )
-                {
-                    AudioManager.Inst.Play( sound );
-                    AudioManager.Inst.Position = ( uint ) curSong.previewTime;
-                    
-                    AudioManager.Inst.Fade( AudioManager.MainChannel, 0f, curSong.volume, FadeDuration );
-                    Playback = curSong.previewTime;
-                    OnSoundRestart?.Invoke( curSong );
-                    isEnd = false;
-                }
-            } );
-        }
-    }
-
-    private struct AudioGroup
-    {
-        public FMOD.Sound   sound;
-        public FMOD.Channel channel;
-
-        public void Release()
-        {
-            channel.stop();
-            channel.clearHandle();
-            if ( sound.hasHandle() )
-            {
-                sound.release();
-                sound.clearHandle();
+                AudioManager.Inst.StopCoroutine( corFadeVolume );
+                corFadeVolume = null;
             }
-        }
 
-        public AudioGroup( FMOD.Sound _sound, FMOD.Channel _channel )
-        {
-            sound   = _sound;
-            channel = _channel;
+            canRestart    = false;
+            corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, FadeDuration * .5f, () => 
+            {
+                AudioManager.Inst.Play( AudioManager.Inst.MainSound, 0f );
+                corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, FadeDuration );
+                AudioManager.Inst.Position = ( uint ) curSong.previewTime;
+
+                Playback = curSong.previewTime;
+                OnSoundRestart?.Invoke( curSong );
+                canRestart = true;
+            } );
         }
     }
 
     private void UpdateSong()
     {
+        if ( corFadeVolume is not null )
+        {
+            AudioManager.Inst.StopCoroutine( corFadeVolume );
+            corFadeVolume = null;
+        }
+
         // 현재 음악 페이드아웃
-        AudioGroup prevAudio = new AudioGroup( AudioManager.MainSound, AudioManager.MainChannel );
-        AudioManager.Inst.Fade( AudioManager.MainChannel, AudioManager.Inst.Volume, 0f, .5f, () => { prevAudio.Release(); } );
+        AudioGroup prevAudio = new AudioGroup( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel );
+        AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, .5f, () => { prevAudio.Release(); } );
 
         // 새로운 음악 로딩
         NowPlaying.Inst.UpdateSong( CurrentIndex );
@@ -175,18 +159,18 @@ public class FreeStyleMainScroll : ScrollBase
             curSong.previewTime = GetPreviewTime( curSong.previewTime );
             Playback = curSong.previewTime;
 
-            float diff = AudioManager.Inst.Length - endTime;
-            fadeStartPos = diff > FadeDuration ? endTime : AudioManager.Inst.Length - FadeDuration;
-            isEnd = false;
-
             // 음악 재생 및 페이드인
-            AudioManager.Inst.Play( curSound );
-            AudioManager.MainChannel.setPaused( true );
+            AudioManager.Inst.Play( curSound, 0f );
             AudioManager.Inst.Position = ( uint ) curSong.previewTime;
             OnSelectSong?.Invoke( curSong );
 
-            AudioManager.MainChannel.setPaused( false );
-            AudioManager.Inst.Fade( AudioManager.MainChannel, 0f, curSong.volume, .5f );
+            AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, .5f );
+
+            //endTime = curSong.totalTime - ( FadeDuration * 1000f * .5f );
+            float duration = FadeDuration * 1000f * .5f;
+            float diff     = AudioManager.Inst.Length - curSong.totalTime;
+            endTime        = diff > duration ? curSong.totalTime : AudioManager.Inst.Length - duration;
+            canRestart     = true;
         }
     }
     #endregion

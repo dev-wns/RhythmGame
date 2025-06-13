@@ -18,7 +18,7 @@ public class Result : Scene
         //soundLength = AudioManager.Inst.Length;
         //playback    = AudioManager.Inst.Position = highlightPos;
 
-        AudioManager.Inst.Fade( AudioManager.MainChannel, 0f, 1f, 2f );
+        AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, 1f, 2f );
 
         if ( !GameSetting.HasFlag( GameMode.AutoPlay ) )
               DataStorage.Inst.CreateNewRecord();

@@ -30,7 +30,7 @@ public struct Song
     public string videoName;
     public int    audioOffset;
     public int    videoOffset;
-    public int    volume;
+    public float  volume;
 
     public int totalTime;
     public int previewTime;

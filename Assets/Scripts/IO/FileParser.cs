@@ -31,7 +31,7 @@ public class FileParser : FileConverter
                 if ( Contains( "AudioOffset:" ) ) _song.audioOffset = int.Parse( Split( ':' ) );
                 if ( Contains( "VideoOffset:" ) ) _song.videoOffset = int.Parse( Split( ':' ) );
                 if ( Contains( "PreviewTime:" ) ) _song.previewTime = int.Parse( Split( ':' ) );
-                if ( Contains( "Volume:" ) )      _song.volume      = int.Parse( Split( ':' ) );
+                if ( Contains( "Volume:" ) )      _song.volume      = float.Parse( Split( ':' ) ) * .01f;
 
                 if ( Contains( "ImageName:" ) )
                 {

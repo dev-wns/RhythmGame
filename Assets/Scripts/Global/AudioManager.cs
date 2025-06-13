@@ -12,6 +12,29 @@ public enum SFX
     MenuSelect, MenuClick, MenuHover, MenuExit,
 }
 
+public struct AudioGroup
+{
+    public FMOD.Sound   sound;
+    public FMOD.Channel channel;
+
+    public void Release()
+    {
+        channel.stop();
+        channel.clearHandle();
+        if ( sound.hasHandle() )
+        {
+            sound.release();
+            sound.clearHandle();
+        }
+    }
+
+    public AudioGroup( FMOD.Sound _sound, FMOD.Channel _channel )
+    {
+        sound = _sound;
+        channel = _channel;
+    }
+}
+
 public struct SoundDriver : IEquatable<SoundDriver>
     {
         public int index; // OUTPUTTYPE에 해당하는 출력장치 인덱스
@@ -37,8 +60,8 @@ public class AudioManager : Singleton<AudioManager>
     private Dictionary<DSP_TYPE, DSP>             dsps   = new ();
 
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
-    public static Sound   MainSound                { get; private set; }
-    public static Channel MainChannel              { get; private set; }
+    public Sound   MainSound                { get; private set; }
+    public Channel MainChannel              { get; private set; }
 
     public static event Action OnReload;
     public static event Action<float> OnUpdatePitch;
@@ -215,7 +238,6 @@ public class AudioManager : Singleton<AudioManager>
         ErrorCheck( system.setOutput( prevType ) );
     }
 
-
     public void Release()
     {
         IsStop = true;
@@ -341,11 +363,10 @@ public class AudioManager : Singleton<AudioManager>
 
     public void Play( Sound _sound, float _volume = 1f )
     {
-        if ( ErrorCheck( system.playSound( _sound, groups[ChannelType.BGM], true, out Channel channel ) ) )
+        if ( ErrorCheck( system.playSound( _sound, groups[ChannelType.BGM], false, out Channel channel ) ) )
         {
-            MainChannel = channel;
             ErrorCheck( channel.setVolume( _volume ) );
-            ErrorCheck( channel.setPaused(  false  ) );
+            MainChannel = channel;
         }
     }
 
@@ -356,21 +377,26 @@ public class AudioManager : Singleton<AudioManager>
              ErrorCheck( system.playSound( sound, groups[ChannelType.SFX], false, out Channel channel ) );
     }
 
-    public void Fade( Channel _channel, float _start, float _end, float _t, Action _OnCompleted = null )
+    public Coroutine Fade( Channel _channel, float _start, float _end, float _t, Action _OnCompleted = null )
     {
-        // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
-        // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
-        if ( _channel.isPlaying( out bool isPlaying ) != RESULT.OK )
-             return;
-        StartCoroutine( FadeVolume( _channel, _start, _end, _t, _OnCompleted ) );
+        return StartCoroutine( FadeVolume( _channel, _start, _end, _t, _OnCompleted ) );
     }
 
     public IEnumerator FadeVolume( Channel _channel, float _start, float _end, float _t, Action _OnCompleted )
     {
+        // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
+        // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
+        if ( _channel.isPlaying( out bool isPlaying ) != RESULT.OK )
+        {
+            _OnCompleted?.Invoke();
+            yield break;
+        }
+
         // 같은 값일 때 계산 없이 종료
         if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
         {
             ErrorCheck( _channel.setVolume( _end ) );
+            _OnCompleted?.Invoke();
             yield break;
         }
 
@@ -382,11 +408,18 @@ public class AudioManager : Singleton<AudioManager>
         {
             yield return YieldCache.WaitForEndOfFrame;
             elapsedVolume += ( offset * Time.deltaTime ) / _t;
+            if ( _channel.isPlaying( out isPlaying ) != RESULT.OK )
+            {
+                _OnCompleted?.Invoke();
+                yield break;
+            }
+
             ErrorCheck( _channel.setVolume( elapsedVolume ) );
         }
 
         // 페이드 인 기준으로 반복문이 끝난 시점에서 볼륨이 _end 값을 넘어가기 때문에 초기화해준다.
         ErrorCheck( _channel.setVolume( _end ) );
+
         _OnCompleted?.Invoke();
     }
 
