@@ -62,9 +62,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action OnRelease;
     public static event Action<bool> OnPause;
 
-    //public static event Action<Song> OnParsing;
-
-
     protected override async void Awake()
     {
         base.Awake();
@@ -78,6 +75,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         DataStorage.Inst.LoadSongs();
         Songs = DataStorage.OriginSongs;
+        
         if ( Songs.Count > 0 )
              UpdateSong( 0 );
 
@@ -175,34 +173,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
         Debug.Log( $"Time Thread End" );
     }
-
-    #region Parsing
-    //public void LoadChart()
-    //{
-    //    // 채보 파싱
-    //    using ( FileParser parser = new FileParser() )
-    //    {
-    //        if ( parser.TryParse( CurrentSong.filePath, out Chart chart ) )
-    //        {
-    //            CurrentChart = chart;
-    //            Timings      = chart.timings;
-
-    //            // 단일 배경음은 자동재생되는 사운드샘플로 재생
-    //            if ( !CurrentSong.isOnlyKeySound )
-    //                  AddSample( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ), SoundType.BGM );
-
-    //            // 사운드샘플 로딩 ( 자동재생 )
-    //            for ( int i = 0; i < chart.samples.Count; i++ )
-    //                  AddSample( chart.samples[i], SoundType.BGM );
-    //        }
-    //        else
-    //        {
-    //            CurrentScene.LoadScene( SceneType.FreeStyle );
-    //            Debug.LogWarning( $"Parsing failed  Current Chart : {CurrentSong.title}" );
-    //        }
-    //    }
-    //}
-    #endregion
 
     #region Search
     public void Search( string _keyword )
@@ -359,7 +329,6 @@ public class NowPlaying : Singleton<NowPlaying>
     }
     #endregion
 
-    #region Etc.
     public void UpdateSong( int _index )
     {
         if ( _index >= Songs.Count )
@@ -368,7 +337,6 @@ public class NowPlaying : Singleton<NowPlaying>
         CurrentIndex = _index;
         CurrentSong  = Songs[_index];
     }
-    #endregion
 
     public double GetDistance( double _time )
     {

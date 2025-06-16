@@ -4,10 +4,10 @@ using UnityEngine;
 
 public enum ActionType : byte
 {
-    Main, Exit,                                                   // Public
+    Main, Exit,                                                    // Public
     Search, Comment, GameOption, SystemOption, KeySetting, ReLoad, // FreeStyle
     Pause, GameOver,                                               // InGame
-    Login, CreateStage,                                             // MultiPlay
+    Login, CreateStage,                                            // MultiPlay
 }
 public abstract class SceneKeyAction : MonoBehaviour
 {

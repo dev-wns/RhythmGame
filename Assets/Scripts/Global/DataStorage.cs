@@ -49,6 +49,8 @@ public class DataStorage : Singleton<DataStorage>
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
 
+    public static event Action<Song> OnParsing;
+
     protected override void Awake()
     {
         base.Awake();
@@ -107,14 +109,19 @@ public class DataStorage : Singleton<DataStorage>
             using ( FileParser parser = new FileParser() )
             {
                 if ( parser.TryParse( files[i], out Song newSong ) )
-                {
-                    newSong.index = newSongs.Count;
-                    newSongs.Add( newSong );
-                }
+                     newSongs.Add( newSong );
+
+                OnParsing?.Invoke( newSong );
             }
         }
 
         newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
+        for ( int i = 0; i < newSongs.Count; i++ )
+        {
+            Song song   = newSongs[i];
+            song.index  = i;
+            newSongs[i] = song;
+        }
         OriginSongs = new ReadOnlyCollection<Song>( newSongs );
 
         // 파일 수정하고 싶을 때 사용
@@ -138,6 +145,10 @@ public class DataStorage : Singleton<DataStorage>
                 Samples     = chart.samples;
                 Backgrounds = chart.backgrounds;
                 Foregrounds = chart.foregrounds;
+            }
+            else
+            {
+                // Goto FreeStyle
             }
         }
     }

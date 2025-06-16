@@ -21,12 +21,12 @@ public class FreeStyleReLoad : MonoBehaviour
     private void Awake()
     {
         textPool = new ObjectPool<TextMeshProUGUI>( prefab, transform, maxShowCount + 2 );
-        //NowPlaying.OnParsing += AddText;
+        DataStorage.OnParsing += AddText;
     }
 
     private void OnDestroy()
     {
-        //NowPlaying.OnParsing -= AddText;
+        DataStorage.OnParsing -= AddText;
     }
 
     private async void OnEnable()

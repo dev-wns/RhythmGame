@@ -9,7 +9,7 @@ public class FreeStyleKeySetting : OptionController
     private CustomHorizontalLayoutGroup layoutGroup;
     private List<KeySettingOption> tracks = new List<KeySettingOption>();
     private KeyCode curKeyCode;
-    private GameKeyCount[] changeKeyCount = new GameKeyCount[] {GameKeyCount._4,  GameKeyCount._6, GameKeyCount._7};
+    private GameKeyCount[] keyCount = new GameKeyCount[] {GameKeyCount._4,  GameKeyCount._6, GameKeyCount._7};
     private GameKeyCount curKeyCount;
     private int curKeyIndex;
 
@@ -17,24 +17,24 @@ public class FreeStyleKeySetting : OptionController
     {
         base.Awake();
         IsLoop = true;
-        if ( !contents.TryGetComponent( out layoutGroup ) )
-            Debug.LogError( $"There is no LayoutGroup in the keySetting contents." );
+        if ( contents.TryGetComponent( out layoutGroup ) )
+             layoutGroup.Initialize();
 
         foreach ( var option in options )
         {
             if ( option.TryGetComponent( out KeySettingOption keyOption ) )
                 tracks.Add( keyOption );
             else
-                Debug.LogWarning( $"The {option.name} does not have KeySettingOption component." );
+                Debug.LogWarning( $"The {option.name} does not have Option Component" );
         }
     }
 
     private void OnEnable() => Initialize( 0 );
 
-    private void Initialize( int _curIndex )
+    private void Initialize( int _index )
     {
-        curKeyIndex = _curIndex;
-        curKeyCount = changeKeyCount[curKeyIndex];
+        curKeyIndex = _index;
+        curKeyCount = keyCount[curKeyIndex];
 
         Length = InputManager.Keys[curKeyCount].Length;
         for ( int i = 0; i < 7; i++ )
@@ -58,10 +58,13 @@ public class FreeStyleKeySetting : OptionController
     }
 
 
-    public void ChangeButtonCount()
+    public void ChangeButtonCount( bool _isPrevious )
     {
+        int index = 0;
+        if ( _isPrevious ) index = curKeyIndex - 1 > -1              ? curKeyIndex - 1 : keyCount.Length - 1;
+        else               index = curKeyIndex + 1 < keyCount.Length ? curKeyIndex + 1 : 0;
+
         AudioManager.Inst.Play( SFX.MenuClick );
-        Initialize( curKeyIndex + 1 < changeKeyCount.Length ? curKeyIndex + 1 : 0 );
     }
 
     private void Process( KeyCode _key )

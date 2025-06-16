@@ -127,7 +127,7 @@ public class FreeStyleMainScroll : ScrollBase
             corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, FadeDuration * .5f, () => 
             {
                 AudioManager.Inst.Play( AudioManager.Inst.MainSound, 0f );
-                corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, FadeDuration );
+                corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, FadeDuration  * .5f );
                 AudioManager.Inst.Position = ( uint ) curSong.previewTime;
 
                 Playback = curSong.previewTime;

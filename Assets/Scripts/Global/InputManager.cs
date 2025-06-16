@@ -376,13 +376,13 @@ public class InputManager : Singleton<InputManager>
 
         // 특수키
         //AddMapping( 0x08, KeyCode.Backspace, "Backspace" );
+        AddMapping( 0x09, KeyCode.Tab,            "Tab"      );
         AddMapping( 0xDC, KeyCode.Backslash,      "\\"       );
         AddMapping( 0xC0, KeyCode.BackQuote,      "`"        ); 
         AddMapping( 0x14, KeyCode.CapsLock,       "CapsLock" );
         AddMapping( 0x20, KeyCode.Space,          "Space"    );
         AddMapping( 0xBB, KeyCode.Plus,           "="        );
         AddMapping( 0xBD, KeyCode.Minus,          "-"        ); 
-        
 
         AddMapping( 0xDD, KeyCode.RightBracket,   "["        );
         AddMapping( 0xDB, KeyCode.LeftBracket,    "]"        );
@@ -406,11 +406,10 @@ public class InputManager : Singleton<InputManager>
         AddMapping( 0x21, KeyCode.PageUp,         "PgUp"     );
         AddMapping( 0x22, KeyCode.PageDown,       "PgDn"     );
                                                   
-        AddMapping( 0x26, KeyCode.UpArrow,        "Up"       );
-        AddMapping( 0x28, KeyCode.DownArrow,      "Down"     );
-        AddMapping( 0x25, KeyCode.LeftArrow,      "Left"     );
-        AddMapping( 0x27, KeyCode.RightArrow,     "Right"    );
-
+        //AddMapping( 0x26, KeyCode.UpArrow,        "Up"       );
+        //AddMapping( 0x28, KeyCode.DownArrow,      "Down"     );
+        //AddMapping( 0x25, KeyCode.LeftArrow,      "Left"     );
+        //AddMapping( 0x27, KeyCode.RightArrow,     "Right"    );
 
         // 넘버패드
         AddMapping( 0x60, KeyCode.Keypad0,        "Pad 0"    );

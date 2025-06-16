@@ -12,15 +12,13 @@ public class ScrollOption : ScrollBase
     protected virtual void Awake()
     {
         if ( contents is null )
-            return;
+             return;
 
         for ( int i = 0; i < contents.childCount; i++ )
         {
             var option = contents.GetChild( i );
             if ( option.TryGetComponent( out OptionBase optionBase ) )
-                options.Add( optionBase );
-            else
-                Debug.LogWarning( $"The {option.name} does not have OptionBase component." );
+                 options.Add( optionBase );
         }
         Length = options.Count;
         Select( 0 );

@@ -95,7 +95,7 @@ public class FreeStyle : Scene
         Bind( ActionType.KeySetting, KeyCode.Escape,     () => { DisableCanvas( ActionType.Main, keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.RightArrow, () => { MoveToNextOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
-        Bind( ActionType.KeySetting, KeyCode.Tab, keySetting.ChangeButtonCount );
+        //Bind( ActionType.KeySetting, KeyCode.Tab, keySetting.ChangeButtonCount );
 
         if ( !DataStorage.IsMultiPlaying )
         {
