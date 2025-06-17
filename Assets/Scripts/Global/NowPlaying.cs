@@ -175,22 +175,20 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     #region Search
-    public void Search( string _keyword )
+    public int Search( string _keyword )
     {
         ReadOnlyCollection<Song> originSongs = DataStorage.OriginSongs;
-        if ( originSongs.Count == 0 )
-             return;
-
-        if ( _keyword.Replace( " ", string.Empty ) == string.Empty )
+        if ( originSongs.Count == 0 || _keyword.Replace( " ", string.Empty ) == string.Empty )
         {
             Songs = originSongs;
             UpdateSong( CurrentSong.index );
 
-            return;
+            return -1;
         }
 
         List<Song> newSongs = new List<Song>();
-        bool isSV = _keyword.Replace( " ", string.Empty ).ToUpper().CompareTo( "SV" ) == 0;
+        string keyword = _keyword.Replace( " ", string.Empty );
+        bool   isSV    = keyword.ToUpper().CompareTo( "SV" ) == 0;
         for ( int i = 0; i < originSongs.Count; i++ )
         {
             if ( isSV )
@@ -200,33 +198,46 @@ public class NowPlaying : Singleton<NowPlaying>
             }
             else
             {
-                if ( originSongs[i].title.Replace(   " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     originSongs[i].version.Replace( " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     originSongs[i].artist.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     originSongs[i].source.Replace(  " ", string.Empty ).Contains( _keyword, StringComparison.OrdinalIgnoreCase ) )
+                if ( originSongs[i].title.Replace(   " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     originSongs[i].version.Replace( " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     originSongs[i].artist.Replace(  " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) ||
+                     originSongs[i].source.Replace(  " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) )
                      newSongs.Add( originSongs[i] );
             }
         }
 
-        Songs = new ReadOnlyCollection<Song>( newSongs );
-        if ( Songs.Count != 0 )
-             UpdateSong( 0 );
+        int prevIndex = 0;
+        Songs = newSongs.Count == 0 ? originSongs : new ReadOnlyCollection<Song>( newSongs );
+        for ( int i = 0; i < Songs.Count; i++ )
+        {
+            if ( Songs[i].title.Contains(   CurrentSong.title,   StringComparison.OrdinalIgnoreCase ) &&
+                 Songs[i].version.Contains( CurrentSong.version, StringComparison.OrdinalIgnoreCase ) )
+            {
+                prevIndex = i;
+                break;
+            }
+        }
+
+        UpdateSong( prevIndex );
+
+        return newSongs.Count;
     }
 
     public void Search( Song _song )
     {
+        int prevIndex = 0;
         ReadOnlyCollection<Song> originSongs = DataStorage.OriginSongs;
         for ( int i = 0; i < originSongs.Count; i++ )
         {
             if ( originSongs[i].title.Contains(   _song.title,   StringComparison.OrdinalIgnoreCase ) &&
                  originSongs[i].version.Contains( _song.version, StringComparison.OrdinalIgnoreCase ) )
-            { 
-                UpdateSong( i );
-                return;
+            {
+                prevIndex = i;
+                break;
             }
         }
 
-        UpdateSong( 0 );
+        UpdateSong( prevIndex );
     }
     #endregion
    
