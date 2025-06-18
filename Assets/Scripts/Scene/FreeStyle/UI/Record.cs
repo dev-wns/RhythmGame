@@ -15,12 +15,18 @@ public class Record : MonoBehaviour
 
     [Header("Infomation")]
     public Image rankImage;
-    public SpriteAtlas rankAtlas;
     public TextMeshProUGUI chaos;
     public TextMeshProUGUI score;
     public TextMeshProUGUI rate;
     public TextMeshProUGUI accuracy;
     public TextMeshProUGUI date;
+
+    [Header( "Rank Image" )]
+    public Sprite RankS;
+    public Sprite RankA;
+    public Sprite RankB;
+    public Sprite RankC;
+    public Sprite RankD;
 
     [Header("Movement Effect")]
     public float startPosX;
@@ -66,11 +72,11 @@ public class Record : MonoBehaviour
             accuracy.text = $"{( data.accuracy * .01f ):N2}%";
             date.text = data.date;
 
-            rankImage.sprite = data.accuracy >= 9500 ? rankAtlas.GetSprite( "Ranking-S" ) :
-                               data.accuracy >= 9000 ? rankAtlas.GetSprite( "Ranking-A" ) :
-                               data.accuracy >= 8500 ? rankAtlas.GetSprite( "Ranking-B" ) :
-                               data.accuracy >= 8000 ? rankAtlas.GetSprite( "Ranking-C" ) :
-                                                       rankAtlas.GetSprite( "Ranking-D" );
+            rankImage.sprite = data.accuracy >= 9500 ? RankS :
+                               data.accuracy >= 9000 ? RankA :
+                               data.accuracy >= 8500 ? RankB :
+                               data.accuracy >= 8000 ? RankC :
+                                                       RankD;
         }
         
         rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );

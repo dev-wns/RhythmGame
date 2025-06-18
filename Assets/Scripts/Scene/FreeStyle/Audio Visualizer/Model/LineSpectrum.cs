@@ -20,7 +20,6 @@ public class LineSpectrum : MonoBehaviour
     public float power;
 
     [Header("Speed Control")]
-    [Range(0f, 50f)]
     public float dropAmount;
 
     [Header("Normalize")]

@@ -18,6 +18,7 @@ public class FreqSpark : MonoBehaviour
 
     [Header("Frequency")]
     public float sclOffset;
+    public float riseAmount;
     public float dropAmount;
     private float[] buffer;
     private int     freqCount;
@@ -74,9 +75,10 @@ public class FreqSpark : MonoBehaviour
                 value = Global.Math.Clamp( sumValue / ( end - start + 1 ), 0f, maxHeight );
             }
 
-            // 최소 감소량 + 데이터의 크기 차이에 따른 감소량
-            buffer[i] -= ( 30f * Time.deltaTime ) + ( Global.Math.Abs( buffer[i] - value ) * dropAmount * Time.deltaTime );
-            buffer[i]  = Mathf.Max( buffer[i], value );
+            buffer[i] += buffer[i] < value ? Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), riseAmount * Time.deltaTime ) :
+                                            -Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
+
+            buffer[i] = Mathf.Min( buffer[i] < value ? value : buffer[i], maxHeight );
 
             // UI 갱신
             int number = ( index * 2 );

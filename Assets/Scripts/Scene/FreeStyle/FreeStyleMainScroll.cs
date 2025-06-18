@@ -1,9 +1,10 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FreeStyleMainScroll : ScrollBase
 {
@@ -25,7 +26,6 @@ public class FreeStyleMainScroll : ScrollBase
     public TextMeshProUGUI maxText;
     public TextMeshProUGUI curText;
 
-    //public Scene CurrentScene { get; private set; }
     [Header( "Scene" )]
     private LinkedList<SongUI> songs = new LinkedList<SongUI>();
     private LinkedListNode<SongUI> medianNode;
@@ -36,7 +36,6 @@ public class FreeStyleMainScroll : ScrollBase
     private readonly float KeyHoldWaitTime  = .5f;
     private readonly float FadeDuration     = 2.5f;
     public  static double Playback;
-    private float fadeStartPos;
     private float keyPressTime;
     private float endTime; // 마지막 노트의 처리시간
     private bool isKeyDown;
@@ -46,6 +45,9 @@ public class FreeStyleMainScroll : ScrollBase
     [Header("Contents")]
     public GameObject noContents;
 
+    [Header("Sound Position UI")]
+    public Slider posSlider;
+
     private Song curSong;
     public event Action<Song>  OnSelectSong;
     public event Action<Song>  OnSoundRestart;
@@ -54,8 +56,6 @@ public class FreeStyleMainScroll : ScrollBase
     private void Awake()
     {
         IsLoop = true;
-
-        //CurrentScene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<Scene>();
         group = GetComponent<CustomVerticalLayoutGroup>();
 
         if ( !DataStorage.IsMultiPlaying )
@@ -86,7 +86,7 @@ public class FreeStyleMainScroll : ScrollBase
     private void Start()
     {
         UpdateScrollView();
-
+        //Debug.Log( DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" ) );
         // if ( !HasAnySongs )
         // {
         //     AudioManager.Inst.AllStop();
@@ -114,6 +114,8 @@ public class FreeStyleMainScroll : ScrollBase
         if ( !HasAnySongs ) return;
 
         Playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
+        posSlider.value = ( float ) ( Playback / endTime );
+
 
         if ( canRestart && endTime < Playback )
         {

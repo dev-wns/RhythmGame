@@ -357,7 +357,6 @@ public class AudioManager : Singleton<AudioManager>
              mode |= MODE.LOOP_OFF | MODE.ACCURATETIME | MODE.LOWMEM; // | MODE.VIRTUAL_PLAYFROMSTART
 
         ErrorCheck( system.createSound( _path, mode, out _sound ) );
-        MainSound = _sound;
         return true;
     }
 
@@ -366,6 +365,7 @@ public class AudioManager : Singleton<AudioManager>
         if ( ErrorCheck( system.playSound( _sound, groups[ChannelType.BGM], false, out Channel channel ) ) )
         {
             ErrorCheck( channel.setVolume( _volume ) );
+            MainSound   = _sound;
             MainChannel = channel;
         }
     }
