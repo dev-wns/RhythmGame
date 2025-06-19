@@ -52,7 +52,8 @@ public class FreqSpark : MonoBehaviour
     {
         for ( int i = 0; i < freqCount; i++ )
         {
-            float value  = Global.Math.Clamp( ( _values[startIndex + i] - ( visualizer.Average * discardOffset ) ) * power, 0f, maxHeight );
+            float discard = Global.Math.Lerp( 0f, visualizer.Average, discardOffset );
+            float value   = Global.Math.Clamp( ( _values[startIndex + i] - discard ) * power, 0f, maxHeight );
             if ( isNormalized )
             {
                 float sumValue = 0f;
@@ -60,14 +61,16 @@ public class FreqSpark : MonoBehaviour
                 int end   = Global.Math.Clamp( i + NormalizedRange, 0, freqCount - 1 );
 
                 for ( int idx = start; idx <= end; idx++ )
-                      sumValue += Global.Math.Clamp( ( _values[startIndex + idx] - ( visualizer.Average * discardOffset ) ) * power, 0f, maxHeight );
+                    sumValue += Global.Math.Clamp( ( _values[startIndex + idx] - discard ) * power, 0f, maxHeight );
 
-                value = ( sumValue / ( end - start + 1 ) );
+                value = Global.Math.Clamp( ( sumValue / ( end - start + 1 ) ), 0f, maxHeight );
             }
 
-            buffer[i] += buffer[i] < value ? Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), riseAmount * Time.fixedDeltaTime ) :
-                                            -Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.fixedDeltaTime );
-            buffer[i] = Mathf.Min( buffer[i] < value ? value : buffer[i], maxHeight );
+            // buffer[i] += buffer[i] < value ? Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), riseAmount * Time.deltaTime ) :
+            //                                 -Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
+
+            buffer[i] -= Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
+            buffer[i]  = Global.Math.Min( buffer[i] < value ? value : buffer[i], maxHeight );
 
             // UI °»½Å
             int index  = isReverse ? freqCount - i - 1 : i;

@@ -59,24 +59,25 @@ public class LineSpectrum : MonoBehaviour
             // 인스펙터 상의 스펙트럼 시작위치부터 값을 받아온다.
             int index = isReverse ? startIndex + specCount - i - 1 : startIndex + i;
 
-            float value = _values[i];
+            float value = _values[i] * power;
             if ( IsNormalized )
             {
                 float sumValue = 0f;
                 int start = Global.Math.Clamp( index - normalizedRange, 0, 4096 );
                 int end   = Global.Math.Clamp( index + normalizedRange, 0, 4096 );
                 for ( int idx = start; idx <= end; idx++ )
-                    sumValue += _values[idx];
+                      sumValue += _values[idx] * power;
 
                 value = sumValue / ( end - start + 1 );
             }
 
-            buffer[i] -= ( ( buffer[i] * dropAmount ) * Time.fixedDeltaTime );
-            buffer[i] = Mathf.Max( buffer[i], value );
+            buffer[i] += buffer[i] < value ? Global.Math.Lerp( .08f, Global.Math.Abs( buffer[i] - value ), riseAmount * Time.deltaTime ) :
+                                            -Global.Math.Lerp( .05f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
+            buffer[i] = Global.Math.Max( 0f, buffer[i] );
 
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];
-            left.localScale = right.localScale = new Vector3( width, buffer[i] * power, 1f );
+            left.localScale = right.localScale = new Vector3( width, buffer[i], 1f );
         }
     }
 

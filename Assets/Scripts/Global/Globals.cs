@@ -46,13 +46,19 @@ namespace Global
         public static int    Abs( int _value )                             => _value >= 0 ? _value : -_value;
         public static double Round( double _value )                        => _value - ( int )_value >= .5d ? ( int )_value + 1d : ( int )_value;
         public static float  Round( float _value )                         => _value - ( int )_value >= .5f ? ( int )_value + 1f : ( int )_value;
-        public static int Clamp( int _value, int _min, int _max )
+        public static int    Min( int _arg1, int _arg2 )                   => _arg1 < _arg2 ? _arg1 : _arg2;
+        public static float  Min( float _arg1, float _arg2 )               => _arg1 < _arg2 ? _arg1 : _arg2;
+        public static double Min( double _arg1, double _arg2 )             => _arg1 < _arg2 ? _arg1 : _arg2;
+        public static int    Max( int _arg1, int _arg2 )                   => _arg1 > _arg2 ? _arg1 : _arg2;
+        public static float  Max( float _arg1, float _arg2 )               => _arg1 > _arg2 ? _arg1 : _arg2;
+        public static double Max( double _arg1, double _arg2 )             => _arg1 > _arg2 ? _arg1 : _arg2;
+        public static int    Clamp( int _value, int _min, int _max )
         {
             return _value < _min ? _min :
                    _value > _max ? _max :
                    _value;
         }
-        public static float Clamp( float _value, float _min, float _max )
+        public static float  Clamp( float _value, float _min, float _max )
         {
             return _value < _min ? _min :
                    _value > _max ? _max :
@@ -64,7 +70,7 @@ namespace Global
                    _value > _max ? _max :
                    _value;
         }
-        public static int Log10( double _value )
+        public static int    Log10( double _value )
         {
             return ( _value >= 10000000u ) ? 7 : ( _value >= 1000000u ) ? 6 :
                    ( _value >= 100000u ) ? 5 : ( _value >= 10000u ) ? 4 :

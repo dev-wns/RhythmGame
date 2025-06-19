@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ public class AudioVisualizer : MonoBehaviour
     private float[]  spectrums;
     private float[]  bandBuffer;
     private int[]    bandRange;
+    private int loopCount;
+    public int power;
 
     public float Average { get; private set; }
     public const int MaxFreqBand = 10;
@@ -28,6 +31,7 @@ public class AudioVisualizer : MonoBehaviour
         spectrums  = new float[size];
         bandBuffer = new float[MaxFreqBand];
         bandRange  = new int  [MaxFreqBand] { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
+        loopCount  = bandRange.Sum();
     }
 
     /* 48000 / 4096 : 11.71875 Hertz
@@ -59,9 +63,6 @@ public class AudioVisualizer : MonoBehaviour
             if ( fftData.numchannels <= 0 )
                  return;
 
-            //OnUpdateSpectrums?.Invoke( fftData.spectrum );
-            //return;
-
             fftData.getSpectrum( 0, ref spectrums );
 
             int   averageCount = 0;
@@ -69,26 +70,29 @@ public class AudioVisualizer : MonoBehaviour
             int   bandIndex    = 0;
             float bandSum      = 0f;
             float defulatSum   = 0f;
-            for ( int i = 0; i < bandRange[MaxFreqBand - 1]; i++ )
+            for ( int i = 0; i < loopCount; i++ )
             {
                 // Band
                 if ( bandIndex < MaxFreqBand )
                 {
-                    bandSum += spectrums[i] ;
+                    bandSum += spectrums[i];
                     if ( bandRange[bandIndex] <= ++bandCount )
                     {
-                        bandBuffer[bandIndex] = ( bandSum / bandRange[bandIndex] );
+                        bandBuffer[bandIndex] = bandSum / bandRange[bandIndex];
                         bandSum    = 0f;
                         bandCount  = 0;
                         bandIndex += 1;
                     }
                 }
 
-                if ( i >= avgStart && ++averageCount < avgRange )
-                     defulatSum += spectrums[i];
+                if ( i >= avgStart && averageCount < avgRange )
+                {
+                    defulatSum += spectrums[i];
+                    averageCount++;
+                }
             }
-            
-            Average = ( defulatSum / avgRange );
+
+            Average = defulatSum / avgRange;
             OnUpdateBand?.Invoke( bandBuffer );
             OnUpdate?.Invoke( spectrums );
         }

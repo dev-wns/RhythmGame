@@ -5,7 +5,7 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
 {
     public ObjectPool<PreviewNoteRenderer> pool { get; set; }
     protected Note note;
-    public Image head, body, tail;
+    public SpriteRenderer head, body, tail;
     public double Time => note.time;
     public double Distance => note.distance;
     public double SliderTime => note.endTime;
@@ -21,9 +21,9 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
 
     private void Awake()
     {
-        head.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
-        body.rectTransform.anchoredPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
-        tail.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        head.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        body.transform.position   = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
+        tail.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
     }
 
     public void SetInfo( in Note _note, float _startPos, Color _color )
@@ -35,12 +35,12 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
 
         head.enabled = IsOnlyBody && IsSlider ? false :
                        IsOnlyBody && !IsSlider ? true : true;
-        body.enabled = IsOnlyBody ? true : IsSlider;
+        body.enabled = IsOnlyBody ? true  : IsSlider;
         tail.enabled = IsOnlyBody ? false : IsSlider;
 
-        head.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
-        body.rectTransform.anchoredPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
-        tail.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        head.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        body.transform.localPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
+        tail.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
 
         head.color = body.color = tail.color = _color;
         isStart = true;
@@ -49,7 +49,7 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
     private void LateUpdate()
     {
         if ( !isStart )
-            return;
+             return;
 
         if ( IsSlider )
         {
@@ -59,25 +59,25 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
             float bodyLength = ( float )( ( SliderDistance - newDistance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight );
 
             float length = Global.Math.Clamp( IsOnlyBody ? bodyLength : bodyLength - PreviewNoteSystem.NoteHeight, 0f, float.MaxValue );
-            body.rectTransform.sizeDelta = new Vector2( PreviewNoteSystem.NoteWidth, length );
-            tail.rectTransform.anchoredPosition = new Vector2( 0f, length );
+            body.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, length );
+            tail.transform.localPosition   = new Vector2( 0f, length );
 
             transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ) );
             if ( SliderTime - PreviewNoteSystem.Playback < double.Epsilon )
-                Despawn();
+                 Despawn();
         }
         else
         {
             transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ) );
             if ( Time - PreviewNoteSystem.Playback < double.Epsilon )
-                Despawn();
+                 Despawn();
         }
     }
 
     private void Despawn()
     {
-        transform.localPosition = new Vector2( int.MaxValue, int.MaxValue );
         isStart = false;
+        transform.localPosition = new Vector2( int.MaxValue, int.MaxValue );
         pool.Despawn( this );
     }
 }

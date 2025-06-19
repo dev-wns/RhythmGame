@@ -39,17 +39,15 @@ public class FreqBand : MonoBehaviour
             if ( isNormalized )
             {
                 float sumValue = 0f;
-                int start = Global.Math.Clamp( i,                   0, bandCount - 1 );
-                int end   = Global.Math.Clamp( i + NormalizedRange, 0, bandCount - 1 );
-                for ( int idx = start; idx <= end; idx++ )
+                int start = Global.Math.Clamp( i - NormalizedRange, 0, bandCount );
+                int end   = Global.Math.Clamp( i + NormalizedRange, 0, bandCount );
+                for ( int idx = start; idx < end; idx++ )
                       sumValue += _values[idx];
 
                 value = ( sumValue / ( end - start + 1 ) ) * power;
             }
 
-            buffer[i] = buffer[i] < value ? value :
-                                            Global.Math.Clamp( buffer[i] - ( ( .001f + buffer[i] ) * dropAmount * Time.fixedDeltaTime ), 0f, 1f );
-
+            buffer[i] = buffer[i] < value ? value : Global.Math.Clamp( buffer[i] - ( ( .001f + buffer[i] ) * dropAmount * Time.deltaTime ), 0f, 1f );
             leftBars[i].color = rightBars[i].color = new Color( 1, 1, 1, buffer[i] );
         }
     }
