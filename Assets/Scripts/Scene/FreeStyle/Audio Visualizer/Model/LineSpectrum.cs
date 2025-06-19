@@ -2,38 +2,35 @@ using UnityEngine;
 
 public class LineSpectrum : MonoBehaviour
 {
-    [Header("Base")]
+    [Header( "- Visualizer -" )]
     public AudioVisualizer visualizer;
+    public int   startIndex;
+    public int   specCount;
+    public float power;
+    
+
+    [Header( "- Renderer -" )]
+    public Transform prefab;
+    public float width;
+    public float blank;
+    public float alpha;
+    public int   sortingOrder;
+    public float riseAmount;
+    public float dropAmount;
+    public bool  isReverse;
+
     private float[]     buffer;
     private Transform[] transforms; // 생성된 모델 안의 Transform
 
-    [Header("Color")]
-    [Range(0f,1f)] public float alpha = 1f;
-
-    [Header("Spectrum")]
-    public Transform prefab;
-    public int   sortingOrder;
-    public int   specCount;
-    public int   startIndex;
-    public float width;
-    public float blank;
-    public float power;
-
-    [Header("Speed Control")]
-    public float dropAmount;
-
-    [Header("Normalize")]
+    [Header( "- Normalize -" )]
     public bool IsNormalized;
-    public int  normalizedRange = 2;
-
-    [Header("Etc.")]
-    public bool isReverse;
+    public int  normalizedRange;
 
     private void Awake()
     {
         if ( visualizer is not null )
         {
-            visualizer.OnUpdateSpectrums += UpdateSpectrums;
+            visualizer.OnUpdate += UpdateSpectrums;
             CreateSpectrumModel();
         }
     }
@@ -59,27 +56,26 @@ public class LineSpectrum : MonoBehaviour
         }
     }
 
-    private void UpdateSpectrums( float[][] _values )
+    private void UpdateSpectrums( float[] _values )
     {
         for ( int i = 0; i < specCount; i++ )
         {
             // 인스펙터 상의 스펙트럼 시작위치부터 값을 받아온다.
             int index = isReverse ? startIndex + specCount - i - 1 : startIndex + i;
 
-            // 스테레오( 0 : Left, 1 : Right ) 스펙트럼 값 평균.
-            float value = ( _values[0][index] + _values[1][index] ) * .5f;
+            float value = _values[i];
             if ( IsNormalized )
             {
                 float sumValue = 0f;
                 int start = Global.Math.Clamp( index - normalizedRange, 0, 4096 );
                 int end   = Global.Math.Clamp( index + normalizedRange, 0, 4096 );
                 for ( int idx = start; idx <= end; idx++ )
-                    sumValue += ( _values[0][idx] + _values[1][idx] ) * .5f;
+                    sumValue += _values[idx];
 
                 value = sumValue / ( end - start + 1 );
             }
 
-            buffer[i] -= ( ( buffer[i] * dropAmount ) * Time.deltaTime );
+            buffer[i] -= ( ( buffer[i] * dropAmount ) * Time.fixedDeltaTime );
             buffer[i] = Mathf.Max( buffer[i], value );
 
             Transform left  = transforms[i];
@@ -95,42 +91,18 @@ public class LineSpectrum : MonoBehaviour
 
     private Color GetGradationColor( int _index )
     {
-        int r = 0, g = 0, b = 0;
-        float a = ( 1.0f - ( ( 1.0f / specCount * ( specCount - _index ) ) ) ) / 0.25f;
-        int X = ( int )Mathf.Floor( a );
-        int Y = ( int )Mathf.Floor( 255 * ( a - X ) );
+        float a = ( 1f - ( ( 1f / specCount * ( specCount - _index ) ) ) ) / .25f;
+        int X   = Mathf.FloorToInt( a );
+        int Y   = Mathf.FloorToInt( 255 * ( a - X ) );
+        int r   = 0, g = 0, b = 0;
         switch ( X )
         {
-            case 0:
-            r = 255;
-            g = Y;
-            b = 0;
-            break;
-            case 1:
-            r = 255 - Y;
-            g = 255;
-            b = 0;
-            break;
-            case 2:
-            r = 0;
-            g = 255;
-            b = Y;
-            break;
-            case 3:
-            r = 0;
-            g = 255 - Y;
-            b = 255;
-            break;
-            case 4:
-            r = Y;
-            g = 0;
-            b = 255;
-            break;
-            case 5:
-            r = 255;
-            g = 0;
-            b = 255;
-            break;
+            case 0: r = 255;     g = Y;       b = 0;   break;
+            case 1: r = 255 - Y; g = 255;     b = 0;   break;
+            case 2: r = 0;       g = 255;     b = Y;   break;
+            case 3: r = 0;       g = 255 - Y; b = 255; break;
+            case 4: r = Y;       g = 0;       b = 255; break;
+            case 5: r = 255;     g = 0;       b = 255; break;
         }
 
         return new Color( r / 255.0f, g / 255.0f, b / 255.0f, alpha );

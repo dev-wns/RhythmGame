@@ -1006,14 +1006,13 @@ GameObject:
   m_Component:
   - component: {fileID: 44985681}
   - component: {fileID: 44985683}
-  - component: {fileID: 44985684}
   m_Layer: 6
   m_Name: Fixed Freq Band
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &44985681
 Transform:
   m_ObjectHideFlags: 0
@@ -1044,45 +1043,6 @@ MonoBehaviour:
   visuzlizer: {fileID: 1923945052}
   power: 35
   bandRange: 10
---- !u!114 &44985684
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 44985680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6953e2fad9f8eff4988474d54e2b833d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  freqBand: {fileID: 44985683}
-  leftBars:
-  - {fileID: 567734871}
-  - {fileID: 383252105}
-  - {fileID: 1492701349}
-  - {fileID: 888254649}
-  - {fileID: 146272314}
-  - {fileID: 2043077865}
-  - {fileID: 582605723}
-  - {fileID: 27769780}
-  - {fileID: 421595408}
-  - {fileID: 753393522}
-  rightBars:
-  - {fileID: 853360424}
-  - {fileID: 1037290948}
-  - {fileID: 1059490473}
-  - {fileID: 1966714987}
-  - {fileID: 245376044}
-  - {fileID: 1388976040}
-  - {fileID: 668840218}
-  - {fileID: 350087154}
-  - {fileID: 1337288400}
-  - {fileID: 2082215417}
-  isReverse: 0
-  decreasePower: 15
-  isNormalized: 1
-  NormalizedRange: 1
 --- !u!1 &47477309
 GameObject:
   m_ObjectHideFlags: 0
@@ -14721,7 +14681,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &746346381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14750,8 +14710,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1099860058}
+  m_Children: []
   m_Father: {fileID: 1923945051}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
@@ -21560,11 +21519,11 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 746346382}
+  m_Father: {fileID: 1923945051}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -490}
+  m_AnchoredPosition: {x: 50, y: -490}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!120 &1099860059
@@ -21684,16 +21643,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c50693950b459fc4c86e652f16c568ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  freqBand: {fileID: 746346381}
+  visualizer: {fileID: 1923945052}
+  startIndex: 48
+  freqCount: 72
+  power: 3000
+  rdr: {fileID: 1099860059}
   maxHeight: 50
   posOffset: 6.6875
-  sclOffset: 1.525
+  discardOffset: 1.525
   riseAmount: 100
   dropAmount: 10.5
+  isAxisX: 1
+  isReverse: 0
   isNormalized: 1
   NormalizedRange: 2
-  isReverse: 0
-  isAxisX: 1
 --- !u!1 &1100880491
 GameObject:
   m_ObjectHideFlags: 0
@@ -21949,18 +21912,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visualizer: {fileID: 1923945052}
-  alpha: 0.15
-  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
-  sortingOrder: 2
-  specCount: 156
   startIndex: 38
+  specCount: 156
+  power: 1000
+  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
   width: 5.15
   blank: 1
-  power: 1000
+  alpha: 0.15
+  sortingOrder: 2
+  riseAmount: 0
   dropAmount: 12.5
+  isReverse: 1
   IsNormalized: 1
   normalizedRange: 2
-  isReverse: 1
 --- !u!1 &1117477836
 GameObject:
   m_ObjectHideFlags: 0
@@ -43521,6 +43485,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1923945051}
   - component: {fileID: 1923945052}
+  - component: {fileID: 1923945053}
   m_Layer: 6
   m_Name: Audio Visualizer
   m_TagString: Untagged
@@ -43528,25 +43493,30 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!4 &1923945051
-Transform:
+--- !u!224 &1923945051
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1923945049}
-  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1605866378}
+  - {fileID: 1099860058}
   - {fileID: 746346382}
   - {fileID: 44985681}
   - {fileID: 1115351010}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1923945052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43559,6 +43529,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  size: 2048
+  avgStart: 48
+  avgRange: 72
+--- !u!114 &1923945053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1923945049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6953e2fad9f8eff4988474d54e2b833d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualizer: {fileID: 1923945052}
+  power: 35
+  dropAmount: 15
+  riseAmount: 0
+  bandCount: 10
+  isNormalized: 1
+  isReverse: 0
+  leftBars:
+  - {fileID: 567734871}
+  - {fileID: 383252105}
+  - {fileID: 1492701349}
+  - {fileID: 888254649}
+  - {fileID: 146272314}
+  - {fileID: 2043077865}
+  - {fileID: 582605723}
+  - {fileID: 27769780}
+  - {fileID: 421595408}
+  - {fileID: 753393522}
+  rightBars:
+  - {fileID: 853360424}
+  - {fileID: 1037290948}
+  - {fileID: 1059490473}
+  - {fileID: 1966714987}
+  - {fileID: 245376044}
+  - {fileID: 1388976040}
+  - {fileID: 668840218}
+  - {fileID: 350087154}
+  - {fileID: 1337288400}
+  - {fileID: 2082215417}
 --- !u!1 &1924485807
 GameObject:
   m_ObjectHideFlags: 0
@@ -48161,6 +48175,6 @@ SceneRoots:
   - {fileID: 2068238576}
   - {fileID: 1242928394}
   - {fileID: 1605749759}
-  - {fileID: 1923945051}
   - {fileID: 2066729006}
   - {fileID: 640211006}
+  - {fileID: 1923945051}

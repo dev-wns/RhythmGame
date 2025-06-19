@@ -1,4 +1,4 @@
-Shader "Custom/InstancedColor"
+Shader "Custom/Instanced Shader"
 {
     Properties
     {
@@ -32,14 +32,14 @@ Shader "Custom/InstancedColor"
             };
 
             UNITY_INSTANCING_BUFFER_START(Props)
-                UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
+            UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
             UNITY_INSTANCING_BUFFER_END(Props)
 
             v2f vert(appdata v)
             {
                 UNITY_SETUP_INSTANCE_ID(v); // 인스턴싱 ID 초기화
                 v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
+                o.pos   = UnityObjectToClipPos(v.vertex);
                 o.color = UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
                 return o;
             }
