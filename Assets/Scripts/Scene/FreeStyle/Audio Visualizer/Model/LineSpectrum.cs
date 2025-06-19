@@ -7,7 +7,6 @@ public class LineSpectrum : MonoBehaviour
     public int   startIndex;
     public int   specCount;
     public float power;
-    
 
     [Header( "- Renderer -" )]
     public Transform prefab;
@@ -43,13 +42,10 @@ public class LineSpectrum : MonoBehaviour
 
         for ( int i = 0; i < specCount * 2; i++ )
         {
-            Transform obj = Instantiate( prefab, transform );
-            transforms[i] = obj.transform;
+            transforms[i] = Instantiate( prefab, transform );
 
-            var rdr = obj.GetComponent<SpriteRenderer>();
-            rdr.sortingOrder = sortingOrder;
-
-            // Gradation Reverse
+            var rdr                = transforms[i].GetComponent<SpriteRenderer>();
+            rdr.sortingOrder       = sortingOrder;
             rdr.color              = i < specCount ? GetGradationColor( specCount - i ) : GetGradationColor( specCount - symmetryColorIdx++ );
             transforms[i].position = i < specCount ? new Vector3( transform.position.x - GetIndexToPositionX( i ),             transform.position.y, transform.position.z ) :
                                                      new Vector3( transform.position.x + GetIndexToPositionX( i - specCount ), transform.position.y, transform.position.z );

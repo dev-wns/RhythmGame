@@ -4,7 +4,6 @@ public class HeartBeat : MonoBehaviour
 {
     public FreeStyleMainScroll mainScroll;
     public SoundPitchOption pitchOption;
-    private RectTransform rt => transform as RectTransform;
     private float startSize, endSize;
 
     [Header( "BPM" )]
@@ -22,9 +21,8 @@ public class HeartBeat : MonoBehaviour
         mainScroll.OnSelectSong   += UpdateSong;
         mainScroll.OnSoundRestart += UpdateSong;
         AudioManager.OnUpdatePitch += UpdatePitch;
-        // pitchOption.OnPitchUpdate += UpdatePitch;
 
-        startSize = rt.sizeDelta.x;
+        startSize = transform.localScale.x;
         endSize = startSize * power;
     }
 
@@ -39,7 +37,7 @@ public class HeartBeat : MonoBehaviour
         float cos  = Mathf.Cos( ( Global.Math.Clamp( time, 0f, duration ) / duration ) * Mathf.PI );
         float t    = ( 1f + cos ) * .5f; // 1 -> 0
         float size = Global.Math.Clamp( Global.Math.Lerp( startSize, endSize, t ), startSize, endSize );
-        rt.sizeDelta = new Vector2( size, size );
+        transform.localScale = new Vector2( size, size );
     }
 
     private void OnDestroy()
@@ -64,7 +62,7 @@ public class HeartBeat : MonoBehaviour
     {
         spb = ( float )( 60d / _bpm );
         time = previewTime % spb;
-        rt.sizeDelta = new Vector2( startSize, startSize );
+        transform.localScale = new Vector2( startSize, startSize );
     }
 
 }

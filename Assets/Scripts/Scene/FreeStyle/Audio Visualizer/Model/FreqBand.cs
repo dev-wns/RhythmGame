@@ -4,17 +4,20 @@ using UnityEngine.UI;
 
 public class FreqBand : MonoBehaviour
 {
+    [Header( "- Visualizer -" )]
     public AudioVisualizer visualizer;
+    [SerializeField] 
+    [Range( 1, 10 )] int   bandCount;
     public           float power;
+
+    [Header( "- Renderer -" )]
     public           float dropAmount;
     public           float riseAmount;
-    [SerializeField] 
-    [Range( 1, 10 )] int  bandCount;
-    public           bool isNormalized;
-    public           bool isReverse;
+    public           bool  isNormalized;
+    public           bool  isReverse;
 
-    public List<Image> leftBars  = new List<Image>();
-    public List<Image> rightBars = new List<Image>();
+    public List<SpriteRenderer> leftBars  = new List<SpriteRenderer>();
+    public List<SpriteRenderer> rightBars = new List<SpriteRenderer>();
     
     private float[]   buffer;
     private const int NormalizedRange = 1;

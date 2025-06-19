@@ -1,7 +1,6 @@
 using UnityEngine;
 
 [RequireComponent( typeof( RectTransform ) )]
-//[RequireComponent( typeof( LineRenderer ) )]
 public class FreqSpark : MonoBehaviour
 {
     [Header( "- Visualizer -" )]
@@ -9,7 +8,6 @@ public class FreqSpark : MonoBehaviour
     public int   startIndex;
     public int   freqCount;
     public float power;
-
 
     [Header( "- Renderer -" )]
     public LineRenderer rdr;
