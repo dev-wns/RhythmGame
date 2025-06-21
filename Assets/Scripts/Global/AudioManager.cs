@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 
-public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
 public enum SFX
 {
     MainSelect, MainClick, MainHover, Slider,
@@ -20,7 +19,6 @@ public struct AudioGroup
     public void Release()
     {
         channel.stop();
-        //channel.clearHandle();
         AudioManager.Inst.Release( sound );
     }
 
@@ -162,9 +160,6 @@ public class AudioManager : Singleton<AudioManager>
         CreateDriverInfo( OUTPUTTYPE.WASAPI, drivers );
         //MakeDriverInfomation( OUTPUTTYPE.ASIO,   drivers );
         Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
-        //ErrorCheck( system.getDriver( out int driverIndex ) );
-        //ErrorCheck( system.getDriverInfo( driverIndex, out string name, 256, out Guid guid, out int rate,
-        //                                  out SPEAKERMODE driverSpeakMode, out int channels ) );
         ErrorCheck( system.setOutput( Drivers[curDriverIndex].outputType ) );
         ErrorCheck( system.setDriver( Drivers[curDriverIndex].index ) );
 
@@ -207,10 +202,12 @@ public class AudioManager : Singleton<AudioManager>
         Load( SFX.Slider,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav"     );
 
         // Details
-        SetVolume(  1f, ChannelType.Master );
-        SetVolume( .1f, ChannelType.BGM  );
-        SetVolume( .3f, ChannelType.SFX   );
-        SetVolume( .8f, ChannelType.Clap  );
+        if ( Config.Inst.Read( ConfigType.Master, out float masterVolume ) ) SetVolume( masterVolume, ChannelType.Master );
+        else                                                                 SetVolume( 1f,           ChannelType.Master );
+        if ( Config.Inst.Read( ConfigType.BGM,    out float bgmVolume    ) ) SetVolume( bgmVolume,    ChannelType.BGM );
+        else                                                                 SetVolume( 1f,           ChannelType.BGM );
+        if ( Config.Inst.Read( ConfigType.SFX,    out float sfxVolume    ) ) SetVolume( sfxVolume,    ChannelType.SFX );
+        else                                                                 SetVolume( 1f,           ChannelType.SFX );
 
         Debug.Log( $"AudioManager Initialization" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );

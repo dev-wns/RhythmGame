@@ -23,5 +23,6 @@ public class AntiAliasingOption : OptionText
     public override void Process()
     {
         SystemSetting.CurrentAntiAliasing = ( AntiAliasing )CurrentIndex;
+        SystemSetting.Inst.UpdateScreen();
     }
 }

@@ -9,6 +9,7 @@ namespace Global
         public static readonly string SoundDirectory  = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
         public static readonly string FailedDirectory = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
         public static readonly string RecordDirectory = System.IO.Path.Combine( Application.streamingAssetsPath, "Records" );
+        public static readonly string DataDirectory   = Application.streamingAssetsPath;
 
         public static string[] GetFilesInSubDirectories( string _dir, string _extension )
         {

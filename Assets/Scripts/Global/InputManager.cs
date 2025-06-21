@@ -65,10 +65,16 @@ public class InputManager : Singleton<InputManager>
     protected override void Awake()
     {
         base.Awake();
+
         // 기본 키 설정
-        KeyBind( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket } );
-        KeyBind( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Delete, KeyCode.End, KeyCode.PageDown } );
-        KeyBind( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
+        if ( Config.Inst.Read( ConfigType._4K, out KeyCode[] _4K_KeyCodes ) ) KeyBind( GameKeyCount._4, _4K_KeyCodes );
+        else                                                                  KeyBind( GameKeyCount._4, new KeyCode[] { KeyCode.W, KeyCode.E, KeyCode.P, KeyCode.LeftBracket } );
+
+        if ( Config.Inst.Read( ConfigType._6K, out KeyCode[] _6K_KeyCodes ) ) KeyBind( GameKeyCount._6, _6K_KeyCodes );
+        else                                                                  KeyBind( GameKeyCount._6, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Delete, KeyCode.End, KeyCode.PageDown } );
+
+        if ( Config.Inst.Read( ConfigType._7K, out KeyCode[] _7K_KeyCodes ) ) KeyBind( GameKeyCount._7, _7K_KeyCodes );
+        else                                                                  KeyBind( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
         KeyMapping();
 
         // 이벤트 연결
@@ -384,8 +390,8 @@ public class InputManager : Singleton<InputManager>
         AddMapping( 0xBB, KeyCode.Plus,           "="        );
         AddMapping( 0xBD, KeyCode.Minus,          "-"        ); 
 
-        AddMapping( 0xDD, KeyCode.RightBracket,   "["        );
-        AddMapping( 0xDB, KeyCode.LeftBracket,    "]"        );
+        AddMapping( 0xDD, KeyCode.RightBracket,   "]"        );
+        AddMapping( 0xDB, KeyCode.LeftBracket,    "["        );
         AddMapping( 0xBA, KeyCode.Semicolon,      ";"        );
         AddMapping( 0xDE, KeyCode.Quote,          "\'"       );
         AddMapping( 0xBC, KeyCode.Comma,          ","        );

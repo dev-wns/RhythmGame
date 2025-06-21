@@ -17,6 +17,8 @@ public abstract class Scene : SceneKeyAction
     #region Unity Callback
     protected virtual void Awake()
     {
+        NowPlaying np = NowPlaying.Inst;
+
         Connect();
         CreateFadeSprite();
 
@@ -190,6 +192,7 @@ public abstract class Scene : SceneKeyAction
     {
         pressTime = 0f;
         isPressed = false;
+        Config.Inst.Write( ConfigType.ScrollSpeed, GameSetting.ScrollSpeed );
     }
 
     protected void SpeedControlProcess( bool _isPlus )

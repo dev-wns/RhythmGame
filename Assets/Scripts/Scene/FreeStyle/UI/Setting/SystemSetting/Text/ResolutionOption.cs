@@ -35,27 +35,28 @@ public class ResolutionOption : OptionText
 
     public override void Process()
     {
-        var replace = ( ( Resolution )CurrentIndex ).ToString().Replace( "_", " " );
-        var split = replace.Trim().Split( ' ' );
-
-        var width  = int.Parse( split[0] );
-        var height = int.Parse( split[1] );
-
-        switch ( SystemSetting.CurrentScreenMode )
-        {
-            case ScreenMode.Exclusive_FullScreen:
-            Screen.SetResolution( width, height, FullScreenMode.ExclusiveFullScreen );
-            break;
-
-            case ScreenMode.FullScreen_Window:
-            Screen.SetResolution( width, height, FullScreenMode.FullScreenWindow );
-            break;
-
-            case ScreenMode.Windowed:
-            Screen.SetResolution( width, height, FullScreenMode.Windowed );
-            break;
-        }
+        // var replace = ( ( Resolution )CurrentIndex ).ToString().Replace( "_", " " );
+        // var split = replace.Trim().Split( ' ' );
+        // 
+        // var width  = int.Parse( split[0] );
+        // var height = int.Parse( split[1] );
+        // 
+        // switch ( SystemSetting.CurrentScreenMode )
+        // {
+        //     case ScreenMode.Exclusive_FullScreen:
+        //     Screen.SetResolution( width, height, FullScreenMode.ExclusiveFullScreen );
+        //     break;
+        // 
+        //     case ScreenMode.FullScreen_Window:
+        //     Screen.SetResolution( width, height, FullScreenMode.FullScreenWindow );
+        //     break;
+        // 
+        //     case ScreenMode.Windowed:
+        //     Screen.SetResolution( width, height, FullScreenMode.Windowed );
+        //     break;
+        // }
 
         SystemSetting.CurrentResolution = ( Resolution )CurrentIndex;
+        SystemSetting.Inst.UpdateScreen();
     }
 }

@@ -14,12 +14,14 @@ public class FrameRateOption : OptionText
         {
             switch ( ( FrameRate )i )
             {
-                case FrameRate.No_Limit: texts.Add( $"제한없음" ); break;
-                case FrameRate.vSync: texts.Add( $"수직 동기화" ); break;
-                case FrameRate._60: texts.Add( $"60 FPS" ); break;
-                case FrameRate._144: texts.Add( $"144 FPS" ); break;
-                case FrameRate._240: texts.Add( $"240 FPS" ); break;
-                case FrameRate._960: texts.Add( $"960 FPS" ); break;
+                case FrameRate.No_Limit: texts.Add( $"제한없음" );    break;
+                case FrameRate.vSync:    texts.Add( $"수직 동기화" ); break;
+                case FrameRate._60:      texts.Add( $"60 FPS" );     break;
+                case FrameRate._144:     texts.Add( $"144 FPS" );    break;
+                case FrameRate._240:     texts.Add( $"240 FPS" );    break;
+                case FrameRate._360:     texts.Add( $"360 FPS" );    break;
+                case FrameRate._480:     texts.Add( $"480 FPS" );    break;
+                case FrameRate._960:     texts.Add( $"960 FPS" );    break;
             }
         }
     }
@@ -28,24 +30,26 @@ public class FrameRateOption : OptionText
     {
         var type = ( FrameRate )CurrentIndex;
 
-        QualitySettings.vSyncCount = SystemSetting.CurrentFrameRate == FrameRate.vSync ? 1 : 0;
-        switch ( type )
-        {
-            case FrameRate.vSync:
-            case FrameRate.No_Limit: Application.targetFrameRate = 0; break;
 
-            case FrameRate._60:
-            case FrameRate._144:
-            case FrameRate._240:
-            case FrameRate._960:
-            {
-                QualitySettings.vSyncCount = 0;
-                var frame = ( type ).ToString().Replace( "_", " " );
-                Application.targetFrameRate = int.Parse( frame );
-            }
-            break;
-        }
+        //QualitySettings.vSyncCount = SystemSetting.CurrentFrameRate == FrameRate.vSync ? 1 : 0;
+        //switch ( type )
+        //{
+        //    case FrameRate.vSync:
+        //    case FrameRate.No_Limit: Application.targetFrameRate = 0; break;
+
+        //    case FrameRate._60:
+        //    case FrameRate._144:
+        //    case FrameRate._240:
+        //    case FrameRate._960:
+        //    {
+        //        QualitySettings.vSyncCount = 0;
+        //        var frame = ( type ).ToString().Replace( "_", " " );
+        //        Application.targetFrameRate = int.Parse( frame );
+        //    }
+        //    break;
+        //}
 
         SystemSetting.CurrentFrameRate = type;
+        SystemSetting.Inst.UpdateScreen();
     }
 }

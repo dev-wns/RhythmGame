@@ -40,7 +40,7 @@ public enum VisualFlag
     All         = int.MaxValue,
 }
 
-public class GameSetting
+public class GameSetting : Singleton<GameSetting>
 {
     // Mode
     public static VisualFlag     CurrentVisualFlag    = VisualFlag.All;
@@ -49,33 +49,10 @@ public class GameSetting
     public static Alignment      CurrentAlignment     = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;
 
-    public static bool HasFlag<T>( T _type ) where T : Enum
-    {
-        try
-        { 
-            switch ( _type )
-            {
-                case VisualFlag: return CurrentVisualFlag.HasFlag( _type );
-                case GameMode:   return CurrentGameMode.HasFlag(   _type );
-                case GameRandom: return CurrentRandom.HasFlag(     _type );
-                case Alignment:  return CurrentAlignment.HasFlag(  _type );
-                case PitchType:  return CurrentPitchType.HasFlag(  _type );
-                default:         throw new Exception( $"{_type} is Invalid Value" );
-            }
-        }
-        catch( Exception _error )
-        {
-            Debug.LogError( _error );
-        }
-
-        return false;
-    }
-
     // Speed
     private static int OriginScrollSpeed = 30;
     public static int ScrollSpeed
     {
-
         get => OriginScrollSpeed;
         set
         {
@@ -119,4 +96,45 @@ public class GameSetting
     // Pitch
     public  static float CurrentPitch { get => pitch; set => pitch = value; }
     private static float pitch = 1f;
+
+    protected override void Awake()
+    {
+        ScrollSpeed  = Config.Inst.Read( ConfigType.ScrollSpeed,  out int   scrollSpeed  ) ? scrollSpeed  : 30;
+        SoundOffset  = Config.Inst.Read( ConfigType.SoundOffset,  out int   soundOffset  ) ? soundOffset  : 0;
+        JudgeOffset  = Config.Inst.Read( ConfigType.JudgeOffset,  out int   judgeOffset  ) ? judgeOffset  : 0;
+        BGAOpacity   = Config.Inst.Read( ConfigType.BGAOpacity,   out int   bgaOpacity   ) ? bgaOpacity   : 0;
+        PanelOpacity = Config.Inst.Read( ConfigType.PanelOpacity, out int   panelOpacity ) ? panelOpacity : 0;
+        GearOffsetX  = Config.Inst.Read( ConfigType.GearOffsetX,  out float gearOffsetX  ) ? gearOffsetX  : 0f;
+         
+        CurrentGameMode = GameMode.None;
+        if ( Config.Inst.Read( ConfigType.AutoPlay, out bool isAuto   ) && isAuto   ) CurrentGameMode |= GameMode.AutoPlay;
+        if ( Config.Inst.Read( ConfigType.NoFailed, out bool isNoFail ) && isNoFail ) CurrentGameMode |= GameMode.NoFail;
+
+        CurrentVisualFlag = VisualFlag.None;
+        if ( Config.Inst.Read( ConfigType.Measure,    out bool showMeasure ) && showMeasure ) CurrentVisualFlag |= VisualFlag.ShowMeasure;
+        if ( Config.Inst.Read( ConfigType.HitEffect,  out bool hitEffect   ) && hitEffect   ) CurrentVisualFlag |= VisualFlag.HitEffect;
+        if ( Config.Inst.Read( ConfigType.LaneEffect, out bool laneEffect  ) && laneEffect  ) CurrentVisualFlag |= VisualFlag.LaneEffect;
+    }
+
+    public static bool HasFlag<T>( T _type ) where T : Enum
+    {
+        try
+        {
+            switch ( _type )
+            {
+                case VisualFlag: return CurrentVisualFlag.HasFlag( _type );
+                case GameMode:   return CurrentGameMode.HasFlag(   _type );
+                case GameRandom: return CurrentRandom.HasFlag(     _type );
+                case Alignment:  return CurrentAlignment.HasFlag(  _type );
+                case PitchType:  return CurrentPitchType.HasFlag(  _type );
+                default: throw new Exception( $"{_type} is Invalid Value" );
+            }
+        }
+        catch ( Exception _error )
+        {
+            Debug.LogError( _error );
+        }
+
+        return false;
+    }
 }

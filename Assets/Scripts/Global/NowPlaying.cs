@@ -65,13 +65,16 @@ public class NowPlaying : Singleton<NowPlaying>
     protected override async void Awake()
     {
         base.Awake();
-        
+
         // ΩÃ±€≈Ê »∞º∫»≠
-        AudioManager audioManager = AudioManager.Inst;
-        InputManager inputManager = InputManager.Inst;
-        DataStorage  dataStorage  = DataStorage.Inst;
-        Judgement    judgement    = Judgement.Inst;
-        Network      network      = Network.Inst;
+        Config        config        = Config.Inst;
+        GameSetting   gameSetting   = GameSetting.Inst;
+        SystemSetting systemSetting = SystemSetting.Inst;
+        Network       network       = Network.Inst;
+        AudioManager  audioManager  = AudioManager.Inst;
+        InputManager  inputManager  = InputManager.Inst;
+        DataStorage   dataStorage   = DataStorage.Inst;
+        Judgement     judgement     = Judgement.Inst;
 
         DataStorage.Inst.LoadSongs();
         Songs = DataStorage.OriginSongs;
