@@ -66,17 +66,17 @@ public class Record : MonoBehaviour
             infomation.SetActive( true );
 
             RecordData data = DataStorage.CurrentRecord;
-            chaos.text = $"{( ( GameRandom )data.random ).ToString().Replace( '_', ' ' )}";
-            score.text = $"{data.score:N0}";
-            rate.text = $"x{data.pitch:N1}";
-            accuracy.text = $"{( data.accuracy * .01f ):N2}%";
-            date.text = data.date;
+            chaos.text    = $"{data.random.ToString().Replace( '_', ' ' )}";
+            score.text    = $"{data.score:N0}";
+            rate.text     = $"x{data.pitch:N1}";
+            accuracy.text = $"{data.accuracy:N2}%";
+            date.text     = data.date;
 
-            rankImage.sprite = data.accuracy >= 9500 ? RankS :
-                               data.accuracy >= 9000 ? RankA :
-                               data.accuracy >= 8500 ? RankB :
-                               data.accuracy >= 8000 ? RankC :
-                                                       RankD;
+            rankImage.sprite = data.accuracy >= 95d ? RankS :
+                               data.accuracy >= 90d ? RankA :
+                               data.accuracy >= 85d ? RankB :
+                               data.accuracy >= 80d ? RankC :
+                                                      RankD;
         }
         
         rt.anchoredPosition = new Vector2( startPosX, rt.anchoredPosition.y );

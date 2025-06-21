@@ -1,7 +1,6 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -86,7 +85,7 @@ public class FreeStyleMainScroll : ScrollBase
     private void Start()
     {
         UpdateScrollView();
-        //Debug.Log( DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" ) );
+        
         // if ( !HasAnySongs )
         // {
         //     AudioManager.Inst.AllStop();
@@ -115,7 +114,6 @@ public class FreeStyleMainScroll : ScrollBase
 
         Playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
         posSlider.value = ( float ) ( Playback / endTime );
-
 
         if ( canRestart && endTime < Playback )
         {
@@ -168,7 +166,6 @@ public class FreeStyleMainScroll : ScrollBase
 
             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, .5f );
 
-            //endTime = curSong.totalTime - ( FadeDuration * 1000f * .5f );
             float duration = FadeDuration * 1000f * .5f;
             float diff     = AudioManager.Inst.Length - curSong.totalTime;
             endTime        = diff > duration ? curSong.totalTime : AudioManager.Inst.Length - duration;
@@ -258,6 +255,28 @@ public class FreeStyleMainScroll : ScrollBase
         }
     }
 
+    private void OnBufferSetting()
+    {
+        if ( AudioManager.Inst.Load( curSong.audioPath, out FMOD.Sound curSound, true ) )
+        {
+            AudioManager.Inst.Play( curSound );
+            AudioManager.Inst.Position = ( uint ) Playback;
+        }
+    }
+
+    private int GetPreviewTime( int _time ) => _time > endTime || _time <= 0 ? ( int )( endTime * .35f ) : ( int )_time;
+    #endregion
+
+    #region Input
+    private void SelectChart()
+    {
+        if ( !HasAnySongs ) return;
+
+        GameSetting.NoteSizeMultiplier = NowPlaying.CurrentSong.keyCount == 4 ? 1.25f : 1f;
+
+        AudioManager.Inst.Play( SFX.MainClick );
+        NowPlaying.CurrentScene.LoadScene( SceneType.Game );
+    }
     public override void PrevMove()
     {
         base.PrevMove();
@@ -288,7 +307,6 @@ public class FreeStyleMainScroll : ScrollBase
 
         curText.text = $"{CurrentIndex + 1}";
     }
-
     public override void NextMove()
     {
         base.NextMove();
@@ -318,30 +336,6 @@ public class FreeStyleMainScroll : ScrollBase
 
         curText.text = $"{CurrentIndex + 1}";
     }
-
-    private void OnBufferSetting()
-    {
-        if ( AudioManager.Inst.Load( curSong.audioPath, out FMOD.Sound curSound, true ) )
-        {
-            AudioManager.Inst.Play( curSound );
-            AudioManager.Inst.Position = ( uint ) Playback;
-        }
-    }
-
-    private int GetPreviewTime( int _time ) => _time > endTime || _time <= 0 ? ( int )( endTime * .35f ) : ( int )_time;
-    #endregion
-
-    #region Input
-    private void SelectChart()
-    {
-        if ( !HasAnySongs ) return;
-
-        GameSetting.NoteSizeMultiplier = NowPlaying.CurrentSong.keyCount == 4 ? 1.25f : 1f;
-
-        AudioManager.Inst.Play( SFX.MainClick );
-        NowPlaying.CurrentScene.LoadScene( SceneType.Game );
-    }
-
     private void ScrollDown()
     {
         if ( !HasAnySongs ) return;
@@ -355,7 +349,6 @@ public class FreeStyleMainScroll : ScrollBase
             keyPressTime = 0f;
         }
     }
-
     private void ScrollUp()
     {
         if ( !HasAnySongs ) return;
@@ -369,7 +362,6 @@ public class FreeStyleMainScroll : ScrollBase
             keyPressTime = 0f;
         }
     }
-
     private void KeyHold( Action _action )
     {
         if ( !HasAnySongs ) return;
@@ -381,7 +373,6 @@ public class FreeStyleMainScroll : ScrollBase
             _action?.Invoke();
         }
     }
-
     private void KeyUp()
     {
         if ( !HasAnySongs ) return;

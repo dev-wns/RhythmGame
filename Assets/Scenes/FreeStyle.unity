@@ -1537,6 +1537,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1448507935}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &67826169
 CanvasRenderer:
@@ -9621,6 +9622,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 383007494}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &426249238
 CanvasRenderer:
@@ -9701,6 +9703,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1062219707}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &433318144
 CanvasRenderer:
@@ -10689,6 +10692,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1572184577}
   isReturnProcess: 1
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &495525084
 CanvasRenderer:
@@ -13924,7 +13928,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 695315786}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
@@ -17537,6 +17541,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 941166536}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &930587514
 CanvasRenderer:
@@ -19322,6 +19327,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 576107295}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &979359145
 CanvasRenderer:
@@ -21702,7 +21708,6 @@ MonoBehaviour:
   maxHeight: 47.5
   posOffset: 6.6875
   discardOffset: 1.525
-  discardConst: 0
   riseAmount: 100
   dropAmount: 10.5
   isAxisX: 1
@@ -24116,6 +24121,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1579486071}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1228718216
 CanvasRenderer:
@@ -24316,6 +24322,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1566540782}
   isReturnProcess: 1
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1234775455
 CanvasRenderer:
@@ -26125,6 +26132,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1858832668}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1309812287
 CanvasRenderer:
@@ -29563,6 +29571,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 341131025}
   isReturnProcess: 1
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1476263749
 CanvasRenderer:
@@ -29731,6 +29740,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 29199910}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1491617897
 CanvasRenderer:
@@ -33960,6 +33970,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1462923034}
   isReturnProcess: 1
+  isSFXSound: 0
   isActive: 0
 --- !u!222 &1688712464
 CanvasRenderer:
@@ -36049,6 +36060,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 368558129}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1793009789
 CanvasRenderer:
@@ -38794,6 +38806,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 853558142}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1924485811
 CanvasRenderer:
@@ -39131,6 +39144,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 1327977815}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
 --- !u!222 &1930994275
 CanvasRenderer:
@@ -42834,6 +42848,7 @@ MonoBehaviour:
   texts: []
   valueText: {fileID: 803421241}
   isReturnProcess: 0
+  isSFXSound: 1
   isActive: 0
   previewText: {fileID: 129563645}
 --- !u!222 &2119628339

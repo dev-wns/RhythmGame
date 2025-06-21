@@ -74,16 +74,19 @@ public class BGASystem : MonoBehaviour
         if ( type == BackgroundType.Image )
         {
             // 이미 프리스타일에서 로딩된 이미지 사용
-            if ( DataStorage.Inst.GetTexture( NowPlaying.CurrentSong.imageName, out Texture2D texture ) )
+            DataStorage.Inst.LoadTexture( NowPlaying.CurrentSong.imageName, () =>
             {
-                background.texture = texture;
-                background.color   = color;
-                background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
-            }
-            else
-            {
-                transform.root.gameObject.SetActive( false );
-            }
+                if ( DataStorage.Inst.GetTexture( NowPlaying.CurrentSong.imageName, out Texture2D texture ) )
+                {
+                    background.texture = texture;
+                    background.color   = color;
+                    background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
+                }
+                else
+                {
+                    transform.root.gameObject.SetActive( false );
+                }
+            } );
         }
     }
 

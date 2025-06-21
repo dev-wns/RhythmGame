@@ -20,12 +20,8 @@ public struct AudioGroup
     public void Release()
     {
         channel.stop();
-        channel.clearHandle();
-        if ( sound.hasHandle() )
-        {
-            sound.release();
-            sound.clearHandle();
-        }
+        //channel.clearHandle();
+        AudioManager.Inst.Release( sound );
     }
 
     public AudioGroup( FMOD.Sound _sound, FMOD.Channel _channel )
@@ -56,8 +52,9 @@ public class AudioManager : Singleton<AudioManager>
     private static readonly int MaxVirtualChannel  = 1000;
     
     private FMOD.System system;
-    private Dictionary<ChannelType, ChannelGroup> groups = new ();
-    private Dictionary<DSP_TYPE, DSP>             dsps   = new ();
+    private Dictionary<ChannelType, ChannelGroup> groups        = new ();
+    private Dictionary<DSP_TYPE, DSP>             dsps          = new ();
+    private Dictionary<SFX, Sound>                sfxSounds     = new ();
 
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
     public Sound   MainSound                { get; private set; }
@@ -136,7 +133,7 @@ public class AudioManager : Singleton<AudioManager>
             curDriverIndex = value;
         }
     }
-    private int curDriverIndex = -1;
+    private int curDriverIndex = 0;
 
 
     #region System
@@ -165,20 +162,11 @@ public class AudioManager : Singleton<AudioManager>
         CreateDriverInfo( OUTPUTTYPE.WASAPI, drivers );
         //MakeDriverInfomation( OUTPUTTYPE.ASIO,   drivers );
         Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
-        if ( curDriverIndex < 0 )
-        {
-            ErrorCheck( system.getDriver( out int driverIndex ) );
-            ErrorCheck( system.getDriverInfo( driverIndex, out string name, 256, out Guid guid, out int rate,
-                                              out SPEAKERMODE driverSpeakMode, out int channels ) );
-            for ( int i = 0; i < Drivers.Count; i++ )
-            {
-                if ( guid.CompareTo( Drivers[i].guid ) == 0 )
-                {
-                    curDriverIndex = i;
-                    break;
-                }
-            }
-        }
+        //ErrorCheck( system.getDriver( out int driverIndex ) );
+        //ErrorCheck( system.getDriverInfo( driverIndex, out string name, 256, out Guid guid, out int rate,
+        //                                  out SPEAKERMODE driverSpeakMode, out int channels ) );
+        ErrorCheck( system.setOutput( Drivers[curDriverIndex].outputType ) );
+        ErrorCheck( system.setDriver( Drivers[curDriverIndex].index ) );
 
         // ChannelGroup
         for ( int i = 0; i < ( int )ChannelType.Count; i++ )
@@ -199,7 +187,7 @@ public class AudioManager : Singleton<AudioManager>
             ErrorCheck( dsp.setParameterInt( ( int ) DSP_FFT.WINDOWTYPE, ( int ) DSP_FFT_WINDOW.BLACKMANHARRIS ) );
             dsps.Add( DSP_TYPE.FFT, dsp );
         }
-
+        
         if ( !dsps.ContainsKey( DSP_TYPE.PITCHSHIFT ) )
         {
             ErrorCheck( system.createDSPByType( DSP_TYPE.PITCHSHIFT, out DSP dsp ) );
@@ -208,9 +196,19 @@ public class AudioManager : Singleton<AudioManager>
             dsps.Add( DSP_TYPE.PITCHSHIFT, dsp );
         }
 
+        // Load SFX Sounds
+        Load( SFX.MainClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav"  );
+        Load( SFX.MenuClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav"  );
+        Load( SFX.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
+        Load( SFX.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
+        Load( SFX.MainHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav"  );
+        Load( SFX.MenuHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav"  );
+        Load( SFX.MenuExit,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav"   );
+        Load( SFX.Slider,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav"     );
+
         // Details
-        SetVolume( 1f, ChannelType.Master );
-        SetVolume( .15f, ChannelType.BGM  );
+        SetVolume(  1f, ChannelType.Master );
+        SetVolume( .1f, ChannelType.BGM  );
         SetVolume( .3f, ChannelType.SFX   );
         SetVolume( .8f, ChannelType.Clap  );
 
@@ -241,40 +239,33 @@ public class AudioManager : Singleton<AudioManager>
     public void Release()
     {
         IsStop = true;
-
-        // Sounds
-        //foreach ( var sfx in sfxSounds.Values )
-        //{
-        //    if ( sfx.hasHandle() )
-        //    {
-        //        ErrorCheck( sfx.release() );
-        //        sfx.clearHandle();
-        //    }
-        //}
-        //sfxSounds.Clear();
-
-        // ChannelGroup
         AllStop();
+        // 그룹에 연결된 재생중인 채널 모두 끊김( 사운드 Release는 사용한 클래스에서 해주기 )
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
         {
+            ChannelType type = ( ChannelType )i;
             foreach ( var dsp in dsps.Values )
             {
-                ErrorCheck( groups[( ChannelType )i].removeDSP( dsp ) );
+                ErrorCheck( groups[type].removeDSP( dsp ) );
             }
 
-            //ErrorCheck( groups[( ChannelType ) i].getNumChannels( out int numChannels ) );
-            //for ( int j = 0; j < numChannels; j++ )
+            //if ( ErrorCheck( groups[type].getNumChannels( out int numChannels ) ) )
             //{
-            //    ErrorCheck( groups[( ChannelType ) i].getChannel( j, out Channel channel ) );
-            //    ErrorCheck( channel.stop() );
-            //    ErrorCheck( channel.getCurrentSound( out Sound sound ) );
-            //    ErrorCheck( sound.release() );
-            //    sound.clearHandle();
+            //    for ( int j = 0; j < numChannels; j++ )
+            //    {
+            //        ErrorCheck( groups[type].getChannel( j, out Channel channel ) );
+            //        if ( ErrorCheck( channel.getCurrentSound( out Sound sound ) ) )
+            //        {
+            //            ErrorCheck( channel.stop() );
+            //            ErrorCheck( sound.release() );
+            //            sound.clearHandle();
+            //        }
+            //    }
             //}
-
             ErrorCheck( groups[( ChannelType )i].release() );
         }
 
+        // 마스터 그룹은 하위 그룹 처리 후 제거
         ErrorCheck( groups[ChannelType.Master].release() );
         groups.Clear();
 
@@ -286,8 +277,15 @@ public class AudioManager : Singleton<AudioManager>
         }
         dsps.Clear();
 
+        foreach ( var sfx in sfxSounds.Values )
+        {
+            Release( sfx );
+        }
+        sfxSounds.Clear();
+        Release( MainSound );
+
         // System
-        ErrorCheck( system.release() ); // 내부에서 close 함.
+        ErrorCheck( system.release() ); // 내부에서 close 함
         system.clearHandle();
 
         Debug.Log( "AudioManager Release" );
@@ -296,8 +294,6 @@ public class AudioManager : Singleton<AudioManager>
     public void ReLoad()
     {
         IsStop = true;
-        AllStop();
-
         // caching
         float[] volumes = new float[groups.Count];
         int groupCount = 0;
@@ -307,15 +303,13 @@ public class AudioManager : Singleton<AudioManager>
         // reload
         Release();
         Initialize();
-        OnReload?.Invoke();
 
         // rollback
-        ErrorCheck( system.setOutput( Drivers[curDriverIndex].outputType ) );
-        ErrorCheck( system.setDriver( Drivers[curDriverIndex].index ) );
         groupCount = 0;
         foreach ( var group in groups.Values )
             ErrorCheck( group.setVolume( volumes[groupCount++] ) );
 
+        OnReload?.Invoke();
         IsStop = false;
     }
     #endregion
@@ -329,7 +323,7 @@ public class AudioManager : Singleton<AudioManager>
 
     public void SystemUpdate()
     {
-        if ( !IsStop )
+        if ( !IsStop && system.hasHandle() )
              system.update();
     }
 
@@ -360,8 +354,24 @@ public class AudioManager : Singleton<AudioManager>
         return true;
     }
 
+    private void Load( SFX _type, string _path )
+    {
+        if ( !System.IO.File.Exists( @_path ) || sfxSounds.ContainsKey( _type ) )
+        {
+            Debug.LogWarning( $"SFX sound file does not exist or is already loaded" );
+            return;
+        }
+
+        MODE mode = MODE.CREATESAMPLE | MODE.LOOP_OFF | MODE.LOWMEM | MODE.VIRTUAL_PLAYFROMSTART;
+        if ( ErrorCheck( system.createSound( _path, mode, out Sound sound ) ) )
+             sfxSounds.Add( _type, sound );
+    }
+
     public void Play( Sound _sound, float _volume = 1f )
     {
+        if ( !_sound.hasHandle() )
+             Debug.LogWarning( "Sound Handle is not Alived" );
+
         if ( ErrorCheck( system.playSound( _sound, groups[ChannelType.BGM], false, out Channel channel ) ) )
         {
             ErrorCheck( channel.setVolume( _volume ) );
@@ -370,10 +380,12 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-
     public void Play( SFX _type )
     {
-        if ( DataStorage.Inst.GetSound( _type, out Sound sound ) )
+        if ( IsStop )
+             return;
+
+        if ( sfxSounds.TryGetValue( _type, out Sound sound ) )
              ErrorCheck( system.playSound( sound, groups[ChannelType.SFX], false, out Channel channel ) );
     }
 
@@ -459,8 +471,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         foreach ( var group in groups )
         {
-            if ( groups[group.Key].isPlaying( out bool isPlaying ) == RESULT.OK ) 
-                 ErrorCheck( group.Value.stop() );
+            ErrorCheck( group.Value.stop() );
         }
     }
 

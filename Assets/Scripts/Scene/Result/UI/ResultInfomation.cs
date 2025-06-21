@@ -71,7 +71,7 @@ public class ResultInfomation : MonoBehaviour
     public TextMeshProUGUI random;
 
     private Color DisableColor = new Color( 1f, 1f, 1f, .25f );
-    private readonly float duration = 2.5f;
+    private readonly float duration = 1.5f;
     private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value}";
 
     private void Awake()
@@ -136,13 +136,13 @@ public class ResultInfomation : MonoBehaviour
         {
             int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM );
             if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
-            else bpm.text = $"{mainBPM} ({song.minBpm} ~ {song.maxBpm})";
+            else                              bpm.text = $"{mainBPM} ({song.minBpm} ~ {song.maxBpm})";
         }
         else
         {
             int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * GameSetting.CurrentPitch  );
             if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
-            else bpm.text = $"{mainBPM} ({Mathf.RoundToInt( song.minBpm * GameSetting.CurrentPitch )} ~ {Mathf.RoundToInt( song.maxBpm * GameSetting.CurrentPitch )})";
+            else                              bpm.text = $"{mainBPM} ({Mathf.RoundToInt( song.minBpm * GameSetting.CurrentPitch )} ~ {Mathf.RoundToInt( song.maxBpm * GameSetting.CurrentPitch )})";
         }
         bpm.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                     GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;

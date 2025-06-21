@@ -20,21 +20,29 @@ public class FreeStyle : Scene
         OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed}";
     }
 
+    protected override void Start()
+    {
+        base.Start();
+        AudioManager.OnReload += Connect;
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        AudioManager.OnReload -= Connect;
+    }
+
     public override void Connect()
     {
-        AudioManager.OnReload += Connect;
-
         AudioManager.Inst.Pitch = GameSetting.CurrentPitch;
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
-        AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
+        AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT,        ChannelType.BGM );
     }
 
     public override void Disconnect()
     {
-        AudioManager.OnReload -= Connect;
-
         AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
-        AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT, ChannelType.BGM );
+        AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT,        ChannelType.BGM );
     }
 
     #region Bind Unity Events

@@ -23,15 +23,29 @@ public class AudioVisualizer : MonoBehaviour
     public Action<float[]>   OnUpdate;
     public Action<float[]>   OnUpdateBand;
 
+    private void Awake()
+    {
+        AudioManager.OnReload += Initialize;
+    }
+
+    private void OnDestroy()
+    {
+        AudioManager.OnReload -= Initialize;
+    }
+
     private void Start()
     {
-        if ( !AudioManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fft ) )
-             Debug.Log( "Unable to get FFT DSP" );
-
+        Initialize();
         spectrums  = new float[size];
         bandBuffer = new float[MaxFreqBand];
         bandRange  = new int  [MaxFreqBand] { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
         loopCount  = bandRange.Sum();
+    }
+
+    private void Initialize()
+    {
+        if ( !AudioManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fft ) )
+              Debug.Log( "Unable to get FFT DSP" );
     }
 
     /* 48000 / 4096 : 11.71875 Hertz

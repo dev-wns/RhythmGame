@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
@@ -13,9 +12,9 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 
 public struct RecordData
 {
-    public int    score;
-    public int    accuracy;
-    public int    random;
+    public double score;
+    public double accuracy;
+    public GameRandom random;
     public float  pitch;
     public string date;
 }
@@ -35,15 +34,12 @@ public class DataStorage : Singleton<DataStorage>
     public static ReadOnlyCollection<SpriteSample> Backgrounds { get; private set; }
     public static ReadOnlyCollection<SpriteSample> Foregrounds { get; private set; }
 
-    [Header( "Texture" )]
+    [Header( "Resource" )]
     private BMPLoader bitmapLoader = new ();
-    private Dictionary<string/* name */, Texture2D> loadedTextures = new ();
+    private Dictionary<string/* name */, Texture2D>  loadedTextures = new ();
+    private Dictionary<string/* name */, FMOD.Sound> loadedSounds   = new ();
     private List<Texture2D> textures = new (); // Default Texture
     private int             texIndex = 0;      // Default Texture
-
-    [Header( "Sound" )]
-    private Dictionary<string/* name */, FMOD.Sound> loadedSounds = new ();
-    private Dictionary<SFX,              FMOD.Sound> sfxSounds    = new ();
 
     [Header( "Result Data" )]
     public  static RecordData CurrentRecord => recordData;
@@ -67,14 +63,6 @@ public class DataStorage : Singleton<DataStorage>
 
         // Default Resource
         LoadAssetsAsync( "DefaultTexture", ( Texture2D texture ) => textures.Add( texture ) );
-        LoadSound( SFX.MainClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav"  );
-        LoadSound( SFX.MenuClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav"  );
-        LoadSound( SFX.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
-        LoadSound( SFX.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
-        LoadSound( SFX.MainHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav"  );
-        LoadSound( SFX.MenuHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav"  );
-        LoadSound( SFX.MenuExit,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav"   );
-        LoadSound( SFX.Slider,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav"     );
     }
 
     private void OnApplicationQuit()
@@ -91,7 +79,6 @@ public class DataStorage : Singleton<DataStorage>
 
         foreach ( var sound in loadedSounds )
             AudioManager.Inst.Release( sound.Value );
-
 
         loadedTextures.Clear();
         loadedSounds.Clear();
@@ -190,7 +177,6 @@ public class DataStorage : Singleton<DataStorage>
     #endregion
 
     #region Sound
-    public bool GetSound( SFX _type,    out FMOD.Sound _sound ) => sfxSounds.TryGetValue( _type, out _sound );
     public bool GetSound( string _name, out FMOD.Sound _sound ) => loadedSounds.TryGetValue( _name, out _sound );
     public void LoadSound( string _name )
     {
@@ -201,20 +187,12 @@ public class DataStorage : Singleton<DataStorage>
                  loadedSounds.Add( _name, sound );
         }
     }
-    private void LoadSound( SFX _type, string _path )
-    {
-        if ( AudioManager.Inst.Load( _path, out FMOD.Sound sound ) )
-        {
-            if ( !sfxSounds.ContainsKey( _type ) )
-                  sfxSounds.Add( _type, sound );
-        }
-    }
     #endregion
 
     #region Texture
+    public void LoadTexture( string _name, Action _OnCompleted = null ) => StartCoroutine( LoadExternalTexture( new SpriteSample( _name ), _OnCompleted ) );
     public bool GetTexture( string _name, out Texture2D _tex ) => loadedTextures.TryGetValue( _name, out _tex );
     public Texture2D GetDefaultTexture() => textures[( ++texIndex < textures.Count ? texIndex : texIndex = 0 )];
-    public void LoadTexture( SpriteSample _sprite ) => StartCoroutine( LoadExternalTexture(  _sprite ) );
     private IEnumerator LoadTextures()
     {
         // 스프라이트 배경 로딩 ( UnityWebRequest, Main Thread에서 사용 )
@@ -225,7 +203,7 @@ public class DataStorage : Singleton<DataStorage>
               yield return StartCoroutine( LoadExternalTexture( Foregrounds[i] ) );
     }
 
-    private IEnumerator LoadExternalTexture( SpriteSample _sprite  )
+    private IEnumerator LoadExternalTexture( SpriteSample _sprite, Action _OnCompleted = null )
     {
         var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
         // 파일이 없거나, 이미 로딩된 파일일 경우
@@ -257,6 +235,8 @@ public class DataStorage : Singleton<DataStorage>
                 }
             }
         }
+
+        _OnCompleted?.Invoke();
     }
     #endregion
 
@@ -265,9 +245,9 @@ public class DataStorage : Singleton<DataStorage>
     {
         var newRecord = new RecordData()
         {
-            score    = ( int )Judgement.CurrentResult.Score,
-            accuracy = ( int )Judgement.CurrentResult.Accuracy,
-            random   = ( int )GameSetting.CurrentRandom,
+            score    = Judgement.CurrentResult.Score,
+            accuracy = Judgement.CurrentResult.Accuracy,
+            random   = GameSetting.CurrentRandom,
             pitch    = GameSetting.CurrentPitch,
             date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
         };
@@ -298,6 +278,7 @@ public class DataStorage : Singleton<DataStorage>
 
         return newRecord;
     }
+
     public bool UpdateRecord()
     {
         string path = Path.Combine( Global.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );

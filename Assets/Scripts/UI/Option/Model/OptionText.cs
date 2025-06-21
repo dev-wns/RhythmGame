@@ -10,6 +10,7 @@ public abstract class OptionText : OptionBase
     public List<string> texts;
     public TextMeshProUGUI valueText;
     public bool isReturnProcess = true;
+    public bool isSFXSound = true;
     public bool isActive;
     private ScrollBase scroller;
 
@@ -39,7 +40,7 @@ public abstract class OptionText : OptionBase
     {
         if ( isReturnProcess && Input.GetKeyDown( KeyCode.Return ) )
         {
-            AudioManager.Inst.Play( SFX.MenuClick );
+            if ( isSFXSound ) AudioManager.Inst.Play( SFX.MenuClick );
             Process();
         }
 
@@ -50,9 +51,9 @@ public abstract class OptionText : OptionBase
     public void UpdateData( bool isLeft )
     {
         if ( isLeft ) scroller.PrevMove();
-        else scroller.NextMove();
+        else          scroller.NextMove();
 
-        AudioManager.Inst.Play( SFX.Slider );
+        if ( isSFXSound ) AudioManager.Inst.Play( SFX.Slider );
         ChangeText( texts[CurrentIndex] );
         Process();
     }
@@ -62,7 +63,7 @@ public abstract class OptionText : OptionBase
         if ( Input.GetKeyDown( _keyCode ) )
         {
             _action?.Invoke();
-            AudioManager.Inst.Play( SFX.Slider );
+            if ( isSFXSound ) AudioManager.Inst.Play( SFX.Slider );
             ChangeText( texts[CurrentIndex] );
 
             if ( !isReturnProcess )

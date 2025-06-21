@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Global
 {
-    public struct Path
+    public static class Path
     {
         public static readonly string SoundDirectory  = System.IO.Path.Combine( Application.streamingAssetsPath, "Songs" );
         public static readonly string FailedDirectory = System.IO.Path.Combine( Application.streamingAssetsPath, "Failed" );
@@ -37,21 +37,21 @@ namespace Global
     }
 
     /// <summary> °¡º­¿î Math </summary>
-    public struct Math
+    public static class Math
     {
         public static float  Lerp( float _start, float _end, float _t )    => _start + ( _end - _start ) * _t;
         public static double Lerp( double _start, double _end, double _t ) => _start + ( _end - _start ) * _t;
         public static double Abs( double _value )                          => _value >= 0d ? _value : -_value;
         public static float  Abs( float _value )                           => _value >= 0f ? _value : -_value;
         public static int    Abs( int _value )                             => _value >= 0 ? _value : -_value;
-        public static double Round( double _value )                        => _value - ( int )_value >= .5d ? ( int )_value + 1d : ( int )_value;
-        public static float  Round( float _value )                         => _value - ( int )_value >= .5f ? ( int )_value + 1f : ( int )_value;
         public static int    Min( int _arg1, int _arg2 )                   => _arg1 < _arg2 ? _arg1 : _arg2;
         public static float  Min( float _arg1, float _arg2 )               => _arg1 < _arg2 ? _arg1 : _arg2;
         public static double Min( double _arg1, double _arg2 )             => _arg1 < _arg2 ? _arg1 : _arg2;
         public static int    Max( int _arg1, int _arg2 )                   => _arg1 > _arg2 ? _arg1 : _arg2;
         public static float  Max( float _arg1, float _arg2 )               => _arg1 > _arg2 ? _arg1 : _arg2;
         public static double Max( double _arg1, double _arg2 )             => _arg1 > _arg2 ? _arg1 : _arg2;
+        public static double Round( double _value )                        => _value >= 0d ? ( int )( _value + .5d ) : ( int )( _value - .5d );
+        public static float  Round( float _value )                         => _value >= 0f ? ( int )( _value + .5f ) : ( int )( _value - .5f );
         public static int    Clamp( int _value, int _min, int _max )
         {
             return _value < _min ? _min :
@@ -73,14 +73,14 @@ namespace Global
         public static int    Log10( double _value )
         {
             return ( _value >= 10000000u ) ? 7 : ( _value >= 1000000u ) ? 6 :
-                   ( _value >= 100000u ) ? 5 : ( _value >= 10000u ) ? 4 :
-                   ( _value >= 1000u ) ? 3 : ( _value >= 100u ) ? 2 :
-                   ( _value >= 10u ) ? 1 : 0;
+                   ( _value >= 100000u   ) ? 5 : ( _value >= 10000u   ) ? 4 :
+                   ( _value >= 1000u     ) ? 3 : ( _value >= 100u     ) ? 2 :
+                   ( _value >= 10u       ) ? 1 : 0;
         }
 
     }
 
-    public struct Screen
+    public static class Screen
     {
         public static int Width  = 1920;
         public static int Height = 1080;
@@ -106,7 +106,7 @@ namespace Global
         }
     }
 
-    public struct Color
+    public static class Color
     {
         /// <summary> Clear All ( 0, 0, 0, 0 ) </summary>
         public static UnityEngine.Color Clear    = new UnityEngine.Color( 0f, 0f, 0f, 0f );
@@ -116,20 +116,21 @@ namespace Global
         public static UnityEngine.Color ClearRGB = new UnityEngine.Color( 0f, 0f, 0f, 1f );
     }
 
-    public struct Const
+    public static class Const
     {
         public static readonly float CanvasFadeDuration = .15f;
     }
-}
 
-public static class Extentions
-{
-    public static void Increment<T>( this IDictionary<T, int> _dictionary, T _key )
+    public static class Extentions
     {
-        if ( _dictionary.TryGetValue( _key, out int _count ) )
-            _dictionary[_key] = _count + 1;
+        public static void Increment<T>( this IDictionary<T, int> _dictionary, T _key )
+        {
+            if ( _dictionary.TryGetValue( _key, out int _count ) )
+                _dictionary[_key] = _count + 1;
+        }
     }
 }
+
 
 public enum Error : ushort
 {

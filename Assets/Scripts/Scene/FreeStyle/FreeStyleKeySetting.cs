@@ -64,6 +64,7 @@ public class FreeStyleKeySetting : OptionController
         if ( _isPrevious ) index = curKeyIndex - 1 > -1              ? curKeyIndex - 1 : keyCount.Length - 1;
         else               index = curKeyIndex + 1 < keyCount.Length ? curKeyIndex + 1 : 0;
 
+        Initialize( index );
         AudioManager.Inst.Play( SFX.MenuClick );
     }
 
