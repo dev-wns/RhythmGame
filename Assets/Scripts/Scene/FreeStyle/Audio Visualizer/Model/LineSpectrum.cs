@@ -1,3 +1,6 @@
+using Newtonsoft.Json.Linq;
+using NUnit;
+using System;
 using UnityEngine;
 
 public class LineSpectrum : MonoBehaviour
@@ -14,7 +17,6 @@ public class LineSpectrum : MonoBehaviour
     public float blank;
     public float alpha;
     public int   sortingOrder;
-    public float riseAmount;
     public float dropAmount;
     public bool  isReverse;
 
@@ -57,9 +59,8 @@ public class LineSpectrum : MonoBehaviour
         for ( int i = 0; i < specCount; i++ )
         {
             // 인스펙터 상의 스펙트럼 시작위치부터 값을 받아온다.
-            int index = isReverse ? startIndex + specCount - i - 1 : startIndex + i;
-
-            float value = _values[i] * power;
+            int index   = isReverse ? startIndex + specCount - i - 1 : startIndex + i;
+            float value = _values[index] * power;
             if ( IsNormalized )
             {
                 float sumValue = 0f;
@@ -71,9 +72,8 @@ public class LineSpectrum : MonoBehaviour
                 value = sumValue / ( end - start + 1 );
             }
 
-            buffer[i] += buffer[i] < value ? Global.Math.Lerp( .08f, Global.Math.Abs( buffer[i] - value ), riseAmount * Time.deltaTime ) :
-                                            -Global.Math.Lerp( .05f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
-            buffer[i] = Global.Math.Max( 0f, buffer[i] );
+            buffer[i] =  Global.Math.Max( value, buffer[i] );
+            buffer[i] -= Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
 
             Transform left  = transforms[i];
             Transform right = transforms[specCount + i];

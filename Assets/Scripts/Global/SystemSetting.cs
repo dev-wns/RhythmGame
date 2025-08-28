@@ -25,6 +25,7 @@ public class SystemSetting : Singleton<SystemSetting>
         if ( !Config.Inst.Read( ConfigType.ScreenMode,   out CurrentScreenMode   ) ) CurrentScreenMode   = ScreenMode.Windowed;
         if ( !Config.Inst.Read( ConfigType.SoundBuffer,  out CurrentSoundBuffer  ) ) CurrentSoundBuffer  = SoundBuffer._1024;
 
+        UpdateScreen();
     }
 
     public void UpdateScreen()

@@ -2101,11 +2101,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualizer: {fileID: 1923945052}
   bandCount: 10
-  power: 35
+  power: 17.5
   dropAmount: 15
-  riseAmount: 0
-  isNormalized: 1
-  isReverse: 0
+  riseAmount: 100
+  isReverse: 1
   leftBars:
   - {fileID: 567734871}
   - {fileID: 383252105}
@@ -21580,7 +21579,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 50, y: -490}
+  m_AnchoredPosition: {x: 0, y: -490}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!120 &1099860059
@@ -21701,19 +21700,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visualizer: {fileID: 1923945052}
-  startIndex: 48
+  startIndex: 32
   freqCount: 72
-  power: 3000
+  power: 500
   rdr: {fileID: 1099860059}
-  maxHeight: 47.5
+  maxHeight: 42.5
   posOffset: 6.6875
   discardOffset: 1.525
   riseAmount: 100
   dropAmount: 10.5
   isAxisX: 1
-  isReverse: 0
+  isReverse: 1
   isNormalized: 1
   NormalizedRange: 2
+  topCount: 5
 --- !u!1 &1100880491
 GameObject:
   m_ObjectHideFlags: 0
@@ -21971,13 +21971,12 @@ MonoBehaviour:
   visualizer: {fileID: 1923945052}
   startIndex: 38
   specCount: 156
-  power: 500
+  power: 750
   prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
   width: 3.295
   blank: 2.855
   alpha: 0.15
   sortingOrder: 4
-  riseAmount: 100
   dropAmount: 25
   isReverse: 1
   IsNormalized: 1
@@ -38731,10 +38730,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 2048
-  avgStart: 48
+  size: 4096
+  avgStart: 32
   avgRange: 72
-  power: 1000
 --- !u!1 &1924485807
 GameObject:
   m_ObjectHideFlags: 0

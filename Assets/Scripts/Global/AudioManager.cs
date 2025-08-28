@@ -182,7 +182,15 @@ public class AudioManager : Singleton<AudioManager>
             ErrorCheck( dsp.setParameterInt( ( int ) DSP_FFT.WINDOWTYPE, ( int ) DSP_FFT_WINDOW.BLACKMANHARRIS ) );
             dsps.Add( DSP_TYPE.FFT, dsp );
         }
-        
+
+        //if ( !dsps.ContainsKey( DSP_TYPE.COMPRESSOR ) )
+        //{
+        //    ErrorCheck( system.createDSPByType( DSP_TYPE.COMPRESSOR, out DSP dsp ) );
+        //    ErrorCheck( dsp.setParameterInt( ( int ) DSP_FFT.WINDOWSIZE, 4096 ) );
+        //    ErrorCheck( dsp.setParameterInt( ( int ) DSP_FFT.WINDOWTYPE, ( int ) DSP_FFT_WINDOW.BLACKMANHARRIS ) );
+        //    dsps.Add( DSP_TYPE.FFT, dsp );
+        //}
+
         if ( !dsps.ContainsKey( DSP_TYPE.PITCHSHIFT ) )
         {
             ErrorCheck( system.createDSPByType( DSP_TYPE.PITCHSHIFT, out DSP dsp ) );

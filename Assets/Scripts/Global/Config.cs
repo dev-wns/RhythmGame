@@ -95,20 +95,6 @@ public class Config : Singleton<Config>
         }
     }
 
-    public void Write( ConfigType _key, KeyCode[] _values )
-    {
-        text.Clear();
-        for ( int i = 0; i < _values.Length; i++ )
-        {
-            text.Append( _values[i].ToString() );
-            if ( i != _values.Length - 1 )
-                 text.Append( ',' );
-        }
-
-        //string values = string.Join( ",", _values.Select( str => str.ToString() ) );
-        Write( _key, text.ToString() );
-    }
-
     public bool Read( ConfigType _key, out KeyCode[] _keyCodes )
     {
         if( Read( _key, out string values ) )
@@ -127,6 +113,20 @@ public class Config : Singleton<Config>
             _keyCodes = Array.Empty<KeyCode>();
             return false;
         }
+    }
+
+    public void Write( ConfigType _key, KeyCode[] _values )
+    {
+        text.Clear();
+        for ( int i = 0; i < _values.Length; i++ )
+        {
+            text.Append( _values[i].ToString() );
+            if ( i != _values.Length - 1 )
+                 text.Append( ',' );
+        }
+
+        //string values = string.Join( ",", _values.Select( str => str.ToString() ) );
+        Write( _key, text.ToString() );
     }
 
     private bool IsSupportedType( Type _type )

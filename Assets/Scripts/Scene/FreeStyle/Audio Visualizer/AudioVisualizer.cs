@@ -11,41 +11,44 @@ public class AudioVisualizer : MonoBehaviour
     public int avgRange;
 
     private FMOD.DSP fft;
+    private float[][] stereo;
     private float[]  spectrums;
     private float[]  bandBuffer;
     private int[]    bandRange;
     private int loopCount;
-    public int power;
 
     public float Average { get; private set; }
+    public Spectrum Highest { get; private set; }
+
     public const int MaxFreqBand = 10;
 
     public Action<float[]>   OnUpdate;
     public Action<float[]>   OnUpdateBand;
 
-    private void Awake()
+    public struct Spectrum
     {
-        AudioManager.OnReload += Initialize;
-    }
+        public int   index;
+        public float value;
 
-    private void OnDestroy()
-    {
-        AudioManager.OnReload -= Initialize;
+        public Spectrum( int _index, float _value )
+        {
+            index = _index;
+            value = _value;
+        }
     }
 
     private void Start()
     {
-        Initialize();
+        if ( !AudioManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fft ) )
+            Debug.Log( "Unable to get FFT DSP" );
+
+        stereo     = new float[2][];
+        stereo[0]  = new float[size];
+        stereo[1]  = new float[size];
         spectrums  = new float[size];
         bandBuffer = new float[MaxFreqBand];
-        bandRange  = new int  [MaxFreqBand] { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
+        bandRange  = new int[MaxFreqBand] { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
         loopCount  = bandRange.Sum();
-    }
-
-    private void Initialize()
-    {
-        if ( !AudioManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fft ) )
-              Debug.Log( "Unable to get FFT DSP" );
     }
 
     /* 48000 / 4096 : 11.71875 Hertz
@@ -66,19 +69,20 @@ public class AudioVisualizer : MonoBehaviour
      * Total : 4096
      */
 
-    private void FixedUpdate()
+    private void Update()
     {
         if ( !fft.hasHandle() && AudioManager.Inst.IsStop )
-             return;
+            return;
 
-        if ( fft.getParameterData( ( int )FMOD.DSP_FFT.SPECTRUMDATA, out IntPtr data, out uint length ) == FMOD.RESULT.OK )
+        if ( fft.getParameterData( ( int ) FMOD.DSP_FFT.SPECTRUMDATA, out IntPtr data, out uint length ) == FMOD.RESULT.OK )
         {
             FMOD.DSP_PARAMETER_FFT fftData = ( FMOD.DSP_PARAMETER_FFT )Marshal.PtrToStructure( data, typeof( FMOD.DSP_PARAMETER_FFT ) );
             if ( fftData.numchannels <= 0 )
                  return;
 
-            fftData.getSpectrum( 0, ref spectrums );
+            fftData.getSpectrum( ref stereo );
 
+            Highest            = new Spectrum();
             int   averageCount = 0;
             int   bandCount    = 0;
             int   bandIndex    = 0;
@@ -86,6 +90,8 @@ public class AudioVisualizer : MonoBehaviour
             float defulatSum   = 0f;
             for ( int i = 0; i < loopCount; i++ )
             {
+                spectrums[i] = ( stereo[0][i] + stereo[1][i] ) * .5f;
+
                 // Band
                 if ( bandIndex < MaxFreqBand )
                 {
@@ -93,14 +99,17 @@ public class AudioVisualizer : MonoBehaviour
                     if ( bandRange[bandIndex] <= ++bandCount )
                     {
                         bandBuffer[bandIndex] = bandSum / bandRange[bandIndex];
-                        bandSum    = 0f;
-                        bandCount  = 0;
+                        bandSum = 0f;
+                        bandCount = 0;
                         bandIndex += 1;
                     }
                 }
 
                 if ( i >= avgStart && averageCount < avgRange )
                 {
+                    if ( Highest.value < spectrums[i] )
+                         Highest = new Spectrum( i, spectrums[i] );
+
                     defulatSum += spectrums[i];
                     averageCount++;
                 }
