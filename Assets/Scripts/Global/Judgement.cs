@@ -80,7 +80,7 @@ public class Judgement : Singleton<Judgement>
     }
 
     public static ResultData CurrentResult => Results;
-    public static bool CanBeHit( double _diff ) => Math.Abs( _diff ) <= HitRange.Bad;
+    public static bool CanBeHit( double _diff ) => -HitRange.Bad < _diff && HitRange.Miss >= _diff;//Math.Abs( _diff ) <= HitRange.Bad;
     public static bool IsMiss( double _diff )   => _diff < -HitRange.Bad;
     public static HitResult UpdateResult( double _diff, bool _isDoubleMiss = false )
     {

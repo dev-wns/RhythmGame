@@ -189,10 +189,10 @@ public class InputManager : Singleton<InputManager>
             bool current = ( GetAsyncKeyState( Lanes[i].VKey ) & 0x8000 ) != 0;
             KeyStates[i] = ( Previous[i], current ) switch
             {
-                ( false, true ) => KeyState.Down,
-                ( true, true  ) => KeyState.Hold,
-                ( true, false ) => KeyState.Up,
-                _               => KeyState.None
+                ( false, true  ) => KeyState.Down,
+                ( true,  true  ) => KeyState.Hold,
+                ( true,  false ) => KeyState.Up,
+                _                => KeyState.None
             };
             Previous[i] = current;
 
