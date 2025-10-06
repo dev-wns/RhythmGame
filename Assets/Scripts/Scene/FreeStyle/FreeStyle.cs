@@ -9,6 +9,7 @@ public class FreeStyle : Scene
     public GameObject systemSetting;
     public FreeStyleKeySetting keySetting;
     public FreeStyleReLoad reload;
+    public FreeStyleSearch search;
 
     public TextMeshProUGUI speedText;
 
@@ -119,7 +120,11 @@ public class FreeStyle : Scene
         }
 
         // Exit
-        Bind( ActionType.Main, KeyCode.Escape, () => { EnableCanvas( ActionType.Exit, exit ); } );
+        Bind( ActionType.Main, KeyCode.Escape, () => 
+        {
+            if ( !FreeStyleSearch.IsSearching )
+                 EnableCanvas( ActionType.Exit, exit ); 
+        } );
         Bind( ActionType.Exit, KeyCode.Escape, ExitCancel );
     }
 }

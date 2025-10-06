@@ -9,6 +9,7 @@ public enum SFX
 {
     MainSelect, MainClick, MainHover, Slider,
     MenuSelect, MenuClick, MenuHover, MenuExit,
+    keyboard_Input, Keyboard_Backspace,
 }
 
 public struct AudioGroup
@@ -200,14 +201,16 @@ public class AudioManager : Singleton<AudioManager>
         }
 
         // Load SFX Sounds
-        Load( SFX.MainClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav"  );
-        Load( SFX.MenuClick,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav"  );
-        Load( SFX.MainSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
-        Load( SFX.MenuSelect, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
-        Load( SFX.MainHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav"  );
-        Load( SFX.MenuHover,  @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav"  );
-        Load( SFX.MenuExit,   @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav"   );
-        Load( SFX.Slider,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav"     );
+        Load( SFX.MainClick,          @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainClick.wav"  );
+        Load( SFX.MenuClick,          @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuClick.wav"  );
+        Load( SFX.MainSelect,         @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainSelect.wav" );
+        Load( SFX.MenuSelect,         @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuSelect.wav" );
+        Load( SFX.MainHover,          @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MainHover.wav"  );
+        Load( SFX.MenuHover,          @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav"  );
+        Load( SFX.MenuExit,           @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav"   );
+        Load( SFX.Slider,             @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav"     );
+        Load( SFX.keyboard_Input,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\KeyInput.mp3" );
+        Load( SFX.Keyboard_Backspace, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\KeyBack.mp3" );
 
         // Details
         if ( Config.Inst.Read( ConfigType.Master, out float masterVolume ) ) SetVolume( masterVolume, ChannelType.Master );
@@ -215,7 +218,7 @@ public class AudioManager : Singleton<AudioManager>
         if ( Config.Inst.Read( ConfigType.BGM,    out float bgmVolume    ) ) SetVolume( bgmVolume,    ChannelType.BGM );
         else                                                                 SetVolume( 1f,           ChannelType.BGM );
         if ( Config.Inst.Read( ConfigType.SFX,    out float sfxVolume    ) ) SetVolume( sfxVolume,    ChannelType.SFX );
-        else                                                                 SetVolume( 1f,           ChannelType.SFX );
+        else                                                                 SetVolume( 2f,           ChannelType.SFX );
 
         Debug.Log( $"AudioManager Initialization" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );

@@ -2162,6 +2162,7 @@ MonoBehaviour:
   systemSetting: {fileID: 695315786}
   keySetting: {fileID: 764672822}
   reload: {fileID: 1746340433}
+  search: {fileID: 1133842865}
   speedText: {fileID: 308743033}
 --- !u!4 &103959473
 Transform:

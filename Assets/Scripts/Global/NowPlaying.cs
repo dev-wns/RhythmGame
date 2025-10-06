@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -122,7 +123,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         await Task.Run( () => OnAsyncInit?.Invoke() ); // Other Thread Loading
         OnPostInit?.Invoke();                          // Main  Thread Loading
-        Clear();                                       // 기본 변수 초기화 ( Restart 등 여러번 실행될 수 있음 )
+        Clear();                                       // 기본 변수 초기화
         IsLoaded = true;
     }
 

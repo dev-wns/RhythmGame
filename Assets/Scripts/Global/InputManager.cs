@@ -40,7 +40,7 @@ public class InputManager : Singleton<InputManager>
     private static Queue<HitData> HitDataQueue = new ();
     private static int[]          Indexes;   // 노트 인덱스
     private static bool[]         IsEntries; // 롱노트 진입점
-    private static bool[]         Previous;  // 이전 키 눌림 여부( 입력 2중 체크 )
+    private static bool[]         Previous;  // 이전 키 상태( 입력 2중 체크 )
     private static KeyState[]     KeyStates; // 레인별 입력 상태
     private static KeySound[]     KeySounds;
 
@@ -61,10 +61,20 @@ public class InputManager : Singleton<InputManager>
     #endregion
 
     private System.Random random;
+    static long frequency, start;
+
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
+
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceFrequency( out long lpFrequency );
 
     protected override void Awake()
     {
         base.Awake();
+
+        QueryPerformanceFrequency( out frequency );
+        QueryPerformanceCounter( out start );
 
         // 기본 키 설정
         if ( Config.Inst.Read( ConfigType._4K, out KeyCode[] _4K_KeyCodes ) ) KeyBind( GameKeyCount._4, _4K_KeyCodes );
@@ -100,6 +110,11 @@ public class InputManager : Singleton<InputManager>
             HitDatas.Add( hitData );
             OnHitNote?.Invoke( hitData );
         }
+
+        //QueryPerformanceCounter( out long end );
+        //double time = ( end - start ) / ( double )frequency;
+
+        //Debug.Log( $"{frequency} {start} {end} {time * 1000} ms" );
     }
 
     private void OnApplicationQuit()
@@ -172,7 +187,7 @@ public class InputManager : Singleton<InputManager>
         {
             // 입력 상태 체크
             bool current = ( GetAsyncKeyState( Lanes[i].VKey ) & 0x8000 ) != 0;
-            KeyStates[i] = (Previous[i], current) switch
+            KeyStates[i] = ( Previous[i], current ) switch
             {
                 ( false, true ) => KeyState.Down,
                 ( true, true  ) => KeyState.Hold,

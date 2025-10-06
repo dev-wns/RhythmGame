@@ -6270,7 +6270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthRenderer: {fileID: 1216426850}
-  smoothHealthControlSpeed: 10
+  smoothHealthSpeed: 1
   healthScalerSpeed: 25
 --- !u!1 &882987119
 GameObject:

@@ -131,13 +131,13 @@ public class Config : Singleton<Config>
 
     private bool IsSupportedType( Type _type )
     {
-        return _type == typeof( string  ) ||
-               _type == typeof( int     ) ||
-               _type == typeof( float   ) ||
-               _type == typeof( double  ) ||
-               _type == typeof( bool    ) ||
-               _type == typeof( short   ) ||
-               _type == typeof( long    ) ||
+        return _type == typeof( string ) ||
+               _type == typeof( int    ) ||
+               _type == typeof( float  ) ||
+               _type == typeof( double ) ||
+               _type == typeof( bool   ) ||
+               _type == typeof( short  ) ||
+               _type == typeof( long   ) ||
                _type.IsEnum;
     }
 

@@ -8,6 +8,7 @@ public class FreeStyleSearch : MonoBehaviour
 {
     [Header( "InputField" )]
     public TMP_InputField field;
+    public static bool IsSearching;
 
     private static string SearchText = string.Empty;
     private readonly float SearchWaitTime = 1f;
@@ -17,7 +18,6 @@ public class FreeStyleSearch : MonoBehaviour
     public Image timer;
     public Image check;
     public Image cross;
-
 
     public  Action OnSearch;
     private Coroutine corLateSearch;
@@ -53,6 +53,23 @@ public class FreeStyleSearch : MonoBehaviour
                 field.DeactivateInputField();
             }
         }
+
+        if ( IsSearching && Input.GetKeyDown( KeyCode.Escape ) )
+        {
+            field.text = string.Empty;
+
+        }
+    }
+
+    public bool Clear()
+    {
+        if ( field.text.Length != 0 )
+        {
+            field.text = string.Empty;
+            return true;
+        }
+
+        return false;
     }
 
     public void SearchEvnet()
@@ -74,9 +91,11 @@ public class FreeStyleSearch : MonoBehaviour
             }
 
             corLateSearch = StartCoroutine( UpdateSearchSongs() );
+            AudioManager.Inst.Play( searchText.Length < fieldText.Length ? SFX.keyboard_Input : SFX.Keyboard_Backspace );
         }
 
-        SearchText = field.text;
+        SearchText  = field.text;
+        IsSearching = SearchText != string.Empty;
     }
 
     private IEnumerator UpdateSearchSongs()
