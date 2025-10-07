@@ -1,7 +1,8 @@
 using DG.Tweening;
 using System;
-using System.Threading.Tasks;
 using System.Collections;
+using System.Runtime.Remoting.Lifetime;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -36,10 +37,8 @@ public class InGame : Scene
     {
         base.Start();
 
-        Task loadTask = NowPlaying.Inst.Load();
+        await NowPlaying.Inst.Load();
         StartCoroutine( Play() );
-
-        await loadTask;
     }
 
     private void Update()
@@ -91,12 +90,14 @@ public class InGame : Scene
         Task task = NowPlaying.Inst.Release();
         yield return new WaitUntil( () => task.IsCompleted );
         LoadScene( SceneType.Result );
+        DataStorage.Inst.Release();
     }
 
     public async void BackToLobby()
     {
         await NowPlaying.Inst.Release();
         LoadScene( SceneType.FreeStyle );
+        DataStorage.Inst.Release();
     }
 
     public void Restart() => StartCoroutine( RestartAfterFade() );

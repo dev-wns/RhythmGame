@@ -91,17 +91,6 @@ public class NowPlaying : Singleton<NowPlaying>
              UpdateSong( 0 );
     }
 
-    //float t;
-    //private void Update()
-    //{
-    //    t += Time.deltaTime;
-    //    if ( t > .5f )
-    //    {
-    //        t = 0;
-    //        Debug.Log( Playback );
-    //    }
-    //}
-
     private async void OnApplicationQuit()
     {
         await Release();
@@ -187,7 +176,10 @@ public class NowPlaying : Singleton<NowPlaying>
                 while ( bgmIndex < Samples.Count && Samples[bgmIndex].time <= Playback )
                 {
                     if ( DataStorage.Inst.GetSound( Samples[bgmIndex].name, out FMOD.Sound sound ) )
+                    {
                         AudioManager.Inst.Play( sound, Samples[bgmIndex].volume );
+                        Debug.Log( "Music Play" );
+                    }
 
                     bgmIndex += 1;
                 }
@@ -351,8 +343,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( _isPause )
         {
-            IsStart                  = false;
-            CurrentScene.IsInputLock = true;
+            IsStart = false;
             await ThreadCancel();
 
             SaveTime = Playback;
@@ -367,6 +358,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private IEnumerator Continue()
     {
+        CurrentScene.IsInputLock = true;
         double recoil = Playback - WaitPauseTime;
         while ( Playback > recoil )
         {

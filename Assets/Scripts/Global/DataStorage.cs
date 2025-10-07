@@ -55,7 +55,10 @@ public class DataStorage : Singleton<DataStorage>
         {
             // FMOD Sound는 Thread에서 로딩 가능
             for ( int i = 0; i < Samples.Count; i++ )
-                  LoadSound( Samples[i].name );
+            {
+                LoadSound( Samples[i].name );
+                Debug.LogError( $"Sound Load( {Samples[i].name} )" );
+            }
         };
 
         // UnityWebRequest( Coroutine ) 사용

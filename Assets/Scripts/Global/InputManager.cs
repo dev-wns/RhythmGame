@@ -36,17 +36,17 @@ public class InputManager : Singleton<InputManager>
     private static readonly Dictionary<KeyCode, string/*keyCode String*/> UnityToString = new ();
 
     [Header( "Input Process" )]
-    public  static List<HitData>  HitDatas     = new ();
-    private static Queue<HitData> HitDataQueue = new ();
-    private static int[]          Indexes;   // 노트 인덱스
-    private static bool[]         IsEntries; // 롱노트 진입점
-    private static bool[]         Previous;  // 이전 키 상태( 입력 2중 체크 )
-    private static KeyState[]     KeyStates; // 레인별 입력 상태
-    private static KeySound[]     KeySounds;
+    public  List<HitData>  HitDatas     = new ();
+    private Queue<HitData> HitDataQueue = new ();
+    private int[]          Indexes;   // 노트 인덱스
+    private bool[]         IsEntries; // 롱노트 진입점
+    private bool[]         Previous;  // 이전 키 상태( 입력 2중 체크 )
+    private KeyState[]     KeyStates; // 레인별 입력 상태
+    private KeySound[]     KeySounds;
 
     [Header( "Lane" )]
-    private static List<Lane>   Lanes = new();
-    private static List<Note>[] Notes;
+    private List<Lane>   Lanes = new();
+    private List<Note>[] Notes;
     private Lane                prefab;
 
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
@@ -149,7 +149,7 @@ public class InputManager : Singleton<InputManager>
     private void Release()
     {
         for ( int i = 0; i < Lanes.Count; i++ )
-            DestroyImmediate( Lanes[i], true );
+            DestroyImmediate( Lanes[i].gameObject, true );
         
         Lanes.Clear();
         if ( Notes is not null )
