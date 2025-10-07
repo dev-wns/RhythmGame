@@ -70,7 +70,6 @@ public class AudioManager : Singleton<AudioManager>
     private CancellationTokenSource breakPoint;
     private readonly long TargetFrame = 3000;
     public static Action OnUpdateThread;
-    public  long FrameRate { get; private set; }
 
     [DllImport( "Kernel32.dll" )]
     private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
@@ -376,7 +375,7 @@ public class AudioManager : Singleton<AudioManager>
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
         SpinWait spinner = new SpinWait();
 
-        Debug.Log( $"AudioManater Thread Start( {_targetFrame} Frame, {targetTicks} ticks )" );
+        Debug.Log( $"AudioManager Thread Start( {_targetFrame} Frame, {targetTicks} ticks )" );
         while ( !_token.IsCancellationRequested )
         {
             QueryPerformanceCounter( out end );

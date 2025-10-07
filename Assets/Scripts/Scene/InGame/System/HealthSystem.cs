@@ -19,8 +19,8 @@ public class HealthSystem : MonoBehaviour
     public SpriteRenderer healthRenderer;
     public static readonly float MaxHealth = 1f;
     public float smoothHealthSpeed = 1;
-    private float curHealth;
-    private float healthCached;
+    private float health;       // 바로바로 변동되는 health 값
+    private float healthAmount; // UI에서 서서히 증감하며 보여지는 health 값
     private float healthOffset;
 
     [Header("Health Scaler")]
@@ -49,9 +49,9 @@ public class HealthSystem : MonoBehaviour
     private void Clear()
     {
         StopAllCoroutines();
-        curHealth    = 0f;
+        healthAmount = 0f;
         healthOffset = 0f;
-        healthCached = MaxHealth;
+        health       = MaxHealth;
         healthRenderer.size = new Vector2( healthTileCached.x, 0f );
     }
 
@@ -63,13 +63,13 @@ public class HealthSystem : MonoBehaviour
     private IEnumerator InitHealthEffect()
     {
         StartCoroutine( AutoScaling() );
-        while ( curHealth < MaxHealth )
+        while ( healthAmount < MaxHealth )
         {
-            curHealth += Time.deltaTime;
+            healthAmount += Time.deltaTime;
             yield return null;
         }
 
-        curHealth = MaxHealth;
+        healthAmount = MaxHealth;
         StartCoroutine( SmoothHealthControl() );
     }
 
@@ -79,7 +79,7 @@ public class HealthSystem : MonoBehaviour
         {
             healthScaleTimer += healthScalerSpeed * Time.deltaTime;
             float scaleOffset   = ( Mathf.Cos( healthScaleTimer ) + 1f ) * .5f; // 0 ~ 1
-            float curTileHeight = curHealth * healthTileOffset;
+            float curTileHeight = healthAmount * healthTileOffset;
             float height        = curTileHeight - Global.Math.Lerp( curTileHeight * .04f, 0f, scaleOffset );
             healthRenderer.size = new Vector2( healthTileCached.x, Global.Math.Clamp( height, 0f, healthTileCached.y ) );
             yield return null;
@@ -91,13 +91,18 @@ public class HealthSystem : MonoBehaviour
         bool isNoFailed = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail );
         while ( true )
         {
-            curHealth += healthOffset * smoothHealthSpeed * Time.deltaTime;
-            if ( healthOffset > 0f ? healthCached < curHealth : healthCached > curHealth )
-                 curHealth = healthCached;
+            healthAmount += healthOffset * smoothHealthSpeed * Time.deltaTime;
+            if ( healthOffset > 0f ? health < healthAmount : health > healthAmount )
+                 healthAmount = health;
 
-            if ( !isNoFailed && curHealth < 0f )
+            if ( !isNoFailed && health < 0f )
             {
                 StartCoroutine( ( NowPlaying.CurrentScene as InGame ).GameOver() );
+                while ( healthAmount > -MaxHealth )
+                {
+                    healthAmount -= Time.deltaTime;
+                    yield return null;
+                }
                 break;
             }
             yield return null;
@@ -109,16 +114,16 @@ public class HealthSystem : MonoBehaviour
         HitResult hitResult = _hitData.hitResult;
         switch ( hitResult )
         {
-            case HitResult.Maximum: healthCached += .015f; break;
-            case HitResult.Perfect: healthCached += .009f; break;
-            case HitResult.Great:   healthCached -= .005f; break;
-            case HitResult.Good:    healthCached -= .017f; break;
-            case HitResult.Bad:     healthCached -= .028f; break;
-            case HitResult.Miss:    healthCached -= .041f; break;
+            case HitResult.Maximum: health += .015f; break;
+            case HitResult.Perfect: health += .009f; break;
+            case HitResult.Great:   health += .005f; break;
+            case HitResult.Good:    health -= .007f; break;
+            case HitResult.Bad:     health -= .017f; break;
+            case HitResult.Miss:    health -= .041f; break;
             default: return;
         }
 
-        healthCached = Global.Math.Clamp( healthCached, -MaxHealth, MaxHealth );
-        healthOffset = healthCached - curHealth;
+        health       = Global.Math.Clamp( health, -MaxHealth, MaxHealth );
+        healthOffset = health - healthAmount;
     }
 }

@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System;
+using System.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,12 +32,14 @@ public class InGame : Scene
         NowPlaying.Inst.Initialize();
     }
 
-    protected override void Start()
+    protected override async void Start()
     {
         base.Start();
 
-        NowPlaying.Inst.Load();
+        Task loadTask = NowPlaying.Inst.Load();
         StartCoroutine( Play() );
+
+        await loadTask;
     }
 
     private void Update()
@@ -74,27 +77,25 @@ public class InGame : Scene
         }
 
         // 게임 시작
-        IsInputLock = false;
         NowPlaying.Inst.GameStart();
-        //OnGameStart?.Invoke();
+        yield return new WaitUntil( () => NowPlaying.Playback > 0 );
+        IsInputLock = false;
 
         // 게임 종료
         yield return new WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count );
         Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.Count} Judgements )" );
 
-        //if ( NowPlaying.CurrentSong.isOnlyKeySound )
-        //     yield return new WaitUntil( () => NowPlaying.UseAllSamples && AudioManager.Inst.ChannelsInUse == 0 );
-
-        //AudioManager.Inst.FadeVolume( AudioManager.Inst.Volume, 0f, 2.5f );
         yield return YieldCache.WaitForSeconds( 5f ); // 5초 후 결과창으로
-
-        NowPlaying.Inst.Release();
+        
+        // Time Thread 종료
+        Task task = NowPlaying.Inst.Release();
+        yield return new WaitUntil( () => task.IsCompleted );
         LoadScene( SceneType.Result );
     }
 
-    public void BackToLobby()
+    public async void BackToLobby()
     {
-        NowPlaying.Inst.Release();
+        await NowPlaying.Inst.Release();
         LoadScene( SceneType.FreeStyle );
     }
 
@@ -113,8 +114,9 @@ public class InGame : Scene
 
         NowPlaying.Inst.Clear();
         yield return StartCoroutine( FadeIn() );
+        
         NowPlaying.Inst.GameStart();
-
+        yield return new WaitUntil( () => NowPlaying.Playback > 0 );
         IsInputLock = false;
     }
 
@@ -136,7 +138,6 @@ public class InGame : Scene
     {
         IsInputLock = true;
 
-        //OnGameOver?.Invoke();
         yield return StartCoroutine( NowPlaying.Inst.GameOver() );
         EnableCanvas( ActionType.GameOver, gameOver, false );
 

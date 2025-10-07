@@ -48,7 +48,6 @@ public class FreqBand : MonoBehaviour
      */
     private void UpdateBand( float[] _values )
     {
-        int count = 0;
         for ( int i = 0; i < MaxFreqBand; i++ )
         {
             float sumValue = 0f;

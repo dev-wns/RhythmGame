@@ -14,7 +14,6 @@ public class NowPlaying : Singleton<NowPlaying>
     public static Scene CurrentScene;
 
     [Header( "Song" )]
-    
     public ReadOnlyCollection<Song> Songs { get; private set; }
     public static Song CurrentSong { get; private set; }
     public static int CurrentIndex { get; private set; }
@@ -34,7 +33,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private static readonly double AudioLeadIn   = 3000d;
     private static readonly double WaitPauseTime = 2000d;
 
-    private static double StartTime;
+    //private static double StartTime;
     private static double SaveTime;
     private int bpmIndex;
 
@@ -42,7 +41,16 @@ public class NowPlaying : Singleton<NowPlaying>
     private int bgmIndex;
 
     [Header( "Thread" )]
-    private CancellationTokenSource breakPoint = new ();
+    private Task timeTask;
+    private CancellationTokenSource breakPoint = new();
+    private readonly long TargetFrame = 8000;
+    public static Action OnUpdateThread;
+
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
+
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceFrequency( out long lpFrequency );
 
     //
     public static bool IsStart { get; private set; }
@@ -63,16 +71,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action OnRelease;
     public static event Action<bool> OnPause;
 
-
-    Thread th;
-    [DllImport( "Kernel32.dll" )]
-    private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
-
-    [DllImport( "Kernel32.dll" )]
-    private static extern bool QueryPerformanceFrequency( out long lpFrequency );
-    private static long frequency, start;
-
-    protected override async void Awake()
+    protected override void Awake()
     {
         base.Awake();
         // 싱글톤 활성화
@@ -90,27 +89,22 @@ public class NowPlaying : Singleton<NowPlaying>
         
         if ( Songs.Count > 0 )
              UpdateSong( 0 );
-
-        await Task.Run( () => UpdateTime( breakPoint.Token ) );
-
-        QueryPerformanceFrequency( out frequency );
-        QueryPerformanceCounter( out start );
     }
 
+    //float t;
     //private void Update()
     //{
-    //    QueryPerformanceCounter( out long end );
-    //    double time = ( end - start ) / ( double )frequency;
-
-    //    Debug.Log( $"{frequency} {start} {end} {time * 1000} ms" );
-
-    //    Action, frame, ;
+    //    t += Time.deltaTime;
+    //    if ( t > .5f )
+    //    {
+    //        t = 0;
+    //        Debug.Log( Playback );
+    //    }
     //}
 
-    private void OnApplicationQuit()
+    private async void OnApplicationQuit()
     {
-        Release();
-        breakPoint?.Cancel();
+        await Release();
     }
 
     /// <summary> 게임 시작할 때마다 초기화 </summary>
@@ -140,28 +134,36 @@ public class NowPlaying : Singleton<NowPlaying>
         OnPreInit?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
     }
 
-    public async void Load()
+    public async Task Load()
     {
-        await Task.Run( () => OnAsyncInit?.Invoke() ); // Other Thread Loading
-        OnPostInit?.Invoke();                          // Main  Thread Loading
-        Clear();                                       // 기본 변수 초기화
+        Task task = Task.Run( () => OnAsyncInit?.Invoke() ); // Other Thread Loading
+        OnPostInit?.Invoke();                                // Main  Thread Loading
+        Clear();                                             // 기본 변수 초기화
+
+        await task;
         IsLoaded = true;
     }
 
-    private async void UpdateTime( CancellationToken _token )
+    private void TimeUpdate( long _targetFrame, CancellationToken _token )
     {
-        Debug.Log( $"Time Thread Start" );
+        QueryPerformanceFrequency( out long frequency );
+        QueryPerformanceCounter( out long start );
 
-        while ( !_token.IsCancellationRequested )
+        long end         = 0;
+        long startTime   = start;
+        long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
+        SpinWait spinner = new SpinWait();
+
+        Debug.Log( $"Time Thread Start( {_targetFrame} Frame, {targetTicks} ticks )" );
+        while ( true )
         {
-            //// FMOD System Update
-            //AudioManager.Inst.SystemUpdate();
+            _token.ThrowIfCancellationRequested();
 
-            if ( IsStart )
+            QueryPerformanceCounter( out end );
+            if ( targetTicks <= ( end - start ) )
             {
                 // 시간 갱신
-                Playback = SaveTime + ( DateTime.Now.TimeOfDay.TotalMilliseconds - StartTime );
-                
+                Playback = SaveTime + ( ( double )( end - startTime ) / frequency * 1000d ); // ms
                 // 이동된 거리 계산
                 for ( int i = bpmIndex; i < Timings.Count; i++ )
                 {
@@ -185,18 +187,40 @@ public class NowPlaying : Singleton<NowPlaying>
                 while ( bgmIndex < Samples.Count && Samples[bgmIndex].time <= Playback )
                 {
                     if ( DataStorage.Inst.GetSound( Samples[bgmIndex].name, out FMOD.Sound sound ) )
-                         AudioManager.Inst.Play( sound, Samples[bgmIndex].volume );
+                        AudioManager.Inst.Play( sound, Samples[bgmIndex].volume );
 
                     bgmIndex += 1;
                 }
 
-                 OnUpdateInThread?.Invoke();
+                OnUpdateInThread?.Invoke();
+                QueryPerformanceCounter( out start );
             }
-
-            await Task.Delay( 1 );
+            else
+            {
+                //System.Threading.Thread.SpinWait( 1 );
+                spinner.SpinOnce();
+                spinner.Reset();
+            }
         }
-
-        Debug.Log( $"Time Thread End" );
+    }
+    private async Task ThreadCancel()
+    {
+        breakPoint?.Cancel();
+        try
+        {
+            if ( timeTask is not null )
+                 await timeTask;
+        }
+        catch ( OperationCanceledException )
+        {
+            Debug.Log( "Time Thread Cancel Completed" );
+        }
+        finally
+        {
+            breakPoint?.Dispose();
+            breakPoint = null;
+            timeTask   = null;
+        }
     }
 
     #region Search
@@ -286,22 +310,26 @@ public class NowPlaying : Singleton<NowPlaying>
     public void GameStart()
     {
         OnGameStart?.Invoke();
+        breakPoint            ??= new CancellationTokenSource();
+        timeTask                = Task.Run( () => { TimeUpdate( TargetFrame, breakPoint.Token ); } );
         AudioManager.Inst.Pause = false;
-        StartTime      = DateTime.Now.TimeOfDay.TotalMilliseconds;
-        IsStart        = true;
+        IsStart                 = true;
     }
 
-    public void Release()
+    public async Task Release()
     {
         StopAllCoroutines();
-        IsLoaded  = false;
-
+        await ThreadCancel();
         OnRelease?.Invoke();
+        IsLoaded  = false;
     }
 
     public IEnumerator GameOver()
     {
-        IsStart     = false;
+        IsStart   = false;
+        Task task = ThreadCancel();
+        yield return new WaitUntil( () => task.IsCompleted );
+
         float speed = 1f;
         while ( speed > 0f )
         {
@@ -319,13 +347,16 @@ public class NowPlaying : Singleton<NowPlaying>
     }
 
     /// <returns> FALSE : Playback is higher than the last note time. </returns>
-    public void Pause( bool _isPause )
+    public async void Pause( bool _isPause )
     {
         if ( _isPause )
         {
-            IsStart = false;
-            SaveTime = Playback;// - WaitPauseTime;
-            AudioManager.Inst.Pause = true;
+            IsStart                  = false;
+            CurrentScene.IsInputLock = true;
+            await ThreadCancel();
+
+            SaveTime = Playback;
+            AudioManager.Inst.Pause  = true;
             OnPause?.Invoke( true );
         }
         else
@@ -354,13 +385,10 @@ public class NowPlaying : Singleton<NowPlaying>
         }
 
         OnPause?.Invoke( false );
-        AudioManager.Inst.Pause = false;
-        StartTime = DateTime.Now.TimeOfDay.TotalMilliseconds;
-        IsStart = true;
-
-        //yield return new WaitUntil( () => Playback > SaveTime + WaitPauseTime );
-
-        yield return YieldCache.WaitForSeconds( 3f );
+        breakPoint             ??= new CancellationTokenSource();
+        timeTask                 = Task.Run( () => { TimeUpdate( TargetFrame, breakPoint.Token ); } );
+        AudioManager.Inst.Pause  = false;
+        IsStart                  = true;
         CurrentScene.IsInputLock = false;
     }
     #endregion

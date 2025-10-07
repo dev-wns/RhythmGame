@@ -65,12 +65,5 @@ public class SystemSetting : Singleton<SystemSetting>
             Screen.SetResolution( width, height, FullScreenMode.Windowed );
             break;
         }
-
-        Debug.Log( $"Antialiasing : {QualitySettings.antiAliasing}" );
-        Debug.Log( $"vSync : {QualitySettings.vSyncCount}" );
-        Debug.Log( $"FrameRate : {Application.targetFrameRate}" );
-        Debug.Log( $"Resolution : {Screen.currentResolution}" );
-        Debug.Log( $"ScreenMode : {Screen.fullScreenMode}" );
-
     }
 }
