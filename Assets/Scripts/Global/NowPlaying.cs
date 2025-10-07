@@ -63,10 +63,18 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Action OnRelease;
     public static event Action<bool> OnPause;
 
+
+    Thread th;
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
+
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceFrequency( out long lpFrequency );
+    private static long frequency, start;
+
     protected override async void Awake()
     {
         base.Awake();
-
         // ΩÃ±€≈Ê »∞º∫»≠
         Config        config        = Config.Inst;
         GameSetting   gameSetting   = GameSetting.Inst;
@@ -84,7 +92,20 @@ public class NowPlaying : Singleton<NowPlaying>
              UpdateSong( 0 );
 
         await Task.Run( () => UpdateTime( breakPoint.Token ) );
+
+        QueryPerformanceFrequency( out frequency );
+        QueryPerformanceCounter( out start );
     }
+
+    //private void Update()
+    //{
+    //    QueryPerformanceCounter( out long end );
+    //    double time = ( end - start ) / ( double )frequency;
+
+    //    Debug.Log( $"{frequency} {start} {end} {time * 1000} ms" );
+
+    //    Action, frame, ;
+    //}
 
     private void OnApplicationQuit()
     {
@@ -133,8 +154,8 @@ public class NowPlaying : Singleton<NowPlaying>
 
         while ( !_token.IsCancellationRequested )
         {
-            // FMOD System Update
-            AudioManager.Inst.SystemUpdate();
+            //// FMOD System Update
+            //AudioManager.Inst.SystemUpdate();
 
             if ( IsStart )
             {

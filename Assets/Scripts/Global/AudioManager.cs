@@ -1,8 +1,11 @@
 using FMOD;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public enum SFX
@@ -62,7 +65,20 @@ public class AudioManager : Singleton<AudioManager>
     public static event Action OnReload;
     public static event Action<float> OnUpdatePitch;
 
-    [Header( "Property" )]
+    // Thread
+    private Task systemTask;
+    private CancellationTokenSource breakPoint;
+    private readonly long TargetFrame = 3000;
+    public static Action OnUpdateThread;
+    public  long FrameRate { get; private set; }
+
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
+
+    [DllImport( "Kernel32.dll" )]
+    private static extern bool QueryPerformanceFrequency( out long lpFrequency );
+
+    #region Property
     public uint  Length => MainSound.getLength( out uint length, TIMEUNIT.MS ) == RESULT.OK ? length : uint.MaxValue;
     public uint  Position
     {
@@ -133,7 +149,7 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
     private int curDriverIndex = 0;
-
+    #endregion
 
     #region System
     public void Initialize()
@@ -220,6 +236,10 @@ public class AudioManager : Singleton<AudioManager>
         if ( Config.Inst.Read( ConfigType.SFX,    out float sfxVolume    ) ) SetVolume( sfxVolume,    ChannelType.SFX );
         else                                                                 SetVolume( 2f,           ChannelType.SFX );
 
+        // Thread
+        breakPoint ??= new CancellationTokenSource();
+        systemTask = Task.Run( () => { SystemUpdate( TargetFrame, breakPoint.Token ); } );
+
         Debug.Log( $"AudioManager Initialization" );
         Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
     }
@@ -248,6 +268,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         IsStop = true;
         AllStop();
+
         // 그룹에 연결된 재생중인 채널 모두 끊김( 사운드 Release는 사용한 클래스에서 해주기 )
         for ( int i = 1; i < ( int )ChannelType.Count; i++ )
         {
@@ -299,7 +320,7 @@ public class AudioManager : Singleton<AudioManager>
         Debug.Log( "AudioManager Release" );
     }
 
-    public void ReLoad()
+    public async void ReLoad()
     {
         IsStop = true;
         // caching
@@ -309,6 +330,7 @@ public class AudioManager : Singleton<AudioManager>
             ErrorCheck( group.getVolume( out volumes[groupCount++] ) );
 
         // reload
+        await ThreadCancel();
         Release();
         Initialize();
 
@@ -329,15 +351,10 @@ public class AudioManager : Singleton<AudioManager>
         Initialize();
     }
 
-    public void SystemUpdate()
-    {
-        if ( !IsStop && system.hasHandle() )
-             system.update();
-    }
-
-    private void OnApplicationQuit()
+    private async void OnApplicationQuit()
     {
         IsStop = true;
+        await ThreadCancel();
     }
 
     private void OnDestroy()
@@ -346,6 +363,59 @@ public class AudioManager : Singleton<AudioManager>
         // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후
         // AudioManager OnDestroy가 실행될 수 있도록 한다.
         Release();
+    }
+    #endregion
+
+    #region Thread
+    public void SystemUpdate( long _targetFrame, CancellationToken _token )
+    {
+        QueryPerformanceFrequency( out long frequency );
+        QueryPerformanceCounter( out long start );
+
+        long end = 0;
+        long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
+        SpinWait spinner = new SpinWait();
+
+        Debug.Log( $"AudioManater Thread Start( {_targetFrame} Frame, {targetTicks} ticks )" );
+        while ( !_token.IsCancellationRequested )
+        {
+            QueryPerformanceCounter( out end );
+            if ( targetTicks <= ( end - start ) )
+            {
+                if ( !IsStop && system.hasHandle() )
+                     system.update();
+
+                QueryPerformanceCounter( out start );
+                OnUpdateThread?.Invoke();
+            }
+            else
+            {
+                //System.Threading.Thread.SpinWait( 1 );
+                spinner.SpinOnce();
+                spinner.Reset();
+            }
+        }
+
+        _token.ThrowIfCancellationRequested();
+    }
+
+    private async Task ThreadCancel()
+    {
+        breakPoint?.Cancel();
+        try
+        {
+            await systemTask;
+        }
+        catch ( OperationCanceledException )
+        {
+            Debug.Log( "AudioManager Thread Cancel Completed" );
+        }
+        finally
+        {
+            breakPoint?.Dispose();
+            breakPoint = null;
+            systemTask = null;
+        }
     }
     #endregion
 
