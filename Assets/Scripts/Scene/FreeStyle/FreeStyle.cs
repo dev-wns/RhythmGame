@@ -12,17 +12,38 @@ public class FreeStyle : Scene
     public FreeStyleSearch search;
 
     public TextMeshProUGUI speedText;
+    public TextMeshProUGUI audioFPSText;
 
     protected override void Awake()
     {
         base.Awake();
         OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed}";
+
+        StartCoroutine( UpdateAudioFPSTexts() );
     }
 
     protected override void Start()
     {
         base.Start();
         AudioManager.OnReload += Connect;
+    }
+
+    private IEnumerator UpdateAudioFPSTexts()
+    {
+        int curFPS = 0, prevFPS = 0;
+        double deltaTime = 0d;
+        while ( true )
+        {
+            yield return YieldCache.WaitForSeconds( .075f );
+
+            deltaTime += ( AudioManager.DeltaTime - deltaTime );
+            curFPS     = ( int ) ( 1d / deltaTime );
+
+            if ( curFPS != prevFPS )
+                 audioFPSText.text = $"{curFPS} FPS ({( deltaTime * 1000d ):F2} ms)";
+
+            prevFPS = curFPS;
+        }
     }
 
     protected override void OnDestroy()

@@ -70,6 +70,8 @@ public class AudioManager : Singleton<AudioManager>
     private CancellationTokenSource breakPoint;
     private readonly long TargetFrame = 3000;
     public static Action OnUpdateThread;
+    public static int AudioFPS { get; private set; }
+    public static double DeltaTime { get; private set; }
 
     [DllImport( "Kernel32.dll" )]
     private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
@@ -368,9 +370,12 @@ public class AudioManager : Singleton<AudioManager>
     #region Thread
     public void SystemUpdate( long _targetFrame, CancellationToken _token )
     {
+
         QueryPerformanceFrequency( out long frequency );
         QueryPerformanceCounter( out long start );
+        QueryPerformanceCounter( out long time );
 
+        int  fps = 0;
         long end = 0;
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
         SpinWait spinner = new SpinWait();
@@ -384,14 +389,22 @@ public class AudioManager : Singleton<AudioManager>
                 if ( !IsStop && system.hasHandle() )
                      system.update();
 
-                QueryPerformanceCounter( out start );
                 OnUpdateThread?.Invoke();
+                DeltaTime = ( double )( end - start ) / frequency;
+                QueryPerformanceCounter( out start );
+                fps++;
             }
             else
             {
-                //System.Threading.Thread.SpinWait( 1 );
                 spinner.SpinOnce();
                 spinner.Reset();
+            }
+
+            if ( frequency < ( end - time ) )
+            {
+                QueryPerformanceCounter( out time );
+                AudioFPS = fps;
+                fps = 0;
             }
         }
 
