@@ -71,6 +71,45 @@ public class FreeStyle : Scene
     public void EnableKeySettingCanvas()    => EnableCanvas( ActionType.KeySetting, keySetting );
     public void EnableReloadCanvas()        => EnableCanvas( ActionType.ReLoad, reload.gameObject );
     public void EnableExitCanvas()          => EnableCanvas( ActionType.Exit, exit );
+    public void DisableGameSetting()
+    {
+        DisableCanvas( ActionType.Main, gameSetting );
+        Config.Inst.Write( ConfigType.SoundOffset,  GameSetting.SoundOffset  );
+        Config.Inst.Write( ConfigType.JudgeOffset,  GameSetting.JudgeOffset  );
+        Config.Inst.Write( ConfigType.BGAOpacity,   GameSetting.BGAOpacity   );
+        Config.Inst.Write( ConfigType.PanelOpacity, GameSetting.PanelOpacity );
+        Config.Inst.Write( ConfigType.GearOffsetX,  GameSetting.GearOffsetX  );
+        Config.Inst.Write( ConfigType.AutoPlay,     GameSetting.HasFlag( GameMode.AutoPlay      ) );
+        Config.Inst.Write( ConfigType.NoFailed,     GameSetting.HasFlag( GameMode.NoFail        ) );
+        Config.Inst.Write( ConfigType.Measure,      GameSetting.HasFlag( VisualFlag.ShowMeasure ) );
+        Config.Inst.Write( ConfigType.HitEffect,    GameSetting.HasFlag( VisualFlag.HitEffect   ) );
+        Config.Inst.Write( ConfigType.LaneEffect,   GameSetting.HasFlag( VisualFlag.LaneEffect  ) );
+    }
+    public void DisableSystemOption()
+    {
+        DisableCanvas( ActionType.Main, systemSetting, true, false );
+        Config.Inst.Write( ConfigType.Resolution,   SystemSetting.CurrentResolution   );
+        Config.Inst.Write( ConfigType.FrameLimit,   SystemSetting.CurrentFrameRate    );
+        Config.Inst.Write( ConfigType.AntiAliasing, SystemSetting.CurrentAntiAliasing );
+        Config.Inst.Write( ConfigType.ScreenMode,   SystemSetting.CurrentScreenMode   );
+        
+        Config.Inst.Write( ConfigType.SoundBuffer, SystemSetting.CurrentSoundBuffer                  );
+        Config.Inst.Write( ConfigType.Master,      AudioManager.Inst.GetVolume( ChannelType.Master ) );
+        Config.Inst.Write( ConfigType.BGM,         AudioManager.Inst.GetVolume( ChannelType.BGM    ) );
+        Config.Inst.Write( ConfigType.SFX,         AudioManager.Inst.GetVolume( ChannelType.SFX    ) );
+    }
+    public void DisableKeySetting()
+    {
+        DisableCanvas( ActionType.Main, keySetting );
+        Config.Inst.Write( ConfigType._4K, InputManager.Keys[GameKeyCount._4] );
+        Config.Inst.Write( ConfigType._6K, InputManager.Keys[GameKeyCount._6] );
+        Config.Inst.Write( ConfigType._7K, InputManager.Keys[GameKeyCount._7] );
+    }
+    public void DisableReload()
+    {
+        DisableCanvas( ActionType.Main, reload.gameObject );
+    }
+
     public void MoveToLobby()
     {
         AudioManager.Inst.Play( SFX.MenuClick );
@@ -91,53 +130,19 @@ public class FreeStyle : Scene
         Bind( ActionType.Main, KeyState.Hold, KeyCode.F4, () => PressedSpeedControl( true ) );
         Bind( ActionType.Main, KeyState.Up,   KeyCode.F4, () => UpedSpeedControl() );
 
-        // GameSetting
-        Bind( ActionType.GameOption, KeyCode.Escape, () => 
-        {
-            DisableCanvas( ActionType.Main, gameSetting );
-            Config.Inst.Write( ConfigType.SoundOffset,  GameSetting.SoundOffset  );
-            Config.Inst.Write( ConfigType.JudgeOffset,  GameSetting.JudgeOffset  );
-            Config.Inst.Write( ConfigType.BGAOpacity,   GameSetting.BGAOpacity   );
-            Config.Inst.Write( ConfigType.PanelOpacity, GameSetting.PanelOpacity );
-            Config.Inst.Write( ConfigType.GearOffsetX,  GameSetting.GearOffsetX  );
-            Config.Inst.Write( ConfigType.AutoPlay,     GameSetting.HasFlag( GameMode.AutoPlay      ) );
-            Config.Inst.Write( ConfigType.NoFailed,     GameSetting.HasFlag( GameMode.NoFail        ) );
-            Config.Inst.Write( ConfigType.Measure,      GameSetting.HasFlag( VisualFlag.ShowMeasure ) );
-            Config.Inst.Write( ConfigType.HitEffect,    GameSetting.HasFlag( VisualFlag.HitEffect   ) );
-            Config.Inst.Write( ConfigType.LaneEffect,   GameSetting.HasFlag( VisualFlag.LaneEffect  ) );
-        } );
-
-        // SystemSetting
-        Bind( ActionType.SystemOption, KeyCode.Escape, () => 
-        {
-            DisableCanvas( ActionType.Main, systemSetting, true, false );
-            Config.Inst.Write( ConfigType.Resolution,   SystemSetting.CurrentResolution   );
-            Config.Inst.Write( ConfigType.FrameLimit,   SystemSetting.CurrentFrameRate    );
-            Config.Inst.Write( ConfigType.AntiAliasing, SystemSetting.CurrentAntiAliasing );
-            Config.Inst.Write( ConfigType.ScreenMode,   SystemSetting.CurrentScreenMode   );
-            
-            Config.Inst.Write( ConfigType.SoundBuffer, SystemSetting.CurrentSoundBuffer                  );
-            Config.Inst.Write( ConfigType.Master,      AudioManager.Inst.GetVolume( ChannelType.Master ) );
-            Config.Inst.Write( ConfigType.BGM,         AudioManager.Inst.GetVolume( ChannelType.BGM    ) );
-            Config.Inst.Write( ConfigType.SFX,         AudioManager.Inst.GetVolume( ChannelType.SFX    ) );
-        } );
+        Bind( ActionType.GameOption,   KeyCode.Escape, DisableGameSetting );
+        Bind( ActionType.SystemOption, KeyCode.Escape, DisableSystemOption );
 
         // KeySetting
         Bind( ActionType.KeySetting, KeyCode.RightArrow, () => { MoveToNextOption( keySetting ); } );
         Bind( ActionType.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
-        Bind( ActionType.KeySetting, KeyCode.Escape,     () => 
-        {
-            DisableCanvas( ActionType.Main, keySetting );
-            Config.Inst.Write( ConfigType._4K, InputManager.Keys[GameKeyCount._4] );
-            Config.Inst.Write( ConfigType._6K, InputManager.Keys[GameKeyCount._6] );
-            Config.Inst.Write( ConfigType._7K, InputManager.Keys[GameKeyCount._7] );
-        } );
+        Bind( ActionType.KeySetting, KeyCode.Escape,     DisableKeySetting );
 
         if ( !DataStorage.IsMultiPlaying )
         {
             //ReLoad
-            Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas( ActionType.ReLoad, reload.gameObject ); } );
-            Bind( ActionType.ReLoad, KeyCode.Escape, () => { DisableCanvas( ActionType.Main,  reload.gameObject ); } );
+            //Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas( ActionType.ReLoad, reload.gameObject ); } );
+            Bind( ActionType.ReLoad, KeyCode.Escape, DisableReload );
         }
 
         // Exit
