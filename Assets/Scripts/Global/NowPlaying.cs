@@ -39,7 +39,8 @@ public class NowPlaying : Singleton<NowPlaying>
     private int bgmIndex;
 
     [Header( "Thread" )]
-    public static ReadOnlyCollection<Note>[] Notes { get; private set; } // 레인별로 분할된 노트 데이터
+    public  static ReadOnlyCollection<Note>[] Notes { get; private set; } // 레인별로 분할된 노트 데이터
+    private static List<KeySound> Samples;                                // 잘린 노트의 키음등이 추가된 BGM 리스트
 
     private Task timeTask;
     private CancellationTokenSource breakPoint = new();
@@ -115,6 +116,7 @@ public class NowPlaying : Singleton<NowPlaying>
         DataStorage.Inst.LoadChart();
 
         // 후 계산
+        Samples = DataStorage.Samples.ToList(); // 원본 리스트 받아오기
         OnPreInit?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
     }
 
@@ -123,6 +125,16 @@ public class NowPlaying : Singleton<NowPlaying>
         // Other Thread Loading
         Task task = Task.Run( () =>
         {
+            // 키음 곡이 아닌 경우 프리뷰 음악을 재생한다.
+            // 하나의 음악을 메인으로 재생하지만, Clap 등 자잘한 키음이 들어간 경우도 있다.
+            if ( !CurrentSong.isOnlyKeySound )
+                  Samples.Add( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ) );
+
+            for ( int i = 0; i < Samples.Count; i++ )
+            {
+                DataStorage.Inst.LoadSound( Samples[i].name );
+            }
+
             DivideNotes();
             OnAsyncInit?.Invoke();
         } );
@@ -130,6 +142,14 @@ public class NowPlaying : Singleton<NowPlaying>
         // Main  Thread Loading
         OnPostInit?.Invoke();                                
         await task;
+
+        // 특정모드 선택으로 잘린 키음이 추가될 수 있다.( 시간 오름차순 정렬 )
+        Samples.Sort( delegate ( KeySound _left, KeySound _right )
+        {
+            if      ( _left.time > _right.time ) return 1;
+            else if ( _left.time < _right.time ) return -1;
+            else                                 return 0;
+        } );
 
         // 기본 변수 초기화
         Clear();
@@ -146,7 +166,6 @@ public class NowPlaying : Singleton<NowPlaying>
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
         SpinWait spinner = new SpinWait();
         var timings      = DataStorage.Timings;
-        var samples      = DataStorage.Samples;
 
         Debug.Log( $"Time Thread Start( {_targetFrame} Frame, {targetTicks} ticks )" );
         while ( true )
@@ -178,10 +197,10 @@ public class NowPlaying : Singleton<NowPlaying>
                 }
 
                 // 배경음 처리( 시간의 흐름에 따라 자동재생 )
-                while ( bgmIndex < samples.Count && samples[bgmIndex].time <= Playback )
+                while ( bgmIndex < Samples.Count && Samples[bgmIndex].time <= Playback )
                 {
-                    if ( DataStorage.Inst.GetSound( samples[bgmIndex].name, out FMOD.Sound sound ) )
-                         AudioManager.Inst.Play( sound, samples[bgmIndex].volume );
+                    if ( DataStorage.Inst.GetSound( Samples[bgmIndex].name, out FMOD.Sound sound ) )
+                         AudioManager.Inst.Play( sound, Samples[bgmIndex].volume );
 
                     bgmIndex += 1;
                 }
@@ -220,6 +239,9 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private void DivideNotes()
     {
+        bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  CurrentSong.keyCount == 7;
+
         ReadOnlyCollection<Note> datas = DataStorage.Notes;
         List<int/* lane */> emptyLanes = new List<int>( KeyCount );
         List<Note>[] notes             = Array.ConvertAll( new int[KeyCount], _ => new List<Note>() );
@@ -229,6 +251,24 @@ public class NowPlaying : Singleton<NowPlaying>
         for ( int i = 0; i < datas.Count; i++ )
         {
             Note newNote = datas[i];
+            
+            newNote.isSlider = isNoSlider ? false : newNote.isSlider;
+            if ( isConvert )
+            {
+                if ( newNote.lane == 3 )
+                { 
+                    // 잘린 노트의 키음은 자동재생되도록 한다.
+                    DataStorage.Inst.LoadSound( newNote.keySound.name );
+                    Samples.Add( newNote.keySound );
+                    continue;
+                }
+                else if ( newNote.lane > 3 )
+                {
+                    // 제외된 중앙노트보다 우측의 노트는 한칸 이동시킨다.
+                    newNote.lane -= 1;
+                }
+            }
+
             switch ( GameSetting.CurrentRandom )
             {
                 // 레인 인덱스와 동일한 번호에 노트 분배
@@ -384,6 +424,17 @@ public class NowPlaying : Singleton<NowPlaying>
         OnClear?.Invoke();
     }
 
+    public async Task Release()
+    {
+        StopAllCoroutines();
+        await ThreadCancel();
+        
+        Notes     = null;
+        Samples   = null;
+        IsLoaded  = false;
+        OnRelease?.Invoke();
+    }
+
     public void GameStart()
     {
         OnGameStart?.Invoke();
@@ -391,16 +442,6 @@ public class NowPlaying : Singleton<NowPlaying>
         timeTask                = Task.Run( () => { TimeUpdate( TargetFrame, breakPoint.Token ); } );
         AudioManager.Inst.Pause = false;
         IsStart                 = true;
-    }
-
-    public async Task Release()
-    {
-        StopAllCoroutines();
-        await ThreadCancel();
-        
-        Notes     = null;
-        IsLoaded  = false;
-        OnRelease?.Invoke();
     }
 
     public IEnumerator GameOver()

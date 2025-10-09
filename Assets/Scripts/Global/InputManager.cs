@@ -93,11 +93,6 @@ public class InputManager : Singleton<InputManager>
         }
     }
 
-    private void OnApplicationQuit()
-    {
-        Release();
-    }
-
     private void PreInitialize()
     {
         VKey      = new int       [NowPlaying.KeyCount];

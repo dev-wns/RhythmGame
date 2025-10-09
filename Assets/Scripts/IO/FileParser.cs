@@ -196,35 +196,11 @@ public class FileParser : FileConverter
 
                 var keySoundSplit = split[3].Split( ':' );
                 note.keySound = new KeySound( note.time, keySoundSplit[1], float.Parse( keySoundSplit[0] ) * .01f );
-
-                if ( isConvert && note.lane == 3 )
-                {
-                    // 잘려진 노트는 키음만 자동재생되도록 한다.
-                    samples.Add( note.keySound );
-                    continue;
-                }
-
-                if ( isConvert && note.lane > 3 )
-                     note.lane -= 1;
-
                 notes.Add( note );
             }
 
             if ( timings.Count == 0 )
                  throw new Exception( "Note Parsing Error" );
-
-            // 키음 곡이 아닌 경우 프리뷰 음악을 재생한다.
-            // 하나의 음악이 메인으로 재생되지만, Clap음과 같은 자잘한 키음이 들어간 경우도 있다.
-            if ( !NowPlaying.CurrentSong.isOnlyKeySound )
-                 samples.Add( new KeySound( GameSetting.SoundOffset, NowPlaying.CurrentSong.audioName, 1f ) );
-
-            // 특정모드 선택으로 잘린 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
-            samples.Sort( delegate ( KeySound _A, KeySound _B )
-            {
-                if      ( _A.time > _B.time ) return 1;
-                else if ( _A.time < _B.time ) return -1;
-                else                          return 0;
-            } );
 
             _chart.notes       = new ReadOnlyCollection<Note>( notes );
             _chart.timings     = new ReadOnlyCollection<Timing>( timings );

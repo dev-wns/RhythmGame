@@ -26,10 +26,10 @@ public class DataStorage : Singleton<DataStorage>
     public static USER_INFO? UserInfo { get; set; }
     public static STAGE_INFO? StageInfo { get; set; }
 
-    [Header( "Parsing Data" )]
+    [Header( "Origin Parsing Data" )]
     public static ReadOnlyCollection<Song>         OriginSongs { get; private set; } // 원본 음악 리스트
     public static ReadOnlyCollection<Note>         Notes       { get; private set; }
-    public static ReadOnlyCollection<Timing>       Timings     { get; private set; }
+    public static ReadOnlyCollection<Timing>       Timings     { get; private set; } // BPM Timing
     public static ReadOnlyCollection<KeySound>     Samples     { get; private set; } // 배경음
     public static ReadOnlyCollection<SpriteSample> Backgrounds { get; private set; }
     public static ReadOnlyCollection<SpriteSample> Foregrounds { get; private set; }
@@ -50,15 +50,6 @@ public class DataStorage : Singleton<DataStorage>
     protected override void Awake()
     {
         base.Awake();
-
-        NowPlaying.OnAsyncInit += () =>
-        {
-            // FMOD Sound는 Thread에서 로딩 가능
-            for ( int i = 0; i < Samples.Count; i++ )
-            {
-                LoadSound( Samples[i].name );
-            }
-        };
 
         // UnityWebRequest( Coroutine ) 사용
         NowPlaying.OnPostInit += () => StartCoroutine( LoadTextures() );
