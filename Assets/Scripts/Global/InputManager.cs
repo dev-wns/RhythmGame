@@ -1,8 +1,7 @@
 using System;
-using System.IO;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -11,13 +10,15 @@ public enum KeyState { None, Down, Hold, Up, }
 
 public struct HitData
 {
+    public int       lane;
     public double    time; // 누르거나 뗀 시간
     public double    diff;
     public HitResult hitResult;
     public KeyState  keyState;
 
-    public HitData( double _time, double _diff, HitResult _hitResult, KeyState _keyState )
+    public HitData( int _lane, double _time, double _diff, HitResult _hitResult, KeyState _keyState )
     {
+        lane      = _lane;
         time      = _time;
         diff      = _diff;
         hitResult = _hitResult;
@@ -36,21 +37,18 @@ public class InputManager : Singleton<InputManager>
     private static readonly Dictionary<KeyCode, string/*keyCode String*/> UnityToString = new ();
 
     [Header( "Input Process" )]
-    public  List<HitData>  HitDatas     = new ();
-    private Queue<HitData> HitDataQueue = new ();
-    private int[]          Indexes;   // 노트 인덱스
-    private bool[]         IsEntries; // 롱노트 진입점
-    private bool[]         Previous;  // 이전 키 상태( 입력 2중 체크 )
-    private KeyState[]     KeyStates; // 레인별 입력 상태
-    private KeySound[]     KeySounds;
-
-    [Header( "Lane" )]
-    private List<Lane>   Lanes = new();
-    private List<Note>[] Notes;
-    private Lane                prefab;
+    public  List<HitData>            HitDatas     = new ();
+    private ConcurrentQueue<HitData> HitDataQueue = new ();
+    private int[]                    VKey;      // 가상 키
+    private int[]                    Indexes;   // 노트 인덱스
+    private bool[]                   IsEntries; // 롱노트 진입점
+    private bool[]                   Previous;  // 이전 키 상태( 입력 2중 체크 )
+    private KeyState[]               KeyStates; // 레인별 입력 상태
+    private KeySound[]               KeySounds;
 
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
     public static event Action<HitData> OnHitNote;
+    private Coroutine corDataProcess;
 
     #region Properties
     public static Dictionary<KeyCode, string>.KeyCollection AvailableKeys => UnityToString.Keys;
@@ -59,8 +57,6 @@ public class InputManager : Singleton<InputManager>
     public static int GetVirtualKey( KeyCode _keyCode ) => UnityToVKey.TryGetValue( _keyCode, out int vKey ) ? vKey : -1;
     public static string GetString( KeyCode _code )     => UnityToString.ContainsKey( _code ) ? UnityToString[_code] : "None";
     #endregion
-
-    private System.Random random;
 
     protected override void Awake()
     {
@@ -79,26 +75,21 @@ public class InputManager : Singleton<InputManager>
 
         // 이벤트 연결
         NowPlaying.OnPreInit         += PreInitialize;
-        NowPlaying.OnAsyncInit       += DivideNotes;
-        NowPlaying.OnPostInit        += PostInitialize;
         NowPlaying.OnUpdateInThread  += UpdateInput;
         NowPlaying.OnRelease         += Release;
         NowPlaying.OnClear           += Clear;
-
-        // 에셋 로딩
-        DataStorage.Inst.LoadAssetsAsync( "Lane", ( GameObject _lane ) =>
-        {
-            if ( !_lane.TryGetComponent( out prefab ) )
-                Debug.LogError( $"Load Asset Failed ( Lane )" );
-        } );
     }
 
-    private void Update()
+    private IEnumerator DataProcess()
     {
-        if ( HitDataQueue.TryDequeue( out HitData hitData ) )
+        while ( true )
         {
-            HitDatas.Add( hitData );
-            OnHitNote?.Invoke( hitData );
+            yield return null;
+            if ( HitDataQueue.TryDequeue( out HitData hitData ) )
+            {
+                HitDatas.Add( hitData );
+                OnHitNote?.Invoke( hitData );
+            }
         }
     }
 
@@ -109,25 +100,17 @@ public class InputManager : Singleton<InputManager>
 
     private void PreInitialize()
     {
+        VKey      = new int       [NowPlaying.KeyCount];
         Indexes   = new int       [NowPlaying.KeyCount];
         IsEntries = new bool      [NowPlaying.KeyCount];
         Previous  = new bool      [NowPlaying.KeyCount];
         KeyStates = new KeyState  [NowPlaying.KeyCount];
         KeySounds = new KeySound  [NowPlaying.KeyCount];
-        Notes     = new List<Note>[NowPlaying.KeyCount];
+
+        corDataProcess = StartCoroutine( DataProcess() );
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
-            Lanes.Add( Instantiate( prefab, transform ) );
-            Notes[i] = new List<Note>();
-        }
-        Debug.Log( $"Create {Lanes.Count} lanes." );
-    }
-
-    private void PostInitialize()
-    {
-        for ( int i = 0; i < Lanes.Count; i++ )
-        {
-            Lanes[i].Initialize( i, Notes[i] );
+            VKey[i] = GetVirtualKey( Keys[( GameKeyCount )NowPlaying.KeyCount][i] );
         }
     }
 
@@ -136,42 +119,38 @@ public class InputManager : Singleton<InputManager>
         HitDataQueue.Clear();
         HitDatas.Clear();
 
-        for ( int i = 0; i < Lanes.Count; i++ )
+        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
             Indexes[i]   = 0;  
             IsEntries[i] = false;
             Previous[i]  = false; 
             KeyStates[i] = KeyState.None;
-            KeySounds[i] = Notes[i][0].keySound;
+            KeySounds[i] = NowPlaying.Notes[i][0].keySound;
         }
     }
 
     private void Release()
     {
-        for ( int i = 0; i < Lanes.Count; i++ )
-            DestroyImmediate( Lanes[i].gameObject, true );
-        
-        Lanes.Clear();
-        if ( Notes is not null )
-        {
-            for ( int i = 0; i < Notes.Length; i++ )
-                  Notes[i].Clear();
-        }
-
+        VKey      = null;
         Indexes   = null;
         IsEntries = null;
         Previous  = null;
         KeyStates = null;
         KeySounds = null;
-        Notes     = null;
+
+        if ( corDataProcess is not null )
+        {
+            StopCoroutine( corDataProcess );
+            corDataProcess = null;
+        }
     }
 
     private void UpdateInput()
     {
-        for ( int i = 0; i < Lanes.Count; i++ )
+        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
             // 입력 상태 체크
-            bool current = ( GetAsyncKeyState( Lanes[i].VKey ) & 0x8000 ) != 0;
+            bool current = ( GetAsyncKeyState( VKey[i] ) & 0x8000 ) != 0;
             KeyStates[i] = ( Previous[i], current ) switch
             {
                 ( false, true  ) => KeyState.Down,
@@ -190,10 +169,10 @@ public class InputManager : Singleton<InputManager>
             }
 
             // 데이터 소진 시 계산 불필요
-            if ( Indexes[i] >= Notes[i].Count )
+            if ( Indexes[i] >= NowPlaying.Notes[i].Count )
                  continue;
             
-            Note note        = Notes[i][Indexes[i]];
+            Note note        = NowPlaying.Notes[i][Indexes[i]];
             double playback  = NowPlaying.Playback;
             double startDiff = note.time    - playback;
             double endDiff   = note.endTime - playback;
@@ -202,20 +181,19 @@ public class InputManager : Singleton<InputManager>
             {
                 if ( KeyStates[i] == KeyState.Down && Judgement.CanBeHit( startDiff ) )
                 {
-                    if ( note.isSlider ) IsEntries[i] = true; // 롱노트는 끝지점도 판정한다.( 다음노트진입X )
+                    // 롱노트는 끝지점도 판정한다.( 다음노트진입X )
+                    if ( note.isSlider ) IsEntries[i] = true;
                     else                 SelectNextNote( i );
 
-                    HitData hitData = new HitData( playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down );
+                    HitData hitData = new HitData( i, playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down );
                     HitDataQueue.Enqueue( hitData );
-                    Lanes[i].AddData( hitData );
                 }
                 else if ( Judgement.IsMiss( startDiff ) )
                 {
-                    SelectNextNote( i );
                     // 롱노트 시작에서 Miss일 때, 시작판정, 끝판정 모두 미스처리한다.
-                    HitData hitData = new HitData( playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.None );
+                    SelectNextNote( i );
+                    HitData hitData = new HitData( i, playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.None );
                     HitDataQueue.Enqueue( hitData );
-                    Lanes[i].AddData( hitData );
                 }
             }
             else // 롱노트 끝판정
@@ -224,107 +202,19 @@ public class InputManager : Singleton<InputManager>
                 if ( KeyStates[i] == KeyState.Up || endDiff <= 0d )
                 {
                     SelectNextNote( i );
-                    HitData hitData = new HitData( playback, 0d, Judgement.UpdateResult( endDiff ), KeyState.Up );
+                    HitData hitData = new HitData( i, playback, 0d, Judgement.UpdateResult( endDiff ), KeyState.Up );
                     HitDataQueue.Enqueue( hitData );
-                    Lanes[i].AddData( hitData );
                 }
                 else if ( Judgement.IsMiss( endDiff ) )
                 {
                     SelectNextNote( i );
-                    HitData hitData = new HitData( playback, endDiff, Judgement.UpdateResult( endDiff ), KeyState.None );
+                    HitData hitData = new HitData( i, playback, endDiff, Judgement.UpdateResult( endDiff ), KeyState.None );
                     HitDataQueue.Enqueue( hitData );
-                    Lanes[i].AddData( hitData );
                 }
             }
         }
     }
     
-    private void DivideNotes()
-    {
-        random = new System.Random( ( int )DateTime.Now.Ticks );
-
-        ReadOnlyCollection<Note> datas = DataStorage.Notes;
-        List<int/* lane */> emptyLanes = new List<int>( NowPlaying.KeyCount );
-        double[] prevTimes             = Enumerable.Repeat( double.MinValue, NowPlaying.KeyCount ).ToArray();
-        double   secondPerBeat         = ( ( ( 60d / NowPlaying.CurrentSong.mainBPM ) * 4d ) / 32d );
-        for ( int i = 0; i < datas.Count; i++ )
-        {
-            Note newNote = datas[i];
-            switch ( GameSetting.CurrentRandom )
-            {
-                // 레인 인덱스와 동일한 번호에 노트 분배
-                case GameRandom.None:
-                case GameRandom.Mirror:
-                case GameRandom.Basic_Random:
-                case GameRandom.Half_Random:
-                {
-                    newNote.distance    = NowPlaying.Inst.GetDistance( newNote.time    );
-                    newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
-
-                    DataStorage.Inst.LoadSound( newNote.keySound.name );
-                    Notes[newNote.lane].Add( newNote );
-                } break;
-
-                // 맥스랜덤은 무작위 레인에 노트를 배치한다.
-                case GameRandom.Max_Random:
-                {
-                    emptyLanes.Clear();
-                    // 빠른계단, 즈레 등 고밀도로 배치될 때 보정
-                    for ( int j = 0; j < NowPlaying.KeyCount; j++ )
-                    {
-                        if ( secondPerBeat < ( newNote.time - prevTimes[j] ) )
-                             emptyLanes.Add( j );
-                    }
-
-                    // 자리가 없을 때 보정되지않은 상태로 배치
-                    if ( emptyLanes.Count == 0 )
-                    {
-                        for ( int j = 0; j < NowPlaying.KeyCount; j++ )
-                        {
-                            if ( prevTimes[j] < newNote.time )
-                                 emptyLanes.Add( j );
-                        }
-                    }
-
-                    int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
-                    prevTimes[selectLane] = newNote.isSlider ? newNote.endTime : newNote.time;
-
-                    newNote.distance    = NowPlaying.Inst.GetDistance( newNote.time    );
-                    newNote.endDistance = NowPlaying.Inst.GetDistance( newNote.endTime );
-
-                    DataStorage.Inst.LoadSound( newNote.keySound.name );
-                    Notes[selectLane].Add( newNote );
-                } break;
-            }
-        }
-
-        // 기본방식의 랜덤은 노트분배가 끝난 후, 완성된 데이터를 스왑한다.
-        switch ( GameSetting.CurrentRandom )
-        {
-            case GameRandom.Mirror:       Notes.Reverse();                break;
-            case GameRandom.Basic_Random: Swap( 0, NowPlaying.KeyCount ); break;
-            case GameRandom.Half_Random:
-            { 
-                int keyCountHalf = Mathf.FloorToInt( NowPlaying.KeyCount * .5f );
-                Swap( 0,                keyCountHalf        );
-                Swap( keyCountHalf + 1, NowPlaying.KeyCount );
-            } break;
-        }
-    }
-
-    private void Swap( int _min, int _max )
-    {
-        for ( int i = 0; i < 10; i++ )
-        {
-            var randA = random.Next( _min, _max );
-            var randB = random.Next( _min, _max );
-
-            var tmp      = Notes[randA];
-            Notes[randA] = Notes[randB];
-            Notes[randB] = tmp;
-        }
-    }
-
     private void SelectNextNote( int _lane )
     {
         int prev = Indexes[_lane];
@@ -332,8 +222,8 @@ public class InputManager : Singleton<InputManager>
         IsEntries[_lane] = false;
 
         // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
-        if ( Indexes[_lane]   < Notes[_lane].Count )
-             KeySounds[_lane] = Notes[_lane][Indexes[_lane]].keySound;
+        if ( Indexes[_lane]   < NowPlaying.Notes[_lane].Count )
+             KeySounds[_lane] = NowPlaying.Notes[_lane][Indexes[_lane]].keySound;
     }
 
     #region Key Setting
@@ -363,7 +253,7 @@ public class InputManager : Singleton<InputManager>
 
     private void KeyMapping()
     {
-        // 숫자 (0~9)
+        // 숫자 ( 0 ~ 9 )
         for ( int i = 0; i <= 9; i++ )
         {
             int vKey     = 0x30 + i; // '0' ~ '9'
@@ -372,7 +262,7 @@ public class InputManager : Singleton<InputManager>
         }
 
 
-        // 알파벳 (A~Z)
+        // 알파벳 ( A ~ Z )
         for ( int i = 0; i < 26; i++ )
         {
             int vKey     = 0x41 + i; // 'A' ~ 'Z'

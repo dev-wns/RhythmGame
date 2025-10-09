@@ -25,7 +25,9 @@ public class PreviewNoteSystem : MonoBehaviour
     public TextMeshProUGUI bpmText;
     private int bpmIndex;
     private double bpmTime;
+    private double prevBPM;
     private Timing curTiming;
+    public static Timing FirstTiming;
 
     public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset + GameSetting.SoundOffset;
     public static double Distance { get; private set; }
@@ -107,6 +109,8 @@ public class PreviewNoteSystem : MonoBehaviour
         {
             if ( !parser.TryPreviewParse( _song.filePath, out chart ) )
                  Debug.LogWarning( $"Parsing failed  Current Chart : {_song.title}" );
+
+            FirstTiming = chart.timings[0];
         }
 
         Restart( _song );
@@ -140,7 +144,10 @@ public class PreviewNoteSystem : MonoBehaviour
         if ( bpmIndex < timings.Count && bpmTime < Playback )
         {
             Timing current = timings[bpmIndex];
-            bpmText.text = $"{Mathf.RoundToInt( ( float )( current.bpm * GameSetting.CurrentPitch ) )}";
+            if ( prevBPM != current.bpm )
+                 bpmText.text = $"{Mathf.RoundToInt( ( float ) ( current.bpm * GameSetting.CurrentPitch ) )}";
+            
+            prevBPM = current.bpm;
 
             // ´ÙÀ½ BPM
             if ( bpmIndex + 1 < timings.Count )

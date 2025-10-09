@@ -25149,7 +25149,7 @@ MonoBehaviour:
   mainScroll: {fileID: 1702868222}
   pitchOption: {fileID: 1839611852}
   duration: 0.125
-  power: 1.35
+  power: 1.375
 --- !u!212 &1259330346
 SpriteRenderer:
   m_ObjectHideFlags: 0

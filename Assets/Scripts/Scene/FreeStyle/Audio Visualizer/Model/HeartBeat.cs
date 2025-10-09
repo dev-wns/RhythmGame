@@ -8,19 +8,18 @@ public class HeartBeat : MonoBehaviour
 
     [Header( "BPM" )]
     private double curBPM;
-    private float previewTime;
     private float spb;
 
-    public float duration = .1f;
-    public float power = 1.25f;
-    private float time = 0f;
-    private bool isStop = true;
+    public  float duration = .1f;
+    public  float power    = 1.25f;
+    private float time     = 0f;
+    private bool  isStop   = true;
 
     private void Awake()
     {
-        mainScroll.OnSelectSong   += UpdateSong;
-        mainScroll.OnSoundRestart += UpdateSong;
-        AudioManager.OnUpdatePitch += UpdatePitch;
+        mainScroll.OnSelectSong        += UpdateSong;
+        mainScroll.OnSoundRestart      += UpdateSong;
+        AudioManager.OnUpdatePitch     += UpdatePitch;
 
         startSize = transform.localScale.x;
         endSize = startSize * power;
@@ -45,24 +44,22 @@ public class HeartBeat : MonoBehaviour
         AudioManager.OnUpdatePitch -= UpdatePitch;
     }
 
-    private void UpdatePitch( float _pitch )
+    private void Initialize( double _bpm )
     {
-        UpdateBPM( curBPM * _pitch );
+        spb  = ( float )( 60d / _bpm );
+        time = ( float )( FreeStyleMainScroll.Playback * GameSetting.CurrentPitch * .001d ) % spb;
+        transform.localScale = new Vector2( startSize, startSize );
     }
 
     private void UpdateSong( Song _song )
     {
         isStop = false;
         curBPM = _song.mainBPM;
-        previewTime = _song.previewTime * GameSetting.CurrentPitch * .001f;
-        UpdateBPM( curBPM * GameSetting.CurrentPitch );
+        Initialize( curBPM * GameSetting.CurrentPitch );
     }
 
-    private void UpdateBPM( double _bpm )
+    private void UpdatePitch( float _pitch )
     {
-        spb = ( float )( 60d / _bpm );
-        time = previewTime % spb;
-        transform.localScale = new Vector2( startSize, startSize );
+        Initialize( curBPM * _pitch );
     }
-
 }

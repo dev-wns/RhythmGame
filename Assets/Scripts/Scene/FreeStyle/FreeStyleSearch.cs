@@ -21,6 +21,7 @@ public class FreeStyleSearch : MonoBehaviour
 
     public  Action OnSearch;
     private Coroutine corLateSearch;
+    private ActionType prevAction;
 
     private void Awake()
     {
@@ -36,6 +37,12 @@ public class FreeStyleSearch : MonoBehaviour
         timer.fillAmount += Time.deltaTime;
         if ( NowPlaying.CurrentScene.CurrentAction == ActionType.Main )
         {
+            if ( IsSearching && field.interactable && Input.GetKeyDown( KeyCode.Escape ) )
+            {
+                if ( NowPlaying.CurrentScene.CurrentAction == ActionType.Main )
+                     field.text = string.Empty;
+            }
+
             if ( !field.isFocused )
             {
                 field.interactable = true;
@@ -52,12 +59,6 @@ public class FreeStyleSearch : MonoBehaviour
                 field.interactable = false;
                 field.DeactivateInputField();
             }
-        }
-
-        if ( IsSearching && Input.GetKeyDown( KeyCode.Escape ) )
-        {
-            field.text = string.Empty;
-
         }
     }
 

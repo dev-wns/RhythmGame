@@ -57,7 +57,6 @@ public class DataStorage : Singleton<DataStorage>
             for ( int i = 0; i < Samples.Count; i++ )
             {
                 LoadSound( Samples[i].name );
-                Debug.LogError( $"Sound Load( {Samples[i].name} )" );
             }
         };
 

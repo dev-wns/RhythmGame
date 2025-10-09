@@ -1,7 +1,12 @@
+
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+
 
 public class Gear : MonoBehaviour
 {
+    [Header( "Gear" )]
     public Transform judge;
     public Transform panel;
     public Transform sideLeft, sideRight;
@@ -11,6 +16,38 @@ public class Gear : MonoBehaviour
     public Transform helpTransform;
     public Transform healthBGTransform;
     public Transform healthRendererTransform;
+
+    [Header( "Lane" )]
+    public  Lane prefab;
+    public  Transform laneParent;
+    private List<Lane> lanes = new();
+
+    private void PreInitialize()
+    {
+        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
+        {
+            lanes.Add( Instantiate( prefab, laneParent ) );
+            lanes[i].Initialize( i );
+        }
+        Debug.Log( $"Create {lanes.Count} lanes." );
+    }
+
+    private void Transfer( HitData _data )
+    {
+        lanes[_data.lane].AddData( _data );
+    }
+
+    private void Awake()
+    {
+        NowPlaying.OnPreInit   += PreInitialize;
+        InputManager.OnHitNote += Transfer;
+    }
+
+    private void OnDestroy()
+    {
+        NowPlaying.OnPreInit   -= PreInitialize;
+        InputManager.OnHitNote -= Transfer;
+    }
 
     private void Start()
     {

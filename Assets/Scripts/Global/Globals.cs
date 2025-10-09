@@ -1,4 +1,5 @@
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -66,7 +67,15 @@ namespace Global
                    ( _value >= 1000u     ) ? 3 : ( _value >= 100u     ) ? 2 :
                    ( _value >= 10u       ) ? 1 : 0;
         }
-
+        public static void Shuffle<T>( T[] _data, int _min, int _max )
+        {
+            System.Random rand = new System.Random( ( int ) DateTime.Now.Ticks );
+            for ( int i = _max - 1; i > _min; i-- )
+            {
+                int j = rand.Next( _min, i );
+                ( _data[i], _data[j] ) = ( _data[j], _data[i] );
+            }
+        }
     }
 
     public static class Screen

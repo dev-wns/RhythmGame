@@ -18,7 +18,6 @@ public class Lane : MonoBehaviour
     private Queue<NoteRenderer> sliderEarlyQueue = new ();
     private Queue<HitData>      dataQueue        = new ();
 
-    private List<Note>   noteDatas = new ();
     private NoteRenderer curNote;
     private int          spawnIndex;
 
@@ -42,14 +41,6 @@ public class Lane : MonoBehaviour
     {
         NowPlaying.OnClear    += Clear;
         NowPlaying.OnGameOver += GameOver;
-        //InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        //scene.OnGameStart += GameStart;
-        //scene.OnGameOver  += GameOver;
-        //scene.OnReLoad    += ReLoad;
-        //scene.OnPause     += Pause;
-
-        // InputSys = GetComponent<InputSystem>();
-        //judge = GameObject.FindGameObjectWithTag( "Judgement" ).GetComponent<Judgement>();
     }
 
     private void OnDestroy()
@@ -105,11 +96,8 @@ public class Lane : MonoBehaviour
     #region Initialize
     public void AddData( in HitData _data ) => dataQueue.Enqueue( _data );
 
-    public void Initialize( int _lane, List<Note> _datas )
+    public void Initialize( int _lane )
     {
-        noteDatas  = _datas;
-        spawnIndex = 0;
-
         Key  = _lane;
         UKey = InputManager.Keys[( GameKeyCount )NowPlaying.KeyCount][Key];
         VKey = InputManager.GetVirtualKey( UKey );
@@ -188,9 +176,9 @@ public class Lane : MonoBehaviour
 
     private void SpawnNote()
     {
-        if ( spawnIndex < noteDatas.Count )
+        if ( spawnIndex < NowPlaying.Notes[Key].Count )
         {
-            Note current = noteDatas[spawnIndex];
+            Note current = NowPlaying.Notes[Key][spawnIndex];
             if ( current.distance <= NowPlaying.Distance + GameSetting.MinDistance )
             {
                 NoteRenderer note = notePool.Spawn();

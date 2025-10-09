@@ -1833,6 +1833,7 @@ Transform:
   - {fileID: 952276541}
   - {fileID: 1494934201}
   - {fileID: 1437843419}
+  - {fileID: 1911298465}
   - {fileID: 880423766}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1845,7 +1846,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 302557590}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6a0d613b91d6ce40b37a46ee8c3494b, type: 3}
+  m_Script: {fileID: 11500000, guid: 0b858f00aa8b0a64aab297966a3ed41a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   judge: {fileID: 1437843419}
@@ -1856,6 +1857,8 @@ MonoBehaviour:
   helpTransform: {fileID: 2130595683}
   healthBGTransform: {fileID: 520658402}
   healthRendererTransform: {fileID: 1216426849}
+  prefab: {fileID: 3506509255338831063, guid: 59a59c1378c269a4881781fc3d23a58c, type: 3}
+  laneParent: {fileID: 1911298465}
 --- !u!1 &314525027
 GameObject:
   m_ObjectHideFlags: 0
@@ -14024,6 +14027,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: -6277348448616404916, guid: a4b2b6b23edbf3549a1a05013c92a51f, type: 3}
   contents: {fileID: 292845023}
+--- !u!1 &1911298464
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1911298465}
+  m_Layer: 0
+  m_Name: Lane
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1911298465
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911298464}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 302557591}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1911710317
 GameObject:
   m_ObjectHideFlags: 0
