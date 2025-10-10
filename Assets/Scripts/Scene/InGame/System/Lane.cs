@@ -37,6 +37,8 @@ public class Lane : MonoBehaviour
     private float          hitTimer;
     private bool           isHitLoop;
 
+    [Header( "Input Effect" )]
+    public SpriteRenderer inputRenderer;
 
     private void Awake()
     {
@@ -81,6 +83,12 @@ public class Lane : MonoBehaviour
         }
 
         // ¿Ã∆Â∆Æ
+        if ( NowPlaying.IsStart )
+        {
+            if      ( Input.GetKeyDown( UKey ) ) inputRenderer.color = Color.gray;
+            else if ( Input.GetKeyUp(   UKey ) ) inputRenderer.color = Color.clear;
+        }
+
         if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
         {
             float increment = LaneOffset * Time.deltaTime;
@@ -305,6 +313,7 @@ public class Lane : MonoBehaviour
             slider.Despawn();
         }
 
+        inputRenderer.color = Color.clear;
         dataQueue.Clear();
         notes.Clear();
         notePool.AllDespawn();
@@ -318,6 +327,8 @@ public class Lane : MonoBehaviour
     {
         //HitEffect(); // Up
         isHitLoop     = false;
+        inputRenderer.color = Color.clear;
+
         if ( curNote != null )
              curNote.IsKeyDown = false;
     }
