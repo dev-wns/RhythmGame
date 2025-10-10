@@ -5,6 +5,7 @@ public enum FrameRate { vSync, No_Limit, _60, _144, _240, _360, _480, _960, Coun
 public enum ScreenMode { Exclusive_FullScreen, FullScreen_Window, Windowed, Count, }
 public enum AntiAliasing { None = 0, _2xMultiSampling = 2, _4xMultiSampling = 4, _8xMultiSampling = 8, Count, }
 public enum SoundBuffer { _64, _128, _256, _512, _1024, Count, }
+public enum PollingRate { _125, _500, _1000, _3000, _8000, Count, }
 
 public class SystemSetting : Singleton<SystemSetting>
 {
@@ -13,6 +14,17 @@ public class SystemSetting : Singleton<SystemSetting>
     public static ScreenMode   CurrentScreenMode   = ScreenMode.Windowed;
     public static SoundBuffer  CurrentSoundBuffer  = SoundBuffer._64;
     public static AntiAliasing CurrentAntiAliasing = AntiAliasing.None;
+    public static PollingRate  CurrentPollingRate  = PollingRate._3000;
+    public static int InputTargetFrame 
+    { 
+        get
+        {
+            int pollingRate = int.Parse( CurrentPollingRate.ToString().Replace( "_", " " ) );
+            Debug.Log( $"Set PollingRate {pollingRate} hz" );
+
+            return pollingRate;
+        }
+    }
 
     public static string CurrentSoundBufferString => CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
 
@@ -24,6 +36,7 @@ public class SystemSetting : Singleton<SystemSetting>
         if ( !Config.Inst.Read( ConfigType.AntiAliasing, out CurrentAntiAliasing ) ) CurrentAntiAliasing = AntiAliasing.None;
         if ( !Config.Inst.Read( ConfigType.ScreenMode,   out CurrentScreenMode   ) ) CurrentScreenMode   = ScreenMode.Windowed;
         if ( !Config.Inst.Read( ConfigType.SoundBuffer,  out CurrentSoundBuffer  ) ) CurrentSoundBuffer  = SoundBuffer._1024;
+        if ( !Config.Inst.Read( ConfigType.PollingRate,  out CurrentPollingRate  ) ) CurrentPollingRate  = PollingRate._1000;
 
         UpdateScreen();
     }

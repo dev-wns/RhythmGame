@@ -44,7 +44,6 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private Task timeTask;
     private CancellationTokenSource breakPoint = new();
-    private readonly long TargetFrame = 8000;
     public static Action OnUpdateThread;
 
     [DllImport( "Kernel32.dll" )]
@@ -92,7 +91,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private async void OnApplicationQuit()
     {
-        await Release();
+        await ThreadCancel();
     }
 
     /// <summary> 게임 시작할 때마다 초기화 </summary>
@@ -429,17 +428,17 @@ public class NowPlaying : Singleton<NowPlaying>
         StopAllCoroutines();
         await ThreadCancel();
         
+        OnRelease?.Invoke();
         Notes     = null;
         Samples   = null;
         IsLoaded  = false;
-        OnRelease?.Invoke();
     }
 
     public void GameStart()
     {
         OnGameStart?.Invoke();
         breakPoint            ??= new CancellationTokenSource();
-        timeTask                = Task.Run( () => { TimeUpdate( TargetFrame, breakPoint.Token ); } );
+        timeTask                = Task.Run( () => { TimeUpdate( SystemSetting.InputTargetFrame, breakPoint.Token ); } );
         AudioManager.Inst.Pause = false;
         IsStart                 = true;
     }
@@ -506,7 +505,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         OnPause?.Invoke( false );
         breakPoint             ??= new CancellationTokenSource();
-        timeTask                 = Task.Run( () => { TimeUpdate( TargetFrame, breakPoint.Token ); } );
+        timeTask                 = Task.Run( () => { TimeUpdate( SystemSetting.InputTargetFrame, breakPoint.Token ); } );
         AudioManager.Inst.Pause  = false;
         IsStart                  = true;
         CurrentScene.IsInputLock = false;

@@ -50,7 +50,6 @@ public class InputManager : Singleton<InputManager>
 
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
     public static event Action<HitData> OnHitNote;
-    private Coroutine corDataProcess;
 
     #region Properties
     public static Dictionary<KeyCode, string>.KeyCollection AvailableKeys => UnityToString.Keys;
@@ -104,7 +103,7 @@ public class InputManager : Singleton<InputManager>
         KeyStates = new KeyState  [NowPlaying.KeyCount];
         KeySounds = new KeySound  [NowPlaying.KeyCount];
 
-        corDataProcess = StartCoroutine( DataProcess() );
+        StartCoroutine( DataProcess() );
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
             VKey[i] = GetVirtualKey( Keys[( GameKeyCount )NowPlaying.KeyCount][i] );
@@ -128,18 +127,13 @@ public class InputManager : Singleton<InputManager>
 
     private void Release()
     {
+        StopAllCoroutines();
         VKey      = null;
         Indexes   = null;
         IsEntries = null;
         Previous  = null;
         KeyStates = null;
         KeySounds = null;
-
-        if ( corDataProcess is not null )
-        {
-            StopCoroutine( corDataProcess );
-            corDataProcess = null;
-        }
     }
 
     private void UpdateInput()

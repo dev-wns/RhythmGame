@@ -81,6 +81,9 @@ public class FreeStyle : Scene
         Config.Inst.Write( ConfigType.GearOffsetX,  GameSetting.GearOffsetX  );
         Config.Inst.Write( ConfigType.AutoPlay,     GameSetting.HasFlag( GameMode.AutoPlay      ) );
         Config.Inst.Write( ConfigType.NoFailed,     GameSetting.HasFlag( GameMode.NoFail        ) );
+        Config.Inst.Write( ConfigType.NoSlider,     GameSetting.HasFlag( GameMode.NoSlider      ) );
+        Config.Inst.Write( ConfigType.FixedBPM,     GameSetting.HasFlag( GameMode.FixedBPM      ) );
+        Config.Inst.Write( ConfigType.ConvertKey,   GameSetting.HasFlag( GameMode.ConvertKey    ) );
         Config.Inst.Write( ConfigType.Measure,      GameSetting.HasFlag( VisualFlag.ShowMeasure ) );
         Config.Inst.Write( ConfigType.HitEffect,    GameSetting.HasFlag( VisualFlag.HitEffect   ) );
         Config.Inst.Write( ConfigType.LaneEffect,   GameSetting.HasFlag( VisualFlag.LaneEffect  ) );
@@ -92,7 +95,8 @@ public class FreeStyle : Scene
         Config.Inst.Write( ConfigType.FrameLimit,   SystemSetting.CurrentFrameRate    );
         Config.Inst.Write( ConfigType.AntiAliasing, SystemSetting.CurrentAntiAliasing );
         Config.Inst.Write( ConfigType.ScreenMode,   SystemSetting.CurrentScreenMode   );
-        
+        Config.Inst.Write( ConfigType.PollingRate,  SystemSetting.CurrentPollingRate  );
+
         Config.Inst.Write( ConfigType.SoundBuffer, SystemSetting.CurrentSoundBuffer                  );
         Config.Inst.Write( ConfigType.Master,      AudioManager.Inst.GetVolume( ChannelType.Master ) );
         Config.Inst.Write( ConfigType.BGM,         AudioManager.Inst.GetVolume( ChannelType.BGM    ) );

@@ -24,17 +24,22 @@ public enum ConfigType : int
     GearOffsetX,
     AutoPlay,
     NoFailed,
+    NoSlider,
+    FixedBPM,
+    ConvertKey,
     Measure,
     HitEffect,
     LaneEffect,
+
 
     // SystemSetting Section
     Resolution = 300,
     FrameLimit,
     AntiAliasing,
     ScreenMode,
+    PollingRate,
 
-    // KeySetting Section
+    // KeySetting0 Section
     _4K = 400,
     _6K,
     _7K,

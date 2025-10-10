@@ -107,8 +107,11 @@ public class GameSetting : Singleton<GameSetting>
         GearOffsetX  = Config.Inst.Read( ConfigType.GearOffsetX,  out float gearOffsetX  ) ? gearOffsetX  : 0f;
          
         CurrentGameMode = GameMode.None;
-        if ( Config.Inst.Read( ConfigType.AutoPlay, out bool isAuto   ) && isAuto   ) CurrentGameMode |= GameMode.AutoPlay;
-        if ( Config.Inst.Read( ConfigType.NoFailed, out bool isNoFail ) && isNoFail ) CurrentGameMode |= GameMode.NoFail;
+        if ( Config.Inst.Read( ConfigType.AutoPlay, out bool isAuto      ) && isAuto     ) CurrentGameMode |= GameMode.AutoPlay;
+        if ( Config.Inst.Read( ConfigType.NoFailed, out bool isNoFail    ) && isNoFail   ) CurrentGameMode |= GameMode.NoFail;
+        if ( Config.Inst.Read( ConfigType.NoSlider, out bool isNoSlider  ) && isNoSlider ) CurrentGameMode |= GameMode.NoSlider;
+        if ( Config.Inst.Read( ConfigType.FixedBPM, out bool isFixedBPM  ) && isFixedBPM ) CurrentGameMode |= GameMode.FixedBPM;
+        if ( Config.Inst.Read( ConfigType.ConvertKey, out bool isConvert ) && isConvert  ) CurrentGameMode |= GameMode.ConvertKey;
 
         CurrentVisualFlag = VisualFlag.None;
         if ( Config.Inst.Read( ConfigType.Measure,    out bool showMeasure ) && showMeasure ) CurrentVisualFlag |= VisualFlag.ShowMeasure;
