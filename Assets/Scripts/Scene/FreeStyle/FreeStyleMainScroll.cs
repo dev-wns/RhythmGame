@@ -72,6 +72,7 @@ public class FreeStyleMainScroll : ScrollBase
         for ( int i = 0; i < maxShowCount; i++ )
         {
             var song = Instantiate( prefab, transform );
+            song.Initialize( maxShowCount );
             song.gameObject.SetActive( false );
             songs.AddLast( song );
         }
@@ -181,7 +182,7 @@ public class FreeStyleMainScroll : ScrollBase
 
         // 이전 UI 이펙트 초기화
         int medianCounts = 0;
-        medianNode?.Value.Select( false );
+        //medianNode?.Value.Select( false );
         medianNode = songs.First;
         Select( NowPlaying.CurrentIndex );
         int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
@@ -202,6 +203,13 @@ public class FreeStyleMainScroll : ScrollBase
             index = index + 1 < Length ? index + 1 : 0;
         }
 
+        var songList = songs.First;
+        for ( int i = 0; i < songs.Count; i++ )
+        {
+            songList.Value.UpdateColor( i, maxShowCount );
+            songList = songList.Next;
+        }
+
         // 레이아웃 갱신
         group.Initialize();
         group.SetLayoutVertical();
@@ -212,7 +220,7 @@ public class FreeStyleMainScroll : ScrollBase
         maxText.text = $"{Length}";
         curText.text = $"{CurrentIndex + 1}";
 
-        medianNode.Value.Select( true );
+        //medianNode.Value.Select( true );
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
 
@@ -296,9 +304,9 @@ public class FreeStyleMainScroll : ScrollBase
         last.rt.SetAsFirstSibling();
 
         // 위치 갱신
-        medianNode.Value.Select( false );
+        //medianNode.Value.Select( false );
         medianNode = medianNode.Previous;
-        medianNode.Value.Select( true );
+        //medianNode.Value.Select( true );
 
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
@@ -306,6 +314,13 @@ public class FreeStyleMainScroll : ScrollBase
         UpdateNodePositionX();
 
         curText.text = $"{CurrentIndex + 1}";
+
+        var songList = songs.First;
+        for ( int i = 0; i < songs.Count; i++ )
+        {
+            songList.Value.UpdateColor( i, maxShowCount );
+            songList = songList.Next;
+        }
     }
     public override void NextMove()
     {
@@ -325,9 +340,9 @@ public class FreeStyleMainScroll : ScrollBase
         first.rt.SetAsLastSibling();
 
         // 위치 갱신
-        medianNode.Value.Select( false );
+        //medianNode.Value.Select( false );
         medianNode = medianNode.Next;
-        medianNode.Value.Select( true );
+        //medianNode.Value.Select( true );
 
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );
@@ -335,6 +350,13 @@ public class FreeStyleMainScroll : ScrollBase
         UpdateNodePositionX();
 
         curText.text = $"{CurrentIndex + 1}";
+
+        var songList = songs.First;
+        for ( int i = 0; i < songs.Count; i++ )
+        {
+            songList.Value.UpdateColor( i, maxShowCount );
+            songList = songList.Next;
+        }
     }
     private void ScrollDown()
     {
