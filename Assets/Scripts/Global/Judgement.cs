@@ -11,7 +11,7 @@ public class Judgement : Singleton<Judgement>
         public static readonly int Great   = 97;
         public static readonly int Good    = 127;
         public static readonly int Bad     = 151;
-        public static readonly int Miss    = 188;
+        public static readonly int Miss    = 178; // 188
     }
     private static class HitScore
     {
@@ -80,8 +80,9 @@ public class Judgement : Singleton<Judgement>
     }
 
     public static ResultData CurrentResult => Results;
-    public static bool CanBeHit( double _diff ) => -HitRange.Bad < _diff && HitRange.Miss >= _diff;//Math.Abs( _diff ) <= HitRange.Bad;
-    public static bool IsMiss( double _diff )   => _diff < -HitRange.Bad;
+    public static bool CanBeHit( double _diff ) => Math.Abs( _diff ) <= HitRange.Bad; // -HitRange.Bad < _diff && HitRange.Miss >= _diff;
+    public static bool IsLateMiss( double _diff )  => _diff < -HitRange.Bad;
+    public static bool IsEarlyMiss( double _diff ) => HitRange.Bad < _diff && _diff <= HitRange.Miss;
     public static HitResult UpdateResult( double _diff, bool _isDoubleMiss = false )
     {
         double diffAbs      = Math.Abs( _diff );
@@ -94,6 +95,7 @@ public class Judgement : Singleton<Judgement>
             case HitResult.Great:   Results.Great   += 1;                     break;
             case HitResult.Good:    Results.Good    += 1;                     break;
             case HitResult.Bad:     Results.Bad     += 1;                     break;
+            case HitResult.None:                                              
             case HitResult.Miss:    Results.Miss    += _isDoubleMiss ? 2 : 1; break;
         }
 
@@ -122,15 +124,41 @@ public class Judgement : Singleton<Judgement>
         return hitResult;
     }
 
+    //private static HitResult GetHitResult( double _diffAbs )
+    //{
+    //    return                                _diffAbs <= HitRange.Maximum ? HitResult.Maximum :
+    //           _diffAbs > HitRange.Maximum && _diffAbs <= HitRange.Perfect ? HitResult.Perfect :
+    //           _diffAbs > HitRange.Perfect && _diffAbs <= HitRange.Great   ? HitResult.Great   :
+    //           _diffAbs > HitRange.Great   && _diffAbs <= HitRange.Good    ? HitResult.Good    :
+    //           _diffAbs > HitRange.Good    && _diffAbs <= HitRange.Bad     ? HitResult.Bad     :
+    //           _diffAbs > HitRange.Bad     && _diffAbs <= HitRange.Miss    ? HitResult.Miss    :
+    //                                                                         HitResult.None; // 롱노트 Up을 빨리 했을 경우
+    //}
+
     private static HitResult GetHitResult( double _diffAbs )
     {
-        return                                _diffAbs <= HitRange.Maximum ? HitResult.Maximum :
-               _diffAbs > HitRange.Maximum && _diffAbs <= HitRange.Perfect ? HitResult.Perfect :
-               _diffAbs > HitRange.Perfect && _diffAbs <= HitRange.Great   ? HitResult.Great   :
-               _diffAbs > HitRange.Great   && _diffAbs <= HitRange.Good    ? HitResult.Good    :
-               _diffAbs > HitRange.Good    && _diffAbs <= HitRange.Bad     ? HitResult.Bad     :
-               _diffAbs > HitRange.Bad     && _diffAbs <= HitRange.Miss    ? HitResult.Miss    :
-                                                                             HitResult.Miss; // 롱노트 Up을 빨리 했을 경우
+
+        //if ( _diff < -HitRange.Miss ) return HitResult.None; // 너무 이른 판정
+        //if ( _diff > HitRange.Miss ) return HitResult.None; // 너무 늦은 판정
+
+        if ( _diffAbs >  HitRange.Miss    ) return HitResult.None;    // 이르거나 늦은 판정 ( 롱노트 처리 중 Up을 빨리한 경우 )
+        if ( _diffAbs <= HitRange.Maximum ) return HitResult.Maximum; // ----------------------
+        if ( _diffAbs <= HitRange.Perfect ) return HitResult.Perfect; //
+        if ( _diffAbs <= HitRange.Great   ) return HitResult.Great;   //        정상 판정
+        if ( _diffAbs <= HitRange.Good    ) return HitResult.Good;    //
+        if ( _diffAbs <= HitRange.Bad     ) return HitResult.Bad;     // ----------------------
+                                                                      // 노트를 처리하지 못하여 Miss 되는 구간
+
+        return HitResult.Miss;                                        // Bad ~ Miss
+
+        //return _diff   >  HitRange.Bad     && _diff   <= HitRange.Miss    ? HitResult.Miss    : // 양의 Miss 구간 : 무작위로 입력을 난사했을 때 미스처리
+        //       diffAbs <= HitRange.Maximum                                ? HitResult.Maximum : // --------------
+        //       diffAbs >  HitRange.Maximum && diffAbs <= HitRange.Perfect ? HitResult.Perfect : // 
+        //       diffAbs >  HitRange.Perfect && diffAbs <= HitRange.Great   ? HitResult.Great   : // 
+        //       diffAbs >  HitRange.Great   && diffAbs <= HitRange.Good    ? HitResult.Good    : // 
+        //       diffAbs >  HitRange.Good    && diffAbs <= HitRange.Bad     ? HitResult.Bad     : // --------------
+        //       _diff   < -HitRange.Bad                                    ? HitResult.Miss    : // 음의 Miss 구간 : 노트를 처리하지 못했을 때
+        //                                                                    HitResult.None; // 롱노트 Up을 빨리 했을 경우
     }
 
     private static int GetHitScore( HitResult _result )

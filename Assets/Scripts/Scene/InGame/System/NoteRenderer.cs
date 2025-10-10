@@ -5,7 +5,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 {
     public ObjectPool<NoteRenderer> pool { get; set; }
 
-    //private Note note;
+    public Note data;
     public SpriteRenderer head, body, tail;
     //public float HeadPos => transform.position.y;
     public float TailPos => transform.position.y + bodyLength;
@@ -33,7 +33,7 @@ public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
     public void SetInfo( int _lane, in Note _note )
     {
         IsKeyDown = false;
-        //note = _note;
+        data = _note;
         Time = _note.time;
         newDistance = Distance = _note.distance;
         EndTime     = _note.endTime;

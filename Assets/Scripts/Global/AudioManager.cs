@@ -68,7 +68,7 @@ public class AudioManager : Singleton<AudioManager>
     // Thread
     private Task systemTask;
     private CancellationTokenSource breakPoint;
-    private readonly long TargetFrame = 3000;
+    private readonly long TargetFrame = 1000;
     public static Action OnUpdateThread;
     public static int AudioFPS { get; private set; }
     public static double DeltaTime { get; private set; }
@@ -396,6 +396,7 @@ public class AudioManager : Singleton<AudioManager>
             }
             else
             {
+                //Task.Delay( 1 );
                 spinner.SpinOnce();
                 spinner.Reset();
             }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static TreeEditor.TreeEditorHelper;
 
 public class Lane : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class Lane : MonoBehaviour
     private Queue<NoteRenderer> notes            = new ();
     private Queue<NoteRenderer> sliderMissQueue  = new ();
     private Queue<NoteRenderer> sliderEarlyQueue = new ();
-    private Queue<HitData>      dataQueue        = new ();
+    public Queue<HitData>      dataQueue        = new ();
 
     private NoteRenderer curNote;
     private int          spawnIndex;
@@ -133,20 +134,67 @@ public class Lane : MonoBehaviour
     #endregion
 
     #region Update
+    //private void CheckHitData()
+    //{
+    //    if ( curNote == null && notes.Count > 0 )
+    //         curNote = notes.Dequeue();
+
+    //    // 판정 처리 ( Virtual Key 사용 )
+    //    if ( curNote == null || !dataQueue.TryDequeue( out HitData data ) )
+    //         return;
+
+    //    keyState = data.keyState;
+    //    if ( data.hitResult >= 0 )
+    //    {
+    //        HitEffect( curNote.IsSlider );
+
+    //        if ( !curNote.IsKeyDown )
+    //        {
+    //            if ( curNote.IsSlider ) curNote.IsKeyDown = true;
+    //            else                    SelectNextNote();
+    //        }
+    //        else
+    //        {
+    //            sliderEarlyQueue.Enqueue( curNote );
+    //            SelectNextNote( false );
+    //        }
+    //    }
+    //    else
+    //    {
+    //        HitEffect();
+    //        if ( !curNote.IsSlider )
+    //        {
+    //            SelectNextNote();
+    //        }
+    //        else
+    //        {
+    //            curNote.SetSliderFail();
+    //            sliderMissQueue.Enqueue( curNote );
+    //            SelectNextNote( false );
+    //        }
+    //    }
+    //}
+
     private void CheckHitData()
     {
         if ( curNote == null && notes.Count > 0 )
-             curNote = notes.Dequeue();
+              curNote = notes.Dequeue();
 
         // 판정 처리 ( Virtual Key 사용 )
-        if ( curNote == null || !dataQueue.TryDequeue( out HitData data ) )
+        if ( curNote == null || !dataQueue.TryDequeue( out HitData data )  )
              return;
 
+
+        if ( !( Global.Math.Abs( curNote.data.time    - data.note.time    ) <= double.Epsilon &&
+                Global.Math.Abs( curNote.data.endTime - data.note.endTime ) <= double.Epsilon ) )
+        {
+            Debug.LogError( $"{data.keyState}  {curNote.data.time}  {data.note.time}  {data.time}" );
+        }
+
         keyState = data.keyState;
-        if ( data.hitResult >= 0 )
+        if ( data.hitResult >= 0 ) // Hit
         {
             HitEffect( curNote.IsSlider );
-
             if ( !curNote.IsKeyDown )
             {
                 if ( curNote.IsSlider ) curNote.IsKeyDown = true;
@@ -158,9 +206,8 @@ public class Lane : MonoBehaviour
                 SelectNextNote( false );
             }
         }
-        else
+        else // Miss
         {
-            HitEffect();
             if ( !curNote.IsSlider )
             {
                 SelectNextNote();
@@ -173,7 +220,6 @@ public class Lane : MonoBehaviour
             }
         }
     }
-
     private void SpawnNote()
     {
         if ( spawnIndex < NowPlaying.Notes[Key].Count )
@@ -224,16 +270,12 @@ public class Lane : MonoBehaviour
     public void HitEffect( bool _isLoop = false )
     {
         isHitLoop = _isLoop;
-
         if ( keyState == KeyState.Down )
         {
             hitTimer = 0f;
             hitIndex = 0;
             hitRenderer.color = Color.white;
         }
-
-        if ( keyState == KeyState.Up )
-             hitRenderer.color = Color.clear;
     }
 
     private void SelectNextNote( bool _isDespawn = true )
@@ -244,7 +286,8 @@ public class Lane : MonoBehaviour
             curNote.Despawn();
         }
 
-        curNote = null;
+        isHitLoop = false;
+        curNote   = null;
     }
     #endregion
 
@@ -267,12 +310,14 @@ public class Lane : MonoBehaviour
         notePool.AllDespawn();
 
         spawnIndex = 0;
+        isHitLoop  = false;
         curNote    = null;
     }
 
     private void GameOver()
     {
-        HitEffect(); // Up
+        //HitEffect(); // Up
+        isHitLoop     = false;
         if ( curNote != null )
              curNote.IsKeyDown = false;
     }

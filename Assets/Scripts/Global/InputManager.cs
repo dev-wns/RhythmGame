@@ -15,9 +15,11 @@ public struct HitData
     public double    diff;
     public HitResult hitResult;
     public KeyState  keyState;
+    public Note      note;
 
-    public HitData( int _lane, double _time, double _diff, HitResult _hitResult, KeyState _keyState )
+    public HitData( int _lane, double _time, double _diff, HitResult _hitResult, KeyState _keyState, Note _note )
     {
+        note      = _note;
         lane      = _lane;
         time      = _time;
         diff      = _diff;
@@ -174,38 +176,67 @@ public class InputManager : Singleton<InputManager>
 
             if ( !IsEntries[i] ) // 노트 시작판정
             {
-                if ( KeyStates[i] == KeyState.Down && Judgement.CanBeHit( startDiff ) )
-                {
-                    // 롱노트는 끝지점도 판정한다.( 다음노트진입X )
-                    if ( note.isSlider ) IsEntries[i] = true;
-                    else                 SelectNextNote( i );
-
-                    HitData hitData = new HitData( i, playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down );
-                    HitDataQueue.Enqueue( hitData );
-                }
-                else if ( Judgement.IsMiss( startDiff ) )
+                if ( Judgement.IsLateMiss( startDiff ) )
                 {
                     // 롱노트 시작에서 Miss일 때, 시작판정, 끝판정 모두 미스처리한다.
-                    SelectNextNote( i );
-                    HitData hitData = new HitData( i, playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.None );
+                    HitData hitData = new HitData( i, playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down, note );
                     HitDataQueue.Enqueue( hitData );
+                    SelectNextNote( i );
+                    continue;
+                }
+
+                if ( KeyStates[i] == KeyState.Down )
+                {
+                    if ( Judgement.IsEarlyMiss( startDiff ) )
+                    {
+                        HitData hitData = new HitData( i, playback, startDiff, Judgement.UpdateResult( startDiff, note.isSlider ), KeyState.Down, note );
+                        HitDataQueue.Enqueue( hitData );
+                        SelectNextNote( i );
+                        continue;
+                    }
+
+                    if ( Judgement.CanBeHit( startDiff ) )
+                    {
+                        // 롱노트는 끝지점도 판정한다.( 다음노트진입X )
+                        if ( note.isSlider ) IsEntries[i] = true;
+                        else SelectNextNote( i );
+
+                        HitData hitData = new HitData( i, playback, startDiff, Judgement.UpdateResult( startDiff ), KeyState.Down, note );
+                        HitDataQueue.Enqueue( hitData );
+                    }
                 }
             }
             else // 롱노트 끝판정
             {
                 // 롱노트는 판정선까지 Hold 상태를 유지하면 Perfect처리한다.
-                if ( KeyStates[i] == KeyState.Up || endDiff <= 0d )
+                if ( endDiff <= 0d )
                 {
-                    SelectNextNote( i );
-                    HitData hitData = new HitData( i, playback, 0d, Judgement.UpdateResult( endDiff ), KeyState.Up );
+                    HitData hitData = new HitData( i, playback, 0d, Judgement.UpdateResult( endDiff ), KeyState.Up, note );
                     HitDataQueue.Enqueue( hitData );
+                    SelectNextNote( i );
+                    continue;
                 }
-                else if ( Judgement.IsMiss( endDiff ) )
+
+                if ( KeyStates[i] == KeyState.Up )
                 {
-                    SelectNextNote( i );
-                    HitData hitData = new HitData( i, playback, endDiff, Judgement.UpdateResult( endDiff ), KeyState.None );
+                    HitData hitData = new HitData( i, playback, endDiff, Judgement.UpdateResult( endDiff ), KeyState.Up, note );
                     HitDataQueue.Enqueue( hitData );
+                    SelectNextNote( i );
                 }
+
+                //// 롱노트는 판정선까지 Hold 상태를 유지하면 Perfect처리한다.
+                //if ( KeyStates[i] == KeyState.Up || endDiff <= 0d )
+                //{
+                //    HitData hitData = new HitData( i, playback, 0d, Judgement.UpdateResult( endDiff ), KeyState.Up, note );
+                //    HitDataQueue.Enqueue( hitData );
+                //    SelectNextNote( i );
+                //}
+                //else if ( Judgement.IsMiss( endDiff ) )
+                //{
+                //    HitData hitData = new HitData( i, playback, endDiff, Judgement.UpdateResult( endDiff ), KeyState.None, note );
+                //    HitDataQueue.Enqueue( hitData );
+                //    SelectNextNote( i );
+                //}
             }
         }
     }
