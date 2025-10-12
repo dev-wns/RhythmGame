@@ -10,7 +10,7 @@ public class ObjectPool<T> where T : MonoBehaviour
 {
     private T prefab;
     private Transform parent;
-    private List<T>  totalObjects = new List<T>();
+    private  List<T>  totalObjects = new List<T>();
     private Queue<T> waitObjects  = new Queue<T>();
     
     private bool isActiveControl; // 렌더러의 enbled 등으로 처리하고싶을 때

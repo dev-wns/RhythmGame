@@ -1,18 +1,17 @@
 using UnityEngine;
-using UnityEngine.UI;
 
-public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
+public class ScoreMeterRenderer : MonoBehaviour
 {
-    public ObjectPool<ScoreMeterRenderer> pool { get; set; }
-
+    public ScoreMeterSystem system;
     private SpriteRenderer rdr;
     private Color colorCache;
+
+    public float Diff { get; private set; }
+    public bool IsActive { get; private set; }
 
     private static readonly float AliveTime = .875f;
     private static readonly float Duration  = 2.25f;
     private float alpha;
-    private float offset;
-    public bool isStart;
     private float time;
 
     private void Awake()
@@ -23,35 +22,33 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
 
     private void Update()
     {
-        if ( !isStart )
-             return;
+        if ( !IsActive )
+              return;
 
         time += Time.deltaTime;
         if ( time > AliveTime )
         {
-            alpha -= ( Time.deltaTime / Duration ) * offset;
+            alpha -= Time.deltaTime / Duration;
             rdr.color = new Color( colorCache.r, colorCache.g, colorCache.b, alpha );
 
             if ( alpha <= 0f )
-            {
-                Clear();
-                pool.Despawn( this );
-            }
+                 system.Despawn( this );
         }
     }
 
     public void Clear()
     {
-        isStart   = false;
+        IsActive  = false;
         rdr.color = Color.clear;
         time      = 0f;
     }
 
-    public void SetInfo( Color _color, Vector2 _pos )
+    public void SetInfo( Color _color, float _diff )
     {
-        isStart = true;
+        IsActive = true;
+        Diff     = _diff;
+        alpha    = _color.a;
+        transform.localPosition     = new Vector2( Diff, transform.localPosition.y );
         colorCache = rdr.color = _color;
-        alpha = offset = _color.a;
-        transform.position = _pos;
     }
 }

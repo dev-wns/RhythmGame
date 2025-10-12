@@ -3,43 +3,59 @@ using UnityEngine;
 
 public class ScoreMeterSystem : MonoBehaviour
 {
-    [Header( "Score Meter" )]
-    private Queue<ScoreMeterRenderer> rdrQueue = new Queue<ScoreMeterRenderer>();
-    public ObjectPool<ScoreMeterRenderer> pool;
-    public ScoreMeterRenderer prefab;
-    public Transform background;
-
     [Header( "Color" )]
     public readonly Color PerfectColor = new Color( .25f,   1f,   1f, .65f );
     public readonly Color GreatColor   = new Color(  .5f,   1f,  .5f, .65f );
     public readonly Color GoodColor    = new Color(   1f, .85f, .75f, .65f );
 
+    [Header( "Score Meter" )]
+    public ObjectPool<ScoreMeterRenderer> pool;
+    public ScoreMeterRenderer prefab;
+    public Transform background;
+    private Queue<ScoreMeterRenderer> rdrQueue = new ();
+    private readonly int MaxAverageCount = 4;
+
+    [Header( "Marker" )]
+    public MarkerRenderer marker;
+    private float sumDiff;
+
     private void Awake()
     {
-        NowPlaying.OnClear     += AllDespawn;
+        NowPlaying.OnClear     += Clear;
         InputManager.OnHitNote += UpdateScoreMeter;
 
         pool = new ObjectPool<ScoreMeterRenderer>( prefab, 30, false );
-        background.localScale = new Vector2( Judgement.HitRange.Miss, background.localScale.y );
+        background.localScale = new Vector2( Judgement.HitRange.Miss * .5f, background.localScale.y );
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnClear     -= AllDespawn;
+        NowPlaying.OnClear     -= Clear;
         InputManager.OnHitNote -= UpdateScoreMeter;
     }
 
-    private void AllDespawn()
+    private void Clear()
     {
+        sumDiff = 0f;
+        marker.Clear();
         while ( rdrQueue.Count > 0 )
         {
-            ScoreMeterRenderer endScoreMeter = rdrQueue.Dequeue();
-            endScoreMeter.Clear();
+            var obj = rdrQueue.Dequeue();
+            Despawn( obj );
         }
+    }
+
+    public void Despawn( ScoreMeterRenderer _rdr )
+    {
+        _rdr.Clear();
+        pool.Despawn( _rdr );
     }
 
     private void UpdateScoreMeter( HitData _hitData )
     {
+        if ( _hitData.hitResult < 0 )
+             return;
+
         Color color = Color.red;
         switch ( _hitData.hitResult )
         {
@@ -51,8 +67,24 @@ public class ScoreMeterSystem : MonoBehaviour
             default: return;
         }
 
-        ScoreMeterRenderer newScoreMeter = pool.Spawn();
-        newScoreMeter.SetInfo( color, new Vector2( ( float )-_hitData.diff, transform.position.y ) );
-        rdrQueue.Enqueue( newScoreMeter );
+        // Score Meter
+        float diff = -( float )_hitData.diff;
+        ScoreMeterRenderer scoreMeter = pool.Spawn();
+        if ( scoreMeter.system == null )
+        {
+            scoreMeter.system = this;
+            scoreMeter.transform.position = transform.position;
+        }
+
+        if ( rdrQueue.Count >= MaxAverageCount )
+             sumDiff -= rdrQueue.Dequeue().Diff;
+
+        scoreMeter.SetInfo( color, diff );
+        rdrQueue.Enqueue( scoreMeter );
+        sumDiff += diff;
+
+        // Marker
+        if ( _hitData.hitResult >= 0 ) // Hit
+             marker.SetInfo( sumDiff / rdrQueue.Count );
     }
 }
