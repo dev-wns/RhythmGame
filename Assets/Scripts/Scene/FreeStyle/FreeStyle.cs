@@ -116,8 +116,8 @@ public class FreeStyle : Scene
 
     public void MoveToLobby()
     {
-        AudioManager.Inst.Play( SFX.MenuClick );
-        LoadScene( SceneType.Lobby );
+        //AudioManager.Inst.Play( SFX.MenuClick );
+        //LoadScene( SceneType.Lobby );
     }
     public void ExitCancel() => DisableCanvas( ActionType.Main, exit );
     public void Quit() => Application.Quit();

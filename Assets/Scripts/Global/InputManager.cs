@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
 public enum KeyState { None, Down, Hold, Up, }
@@ -48,6 +50,8 @@ public class InputManager : Singleton<InputManager>
     private KeyState[]               KeyStates; // 레인별 입력 상태
     private KeySound[]               KeySounds;
 
+    private CancellationTokenSource dataCts;
+
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
     public static event Action<HitData> OnHitNote;
 
@@ -81,16 +85,29 @@ public class InputManager : Singleton<InputManager>
         NowPlaying.OnClear           += Clear;
     }
 
-    private IEnumerator DataProcess()
+    private async UniTask DataProcess()
     {
-        while ( true )
+        dataCts?.Cancel();
+        dataCts?.Dispose();
+        dataCts = new CancellationTokenSource();
+        CancellationToken token = dataCts.Token;
+        try
         {
-            yield return null;
-            if ( HitDataQueue.TryDequeue( out HitData hitData ) )
+            while( !token.IsCancellationRequested )
             {
-                HitDatas.Add( hitData );
-                OnHitNote?.Invoke( hitData );
+                while ( HitDataQueue.TryDequeue( out HitData hitData ) )
+                {
+                    HitDatas.Add( hitData );
+                    OnHitNote?.Invoke( hitData );
+                }
+
+                await UniTask.Yield( PlayerLoopTiming.Update );
             }
+
+        }
+        catch ( OperationCanceledException )
+        {
+            Debug.Log( "InputSystem HitData Process Cancel" );
         }
     }
 
@@ -103,11 +120,12 @@ public class InputManager : Singleton<InputManager>
         KeyStates = new KeyState  [NowPlaying.KeyCount];
         KeySounds = new KeySound  [NowPlaying.KeyCount];
 
-        StartCoroutine( DataProcess() );
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
             VKey[i] = GetVirtualKey( Keys[( GameKeyCount )NowPlaying.KeyCount][i] );
         }
+
+        DataProcess().Forget();
     }
 
     private void Clear()
@@ -127,7 +145,10 @@ public class InputManager : Singleton<InputManager>
 
     private void Release()
     {
-        StopAllCoroutines();
+        dataCts?.Cancel();
+        dataCts?.Dispose();
+        dataCts = null;
+
         VKey      = null;
         Indexes   = null;
         IsEntries = null;
@@ -165,8 +186,8 @@ public class InputManager : Singleton<InputManager>
             
             Note note        = NowPlaying.Notes[i][Indexes[i]];
             double playback  = NowPlaying.Playback;
-            double startDiff = note.time    - playback;
-            double endDiff   = note.endTime - playback;
+            double startDiff = ( note.time    + 50 ) - playback;
+            double endDiff   = ( note.endTime + 50 ) - playback;
 
             if ( !IsEntries[i] ) // 노트 시작판정
             {

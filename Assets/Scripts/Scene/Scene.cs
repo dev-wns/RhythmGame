@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
 using System.Collections;
@@ -30,9 +31,9 @@ public abstract class Scene : SceneKeyAction
         AudioManager.Inst.Pause = false;
     }
 
-    protected virtual void Start()
+    protected async virtual void Start()
     {
-        StartCoroutine( FadeIn() );
+        await FadeIn();
     }
 
     protected virtual void OnDestroy()
@@ -42,25 +43,34 @@ public abstract class Scene : SceneKeyAction
     #endregion
 
     #region Scene Load
-    public void LoadScene( SceneType _type )
+    public async UniTask LoadScene( SceneType _type )
     {
-        StopAllCoroutines();
-        StartCoroutine( SceneChange( _type ) );
-    }
-
-    private IEnumerator SceneChange( SceneType _type )
-    {
+        // StopAllCoroutines();
         DOTween.KillAll();
         DOTween.Clear();
         DOTween.ClearCachedTweens();
 
         IsInputLock = true;
-        yield return StartCoroutine( FadeOut() );
+        await FadeOut();
 
         AudioManager.Inst.AllStop();
         AudioManager.Inst.PitchReset();
-        SceneManager.LoadScene( ( int )_type );
+        SceneManager.LoadScene( ( int ) _type );
     }
+
+    //private IEnumerator SceneChange( SceneType _type )
+    //{
+    //    DOTween.KillAll();
+    //    DOTween.Clear();
+    //    DOTween.ClearCachedTweens();
+
+    //    IsInputLock = true;
+    //    await FadeOut();
+
+    //    AudioManager.Inst.AllStop();
+    //    AudioManager.Inst.PitchReset();
+    //    SceneManager.LoadScene( ( int )_type );
+    //}
     #endregion
 
     #region Option Control
@@ -234,28 +244,30 @@ public abstract class Scene : SceneKeyAction
         transform.localScale = Vector3.one;
     }
 
-    protected IEnumerator FadeIn()
+    protected async UniTask FadeIn()
     {
         blackSprite.color = Color.black;
         blackSprite.enabled = true;
 
-        yield return YieldCache.WaitForSeconds( FadeWaitTime );
+        await UniTask.WaitForSeconds( FadeWaitTime );
 
-        blackSprite.DOFade( 0f, FadeTime );
-        yield return YieldCache.WaitForSeconds( FadeDuration );
+        await blackSprite.DOFade( 0f, FadeTime + ( FadeWaitTime * 2 ) );
+
+        // await UniTask.WaitForSeconds( FadeDuration );
+
         blackSprite.color = Color.clear;
         blackSprite.enabled = false;
     }
 
-    protected IEnumerator FadeOut()
+    protected async UniTask FadeOut()
     {
         blackSprite.color = Color.clear;
         blackSprite.enabled = true;
 
-        yield return YieldCache.WaitForSeconds( FadeWaitTime );
+        await UniTask.WaitForSeconds( FadeWaitTime );
 
-        blackSprite.DOFade( 1f, FadeTime );
-        yield return YieldCache.WaitForSeconds( FadeDuration );
+        await blackSprite.DOFade( 1f, FadeTime + ( FadeWaitTime * 2 ) );
+        //await UniTask.WaitForSeconds( FadeDuration );
         blackSprite.color = Color.black;
     }
     #endregion

@@ -15,17 +15,7 @@ public class SystemSetting : Singleton<SystemSetting>
     public static SoundBuffer  CurrentSoundBuffer  = SoundBuffer._64;
     public static AntiAliasing CurrentAntiAliasing = AntiAliasing.None;
     public static PollingRate  CurrentPollingRate  = PollingRate._3000;
-    public static int InputTargetFrame 
-    { 
-        get
-        {
-            int pollingRate = int.Parse( CurrentPollingRate.ToString().Replace( "_", " " ) );
-            Debug.Log( $"Set PollingRate {pollingRate} hz" );
-
-            return pollingRate;
-        }
-    }
-
+    public static int InputTargetFrame => int.Parse( CurrentPollingRate.ToString().Replace( "_", " " ) );
     public static string CurrentSoundBufferString => CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
 
     protected override void Awake()

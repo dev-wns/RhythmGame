@@ -45,13 +45,13 @@ public class Lobby : Scene
     public void MoveToStage()
     {
         AudioManager.Inst.Play( SFX.MainClick );
-        LoadScene( SceneType.Stage );
+        //LoadScene( SceneType.Stage );
     }
 
     public void MoveToFreeStyle()
     {
         AudioManager.Inst.Play( SFX.MainClick );
-        LoadScene( SceneType.FreeStyle );
+        //LoadScene( SceneType.FreeStyle );
     }
 
     public override void Connect() { }

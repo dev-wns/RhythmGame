@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public enum SFX
 {
@@ -59,14 +60,14 @@ public class AudioManager : Singleton<AudioManager>
     private Dictionary<SFX, Sound>                sfxSounds     = new ();
 
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
-    public Sound   MainSound                { get; private set; }
-    public Channel MainChannel              { get; private set; }
+    public FMOD.Sound   MainSound                { get; private set; }
+    public FMOD.Channel MainChannel              { get; private set; }
 
     public static event Action OnReload;
     public static event Action<float> OnUpdatePitch;
 
     // Thread
-    private Task systemTask;
+    private UniTask systemTask;
     private CancellationTokenSource breakPoint;
     private readonly long TargetFrame = 1000;
     public static Action OnUpdateThread;
@@ -239,10 +240,10 @@ public class AudioManager : Singleton<AudioManager>
 
         // Thread
         breakPoint ??= new CancellationTokenSource();
-        systemTask = Task.Run( () => { SystemUpdate( TargetFrame, breakPoint.Token ); } );
+        systemTask = UniTask.RunOnThreadPool( () => { SystemUpdate( TargetFrame, breakPoint.Token ); } );
 
         Debug.Log( $"AudioManager Initialization" );
-        Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
+        //Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
     }
 
     private void CreateDriverInfo( OUTPUTTYPE _type, List<SoundDriver> _list )
@@ -312,7 +313,6 @@ public class AudioManager : Singleton<AudioManager>
             Release( sfx );
         }
         sfxSounds.Clear();
-        Release( MainSound );
 
         // System
         ErrorCheck( system.release() ); // 내부에서 close 함
@@ -380,7 +380,7 @@ public class AudioManager : Singleton<AudioManager>
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
         SpinWait spinner = new SpinWait();
 
-        Debug.Log( $"AudioManager Thread Start( {_targetFrame} Frame, {targetTicks} ticks )" );
+        Debug.Log( $"AudioManager Thread Start( {_targetFrame} Frame )" );
         while ( !_token.IsCancellationRequested )
         {
             QueryPerformanceCounter( out end );
@@ -412,12 +412,16 @@ public class AudioManager : Singleton<AudioManager>
         _token.ThrowIfCancellationRequested();
     }
 
-    private async Task ThreadCancel()
+    private async UniTask ThreadCancel()
     {
+        if ( breakPoint is null )
+             return;
+
         breakPoint?.Cancel();
         try
         {
-            await systemTask;
+            if ( !systemTask.Status.IsCompleted() )
+                 await systemTask;
         }
         catch ( OperationCanceledException )
         {
@@ -427,7 +431,7 @@ public class AudioManager : Singleton<AudioManager>
         {
             breakPoint?.Dispose();
             breakPoint = null;
-            systemTask = null;
+            //systemTask = null;
         }
     }
     #endregion
@@ -463,7 +467,7 @@ public class AudioManager : Singleton<AudioManager>
         if ( !_sound.hasHandle() )
              Debug.LogWarning( "Sound Handle is not Alived" );
 
-        if ( ErrorCheck( system.playSound( _sound, groups[ChannelType.BGM], false, out Channel channel ) ) )
+        if ( ErrorCheck( system.playSound( _sound, groups[ChannelType.BGM], false, out FMOD.Channel channel ) ) )
         {
             ErrorCheck( channel.setVolume( _volume ) );
             MainSound   = _sound;
@@ -477,15 +481,15 @@ public class AudioManager : Singleton<AudioManager>
              return;
 
         if ( sfxSounds.TryGetValue( _type, out Sound sound ) )
-             ErrorCheck( system.playSound( sound, groups[ChannelType.SFX], false, out Channel channel ) );
+             ErrorCheck( system.playSound( sound, groups[ChannelType.SFX], false, out FMOD.Channel channel ) );
     }
 
-    public Coroutine Fade( Channel _channel, float _start, float _end, float _t, Action _OnCompleted = null )
+    public Coroutine Fade( FMOD.Channel _channel, float _start, float _end, float _t, Action _OnCompleted = null )
     {
         return StartCoroutine( FadeVolume( _channel, _start, _end, _t, _OnCompleted ) );
     }
 
-    public IEnumerator FadeVolume( Channel _channel, float _start, float _end, float _t, Action _OnCompleted )
+    public IEnumerator FadeVolume( FMOD.Channel _channel, float _start, float _end, float _t, Action _OnCompleted )
     {
         // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
         // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.

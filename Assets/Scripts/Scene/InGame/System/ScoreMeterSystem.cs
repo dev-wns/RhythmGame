@@ -53,7 +53,8 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void UpdateScoreMeter( HitData _hitData )
     {
-        if ( _hitData.hitResult < 0 )
+        if ( _hitData.hitResult < 0 ||                           // Miss 제외
+             Global.Math.Abs( _hitData.diff ) < double.Epsilon ) // 보정된 판정 제외
              return;
 
         Color color = Color.red;

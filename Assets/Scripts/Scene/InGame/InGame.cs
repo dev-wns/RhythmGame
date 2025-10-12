@@ -1,10 +1,11 @@
 using DG.Tweening;
 using System;
 using System.Collections;
-using System.Runtime.Remoting.Lifetime;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public class InGame : Scene
 {
@@ -13,9 +14,13 @@ public class InGame : Scene
     public OptionController pause, gameOver;
     public event Action OnLoadEnd;
 
-    [Header("Fill Timer")]
+    [Header( "Fill Timer" )]
     public Image timeImage;
     private double length;
+
+    [Header( "Asynchronous" )]
+    private CancellationTokenSource playCts;
+
 
     protected override void Awake()
     {
@@ -29,7 +34,10 @@ public class InGame : Scene
                                        antiAliasing == 4 ? 16 : 0;
 
 
-        length = NowPlaying.CurrentSong.totalTime / GameSetting.CurrentPitch;
+        length  = NowPlaying.CurrentSong.totalTime / GameSetting.CurrentPitch;
+        playCts = new CancellationTokenSource();
+
+        NowPlaying.OnGameOver += GameOver;
         NowPlaying.Inst.Initialize();
     }
 
@@ -38,7 +46,20 @@ public class InGame : Scene
         base.Start();
 
         await NowPlaying.Inst.Load();
-        StartCoroutine( Play() );
+
+        try { await Play(); } // 플레이 도중 일시정지하여 로비로 이동할 경우 ( 비동기 작업 취소 )
+        catch ( OperationCanceledException ) { }
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        playCts?.Cancel();
+        playCts?.Dispose();
+        playCts = null;
+
+        NowPlaying.OnGameOver -= GameOver;
     }
 
     private void Update()
@@ -59,91 +80,101 @@ public class InGame : Scene
              AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
-    private IEnumerator Play()
+    private async UniTask Play()
     {
+        CancellationToken token = playCts.Token;
+
         // 로딩 완료 체크
-        yield return new WaitUntil( () => NowPlaying.IsLoaded );
+        await UniTask.WaitUntil( () => NowPlaying.IsLoaded, PlayerLoopTiming.Update, token );
         OnLoadEnd?.Invoke();
 
         // 로딩 후 대기시간
-        yield return YieldCache.WaitForSeconds( 3.5f );
+        await UniTask.WaitForSeconds( 3.5f, false, PlayerLoopTiming.Update, token );
         if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
         {
-            DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.CanvasFadeDuration );
-            
-            yield return new WaitUntil( () => loadingGroup.alpha <= 0f );
+            await DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.CanvasFadeDuration ).ToUniTask( TweenCancelBehaviour.Kill, token );
+
+            // yield return new WaitUntil( () => loadingGroup.alpha <= 0f );
             loadingCanvas.SetActive( false );
         }
 
         // 게임 시작
         NowPlaying.Inst.GameStart();
-        yield return new WaitUntil( () => NowPlaying.Playback > 0 );
+        await UniTask.WaitUntil( () => NowPlaying.Playback > 0, PlayerLoopTiming.Update, token );
         IsInputLock = false;
 
         // 게임 종료
-        yield return new WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count );
+        await UniTask.WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count , PlayerLoopTiming.Update, token);
         Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.Count} Judgements )" );
 
-        yield return YieldCache.WaitForSeconds( 5f ); // 5초 후 결과창으로
-        
-        // Time Thread 종료
-        Task task = NowPlaying.Inst.Release();
-        yield return new WaitUntil( () => task.IsCompleted );
-        LoadScene( SceneType.Result );
-        DataStorage.Inst.Release();
-    }
+        await UniTask.WaitForSeconds( 5f, false, PlayerLoopTiming.Update, token );
 
-    public async void BackToLobby()
-    {
         await NowPlaying.Inst.Release();
-        LoadScene( SceneType.FreeStyle );
         DataStorage.Inst.Release();
+
+        await LoadScene( SceneType.Result );
     }
 
-    public void Restart() => StartCoroutine( RestartAfterFade() );
-
-    protected IEnumerator RestartAfterFade()
+    public void BackToLobby()
     {
-        IsInputLock = true;
-        yield return StartCoroutine( FadeOut() );
+        UniTask.Void( async () =>
+        {
+            await NowPlaying.Inst.Release();
+            DataStorage.Inst.Release();
 
-        ImmediateDisableCanvas( ActionType.Main, pause );
-        ImmediateDisableCanvas( ActionType.Main, gameOver );
+            await LoadScene( SceneType.FreeStyle );
+        } );
+    }
 
-        Disconnect();
-        Connect();
+    public void Restart()
+    {
+        UniTask.Void( async () =>
+        {
+            IsInputLock = true;
+            await FadeOut();
 
-        NowPlaying.Inst.Clear();
-        yield return StartCoroutine( FadeIn() );
-        
-        NowPlaying.Inst.GameStart();
-        yield return new WaitUntil( () => NowPlaying.Playback > 0 );
-        IsInputLock = false;
+            ImmediateDisableCanvas( ActionType.Main, pause );
+            ImmediateDisableCanvas( ActionType.Main, gameOver );
+
+            Disconnect();
+            Connect();
+
+            NowPlaying.Inst.Clear();
+
+            await FadeIn();
+
+            NowPlaying.Inst.GameStart();
+            await UniTask.WaitUntil( () => NowPlaying.Playback > 0 );
+
+            IsInputLock = false;
+        } );
     }
 
     public void Pause( bool _isPause )
     {
-        if ( NowPlaying.TotalJudge <= Judgement.CurrentResult.Count )
+        UniTask.Void( async () =>
         {
-            LoadScene( SceneType.Result );
-        }
-        else
-        {
-            NowPlaying.Inst.Pause( _isPause );
-            if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
-            else            DisableCanvas( ActionType.Main, pause );
-        }
+            if ( NowPlaying.TotalJudge <= Judgement.CurrentResult.Count )
+            {
+                playCts?.Cancel();
+                playCts?.Dispose();
+                playCts = null;
+
+                await NowPlaying.Inst.Release();
+                DataStorage.Inst.Release();
+
+                await LoadScene( SceneType.Result );
+            }
+            else
+            {
+                if ( _isPause ) EnableCanvas(  ActionType.Pause, pause );
+                else            DisableCanvas( ActionType.Main,  pause );
+                await NowPlaying.Inst.Pause( _isPause );
+            }
+        } );
     }
 
-    public IEnumerator GameOver()
-    {
-        IsInputLock = true;
-
-        yield return StartCoroutine( NowPlaying.Inst.GameOver() );
-        EnableCanvas( ActionType.GameOver, gameOver, false );
-
-        IsInputLock = false;
-    }
+    public void GameOver() => EnableCanvas( ActionType.GameOver, gameOver, false );
 
     public override void KeyBind()
     {

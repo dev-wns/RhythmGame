@@ -43,10 +43,10 @@ public class Result : Scene
     //    }
     //}
 
-    public void BackToLobby()
+    public async void BackToLobby()
     {
         //DataStorage.Inst.Clear();
-        LoadScene( SceneType.FreeStyle );
+        await LoadScene( SceneType.FreeStyle );
         AudioManager.Inst.Play( SFX.MainClick );
     }
 

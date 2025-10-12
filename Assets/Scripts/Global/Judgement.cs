@@ -4,14 +4,14 @@ public enum HitResult : int { None = -2, Miss, Maximum, Perfect, Great, Good, Ba
 
 public class Judgement : Singleton<Judgement>
 {
-    private static class HitRange
+    public static class HitRange
     {
         public static readonly int Maximum = 16;
-        public static readonly int Perfect = 64;
-        public static readonly int Great   = 97;
-        public static readonly int Good    = 127;
-        public static readonly int Bad     = 151;
-        public static readonly int Miss    = 178; // 188
+        public static readonly int Perfect = 40;
+        public static readonly int Great   = 73;
+        public static readonly int Good    = 103;
+        public static readonly int Bad     = 127;
+        public static readonly int Miss    = 150; // 188
     }
     private static class HitScore
     {

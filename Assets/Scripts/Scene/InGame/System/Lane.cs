@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
-using static TreeEditor.TreeEditorHelper;
 
 public class Lane : MonoBehaviour
 {
@@ -17,8 +17,7 @@ public class Lane : MonoBehaviour
     private Queue<NoteRenderer> notes            = new ();
     private Queue<NoteRenderer> sliderMissQueue  = new ();
     private Queue<NoteRenderer> sliderEarlyQueue = new ();
-    public Queue<HitData>      dataQueue        = new ();
-
+    public  Queue<HitData>      dataQueue        = new ();
     private NoteRenderer curNote;
     private int          spawnIndex;
 
@@ -42,24 +41,43 @@ public class Lane : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnClear    += Clear;
-        NowPlaying.OnGameOver += GameOver;
+        ClearEffect();
+
+        NowPlaying.OnClear     += Clear;
+        NowPlaying.OnGameOver  += GameOver;
+        NowPlaying.OnPause     += Pause;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnClear    -= Clear;
-        NowPlaying.OnGameOver -= GameOver;
+        NowPlaying.OnClear     -= Clear;
+        NowPlaying.OnGameOver  -= GameOver;
+        NowPlaying.OnPause     -= Pause;
     }
 
 
     private void Update()
     {
         // 노트 스폰 후 데이터 체크
-        if ( NowPlaying.IsLoaded )
+        if ( NowPlaying.IsStart )
         {
-            SpawnNote();
+            SpawnNotes();
             CheckHitData();
+
+            if      ( Input.GetKeyDown( UKey ) ) inputRenderer.color = Color.gray;
+            else if ( Input.GetKeyUp(   UKey ) ) inputRenderer.color = Color.clear;
+
+            if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
+            {
+                float increment = LaneOffset * Time.deltaTime;
+                laneAlpha = Input.GetKey( UKey ) ? Global.Math.Clamp( laneAlpha + increment, 0f, 1f ) :
+                                                   Global.Math.Clamp( laneAlpha - increment, 0f, 1f );
+
+                if ( Global.Math.Abs( laneAlpha - laneRenderer.color.a ) > float.Epsilon )
+                     laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha );
+            }
+
+            UpdateHitEffect();
         }
 
         // 일찍 처리된 롱노트 판정선에 닿을 때 디스폰
@@ -81,25 +99,6 @@ public class Lane : MonoBehaviour
                 sliderMissQueue.Dequeue();
             }
         }
-
-        // 이펙트
-        if ( NowPlaying.IsStart )
-        {
-            if      ( Input.GetKeyDown( UKey ) ) inputRenderer.color = Color.gray;
-            else if ( Input.GetKeyUp(   UKey ) ) inputRenderer.color = Color.clear;
-        }
-
-        if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
-        {
-            float increment = LaneOffset * Time.deltaTime;
-            laneAlpha = !NowPlaying.IsStart   ? Global.Math.Clamp( laneAlpha - increment, 0f, 1f ) :
-                         Input.GetKey( UKey ) ? Global.Math.Clamp( laneAlpha + increment, 0f, 1f ) :
-                                                Global.Math.Clamp( laneAlpha - increment, 0f, 1f );
-
-            if ( Global.Math.Abs( laneAlpha - laneRenderer.color.a ) > float.Epsilon )
-                 laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha );
-        }
-        UpdateHitEffect();
     }
 
     #region Initialize
@@ -186,7 +185,7 @@ public class Lane : MonoBehaviour
     private void CheckHitData()
     {
         if ( curNote == null && notes.Count > 0 )
-              curNote = notes.Dequeue();
+             curNote = notes.Dequeue();
 
         // 판정 처리 ( Virtual Key 사용 )
         if ( curNote == null || !dataQueue.TryDequeue( out HitData data )  )
@@ -228,7 +227,8 @@ public class Lane : MonoBehaviour
             }
         }
     }
-    private void SpawnNote()
+
+    private void SpawnNotes()
     {
         if ( spawnIndex < NowPlaying.Notes[Key].Count )
         {
@@ -246,8 +246,10 @@ public class Lane : MonoBehaviour
 
     private void UpdateHitEffect()
     {
-        hitTimer += Time.deltaTime;
+        if ( !GameSetting.HasFlag( VisualFlag.HitEffect ) )
+             return;
 
+        hitTimer += Time.deltaTime;
         if ( !isHitLoop )
         {
             if ( hitTimer > hitIndex * hitOffset )
@@ -277,6 +279,9 @@ public class Lane : MonoBehaviour
 
     public void HitEffect( bool _isLoop = false )
     {
+        if ( !GameSetting.HasFlag( VisualFlag.HitEffect ) )
+             return;
+
         isHitLoop = _isLoop;
         if ( keyState == KeyState.Down )
         {
@@ -313,7 +318,6 @@ public class Lane : MonoBehaviour
             slider.Despawn();
         }
 
-        inputRenderer.color = Color.clear;
         dataQueue.Clear();
         notes.Clear();
         notePool.AllDespawn();
@@ -325,31 +329,38 @@ public class Lane : MonoBehaviour
 
     private void GameOver()
     {
-        //HitEffect(); // Up
         isHitLoop     = false;
-        inputRenderer.color = Color.clear;
+        ClearEffect();
 
         if ( curNote != null )
              curNote.IsKeyDown = false;
     }
 
+    private void ClearEffect()
+    {
+        inputRenderer.color = Color.clear;
+        hitRenderer.color   = Color.clear;
+        laneRenderer.color  = new Color( laneColor.r, laneColor.g, laneColor.b, 0f );
+    }
+
     private void Pause( bool _isPause )
     {
-        laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha = 0f );
-        if ( !_isPause || curNote == null || !curNote.IsSlider )
-             return;
+        ClearEffect();
+        //laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha = 0f );
+        //if ( !_isPause || curNote == null || !curNote.IsSlider )
+        //     return;
 
-        if ( GameSetting.HasFlag( GameMode.AutoPlay ) )
-        {
-            //judge.ResultUpdate( HitResult.Perfect, NoteType.Slider );
-            SelectNextNote();
-        }
-        else
-        {
-            curNote.SetSliderFail();
-            //judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
-            sliderMissQueue.Enqueue( curNote );
-            SelectNextNote( false );
-        }
+        //if ( GameSetting.HasFlag( GameMode.AutoPlay ) )
+        //{
+        //    //judge.ResultUpdate( HitResult.Perfect, NoteType.Slider );
+        //    SelectNextNote();
+        //}
+        //else
+        //{
+        //    curNote.SetSliderFail();
+        //    //judge.ResultUpdate( HitResult.Miss, NoteType.Slider );
+        //    sliderMissQueue.Enqueue( curNote );
+        //    SelectNextNote( false );
+        //}
     }
 }

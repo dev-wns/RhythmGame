@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
@@ -276,14 +277,16 @@ public class FreeStyleMainScroll : ScrollBase
     #endregion
 
     #region Input
-    private void SelectChart()
+    private async void SelectChart()
     {
         if ( !HasAnySongs ) return;
 
         GameSetting.NoteSizeMultiplier = NowPlaying.CurrentSong.keyCount == 4 ? 1.25f : 1f;
 
         AudioManager.Inst.Play( SFX.MainClick );
-        NowPlaying.CurrentScene.LoadScene( SceneType.Game );
+
+        
+        await NowPlaying.CurrentScene.LoadScene( SceneType.Game );
     }
     public override void PrevMove()
     {

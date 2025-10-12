@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 #pragma warning disable CS0162
@@ -43,7 +44,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private static List<KeySound> Samples;                                // 잘린 노트의 키음등이 추가된 BGM 리스트
 
     private Task timeTask;
-    private CancellationTokenSource breakPoint = new();
+    private CancellationTokenSource breakPoint;
     public static Action OnUpdateThread;
 
     [DllImport( "Kernel32.dll" )]
@@ -91,7 +92,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private async void OnApplicationQuit()
     {
-        await ThreadCancel();
+        await Release();
     }
 
     /// <summary> 게임 시작할 때마다 초기화 </summary>
@@ -119,10 +120,10 @@ public class NowPlaying : Singleton<NowPlaying>
         OnPreInit?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
     }
 
-    public async Task Load()
+    public async UniTask Load()
     {
         // Other Thread Loading
-        Task task = Task.Run( () =>
+        UniTask task = UniTask.RunOnThreadPool( () =>
         {
             // 키음 곡이 아닌 경우 프리뷰 음악을 재생한다.
             // 하나의 음악을 메인으로 재생하지만, Clap 등 자잘한 키음이 들어간 경우도 있다.
@@ -130,9 +131,7 @@ public class NowPlaying : Singleton<NowPlaying>
                   Samples.Add( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ) );
 
             for ( int i = 0; i < Samples.Count; i++ )
-            {
-                DataStorage.Inst.LoadSound( Samples[i].name );
-            }
+                  DataStorage.Inst.LoadSound( Samples[i].name );
 
             DivideNotes();
             OnAsyncInit?.Invoke();
@@ -163,10 +162,10 @@ public class NowPlaying : Singleton<NowPlaying>
         long end         = 0;
         long startTime   = start;
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
+        var  timings     = DataStorage.Timings;
         SpinWait spinner = new SpinWait();
-        var timings      = DataStorage.Timings;
 
-        Debug.Log( $"Time Thread Start( {_targetFrame} Frame, {targetTicks} ticks )" );
+        Debug.Log( $"Time Thread Start( {_targetFrame} Frame )" );
         while ( true )
         {
             _token.ThrowIfCancellationRequested();
@@ -216,25 +215,60 @@ public class NowPlaying : Singleton<NowPlaying>
         }
     }
 
-    private async Task ThreadCancel()
+    private void StartTimeTask()
     {
-        breakPoint?.Cancel();
-        try
+        if ( IsStart ) 
+             return;
+
+        breakPoint ??= new CancellationTokenSource();
+        timeTask = Task.Run( () => TimeUpdate( SystemSetting.InputTargetFrame, breakPoint.Token ) );
+
+        //IsStart = true;
+        //AudioManager.Inst.Pause = true;
+    }
+
+    private async UniTask StopTimeTask()
+    {
+        if ( breakPoint != null )
         {
-            if ( timeTask is not null )
-                 await timeTask;
-        }
-        catch ( OperationCanceledException )
-        {
-            Debug.Log( "Time Thread Cancel Completed" );
-        }
-        finally
-        {
-            breakPoint?.Dispose();
-            breakPoint = null;
-            timeTask   = null;
+            breakPoint.Cancel();
+            try
+            {
+                if ( timeTask != null )
+                     await timeTask;
+            }
+            catch ( OperationCanceledException )
+            {
+                Debug.Log( "Time Thread Cancel" );
+            }
+            finally
+            {
+                breakPoint.Dispose();
+                breakPoint = null;
+                timeTask   = null;
+            }
         }
     }
+
+    //private async Task ThreadCancel()
+    //{
+    //    breakPoint?.Cancel();
+    //    try
+    //    {
+    //        if ( timeTask is not null )
+    //             await timeTask;
+    //    }
+    //    catch ( OperationCanceledException )
+    //    {
+    //        Debug.Log( "Time Thread Cancel Completed" );
+    //    }
+    //    finally
+    //    {
+    //        breakPoint?.Dispose();
+    //        breakPoint = null;
+    //        timeTask = null;
+    //    }
+    //}
 
     private void DivideNotes()
     {
@@ -250,7 +284,6 @@ public class NowPlaying : Singleton<NowPlaying>
         for ( int i = 0; i < datas.Count; i++ )
         {
             Note newNote = datas[i];
-            
             newNote.isSlider = isNoSlider ? false : newNote.isSlider;
             if ( isConvert )
             {
@@ -276,7 +309,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.distance    = GetDistance( newNote.time );
+                    newNote.distance    = GetDistance( newNote.time    );
                     newNote.endDistance = GetDistance( newNote.endTime );
 
                     DataStorage.Inst.LoadSound( newNote.keySound.name );
@@ -308,8 +341,8 @@ public class NowPlaying : Singleton<NowPlaying>
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
                     prevTimes[selectLane] = newNote.isSlider ? newNote.endTime : newNote.time;
 
-                    newNote.distance    = GetDistance( newNote.time );
-                    newNote.endDistance = GetDistance( newNote.endTime );
+                    newNote.distance    = GetDistance( newNote.time    + GameSetting.SoundOffset );
+                    newNote.endDistance = GetDistance( newNote.endTime + GameSetting.SoundOffset );
 
                     DataStorage.Inst.LoadSound( newNote.keySound.name );
                     notes[selectLane].Add( newNote );
@@ -423,15 +456,16 @@ public class NowPlaying : Singleton<NowPlaying>
         OnClear?.Invoke();
     }
 
-    public async Task Release()
+    public async UniTask Release()
     {
-        StopAllCoroutines();
-        await ThreadCancel();
+        await StopTimeTask();
         
-        OnRelease?.Invoke();
+        IsStart   = false;
+        IsLoaded  = false;
         Notes     = null;
         Samples   = null;
-        IsLoaded  = false;
+
+        OnRelease?.Invoke();
     }
 
     public void GameStart()
@@ -443,11 +477,13 @@ public class NowPlaying : Singleton<NowPlaying>
         IsStart                 = true;
     }
 
-    public IEnumerator GameOver()
+    public async UniTask GameOver()
     {
         IsStart   = false;
-        Task task = ThreadCancel();
-        yield return new WaitUntil( () => task.IsCompleted );
+        CurrentScene.IsInputLock = true;
+
+        await StopTimeTask();
+        
         float speed = 1f;
         while ( speed > 0f )
         {
@@ -457,20 +493,21 @@ public class NowPlaying : Singleton<NowPlaying>
 
             Playback += speed * ( 1000f * Time.deltaTime );
             Distance  = DistanceCache + ( Playback - DataStorage.Timings[bpmIndex].time );
-            
-            yield return null;
+
+            await UniTask.Yield( PlayerLoopTiming.Update );
         }
 
         OnGameOver?.Invoke();
+        CurrentScene.IsInputLock = false;
     }
 
     /// <returns> FALSE : Playback is higher than the last note time. </returns>
-    public async void Pause( bool _isPause )
+    public async UniTask Pause( bool _isPause )
     {
         if ( _isPause )
         {
             IsStart = false;
-            await ThreadCancel();
+            await StopTimeTask();
 
             SaveTime = Playback;
             AudioManager.Inst.Pause  = true;
@@ -478,11 +515,11 @@ public class NowPlaying : Singleton<NowPlaying>
         }
         else
         {
-            StartCoroutine( Continue() );
+            await Continue();
         }
     }
 
-    private IEnumerator Continue()
+    private async UniTask Continue()
     {
         CurrentScene.IsInputLock = true;
         double recoil  = Playback - WaitPauseTime;
@@ -492,7 +529,7 @@ public class NowPlaying : Singleton<NowPlaying>
             Playback -= Time.deltaTime * 1200f;
             Distance = DistanceCache + ( Playback - timings[bpmIndex].time );
 
-            yield return null;
+            await UniTask.Yield( PlayerLoopTiming.Update );
         }
 
         while ( Playback < SaveTime )
@@ -500,12 +537,12 @@ public class NowPlaying : Singleton<NowPlaying>
             Playback += Time.deltaTime * 1200f;
             Distance = DistanceCache + ( Playback - timings[bpmIndex].time );
 
-            yield return null;
+            await UniTask.Yield( PlayerLoopTiming.Update );
         }
 
         OnPause?.Invoke( false );
-        breakPoint             ??= new CancellationTokenSource();
-        timeTask                 = Task.Run( () => { TimeUpdate( SystemSetting.InputTargetFrame, breakPoint.Token ); } );
+        StartTimeTask();
+
         AudioManager.Inst.Pause  = false;
         IsStart                  = true;
         CurrentScene.IsInputLock = false;

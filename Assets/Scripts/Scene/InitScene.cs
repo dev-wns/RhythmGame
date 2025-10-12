@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Collections;
 using System.Threading.Tasks;
@@ -9,8 +10,6 @@ public class InitScene : Scene
     public GameObject icon;
     public float rotateSpeed = 100f;
     private float curValue;
-
-    private bool isCompleted;
 
     protected override void Awake()
     {
@@ -64,32 +63,29 @@ public class InitScene : Scene
 
     protected async override void Start()
     {
-        StartCoroutine( RotateLoadingIcon() );
-        StartCoroutine( ParsingAfterSwitchScene() );
-        isCompleted = await Task.Run( DataStorage.Inst.LoadSongs );
+        await FadeIn();
+        await Task.Run( DataStorage.Inst.LoadSongs );
+        await UniTask.WaitForSeconds( 3f );
+
+        await LoadScene( SceneType.FreeStyle );
     }
 
-    private IEnumerator ParsingAfterSwitchScene()
+    private void Update()
     {
-        yield return StartCoroutine( FadeIn() );
-
-        yield return new WaitUntil( () => isCompleted );
-
-        yield return YieldCache.WaitForSeconds( 3f );
-
-        LoadScene( SceneType.FreeStyle );
+        curValue -= Time.deltaTime * rotateSpeed;
+        icon.transform.rotation = Quaternion.Euler( new Vector3( 0f, 0f, curValue ) );
     }
 
-    private IEnumerator RotateLoadingIcon()
-    {
-        while ( true )
-        {
-            yield return null;
+    //private IEnumerator ParsingAfterSwitchScene()
+    //{
+    //    yield return StartCoroutine( FadeIn() );
 
-            curValue -= Time.deltaTime * rotateSpeed;
-            icon.transform.rotation = Quaternion.Euler( new Vector3( 0f, 0f, curValue ) );
-        }
-    }
+    //    yield return new WaitUntil( () => isCompleted );
+
+    //    yield return YieldCache.WaitForSeconds( 3f );
+
+    //    LoadScene( SceneType.FreeStyle );
+    //}
 
     public override void KeyBind()
     {

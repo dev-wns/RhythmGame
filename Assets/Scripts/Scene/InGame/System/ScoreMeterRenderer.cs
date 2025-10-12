@@ -9,8 +9,8 @@ public class ScoreMeterRenderer : MonoBehaviour
     public float Diff { get; private set; }
     public bool IsActive { get; private set; }
 
-    private static readonly float AliveTime = .875f;
-    private static readonly float Duration  = 2.25f;
+    private static readonly float AliveTime = 1f;
+    private static readonly float Duration  = 2f;
     private float alpha;
     private float time;
 
