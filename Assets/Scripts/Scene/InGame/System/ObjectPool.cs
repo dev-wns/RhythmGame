@@ -12,13 +12,14 @@ public class ObjectPool<T> where T : MonoBehaviour
     private Transform parent;
     private List<T>  totalObjects = new List<T>();
     private Queue<T> waitObjects  = new Queue<T>();
-    private uint allocateCount;
-    public uint ActiveCount { get; private set; }
+    
+    private bool isActiveControl; // 렌더러의 enbled 등으로 처리하고싶을 때
+    public uint ActiveCount     { get; private set; }
+    public uint AllocateCount   { get; set; } = 1;
 
-    public ObjectPool( T _prefab, uint _initializeCount, uint _allocateCount = 1 )
+    public ObjectPool( T _prefab, uint _initAlloc, bool _isActiveCtrl = true )
     {
-        allocateCount = _allocateCount;
-
+        isActiveControl = _isActiveCtrl;
         if ( ReferenceEquals( _prefab, null ) )
         {
             Debug.LogError( "objectpool Constructor failed" );
@@ -39,31 +40,32 @@ public class ObjectPool<T> where T : MonoBehaviour
         parentObj.name = string.Format( "{0} Pool", typeof( T ).Name );
 
         parent = parentObj.transform;
-        Allocate( _initializeCount );
+        Allocate( _initAlloc );
     }
 
-    public ObjectPool( T _prefab, Transform _parent, uint _initializeCount, uint _allocateCount = 1 )
+    public ObjectPool( T _prefab, Transform _parent, uint _initAlloc, bool _isActiveCtrl = true )
     {
-        allocateCount = _allocateCount;
-
+        isActiveControl = _isActiveCtrl;
         if ( ReferenceEquals( _prefab, null ) )
         {
             Debug.LogError( "objectpool Constructor failed" );
         }
         prefab = _prefab;
         parent = _parent;
-        Allocate( _initializeCount );
+        Allocate( _initAlloc );
     }
 
-    private void Allocate( uint _allocateCount )
+    private void Allocate( uint _count )
     {
-        for ( int i = 0; i < _allocateCount; i++ )
+        for ( int i = 0; i < _count; i++ )
         {
             T obj = UnityEngine.GameObject.Instantiate( prefab, parent );
             if ( obj.TryGetComponent( out IObjectPool<T> _base ) )
                  _base.pool = this;
 
-            obj.gameObject.SetActive( false );
+            if ( isActiveControl )
+                 obj.gameObject.SetActive( false );
+
             totalObjects.Add( obj );
             waitObjects.Enqueue( obj );
         }
@@ -72,10 +74,12 @@ public class ObjectPool<T> where T : MonoBehaviour
     public T Spawn()
     {
         if ( waitObjects.Count == 0 )
-            Allocate( allocateCount );
+            Allocate( AllocateCount );
 
         T obj = waitObjects.Dequeue();
-        obj.gameObject.SetActive( true );
+        if ( isActiveControl )
+             obj.gameObject.SetActive( true );
+
         ActiveCount++;
 
         return obj;
@@ -83,7 +87,9 @@ public class ObjectPool<T> where T : MonoBehaviour
 
     public void Despawn( T _obj )
     {
-        _obj.gameObject.SetActive( false );
+        if ( isActiveControl )
+             _obj.gameObject.SetActive( false );
+
         waitObjects.Enqueue( _obj );
         ActiveCount--;
     }

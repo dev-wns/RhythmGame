@@ -5,51 +5,53 @@ public class ScoreMeterRenderer : MonoBehaviour, IObjectPool<ScoreMeterRenderer>
 {
     public ObjectPool<ScoreMeterRenderer> pool { get; set; }
 
-    private Image image;
-    private Color32 colorCache;
-    private RectTransform rectTransform;
+    private SpriteRenderer rdr;
+    private Color colorCache;
 
-    private static readonly float Duration = 2.5f;
+    private static readonly float AliveTime = .875f;
+    private static readonly float Duration  = 2.25f;
     private float alpha;
     private float offset;
-    private bool isStart;
+    public bool isStart;
+    private float time;
 
     private void Awake()
     {
-        image = GetComponent<Image>();
-        rectTransform = transform as RectTransform;
+        rdr = GetComponent<SpriteRenderer>();
+        Clear();
     }
 
     private void Update()
     {
         if ( !isStart )
-            return;
+             return;
 
-        alpha -= ( Time.deltaTime / Duration ) * offset;
-        image.color = new Color( colorCache.r, colorCache.g, colorCache.b, alpha );
-
-        if ( alpha <= 0f )
+        time += Time.deltaTime;
+        if ( time > AliveTime )
         {
-            isStart = false;
-            pool.Despawn( this );
+            alpha -= ( Time.deltaTime / Duration ) * offset;
+            rdr.color = new Color( colorCache.r, colorCache.g, colorCache.b, alpha );
+
+            if ( alpha <= 0f )
+            {
+                Clear();
+                pool.Despawn( this );
+            }
         }
     }
 
-    public void Despawn()
+    public void Clear()
+    {
+        isStart   = false;
+        rdr.color = Color.clear;
+        time      = 0f;
+    }
+
+    public void SetInfo( Color _color, Vector2 _pos )
     {
         isStart = true;
-    }
-
-    public void ImmediateDespawn()
-    {
-        isStart = false;
-        pool.Despawn( this );
-    }
-
-    public void SetInfo( Color32 _color, Vector2 _pos )
-    {
-        colorCache = image.color = _color;
+        colorCache = rdr.color = _color;
         alpha = offset = _color.a;
-        rectTransform.anchoredPosition = _pos;
+        transform.position = _pos;
     }
 }
