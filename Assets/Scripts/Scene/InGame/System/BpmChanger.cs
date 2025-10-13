@@ -9,29 +9,29 @@ public class BpmChanger : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnGameStart += GameStart;
-        NowPlaying.OnPreInit   += Clear;
-        NowPlaying.OnClear     += Clear;
+        NowPlaying.OnInitialize += Clear;
+        NowPlaying.OnGameStart  += GameStart;
+        NowPlaying.OnClear      += Clear;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnGameStart -= GameStart;
-        NowPlaying.OnPreInit   -= Clear;
-        NowPlaying.OnClear     -= Clear;
+        NowPlaying.OnInitialize -= Clear;
+        NowPlaying.OnGameStart  -= GameStart;
+        NowPlaying.OnClear      -= Clear;
     }
 
     private void Clear()
     {
         StopAllCoroutines();
-        text.text = $"{Mathf.RoundToInt( ( float ) ( DataStorage.Timings[0].bpm * GameSetting.CurrentPitch ) )}";
+        text.text = $"{Mathf.RoundToInt( ( float ) ( NowPlaying.Timings[0].bpm * GameSetting.CurrentPitch ) )}";
     }
 
     private void GameStart() => StartCoroutine( UpdateBPM() );
 
     private IEnumerator UpdateBPM()
     {
-        var    timings  = DataStorage.Timings;
+        var    timings  = NowPlaying.Timings;
         int    bpmIndex = 0;
         double bpmTime  = timings[bpmIndex].time;
         while ( bpmIndex < timings.Count )
@@ -57,18 +57,4 @@ public class BpmChanger : MonoBehaviour
             }
         }
     }
-
-    // private void LateUpdate()
-    // {
-    //     if ( curIndex < timings.Count && time < NowPlaying.Playback )
-    //     {
-    //         text.text = $"{( int )curTiming.bpm}";
-    //         if ( ++curIndex < timings.Count )
-    //         {
-    //             curTiming = timings[curIndex];
-    //             time = curIndex + 1 < timings.Count && Global.Math.Abs( timings[curIndex + 1].time - curTiming.time ) > DelayTime ?
-    //                    curTiming.time + DelayTime : curTiming.time;
-    //         }
-    //     }
-    // }
 }

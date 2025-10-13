@@ -13,7 +13,7 @@ public class MeasureSystem : MonoBehaviour
     {
         if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
         {
-            NowPlaying.OnAsyncInit += CreateMeasure;
+            NowPlaying.OnLoadAsync += CreateMeasure;
             NowPlaying.OnGameStart += GameStart;
             NowPlaying.OnClear     += Clear;
         }
@@ -25,7 +25,7 @@ public class MeasureSystem : MonoBehaviour
     {
         if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
         {
-            NowPlaying.OnAsyncInit -= CreateMeasure;
+            NowPlaying.OnLoadAsync -= CreateMeasure;
             NowPlaying.OnGameStart -= GameStart;
             NowPlaying.OnClear     -= Clear;
         }
@@ -56,9 +56,9 @@ public class MeasureSystem : MonoBehaviour
 
     private void CreateMeasure()
     {
-        var timings          = DataStorage.Timings;
+        var timings          = NowPlaying.Timings;
         var totalTime        = NowPlaying.CurrentSong.totalTime;
-        double startNoteTime = DataStorage.Notes[0].time;
+        double startNoteTime = NowPlaying.OriginNotes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
             // 마디선 계산은 상속된 타이밍만

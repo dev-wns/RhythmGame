@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -26,14 +27,6 @@ public class DataStorage : Singleton<DataStorage>
     public static USER_INFO? UserInfo { get; set; }
     public static STAGE_INFO? StageInfo { get; set; }
 
-    [Header( "Origin Parsing Data" )]
-    public static ReadOnlyCollection<Song>         OriginSongs { get; private set; } // 원본 음악 리스트
-    public static ReadOnlyCollection<Note>         Notes       { get; private set; }
-    public static ReadOnlyCollection<Timing>       Timings     { get; private set; } // BPM Timing
-    public static ReadOnlyCollection<KeySound>     Samples     { get; private set; } // 배경음
-    public static ReadOnlyCollection<SpriteSample> Backgrounds { get; private set; }
-    public static ReadOnlyCollection<SpriteSample> Foregrounds { get; private set; }
-
     [Header( "Resource" )]
     private BMPLoader bitmapLoader = new ();
     private Dictionary<string/* name */, Texture2D>  loadedTextures = new ();
@@ -45,16 +38,10 @@ public class DataStorage : Singleton<DataStorage>
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
 
-    public static event Action<Song> OnParsing;
-
     protected override void Awake()
     {
         base.Awake();
 
-        // UnityWebRequest( Coroutine ) 사용
-        NowPlaying.OnPostInit += () => StartCoroutine( LoadTextures() );
-
-        // Default Resource
         LoadAssetsAsync( "DefaultTexture", ( Texture2D texture ) => textures.Add( texture ) );
     }
 
@@ -65,8 +52,6 @@ public class DataStorage : Singleton<DataStorage>
 
     public void Release()
     {
-        StopAllCoroutines();
-
         foreach ( var texture in loadedTextures )
             DestroyImmediate( texture.Value, true );
 
@@ -77,62 +62,6 @@ public class DataStorage : Singleton<DataStorage>
         loadedSounds.Clear();
         Debug.Log( $"DataStorage Release" );
     }
-
-    #region Parsing
-    public bool LoadSongs()
-    {
-        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
-        List<Song> newSongs = new List<Song>();
-        string[] files = Global.Path.GetFilesInSubDirectories( Global.Path.SoundDirectory, "*.osu" );
-        for ( int i = 0; i < files.Length; i++ )
-        {
-            using ( FileParser parser = new FileParser() )
-            {
-                if ( parser.TryParse( files[i], out Song newSong ) )
-                     newSongs.Add( newSong );
-
-                OnParsing?.Invoke( newSong );
-            }
-        }
-
-        newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
-        for ( int i = 0; i < newSongs.Count; i++ )
-        {
-            Song song   = newSongs[i];
-            song.index  = i;
-            newSongs[i] = song;
-        }
-        OriginSongs = new ReadOnlyCollection<Song>( newSongs );
-
-        // 파일 수정하고 싶을 때 사용
-        //for ( int i = 0; i < OriginSongs.Count; i++ )
-        //{
-        //    using ( FileParser parser = new FileParser() )
-        //        parser.ReWrite( OriginSongs[i] );
-        //}
-
-        return true;
-    }
-
-    public void LoadChart()
-    {
-        using ( FileParser parser = new FileParser() )
-        {
-            if ( parser.TryParse( NowPlaying.CurrentSong.filePath, out Chart chart ) )
-            {
-                Notes       = chart.notes;
-                Timings     = chart.timings;
-                Samples     = chart.samples;
-                Backgrounds = chart.backgrounds;
-                Foregrounds = chart.foregrounds;
-            }
-            else
-            {
-                // Goto FreeStyle
-            }
-        }
-    }
-    #endregion
 
     #region Addressable
     public void LoadAssetsAsync<T>( string _label, Action<T> _OnCompleted ) where T : UnityEngine.Object
@@ -183,31 +112,33 @@ public class DataStorage : Singleton<DataStorage>
     #endregion
 
     #region Texture
-    public void LoadTexture( string _name, Action _OnCompleted = null ) => StartCoroutine( LoadExternalTexture( new SpriteSample( _name ), _OnCompleted ) );
     public bool GetTexture( string _name, out Texture2D _tex ) => loadedTextures.TryGetValue( _name, out _tex );
     public Texture2D GetDefaultTexture() => textures[( ++texIndex < textures.Count ? texIndex : texIndex = 0 )];
-    private IEnumerator LoadTextures()
-    {
-        // 스프라이트 배경 로딩 ( UnityWebRequest, Main Thread에서 사용 )
-        for ( int i = 0; i < Backgrounds.Count; i++ )
-              yield return StartCoroutine( LoadExternalTexture( Backgrounds[i] ) );
-
-        for ( int i = 0; i < Foregrounds.Count; i++ )
-              yield return StartCoroutine( LoadExternalTexture( Foregrounds[i] ) );
-    }
-
-    private IEnumerator LoadExternalTexture( SpriteSample _sprite, Action _OnCompleted = null )
+    public async UniTask LoadTexture( SpriteSample _sprite, Action _OnCompleted = null )
     {
         var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
+
         // 파일이 없거나, 이미 로딩된 파일일 경우
         if ( !File.Exists( path ) || loadedTextures.ContainsKey( _sprite.name ) )
-             yield break;
+             return;
         
         if ( Path.GetExtension( path ) == ".bmp" )
         {
             // 비트맵 파일은 런타임에서 읽히지 않음( 외부 도움 )
-            BMPImage img = bitmapLoader.LoadBMP( path );
-            loadedTextures.Add( _sprite.name, img.ToTexture2D( TextureFormat.RGB24 ) );
+            BMPImage  img = bitmapLoader.LoadBMP( path );
+            Texture2D tex = img.ToTexture2D( TextureFormat.RGBA32 );
+
+            // 전경인 경우 비트맵 배경이 검은색으로 되어있음
+            Color32[] pixels = tex.GetPixels32();
+            for ( int i = 0; i < pixels.Length; i++ )
+            {
+                if ( pixels[i].r == 0 && pixels[i].g == 0 && pixels[i].b == 0 )
+                     pixels[i].a = 0;
+            }
+            tex.SetPixels32( pixels );
+            tex.Apply();
+
+            loadedTextures.Add( _sprite.name, tex );
         }
         else
         {
@@ -218,7 +149,7 @@ public class DataStorage : Singleton<DataStorage>
                 using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
                 {
                     www.downloadHandler = handler;
-                    yield return www.SendWebRequest();
+                    await www.SendWebRequest();
 
                     if ( www.result == UnityWebRequest.Result.ConnectionError ||
                          www.result == UnityWebRequest.Result.ProtocolError )
@@ -230,6 +161,7 @@ public class DataStorage : Singleton<DataStorage>
         }
 
         _OnCompleted?.Invoke();
+        await UniTask.Yield( PlayerLoopTiming.Update );
     }
     #endregion
 

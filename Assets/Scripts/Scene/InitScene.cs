@@ -64,7 +64,7 @@ public class InitScene : Scene
     protected async override void Start()
     {
         await FadeIn();
-        await Task.Run( DataStorage.Inst.LoadSongs );
+        await Task.Run( NowPlaying.Inst.LoadSongs );
         await UniTask.WaitForSeconds( 3f );
 
         await LoadScene( SceneType.FreeStyle );

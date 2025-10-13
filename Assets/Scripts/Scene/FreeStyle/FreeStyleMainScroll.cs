@@ -1,10 +1,9 @@
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
+using TMPro;
 
 public class FreeStyleMainScroll : ScrollBase
 {
@@ -100,7 +99,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     public void UpdateScrollView()
     {
-        Length = NowPlaying.Inst.Songs.Count;
+        Length = NowPlaying.Songs.Count;
 
         noContents.SetActive( !HasAnySongs );
         if ( HasAnySongs )
@@ -179,11 +178,10 @@ public class FreeStyleMainScroll : ScrollBase
     #region Update Song & Scroll
     private void UpdateSongElements()
     {
-        Length = NowPlaying.Inst.Songs.Count;
+        Length = NowPlaying.Songs.Count;
 
         // 이전 UI 이펙트 초기화
         int medianCounts = 0;
-        //medianNode?.Value.Select( false );
         medianNode = songs.First;
         Select( NowPlaying.CurrentIndex );
         int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
@@ -198,7 +196,7 @@ public class FreeStyleMainScroll : ScrollBase
             }
 
             song.gameObject.SetActive( HasAnySongs );
-            song.SetInfo( NowPlaying.Inst.Songs[index] );
+            song.SetInfo( NowPlaying.Songs[index] );
             song.PositionReset();
 
             index = index + 1 < Length ? index + 1 : 0;
@@ -221,7 +219,6 @@ public class FreeStyleMainScroll : ScrollBase
         maxText.text = $"{Length}";
         curText.text = $"{CurrentIndex + 1}";
 
-        //medianNode.Value.Select( true );
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
 
@@ -299,7 +296,7 @@ public class FreeStyleMainScroll : ScrollBase
         // Song 정보 수정
         int infoIndex = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
                                                     ( CurrentIndex - median ) % Length;
-        last.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
+        last.SetInfo( NowPlaying.Songs[infoIndex] );
 
         // 노드 이동
         songs.RemoveLast();
@@ -307,9 +304,7 @@ public class FreeStyleMainScroll : ScrollBase
         last.rt.SetAsFirstSibling();
 
         // 위치 갱신
-        //medianNode.Value.Select( false );
         medianNode = medianNode.Previous;
-        //medianNode.Value.Select( true );
 
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
@@ -335,7 +330,7 @@ public class FreeStyleMainScroll : ScrollBase
 
         // Song 정보 수정
         int infoIndex = ( CurrentIndex + median ) % Length;
-        first.SetInfo( NowPlaying.Inst.Songs[infoIndex] );
+        first.SetInfo( NowPlaying.Songs[infoIndex] );
 
         // 노드 이동
         songs.RemoveFirst();
@@ -343,9 +338,7 @@ public class FreeStyleMainScroll : ScrollBase
         first.rt.SetAsLastSibling();
 
         // 위치 갱신
-        //medianNode.Value.Select( false );
         medianNode = medianNode.Next;
-        //medianNode.Value.Select( true );
 
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );

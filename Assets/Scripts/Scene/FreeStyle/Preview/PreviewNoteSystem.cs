@@ -15,8 +15,9 @@ public class PreviewNoteSystem : MonoBehaviour
     private Note curData;
 
     public FreeStyleMainScroll scroll;
-    private Chart chart;
 
+    private List<Timing> timings;
+    private List<Note>   notes;
     private int timingIndex;
     private double mainBPM;
 
@@ -27,7 +28,6 @@ public class PreviewNoteSystem : MonoBehaviour
     private double bpmTime;
     private double prevBPM;
     private Timing curTiming;
-    public static Timing FirstTiming;
 
     public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset + GameSetting.SoundOffset;
     public static double Distance { get; private set; }
@@ -62,7 +62,6 @@ public class PreviewNoteSystem : MonoBehaviour
         Distance       = 0d;
         DistanceCache  = 0d;
 
-        var notes = chart.notes;
         for ( spawnIndex = 0; spawnIndex < notes.Count; spawnIndex++ )
         {
             if ( notes[spawnIndex].time > Playback )
@@ -76,7 +75,6 @@ public class PreviewNoteSystem : MonoBehaviour
             }
         }
 
-        var timings = chart.timings;
         for ( timingIndex = 0; timingIndex + 1 < timings.Count; timingIndex++ )
         {
             double time = timings[timingIndex].time;
@@ -107,10 +105,8 @@ public class PreviewNoteSystem : MonoBehaviour
         mainBPM = _song.mainBPM;
         using ( FileParser parser = new FileParser() )
         {
-            if ( !parser.TryPreviewParse( _song.filePath, out chart ) )
+            if ( !parser.TryParse( _song.filePath, out notes, out timings ) )
                  Debug.LogWarning( $"Parsing failed  Current Chart : {_song.title}" );
-
-            FirstTiming = chart.timings[0];
         }
 
         Restart( _song );
@@ -123,7 +119,6 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void Update()
     {
-        var timings = chart.timings;
         for ( int i = timingIndex; i < timings.Count; i++ )
         {
             double time = timings[i].time;
@@ -139,7 +134,6 @@ public class PreviewNoteSystem : MonoBehaviour
             Distance = DistanceCache + ( bpm * ( Playback - time ) );
             break; 
         }
-
 
         if ( bpmIndex < timings.Count && bpmTime < Playback )
         {
@@ -170,7 +164,7 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void SpawnNotes( double _distance )
     {
-        while ( spawnIndex < chart.notes.Count && curData.distance <= _distance + MinDistance )
+        while ( spawnIndex < notes.Count && curData.distance <= _distance + MinDistance )
         {
             PreviewNoteRenderer note = notePool.Spawn();
             
@@ -182,9 +176,9 @@ public class PreviewNoteSystem : MonoBehaviour
                                               curData.lane == 3                      ? new Color( 1f, 0.8274511f, 0.2117647f, 1f ) : Color.white;
 
             note.SetInfo( curData, noteStartPos, color );
-            if ( ++spawnIndex < chart.notes.Count )
+            if ( ++spawnIndex < notes.Count )
             {
-                curData = chart.notes[spawnIndex];
+                curData = notes[spawnIndex];
                 curData.distance = GetDistance( curData.time );
                 if ( curData.isSlider )
                      curData.endDistance = GetDistance( curData.endTime );
@@ -195,7 +189,6 @@ public class PreviewNoteSystem : MonoBehaviour
     public double GetDistance( double _time )
     {
         double result = 0d;
-        var timings = chart.timings;
         for ( int i = 0; i < timings.Count; i++ )
         {
             double time = timings[i].time;

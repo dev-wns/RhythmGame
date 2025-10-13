@@ -104,21 +104,23 @@ public class FileParser : FileConverter
         return true;
     }
 
-    public bool TryParse( string _path, out Chart _chart )
+    public bool TryParse( string _path, out List<Note> _notes, out List<Timing> _timings, out List<SpriteSample> _sprites, out List<KeySound> _samples )
     {
-        _chart = new Chart();
+        _notes       = new List<Note>();
+        _timings     = new List<Timing>();
+        _samples     = new List<KeySound>();
+        _sprites     = new List<SpriteSample>();
+
         try
         {
             OpenFile( _path );
-            while ( ReadLine() != "[Timings]" )
-            { }
+            while ( ReadLine() != "[Timings]" ) { }
 
             #region Timings
             Timing curTiming  = new Timing();
             Timing prevTiming = new Timing( double.MinValue, double.MinValue );
-            List<Timing> timings = new List<Timing>();
+            
             List<Timing> uninheritedTimings = new List<Timing>();
-
             bool hasFixedBPM = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM );
             while ( ReadLine() != "[Sprites]" )
             {
@@ -133,7 +135,7 @@ public class FileParser : FileConverter
                 {
                     curTiming.bpm = NowPlaying.CurrentSong.mainBPM;
                     uninheritedTimings.Add( curTiming );
-                    timings.Add( curTiming );
+                    _timings.Add( curTiming );
 
                     while ( ReadLine() != "[Sprites]" ) { }
                     break;
@@ -142,14 +144,12 @@ public class FileParser : FileConverter
                 if ( curTiming.isUninherited == 1 )
                      uninheritedTimings.Add( curTiming );
 
-                timings.Add( curTiming );
+                _timings.Add( curTiming );
                 prevTiming = curTiming;
             }
             #endregion
 
             #region Sprite Samples
-            List<SpriteSample> backgrounds = new List<SpriteSample>();
-            List<SpriteSample> foregrounds = new List<SpriteSample>();
             while ( ReadLine() != "[Samples]" )
             {
                 SpriteSample sprite;
@@ -160,13 +160,11 @@ public class FileParser : FileConverter
                 sprite.end   = double.Parse( split[2] ) / GameSetting.CurrentPitch;
                 sprite.name  = split[3];
 
-                if      ( sprite.type == SpriteType.Background ) backgrounds.Add( sprite );
-                else if ( sprite.type == SpriteType.Foreground ) foregrounds.Add( sprite );
+                _sprites.Add( sprite );
             }
             #endregion
 
             #region BGM
-            List<KeySound> samples = new List<KeySound>();
             while ( ReadLine() != "[Notes]" )
             {
                 KeySound sample;
@@ -176,12 +174,11 @@ public class FileParser : FileConverter
                 sample.volume = float.Parse( split[1] ) * .01f;
                 sample.name   = split[2];
 
-                samples.Add( sample );
+                _samples.Add( sample );
             }
             #endregion
 
             #region Notes
-            List<Note>     notes     = new List<Note>();
             bool isConvert      = GameSetting.HasFlag( GameMode.ConvertKey ) && NowPlaying.CurrentSong.keyCount == 7;
             bool isNoSliderFlag = GameSetting.HasFlag( GameMode.NoSlider );
             while ( ReadLineEndOfStream() )
@@ -196,17 +193,11 @@ public class FileParser : FileConverter
 
                 var keySoundSplit = split[3].Split( ':' );
                 note.keySound = new KeySound( note.time, keySoundSplit[1], float.Parse( keySoundSplit[0] ) * .01f );
-                notes.Add( note );
+                _notes.Add( note );
             }
 
-            if ( timings.Count == 0 )
+            if ( _timings.Count == 0 )
                  throw new Exception( "Note Parsing Error" );
-
-            _chart.notes       = new ReadOnlyCollection<Note>( notes );
-            _chart.timings     = new ReadOnlyCollection<Timing>( timings );
-            _chart.samples     = new ReadOnlyCollection<KeySound>( samples );
-            _chart.backgrounds = new ReadOnlyCollection<SpriteSample>( backgrounds );
-            _chart.foregrounds = new ReadOnlyCollection<SpriteSample>( foregrounds );
             #endregion
         }
         catch ( Exception _error )
@@ -218,9 +209,11 @@ public class FileParser : FileConverter
         return true;
     }
 
-    public bool TryPreviewParse( string _path, out Chart _chart )
+    /// <summary> 프리스타일에서 사용할 최소 차트 </summary>
+    public bool TryParse( string _path, out List<Note> _notes, out List<Timing> _timings )
     {
-        _chart = new Chart();
+        _notes   = new List<Note>();
+        _timings = new List<Timing>();
         try
         {
             OpenFile( _path );
@@ -229,7 +222,6 @@ public class FileParser : FileConverter
 
             #region Timings
             Timing curTiming = new Timing();
-            List<Timing> timings = new List<Timing>();
             while ( ReadLine() != "[Sprites]" )
             {
                 var split = line.Split( ',' );
@@ -238,44 +230,13 @@ public class FileParser : FileConverter
                 curTiming.beatLength = double.Parse( split[1] );
                 curTiming.bpm        = ( 1d / curTiming.beatLength ) * 60000d;
 
-                timings.Add( curTiming );
+                _timings.Add( curTiming );
             }
-
-            //// 중복 제거
-            //int removeCount = 0;
-            //for ( int i = 0; i < timings.Count; i++ )
-            //{
-            //    ReCheck:
-            //    Timing current = timings[i];
-            //    if ( i + 1 < timings.Count )
-            //    {
-            //        Timing next = timings[i + 1];
-            //        if ( next.time - current.time < double.Epsilon )
-            //        {
-            //            timings.Remove( current );
-            //            removeCount++;
-            //            goto ReCheck;
-            //        }
-
-            //        if ( Global.Math.Abs( next.bpm - current.bpm ) < double.Epsilon )
-            //        {
-            //            timings.Remove( next );
-            //            removeCount++;
-            //            goto ReCheck;
-            //        }
-            //    }
-            //}
-
-            //if ( removeCount > 0 )
-            //     Debug.Log( $"Removed \"{NowPlaying.CurrentSong.title}\" {removeCount} Timings ( Alive : {timings.Count} )" );
-
-            _chart.timings = new ReadOnlyCollection<Timing>( timings );
             #endregion
 
             #region Notes
             while ( ReadLine() != "[Notes]" ) { }
 
-            List<Note> notes = new List<Note>();
             while ( ReadLineEndOfStream() )
             {
                 Note note = new Note();
@@ -283,16 +244,14 @@ public class FileParser : FileConverter
 
                 note.lane       = int.Parse( split[0] );
                 note.time       = double.Parse( split[1] );
-                note.endTime = double.Parse( split[2] );
+                note.endTime    = double.Parse( split[2] );
                 note.isSlider   = note.endTime > 0d ? true : false;
 
-                notes.Add( note );
+                _notes.Add( note );
             }
 
-            if ( timings.Count == 0 )
-                throw new Exception( "Note Parsing Error" );
-
-            _chart.notes = new ReadOnlyCollection<Note>( notes );
+            if ( _timings.Count == 0 )
+                 throw new Exception( "Note Parsing Error" );
             #endregion
         }
         catch ( Exception _error )

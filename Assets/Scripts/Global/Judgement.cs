@@ -64,8 +64,8 @@ public class Judgement : Singleton<Judgement>
     protected override void Awake()
     {
         base.Awake();
-        NowPlaying.OnPreInit += Initialize;
-        NowPlaying.OnClear   += Clear;
+        NowPlaying.OnInitialize += Initialize;
+        NowPlaying.OnClear      += Clear;
     }
 
     private void Initialize()

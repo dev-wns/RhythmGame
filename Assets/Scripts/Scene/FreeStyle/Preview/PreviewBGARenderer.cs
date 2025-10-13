@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
-using static UnityEditor.MaterialProperty;
 
 public class PreviewBGARenderer : MonoBehaviour
 {

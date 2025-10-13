@@ -31,8 +31,8 @@ public class HealthSystem : MonoBehaviour
     private float healthTileOffset;
     private float healthScaleTimer;
 
-    [Header( "Asynchronous" )]
-    private CancellationTokenSource breakPoint;
+    //[Header( "Asynchronous" )]
+    //private CancellationTokenSource breakPoint;
 
     private void Awake()
     {
@@ -50,8 +50,8 @@ public class HealthSystem : MonoBehaviour
         NowPlaying.OnClear     -= Clear;
         InputManager.OnHitNote -= UpdateHealth;
 
-        breakPoint?.Cancel();
-        breakPoint?.Dispose();
+        //breakPoint?.Cancel();
+        //breakPoint?.Dispose();
     }
 
     private void Clear()

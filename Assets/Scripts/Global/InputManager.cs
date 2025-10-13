@@ -57,10 +57,10 @@ public class InputManager : Singleton<InputManager>
 
     #region Properties
     public static Dictionary<KeyCode, string>.KeyCollection AvailableKeys => UnityToString.Keys;
-    public static bool IsAvailable( KeyCode _key )      => UnityToString.ContainsKey( _key );
-    public static KeyCode GetKeyCode( int _vKey )       => VKeyToUnity.TryGetValue( _vKey, out KeyCode keyCode ) ? keyCode : KeyCode.None;
-    public static int GetVirtualKey( KeyCode _keyCode ) => UnityToVKey.TryGetValue( _keyCode, out int vKey ) ? vKey : -1;
-    public static string GetString( KeyCode _code )     => UnityToString.ContainsKey( _code ) ? UnityToString[_code] : "None";
+    public static bool    IsAvailable( KeyCode _key )       => UnityToString.ContainsKey( _key );
+    public static int     GetVirtualKey( KeyCode _keyCode ) => UnityToVKey.TryGetValue( _keyCode, out int vKey ) ? vKey : -1;
+    public static string  GetString( KeyCode _code )        => UnityToString.ContainsKey( _code ) ? UnityToString[_code] : "None";
+    public static KeyCode GetKeyCode( int _vKey )           => VKeyToUnity.TryGetValue( _vKey, out KeyCode keyCode ) ? keyCode : KeyCode.None;
     #endregion
 
     protected override void Awake()
@@ -79,7 +79,7 @@ public class InputManager : Singleton<InputManager>
         KeyMapping();
 
         // 이벤트 연결
-        NowPlaying.OnPreInit         += PreInitialize;
+        NowPlaying.OnInitialize      += Initialize;
         NowPlaying.OnUpdateInThread  += UpdateInput;
         NowPlaying.OnRelease         += Release;
         NowPlaying.OnClear           += Clear;
@@ -111,7 +111,7 @@ public class InputManager : Singleton<InputManager>
         }
     }
 
-    private void PreInitialize()
+    private void Initialize()
     {
         VKey      = new int       [NowPlaying.KeyCount];
         Indexes   = new int       [NowPlaying.KeyCount];

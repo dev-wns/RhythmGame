@@ -22,7 +22,7 @@ public class Gear : MonoBehaviour
     public  Transform laneParent;
     private List<Lane> lanes = new();
 
-    private void PreInitialize()
+    private void Initialize()
     {
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
@@ -39,14 +39,14 @@ public class Gear : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnPreInit   += PreInitialize;
-        InputManager.OnHitNote += Transfer;
+        NowPlaying.OnInitialize += Initialize;
+        InputManager.OnHitNote  += Transfer;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnPreInit   -= PreInitialize;
-        InputManager.OnHitNote -= Transfer;
+        NowPlaying.OnInitialize -= Initialize;
+        InputManager.OnHitNote  -= Transfer;
     }
 
     private void Start()

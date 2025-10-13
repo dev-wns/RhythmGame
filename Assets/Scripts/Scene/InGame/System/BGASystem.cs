@@ -21,14 +21,13 @@ public class BGASystem : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnPreInit       += Initialize;
         AudioManager.OnUpdatePitch += UpdatePitch;
+        NowPlaying.OnInitialize    += Initialize;
+        NowPlaying.OnGameStart     += GameStart;
         NowPlaying.OnPause         += Pause;
         NowPlaying.OnClear         += Clear;
-        NowPlaying.OnGameStart     += GameStart;
 
         color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
-        foreground.enabled = false;
         ClearRenderTexture();
     }
 
@@ -37,11 +36,11 @@ public class BGASystem : MonoBehaviour
         StopAllCoroutines();
         ClearRenderTexture();
 
-        NowPlaying.OnPreInit       -= Initialize;
         AudioManager.OnUpdatePitch -= UpdatePitch;
+        NowPlaying.OnInitialize    -= Initialize;
+        NowPlaying.OnGameStart     -= GameStart;
         NowPlaying.OnPause         -= Pause;
         NowPlaying.OnClear         -= Clear;
-        NowPlaying.OnGameStart     -= GameStart;
     }
 
     private void UpdatePitch( float _pitch )
@@ -58,7 +57,7 @@ public class BGASystem : MonoBehaviour
         RenderTexture.active = rt;
     }
 
-    private void Initialize()
+    private async void Initialize()
     {
         if ( GameSetting.BGAOpacity == 0 )
         {
@@ -66,20 +65,19 @@ public class BGASystem : MonoBehaviour
             return;
         }
 
-        type = NowPlaying.CurrentSong.hasVideo    ? BackgroundType.Video  :
-               DataStorage.Backgrounds.Count > 0 ||
-               DataStorage.Foregrounds.Count > 0  ? BackgroundType.Sprite :
-                                                    BackgroundType.Image;
+        type = NowPlaying.CurrentSong.hasVideo ? BackgroundType.Video  :
+               NowPlaying.Sprites.Count > 0    ? BackgroundType.Sprite :
+                                                 BackgroundType.Image;
 
+        background.color = foreground.color = color;
         if ( type == BackgroundType.Image )
         {
             // 이미 프리스타일에서 로딩된 이미지 사용
-            DataStorage.Inst.LoadTexture( NowPlaying.CurrentSong.imageName, () =>
+            await DataStorage.Inst.LoadTexture( new SpriteSample( NowPlaying.CurrentSong.imageName ), () =>
             {
                 if ( DataStorage.Inst.GetTexture( NowPlaying.CurrentSong.imageName, out Texture2D texture ) )
                 {
                     background.texture = texture;
-                    background.color   = color;
                     background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
                 }
                 else
@@ -99,8 +97,7 @@ public class BGASystem : MonoBehaviour
         else if ( type == BackgroundType.Sprite )
         {
             foreground.gameObject.SetActive( true );
-            StartCoroutine( UpdateSprites( background, SpriteType.Background ) );
-            StartCoroutine( UpdateSprites( foreground, SpriteType.Foreground ) );
+            StartCoroutine( UpdateSprites() );
         }
     }
 
@@ -141,15 +138,13 @@ public class BGASystem : MonoBehaviour
         vp.Prepare();
         yield return new WaitUntil( () => vp.isPrepared );
 
-        //double videoOffset = 0;//< DataStorage.Samples.Count ? DataStorage.Samples[0].time : 0d;
         yield return new WaitUntil( () => NowPlaying.CurrentSong.videoOffset <= NowPlaying.Playback );
         vp.Play();
     }
 
-    private IEnumerator UpdateSprites( RawImage _renderer, SpriteType _type )
+    private IEnumerator UpdateSprites()
     {
-        ReadOnlyCollection<SpriteSample> sprites = _type == SpriteType.Background ? DataStorage.Backgrounds :
-                                                   _type == SpriteType.Foreground ? DataStorage.Foregrounds : null;
+        ReadOnlyCollection<SpriteSample> sprites = NowPlaying.Sprites;
         if ( sprites == null )
              yield break;
 
@@ -157,27 +152,25 @@ public class BGASystem : MonoBehaviour
         SpriteSample sprite = 0 < sprites.Count ? sprites[index] : new SpriteSample();
         WaitUntil waitStart = new WaitUntil( () => sprite.start <= NowPlaying.Playback );
         WaitUntil waitEnd   = new WaitUntil( () => sprite.end   <= NowPlaying.Playback );
-
-        // 첫번쨰 스프라이트가 시작될때 활성화 시킨다.
-        yield return waitStart;
-        _renderer.enabled = true;
-        _renderer.color   = color;
+        RawImage  rdr       = sprite.type == SpriteType.Background ? background : foreground;
+        foreground.enabled  = true; // 전경 사용
 
         while ( index < sprites.Count )
         {
             yield return waitStart;
             if ( DataStorage.Inst.GetTexture( sprite.name, out Texture2D texture ) )
             {
-                _renderer.texture = texture;
-                _renderer.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
+                rdr.texture = texture;
+                rdr.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
             }
 
             yield return waitEnd;
             if ( ++index < sprites.Count )
-                 sprite = sprites[index];
+            {
+                sprite = sprites[index];
+                rdr    = sprite.type == SpriteType.Background ? background : foreground;
+            }
         }
-
-        _renderer.enabled = false;
     }
 }
 

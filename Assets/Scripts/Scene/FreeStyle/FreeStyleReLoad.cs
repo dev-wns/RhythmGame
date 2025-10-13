@@ -21,12 +21,12 @@ public class FreeStyleReLoad : MonoBehaviour
     private void Awake()
     {
         textPool = new ObjectPool<TextMeshProUGUI>( prefab, transform, maxShowCount + 2 );
-        DataStorage.OnParsing += AddText;
+        NowPlaying.OnParsing += AddText;
     }
 
     private void OnDestroy()
     {
-        DataStorage.OnParsing -= AddText;
+        NowPlaying.OnParsing -= AddText;
     }
 
     private async void OnEnable()
@@ -37,8 +37,8 @@ public class FreeStyleReLoad : MonoBehaviour
         prevSelectedSong = NowPlaying.CurrentSong;
         corUpdateTexts   = StartCoroutine( UpdateTexts() );
 
-        await Task.Run( DataStorage.Inst.LoadSongs );
-        if ( DataStorage.OriginSongs.Count == 0 )
+        await Task.Run( NowPlaying.Inst.LoadSongs );
+        if ( NowPlaying.OriginSongs.Count == 0 )
         {
             if ( !ReferenceEquals( corUpdateTexts, null ) )
             {
@@ -48,7 +48,7 @@ public class FreeStyleReLoad : MonoBehaviour
 
             var text  = textPool.Spawn();
             text.transform.SetAsLastSibling();
-            text.text = $"성공 : {DataStorage.OriginSongs.Count}  실패 : {fileCount - DataStorage.OriginSongs.Count}";
+            text.text = $"성공 : {NowPlaying.OriginSongs.Count}  실패 : {fileCount - NowPlaying.OriginSongs.Count}";
             DisableText( text );
 
             NowPlaying.CurrentScene.IsInputLock = false;
@@ -84,7 +84,7 @@ public class FreeStyleReLoad : MonoBehaviour
 
         var endText = textPool.Spawn();
         endText.transform.SetAsLastSibling();
-        endText.text = $"성공 : {DataStorage.OriginSongs.Count}  실패 : {fileCount - DataStorage.OriginSongs.Count}";
+        endText.text = $"성공 : {NowPlaying.OriginSongs.Count}  실패 : {fileCount - NowPlaying.OriginSongs.Count}";
         DisableText( endText );
 
         NowPlaying.CurrentScene.IsInputLock = false;
