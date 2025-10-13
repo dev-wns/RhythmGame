@@ -145,7 +145,6 @@ public class FreeStyle : Scene
         if ( !DataStorage.IsMultiPlaying )
         {
             //ReLoad
-            //Bind( ActionType.Main,   KeyCode.F5,     () => { EnableCanvas( ActionType.ReLoad, reload.gameObject ); } );
             Bind( ActionType.ReLoad, KeyCode.Escape, DisableReload );
         }
 

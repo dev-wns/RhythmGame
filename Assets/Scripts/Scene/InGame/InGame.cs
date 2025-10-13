@@ -93,8 +93,6 @@ public class InGame : Scene
         if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
         {
             await DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.CanvasFadeDuration ).ToUniTask( TweenCancelBehaviour.Kill, token );
-
-            // yield return new WaitUntil( () => loadingGroup.alpha <= 0f );
             loadingCanvas.SetActive( false );
         }
 
@@ -130,23 +128,26 @@ public class InGame : Scene
     {
         UniTask.Void( async () =>
         {
-            IsInputLock = true;
-            await FadeOut();
+            try
+            {
+                IsInputLock = true;
+                await FadeOut();
 
-            ImmediateDisableCanvas( ActionType.Main, pause );
-            ImmediateDisableCanvas( ActionType.Main, gameOver );
+                ImmediateDisableCanvas( ActionType.Main, pause );
+                ImmediateDisableCanvas( ActionType.Main, gameOver );
 
-            Disconnect();
-            Connect();
+                Disconnect();
+                Connect();
 
-            NowPlaying.Inst.Clear();
+                NowPlaying.Inst.Clear();
 
-            await FadeIn();
+                await FadeIn();
 
-            NowPlaying.Inst.GameStart();
-            await UniTask.WaitUntil( () => NowPlaying.Playback > 0 );
-
-            IsInputLock = false;
+                NowPlaying.Inst.GameStart();
+                await UniTask.WaitUntil( () => NowPlaying.Playback > 0 );
+            }
+            catch ( Exception _error ) { Debug.LogError( _error ); }
+            finally                    { IsInputLock = false; }
         } );
     }
 
@@ -160,15 +161,16 @@ public class InGame : Scene
                 playCts?.Dispose();
                 playCts = null;
 
+                await LoadScene( SceneType.Result );
+
                 await NowPlaying.Inst.Release();
                 DataStorage.Inst.Release();
-
-                await LoadScene( SceneType.Result );
             }
             else
             {
-                if ( _isPause ) EnableCanvas(  ActionType.Pause, pause );
-                else            DisableCanvas( ActionType.Main,  pause );
+                if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
+                else            DisableCanvas( ActionType.Main, pause );
+
                 await NowPlaying.Inst.Pause( _isPause );
             }
         } );

@@ -27,7 +27,6 @@ public abstract class Scene : SceneKeyAction
         KeyBind();
         ChangeAction( ActionType.Main );
 
-        //AudioManager.Inst.SetVolume( AudioManager.Volume, ChannelType.BGM );
         AudioManager.Inst.Pause = false;
     }
 
@@ -45,7 +44,6 @@ public abstract class Scene : SceneKeyAction
     #region Scene Load
     public async UniTask LoadScene( SceneType _type )
     {
-        // StopAllCoroutines();
         DOTween.KillAll();
         DOTween.Clear();
         DOTween.ClearCachedTweens();
@@ -57,20 +55,6 @@ public abstract class Scene : SceneKeyAction
         AudioManager.Inst.PitchReset();
         SceneManager.LoadScene( ( int ) _type );
     }
-
-    //private IEnumerator SceneChange( SceneType _type )
-    //{
-    //    DOTween.KillAll();
-    //    DOTween.Clear();
-    //    DOTween.ClearCachedTweens();
-
-    //    IsInputLock = true;
-    //    await FadeOut();
-
-    //    AudioManager.Inst.AllStop();
-    //    AudioManager.Inst.PitchReset();
-    //    SceneManager.LoadScene( ( int )_type );
-    //}
     #endregion
 
     #region Option Control
@@ -250,10 +234,7 @@ public abstract class Scene : SceneKeyAction
         blackSprite.enabled = true;
 
         await UniTask.WaitForSeconds( FadeWaitTime );
-
         await blackSprite.DOFade( 0f, FadeTime + ( FadeWaitTime * 2 ) );
-
-        // await UniTask.WaitForSeconds( FadeDuration );
 
         blackSprite.color = Color.clear;
         blackSprite.enabled = false;
@@ -265,9 +246,8 @@ public abstract class Scene : SceneKeyAction
         blackSprite.enabled = true;
 
         await UniTask.WaitForSeconds( FadeWaitTime );
-
         await blackSprite.DOFade( 1f, FadeTime + ( FadeWaitTime * 2 ) );
-        //await UniTask.WaitForSeconds( FadeDuration );
+
         blackSprite.color = Color.black;
     }
     #endregion
