@@ -14,14 +14,14 @@ public class ScoreSystem : MonoBehaviour
 
     private void Awake()
     {
-        InputManager.OnHitNote += UpdateScore;
-        NowPlaying.OnClear     += Clear;
+        Judgement.OnHitNote += UpdateScore;
+        NowPlaying.OnClear  += Clear;
     }
 
     private void OnDestroy()
     {
-        InputManager.OnHitNote -= UpdateScore;
-        NowPlaying.OnClear     -= Clear;
+        Judgement.OnHitNote -= UpdateScore;
+        NowPlaying.OnClear  -= Clear;
     }
 
     private void Clear()

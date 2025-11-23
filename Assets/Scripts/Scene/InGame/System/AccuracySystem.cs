@@ -7,14 +7,14 @@ public class AccuracySystem : MonoBehaviour
 
     private void Awake()
     {
-        InputManager.OnHitNote  += UpdateAccuracy;
+        Judgement.OnHitNote     += UpdateAccuracy;
         NowPlaying.OnInitialize += Clear;
         NowPlaying.OnClear      += Clear;
     } 
 
     private void OnDestroy()
     {
-        InputManager.OnHitNote  -= UpdateAccuracy;
+        Judgement.OnHitNote     -= UpdateAccuracy;
         NowPlaying.OnInitialize -= Clear;
         NowPlaying.OnClear      -= Clear;
     }

@@ -103,7 +103,7 @@ public class InGame : Scene
 
         // 게임 종료
         await UniTask.WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count , PlayerLoopTiming.Update, token);
-        Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.Count} Judgements )" );
+        Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.Count} / {NowPlaying.TotalJudge} )" );
 
         await UniTask.WaitForSeconds( 5f, false, PlayerLoopTiming.Update, token );
 

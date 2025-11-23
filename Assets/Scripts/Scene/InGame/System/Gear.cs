@@ -40,13 +40,13 @@ public class Gear : MonoBehaviour
     private void Awake()
     {
         NowPlaying.OnInitialize += Initialize;
-        InputManager.OnHitNote  += Transfer;
+        Judgement.OnHitNote     += Transfer;
     }
 
     private void OnDestroy()
     {
         NowPlaying.OnInitialize -= Initialize;
-        InputManager.OnHitNote  -= Transfer;
+        Judgement.OnHitNote     -= Transfer;
     }
 
     private void Start()

@@ -44556,7 +44556,7 @@ MonoBehaviour:
   slider: {fileID: 1246492748}
   valueText: {fileID: 174457779}
   increaseValue: 1
-  minValue: -100
+  minValue: -200
   maxValue: 100
   curValue: 0
   prePos: 

@@ -38,7 +38,7 @@ public class HealthSystem : MonoBehaviour
     {
         NowPlaying.OnGameStart += GameStart;
         NowPlaying.OnClear     += Clear;
-        InputManager.OnHitNote += UpdateHealth;
+        Judgement.OnHitNote    += UpdateHealth;
 
         healthTileCached = healthRenderer.size;
         healthTileOffset = healthRenderer.size.y;
@@ -48,7 +48,7 @@ public class HealthSystem : MonoBehaviour
     {
         NowPlaying.OnGameStart -= GameStart;
         NowPlaying.OnClear     -= Clear;
-        InputManager.OnHitNote -= UpdateHealth;
+        Judgement.OnHitNote    -= UpdateHealth;
 
         //breakPoint?.Cancel();
         //breakPoint?.Dispose();

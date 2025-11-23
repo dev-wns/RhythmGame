@@ -17,6 +17,17 @@ public class FreeStyle : Scene
     protected override void Awake()
     {
         base.Awake();
+        // ½Ì±ÛÅæ È°¼ºÈ­
+        NowPlaying    nowPlaying    = NowPlaying.Inst;
+        Config        config        = Config.Inst;
+        GameSetting   gameSetting   = GameSetting.Inst;
+        SystemSetting systemSetting = SystemSetting.Inst;
+        Network       network       = Network.Inst;
+        AudioManager  audioManager  = AudioManager.Inst;
+        InputManager  inputManager  = InputManager.Inst;
+        DataStorage   dataStorage   = DataStorage.Inst;
+        Judgement     judgement     = Judgement.Inst;
+
         OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed}";
 
         StartCoroutine( UpdateAudioFPSTexts() );

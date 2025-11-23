@@ -191,13 +191,6 @@ public class Lane : MonoBehaviour
         if ( curNote == null || !dataQueue.TryDequeue( out HitData data )  )
              return;
 
-
-        if ( !( Global.Math.Abs( curNote.data.time    - data.note.time    ) <= double.Epsilon &&
-                Global.Math.Abs( curNote.data.endTime - data.note.endTime ) <= double.Epsilon ) )
-        {
-            Debug.LogError( $"{data.keyState}  {curNote.data.time}  {data.note.time}  {data.time}" );
-        }
-
         keyState = data.keyState;
         if ( data.hitResult >= 0 ) // Hit
         {

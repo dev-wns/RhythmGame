@@ -19,8 +19,8 @@ public class ComboSystem : MonoBehaviour
 
     private void Awake()
     {
-        InputManager.OnHitNote += UpdateCombo;
-        NowPlaying.OnClear     += Clear;
+        Judgement.OnHitNote += UpdateCombo;
+        NowPlaying.OnClear  += Clear;
 
         var rt = transform as RectTransform;
         rt.anchoredPosition = new Vector2( rt.anchoredPosition.x + GameSetting.GearOffsetX, rt.anchoredPosition.y );
@@ -31,8 +31,8 @@ public class ComboSystem : MonoBehaviour
     {
         effectSeq?.Kill();
 
-        InputManager.OnHitNote -= UpdateCombo;
-        NowPlaying.OnClear     -= Clear;
+        Judgement.OnHitNote -= UpdateCombo;
+        NowPlaying.OnClear  -= Clear;
     }
 
 

@@ -31,8 +31,8 @@ public class NowPlaying : Singleton<NowPlaying>
     public  static ReadOnlyCollection<Note>[] Notes         { get; private set; } // 레인별로 분할된 노트 데이터
     public  static ReadOnlyCollection<Timing> Timings       { get; private set; } // BPM Timing
     private int bpmIndex;
-    public  static ReadOnlyCollection<SpriteSample> Sprites { get; private set; } // BMS 등 텍스처를 변경하며 BGA를 구성할 때
-    private List<KeySound> Samples;                                               // 잘린 노트의 키음 등이 추가된 BGM 리스트
+    public  static ReadOnlyCollection<SpriteSample> Sprites { get; private set; } // 이미지로 이루어진 BGA의 재생 데이터
+    private List<KeySound> Samples;                                               // 최종 BGM 데이터( 잘린노트의 키음 등 포함 )
     private int bgmIndex;                         
 
     [Header( "Time" )]
@@ -75,15 +75,6 @@ public class NowPlaying : Singleton<NowPlaying>
     protected override void Awake()
     {
         base.Awake();
-        // 싱글톤 활성화
-        Config        config        = Config.Inst;
-        GameSetting   gameSetting   = GameSetting.Inst;
-        SystemSetting systemSetting = SystemSetting.Inst;
-        Network       network       = Network.Inst;
-        AudioManager  audioManager  = AudioManager.Inst;
-        InputManager  inputManager  = InputManager.Inst;
-        DataStorage   dataStorage   = DataStorage.Inst;
-        Judgement     judgement     = Judgement.Inst;
 
         LoadSongs();
                
@@ -141,14 +132,14 @@ public class NowPlaying : Singleton<NowPlaying>
         MainBPM = CurrentSong.mainBPM * GameSetting.CurrentPitch;
 
         // 모드를 선택한 상태로 InGame 진입 후 계산
-        bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  CurrentSong.keyCount == 7;
         KeyCount        = isConvert  ? 6 : CurrentSong.keyCount;
-        TotalNote       = isConvert  ? CurrentSong.noteCount - CurrentSong.delNoteCount : CurrentSong.noteCount;
-        TotalSlider     = isNoSlider ? 0 :
-                          isConvert  ? CurrentSong.sliderCount - CurrentSong.delSliderCount : 
-                                       CurrentSong.sliderCount;
+        TotalNote       = isConvert  ? CurrentSong.noteCount   - CurrentSong.delNoteCount   : CurrentSong.noteCount;
+        TotalSlider     = isConvert  ? CurrentSong.sliderCount - CurrentSong.delSliderCount : CurrentSong.sliderCount;
+
+        bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         TotalNote       = isNoSlider ? TotalNote + TotalSlider : TotalNote;
+        TotalSlider     = isNoSlider ? 0 : TotalSlider;
         TotalJudge      = TotalNote + ( TotalSlider * 2 );
 
         // 선 파싱 ( 게임에 필요한 모든 정보 파싱 )
@@ -250,13 +241,12 @@ public class NowPlaying : Singleton<NowPlaying>
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.distance    = GetDistance( newNote.time    );
+                    newNote.distance    = GetDistance( newNote.time );
                     newNote.endDistance = GetDistance( newNote.endTime );
 
                     DataStorage.Inst.LoadSound( newNote.keySound.name );
                     notes[newNote.lane].Add( newNote );
-                }
-                break;
+                } break;
 
                 // 맥스랜덤은 무작위 레인에 노트를 배치한다.
                 case GameRandom.Max_Random:
@@ -282,13 +272,13 @@ public class NowPlaying : Singleton<NowPlaying>
                     int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
                     prevTimes[selectLane] = newNote.isSlider ? newNote.endTime : newNote.time;
 
-                    newNote.distance    = GetDistance( newNote.time    + GameSetting.SoundOffset );
-                    newNote.endDistance = GetDistance( newNote.endTime + GameSetting.SoundOffset );
+                    newNote.lane        = selectLane;
+                    newNote.distance    = GetDistance( newNote.time );
+                    newNote.endDistance = GetDistance( newNote.endTime );
 
                     DataStorage.Inst.LoadSound( newNote.keySound.name );
                     notes[selectLane].Add( newNote );
-                }
-                break;
+                } break;
             }
         }
 
@@ -302,8 +292,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 int keyCountHalf = Mathf.FloorToInt( KeyCount * .5f );
                 Global.Math.Shuffle( notes, 0, keyCountHalf );
                 Global.Math.Shuffle( notes, keyCountHalf + 1, KeyCount );
-            }
-            break;
+            } break;
         }
 
         for ( int i = 0; i < KeyCount; i++ )

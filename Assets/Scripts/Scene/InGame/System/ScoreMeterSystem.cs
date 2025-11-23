@@ -21,17 +21,17 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnClear     += Clear;
-        InputManager.OnHitNote += UpdateScoreMeter;
+        NowPlaying.OnClear  += Clear;
+        Judgement.OnHitNote += UpdateScoreMeter;
 
         pool = new ObjectPool<ScoreMeterRenderer>( prefab, 30, false );
-        background.localScale = new Vector2( Judgement.HitRange.Miss * .5f, background.localScale.y );
+        background.localScale = new Vector2( ( float )Judgement.HitRange.Miss * .5f, background.localScale.y );
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnClear     -= Clear;
-        InputManager.OnHitNote -= UpdateScoreMeter;
+        NowPlaying.OnClear  -= Clear;
+        Judgement.OnHitNote -= UpdateScoreMeter;
     }
 
     private void Clear()
@@ -69,7 +69,9 @@ public class ScoreMeterSystem : MonoBehaviour
         }
 
         // Score Meter
-        float diff = -( float )_hitData.diff;
+        
+        float diff = _hitData.isTail ? -( float )( _hitData.diff / Judgement.TailMultiply ) : -( float ) _hitData.diff;
+        diff = Global.Math.Clamp( diff, -( float )Judgement.HitRange.Bad, ( float )Judgement.HitRange.Bad );
         ScoreMeterRenderer scoreMeter = pool.Spawn();
         if ( scoreMeter.system == null )
         {

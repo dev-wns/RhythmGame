@@ -144,7 +144,8 @@ public enum Error : ushort
 
 public static class Debug
 {
-    [Conditional( "UNITY_EDITOR" )] public static void Log( object _message ) => UnityEngine.Debug.Log( _message );
+    [Conditional( "UNITY_EDITOR" )] public static void Log( object _message ) => 
+        UnityEngine.Debug.Log( _message );
     [Conditional( "UNITY_EDITOR" )] public static void LogWarning( object _message ) => UnityEngine.Debug.LogWarning( _message );
     [Conditional( "UNITY_EDITOR" )] public static void LogError( object _message ) => UnityEngine.Debug.LogError( _message );
 

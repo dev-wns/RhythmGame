@@ -69,7 +69,6 @@ public class BGASystem : MonoBehaviour
                NowPlaying.Sprites.Count > 0    ? BackgroundType.Sprite :
                                                  BackgroundType.Image;
 
-        background.color = foreground.color = color;
         if ( type == BackgroundType.Image )
         {
             // 이미 프리스타일에서 로딩된 이미지 사용
@@ -77,6 +76,7 @@ public class BGASystem : MonoBehaviour
             {
                 if ( DataStorage.Inst.GetTexture( NowPlaying.CurrentSong.imageName, out Texture2D texture ) )
                 {
+                    background.color = color;
                     background.texture = texture;
                     background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
                 }
@@ -136,9 +136,7 @@ public class BGASystem : MonoBehaviour
         background.color   = color;
 
         vp.Prepare();
-        yield return new WaitUntil( () => vp.isPrepared );
-
-        yield return new WaitUntil( () => NowPlaying.CurrentSong.videoOffset <= NowPlaying.Playback );
+        yield return new WaitUntil( () => vp.isPrepared && NowPlaying.CurrentSong.videoOffset <= NowPlaying.Playback );
         vp.Play();
     }
 
@@ -154,6 +152,7 @@ public class BGASystem : MonoBehaviour
         WaitUntil waitEnd   = new WaitUntil( () => sprite.end   <= NowPlaying.Playback );
         RawImage  rdr       = sprite.type == SpriteType.Background ? background : foreground;
         foreground.enabled  = true; // 전경 사용
+        background.color = foreground.color = color;
 
         while ( index < sprites.Count )
         {

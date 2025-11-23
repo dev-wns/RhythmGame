@@ -557,7 +557,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         if ( _sound.hasHandle() )
         {
-            ErrorCheck( _sound.release() );
+            _sound.release();
             _sound.clearHandle();
         }
     }

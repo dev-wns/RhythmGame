@@ -48,7 +48,7 @@ public class ScoreMeterRenderer : MonoBehaviour
         IsActive = true;
         Diff     = _diff;
         alpha    = _color.a;
-        transform.localPosition     = new Vector2( Diff, transform.localPosition.y );
+        transform.localPosition = new Vector2( Diff, transform.localPosition.y );
         colorCache = rdr.color = _color;
     }
 }
