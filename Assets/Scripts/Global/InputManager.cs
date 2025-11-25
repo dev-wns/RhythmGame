@@ -47,6 +47,24 @@ public class InputManager : Singleton<InputManager>
     private bool[]                   Previous;  // 이전 키 상태( 입력 2중 체크 )
     private KeyState[]               KeyStates; // 레인별 입력 상태
     private KeySound[]               KeySounds;
+    private NoteLock                 NoteLocker;
+    private struct NoteLock
+    {
+        public bool isLock;
+        public double time;
+
+        public void Lock( double _time )
+        {
+            isLock = true;
+            time = _time;
+        }
+
+        public void UnLock()
+        {
+            isLock = false;
+            time = 0d;
+        }
+    }
 
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
 
@@ -81,12 +99,12 @@ public class InputManager : Singleton<InputManager>
 
     private void Initialize()
     {
-        VKey      = new int       [NowPlaying.KeyCount];
-        Indexes   = new int       [NowPlaying.KeyCount];
-        IsEntries = new bool      [NowPlaying.KeyCount];
-        Previous  = new bool      [NowPlaying.KeyCount];
-        KeyStates = new KeyState  [NowPlaying.KeyCount];
-        KeySounds = new KeySound  [NowPlaying.KeyCount];
+        VKey      = new int      [NowPlaying.KeyCount];
+        Indexes   = new int      [NowPlaying.KeyCount];
+        IsEntries = new bool     [NowPlaying.KeyCount];
+        Previous  = new bool     [NowPlaying.KeyCount];
+        KeyStates = new KeyState [NowPlaying.KeyCount];
+        KeySounds = new KeySound [NowPlaying.KeyCount];
 
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
@@ -96,6 +114,7 @@ public class InputManager : Singleton<InputManager>
 
     private void Clear()
     {
+        NoteLocker.UnLock();
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
             Indexes[i]   = 0;  
@@ -139,6 +158,7 @@ public class InputManager : Singleton<InputManager>
                      AudioManager.Inst.Play( sound, KeySounds[lane].volume );
             }
 
+
             // 데이터 소진 시 계산 불필요
             if ( Indexes[lane] >= NowPlaying.Notes[lane].Count )
                  continue;
@@ -147,6 +167,7 @@ public class InputManager : Singleton<InputManager>
             double playback = NowPlaying.Playback;
             double headDiff = note.time    - playback;
             double tailDiff = note.endTime - playback;
+
 
             if ( !IsEntries[lane] ) // 노트 시작판정
             {
@@ -158,10 +179,20 @@ public class InputManager : Singleton<InputManager>
                     continue;
                 }
 
+                if ( NoteLocker.isLock )
+                {
+                    if ( Judgement.IsMaximum( NoteLocker.time - playback ) )
+                         NoteLocker.UnLock();
+
+                    continue;
+                }
+
                 if ( KeyStates[lane] == KeyState.Down )
                 {
                     if ( Judgement.IsEarlyMiss( headDiff ) )
                     {
+                        NoteLocker.Lock( note.isSlider ? note.endTime : note.time );
+
                         Judgement.UpdateResult( lane, playback, headDiff, note.isSlider, KeyState.Down );
                         SelectNextNote( lane );
                         continue;

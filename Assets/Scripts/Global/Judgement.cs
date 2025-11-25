@@ -9,8 +9,6 @@ public enum HitResult : int { None = -2, Miss, Maximum, Perfect, Great, Good, Ba
 
 public class Judgement : Singleton<Judgement>
 {
-    private enum HitType : byte { Head, Tail }
-
     public static class HitRange
     {
         public static double OD = 0;
@@ -165,6 +163,12 @@ public class Judgement : Singleton<Judgement>
         return -HitRange.Bad * multiply > _diff;
     }
 
+    public static bool IsMaximum( double _diff, bool _isTail = false )
+    {
+        double multiply = _isTail ? TailMultiply : 1d;
+        return 0d > _diff;
+    }
+     
     public static HitResult UpdateResult( int _lane, double _playback, double _diff, bool _isSlider, KeyState _keyState )
     {
         bool   isTail     = _isSlider && _keyState == KeyState.Up;
@@ -213,24 +217,24 @@ public class Judgement : Singleton<Judgement>
     private static HitResult GetHitResult( double _diff, double _diffAbs, bool _isTail = false )
     {
         double multiply = _isTail ? TailMultiply : 1d;
-        if ( HitRange.Miss * multiply >= _diff && _diff > HitRange.Bad * multiply )
+        if ( HitRange.Miss * multiply >= _diff && _diff > HitRange.Bad * multiply ) // Early Miss
         {
             Debug.LogWarning( "EarlyMiss" );
-            return HitResult.Miss; // Early Miss
+            return _isTail ? HitResult.Bad : HitResult.Miss;
         }
-        if ( _isTail && _diff > HitRange.Bad * multiply )
+        if ( _isTail && HitRange.Miss * multiply < _diff )
         {
             Debug.LogWarning( "LN EarlyMiss" );
-            return HitResult.Bad;
+            return HitResult.Miss;
         }
+
         if ( _diffAbs <= HitRange.Maximum * multiply ) return HitResult.Maximum; // ----------------------
         if ( _diffAbs <= HitRange.Perfect * multiply ) return HitResult.Perfect; //
         if ( _diffAbs <= HitRange.Great   * multiply ) return HitResult.Great;   //        정상 판정
         if ( _diffAbs <= HitRange.Good    * multiply ) return HitResult.Good;    //
         if ( _diffAbs <= HitRange.Bad     * multiply ) return HitResult.Bad;     // ---------------------- // 늦은 Bad는 Hit 불가
-        if ( _diff    < -HitRange.Bad     * multiply ) return HitResult.Miss;    // Late Miss
-        //if ( _diffAbs <= HitRange.Miss    ) return HitResult.Miss;    // 이르거나 늦은 판정 ( 롱노트 처리 중 Up을 빨리한 경우 )
-        return HitResult.None; // _isTail ? HitResult.Bad : HitResult.Miss;                                        // -Bad ~ : 노트를 처리하지 못함
+        if ( _diff    < -HitRange.Bad     * multiply ) return HitResult.Miss;    // -Bad ~ : 노트를 처리하지 못함( Late Miss )
+        return HitResult.None;                                                   // 
     }
 
     private static int GetHitScore( HitResult _result )

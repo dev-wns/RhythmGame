@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class ScoreMeterSystem : MonoBehaviour
@@ -19,6 +20,9 @@ public class ScoreMeterSystem : MonoBehaviour
     public MarkerRenderer marker;
     private float sumDiff;
 
+    [Header( "Average" )]
+    public TextMeshProUGUI avgText;
+
     private void Awake()
     {
         NowPlaying.OnClear  += Clear;
@@ -36,6 +40,7 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void Clear()
     {
+        avgText.text = $"0 ms";
         sumDiff = 0f;
         marker.Clear();
         while ( rdrQueue.Count > 0 )
@@ -88,6 +93,10 @@ public class ScoreMeterSystem : MonoBehaviour
 
         // Marker
         if ( _hitData.hitResult >= 0 ) // Hit
-             marker.SetInfo( sumDiff / rdrQueue.Count );
+        {
+            float avg = sumDiff / rdrQueue.Count;
+            marker.SetInfo( avg );
+            avgText.text = $"{( int )avg} ms";
+        }
     }
 }
