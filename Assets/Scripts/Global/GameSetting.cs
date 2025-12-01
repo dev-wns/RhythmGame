@@ -61,11 +61,13 @@ public class GameSetting : Singleton<GameSetting>
         }
     }
 
-    public static float Weight => ( ScrollSpeed / 13.720f ); //ScrollSpeed / 12.7037f;
+    public static float Weight => ScrollSpeed / 12.50f;// ( ScrollSpeed / 13.720f ); //ScrollSpeed / 12.7037f;
     public static float MinDistance => 1200f / Weight;
 
     // Sound
-    public static int SoundOffset  = -200;
+    public static int SoundOffset  = -50;
+    public static int ScreenOffset = -25;
+    public static int LNOffset     = -25;
 
     // Opacity ( 0 ~ 100 )
     public static int BGAOpacity   = 10;
@@ -82,9 +84,9 @@ public class GameSetting : Singleton<GameSetting>
 
     // note
     public static float NoteSizeMultiplier = 1f;
-    public static float NoteWidth     => 110.5f * NoteSizeMultiplier; // 111
-    public static float NoteHeight    => 63f    * NoteSizeMultiplier;
-    public static float NoteBodyWidth => 110.5f * NoteSizeMultiplier;
+    public static float NoteWidth     => 125.5f; //120f; // 110.5
+    public static float NoteHeight    => 70f; //70f; // 63
+    public static float NoteBodyWidth => 110.5f;
     public static float NoteBlank     =  0f;
     public static float NoteStartPos  => GearOffsetX - ( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
 

@@ -241,8 +241,8 @@ public class NowPlaying : Singleton<NowPlaying>
                 case GameRandom.Basic_Random:
                 case GameRandom.Half_Random:
                 {
-                    newNote.distance    = GetDistance( newNote.time );
-                    newNote.endDistance = GetDistance( newNote.endTime );
+                    newNote.distance    = GetDistance( newNote.time    + GameSetting.ScreenOffset );
+                    newNote.endDistance = GetDistance( newNote.endTime + GameSetting.ScreenOffset + GameSetting.LNOffset );
 
                     DataStorage.Inst.LoadSound( newNote.keySound.name );
                     notes[newNote.lane].Add( newNote );
@@ -273,8 +273,8 @@ public class NowPlaying : Singleton<NowPlaying>
                     prevTimes[selectLane] = newNote.isSlider ? newNote.endTime : newNote.time;
 
                     newNote.lane        = selectLane;
-                    newNote.distance    = GetDistance( newNote.time );
-                    newNote.endDistance = GetDistance( newNote.endTime );
+                    newNote.distance    = GetDistance( newNote.time    + GameSetting.ScreenOffset );
+                    newNote.endDistance = GetDistance( newNote.endTime + GameSetting.ScreenOffset + GameSetting.LNOffset );
 
                     DataStorage.Inst.LoadSound( newNote.keySound.name );
                     notes[selectLane].Add( newNote );
