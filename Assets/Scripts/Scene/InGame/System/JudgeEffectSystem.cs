@@ -50,7 +50,7 @@ public class JudgeEffectSystem : MonoBehaviour
                 case HitResult.Good:    rdr.sprite = sprites[2]; break;
                 case HitResult.Bad:     rdr.sprite = sprites[1]; break;
 
-                case HitResult.None:
+                //case HitResult.None:
                 case HitResult.Miss:    rdr.sprite = sprites[0]; break;
                 default: return;
             }

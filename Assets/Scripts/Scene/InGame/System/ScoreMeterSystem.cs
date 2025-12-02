@@ -5,9 +5,9 @@ using UnityEngine;
 public class ScoreMeterSystem : MonoBehaviour
 {
     [Header( "Color" )]
-    public readonly Color PerfectColor = new Color( .25f,   1f,   1f, .65f );
-    public readonly Color GreatColor   = new Color(  .5f,   1f,  .5f, .65f );
-    public readonly Color GoodColor    = new Color(   1f, .85f, .75f, .65f );
+    public readonly Color PerfectColor = new Color( .25f,   1f,   1f, .5f );
+    public readonly Color GreatColor   = new Color(  .5f,   1f,  .5f, .5f );
+    public readonly Color GoodColor    = new Color(   1f, .85f, .75f, .5f );
 
     [Header( "Score Meter" )]
     public ObjectPool<ScoreMeterRenderer> pool;
@@ -19,9 +19,6 @@ public class ScoreMeterSystem : MonoBehaviour
     [Header( "Marker" )]
     public MarkerRenderer marker;
     private float sumDiff;
-
-    [Header( "Average" )]
-    public TextMeshProUGUI avgText;
 
     private void Awake()
     {
@@ -40,7 +37,6 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void Clear()
     {
-        avgText.text = $"0 ms";
         sumDiff = 0f;
         marker.Clear();
         while ( rdrQueue.Count > 0 )
@@ -56,26 +52,41 @@ public class ScoreMeterSystem : MonoBehaviour
         pool.Despawn( _rdr );
     }
 
+    private Color GetColor( double _diff )
+    {
+        double diffAbs = Global.Math.Abs( _diff );
+        if ( diffAbs   <= Judgement.HitRange.Maximum ) return PerfectColor; // ----------------------
+        if ( diffAbs   <= Judgement.HitRange.Perfect ) return PerfectColor; //
+        if ( diffAbs   <= Judgement.HitRange.Great   ) return GreatColor;   //        정상 판정
+        if ( diffAbs   <= Judgement.HitRange.Good    ) return GreatColor;    //
+        //if ( diffAbs   <= Judgement.HitRange.Bad     ) return GoodColor;     // ---------------------- // 늦은 Bad는 Hit 불가
+        
+        return GoodColor;       
+    }
+
     private void UpdateScoreMeter( HitData _hitData )
     {
-        if ( _hitData.hitResult < 0 ||                           // Miss 제외
-             Global.Math.Abs( _hitData.diff ) < double.Epsilon ) // 보정된 판정 제외
+        // if ( _hitData.hitResult < 0 ||                           // Miss 제외
+        //      Global.Math.Abs( _hitData.diff ) < double.Epsilon ) // 보정된 판정 제외
+        //      return;
+
+        if ( _hitData.hitResult == HitResult.Miss )
              return;
 
-        Color color = Color.red;
-        switch ( _hitData.hitResult )
-        {
-            case HitResult.Maximum:
-            case HitResult.Perfect: color = PerfectColor; break;
-            case HitResult.Great:   
-            case HitResult.Good:    color = GreatColor;   break;
-            case HitResult.Bad:     color = GoodColor;    break;
-            default: return;
-        }
+        Color color = GetColor( _hitData.diff );
+        //switch ( _hitData.hitResult )
+        //{
+        //    case HitResult.Maximum:
+        //    case HitResult.Perfect: color = PerfectColor; break;
+        //    case HitResult.Great:   
+        //    case HitResult.Good:    color = GreatColor;   break;
+        //    case HitResult.Bad:     color = GoodColor;    break;
+        //    default: break;
+        //}
 
         // Score Meter
-        
-        float diff = _hitData.isTail ? -( float )( _hitData.diff / Judgement.TailMultiply ) : -( float ) _hitData.diff;
+
+        float diff = -( float )_hitData.diff;// _hitData.isTail ? -( float )( _hitData.diff / Judgement.TailMultiply ) : -( float ) _hitData.diff;
         diff = Global.Math.Clamp( diff, -( float )Judgement.HitRange.Bad, ( float )Judgement.HitRange.Bad );
         ScoreMeterRenderer scoreMeter = pool.Spawn();
         if ( scoreMeter.system == null )
@@ -96,7 +107,6 @@ public class ScoreMeterSystem : MonoBehaviour
         {
             float avg = sumDiff / rdrQueue.Count;
             marker.SetInfo( avg );
-            avgText.text = $"{( int )avg} ms";
         }
     }
 }

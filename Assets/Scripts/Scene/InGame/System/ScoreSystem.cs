@@ -33,6 +33,9 @@ public class ScoreSystem : MonoBehaviour
     
     private void UpdateScore( HitData _hitData )
     {
+        if ( _hitData.hitResult == HitResult.None )
+             return;
+
         targetScore = Judgement.CurrentResult.Score;
         countOffset = ( float )( targetScore - curScore ) / countDuration;
     }

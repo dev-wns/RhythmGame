@@ -10,7 +10,7 @@ public class ScoreMeterRenderer : MonoBehaviour
     public bool IsActive { get; private set; }
 
     private static readonly float AliveTime = 1f;
-    private static readonly float Duration  = 2f;
+    private static readonly float Duration  = 5f;
     private float alpha;
     private float time;
 

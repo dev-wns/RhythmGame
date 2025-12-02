@@ -140,7 +140,7 @@ public class NowPlaying : Singleton<NowPlaying>
         bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         TotalNote       = isNoSlider ? TotalNote + TotalSlider : TotalNote;
         TotalSlider     = isNoSlider ? 0 : TotalSlider;
-        TotalJudge      = TotalNote + ( TotalSlider * 2 );
+        TotalJudge      = TotalNote + TotalSlider;
 
         // 선 파싱 ( 게임에 필요한 모든 정보 파싱 )
         Notes = new ReadOnlyCollection<Note>[KeyCount];

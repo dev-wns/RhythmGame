@@ -85,6 +85,9 @@ public class ComboSystem : MonoBehaviour
 
     private void UpdateCombo( HitData _hitData )
     {
+        if ( _hitData.hitResult != HitResult.Miss && _hitData.keyState == KeyState.Up )
+             return;
+
         targetCombo = Judgement.CurrentResult.Combo;
         if ( _hitData.hitResult == HitResult.Miss )
         {

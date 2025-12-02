@@ -1,10 +1,7 @@
-using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading;
 using UnityEngine;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
@@ -14,21 +11,48 @@ public struct HitData
 {
     public int       lane;
     public double    time; // 누르거나 뗀 시간
-    public double    diff;
-    public bool      isTail; // 꼬리 판정인가?
+    public double      diff;
     public HitResult hitResult;
     public KeyState  keyState;
 
-    public HitData( int _lane, double _time, double _diff, bool _isTail, HitResult _hitResult, KeyState _keyState )
+    public HitData( int _lane, double _time, double _diff, HitResult _hitResult, KeyState _keyState )
     {
         lane      = _lane;
         time      = _time;
         diff      = _diff;
-        isTail    = _isTail;
         hitResult = _hitResult;
         keyState  = _keyState;
     }
+
+    public HitData( HitResult _hitResult )
+    {
+        lane      = 0;
+        time      = 0d;
+        diff      = 0d;
+        hitResult = _hitResult;
+        keyState  = KeyState.None;
+    }
 }
+
+//public struct Diff
+//{
+//    public double head;
+//    public double tail;
+//    public double combined;
+
+//    public double headAbs;
+//    public double tailAbs;
+
+//    public Diff( double _head, double _tail )
+//    {
+//        head = _head;
+//        tail = _tail;
+
+//        headAbs  = Global.Math.Abs( head );
+//        tailAbs  = Global.Math.Abs( tail );
+//        combined = headAbs + tailAbs;
+//    }
+//}
 
 public class InputManager : Singleton<InputManager>
 {
@@ -43,28 +67,18 @@ public class InputManager : Singleton<InputManager>
     [Header( "Input Process" )]
     private int[]                    VKey;      // 가상 키
     private int[]                    Indexes;   // 노트 인덱스
+    private double[]                 HeadDiff;  // 롱노트 전용 Head Hit Diff
     private bool[]                   IsEntries; // 롱노트 진입점
-    private bool[]                   Previous;  // 이전 키 상태( 입력 2중 체크 )
+    private bool[]                   PrevState;  // 이전 키 상태( 입력 2중 체크 )
     private KeyState[]               KeyStates; // 레인별 입력 상태
     private KeySound[]               KeySounds;
-    private NoteLock                 NoteLocker;
-    private struct NoteLock
-    {
-        public bool isLock;
-        public double time;
 
-        public void Lock( double _time )
-        {
-            isLock = true;
-            time = _time;
-        }
+    [Header( "Hold Process" )]
+    private double LNStartTime;
+    private double LNEndTime;
+    private bool   isHolding;
 
-        public void UnLock()
-        {
-            isLock = false;
-            time = 0d;
-        }
-    }
+    private static readonly double LNComboInterval = 100; // ms
 
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
 
@@ -99,12 +113,13 @@ public class InputManager : Singleton<InputManager>
 
     private void Initialize()
     {
-        VKey      = new int      [NowPlaying.KeyCount];
-        Indexes   = new int      [NowPlaying.KeyCount];
-        IsEntries = new bool     [NowPlaying.KeyCount];
-        Previous  = new bool     [NowPlaying.KeyCount];
-        KeyStates = new KeyState [NowPlaying.KeyCount];
-        KeySounds = new KeySound [NowPlaying.KeyCount];
+        VKey        = new int      [NowPlaying.KeyCount];
+        Indexes     = new int      [NowPlaying.KeyCount];
+        HeadDiff    = new double   [NowPlaying.KeyCount];
+        IsEntries   = new bool     [NowPlaying.KeyCount];
+        PrevState   = new bool     [NowPlaying.KeyCount];
+        KeyStates   = new KeyState [NowPlaying.KeyCount];
+        KeySounds   = new KeySound [NowPlaying.KeyCount];
 
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
@@ -114,113 +129,128 @@ public class InputManager : Singleton<InputManager>
 
     private void Clear()
     {
-        NoteLocker.UnLock();
         for ( int i = 0; i < NowPlaying.KeyCount; i++ )
         {
-            Indexes[i]   = 0;  
-            IsEntries[i] = false;
-            Previous[i]  = false; 
-            KeyStates[i] = KeyState.None;
-            KeySounds[i] = NowPlaying.Notes[i][0].keySound;
+            Indexes[i]     = 0;
+            HeadDiff[i]    = 0d;
+            IsEntries[i]   = false;
+            PrevState[i]   = false;
+            KeyStates[i]   = KeyState.None;
+            KeySounds[i]   = NowPlaying.Notes[i][0].keySound;
         }
     }
 
     private void Release()
     {
-        VKey      = null;
-        Indexes   = null;
-        IsEntries = null;
-        Previous  = null;
-        KeyStates = null;
-        KeySounds = null;
+        VKey        = null;
+        Indexes     = null;
+        HeadDiff    = null;
+        IsEntries   = null;
+        PrevState   = null;
+        KeyStates   = null;
+        KeySounds   = null;
     }
-    
+
     private void UpdateInput()
     {
+        double playback = NowPlaying.Playback;
         for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
         {
             // 입력 상태 체크
             bool current = ( GetAsyncKeyState( VKey[lane] ) & 0x8000 ) != 0;
-            KeyStates[lane] = ( Previous[lane], current ) switch
-            {
+            KeyStates[lane] = (PrevState[lane], current) switch {
                 ( false, true  ) => KeyState.Down,
                 ( true,  true  ) => KeyState.Hold,
                 ( true,  false ) => KeyState.Up,
                 _                => KeyState.None
             };
-            Previous[lane] = current;
+            PrevState[lane] = current;
 
             //  키음 선 실행
             if ( KeyStates[lane] == KeyState.Down )
             {
                 // 노트에 키음이 없을 수도 있다. 
                 if ( DataStorage.Inst.GetSound( KeySounds[lane].name, out FMOD.Sound sound ) )
-                     AudioManager.Inst.Play( sound, KeySounds[lane].volume );
+                    AudioManager.Inst.Play( sound, KeySounds[lane].volume );
             }
 
 
             // 데이터 소진 시 계산 불필요
             if ( Indexes[lane] >= NowPlaying.Notes[lane].Count )
-                 continue;
+                continue;
 
             Note   note     = NowPlaying.Notes[lane][Indexes[lane]];
-            double playback = NowPlaying.Playback;
             double headDiff = note.time    - playback;
             double tailDiff = note.endTime - playback;
+            bool   isSlider = note.isSlider;
 
 
             if ( !IsEntries[lane] ) // 노트 시작판정
             {
                 if ( Judgement.IsLateMiss( headDiff ) ) // Head Late Miss
                 {
-                    // 롱노트 시작에서 Miss일 때, 시작판정, 끝판정 모두 미스처리한다.
-                    Judgement.UpdateResult( lane, playback, headDiff, note.isSlider, KeyState.Down );
+                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
                     SelectNextNote( lane );
-                    continue;
-                }
-
-                if ( NoteLocker.isLock )
-                {
-                    if ( Judgement.IsMaximum( NoteLocker.time - playback ) )
-                         NoteLocker.UnLock();
-
                     continue;
                 }
 
                 if ( KeyStates[lane] == KeyState.Down )
                 {
-                    if ( Judgement.IsEarlyMiss( headDiff ) )
+                    if ( !isSlider && Judgement.IsEarlyMiss( headDiff ) )
                     {
-                        NoteLocker.Lock( note.isSlider ? note.endTime : note.time );
-
-                        Judgement.UpdateResult( lane, playback, headDiff, note.isSlider, KeyState.Down );
+                        Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
                         SelectNextNote( lane );
                         continue;
                     }
 
                     if ( Judgement.CanBeHit( headDiff ) ) // Head Hit
                     {
-                        Judgement.UpdateResult( lane, playback, headDiff, note.isSlider, KeyState.Down );
+                        Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
 
-                        if ( note.isSlider ) IsEntries[lane] = true;
-                        else                 SelectNextNote( lane );
+                        if ( isSlider )
+                        {
+                            IsEntries[lane] = true;
+                            HeadDiff[lane]  = headDiff;
+                            LNEndTime       = Global.Math.Max( LNEndTime, note.endTime );
+
+                            if ( !isHolding )
+                            {
+                                isHolding   = true;
+                                LNStartTime = playback;
+                            }
+                        }
+                        else
+                        { 
+                            SelectNextNote( lane );
+                        }
                     }
                 }
             }
             else // 롱노트 끝판정
             {
-                if ( Judgement.IsLateMiss( tailDiff, true ) )
+                if ( Judgement.IsLateMiss( tailDiff ) )
                 {
-                    Judgement.UpdateResult( lane, playback, tailDiff, note.isSlider, KeyState.Up );
+                    Judgement.UpdateResult( note, lane, playback, HeadDiff[lane], tailDiff, KeyState.Up );
                     SelectNextNote( lane );
                     continue;
                 }
 
                 if ( KeyStates[lane] == KeyState.Up )
                 {
-                    Judgement.UpdateResult( lane, playback, tailDiff, note.isSlider, KeyState.Up );
+                    Judgement.UpdateResult( note, lane, playback, HeadDiff[lane], tailDiff, KeyState.Up );
                     SelectNextNote( lane );
                 }
+            }
+        }
+
+        // Hold 중 콤보 증가
+        if ( isHolding )
+        {
+            while ( LNStartTime + LNComboInterval <= playback &&
+                    LNStartTime + LNComboInterval <= LNEndTime )
+            {
+                Judgement.AddCombo();
+                LNStartTime += LNComboInterval;
             }
         }
     }
@@ -229,6 +259,27 @@ public class InputManager : Singleton<InputManager>
     {
         Indexes[_lane]++;
         IsEntries[_lane] = false;
+        HeadDiff[_lane]  = 0d;
+
+        if ( isHolding )
+        {
+            bool isNotEntries = true;
+            for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
+            {
+                if ( IsEntries[lane] )
+                {
+                    isNotEntries = false;
+                    break;
+                }
+            }
+
+            if ( isNotEntries )
+            {
+                isHolding = false;
+                LNStartTime = 0d;
+                LNEndTime   = 0d;
+            }
+        }
 
         // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
         if ( Indexes[_lane] < NowPlaying.Notes[_lane].Count )

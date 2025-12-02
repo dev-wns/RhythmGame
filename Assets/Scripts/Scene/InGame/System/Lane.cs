@@ -206,7 +206,7 @@ public class Lane : MonoBehaviour
                 SelectNextNote( false );
             }
         }
-        else // Miss
+        else if ( data.hitResult == HitResult.Miss ) // Miss
         {
             if ( !curNote.IsSlider )
             {
