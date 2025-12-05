@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 public enum BooleanOption { Off, On, Count }
 
@@ -61,13 +62,13 @@ public class GameSetting : Singleton<GameSetting>
         }
     }
 
-    public static float Weight => ScrollSpeed / 12.50f;// ( ScrollSpeed / 13.720f ); //ScrollSpeed / 12.7037f;
+    public static float Weight => ScrollSpeed / 12.75f;// ( ScrollSpeed / 13.720f ); //ScrollSpeed / 12.7037f;
     public static float MinDistance => 1200f / Weight;
 
     // Sound
     public static int SoundOffset  = -50;
-    public static int ScreenOffset = -25;
-    public static int LNOffset     = 0;
+    public static int ScreenOffset = -35;
+    public static int LNOffset     = -0;
 
     // Opacity ( 0 ~ 100 )
     public static int BGAOpacity   = 10;

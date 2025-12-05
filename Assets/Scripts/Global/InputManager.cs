@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
-public enum KeyState { None, Down, Hold, Up, }
+public enum KeyState : int { None, Down, Hold, Up, }
 
 public struct HitData
 {
@@ -33,26 +33,6 @@ public struct HitData
         keyState  = KeyState.None;
     }
 }
-
-//public struct Diff
-//{
-//    public double head;
-//    public double tail;
-//    public double combined;
-
-//    public double headAbs;
-//    public double tailAbs;
-
-//    public Diff( double _head, double _tail )
-//    {
-//        head = _head;
-//        tail = _tail;
-
-//        headAbs  = Global.Math.Abs( head );
-//        tailAbs  = Global.Math.Abs( tail );
-//        combined = headAbs + tailAbs;
-//    }
-//}
 
 public class InputManager : Singleton<InputManager>
 {
@@ -196,6 +176,7 @@ public class InputManager : Singleton<InputManager>
 
                 if ( KeyStates[lane] == KeyState.Down )
                 {
+                    Debug.Log( $"{playback}" );
                     if ( !isSlider && Judgement.IsEarlyMiss( headDiff ) )
                     {
                         Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );

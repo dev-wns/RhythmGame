@@ -82,7 +82,7 @@ public class Judgement : Singleton<Judgement>
     private static int        Bonus;
 
     public  static List<HitData>            HitDatas  = new ();
-    private static ConcurrentQueue<HitData> DataQueue = new ();
+    private static ConcurrentQueue<HitData> HitDataQueue = new ();
     private CancellationTokenSource  dataCts;
 
     public static event Action<HitData> OnHitNote;
@@ -108,7 +108,7 @@ public class Judgement : Singleton<Judgement>
         Bonus = 100; // 게임시작시 최대 보너스로 시작
         Results = new ResultData();
 
-        DataQueue.Clear();
+        HitDataQueue.Clear();
         HitDatas.Clear();
     }
 
@@ -129,7 +129,7 @@ public class Judgement : Singleton<Judgement>
         {
             while ( !token.IsCancellationRequested )
             {
-                while ( DataQueue.TryDequeue( out HitData hitData ) )
+                while ( HitDataQueue.TryDequeue( out HitData hitData ) )
                 {
                     HitDatas.Add( hitData );
                     OnHitNote?.Invoke( hitData );
@@ -191,13 +191,11 @@ public class Judgement : Singleton<Judgement>
     //    DataQueue.Enqueue( new HitData( _lane, _playback, _diff, hitResult, _keyState ) );
     //    return hitResult;
     //}
-
-    private static void AddData( HitData _data ) => DataQueue.Enqueue( _data );
-    
+        
     public static void AddCombo()
     {
         UpdateCombo( HitResult.None );
-        AddData( new HitData( HitResult.None ) );
+        HitDataQueue.Enqueue( new HitData( HitResult.None ) );
     }
 
     private static void UpdateCombo( HitResult _hitResult )
@@ -218,7 +216,7 @@ public class Judgement : Singleton<Judgement>
         Results.Score += MaxScore * ( hitScore + bonusScore ) / HitScore.Maximum;
     }
 
-    private static void UpdateCount( HitResult _hitResult, double _diff, double _diffAbs )
+    private static void UpdateCount( HitResult _hitResult, double _diff, double _diffAbs, bool _isHead )
     {
         // 판정 카운팅
         switch ( _hitResult )
@@ -233,7 +231,7 @@ public class Judgement : Singleton<Judgement>
         }
 
         // Great ~ Bad까지만 집계
-        if ( HitRange.Perfect < _diffAbs && _diffAbs <= HitRange.Bad )
+        if ( _isHead && ( HitRange.Perfect < _diffAbs && _diffAbs <= HitRange.Bad ) )
         {
             Results.Fast += _diff > 0d ? 1 : 0;
             Results.Slow += _diff < 0d ? 1 : 0;
@@ -253,40 +251,50 @@ public class Judgement : Singleton<Judgement>
         {
             // 롱노트는 Head와 Tail의 타격 정보로 하나의 판정을 만든다.
             if ( hitResult == HitResult.Miss )
-                 UpdateCount( hitResult, diff, diffAbs );
+                 UpdateCount( hitResult, diff, diffAbs, isHead );
 
             UpdateCombo( hitResult ); // 롱노트 Head의 Late Miss도 갱신( Early Miss는 스킵 )
-            AddData( new HitData( _lane, _playback, _headDiff, hitResult, _keyState ) );
+            HitDataQueue.Enqueue( new HitData( _lane, _playback, _headDiff, hitResult, _keyState ) );
 
             return HitResult.None;
         }
 
         // 하나의 판정이 완성되었을때 모든 정보 갱신
-        UpdateCount( hitResult, diff, diffAbs );
+        UpdateCount( hitResult, diff, diffAbs, isHead );
         UpdateCombo( hitResult );
         UpdateScore( hitResult );
-        AddData( new HitData( _lane, _playback, diff, hitResult, _keyState ) );
+        HitDataQueue.Enqueue( new HitData( _lane, _playback, diff, hitResult, _keyState ) );
 
         return hitResult;
     }
 
     private static HitResult GetHitResult( double _headDiff, double _tailDiff, bool _isHead )
     {
-        double headAbs  = Global.Math.Abs( _headDiff );
         if ( _isHead ) // 노트, 롱노트 Head 판정
         {
-            if ( IsEarlyMiss( _headDiff )      ) return HitResult.Miss;
-            if ( headAbs   <= HitRange.Maximum ) return HitResult.Maximum; // ----------------------
-            if ( headAbs   <= HitRange.Perfect ) return HitResult.Perfect; //
-            if ( headAbs   <= HitRange.Great   ) return HitResult.Great;   //        정상 판정
-            if ( headAbs   <= HitRange.Good    ) return HitResult.Good;    //
-            if ( IsLateMiss( _headDiff )       ) return HitResult.Miss;    // -Good ~ : 노트를 처리하지 못함( Late Miss )
-            if ( headAbs   <= HitRange.Bad     ) return HitResult.Bad;     // ---------------------- // Late Bad는 Hit 불가
-            
+            if (  HitRange.Miss    >= _headDiff && _headDiff >  HitRange.Bad     ) return HitResult.Miss; // Early Miss
+            if (  HitRange.Bad     >= _headDiff && _headDiff >  HitRange.Good    ) return HitResult.Bad;
+            if (  HitRange.Good    >= _headDiff && _headDiff >  HitRange.Great   ) return HitResult.Good;
+            if (  HitRange.Great   >= _headDiff && _headDiff >  HitRange.Perfect ) return HitResult.Great;
+            if (  HitRange.Perfect >= _headDiff && _headDiff >  HitRange.Maximum ) return HitResult.Perfect;
+            if (  HitRange.Maximum >= _headDiff && _headDiff > -HitRange.Maximum ) return HitResult.Maximum;
+            if ( -HitRange.Maximum >= _headDiff && _headDiff > -HitRange.Perfect ) return HitResult.Perfect;
+            if ( -HitRange.Perfect >= _headDiff && _headDiff > -HitRange.Great   ) return HitResult.Great;
+            if ( -HitRange.Great   >= _headDiff && _headDiff > -HitRange.Good    ) return HitResult.Good;
+            if ( -HitRange.Good    >  _headDiff )                                  return HitResult.Miss; // Late Miss
+
+            // if ( headAbs   <= HitRange.Maximum ) return HitResult.Maximum; // ----------------------
+            // if ( headAbs   <= HitRange.Perfect ) return HitResult.Perfect; //
+            // if ( headAbs   <= HitRange.Great   ) return HitResult.Great;   //        정상 판정
+            // if ( headAbs   <= HitRange.Good    ) return HitResult.Good;    //
+            // if ( IsLateMiss( _headDiff )       ) return HitResult.Miss;    // -Good ~ : 노트를 처리하지 못함( Late Miss )
+            // if ( headAbs   <= HitRange.Bad     ) return HitResult.Bad;     // ---------------------- // Late Bad는 Hit 불가
+
             return HitResult.None;                                         // 
         }
         else // 롱노트 Tail 판정
         {
+            double headAbs  = Global.Math.Abs( _headDiff );
             double tailAbs  = Global.Math.Abs( _tailDiff );
             double combined = headAbs + tailAbs;
 
@@ -295,7 +303,7 @@ public class Judgement : Singleton<Judgement>
             if ( headAbs   <= HitRange.Perfect * 1.1d && combined <= HitRange.Perfect * 2.2d ) return HitResult.Perfect; 
             if ( headAbs   <= HitRange.Great          && combined <= HitRange.Great   * 2.0d ) return HitResult.Great;   
             if ( headAbs   <= HitRange.Good           && combined <= HitRange.Good    * 2.0d ) return HitResult.Good;
-            if ( IsLateMiss( _tailDiff ) )                                                     return HitResult.Miss;
+            if ( _tailDiff > -HitRange.Good ) /* Late Miss */                                  return HitResult.Miss;
 
             return HitResult.Bad; // 위 판정을 제외한 최소 판정은 Bad
         }

@@ -156,6 +156,8 @@ public class AudioManager : Singleton<AudioManager>
     #region System
     public void Initialize()
     {
+        var s = FMODUnity.RuntimeManager.CoreSystem;
+        Debug.Log( s.hasHandle() );
         // System
         ErrorCheck( Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( OUTPUTTYPE.AUTODETECT ) );
@@ -239,8 +241,8 @@ public class AudioManager : Singleton<AudioManager>
         else                                                                 SetVolume( 2f,           ChannelType.SFX );
 
         // Thread
-        breakPoint ??= new CancellationTokenSource();
-        systemTask = UniTask.RunOnThreadPool( () => { SystemUpdate( TargetFrame, breakPoint.Token ); } );
+        //breakPoint ??= new CancellationTokenSource();
+        //systemTask = UniTask.RunOnThreadPool( () => { SystemUpdate( TargetFrame, breakPoint.Token ); } );
 
         Debug.Log( $"AudioManager Initialization" );
         //Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
@@ -350,6 +352,12 @@ public class AudioManager : Singleton<AudioManager>
     {
         base.Awake();
         Initialize();
+    }
+
+    private void Update()
+    {
+        if ( !IsStop && system.hasHandle() )
+             system.update();
     }
 
     private async void OnApplicationQuit()
