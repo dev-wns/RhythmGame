@@ -24,14 +24,14 @@ public class BpmChanger : MonoBehaviour
     private void Clear()
     {
         StopAllCoroutines();
-        text.text = $"{Mathf.RoundToInt( ( float ) ( NowPlaying.Timings[0].bpm * GameSetting.CurrentPitch ) )}";
+        text.text = $"{Mathf.RoundToInt( ( float ) ( DataStorage.Timings[0].bpm * GameSetting.CurrentPitch ) )}";
     }
 
     private void GameStart() => StartCoroutine( UpdateBPM() );
 
     private IEnumerator UpdateBPM()
     {
-        var    timings  = NowPlaying.Timings;
+        var    timings  = DataStorage.Timings;
         int    bpmIndex = 0;
         double bpmTime  = timings[bpmIndex].time;
         while ( bpmIndex < timings.Count )

@@ -66,11 +66,6 @@ public class AudioManager : Singleton<AudioManager>
     public static event Action OnReload;
     public static event Action<float> OnUpdatePitch;
 
-    // Thread
-    private UniTask systemTask;
-    private CancellationTokenSource breakPoint;
-    private readonly long TargetFrame = 1000;
-    public static Action OnUpdateThread;
     public static int AudioFPS { get; private set; }
     public static double DeltaTime { get; private set; }
 
@@ -156,8 +151,6 @@ public class AudioManager : Singleton<AudioManager>
     #region System
     public void Initialize()
     {
-        var s = FMODUnity.RuntimeManager.CoreSystem;
-        Debug.Log( s.hasHandle() );
         // System
         ErrorCheck( Factory.System_Create( out system ) );
         ErrorCheck( system.setOutput( OUTPUTTYPE.AUTODETECT ) );
@@ -179,7 +172,7 @@ public class AudioManager : Singleton<AudioManager>
         // Sound Driver
         List<SoundDriver> drivers = new List<SoundDriver>();
         CreateDriverInfo( OUTPUTTYPE.WASAPI, drivers );
-        //MakeDriverInfomation( OUTPUTTYPE.ASIO,   drivers );
+        CreateDriverInfo( OUTPUTTYPE.ASIO,   drivers );
         Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
         ErrorCheck( system.setOutput( Drivers[curDriverIndex].outputType ) );
         ErrorCheck( system.setDriver( Drivers[curDriverIndex].index ) );
@@ -323,7 +316,7 @@ public class AudioManager : Singleton<AudioManager>
         Debug.Log( "AudioManager Release" );
     }
 
-    public async void ReLoad()
+    public void ReLoad()
     {
         IsStop = true;
         // caching
@@ -333,7 +326,6 @@ public class AudioManager : Singleton<AudioManager>
             ErrorCheck( group.getVolume( out volumes[groupCount++] ) );
 
         // reload
-        await ThreadCancel();
         Release();
         Initialize();
 
@@ -360,10 +352,9 @@ public class AudioManager : Singleton<AudioManager>
              system.update();
     }
 
-    private async void OnApplicationQuit()
+    private void OnApplicationQuit()
     {
         IsStop = true;
-        await ThreadCancel();
     }
 
     private void OnDestroy()
@@ -372,75 +363,6 @@ public class AudioManager : Singleton<AudioManager>
         // 타 클래스에서 OnDisable, OnApplicationQuit로 사운드 관련 처리를 마친 후
         // AudioManager OnDestroy가 실행될 수 있도록 한다.
         Release();
-    }
-    #endregion
-
-    #region Thread
-    public void SystemUpdate( long _targetFrame, CancellationToken _token )
-    {
-
-        QueryPerformanceFrequency( out long frequency );
-        QueryPerformanceCounter( out long start );
-        QueryPerformanceCounter( out long time );
-
-        int  fps = 0;
-        long end = 0;
-        long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
-        SpinWait spinner = new SpinWait();
-
-        Debug.Log( $"AudioManager Thread Start( {_targetFrame} Frame )" );
-        while ( !_token.IsCancellationRequested )
-        {
-            QueryPerformanceCounter( out end );
-            if ( targetTicks <= ( end - start ) )
-            {
-                if ( !IsStop && system.hasHandle() )
-                     system.update();
-
-                OnUpdateThread?.Invoke();
-                DeltaTime = ( double )( end - start ) / frequency;
-                QueryPerformanceCounter( out start );
-                fps++;
-            }
-            else
-            {
-                //Task.Delay( 1 );
-                spinner.SpinOnce();
-                spinner.Reset();
-            }
-
-            if ( frequency < ( end - time ) )
-            {
-                QueryPerformanceCounter( out time );
-                AudioFPS = fps;
-                fps = 0;
-            }
-        }
-
-        _token.ThrowIfCancellationRequested();
-    }
-
-    private async UniTask ThreadCancel()
-    {
-        if ( breakPoint is null )
-             return;
-
-        breakPoint?.Cancel();
-        try
-        {
-            if ( !systemTask.Status.IsCompleted() )
-                 await systemTask;
-        }
-        catch ( OperationCanceledException )
-        {
-            Debug.Log( "AudioManager Thread Cancel Completed" );
-        }
-        finally
-        {
-            breakPoint?.Dispose();
-            breakPoint = null;
-            //systemTask = null;
-        }
     }
     #endregion
 

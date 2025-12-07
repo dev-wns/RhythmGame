@@ -66,7 +66,7 @@ public class BGASystem : MonoBehaviour
         }
 
         type = NowPlaying.CurrentSong.hasVideo ? BackgroundType.Video  :
-               NowPlaying.Sprites.Count > 0    ? BackgroundType.Sprite :
+               DataStorage.Sprites.Count > 0   ? BackgroundType.Sprite :
                                                  BackgroundType.Image;
 
         if ( type == BackgroundType.Image )
@@ -142,7 +142,7 @@ public class BGASystem : MonoBehaviour
 
     private IEnumerator UpdateSprites()
     {
-        ReadOnlyCollection<SpriteSample> sprites = NowPlaying.Sprites;
+        var sprites = DataStorage.Sprites;
         if ( sprites == null )
              yield break;
 

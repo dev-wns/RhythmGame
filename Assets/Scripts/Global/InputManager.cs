@@ -10,8 +10,8 @@ public enum KeyState : int { None, Down, Hold, Up, }
 public struct HitData
 {
     public int       lane;
-    public double    time; // 누르거나 뗀 시간
-    public double      diff;
+    public double    time; // 키 입력 시간
+    public double    diff;
     public HitResult hitResult;
     public KeyState  keyState;
 
@@ -49,7 +49,7 @@ public class InputManager : Singleton<InputManager>
     private int[]                    Indexes;   // 노트 인덱스
     private double[]                 HeadDiff;  // 롱노트 전용 Head Hit Diff
     private bool[]                   IsEntries; // 롱노트 진입점
-    private bool[]                   PrevState;  // 이전 키 상태( 입력 2중 체크 )
+    private bool[]                   PrevState; // 이전 키 상태( 입력 2중 체크 )
     private KeyState[]               KeyStates; // 레인별 입력 상태
     private KeySound[]               KeySounds;
 
@@ -116,7 +116,7 @@ public class InputManager : Singleton<InputManager>
             IsEntries[i]   = false;
             PrevState[i]   = false;
             KeyStates[i]   = KeyState.None;
-            KeySounds[i]   = NowPlaying.Notes[i][0].keySound;
+            KeySounds[i]   = Gear.Notes[i][0].keySound;
         }
     }
 
@@ -131,9 +131,9 @@ public class InputManager : Singleton<InputManager>
         KeySounds   = null;
     }
 
-    private void UpdateInput()
+    private void UpdateInput( double _playback )
     {
-        double playback = NowPlaying.Playback;
+        int playback = ( int )_playback;
         for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
         {
             // 입력 상태 체크
@@ -151,15 +151,14 @@ public class InputManager : Singleton<InputManager>
             {
                 // 노트에 키음이 없을 수도 있다. 
                 if ( DataStorage.Inst.GetSound( KeySounds[lane].name, out FMOD.Sound sound ) )
-                    AudioManager.Inst.Play( sound, KeySounds[lane].volume );
+                     AudioManager.Inst.Play( sound, KeySounds[lane].volume );
             }
 
-
             // 데이터 소진 시 계산 불필요
-            if ( Indexes[lane] >= NowPlaying.Notes[lane].Count )
-                continue;
+            if ( Indexes[lane] >= Gear.Notes[lane].Count )
+                 continue;
 
-            Note   note     = NowPlaying.Notes[lane][Indexes[lane]];
+            Note   note     = Gear.Notes[lane][Indexes[lane]];
             double headDiff = note.time    - playback;
             double tailDiff = note.endTime - playback;
             bool   isSlider = note.isSlider;
@@ -176,7 +175,6 @@ public class InputManager : Singleton<InputManager>
 
                 if ( KeyStates[lane] == KeyState.Down )
                 {
-                    Debug.Log( $"{playback}" );
                     if ( !isSlider && Judgement.IsEarlyMiss( headDiff ) )
                     {
                         Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
@@ -263,8 +261,8 @@ public class InputManager : Singleton<InputManager>
         }
 
         // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
-        if ( Indexes[_lane] < NowPlaying.Notes[_lane].Count )
-             KeySounds[_lane] = NowPlaying.Notes[_lane][Indexes[_lane]].keySound;
+        if ( Indexes[_lane] < Gear.Notes[_lane].Count )
+             KeySounds[_lane] = Gear.Notes[_lane][Indexes[_lane]].keySound;
     }
 
     #region Key Setting

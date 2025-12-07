@@ -26,20 +26,12 @@ public class NowPlaying : Singleton<NowPlaying>
     public static int TotalSlider  { get; private set; }
     public static double MainBPM   { get; private set; }
 
-    [Header( "Chart" )]
-    public  static ReadOnlyCollection<Note>   OriginNotes   { get; private set; }
-    public  static ReadOnlyCollection<Note>[] Notes         { get; private set; } // 레인별로 분할된 노트 데이터
-    public  static ReadOnlyCollection<Timing> Timings       { get; private set; } // BPM Timing
-    private int bpmIndex;
-    public  static ReadOnlyCollection<SpriteSample> Sprites { get; private set; } // 이미지로 이루어진 BGA의 재생 데이터
-    private List<KeySound> Samples;                                               // 최종 BGM 데이터( 잘린노트의 키음 등 포함 )
-    private int bgmIndex;                         
-
     [Header( "Time" )]
     public  static double Playback { get; private set; } // ms 기준
     public  static double Distance { get; private set; }
     private        double distanceCache;
     private        double saveTime;
+    private        int    bpmIndex;
 
     private static readonly double AudioLeadIn   = 3000d;
     private static readonly double WaitPauseTime = 2000d;
@@ -58,11 +50,13 @@ public class NowPlaying : Singleton<NowPlaying>
     public static bool IsStart  { get; private set; }
     public static bool IsLoaded { get; private set; }
 
-    // Init, Update Event
-    public static event Action<Song> OnParsing;  // 약식 데이터 파싱 ( 프리스타일 곡 목록 등에 사용 )
-    public static event Action OnInitialize;     // Main  Thread
-    public static event Action OnLoadAsync;      // Other Thread
-    public static event Action OnUpdateInThread; // Other Thread
+    // Load Event
+    public static event Action<Song>  OnParsing;    // 약식 데이터 파싱 ( 프리스타일 곡 목록 등에 사용 )
+    public static event Action        OnInitialize; // Main  Thread
+    public static event Func<UniTask> OnLoad;       // Main  Thread
+    public static event Action        OnLoadAsync;  // Other Thread
+    public static event Action        OnLoadEnd;
+    public static event Action<double/* Playback */> OnUpdateInThread;
 
     // Game Event
     public static event Action OnGameStart;
@@ -143,28 +137,10 @@ public class NowPlaying : Singleton<NowPlaying>
         TotalJudge      = TotalNote + TotalSlider;
 
         // 선 파싱 ( 게임에 필요한 모든 정보 파싱 )
-        Notes = new ReadOnlyCollection<Note>[KeyCount];
-        using ( FileParser parser = new FileParser() )
+        if ( !DataStorage.Inst.LoadChart( CurrentSong ) )
         {
-            if ( parser.TryParse( CurrentSong.filePath, out List<Note>         notes,
-                                                        out List<Timing>       timings,
-                                                        out List<SpriteSample> sprites,
-                                                        out                    Samples ) )
-            {
-                OriginNotes = new ReadOnlyCollection<Note>( notes );
-                Timings     = new ReadOnlyCollection<Timing>( timings );
-                Sprites     = new ReadOnlyCollection<SpriteSample>( sprites );
-            }
-            else
-            {
-                // Goto FreeStyle
-            }
+            // Go to FreeStyle
         }
-
-        // 키음 곡이 아닌 경우 프리뷰 음악을 재생한다.
-        // 하나의 음악을 메인으로 재생하지만, Clap 등 자잘한 키음이 들어간 경우도 있다.
-        if ( !CurrentSong.isOnlyKeySound )
-              Samples.Add( new KeySound( GameSetting.SoundOffset, CurrentSong.audioName, 1f ) );
 
         // 후 계산
         OnInitialize?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
@@ -173,132 +149,15 @@ public class NowPlaying : Singleton<NowPlaying>
     /// <summary> 선택된 음악의 리소스 로딩 </summary>
     public async UniTask Load()
     {
-        // Load In Backgound Thread
-        UniTask task = UniTask.RunOnThreadPool( () =>
-        {
-            DivideNotes();
-            OnLoadAsync?.Invoke();
-            
-            for ( int i = 0; i < Samples.Count; i++ )
-                  DataStorage.Inst.LoadSound( Samples[i].name );
-        } );
-
-        // Load In Main Thread ( UnityWebRequest )
-        for ( int i = 0; i < Sprites.Count; i++ )
-              await DataStorage.Inst.LoadTexture( Sprites[i] );
+        UniTask task = UniTask.RunOnThreadPool( () => { OnLoadAsync?.Invoke(); } );
+        await OnLoad.Invoke();
 
         await task; // 대기
-
-        // 특정모드 선택으로 잘린 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
-        Samples.Sort( delegate ( KeySound _left, KeySound _right )
-        {
-            if      ( _left.time > _right.time ) return 1;
-            else if ( _left.time < _right.time ) return -1;
-            else                                 return 0;
-        } );
+        OnLoadEnd?.Invoke();
 
         // 기본 변수 초기화
         Clear();
         IsLoaded = true;
-    }
-
-    /// <summary> 게임모드가 적용된 상태로 노트를 분할합니다. </summary>
-    private void DivideNotes()
-    {
-        bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  CurrentSong.keyCount == 7;
-
-        List<int/* lane */> emptyLanes = new List<int>( KeyCount );
-        List<Note>[] notes             = Array.ConvertAll( new int[KeyCount], _ => new List<Note>() );
-        System.Random random           = new System.Random( ( int )DateTime.Now.Ticks );
-        double[] prevTimes             = Enumerable.Repeat( double.MinValue, KeyCount ).ToArray();
-        double   secondPerBeat         = ( ( ( 60d / CurrentSong.mainBPM ) * 4d ) / 32d );
-        for ( int i = 0; i < OriginNotes.Count; i++ )
-        {
-            Note newNote = OriginNotes[i];
-            newNote.isSlider = isNoSlider ? false : newNote.isSlider;
-            if ( isConvert )
-            {
-                if ( newNote.lane == 3 )
-                { 
-                    // 잘린 노트의 키음은 자동재생되도록 한다.
-                    DataStorage.Inst.LoadSound( newNote.keySound.name );
-                    Samples.Add( newNote.keySound );
-                    continue;
-                }
-                else if ( newNote.lane > 3 )
-                {
-                    // 제외된 중앙노트보다 우측의 노트는 한칸 이동시킨다.
-                    newNote.lane -= 1;
-                }
-            }
-
-            switch ( GameSetting.CurrentRandom )
-            {
-                // 레인 인덱스와 동일한 번호에 노트 분배
-                case GameRandom.None:
-                case GameRandom.Mirror:
-                case GameRandom.Basic_Random:
-                case GameRandom.Half_Random:
-                {
-                    newNote.distance    = GetDistance( newNote.time    + GameSetting.ScreenOffset );
-                    newNote.endDistance = GetDistance( newNote.endTime + GameSetting.ScreenOffset + GameSetting.LNOffset );
-
-                    DataStorage.Inst.LoadSound( newNote.keySound.name );
-                    notes[newNote.lane].Add( newNote );
-                } break;
-
-                // 맥스랜덤은 무작위 레인에 노트를 배치한다.
-                case GameRandom.Max_Random:
-                {
-                    emptyLanes.Clear();
-                    // 빠른계단, 즈레 등 고밀도로 배치될 때 보정
-                    for ( int j = 0; j < KeyCount; j++ )
-                    {
-                        if ( secondPerBeat < ( newNote.time - prevTimes[j] ) )
-                             emptyLanes.Add( j );
-                    }
-
-                    // 자리가 없을 때 보정되지않은 상태로 배치
-                    if ( emptyLanes.Count == 0 )
-                    {
-                        for ( int j = 0; j < KeyCount; j++ )
-                        {
-                            if ( prevTimes[j] < newNote.time )
-                                 emptyLanes.Add( j );
-                        }
-                    }
-
-                    int selectLane        = emptyLanes[random.Next( 0, int.MaxValue ) % emptyLanes.Count];
-                    prevTimes[selectLane] = newNote.isSlider ? newNote.endTime : newNote.time;
-
-                    newNote.lane        = selectLane;
-                    newNote.distance    = GetDistance( newNote.time    + GameSetting.ScreenOffset );
-                    newNote.endDistance = GetDistance( newNote.endTime + GameSetting.ScreenOffset + GameSetting.LNOffset );
-
-                    DataStorage.Inst.LoadSound( newNote.keySound.name );
-                    notes[selectLane].Add( newNote );
-                } break;
-            }
-        }
-
-        // 기본방식의 랜덤은 노트분배가 끝난 후, 완성된 데이터를 스왑한다.
-        switch ( GameSetting.CurrentRandom )
-        {
-            case GameRandom.Mirror:       notes.Reverse();                           break;
-            case GameRandom.Basic_Random: Global.Math.Shuffle( notes, 0, KeyCount ); break;
-            case GameRandom.Half_Random:
-            {
-                int keyCountHalf = Mathf.FloorToInt( KeyCount * .5f );
-                Global.Math.Shuffle( notes, 0, keyCountHalf );
-                Global.Math.Shuffle( notes, keyCountHalf + 1, KeyCount );
-            } break;
-        }
-
-        for ( int i = 0; i < KeyCount; i++ )
-        {
-            Notes[i] = new ReadOnlyCollection<Note>( notes[i] );
-        }
     }
     #endregion
 
@@ -311,8 +170,8 @@ public class NowPlaying : Singleton<NowPlaying>
         long end         = 0;
         long startTime   = start;
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
+        var  timings     = DataStorage.Timings;
         SpinWait spinner = new SpinWait();
-
         Debug.Log( $"Time Thread Start( {_targetFrame} Frame )" );
         while ( true )
         {
@@ -324,16 +183,16 @@ public class NowPlaying : Singleton<NowPlaying>
                 // 시간 갱신
                 Playback = saveTime + ( ( double )( end - startTime ) / frequency * 1000d ); // ms
                 // 이동된 거리 계산
-                for ( int i = bpmIndex; i < Timings.Count; i++ )
+                for ( int i = bpmIndex; i < timings.Count; i++ )
                 {
-                    double time = Timings[i].time;
-                    double bpm  = Timings[i].bpm / MainBPM;
+                    double time = timings[i].time;
+                    double bpm  = timings[i].bpm / MainBPM;
 
                     // 지나간 타이밍에 대한 거리
-                    if ( i + 1 < Timings.Count && Timings[i + 1].time < Playback )
+                    if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
                     {
                         bpmIndex += 1;
-                        distanceCache += bpm * ( Timings[i + 1].time - time );
+                        distanceCache += bpm * ( timings[i + 1].time - time );
                         break;
                     }
 
@@ -342,16 +201,7 @@ public class NowPlaying : Singleton<NowPlaying>
                     break;
                 }
 
-                // 배경음 처리( 시간의 흐름에 따라 자동재생 )
-                while ( bgmIndex < Samples.Count && Samples[bgmIndex].time <= Playback )
-                {
-                    if ( DataStorage.Inst.GetSound( Samples[bgmIndex].name, out FMOD.Sound sound ) )
-                         AudioManager.Inst.Play( sound, Samples[bgmIndex].volume );
-
-                    bgmIndex += 1;
-                }
-
-                OnUpdateInThread?.Invoke();
+                OnUpdateInThread?.Invoke( Playback );
                 QueryPerformanceCounter( out start );
             }
             else
@@ -461,7 +311,6 @@ public class NowPlaying : Singleton<NowPlaying>
         Playback      = double.MinValue;
         Distance      = double.MinValue;
         distanceCache = 0d;
-        bgmIndex      = 0;
         bpmIndex      = 0;
         IsStart       = false;
 
@@ -474,13 +323,6 @@ public class NowPlaying : Singleton<NowPlaying>
         
         IsStart   = false;
         IsLoaded  = false;
-
-        // 값 타입만을 저장한 List
-        OriginNotes = null;
-        Notes       = null;
-        Timings     = null;
-        Sprites     = null;
-        Samples     = null;
 
         OnRelease?.Invoke();
     }
@@ -509,7 +351,7 @@ public class NowPlaying : Singleton<NowPlaying>
             AudioManager.Inst.Pitch = GameSetting.CurrentPitch - decrease;
 
             Playback += speed * ( 1000f * Time.deltaTime );
-            Distance  = distanceCache + ( Playback - Timings[bpmIndex].time );
+            Distance  = distanceCache + ( Playback - DataStorage.Timings[bpmIndex].time );
 
             await UniTask.Yield( PlayerLoopTiming.Update );
         }
@@ -540,10 +382,11 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         CurrentScene.IsInputLock = true;
         double recoil  = Playback - WaitPauseTime;
+        var    timings = DataStorage.Timings;
         while ( Playback > recoil )
         {
             Playback -= Time.deltaTime * 1200f;
-            Distance = distanceCache + ( Playback - Timings[bpmIndex].time );
+            Distance = distanceCache + ( Playback - timings[bpmIndex].time );
 
             await UniTask.Yield( PlayerLoopTiming.Update );
         }
@@ -551,7 +394,7 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( Playback < saveTime )
         {
             Playback += Time.deltaTime * 1200f;
-            Distance = distanceCache + ( Playback - Timings[bpmIndex].time );
+            Distance = distanceCache + ( Playback - timings[bpmIndex].time );
 
             await UniTask.Yield( PlayerLoopTiming.Update );
         }
@@ -577,15 +420,16 @@ public class NowPlaying : Singleton<NowPlaying>
     public double GetDistance( double _time )
     {
         double result  = 0d;
-        for ( int i = 0; i < Timings.Count; i++ )
+        var    timings = DataStorage.Timings;
+        for ( int i = 0; i < timings.Count; i++ )
         {
-            double time = Timings[i].time;
-            double bpm  = Timings[i].bpm / MainBPM;
+            double time = timings[i].time;
+            double bpm  = timings[i].bpm / MainBPM;
 
             // 지나간 타이밍에 대한 거리
-            if ( i + 1 < Timings.Count && Timings[i + 1].time < _time )
+            if ( i + 1 < timings.Count && timings[i + 1].time < _time )
             {
-                result += bpm * ( Timings[i + 1].time - time );
+                result += bpm * ( timings[i + 1].time - time );
                 continue;
             }
 

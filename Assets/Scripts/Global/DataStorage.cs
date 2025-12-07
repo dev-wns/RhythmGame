@@ -38,11 +38,43 @@ public class DataStorage : Singleton<DataStorage>
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
 
+    [Header( "Origin Chart" )]
+    public static ReadOnlyCollection<Note>         Notes   { get; private set; }
+    public static ReadOnlyCollection<Timing>       Timings { get; private set; } // BPM Timing
+    public static ReadOnlyCollection<SpriteSample> Sprites { get; private set; } // 이미지로 이루어진 BGA의 재생 데이터
+    public static ReadOnlyCollection<KeySound>     Samples { get; private set; }
+    
+    [Header( "Converted Chart" )]
+    public static List<KeySound> ConvertedSamples { get; private set; }
+
     protected override void Awake()
     {
         base.Awake();
 
         LoadAssetsAsync( "DefaultTexture", ( Texture2D texture ) => textures.Add( texture ) );
+
+        NowPlaying.OnLoadAsync += () =>
+        {
+            for ( int i = 0; i < Samples.Count; i++ )
+                  LoadSound( Samples[i].name );
+        };
+
+        NowPlaying.OnLoad += async () => 
+        {
+            for ( int i = 0; i < Sprites.Count; i++ )
+                  await LoadTexture( Sprites[i] );
+        };
+
+        NowPlaying.OnLoadEnd += () =>
+        {
+            // 특정모드 선택으로 잘린 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
+            ConvertedSamples.Sort( delegate ( KeySound _left, KeySound _right )
+            {
+                if      ( _left.time > _right.time ) return 1;
+                else if ( _left.time < _right.time ) return -1;
+                else                                 return 0;
+            } );    
+        };
     }
 
     private void OnApplicationQuit()
@@ -60,7 +92,37 @@ public class DataStorage : Singleton<DataStorage>
 
         loadedTextures.Clear();
         loadedSounds.Clear();
+
+        Notes   = null;
+        Timings = null;
+        Sprites = null;
+        Samples = null;
+        ConvertedSamples = null;
         Debug.Log( $"DataStorage Release" );
+    }
+
+    public bool LoadChart( in Song _song )
+    {
+        using ( FileParser parser = new FileParser() )
+        {
+            if ( parser.TryParse( _song.filePath, out List<Note>         notes,
+                                                  out List<Timing>       timings,
+                                                  out List<SpriteSample> sprites,
+                                                  out List<KeySound>     samples ) )
+            {
+                Notes   = new ReadOnlyCollection<Note>( notes );
+                Timings = new ReadOnlyCollection<Timing>( timings );
+                Sprites = new ReadOnlyCollection<SpriteSample>( sprites );
+                Samples = new ReadOnlyCollection<KeySound>( samples );
+                ConvertedSamples = samples;
+                if ( !_song.isOnlyKeySound )
+                      AddSample( new KeySound( GameSetting.SoundOffset, _song.audioName, 1f ) );
+                
+                return true;
+            }
+        }
+
+        return false;
     }
 
     #region Addressable
@@ -99,6 +161,7 @@ public class DataStorage : Singleton<DataStorage>
     #endregion
 
     #region Sound
+    public void AddSample( KeySound _keySound ) => ConvertedSamples.Add( _keySound );
     public bool GetSound( string _name, out FMOD.Sound _sound ) => loadedSounds.TryGetValue( _name, out _sound );
     public void LoadSound( string _name )
     {

@@ -67,8 +67,8 @@ public class GameSetting : Singleton<GameSetting>
 
     // Sound
     public static int SoundOffset  = -50;
-    public static int ScreenOffset = -35;
-    public static int LNOffset     = -0;
+    public static int ScreenOffset = 0;
+    //public static int LNOffset     = -0;
 
     // Opacity ( 0 ~ 100 )
     public static int BGAOpacity   = 10;

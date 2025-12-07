@@ -56,9 +56,9 @@ public class MeasureSystem : MonoBehaviour
 
     private void CreateMeasure()
     {
-        var timings          = NowPlaying.Timings;
-        var totalTime        = NowPlaying.CurrentSong.totalTime;
-        double startNoteTime = NowPlaying.OriginNotes[0].time;
+        var    timings       = DataStorage.Timings;
+        var    totalTime     = NowPlaying.CurrentSong.totalTime;
+        //double startNoteTime = DataStorage.Notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
             // 마디선 계산은 상속된 타이밍만

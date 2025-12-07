@@ -8717,9 +8717,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1220838188}
-  - component: {fileID: 1220838187}
   - component: {fileID: 1220838189}
+  - component: {fileID: 1220838187}
   - component: {fileID: 1220838191}
+  - component: {fileID: 1220838192}
   m_Layer: 0
   m_Name: Scene
   m_TagString: Scene
@@ -8826,6 +8827,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mPrefab: {fileID: 3470382606213834254, guid: d68dd1704bffac94383d938af59c4aa7, type: 3}
+--- !u!114 &1220838192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220838186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9503f20249c356342a10e5b2d1dec592, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1244059113
 GameObject:
   m_ObjectHideFlags: 0

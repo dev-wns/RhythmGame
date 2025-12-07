@@ -55,7 +55,6 @@ public class Lane : MonoBehaviour
         NowPlaying.OnPause     -= Pause;
     }
 
-
     private void Update()
     {
         // 노트 스폰 후 데이터 체크
@@ -141,47 +140,6 @@ public class Lane : MonoBehaviour
     #endregion
 
     #region Update
-    //private void CheckHitData()
-    //{
-    //    if ( curNote == null && notes.Count > 0 )
-    //         curNote = notes.Dequeue();
-
-    //    // 판정 처리 ( Virtual Key 사용 )
-    //    if ( curNote == null || !dataQueue.TryDequeue( out HitData data ) )
-    //         return;
-
-    //    keyState = data.keyState;
-    //    if ( data.hitResult >= 0 )
-    //    {
-    //        HitEffect( curNote.IsSlider );
-
-    //        if ( !curNote.IsKeyDown )
-    //        {
-    //            if ( curNote.IsSlider ) curNote.IsKeyDown = true;
-    //            else                    SelectNextNote();
-    //        }
-    //        else
-    //        {
-    //            sliderEarlyQueue.Enqueue( curNote );
-    //            SelectNextNote( false );
-    //        }
-    //    }
-    //    else
-    //    {
-    //        HitEffect();
-    //        if ( !curNote.IsSlider )
-    //        {
-    //            SelectNextNote();
-    //        }
-    //        else
-    //        {
-    //            curNote.SetSliderFail();
-    //            sliderMissQueue.Enqueue( curNote );
-    //            SelectNextNote( false );
-    //        }
-    //    }
-    //}
-
     private void CheckHitData()
     {
         if ( curNote == null && notes.Count > 0 )
@@ -223,9 +181,9 @@ public class Lane : MonoBehaviour
 
     private void SpawnNotes()
     {
-        if ( spawnIndex < NowPlaying.Notes[Key].Count )
+        if ( spawnIndex < Gear.Notes[Key].Count )
         {
-            Note current = NowPlaying.Notes[Key][spawnIndex];
+            Note current = Gear.Notes[Key][spawnIndex];
             if ( current.distance <= NowPlaying.Distance + GameSetting.MinDistance )
             {
                 NoteRenderer note = notePool.Spawn();
