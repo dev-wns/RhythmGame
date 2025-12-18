@@ -85,7 +85,7 @@ public class FreeStyle : Scene
     public void DisableGameSetting()
     {
         DisableCanvas( ActionType.Main, gameSetting );
-        Config.Inst.Write( ConfigType.SoundOffset,  GameSetting.SoundOffset  );
+        Config.Inst.Write( ConfigType.SoundOffset,  GameSetting.OriginSoundOffset  );
         Config.Inst.Write( ConfigType.JudgeOffset,  GameSetting.JudgeOffset  );
         Config.Inst.Write( ConfigType.BGAOpacity,   GameSetting.BGAOpacity   );
         Config.Inst.Write( ConfigType.PanelOpacity, GameSetting.PanelOpacity );

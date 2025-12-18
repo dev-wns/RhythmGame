@@ -32,7 +32,7 @@ public class NowPlaying : Singleton<NowPlaying>
     private        double saveTime;
     private        int    bpmIndex;
 
-    private static readonly double AudioLeadIn   = 3000d;
+    public  static readonly double AudioLeadIn   = 3000d;
     private static readonly double WaitPauseTime = 2000d;
 
     [Header( "Thread" )]
@@ -99,6 +99,10 @@ public class NowPlaying : Singleton<NowPlaying>
             {
                 if ( parser.TryParse( files[i], out Song newSong ) )
                      newSongs.Add( newSong );
+
+
+                if ( newSong.audioOffset != 0 )
+                    Debug.Log( $"{newSong.title} {newSong.audioOffset}" );
 
                 OnParsing?.Invoke( newSong );
             }

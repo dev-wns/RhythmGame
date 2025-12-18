@@ -31,6 +31,7 @@ public class FreeStyleMainScroll : ScrollBase
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
+    private readonly float SoundOffset = -50f;
     private readonly float ScrollUpdateTime = .075f;
     private readonly float KeyHoldWaitTime  = .5f;
     private readonly float FadeDuration     = 2.5f;
@@ -131,7 +132,7 @@ public class FreeStyleMainScroll : ScrollBase
                 corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, FadeDuration  * .5f );
                 AudioManager.Inst.Position = ( uint ) curSong.previewTime;
 
-                Playback = curSong.previewTime;
+                Playback = SoundOffset + curSong.previewTime;
                 OnSoundRestart?.Invoke( curSong );
                 canRestart = true;
             } );
@@ -158,7 +159,7 @@ public class FreeStyleMainScroll : ScrollBase
         {
             endTime = curSong.totalTime;
             curSong.previewTime = GetPreviewTime( curSong.previewTime );
-            Playback = curSong.previewTime;
+            Playback = SoundOffset + curSong.previewTime;
 
             // 음악 재생 및 페이드인
             AudioManager.Inst.Play( curSound, 0f );

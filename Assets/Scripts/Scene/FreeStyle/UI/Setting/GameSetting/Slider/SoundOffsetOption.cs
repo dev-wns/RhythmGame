@@ -4,18 +4,18 @@ public class SoundOffsetOption : OptionSlider
     {
         base.Awake();
 
-        curValue = GameSetting.SoundOffset;
+        curValue = GameSetting.OriginSoundOffset;
         UpdateValue( curValue );
     }
 
     public void InputProcess( float _value )
     {
-        GameSetting.SoundOffset = ( int )_value;
+        GameSetting.OriginSoundOffset = ( int )_value;
         UpdateText( _value );
     }
 
     public override void Process()
     {
-        GameSetting.SoundOffset = curValue;
+        GameSetting.OriginSoundOffset = curValue;
     }
 }

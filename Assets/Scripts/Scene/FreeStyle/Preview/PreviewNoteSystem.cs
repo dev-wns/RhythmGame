@@ -29,7 +29,7 @@ public class PreviewNoteSystem : MonoBehaviour
     private double prevBPM;
     private Timing curTiming;
 
-    public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset + GameSetting.SoundOffset;
+    public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset;
     public static double Distance { get; private set; }
     private static double DistanceCache;
     private float noteStartPos;
@@ -106,7 +106,7 @@ public class PreviewNoteSystem : MonoBehaviour
         using ( FileParser parser = new FileParser() )
         {
             if ( !parser.TryParse( _song.filePath, out notes, out timings ) )
-                 Debug.LogWarning( $"Parsing failed  Current Chart : {_song.title}" );
+                  Debug.LogWarning( $"Parsing failed  Current Chart : {_song.title}" );
         }
 
         Restart( _song );

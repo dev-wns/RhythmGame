@@ -136,8 +136,18 @@ public class BGASystem : MonoBehaviour
         background.color   = color;
 
         vp.Prepare();
-        yield return new WaitUntil( () => vp.isPrepared && NowPlaying.CurrentSong.videoOffset <= NowPlaying.Playback );
+
+        double videoOffset = NowPlaying.CurrentSong.videoOffset;
+        double delay       = Global.Math.Max( 0d, -videoOffset );
+        yield return new WaitUntil( () => vp.isPrepared );
+        yield return new WaitUntil( () => NowPlaying.Playback >= delay );
+        vp.time = Math.Max( 0d, ( ( NowPlaying.Playback - delay ) + videoOffset ) * .001d );
         vp.Play();
+
+        // videoOffset -1000   playback  1000 시작 time     0 ms
+        // videoOffset -10000  playback 10000 시작 time     0 ms
+        // videoOffset  1000   playback     0 시작 time  1000 ms
+        // videoOffset  10000  playback     0 시작 time 10000 ms
     }
 
     private IEnumerator UpdateSprites()

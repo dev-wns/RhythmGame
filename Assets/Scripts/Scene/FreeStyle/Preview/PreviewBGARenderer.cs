@@ -230,7 +230,6 @@ public class PreviewBGARenderer : MonoBehaviour
     #region Load
     private IEnumerator LoadVideo( Song _song )
     {
-        double startDelay = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 
         vp.enabled = true;
         image.texture = renderTexture;
@@ -238,13 +237,22 @@ public class PreviewBGARenderer : MonoBehaviour
         vp.playbackSpeed = GameSetting.CurrentPitch;
         vp.Prepare();
 
-        yield return  new WaitUntil( () => vp.isPrepared );
+        double startTick = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
+        double videoOffset = NowPlaying.CurrentSong.videoOffset;
+        yield return new WaitUntil( () => vp.isPrepared );
 
         image.enabled = true;
-        tf.sizeDelta  = new Vector2( Global.Screen.Width, Global.Screen.Height );
+        tf.sizeDelta = new Vector2( Global.Screen.Width, Global.Screen.Height );
 
-        vp.time = ( _song.previewTime + videoOffset + ( System.DateTime.Now.TimeOfDay.TotalMilliseconds - startDelay ) ) * .001f;
+        double delay = System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTick;
+        vp.time = Math.Max( 0d, ( _song.previewTime + _song.audioOffset + videoOffset + delay ) * .001d );
         vp.Play();
+        Debug.Log( $"{vp.time}  {delay}" );
+
+        // AudioOffset : 프리스타일에서 노트와 음악의 영점 맞추기
+        // VideoOffset : 비디오 재생 지연시간
+        // PreviewTime : 해당 위치를 기준으로 계산
+        // delay       : 계산 도중 지나간 시간
     }
     #endregion
 

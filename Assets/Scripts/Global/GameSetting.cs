@@ -62,13 +62,14 @@ public class GameSetting : Singleton<GameSetting>
         }
     }
 
-    public static float Weight => ScrollSpeed * .071225f; // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0
+    public static float Weight => ScrollSpeed * 0.073810f; // 0.001030
+    // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
     public static float MinDistance => 1200f / Weight;
 
     // Sound
-    public static int SoundOffset  = -50;
+    public static int SoundOffset       => -50 + OriginSoundOffset;
+    public static int OriginSoundOffset = 0;
     public static int ScreenOffset = 0;
-    //public static int LNOffset     = -0;
 
     // Opacity ( 0 ~ 100 )
     public static int BGAOpacity   = 10;
@@ -102,12 +103,12 @@ public class GameSetting : Singleton<GameSetting>
 
     protected override void Awake()
     {
-        ScrollSpeed  = Config.Inst.Read( ConfigType.ScrollSpeed,  out int   scrollSpeed  ) ? scrollSpeed  : 30;
-        SoundOffset  = Config.Inst.Read( ConfigType.SoundOffset,  out int   soundOffset  ) ? soundOffset  : 0;
-        JudgeOffset  = Config.Inst.Read( ConfigType.JudgeOffset,  out int   judgeOffset  ) ? judgeOffset  : 0;
-        BGAOpacity   = Config.Inst.Read( ConfigType.BGAOpacity,   out int   bgaOpacity   ) ? bgaOpacity   : 0;
-        PanelOpacity = Config.Inst.Read( ConfigType.PanelOpacity, out int   panelOpacity ) ? panelOpacity : 0;
-        GearOffsetX  = Config.Inst.Read( ConfigType.GearOffsetX,  out float gearOffsetX  ) ? gearOffsetX  : 0f;
+        ScrollSpeed       = Config.Inst.Read( ConfigType.ScrollSpeed,  out int   scrollSpeed  ) ? scrollSpeed  : 30;
+        OriginSoundOffset = Config.Inst.Read( ConfigType.SoundOffset,  out int   soundOffset  ) ? soundOffset  : 0;
+        JudgeOffset       = Config.Inst.Read( ConfigType.JudgeOffset,  out int   judgeOffset  ) ? judgeOffset  : 0;
+        BGAOpacity        = Config.Inst.Read( ConfigType.BGAOpacity,   out int   bgaOpacity   ) ? bgaOpacity   : 0;
+        PanelOpacity      = Config.Inst.Read( ConfigType.PanelOpacity, out int   panelOpacity ) ? panelOpacity : 0;
+        GearOffsetX       = Config.Inst.Read( ConfigType.GearOffsetX,  out float gearOffsetX  ) ? gearOffsetX  : 0f;
          
         CurrentGameMode = GameMode.None;
         if ( Config.Inst.Read( ConfigType.AutoPlay, out bool isAuto      ) && isAuto     ) CurrentGameMode |= GameMode.AutoPlay;
