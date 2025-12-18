@@ -54,7 +54,8 @@ public class FreeStyleReLoad : MonoBehaviour
             NowPlaying.CurrentScene.IsInputLock = false;
         }
 
-        NowPlaying.Inst.Search( prevSelectedSong );
+        OnReLoadEnd?.Invoke();
+        // NowPlaying.Inst.Search( FreeStyleSearch.SearchText );
     }
 
     private void OnDisable()

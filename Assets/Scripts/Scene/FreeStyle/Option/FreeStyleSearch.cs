@@ -62,16 +62,16 @@ public class FreeStyleSearch : MonoBehaviour
         }
     }
 
-    public bool Clear()
-    {
-        if ( field.text.Length != 0 )
-        {
-            field.text = string.Empty;
-            return true;
-        }
+    //public bool Clear()
+    //{
+    //    if ( field.text.Length != 0 )
+    //    {
+    //        field.text = string.Empty;
+    //        return true;
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     public void SearchEvnet()
     {
@@ -102,7 +102,13 @@ public class FreeStyleSearch : MonoBehaviour
     private IEnumerator UpdateSearchSongs()
     {
         yield return YieldCache.WaitForSeconds( SearchWaitTime );
+        
+        ImmediateSearch();
+        NowPlaying.CurrentScene.IsInputLock = false;
+    }
 
+    public void ImmediateSearch()
+    {
         timerGroup.alpha = 0f;
         if ( NowPlaying.Inst.Search( field.text ) == 0 )
         {
@@ -116,6 +122,5 @@ public class FreeStyleSearch : MonoBehaviour
         }
 
         OnSearch?.Invoke();
-        NowPlaying.CurrentScene.IsInputLock = false;
     }
 }
