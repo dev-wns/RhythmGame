@@ -62,7 +62,7 @@ public class GameSetting : Singleton<GameSetting>
         }
     }
 
-    public static float Weight => ScrollSpeed / 12.75f;// ( ScrollSpeed / 13.720f ); //ScrollSpeed / 12.7037f;
+    public static float Weight => ScrollSpeed * .071225f; // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0
     public static float MinDistance => 1200f / Weight;
 
     // Sound

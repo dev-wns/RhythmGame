@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 
 public enum GameKeyCount : int { _1 = 1, _2, _3, _4, _5, _6, _7, _8, };
-public enum KeyState : int { None, Down, Hold, Up, }
+public enum KeyState : ushort { None = 0, Down, Hold, Up, }
 
 public struct HitData
 {
@@ -60,6 +60,16 @@ public class InputManager : Singleton<InputManager>
 
     private static readonly double LNComboInterval = 100; // ms
 
+    [StructLayout( LayoutKind.Sequential )]
+    public struct KeyEvent
+    {
+        public int       vKey;
+        public KeyState  keyState;
+        public long      timestamp;
+    }
+    [DllImport( "Assistant" )]
+    public static extern bool GetKeyEvent( out KeyEvent keyEvent );
+
     [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
 
     #region Properties
@@ -86,7 +96,7 @@ public class InputManager : Singleton<InputManager>
 
         // 이벤트 연결
         NowPlaying.OnInitialize      += Initialize;
-        NowPlaying.OnUpdateInThread  += UpdateInput;
+        NowPlaying.OnUpdateInThread += UpdateInput;
         NowPlaying.OnRelease         += Release;
         NowPlaying.OnClear           += Clear;
     }
@@ -133,18 +143,15 @@ public class InputManager : Singleton<InputManager>
 
     private void UpdateInput( double _playback )
     {
-        int playback = ( int )_playback;
+        if ( GetKeyEvent( out KeyEvent keyEvent ) )
+        {
+            //Debug.Log( $"{keyEvent.vKey}  {keyEvent.keyState}  {keyEvent.timestamp}" );
+        }
+
         for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
         {
-            // 입력 상태 체크
-            bool current = ( GetAsyncKeyState( VKey[lane] ) & 0x8000 ) != 0;
-            KeyStates[lane] = (PrevState[lane], current) switch {
-                ( false, true  ) => KeyState.Down,
-                ( true,  true  ) => KeyState.Hold,
-                ( true,  false ) => KeyState.Up,
-                _                => KeyState.None
-            };
-            PrevState[lane] = current;
+            if ( VKey[lane] == keyEvent.vKey )
+                 KeyStates[lane] = keyEvent.keyState;
 
             //  키음 선 실행
             if ( KeyStates[lane] == KeyState.Down )
@@ -156,11 +163,11 @@ public class InputManager : Singleton<InputManager>
 
             // 데이터 소진 시 계산 불필요
             if ( Indexes[lane] >= Gear.Notes[lane].Count )
-                 continue;
+                continue;
 
             Note   note     = Gear.Notes[lane][Indexes[lane]];
-            double headDiff = note.time    - playback;
-            double tailDiff = note.endTime - playback;
+            double headDiff = Math.Round( note.time    - _playback );
+            double tailDiff = Math.Round( note.endTime - _playback );
             bool   isSlider = note.isSlider;
 
 
@@ -168,7 +175,7 @@ public class InputManager : Singleton<InputManager>
             {
                 if ( Judgement.IsLateMiss( headDiff ) ) // Head Late Miss
                 {
-                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+                    Judgement.UpdateResult( note, lane, _playback, headDiff, 0d, KeyState.Down );
                     SelectNextNote( lane );
                     continue;
                 }
@@ -177,29 +184,29 @@ public class InputManager : Singleton<InputManager>
                 {
                     if ( !isSlider && Judgement.IsEarlyMiss( headDiff ) )
                     {
-                        Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+                        Judgement.UpdateResult( note, lane, _playback, headDiff, 0d, KeyState.Down );
                         SelectNextNote( lane );
                         continue;
                     }
 
                     if ( Judgement.CanBeHit( headDiff ) ) // Head Hit
                     {
-                        Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+                        Judgement.UpdateResult( note, lane, _playback, headDiff, 0d, KeyState.Down );
 
                         if ( isSlider )
                         {
                             IsEntries[lane] = true;
-                            HeadDiff[lane]  = headDiff;
-                            LNEndTime       = Global.Math.Max( LNEndTime, note.endTime );
+                            HeadDiff[lane] = headDiff;
+                            LNEndTime = Global.Math.Max( LNEndTime, note.endTime );
 
                             if ( !isHolding )
                             {
-                                isHolding   = true;
-                                LNStartTime = playback;
+                                isHolding = true;
+                                LNStartTime = _playback;
                             }
                         }
                         else
-                        { 
+                        {
                             SelectNextNote( lane );
                         }
                     }
@@ -209,23 +216,30 @@ public class InputManager : Singleton<InputManager>
             {
                 if ( Judgement.IsLateMiss( tailDiff ) )
                 {
-                    Judgement.UpdateResult( note, lane, playback, HeadDiff[lane], tailDiff, KeyState.Up );
+                    Judgement.UpdateResult( note, lane, _playback, HeadDiff[lane], tailDiff, KeyState.Up );
                     SelectNextNote( lane );
                     continue;
                 }
 
                 if ( KeyStates[lane] == KeyState.Up )
                 {
-                    Judgement.UpdateResult( note, lane, playback, HeadDiff[lane], tailDiff, KeyState.Up );
+                    Judgement.UpdateResult( note, lane, _playback, HeadDiff[lane], tailDiff, KeyState.Up );
                     SelectNextNote( lane );
                 }
             }
+
+            if ( KeyStates[lane] == KeyState.Down )
+                 KeyStates[lane] = KeyState.Hold;
+
+            if ( KeyStates[lane] == KeyState.Up )
+                 KeyStates[lane] = KeyState.None;
+
         }
 
         // Hold 중 콤보 증가
         if ( isHolding )
         {
-            while ( LNStartTime + LNComboInterval <= playback &&
+            while ( LNStartTime + LNComboInterval <= _playback &&
                     LNStartTime + LNComboInterval <= LNEndTime )
             {
                 Judgement.AddCombo();
@@ -234,11 +248,115 @@ public class InputManager : Singleton<InputManager>
         }
     }
 
+    //private void UpdateInput( double _playback )
+    //{
+    //    int playback = ( int )_playback;
+    //    for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
+    //    {
+    //        // 입력 상태 체크
+    //        bool current = ( GetAsyncKeyState( VKey[lane] ) & 0x8000 ) != 0;
+    //        KeyStates[lane] = (PrevState[lane], current) switch {
+    //            ( false, true  ) => KeyState.Down,
+    //            ( true,  true  ) => KeyState.Hold,
+    //            ( true,  false ) => KeyState.Up,
+    //            _                => KeyState.None
+    //        };
+    //        PrevState[lane] = current;
+
+    //        //  키음 선 실행
+    //        if ( KeyStates[lane] == KeyState.Down )
+    //        {
+    //            // 노트에 키음이 없을 수도 있다. 
+    //            if ( DataStorage.Inst.GetSound( KeySounds[lane].name, out FMOD.Sound sound ) )
+    //                 AudioManager.Inst.Play( sound, KeySounds[lane].volume );
+    //        }
+
+    //        // 데이터 소진 시 계산 불필요
+    //        if ( Indexes[lane] >= Gear.Notes[lane].Count )
+    //             continue;
+
+    //        Note   note     = Gear.Notes[lane][Indexes[lane]];
+    //        double headDiff = note.time    - playback;
+    //        double tailDiff = note.endTime - playback;
+    //        bool   isSlider = note.isSlider;
+
+
+    //        if ( !IsEntries[lane] ) // 노트 시작판정
+    //        {
+    //            if ( Judgement.IsLateMiss( headDiff ) ) // Head Late Miss
+    //            {
+    //                Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+    //                SelectNextNote( lane );
+    //                continue;
+    //            }
+
+    //            if ( KeyStates[lane] == KeyState.Down )
+    //            {
+    //                if ( !isSlider && Judgement.IsEarlyMiss( headDiff ) )
+    //                {
+    //                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+    //                    SelectNextNote( lane );
+    //                    continue;
+    //                }
+
+    //                if ( Judgement.CanBeHit( headDiff ) ) // Head Hit
+    //                {
+    //                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+
+    //                    if ( isSlider )
+    //                    {
+    //                        IsEntries[lane] = true;
+    //                        HeadDiff[lane]  = headDiff;
+    //                        LNEndTime       = Global.Math.Max( LNEndTime, note.endTime );
+
+    //                        if ( !isHolding )
+    //                        {
+    //                            isHolding   = true;
+    //                            LNStartTime = playback;
+    //                        }
+    //                    }
+    //                    else
+    //                    { 
+    //                        SelectNextNote( lane );
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        else // 롱노트 끝판정
+    //        {
+    //            if ( Judgement.IsLateMiss( tailDiff ) )
+    //            {
+    //                Judgement.UpdateResult( note, lane, playback, HeadDiff[lane], tailDiff, KeyState.Up );
+    //                SelectNextNote( lane );
+    //                continue;
+    //            }
+
+    //            if ( KeyStates[lane] == KeyState.Up )
+    //            {
+    //                Judgement.UpdateResult( note, lane, playback, HeadDiff[lane], tailDiff, KeyState.Up );
+    //                SelectNextNote( lane );
+    //            }
+    //        }
+    //    }
+
+    //    // Hold 중 콤보 증가
+    //    if ( isHolding )
+    //    {
+    //        while ( LNStartTime + LNComboInterval <= playback &&
+    //                LNStartTime + LNComboInterval <= LNEndTime )
+    //        {
+    //            Judgement.AddCombo();
+    //            LNStartTime += LNComboInterval;
+    //        }
+    //    }
+    //}
+
     private void SelectNextNote( int _lane )
     {
         Indexes[_lane]++;
         IsEntries[_lane] = false;
         HeadDiff[_lane]  = 0d;
+        KeyStates[_lane] = KeyState.None;
 
         if ( isHolding )
         {

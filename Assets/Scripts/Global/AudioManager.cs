@@ -51,9 +51,10 @@ public struct SoundDriver : IEquatable<SoundDriver>
 public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
 public class AudioManager : Singleton<AudioManager>
 {
+    public  static readonly int SampleRate         = 48000;
     private static readonly int MaxSoftwareChannel = 128;
     private static readonly int MaxVirtualChannel  = 1000;
-    
+
     private FMOD.System system;
     private Dictionary<ChannelType, ChannelGroup> groups        = new ();
     private Dictionary<DSP_TYPE, DSP>             dsps          = new ();
@@ -66,15 +67,14 @@ public class AudioManager : Singleton<AudioManager>
     public static event Action OnReload;
     public static event Action<float> OnUpdatePitch;
 
-    public static int AudioFPS { get; private set; }
-    public static double DeltaTime { get; private set; }
-
-    [DllImport( "Kernel32.dll" )]
-    private static extern bool QueryPerformanceCounter( out long lpPerformanceCount );
-
-    [DllImport( "Kernel32.dll" )]
-    private static extern bool QueryPerformanceFrequency( out long lpFrequency );
-
+    public ulong DSPClock
+    {
+        get 
+        { 
+            ErrorCheck( groups[ChannelType.BGM].getDSPClock( out ulong dspClock, out ulong parentClock ) ); 
+            return dspClock;
+        } 
+    }
     #region Property
     public uint  Length => MainSound.getLength( out uint length, TIMEUNIT.MS ) == RESULT.OK ? length : uint.MaxValue;
     public uint  Position
@@ -157,7 +157,7 @@ public class AudioManager : Singleton<AudioManager>
 
         // To do Before System Initialize
         ErrorCheck( system.getSoftwareFormat( out int sampleRate, out SPEAKERMODE mode, out int numRawSpeakers ) );
-        ErrorCheck( system.setSoftwareFormat( sampleRate, SPEAKERMODE.STEREO, numRawSpeakers ) );
+        ErrorCheck( system.setSoftwareFormat( SampleRate, SPEAKERMODE.STEREO, numRawSpeakers ) );
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
         ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
 

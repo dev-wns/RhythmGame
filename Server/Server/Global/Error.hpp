@@ -9,4 +9,6 @@ enum class Result : unsigned short
     ERR_NOT_EXIST_DATA,    // 데이터가 존재하지않음
     ERR_INVALID_DATA,      // 데이터가 유효하지않음
     ERR_UNABLE_PROCESS,    // 요청을 수행할 수 없음
+
+    ERR_FAILED_INIT,       // 초기화에 실패함
 };

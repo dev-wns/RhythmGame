@@ -5,11 +5,8 @@
 
 SessionManager::~SessionManager()
 {
-	auto iter( std::begin( sessions ) );
-	while ( iter++ != std::end( sessions ) )
-	{
-		Global::Memory::SafeDelete( ( *iter ) );
-	}
+	for ( auto& session : sessions )
+		  Global::Memory::SafeDelete( ( session ) );
 
 	sessions.clear();
 }

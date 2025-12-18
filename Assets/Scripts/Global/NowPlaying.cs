@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,12 +39,15 @@ public class NowPlaying : Singleton<NowPlaying>
     private Task                    timeTask;
     private CancellationTokenSource timeCts;
 
-    // Windows Api
-    [DllImport( "Kernel32.dll" )]
-    private static extern bool QueryPerformanceCounter( out long performanceCount );
-    [DllImport( "Kernel32.dll" )]
-    private static extern bool QueryPerformanceFrequency( out long frequency );
-
+    // DLL
+    [DllImport( "Assistant" )]
+    public static extern bool EnableRawInput( bool isEnable );
+    [DllImport( "Assistant" )]
+    private static extern bool GetPerformanceCounter( out long performanceCount );
+    [DllImport( "Assistant" )]
+    private static extern bool GetPerformanceFrequency( out long frequency );
+    [DllImport( "Assistant" )]
+    private static extern void SetTimerResolution( bool isHighQuality );
     //
     public static bool IsStart  { get; private set; }
     public static bool IsLoaded { get; private set; }
@@ -70,6 +72,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         base.Awake();
 
+        SetTimerResolution( true );
         LoadSongs();
                
         if ( Songs.Count > 0 )
@@ -78,6 +81,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
     private async void OnApplicationQuit()
     {
+        SetTimerResolution( false );
         await Release();
     }
     #endregion
@@ -164,24 +168,24 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Thread
     private void TimeUpdate( long _targetFrame, CancellationToken _token )
     {
-        QueryPerformanceFrequency( out long frequency );
-        QueryPerformanceCounter( out long start );
+        GetPerformanceFrequency( out long frequency );
+        GetPerformanceCounter( out long startTick );
 
-        long end         = 0;
-        long startTime   = start;
+        long endTick         = 0;
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
         var  timings     = DataStorage.Timings;
         SpinWait spinner = new SpinWait();
+
         Debug.Log( $"Time Thread Start( {_targetFrame} Frame )" );
         while ( true )
         {
             _token.ThrowIfCancellationRequested();
 
-            QueryPerformanceCounter( out end );
-            if ( targetTicks <= ( end - start ) )
+            GetPerformanceCounter( out endTick );
+            if ( targetTicks <= ( endTick - startTick ) )
             {
                 // 시간 갱신
-                Playback = saveTime + ( ( double )( end - startTime ) / frequency * 1000d ); // ms
+                Playback = saveTime + ( ( double )( endTick - startTick ) / frequency * 1000d ); // ms
                 // 이동된 거리 계산
                 for ( int i = bpmIndex; i < timings.Count; i++ )
                 {
@@ -202,12 +206,11 @@ public class NowPlaying : Singleton<NowPlaying>
                 }
 
                 OnUpdateInThread?.Invoke( Playback );
-                QueryPerformanceCounter( out start );
             }
             else
             {
                 spinner.SpinOnce();
-                spinner.Reset();
+                //spinner.Reset();
             }
         }
     }
@@ -320,7 +323,9 @@ public class NowPlaying : Singleton<NowPlaying>
     public async UniTask Release()
     {
         await StopTimeTask();
-        
+        if ( EnableRawInput( false ) ) Debug.LogWarning( "Assistant.dll Release Successed" );
+        else                           Debug.LogWarning( "Assistant.dll Release Failed" );
+
         IsStart   = false;
         IsLoaded  = false;
 
@@ -330,8 +335,11 @@ public class NowPlaying : Singleton<NowPlaying>
     public void GameStart()
     {
         OnGameStart?.Invoke();
-        timeCts               ??= new CancellationTokenSource();
-        timeTask                = Task.Run( () => { TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ); } );
+
+        if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
+        else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
+        timeCts ??= new CancellationTokenSource();
+        timeTask = Task.Run( () => { TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ); } );
         AudioManager.Inst.Pause = false;
         IsStart                 = true;
     }
@@ -367,6 +375,8 @@ public class NowPlaying : Singleton<NowPlaying>
         {
             IsStart = false;
             await StopTimeTask();
+            if ( EnableRawInput( false ) ) Debug.LogWarning( "Assistant.dll Release Successed" );
+            else                           Debug.LogWarning( "Assistant.dll Release Failed" );
 
             saveTime = Playback;
             AudioManager.Inst.Pause  = true;
@@ -399,9 +409,11 @@ public class NowPlaying : Singleton<NowPlaying>
             await UniTask.Yield( PlayerLoopTiming.Update );
         }
 
+        if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
+        else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
         OnPause?.Invoke( false );
-        timeCts                ??= new CancellationTokenSource();
-        timeTask                 = Task.Run( () => TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ) );
+        timeCts ??= new CancellationTokenSource();
+        timeTask = Task.Run( () => TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ) );
         AudioManager.Inst.Pause  = false;
         IsStart                  = true;
         CurrentScene.IsInputLock = false;

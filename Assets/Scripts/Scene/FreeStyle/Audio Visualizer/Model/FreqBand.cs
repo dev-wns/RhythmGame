@@ -23,7 +23,7 @@ public class FreqBand : MonoBehaviour
 
     private void Awake()
     {
-        visualizer.OnUpdate += UpdateBand;
+        visualizer.OnUpdateBand += UpdateBand;
         alpha    = new float[MaxFreqBand];
 
         if ( isReverse ) rightBars.Reverse();
@@ -48,15 +48,15 @@ public class FreqBand : MonoBehaviour
      */
     private void UpdateBand( float[] _values )
     {
-        for ( int i = 0; i < MaxFreqBand; i++ )
+        for ( int i = 0; i < bandCount; i++ )
         {
             float sumValue = 0f;
-            int start = Global.Math.Clamp( i - 1, 0, bandCount );
-            int end   = Global.Math.Clamp( i + 1, 0, bandCount );
-            for ( int idx = start; idx < end; idx++ )
+            int start = Global.Math.Clamp( i - 1, 0, bandCount - 1 );
+            int end   = Global.Math.Clamp( i + 1, 0, bandCount - 1 );
+            for ( int idx = start; idx <= end; idx++ )
                 sumValue += _values[idx] * power;
 
-            float value = sumValue / ( end - start + 2 );
+            float value = sumValue / ( end - start + 1 );
 
             alpha[i]  = Global.Math.Max( alpha[i], value );
             alpha[i] -= Global.Math.Lerp( 0f, Global.Math.Abs( alpha[i] - value ), dropAmount * Time.deltaTime );
