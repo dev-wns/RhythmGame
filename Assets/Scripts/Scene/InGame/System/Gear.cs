@@ -104,7 +104,7 @@ public class Gear : MonoBehaviour
         List<Note>[] notes             = Array.ConvertAll( new int[keyCount], _ => new List<Note>() );
         System.Random random           = new System.Random( ( int )DateTime.Now.Ticks );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
-        double   secondPerBeat         = ( ( ( 60d / NowPlaying.MainBPM ) * 4d ) / 32d );
+        double   msPerBeat             = ( 60000d / NowPlaying.MainBPM ) / 4d; // 1/4박자( 16분음표 )
         for ( int i = 0; i < DataStorage.Notes.Count; i++ )
         {
             Note newNote = DataStorage.Notes[i];
@@ -148,7 +148,7 @@ public class Gear : MonoBehaviour
                     // 빠른계단, 즈레 등 고밀도로 배치될 때 보정
                     for ( int j = 0; j < keyCount; j++ )
                     {
-                        if ( secondPerBeat < ( newNote.time - prevTimes[j] ) )
+                        if ( msPerBeat < ( newNote.time - prevTimes[j] ) )
                             emptyLanes.Add( j );
                     }
 

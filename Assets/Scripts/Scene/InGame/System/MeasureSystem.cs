@@ -82,8 +82,13 @@ public class MeasureSystem : MonoBehaviour
             if ( !hasNextTime )
                  nextTime = ( double )( totalTime + 60000d );
 
-            // 4박자에 마디선 1개 생성 ( 60BPM일때 4초마다 )
-            double mspb = ( 60d / timings[i].bpm ) * Beat * 1000d; // millisecond per beat
+            // 1마디( 4박자 ) | 1박자( 60 / bpm ) | 1/4박자( ( 60d / bpm ) / 4 )
+            // |-----|-----|-----|-----| 1마디( 4박자 )
+            //    ↓  
+            // |-----|-----|-----|-----| 1박자( 16분음표 )
+            // 16분음표( 1/4박자 ), 32분음표( 1/8박자 ), 64분음표( 1/16박자 )으로 분할가능
+
+            double mspb = ( 60000d / timings[i].bpm ) * Beat; // millisecond per beat
             while ( time < nextTime )
             {
                 measures.Add( NowPlaying.Inst.GetDistance( time + GameSetting.ScreenOffset ) );
