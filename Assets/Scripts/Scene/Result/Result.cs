@@ -51,9 +51,9 @@ public class Result : Scene
         await LoadScene( SceneType.FreeStyle );
     }
 
-    public override void Connect() { }
+    protected override void Connect() { }
 
-    public override void Disconnect() { }
+    protected override void Disconnect() { }
 
     public override void KeyBind()
     {

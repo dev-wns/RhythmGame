@@ -100,10 +100,6 @@ public class NowPlaying : Singleton<NowPlaying>
                 if ( parser.TryParse( files[i], out Song newSong ) )
                      newSongs.Add( newSong );
 
-
-                if ( newSong.audioOffset != 0 )
-                    Debug.Log( $"{newSong.title} {newSong.audioOffset}" );
-
                 OnParsing?.Invoke( newSong );
             }
         }

@@ -67,17 +67,27 @@ public class InGame : Scene
         timeImage.fillAmount = ( float )Global.Math.Clamp( ( NowPlaying.Playback / length ), 0d, 1d );
     }
 
-    public override void Connect()
+    protected override void Connect()
     {
         AudioManager.Inst.Pitch = GameSetting.CurrentPitch;
         if ( GameSetting.CurrentPitchType != PitchType.None )
              AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
-    public override void Disconnect()
+    protected override void Disconnect()
     {
         if ( GameSetting.CurrentPitchType != PitchType.None )
              AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
+    }
+
+    protected override async UniTask OnRelease()
+    {
+        playCts?.Cancel();
+        playCts?.Dispose();
+        playCts = null;
+    
+        await NowPlaying.Inst.Release();
+        DataStorage.Inst.Release();
     }
 
     private async UniTask Play()
@@ -107,8 +117,8 @@ public class InGame : Scene
 
         await UniTask.WaitForSeconds( 5f, false, PlayerLoopTiming.Update, token );
 
-        await NowPlaying.Inst.Release();
-        DataStorage.Inst.Release();
+        //await NowPlaying.Inst.Release();
+        //DataStorage.Inst.Release();
 
         await LoadScene( SceneType.Result );
     }
@@ -117,8 +127,8 @@ public class InGame : Scene
     {
         UniTask.Void( async () =>
         {
-            await NowPlaying.Inst.Release();
-            DataStorage.Inst.Release();
+            //await NowPlaying.Inst.Release();
+            //DataStorage.Inst.Release();
 
             await LoadScene( SceneType.FreeStyle );
         } );
@@ -163,8 +173,8 @@ public class InGame : Scene
 
                 await LoadScene( SceneType.Result );
 
-                await NowPlaying.Inst.Release();
-                DataStorage.Inst.Release();
+                //await NowPlaying.Inst.Release();
+                //DataStorage.Inst.Release();
             }
             else
             {

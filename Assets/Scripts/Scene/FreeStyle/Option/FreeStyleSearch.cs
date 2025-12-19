@@ -62,17 +62,6 @@ public class FreeStyleSearch : MonoBehaviour
         }
     }
 
-    //public bool Clear()
-    //{
-    //    if ( field.text.Length != 0 )
-    //    {
-    //        field.text = string.Empty;
-    //        return true;
-    //    }
-
-    //    return false;
-    //}
-
     public void SearchEvnet()
     {
         string searchText = SearchText.Replace( " ", string.Empty );

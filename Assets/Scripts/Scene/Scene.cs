@@ -27,6 +27,9 @@ public abstract class Scene : SceneKeyAction
         KeyBind();
         ChangeAction( ActionType.Main );
 
+        float maxVol = AudioManager.Inst.GetVolume( ChannelType.BGM, true );
+        AudioManager.Inst.SetVolume( maxVol, ChannelType.BGM );
+
         AudioManager.Inst.Pause = false;
     }
 
@@ -49,10 +52,14 @@ public abstract class Scene : SceneKeyAction
         DOTween.ClearCachedTweens();
 
         IsInputLock = true;
-        await FadeOut();
+
+        float volume = AudioManager.Inst.GetVolume( ChannelType.BGM );
+        await UniTask.WhenAll( FadeOut(), 
+                               AudioManager.Inst.AsyncFadeGroup( ChannelType.BGM, volume, 0f, .75f ) );
 
         AudioManager.Inst.AllStop();
         AudioManager.Inst.PitchReset();
+        await OnRelease();
         SceneManager.LoadScene( ( int ) _type );
     }
     #endregion
@@ -252,9 +259,11 @@ public abstract class Scene : SceneKeyAction
     }
     #endregion
 
-    #region Etc.
-    public abstract void Connect();
+    #region Abstract
+    protected abstract void Connect();
 
-    public abstract void Disconnect();
+    protected abstract void Disconnect();
+
+    protected virtual UniTask OnRelease() => UniTask.CompletedTask;
     #endregion
 }

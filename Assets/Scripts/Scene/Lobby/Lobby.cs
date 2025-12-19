@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 using static PacketType;
@@ -54,9 +55,8 @@ public class Lobby : Scene
         //LoadScene( SceneType.FreeStyle );
     }
 
-    public override void Connect() { }
-    public override void Disconnect() { }
-
+    protected override void Connect() { }
+    protected override void Disconnect() { }
     public override void KeyBind()
     {
         // Login

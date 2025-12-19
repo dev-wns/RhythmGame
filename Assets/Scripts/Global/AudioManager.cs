@@ -1,11 +1,8 @@
 using FMOD;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
@@ -57,6 +54,7 @@ public class AudioManager : Singleton<AudioManager>
 
     private FMOD.System system;
     private Dictionary<ChannelType, ChannelGroup> groups        = new ();
+    private Dictionary<ChannelType, float>        volumes       = new ();
     private Dictionary<DSP_TYPE, DSP>             dsps          = new ();
     private Dictionary<SFX, Sound>                sfxSounds     = new ();
 
@@ -67,17 +65,9 @@ public class AudioManager : Singleton<AudioManager>
     public static event Action OnReload;
     public static event Action<float> OnUpdatePitch;
 
-    public ulong DSPClock
-    {
-        get 
-        { 
-            ErrorCheck( groups[ChannelType.BGM].getDSPClock( out ulong dspClock, out ulong parentClock ) ); 
-            return dspClock;
-        } 
-    }
     #region Property
-    public uint  Length => MainSound.getLength( out uint length, TIMEUNIT.MS ) == RESULT.OK ? length : uint.MaxValue;
-    public uint  Position
+    public uint Length => MainSound.getLength( out uint length, TIMEUNIT.MS ) == RESULT.OK ? length : uint.MaxValue;
+    public uint Position
     {
         get
         {
@@ -100,7 +90,7 @@ public class AudioManager : Singleton<AudioManager>
 
         set => ErrorCheck( MainChannel.setVolume( value ) );
     }
-    public bool  Pause
+    public bool Pause
     {
         get
         {
@@ -120,7 +110,7 @@ public class AudioManager : Singleton<AudioManager>
             OnUpdatePitch?.Invoke( value );
         }
     }
-    public int   ChannelsInUse
+    public int ChannelsInUse
     {
         get
         {
@@ -128,7 +118,7 @@ public class AudioManager : Singleton<AudioManager>
             return channels;
         }
     }
-    public bool  IsStop { get; private set; }
+    public bool IsStop { get; private set; }
     public int CurrentDriverIndex
     {
         get => curDriverIndex;
@@ -222,8 +212,8 @@ public class AudioManager : Singleton<AudioManager>
         Load( SFX.MenuHover,          @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuHover.wav"  );
         Load( SFX.MenuExit,           @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\MenuExit.wav"   );
         Load( SFX.Slider,             @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\Slider.wav"     );
-        Load( SFX.keyboard_Input,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\KeyInput.mp3" );
-        Load( SFX.Keyboard_Backspace, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\KeyBack.mp3" );
+        Load( SFX.keyboard_Input,     @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\KeyInput.mp3"   );
+        Load( SFX.Keyboard_Backspace, @$"{Application.streamingAssetsPath}\\Default\\Sounds\\Sfx\\KeyBack.mp3"    );
 
         // Details
         if ( Config.Inst.Read( ConfigType.Master, out float masterVolume ) ) SetVolume( masterVolume, ChannelType.Master );
@@ -232,10 +222,6 @@ public class AudioManager : Singleton<AudioManager>
         else                                                                 SetVolume( 1f,           ChannelType.BGM );
         if ( Config.Inst.Read( ConfigType.SFX,    out float sfxVolume    ) ) SetVolume( sfxVolume,    ChannelType.SFX );
         else                                                                 SetVolume( 2f,           ChannelType.SFX );
-
-        // Thread
-        //breakPoint ??= new CancellationTokenSource();
-        //systemTask = UniTask.RunOnThreadPool( () => { SystemUpdate( TargetFrame, breakPoint.Token ); } );
 
         Debug.Log( $"AudioManager Initialization" );
         //Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
@@ -460,6 +446,37 @@ public class AudioManager : Singleton<AudioManager>
         _OnCompleted?.Invoke();
     }
 
+    public async UniTask AsyncFadeGroup( ChannelType _type, float _start, float _end, float _t )
+    {
+        if ( !groups.ContainsKey( _type ) )
+             return;
+
+        ChannelGroup channel = groups[_type];
+        if ( channel.isPlaying( out bool isPlaying ) != RESULT.OK )
+             return;
+
+        // 같은 값일 때 계산 없이 종료
+        if ( Global.Math.Abs( _start - _end ) < float.Epsilon )
+        {
+            ErrorCheck( channel.setVolume( _end ) );
+            return;
+        }
+
+        float elapsedVolume = _start;
+        float offset = _end - _start;
+        ErrorCheck( channel.setVolume( _start ) );
+        while ( _start < _end ? elapsedVolume < _end : // FADEIN
+                                elapsedVolume > _end ) // FADEOUT
+        {
+            await UniTask.WaitForEndOfFrame();
+            elapsedVolume += ( offset * Time.deltaTime ) / _t;
+            ErrorCheck( channel.setVolume( elapsedVolume ) );
+        }
+
+        // 페이드 인 기준으로 반복문이 끝난 시점에서 볼륨이 _end 값을 넘어가기 때문에 초기화해준다.
+        ErrorCheck( channel.setVolume( _end ) );
+    }
+
     public void PitchReset()
     {
         foreach ( var group in groups.Values )
@@ -469,10 +486,10 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-    public float GetVolume( ChannelType _type )
+    public float GetVolume( ChannelType _type, bool _isLast = false /* Fade 효과 등이 무시된 최종 볼륨 */ )
     {
         ErrorCheck( groups[_type].getVolume( out float chlVolume ) );
-        return chlVolume;
+        return _isLast ? volumes[_type] : chlVolume;
     }
 
     public void SetVolume( float _value, ChannelType _type )
@@ -481,6 +498,7 @@ public class AudioManager : Singleton<AudioManager>
                           _value > 1f ? 1f : _value;
 
         ErrorCheck( groups[_type].setVolume( chlVolume ) );
+        volumes[_type] = chlVolume;
     }
 
     public void Release( Sound _sound )

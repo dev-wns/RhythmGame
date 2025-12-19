@@ -92,7 +92,7 @@ public class InitScene : Scene
         Bind( ActionType.Main, KeyCode.Return, () => { } );
     }
 
-    public override void Connect() { }
+    protected override void Connect() { }
 
-    public override void Disconnect() { }
+    protected override void Disconnect() { }
 }

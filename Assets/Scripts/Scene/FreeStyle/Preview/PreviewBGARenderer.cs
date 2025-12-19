@@ -247,7 +247,6 @@ public class PreviewBGARenderer : MonoBehaviour
         double delay = System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTick;
         vp.time = Math.Max( 0d, ( _song.previewTime + _song.audioOffset + videoOffset + delay ) * .001d );
         vp.Play();
-        Debug.Log( $"{vp.time}  {delay}" );
 
         // AudioOffset : 프리스타일에서 노트와 음악의 영점 맞추기
         // VideoOffset : 비디오 재생 지연시간

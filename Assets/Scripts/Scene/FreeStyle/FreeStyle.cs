@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -12,7 +13,6 @@ public class FreeStyle : Scene
     public FreeStyleSearch search;
 
     public TextMeshProUGUI speedText;
-    //public TextMeshProUGUI audioFPSText;
 
     protected override void Awake()
     {
@@ -29,8 +29,6 @@ public class FreeStyle : Scene
         Judgement     judgement     = Judgement.Inst;
 
         OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed}";
-
-        //StartCoroutine( UpdateAudioFPSTexts() );
     }
 
     protected override void Start()
@@ -39,38 +37,20 @@ public class FreeStyle : Scene
         AudioManager.OnReload += Connect;
     }
 
-    //private IEnumerator UpdateAudioFPSTexts()
-    //{
-    //    int curFPS = 0, prevFPS = 0;
-    //    double deltaTime = 0d;
-    //    while ( true )
-    //    {
-    //        yield return YieldCache.WaitForSeconds( .075f );
-
-    //        deltaTime += ( AudioManager.DeltaTime - deltaTime );
-    //        curFPS     = ( int ) ( 1d / deltaTime );
-
-    //        if ( curFPS != prevFPS )
-    //             audioFPSText.text = $"{curFPS} FPS ({( deltaTime * 1000d ):F2} ms)";
-
-    //        prevFPS = curFPS;
-    //    }
-    //}
-
     protected override void OnDestroy()
     {
         base.OnDestroy();
         AudioManager.OnReload -= Connect;
     }
 
-    public override void Connect()
+    protected override void Connect()
     {
         AudioManager.Inst.Pitch = GameSetting.CurrentPitch;
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT,        ChannelType.BGM );
     }
 
-    public override void Disconnect()
+    protected override void Disconnect()
     {
         AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.FFT,        ChannelType.BGM );
