@@ -181,9 +181,9 @@ public class Lane : MonoBehaviour
 
     private void SpawnNotes()
     {
-        if ( spawnIndex < Gear.Notes[Key].Count )
+        if ( spawnIndex < LaneSystem.Notes[Key].Count )
         {
-            Note current = Gear.Notes[Key][spawnIndex];
+            Note current = LaneSystem.Notes[Key][spawnIndex];
             if ( current.distance <= NowPlaying.Distance + GameSetting.MinDistance )
             {
                 NoteRenderer note = notePool.Spawn();

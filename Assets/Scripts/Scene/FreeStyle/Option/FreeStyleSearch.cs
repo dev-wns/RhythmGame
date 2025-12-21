@@ -62,7 +62,7 @@ public class FreeStyleSearch : MonoBehaviour
         }
     }
 
-    public void SearchEvnet()
+    public void SearchEvent()
     {
         string searchText = SearchText.Replace( " ", string.Empty );
         string fieldText  = field.text.Replace( " ", string.Empty );

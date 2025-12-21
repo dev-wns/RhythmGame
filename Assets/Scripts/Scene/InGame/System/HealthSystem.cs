@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System.Collections;
-using System.Threading;
 using UnityEngine;
 
 public struct HealthData
@@ -31,14 +30,12 @@ public class HealthSystem : MonoBehaviour
     private float healthTileOffset;
     private float healthScaleTimer;
 
-    //[Header( "Asynchronous" )]
-    //private CancellationTokenSource breakPoint;
-
     private void Awake()
     {
-        NowPlaying.OnGameStart += GameStart;
-        NowPlaying.OnClear     += Clear;
-        Judgement.OnHitNote    += UpdateHealth;
+        NowPlaying.OnInitialize += Clear;
+        NowPlaying.OnGameStart  += GameStart;
+        NowPlaying.OnClear      += Clear;
+        Judgement.OnHitNote     += UpdateHealth;
 
         healthTileCached = healthRenderer.size;
         healthTileOffset = healthRenderer.size.y;
@@ -46,21 +43,15 @@ public class HealthSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        NowPlaying.OnGameStart -= GameStart;
-        NowPlaying.OnClear     -= Clear;
-        Judgement.OnHitNote    -= UpdateHealth;
-
-        //breakPoint?.Cancel();
-        //breakPoint?.Dispose();
+        NowPlaying.OnInitialize -= Clear;
+        NowPlaying.OnGameStart  -= GameStart;
+        NowPlaying.OnClear      -= Clear;
+        Judgement.OnHitNote     -= UpdateHealth;
     }
 
     private void Clear()
     {
         StopAllCoroutines();
-
-        //breakPoint?.Cancel();
-        //breakPoint?.Dispose();
-        //breakPoint = null;
 
         healthAmount = 0f;
         healthOffset = 0f;
@@ -70,43 +61,8 @@ public class HealthSystem : MonoBehaviour
 
     private void GameStart()
     {
-        //breakPoint = new CancellationTokenSource();
-        //await HealthEffect( breakPoint.Token );
-
         StartCoroutine( InitHealthEffect() );
     }
-
-    //private async UniTask HealthEffect( CancellationToken _token )
-    //{
-    //    while ( healthAmount < MaxHealth )
-    //    {
-    //        healthAmount += Time.deltaTime;
-    //        await UniTask.Yield( PlayerLoopTiming.Update, _token );
-    //    }
-
-    //    healthAmount = MaxHealth;
-    //    StartCoroutine( AutoScaling() );
-
-    //    bool isNoFailed = GameSetting.CurrentGameMode.HasFlag( GameMode.NoFail );
-    //    while ( !_token.IsCancellationRequested )
-    //    {
-    //        healthAmount += healthOffset * smoothHealthSpeed * Time.deltaTime;
-    //        if ( healthOffset > 0f ? health < healthAmount : health > healthAmount )
-    //             healthAmount = health;
-
-    //        if ( !isNoFailed && health < 0f )
-    //        {
-    //            await NowPlaying.Inst.GameOver();
-    //            while ( healthAmount > -MaxHealth )
-    //            {
-    //                healthAmount -= Time.deltaTime;
-    //                await UniTask.Yield( PlayerLoopTiming.Update, _token );
-    //            } break;
-    //        }
-
-    //        await UniTask.Yield( PlayerLoopTiming.Update, _token );
-    //    }
-    //}
 
     private IEnumerator InitHealthEffect()
     {

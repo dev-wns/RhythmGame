@@ -70,8 +70,6 @@ public class InputManager : Singleton<InputManager>
     [DllImport( "Assistant" )]
     public static extern bool GetKeyEvent( out KeyEvent keyEvent );
 
-    [DllImport( "user32.dll" )] static extern short GetAsyncKeyState( int _vKey );
-
     #region Properties
     public static Dictionary<KeyCode, string>.KeyCollection AvailableKeys => UnityToString.Keys;
     public static bool    IsAvailable( KeyCode _key )       => UnityToString.ContainsKey( _key );
@@ -126,7 +124,7 @@ public class InputManager : Singleton<InputManager>
             IsEntries[i]   = false;
             PrevState[i]   = false;
             KeyStates[i]   = KeyState.None;
-            KeySounds[i]   = Gear.Notes[i][0].keySound;
+            KeySounds[i]   = LaneSystem.Notes[i][0].keySound;
         }
     }
 
@@ -162,10 +160,10 @@ public class InputManager : Singleton<InputManager>
             }
 
             // 데이터 소진 시 계산 불필요
-            if ( Indexes[lane] >= Gear.Notes[lane].Count )
+            if ( Indexes[lane] >= LaneSystem.Notes[lane].Count )
                 continue;
 
-            Note   note     = Gear.Notes[lane][Indexes[lane]];
+            Note   note     = LaneSystem.Notes[lane][Indexes[lane]];
             double headDiff = Math.Round( note.time    - _playback );
             double tailDiff = Math.Round( note.endTime - _playback );
             bool   isSlider = note.isSlider;
@@ -379,8 +377,8 @@ public class InputManager : Singleton<InputManager>
         }
 
         // 사운드 변경 ( 모든 데이터 체크완료 시 마지막 사운드로 고정 )
-        if ( Indexes[_lane] < Gear.Notes[_lane].Count )
-             KeySounds[_lane] = Gear.Notes[_lane][Indexes[_lane]].keySound;
+        if ( Indexes[_lane] < LaneSystem.Notes[_lane].Count )
+             KeySounds[_lane] = LaneSystem.Notes[_lane][Indexes[_lane]].keySound;
     }
 
     #region Key Setting

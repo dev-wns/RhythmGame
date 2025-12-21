@@ -10,8 +10,8 @@ using UnityEngine.Video;
 public class PreviewBGARenderer : MonoBehaviour
 {
     public Color color;
-    private RectTransform tf;
     private PreviewBGASystem system;
+    private RectTransform tf;
 
     private readonly float fadeTime = .25f;
     private float fadeOffset;
@@ -25,16 +25,16 @@ public class PreviewBGARenderer : MonoBehaviour
     private string imageName;
 
     [Header( "Video Player" )]
-    public RenderTexture renderTexture;
+    public  RenderTexture renderTextureDesc;
+    private RenderTexture renderTexture;
     private VideoPlayer vp;
     private Coroutine   CorUpdateVideo;
 
 
+    private static float LoadDelay = 1f / 60f; // 초당 60장 로드
     private Dictionary<string/* name */, Texture2D> textures = new ();
     private List<SpriteSample> sprites = new List<SpriteSample>();
     private Coroutine CorUpdateSprites;
-
-
 
     private void Awake()
     {
@@ -42,6 +42,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
         // Video
         vp = GetComponent<VideoPlayer>();
+        renderTexture = new RenderTexture( renderTextureDesc.descriptor );
         vp.targetTexture = renderTexture;
 
         // Image
@@ -56,6 +57,17 @@ public class PreviewBGARenderer : MonoBehaviour
         foreach ( Texture2D texture in textures.Values )
         {
             DestroyImmediate( texture );
+        }
+
+        vp.targetTexture = null;
+        vp?.Stop();
+        if ( renderTexture )
+        {
+            if ( renderTexture.IsCreated() )
+                 renderTexture.Release();
+
+            DestroyImmediate( renderTexture );
+            renderTexture = null;
         }
     }
 
@@ -173,7 +185,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
                     if ( www.result == UnityWebRequest.Result.ConnectionError ||
                          www.result == UnityWebRequest.Result.ProtocolError )
-                        throw new Exception( www.error );
+                         throw new Exception( www.error );
 
                     tex = handler.texture;
                 }
@@ -189,6 +201,7 @@ public class PreviewBGARenderer : MonoBehaviour
         }
 
         textures.Add( _sprite.name, tex );
+        yield return YieldCache.WaitForSeconds( LoadDelay );
     }
 
     private IEnumerator LoadSprites()
@@ -230,7 +243,6 @@ public class PreviewBGARenderer : MonoBehaviour
     #region Load
     private IEnumerator LoadVideo( Song _song )
     {
-
         vp.enabled = true;
         image.texture = renderTexture;
         vp.url = @$"{_song.videoPath}";

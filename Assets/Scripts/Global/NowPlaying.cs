@@ -444,7 +444,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 result += bpm * ( timings[i + 1].time - time );
                 continue;
             }
-
+            
             // 현재 타이밍에 대한 거리
             result += bpm * ( _time - time );
             break;

@@ -38,13 +38,13 @@ public class InGame : Scene
         playCts = new CancellationTokenSource();
 
         NowPlaying.OnGameOver += GameOver;
-        NowPlaying.Inst.Initialize();
     }
 
     protected override async void Start()
     {
         base.Start();
 
+        NowPlaying.Inst.Initialize();
         await NowPlaying.Inst.Load();
 
         try { await Play(); } // 플레이 도중 일시정지하여 로비로 이동할 경우 ( 비동기 작업 취소 )

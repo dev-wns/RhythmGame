@@ -322,6 +322,7 @@ public class Judgement : Singleton<Judgement>
             _                 => HitScore.Miss
         };
     }
+
     private static int GetHitBonus( HitResult _result )
     {
         return _result switch

@@ -1605,8 +1605,6 @@ MonoBehaviour:
   helpTransform: {fileID: 2130595683}
   healthBGTransform: {fileID: 520658402}
   healthRendererTransform: {fileID: 1216426849}
-  prefab: {fileID: 3506509255338831063, guid: 59a59c1378c269a4881781fc3d23a58c, type: 3}
-  laneParent: {fileID: 1911298465}
 --- !u!1 &314525027
 GameObject:
   m_ObjectHideFlags: 0
@@ -13205,8 +13203,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1911298465}
+  - component: {fileID: 1911298466}
   m_Layer: 0
-  m_Name: Lane
+  m_Name: LaneSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13227,6 +13226,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 302557591}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1911298466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911298464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88519cdf40239284fb2b86210e26dadf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 3506509255338831063, guid: 59a59c1378c269a4881781fc3d23a58c, type: 3}
 --- !u!1 &1911710317
 GameObject:
   m_ObjectHideFlags: 0
@@ -15066,6 +15078,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 930784872}
+  - {fileID: 1220838188}
   - {fileID: 1360265002}
   - {fileID: 711278377}
   - {fileID: 302557591}
@@ -15076,4 +15089,3 @@ SceneRoots:
   - {fileID: 1876988538}
   - {fileID: 1413487547}
   - {fileID: 844784037}
-  - {fileID: 1220838188}
