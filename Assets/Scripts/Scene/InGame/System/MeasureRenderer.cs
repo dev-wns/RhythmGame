@@ -5,11 +5,6 @@ public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
     public ObjectPool<MeasureRenderer> pool { get; set; }
     private double distance;
 
-    private void Awake()
-    {
-        transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
-    }
-
     private void LateUpdate()
     {
         transform.position = new Vector2( GameSetting.GearOffsetX, GameSetting.JudgePos + ( float )( distance - NowPlaying.Distance ) * GameSetting.Weight );
@@ -19,6 +14,7 @@ public class MeasureRenderer : MonoBehaviour, IObjectPool<MeasureRenderer>
 
     public void SetInfo( double _distance )
     {
+        transform.localScale = new Vector3( GameSetting.GearWidth, GameSetting.MeasureHeight, 1f );
         distance = _distance;
     }
 }

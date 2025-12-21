@@ -93,10 +93,10 @@ public class InputManager : Singleton<InputManager>
         KeyMapping();
 
         // 이벤트 연결
-        NowPlaying.OnInitialize      += Initialize;
-        NowPlaying.OnUpdateInThread += UpdateInput;
-        NowPlaying.OnRelease         += Release;
-        NowPlaying.OnClear           += Clear;
+        //NowPlaying.OnInitialize     += Initialize;
+        //NowPlaying.OnUpdateInThread += UpdateInput;
+        //NowPlaying.OnRelease        += Release;
+        //NowPlaying.OnClear          += Clear;
     }
 
     private void Initialize()

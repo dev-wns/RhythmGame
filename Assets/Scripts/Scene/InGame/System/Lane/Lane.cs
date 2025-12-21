@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 
-public class Lane : MonoBehaviour
+public class Lane : LaneBase
 {
-    [Header( "Input Key" )]
-    public int     Key  { get; private set; } // Lane Index
-    public int     VKey { get; private set; } // Virtual KeyCode
-    public KeyCode UKey { get; private set; } // Unity KeyCode
+    //[Header( "Input Key" )]
+    //public int     Key  { get; private set; } // Lane Index
+    //public int     VKey { get; private set; } // Virtual KeyCode
+    //public KeyCode UKey { get; private set; } // Unity KeyCode
+
+    public InputSystem InputSys { get; private set; }
 
     [Header( "Note" )]
     public NoteRenderer note1 /* Lane 0,2,3,5 */, note2 /* Lane 1,4 */, noteMedian;
@@ -43,14 +45,12 @@ public class Lane : MonoBehaviour
     {
         ClearEffect();
 
-        NowPlaying.OnClear     += Clear;
         NowPlaying.OnGameOver  += GameOver;
         NowPlaying.OnPause     += Pause;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnClear     -= Clear;
         NowPlaying.OnGameOver  -= GameOver;
         NowPlaying.OnPause     -= Pause;
     }
@@ -103,11 +103,15 @@ public class Lane : MonoBehaviour
     #region Initialize
     public void AddData( in HitData _data ) => dataQueue.Enqueue( _data );
 
-    public void Initialize( int _lane )
+    public override void Initialize( int _lane )
     {
-        Key  = _lane;
-        UKey = InputManager.Keys[( GameKeyCount )NowPlaying.KeyCount][Key];
-        VKey = InputManager.GetVirtualKey( UKey );
+        base.Initialize( _lane );
+
+        if ( !TryGetComponent( out InputSystem inputSys ) )
+             Debug.LogError( "InputSystem is not Created" );
+
+        InputSys = inputSys;
+        InputSys.Initialize( this );
 
         NoteRenderer note = note1;
         if (      NowPlaying.KeyCount == 4 ) note = _lane == 1 || _lane == 2 ? note2 : note1;
@@ -116,7 +120,7 @@ public class Lane : MonoBehaviour
         notePool ??= new ObjectPool<NoteRenderer>( note, 5 );
 
         // 인덱스에 맞는 위치에 레인 배치
-        transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) + ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 0f );
+        //transform.position = new Vector3( GameSetting.NoteStartPos + ( GameSetting.NoteWidth * Key ) + ( GameSetting.NoteBlank * Key ) + GameSetting.NoteBlank, GameSetting.JudgePos, 0f );
         if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
         {
             laneRenderer.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
@@ -255,8 +259,10 @@ public class Lane : MonoBehaviour
     }
     #endregion
 
-    private void Clear()
+    public void Clear()
     {
+        InputSys.Clear();
+
         while ( sliderMissQueue.Count > 0 )
         {
             var slider = sliderMissQueue.Dequeue();
@@ -280,7 +286,7 @@ public class Lane : MonoBehaviour
 
     private void GameOver()
     {
-        isHitLoop     = false;
+        isHitLoop = false;
         ClearEffect();
 
         if ( curNote != null )

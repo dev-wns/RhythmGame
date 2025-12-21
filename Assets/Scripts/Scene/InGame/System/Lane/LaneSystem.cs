@@ -5,41 +5,124 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
+[StructLayout( LayoutKind.Sequential )]
+public struct KeyEvent
+{
+    public int       vKey;
+    public KeyState  keyState;
+    public long      timestamp;
+}
+
 public class LaneSystem : MonoBehaviour
 {
     [Header( "Lane" )]
     public  Lane prefab;
     private List<Lane> lanes = new();
 
-    [DllImport( "Assistant" )]
-    private static extern bool GetPerformanceCounter( out long performanceCount );
+    [Header( "Hold Process" )]
+    private int    bitHolding;
+    private double lnStartTime;
+    private double lnEndTime;
+    private bool   isHolding;
+
+    private static readonly double LNComboInterval = 100; // ms
+
+    [DllImport( "Assistant" )] private static extern bool GetKeyEvent( out KeyEvent keyEvent );
+    [DllImport( "Assistant" )] private static extern bool GetPerformanceCounter( out long performanceCount );
     public static ReadOnlyCollection<Note>[] Notes { get; private set; } // 레인별로 분할된 노트 데이터
 
     private void Awake()
     {
-        NowPlaying.OnInitialize += Initialize;
-        NowPlaying.OnLoadAsync  += DivideNotes;
-        Judgement.OnHitNote     += Transfer;
+        NowPlaying.OnInitialize     += Initialize;
+        NowPlaying.OnLoadAsync      += DivideNotes;
+        NowPlaying.OnUpdateInThread += UpdateInput;
+        NowPlaying.OnClear          += Clear;
+        NowPlaying.OnRelease        += Release;
+        Judgement.OnHitNote         += Transfer;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnInitialize -= Initialize;
-        NowPlaying.OnLoadAsync  -= DivideNotes;
-        Judgement.OnHitNote     -= Transfer;
+        NowPlaying.OnInitialize     -= Initialize;
+        NowPlaying.OnLoadAsync      -= DivideNotes;
+        NowPlaying.OnUpdateInThread -= UpdateInput;
+        NowPlaying.OnClear          -= Clear;
+        NowPlaying.OnRelease        -= Release;
+        Judgement.OnHitNote         -= Transfer;
 
+        Notes = null;
+    }
+
+    private void Clear()
+    {
+        foreach( Lane lane in lanes )
+        {
+            lane.Clear();
+        }
+    }
+
+    private void Release()
+    {
         Notes = null;
     }
 
     private void Initialize()
     {
         Notes = new ReadOnlyCollection<Note>[NowPlaying.KeyCount];
-        for ( int i = 0; i < NowPlaying.KeyCount; i++ )
+        for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
         {
             lanes.Add( Instantiate( prefab, transform ) );
-            lanes[i].Initialize( i );
+            lanes[lane].Initialize( lane );
+            
+            InputSystem inputSys = lanes[lane].InputSys;
+            inputSys.OnChangedLNState += DetectHoldNote;
         }
         Debug.Log( $"Create {lanes.Count} lanes." );
+    }
+
+    private void UpdateInput( double _playback )
+    {
+        GetKeyEvent( out KeyEvent keyEvent );
+        foreach ( Lane lane in lanes )
+        {
+            InputSystem inputSys = lane.InputSys;
+            inputSys.UpdateInput( _playback, keyEvent );
+        }
+
+        if ( isHolding )
+        {
+            while ( lnStartTime + LNComboInterval <= _playback &&
+                    lnStartTime + LNComboInterval <= lnEndTime )
+            {
+                Judgement.AddCombo();
+                lnStartTime += LNComboInterval;
+            }
+        }
+    }
+
+    private void DetectHoldNote( LNState _info )
+    {
+        if ( _info.keyState == KeyState.Down )
+        {
+            lnEndTime = Global.Math.Max( lnEndTime, _info.end ); // 더 긴 LN을 기준으로 함
+            if ( bitHolding == 0 ) // Hold 중인 노트가 없을 때
+            {
+                isHolding   = true;
+                lnStartTime = _info.start;
+            }
+
+            bitHolding |= ( 1 << _info.lane );  // Bit On
+        }
+        else
+        {
+            bitHolding &= ~( 1 << _info.lane ); // Bit Off
+            if ( bitHolding == 0 )
+            {
+                isHolding   = false;
+                lnStartTime = 0;
+                lnEndTime   = 0;
+            }
+        }
     }
 
     private void Transfer( HitData _data )
@@ -150,6 +233,7 @@ public class LaneSystem : MonoBehaviour
         for ( int i = 0; i < keyCount; i++ )
         {
             Notes[i] = new ReadOnlyCollection<Note>( notes[i] );
+            lanes[i].InputSys.SetNotes( Notes[i] );
         }
     }
 }
