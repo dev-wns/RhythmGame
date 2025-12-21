@@ -11,6 +11,13 @@ public struct KeyEvent
     public int       vKey;
     public KeyState  keyState;
     public long      timestamp;
+
+    public KeyEvent( int _vKey, KeyState _keyState, long _timestamp )
+    {
+        vKey      = _vKey;
+        keyState  = _keyState;
+        timestamp = _timestamp;
+    }
 }
 
 public class LaneSystem : MonoBehaviour
@@ -56,11 +63,6 @@ public class LaneSystem : MonoBehaviour
     private void Clear()
     {
         bitHolding = 0;
-
-        foreach( Lane lane in lanes )
-        {
-            lane.Clear();
-        }
     }
 
     private void Release()

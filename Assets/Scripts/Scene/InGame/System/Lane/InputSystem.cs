@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public struct LNState
@@ -26,13 +27,14 @@ public class InputSystem : MonoBehaviour
     private ReadOnlyCollection<Note> notes;
 
     [Header( "Input Process" )]
-    public  bool     IsEntry { get; private set; } // 롱노트 진입점
+    private bool     isEntry;    // 롱노트 진입점
     private int      index;      // 노트 인덱스
     private double   lnHeadDiff; // 롱노트 Head Hit Diff
     private KeyState keyState;   // 레인 입력 상태
     private KeySound keySound;
 
     public event Action<LNState> OnChangedLNState;
+    [DllImport( "Assistant" )] private static extern bool GetPerformanceCounter( out long performanceCount );
 
     public void Initialize( Lane _lane )
     {
@@ -42,11 +44,34 @@ public class InputSystem : MonoBehaviour
 
     public void SetNotes( ReadOnlyCollection<Note> _notes ) => notes = _notes;
 
+    public void Pause( bool _isPause )
+    {
+        if ( !_isPause )
+             return;
+
+        if ( isEntry )
+        {
+            GetPerformanceCounter( out long qpc );
+            KeyEvent upEvent = new KeyEvent( vKey, KeyState.Up, qpc );
+            UpdateInput( NowPlaying.Playback, upEvent );
+        }
+        //Note note = notes[index];
+        //if ( note.isSlider && IsEntry )
+        //{
+        //    double tailDiff = note.endTime - NowPlaying.Playback;
+            
+        //    OnChangedLNState?.Invoke( new LNState( lane, KeyState.Up, 0d, 0d ) );
+        //    Judgement.UpdateResult( note, lane, NowPlaying.Playback, lnHeadDiff, tailDiff, KeyState.Up );
+        //    SelectNextNote();
+        //}
+    }
+
+
     public void Clear()
     {
         index      = 0;
         lnHeadDiff = 0d;
-        IsEntry    = false;
+        isEntry    = false;
         keyState   = KeyState.None;
         keySound   = notes[0].keySound;
     }
@@ -74,7 +99,7 @@ public class InputSystem : MonoBehaviour
         bool   isSlider = note.isSlider;
 
 
-        if ( !IsEntry ) // 노트 시작판정
+        if ( !isEntry ) // 노트 시작판정
         {
             if ( Judgement.IsLateMiss( headDiff ) ) // Head Late Miss
             {
@@ -98,7 +123,7 @@ public class InputSystem : MonoBehaviour
 
                     if ( isSlider )
                     {
-                        IsEntry    = true;
+                        isEntry    = true;
                         lnHeadDiff = headDiff;
                         OnChangedLNState?.Invoke( new LNState( lane, KeyState.Down, _playback, note.endTime ) );
                     }
@@ -137,7 +162,7 @@ public class InputSystem : MonoBehaviour
     private void SelectNextNote()
     {
         index++;
-        IsEntry    = false;
+        isEntry    = false;
         lnHeadDiff = 0d;
         keyState   = KeyState.None;
 

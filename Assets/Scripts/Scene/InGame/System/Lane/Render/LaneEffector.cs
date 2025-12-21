@@ -61,6 +61,8 @@ public class LaneEffector : MonoBehaviour
     public void Clear()
     {
         isHitLoop = false;
+        hitTimer  = 0f;
+        hitIndex  = 0;
 
         inputRenderer.color = Color.clear;
         hitRenderer.color   = Color.clear;

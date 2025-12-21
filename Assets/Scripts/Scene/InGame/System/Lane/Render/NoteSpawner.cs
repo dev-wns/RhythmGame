@@ -19,7 +19,9 @@ public class NoteSpawner : MonoBehaviour
     private Queue<NoteRenderer> lnEarlyQueue = new ();
     private int spawnIndex;
 
-    public NoteRenderer CurrentNote { get; private set; } // 가장 먼저 스폰된 노트
+    private bool isPrevHolding; // pause 전에 hold 중이였는지
+
+    public  NoteRenderer CurrentNote { get; private set; } // 가장 먼저 스폰된 노트
     private ReadOnlyCollection<Note> datas;
 
     public void Initialize( Lane _lane )
@@ -34,6 +36,24 @@ public class NoteSpawner : MonoBehaviour
     }
 
     public void SetNotes( ReadOnlyCollection<Note> _datas ) => datas = _datas;
+
+    public void Pause( bool _isPause )
+    {
+        if ( CurrentNote == null )
+             return;
+
+        if ( _isPause )
+        {
+            isPrevHolding = CurrentNote.IsKeyDown;
+            if ( isPrevHolding )
+                 CurrentNote.IsKeyDown = false;
+        }
+        else
+        {
+            if ( isPrevHolding )
+                 CurrentNote.IsKeyDown = true;
+        }
+    }
 
     public void Clear()
     {
@@ -51,8 +71,9 @@ public class NoteSpawner : MonoBehaviour
         pool.AllDespawn();
         notes.Clear();
 
-        spawnIndex  = 0;
-        CurrentNote = null;
+        isPrevHolding = false;
+        spawnIndex    = 0;
+        CurrentNote   = null;
     }
 
     public void SpawnNotes( double _playback )

@@ -12,13 +12,12 @@ public class Lane : LaneBase
 
     public  Queue<HitData> dataQueue = new ();
 
-    public event Action<double> OnUpdate;
-
     private void Awake()
     {
         NowPlaying.OnUpdate    += UpdateLane;
         NowPlaying.OnGameOver  += GameOver;
         NowPlaying.OnPause     += Pause;
+        NowPlaying.OnClear     += Clear;
     }
 
     private void OnDestroy()
@@ -26,6 +25,7 @@ public class Lane : LaneBase
         NowPlaying.OnUpdate    -= UpdateLane;
         NowPlaying.OnGameOver  -= GameOver;
         NowPlaying.OnPause     -= Pause;
+        NowPlaying.OnClear     -= Clear;
     }
 
     public override void Initialize( int _lane )
@@ -56,10 +56,10 @@ public class Lane : LaneBase
         Spawner.SpawnNotes( _playback );
         Effector.UpdateEffect();
 
-        CheckHitData();
+        //CheckHitData();
     }
 
-    private void CheckHitData()
+    private void Update()
     {
         NoteRenderer curNote = Spawner.CurrentNote;
         if ( curNote == null || !dataQueue.TryDequeue( out HitData data ) )
@@ -122,7 +122,24 @@ public class Lane : LaneBase
 
     private void Pause( bool _isPause )
     {
+        //Spawner.Pause( _isPause );
+        InputSys.Pause( _isPause );
         Effector.Clear();
+
+        //if ( _isPause )
+        //{
+        //    while ( dataQueue.Count > 0 )
+        //            CheckHitData();
+        //}
+
+        // NoteRenderer curNote = Spawner.CurrentNote;
+        // if ( curNote != null )
+        // {
+        //     if ( curNote.IsKeyDown )
+        //          curNote.IsKeyDown = false;
+        //     //curNote.Snap();
+        // }
+
         // ClearEffect();
         //laneRenderer.color = new Color( laneColor.r, laneColor.g, laneColor.b, laneAlpha = 0f );
         //if ( !_isPause || curNote == null || !curNote.IsSlider )

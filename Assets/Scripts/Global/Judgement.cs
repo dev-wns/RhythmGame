@@ -149,48 +149,6 @@ public class Judgement : Singleton<Judgement>
     public static bool CanBeHit( double _diff ) => -HitRange.Good <= _diff && _diff <= HitRange.Bad;
     public static bool IsEarlyMiss( double _diff ) => HitRange.Miss >= _diff && _diff > HitRange.Bad;
     public static bool IsLateMiss( double _diff ) => -HitRange.Good > _diff;
-
-    //public static HitResult UpdateResult( int _lane, double _playback, double _diff, KeyState _keyState )
-    //{
-    //    //bool   isTail     = _isSlider && _keyState == KeyState.Up;
-    //    //bool   isHeadMiss = _isSlider && _keyState == KeyState.Down;
-    //    double diffAbs    = Math.Abs( _diff );
-
-    //    // 판정 카운팅
-    //    HitResult hitResult = GetHitResult( _diff, diffAbs );
-    //    switch ( hitResult )
-    //    {
-    //        case HitResult.Maximum: Results.Maximum += 1; break;
-    //        case HitResult.Perfect: Results.Perfect += 1; break;
-    //        case HitResult.Great: Results.Great += 1; break;
-    //        case HitResult.Good: Results.Good += 1; break;
-    //        case HitResult.Bad: Results.Bad += 1; break;
-    //        case HitResult.None:
-    //        case HitResult.Miss: Results.Miss += 1; break;
-    //    }
-
-    //    Results.Combo = hitResult == HitResult.Miss ? 0 : Results.Combo += 1;
-    //    Results.MaxCombo = Results.Combo > Results.MaxCombo ? Results.Combo : Results.MaxCombo;
-
-    //    // Great ~ Bad까지만 집계
-    //    if ( HitRange.Perfect < diffAbs && diffAbs <= HitRange.Bad )
-    //    {
-    //        Results.Fast += _diff > 0d ? 1 : 0;
-    //        Results.Slow += _diff < 0d ? 1 : 0;
-    //    }
-
-    //    // 스코어
-    //    int hitScore = GetHitScore( hitResult ); // 320, 300, 200, 100, 50, 0
-    //    int hitBonus = GetHitBonus( hitResult ); // 2, 1, -8, -16, -44, -100
-    //    Bonus = Math.Clamp( Bonus + hitBonus, 0, 100 ); // 판정에 따라 증감
-    //    double bonusScore = Math.Sqrt( Bonus ) * Math.Clamp( 64 >> Convert.ToInt32( hitResult ), 0, HitScore.Maximum / 10 );
-
-    //    // 기본 500,000, 보너스 500,000 => 최대 : ( 50만 / 전체판정수 ) * ( 320 + 320 ) / 320;
-    //    Results.Score += MaxScore * ( hitScore + bonusScore ) / HitScore.Maximum;
-
-    //    DataQueue.Enqueue( new HitData( _lane, _playback, _diff, hitResult, _keyState ) );
-    //    return hitResult;
-    //}
         
     public static void AddCombo()
     {
@@ -206,7 +164,7 @@ public class Judgement : Singleton<Judgement>
 
     private static void UpdateScore( HitResult _hitResult )
     {
-                // 스코어
+        // 스코어
         int hitScore = GetHitScore( _hitResult ); // 320, 300, 200, 100, 50, 0
         int hitBonus = GetHitBonus( _hitResult ); // 2, 1, -8, -16, -44, -100
         Bonus = Math.Clamp( Bonus + hitBonus, 0, 100 ); // 판정에 따라 증감
