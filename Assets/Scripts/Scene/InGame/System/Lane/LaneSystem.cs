@@ -55,6 +55,8 @@ public class LaneSystem : MonoBehaviour
 
     private void Clear()
     {
+        bitHolding = 0;
+
         foreach( Lane lane in lanes )
         {
             lane.Clear();
@@ -64,6 +66,11 @@ public class LaneSystem : MonoBehaviour
     private void Release()
     {
         Notes = null;
+        for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
+        {
+            InputSystem inputSys = lanes[lane].InputSys;
+            inputSys.OnChangedLNState -= DetectHoldNote;
+        }
     }
 
     private void Initialize()
@@ -233,7 +240,7 @@ public class LaneSystem : MonoBehaviour
         for ( int i = 0; i < keyCount; i++ )
         {
             Notes[i] = new ReadOnlyCollection<Note>( notes[i] );
-            lanes[i].InputSys.SetNotes( Notes[i] );
+            lanes[i].SetNotes( Notes[i] );
         }
     }
 }

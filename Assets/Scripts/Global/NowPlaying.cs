@@ -58,6 +58,7 @@ public class NowPlaying : Singleton<NowPlaying>
     public static event Func<UniTask> OnLoad;       // Main  Thread
     public static event Action        OnLoadAsync;  // Other Thread
     public static event Action        OnLoadEnd;
+    public static event Action<double/* Playback */> OnUpdate;
     public static event Action<double/* Playback */> OnUpdateInThread;
 
     // Game Event
@@ -83,6 +84,12 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         SetTimerResolution( false );
         await Release();
+    }
+
+    private void Update()
+    {
+        if ( IsLoaded && IsStart )
+             OnUpdate?.Invoke( Playback );
     }
     #endregion
 
