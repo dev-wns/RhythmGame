@@ -67,7 +67,7 @@ public class DataStorage : Singleton<DataStorage>
 
         NowPlaying.OnLoadEnd += () =>
         {
-            // 특정모드 선택으로 잘린 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
+            // 특정모드 선택으로 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
             ConvertedSamples.Sort( delegate ( KeySound _left, KeySound _right )
             {
                 if      ( _left.time > _right.time ) return 1;

@@ -25,8 +25,8 @@ public class PauseInfomation : MonoBehaviour
 
         // Main Infomation
         UpdateScrollSpeedText();
-        random.SetText( GameSetting.CurrentRandom.ToString().Split( '_' )[0] );
-        rate.SetText( "x{0:F2}", ( float )GameSetting.CurrentPitch );
+        random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
+        rate.SetText( "x{0:2}", ( float )GameSetting.CurrentPitch );
         rate.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f,  1f ) :
                      GameSetting.CurrentPitch > 1f ? new Color(  1f, .5f, .5f ) : Color.white;
 

@@ -152,9 +152,9 @@ public class GameSetting : Singleton<GameSetting>
         {
             GameRandom.None         => "None",
             GameRandom.Mirror       => "Mirror",
-            GameRandom.Basic_Random => "BasicRandom",
-            GameRandom.Half_Random  => "HalfRandom",
-            GameRandom.Max_Random   => "MaxRandom",
+            GameRandom.Basic_Random => "Basic",
+            GameRandom.Half_Random  => "Half",
+            GameRandom.Max_Random   => "Max",
             _                       => string.Empty,
         };
     }

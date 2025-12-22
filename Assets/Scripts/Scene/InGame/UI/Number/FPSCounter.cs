@@ -11,7 +11,7 @@ public class FPSCounter : MonoBehaviour
 
     private void Awake()
     {
-        text.SetText( "{0:D5}", 0 ); // capacity
+        text.SetText( "{0}", 10000 ); // capacity
         text.SetText( "{0}", 0 );
         StartCoroutine( UpdateFrame() );
     }

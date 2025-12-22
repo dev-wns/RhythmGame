@@ -28,7 +28,7 @@ public class ScoreSystem : MonoBehaviour
     {
         targetScore   = 0d;
         curScore      = 0d;
-        text.SetText( "{0:D7}", ( int )Global.Math.Round( curScore ) );
+        text.SetText( "{0:0000000}", ( int )Global.Math.Round( curScore ) );
     }
     
     private void UpdateScore( HitData _hitData )
@@ -48,7 +48,7 @@ public class ScoreSystem : MonoBehaviour
             if ( curScore >= targetScore )
                  curScore = targetScore;
 
-            text.SetText( "{0:D7}", ( int )Global.Math.Round( curScore ) );
+            text.SetText( "{0:0000000}", ( int )Global.Math.Round( curScore ) );
         }
     }
 }

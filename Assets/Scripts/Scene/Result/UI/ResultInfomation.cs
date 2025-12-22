@@ -125,7 +125,7 @@ public class ResultInfomation : MonoBehaviour
         DOVirtual.Int(   0,          result.Miss,     duration, x => TextProgressEffect( miss,     x ) );
         DOVirtual.Int(   0,          result.Combo,    duration, x => TextProgressEffect( maxCombo, x ) );
         DOVirtual.Int(   0, (  int  )result.Score,    duration, x => TextProgressEffect( score,    x ) );
-        DOVirtual.Float( 0, ( float )result.Accuracy, duration, x => accuracy.SetText( "{0:F2}%",  x ) );
+        DOVirtual.Float( 0, ( float )result.Accuracy, duration, x => accuracy.SetText( "{0:2}%",  x ) );
         
 
         // fast slow
@@ -157,8 +157,8 @@ public class ResultInfomation : MonoBehaviour
 
         // GameSettings
         scrollSpeed.SetText( "{0}", GameSetting.ScrollSpeed );
-        random.SetText( GameSetting.CurrentRandom.ToString().Split( '_' )[0] );
-        pitch.SetText( "x{0:F1}", GameSetting.CurrentPitch );
+        random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
+        pitch.SetText( "x{0:1}", GameSetting.CurrentPitch );
         pitch.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                       GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 

@@ -65,7 +65,7 @@ public class Record : MonoBehaviour
 
             RecordData data = DataStorage.CurrentRecord;
             chaos.SetText( data.random.ToString().Replace( '_', ' ' ) );
-            score.SetText( data.score.ToString( "N0" ) );
+            score.text = $"{data.score:N0}";
             rate.SetText( "x{0:1}", data.pitch );
             accuracy.SetText( "{0:2}%", ( float )data.accuracy );
             date.SetText( data.date );

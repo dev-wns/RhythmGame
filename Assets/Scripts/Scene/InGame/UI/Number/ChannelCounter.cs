@@ -9,7 +9,7 @@ public class ChannelCounter : MonoBehaviour
 
     private void Awake()
     {
-        text.SetText( "{0:D3}", 0 ); // capacity
+        text.SetText( "{0}", 100 ); // capacity
         text.SetText( "{0}", 0 );
         StartCoroutine( UpdateChannel() );
     }

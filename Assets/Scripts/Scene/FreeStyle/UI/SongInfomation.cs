@@ -56,7 +56,7 @@ public class SongInfomation : MonoBehaviour
         //keySound.color = song.hasKeySound ? Color.white : new Color( 1f, 1f, 1f, .25f );
 
         speed.SetText( "{0}", GameSetting.ScrollSpeed );
-        random.SetText( GameSetting.CurrentRandom.ToString().Split( '_' )[0] );
+        random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
 
         rate.SetText( "x{0:2}", ( float )GameSetting.CurrentPitch );
         rate.color =     GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :

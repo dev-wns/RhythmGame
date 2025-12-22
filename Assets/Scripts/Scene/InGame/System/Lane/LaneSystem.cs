@@ -122,7 +122,7 @@ public class LaneSystem : MonoBehaviour
 
             bitHolding |= ( 1 << _info.lane );  // Bit On
         }
-        else
+        else // Up
         {
             bitHolding &= ~( 1 << _info.lane ); // Bit Off
             if ( bitHolding == 0 )

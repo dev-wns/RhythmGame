@@ -28,9 +28,11 @@ public class NowPlaying : Singleton<NowPlaying>
     [Header( "Time" )]
     public  static double Playback { get; private set; } // ms 기준
     public  static double Distance { get; private set; }
-    private        double distanceCache;
-    private        double saveTime;
-    private        int    bpmIndex;
+    private long   frequency;
+    private long   startTick;
+    private double distanceCache;
+    private double saveTime;
+    private int    bpmIndex;
 
     public  static readonly double AudioLeadIn   = 3000d;
     private static readonly double WaitPauseTime = 2000d;
@@ -74,13 +76,14 @@ public class NowPlaying : Singleton<NowPlaying>
         base.Awake();
 
         SetTimerResolution( true );
+        GetPerformanceFrequency( out frequency );
         LoadSongs();
                
         if ( Songs.Count > 0 )
              UpdateSong( 0 );
     }
 
-    private async void OnApplicationQuit()
+    private async void OnDestroy()
     {
         SetTimerResolution( false );
         await Release();
@@ -160,10 +163,15 @@ public class NowPlaying : Singleton<NowPlaying>
     /// <summary> 선택된 음악의 리소스 로딩 </summary>
     public async UniTask Load()
     {
-        UniTask task = UniTask.RunOnThreadPool( () => { OnLoadAsync?.Invoke(); } );
-        await OnLoad.Invoke();
+        await UniTask.WhenAll( UniTask.RunOnThreadPool( () => OnLoadAsync?.Invoke() ),
+                               UniTask.Create( async () =>
+                               {
+                                   if ( OnLoad == null )
+                                        return;
 
-        await task; // 대기
+                                   foreach ( Func<UniTask> handler in OnLoad.GetInvocationList() )
+                                             await handler(); // 구독자 전부 대기
+                                } ) );
         OnLoadEnd?.Invoke();
 
         // 기본 변수 초기화
@@ -175,8 +183,7 @@ public class NowPlaying : Singleton<NowPlaying>
     #region Thread
     private void TimeUpdate( long _targetFrame, CancellationToken _token )
     {
-        GetPerformanceFrequency( out long frequency );
-        GetPerformanceCounter( out long startTick );
+        GetPerformanceCounter( out startTick );
 
         long endTick         = 0;
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
@@ -192,7 +199,7 @@ public class NowPlaying : Singleton<NowPlaying>
             if ( targetTicks <= ( endTick - startTick ) )
             {
                 // 시간 갱신
-                Playback = saveTime + ( ( double )( endTick - startTick ) / frequency * 1000d ); // ms
+                Playback = TickToPlayback( endTick );// saveTime + ( ( double )( endTick - startTick ) / frequency * 1000d ); // ms
                 // 이동된 거리 계산
                 for ( int i = bpmIndex; i < timings.Count; i++ )
                 {
@@ -214,11 +221,9 @@ public class NowPlaying : Singleton<NowPlaying>
 
                 OnUpdateInThread?.Invoke( Playback );
             }
-            else
-            {
-                spinner.SpinOnce();
-                //spinner.Reset();
-            }
+
+            spinner.SpinOnce();
+            //spinner.Reset();
         }
     }
 
@@ -321,6 +326,7 @@ public class NowPlaying : Singleton<NowPlaying>
         Playback      = double.MinValue;
         Distance      = double.MinValue;
         distanceCache = 0d;
+        startTick     = 0;
         bpmIndex      = 0;
         IsStart       = false;
 
@@ -434,6 +440,11 @@ public class NowPlaying : Singleton<NowPlaying>
 
         CurrentIndex = _index;
         CurrentSong  = Songs[_index];
+    }
+
+    public double TickToPlayback( long _tick )
+    {
+        return saveTime + ( ( double )( _tick - startTick ) / frequency * 1000d ); // ms
     }
 
     public double GetDistance( double _time )

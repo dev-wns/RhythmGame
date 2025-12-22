@@ -13,8 +13,8 @@ public class BpmChanger : MonoBehaviour
         NowPlaying.OnGameStart  += GameStart;
         NowPlaying.OnClear      += Clear;
 
-        text.SetText( "0", 10000000 ); // capacity
-        text.SetText( "0", 0 );
+        text.SetText( "{0}", 10000000 ); // capacity
+        text.SetText( "{0}", 0 );
     }
 
     private void OnDestroy()
@@ -27,7 +27,7 @@ public class BpmChanger : MonoBehaviour
     private void Clear()
     {
         StopAllCoroutines();
-        text.SetText( "0", Mathf.RoundToInt( ( float )( DataStorage.Timings[0].bpm * GameSetting.CurrentPitch ) ) );
+        text.SetText( "{0}", Mathf.RoundToInt( ( float )( DataStorage.Timings[0].bpm * GameSetting.CurrentPitch ) ) );
     }
 
     private void GameStart() => StartCoroutine( UpdateBPM() );
@@ -42,7 +42,7 @@ public class BpmChanger : MonoBehaviour
             yield return new WaitUntil( () => bpmTime < NowPlaying.Playback );
 
             Timing current = timings[bpmIndex];
-            text.SetText( "0", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.CurrentPitch ) ) );
+            text.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.CurrentPitch ) ) );
 
             // ´ÙÀ½ BPM
             if ( ++bpmIndex < timings.Count )

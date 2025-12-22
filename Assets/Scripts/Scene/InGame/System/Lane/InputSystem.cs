@@ -78,8 +78,12 @@ public class InputSystem : MonoBehaviour
 
     public void UpdateInput( double _playback, KeyEvent _keyEvent )
     {
+        double playback = _playback;
         if ( vKey == _keyEvent.vKey )
-             keyState = _keyEvent.keyState;
+        {
+            keyState = _keyEvent.keyState;
+            playback = NowPlaying.Inst.TickToPlayback( _keyEvent.timestamp );
+        }
 
         //  키음 선 실행
         if ( keyState == KeyState.Down )
@@ -94,8 +98,8 @@ public class InputSystem : MonoBehaviour
              return;
 
         Note   note     = notes[index];
-        double headDiff = note.time    - _playback;
-        double tailDiff = note.endTime - _playback;
+        double headDiff = note.time    - playback;
+        double tailDiff = note.endTime - playback;
         bool   isSlider = note.isSlider;
 
 
@@ -103,7 +107,7 @@ public class InputSystem : MonoBehaviour
         {
             if ( Judgement.IsLateMiss( headDiff ) ) // Head Late Miss
             {
-                Judgement.UpdateResult( note, lane, _playback, headDiff, 0d, KeyState.Down );
+                Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
                 SelectNextNote();
                 return;
             }
@@ -112,20 +116,20 @@ public class InputSystem : MonoBehaviour
             {
                 if ( !isSlider && Judgement.IsEarlyMiss( headDiff ) )
                 {
-                    Judgement.UpdateResult( note, lane, _playback, headDiff, 0d, KeyState.Down );
+                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
                     SelectNextNote();
                     return;
                 }
 
                 if ( Judgement.CanBeHit( headDiff ) ) // Head Hit
                 {
-                    Judgement.UpdateResult( note, lane, _playback, headDiff, 0d, KeyState.Down );
+                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
 
                     if ( isSlider )
                     {
                         isEntry    = true;
                         lnHeadDiff = headDiff;
-                        OnChangedLNState?.Invoke( new LNState( lane, KeyState.Down, _playback, note.endTime ) );
+                        OnChangedLNState?.Invoke( new LNState( lane, KeyState.Down, playback, note.endTime ) );
                     }
                     else
                     {
