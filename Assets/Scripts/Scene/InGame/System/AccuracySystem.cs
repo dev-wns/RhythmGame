@@ -10,6 +10,8 @@ public class AccuracySystem : MonoBehaviour
         Judgement.OnHitNote     += UpdateAccuracy;
         NowPlaying.OnInitialize += Clear;
         NowPlaying.OnClear      += Clear;
+
+        text.SetText( "{0:2}%", 100.00f );
     } 
 
     private void OnDestroy()
@@ -21,11 +23,11 @@ public class AccuracySystem : MonoBehaviour
 
     private void Clear()
     {
-        text.text = $"100.00%";
+        text.SetText( "{0:2}%", 100.00f );
     }
 
     private void UpdateAccuracy( HitData _hitData )
     {
-        text.text = $"{ Judgement.CurrentResult.Accuracy:F2}%";
+        text.SetText( "{0:2}%", ( float )Judgement.CurrentResult.Accuracy );
     }
 }

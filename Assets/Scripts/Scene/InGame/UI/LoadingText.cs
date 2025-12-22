@@ -13,20 +13,6 @@ public class LoadingText : MonoBehaviour
     private float curValue;
     private static string[] textList = new string[] { "로딩중 ", "로딩중 .", "로딩중 ..", "로딩중 ..." };
 
-    [Header( "Sound" )]
-    public TextMeshProUGUI numSound;
-    public TextMeshProUGUI numDuplicateSound;
-
-    [Header( "Background" )]
-    public BGASystem bgaSys;
-    public TextMeshProUGUI backgroundType;
-
-    public GameObject spriteGroup;
-    public TextMeshProUGUI numTexture;
-    public TextMeshProUGUI numDuplicateTexture;
-    public TextMeshProUGUI background;
-    public TextMeshProUGUI foreground;
-
     private void Awake()
     {
         InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
@@ -37,14 +23,10 @@ public class LoadingText : MonoBehaviour
         };
         transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
 
-        //bgaSys.OnInitialize += Initialize;
-        //bgaSys.OnUpdateData += UpdateBackground;
-
-        loadingText.color = Color.white;
+        loadingText.color   = Color.white;
         completedText.color = new Color( 1f, 1f, 1f, 0f );
 
         StartCoroutine( RotateLoadingIcon() );
-        //StartCoroutine( UpdateKeySoundCount() );
     }
 
     private void OnDisable()
@@ -58,20 +40,11 @@ public class LoadingText : MonoBehaviour
               StartCoroutine( ChangeText() );
     }
 
-    //private IEnumerator UpdateKeySoundCount()
-    //{
-    //    while ( !NowPlaying.IsStart )
-    //    {
-    //        numDuplicateSound.text = $"{AudioManager.Inst.TotalKeySoundCount}";
-    //        yield return null;
-    //    }
-    //}
-
     private IEnumerator ChangeText()
     {
         int curIndex = 0;
         loadingText.gameObject.SetActive( true );
-        loadingText.text = textList[curIndex];
+        loadingText.SetText( textList[curIndex] );
 
         while ( true )
         {
@@ -80,7 +53,7 @@ public class LoadingText : MonoBehaviour
             if ( ++curIndex >= textList.Length )
                  curIndex = 0;
 
-            loadingText.text = textList[curIndex];
+            loadingText.SetText( textList[curIndex] );
         }
     }
 

@@ -1,7 +1,5 @@
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.U2D;
 using UnityEngine.UI;
 
 public class Record : MonoBehaviour
@@ -66,11 +64,11 @@ public class Record : MonoBehaviour
             infomation.SetActive( true );
 
             RecordData data = DataStorage.CurrentRecord;
-            chaos.text    = $"{data.random.ToString().Replace( '_', ' ' )}";
-            score.text    = $"{data.score:N0}";
-            rate.text     = $"x{data.pitch:N1}";
-            accuracy.text = $"{data.accuracy:N2}%";
-            date.text     = data.date;
+            chaos.SetText( data.random.ToString().Replace( '_', ' ' ) );
+            score.SetText( data.score.ToString( "N0" ) );
+            rate.SetText( "x{0:1}", data.pitch );
+            accuracy.SetText( "{0:2}%", ( float )data.accuracy );
+            date.SetText( data.date );
 
             rankImage.sprite = data.accuracy >= 95d ? RankS :
                                data.accuracy >= 90d ? RankA :

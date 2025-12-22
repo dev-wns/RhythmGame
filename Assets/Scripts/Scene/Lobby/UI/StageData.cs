@@ -17,11 +17,11 @@ public class StageData : MonoBehaviour
         info = _info;
         transform.localScale = Vector3.one;
 
-        title.text = info.title;
-        host.text = info.host;
-        song.text = info.song;
-        isPlaying.text = _info.isPlaying ? "PLAYING" : "WAITING";
-        personnel.text = $"{info.personnel.current} / {info.personnel.maximum}";
+        title.SetText( info.title );
+        host.SetText( info.host );
+        song.SetText( info.song );
+        isPlaying.SetText( _info.isPlaying ? "PLAYING" : "WAITING" );
+        personnel.SetText( "{0} / {1}", info.personnel.current, info.personnel.maximum );
     }
 
     public void EntryStage()

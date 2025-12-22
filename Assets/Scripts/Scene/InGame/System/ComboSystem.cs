@@ -25,6 +25,9 @@ public class ComboSystem : MonoBehaviour
         var rt = transform as RectTransform;
         rt.anchoredPosition = new Vector2( rt.anchoredPosition.x + GameSetting.GearOffsetX, rt.anchoredPosition.y );
         startPos = transform.localPosition;
+
+        text.SetText( "0", 1000000 ); // capacity
+        text.SetText( "0", 0 );
     }
 
     private void OnDestroy()
@@ -57,7 +60,7 @@ public class ComboSystem : MonoBehaviour
         targetCombo = 0f;
         transform.position = startPos;
 
-        text.text  = $"{( int )curCombo}";
+        text.SetText( "0", ( int )curCombo );
         text.color = Color.white;
     }
 
@@ -78,7 +81,7 @@ public class ComboSystem : MonoBehaviour
             if ( ( int )ComboPos != ( int )curCombo )
             {
                 ComboPos = curCombo;
-                text.text = $"{( int )curCombo}";
+                text.SetText( "0", ( int )curCombo );
             }
         }
     }

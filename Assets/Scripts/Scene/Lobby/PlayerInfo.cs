@@ -15,9 +15,9 @@ public class PlayerInfo : MonoBehaviour
 
     public void UpdateUserInfo( USER_INFO _data )
     {
-        userName.text = _data.name;
-        level.text = $"{_data.level}";
-        accuracy.text = $"{_data.accuracy:F1}%";
-        playCount.text = $"{_data.playCount}";
+        userName.SetText( _data.name );
+        level.SetText( "{0}", _data.level );
+        accuracy.SetText( "{0:F1}", _data.accuracy );
+        playCount.SetText( "{0}", _data.playCount );
     }
 }

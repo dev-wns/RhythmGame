@@ -9,6 +9,8 @@ public class ChannelCounter : MonoBehaviour
 
     private void Awake()
     {
+        text.SetText( "{0:D3}", 0 ); // capacity
+        text.SetText( "{0}", 0 );
         StartCoroutine( UpdateChannel() );
     }
 
@@ -22,7 +24,7 @@ public class ChannelCounter : MonoBehaviour
         while ( true )
         {
             yield return YieldCache.WaitForSeconds( .075f );
-            text.text = $"{AudioManager.Inst.ChannelsInUse}";
+            text.SetText( "{0}", AudioManager.Inst.ChannelsInUse );
         }
     }
 }

@@ -14,6 +14,6 @@ public class PauseJoke : MonoBehaviour
 
     private void OnEnable()
     {
-        jokeText.text = jokeList[Random.Range( 0, jokeList.Length - 1 )];
+        jokeText.SetText( jokeList[Random.Range( 0, jokeList.Length - 1 )] );
     }
 }

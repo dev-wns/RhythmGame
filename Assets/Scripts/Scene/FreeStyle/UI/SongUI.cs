@@ -127,10 +127,10 @@ public class SongUI : OptionButton
 
     public void SetInfo( Song _song )
     {
-        song         = _song;
-        title.text   = _song.title;
-        version.text = _song.version;
-        artist.text  = $"{_song.artist}";
+        song = _song;
+        title.SetText(   _song.title   );
+        version.SetText( _song.version );
+        artist.SetText(  _song.artist  );
     }
 
     public void PositionReset()

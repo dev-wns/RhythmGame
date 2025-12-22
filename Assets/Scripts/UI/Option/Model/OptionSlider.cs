@@ -98,7 +98,7 @@ public abstract class OptionSlider : OptionBase
         if ( valueText == null ) return;
 
         if ( slider.wholeNumbers ) valueText.text = string.Format( "{0}{1}{2}", prePos, Mathf.RoundToInt( _value ), postPos );
-        else valueText.text = string.Format( "{0}{1:0.#}{2}", prePos, curValue, postPos );
+        else                       valueText.text = string.Format( "{0}{1:0.#}{2}", prePos, curValue, postPos );
 
         slider.value = curValue;
     }
@@ -108,6 +108,6 @@ public abstract class OptionSlider : OptionBase
         if ( valueText == null ) return;
 
         if ( slider.wholeNumbers ) valueText.text = string.Format( "{0}{1}{2}", prePos, Mathf.RoundToInt( _value ), postPos );
-        else valueText.text = string.Format( "{0}{1:0.#}{2}", prePos, curValue, postPos );
+        else                       valueText.text = string.Format( "{0}{1:0.#}{2}", prePos, curValue, postPos );
     }
 }

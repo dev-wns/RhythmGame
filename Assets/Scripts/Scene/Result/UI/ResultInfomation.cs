@@ -72,7 +72,7 @@ public class ResultInfomation : MonoBehaviour
 
     private Color DisableColor = new Color( 1f, 1f, 1f, .25f );
     private readonly float duration = 1.5f;
-    private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.text = $"{_value}";
+    private void TextProgressEffect( in TextMeshProUGUI _text, int _value ) => _text.SetText( "{0}", _value );
 
     private void Awake()
     {
@@ -81,12 +81,12 @@ public class ResultInfomation : MonoBehaviour
 
         // Song Infomation
         title.text  = $"{song.title} [{song.version}]";
-        artist.text = song.artist;
+        artist.SetText( song.artist );
 
         // Note Infomation
-        totalNotes.text  = $"{NowPlaying.TotalNote + NowPlaying.TotalSlider}";
-        noteCount.text   = $"{NowPlaying.TotalNote}";
-        sliderCount.text = $"{NowPlaying.TotalSlider}";
+        totalNotes.SetText(  "{0}", NowPlaying.TotalNote + NowPlaying.TotalSlider );
+        noteCount.SetText(   "{0}", NowPlaying.TotalNote );
+        sliderCount.SetText( "{0}", NowPlaying.TotalSlider );
 
         // Clear Type
         if ( result.Great + result.Good + result.Bad + result.Miss == 0 )
@@ -116,33 +116,34 @@ public class ResultInfomation : MonoBehaviour
         onlyPerfect.color = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) ? Color.white : DisableColor;
 
         // Judgement
-        totalJudge.text = $"{NowPlaying.TotalJudge}";
-        DOTween.To( () => 0, x => TextProgressEffect( maximum,  x ), result.Maximum, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( perfect,  x ), result.Perfect, duration );
-        DOTween.To( () => 0, x => TextProgressEffect( great,    x ), result.Great,   duration );
-        DOTween.To( () => 0, x => TextProgressEffect( good,     x ), result.Good,    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( bad,      x ), result.Bad,     duration );
-        DOTween.To( () => 0, x => TextProgressEffect( miss,     x ), result.Miss,    duration );
-        DOTween.To( () => 0, x => TextProgressEffect( maxCombo, x ), result.Combo,   duration );
-        DOTween.To( () => 0, x => TextProgressEffect( score,    x ), ( int )result.Score,   duration );
-        DOTween.To( () => 0, x => accuracy.text = $"{x:F2}%", result.Accuracy, duration );
+        totalJudge.SetText( "{0}", NowPlaying.TotalJudge );
+        DOVirtual.Int(   0,          result.Maximum,  duration, x => TextProgressEffect( maximum,  x ) );
+        DOVirtual.Int(   0,          result.Perfect,  duration, x => TextProgressEffect( perfect,  x ) );
+        DOVirtual.Int(   0,          result.Great,    duration, x => TextProgressEffect( great,    x ) );
+        DOVirtual.Int(   0,          result.Good,     duration, x => TextProgressEffect( good,     x ) );
+        DOVirtual.Int(   0,          result.Bad,      duration, x => TextProgressEffect( bad,      x ) );
+        DOVirtual.Int(   0,          result.Miss,     duration, x => TextProgressEffect( miss,     x ) );
+        DOVirtual.Int(   0,          result.Combo,    duration, x => TextProgressEffect( maxCombo, x ) );
+        DOVirtual.Int(   0, (  int  )result.Score,    duration, x => TextProgressEffect( score,    x ) );
+        DOVirtual.Float( 0, ( float )result.Accuracy, duration, x => accuracy.SetText( "{0:F2}%",  x ) );
+        
 
         // fast slow
-        fast.text = $"{result.Fast}";
-        slow.text = $"{result.Slow}";
+        fast.SetText( "{0}", result.Fast );
+        slow.SetText( "{0}", result.Slow );
 
         // bpm
         if ( Global.Math.Abs( GameSetting.CurrentPitch - 1f ) < .0001f )
         {
             int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM );
-            if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
-            else                              bpm.text = $"{mainBPM} ({song.minBpm} ~ {song.maxBpm})";
+            if ( song.minBpm == song.maxBpm ) bpm.SetText( "{0}", mainBPM );
+            else                              bpm.SetText( "{0} ({1} ~ {2})", mainBPM, song.minBpm, song.maxBpm );
         }
         else
         {
             int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * GameSetting.CurrentPitch  );
-            if ( song.minBpm == song.maxBpm ) bpm.text = $"{mainBPM}";
-            else                              bpm.text = $"{mainBPM} ({Mathf.RoundToInt( song.minBpm * GameSetting.CurrentPitch )} ~ {Mathf.RoundToInt( song.maxBpm * GameSetting.CurrentPitch )})";
+            if ( song.minBpm == song.maxBpm ) bpm.SetText( "{0}", mainBPM );
+            else                              bpm.SetText( "{0} ({1} ~ {2})", mainBPM, Mathf.RoundToInt( song.minBpm * GameSetting.CurrentPitch ), Mathf.RoundToInt( song.maxBpm * GameSetting.CurrentPitch ) );
         }
         bpm.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
                     GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
@@ -155,14 +156,14 @@ public class ResultInfomation : MonoBehaviour
                                                rankAtlas.GetSprite( "Ranking-D" );
 
         // GameSettings
-        scrollSpeed.text = $"{GameSetting.ScrollSpeed}";
-        random.text      = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
-        pitch.text       = $"x{GameSetting.CurrentPitch:F1}";
-        pitch.color      = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
-                           GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
+        scrollSpeed.SetText( "{0}", GameSetting.ScrollSpeed );
+        random.SetText( GameSetting.CurrentRandom.ToString().Split( '_' )[0] );
+        pitch.SetText( "x{0:F1}", GameSetting.CurrentPitch );
+        pitch.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
+                      GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         useModeObj.SetActive( GameSetting.HasFlag( GameMode.AutoPlay ) );
-        date.text = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" );
+        date.SetText( DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" ) );
 
         // Background
         StartCoroutine( LoadBackground( NowPlaying.CurrentSong.imagePath ) );

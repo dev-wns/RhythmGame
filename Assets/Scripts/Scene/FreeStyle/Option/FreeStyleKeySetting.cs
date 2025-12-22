@@ -54,7 +54,7 @@ public class FreeStyleKeySetting : OptionController
         Select( 0 );
         tracks[0].ActiveOutline( true );
         layoutGroup.SetLayoutHorizontal();
-        KeyCountText.text = $"{Length}K Setting";
+        KeyCountText.SetText( "{0}K Setting", Length );
     }
 
 

@@ -63,7 +63,7 @@ public class ScrollSpeedUI : MonoBehaviour
             return;
 
         timer = 0f;
-        speedText.text = $"{GameSetting.ScrollSpeed}";
+        speedText.SetText( "{0}", GameSetting.ScrollSpeed );
         textSeq?.Restart();
 
         if ( isActive )

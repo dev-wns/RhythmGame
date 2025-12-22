@@ -21,14 +21,14 @@ public class PauseInfomation : MonoBehaviour
     {
         var scene = GameObject.FindGameObjectWithTag( "Scene" );
         if ( scene.TryGetComponent( out InGame inGame ) )
-            inGame.OnScrollChange += UpdateScrollSpeedText;
+             inGame.OnScrollChange += UpdateScrollSpeedText;
 
         // Main Infomation
         UpdateScrollSpeedText();
-        random.text = $"{GameSetting.CurrentRandom.ToString().Split( '_' )[0]}";
-        rate.text = $"x{GameSetting.CurrentPitch:F2}";
-        rate.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
-                      GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
+        random.SetText( GameSetting.CurrentRandom.ToString().Split( '_' )[0] );
+        rate.SetText( "x{0:F2}", ( float )GameSetting.CurrentPitch );
+        rate.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f,  1f ) :
+                     GameSetting.CurrentPitch > 1f ? new Color(  1f, .5f, .5f ) : Color.white;
 
         // Game Mode
         autoPlay.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay )   ? Color.white : disableColor;
@@ -40,6 +40,6 @@ public class PauseInfomation : MonoBehaviour
 
     private void UpdateScrollSpeedText()
     {
-        speed.text = $"{GameSetting.ScrollSpeed}";
+        speed.SetText( "{0}", GameSetting.ScrollSpeed );
     }
 }

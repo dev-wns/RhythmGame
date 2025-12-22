@@ -21,7 +21,7 @@ public class SoundPitchOption : OptionSlider
         AudioManager.Inst.Pitch  = GameSetting.CurrentPitch;
 
         //OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
-        previewText.text = $"x{GameSetting.CurrentPitch:F2}";
+        previewText.SetText( "x{0:2}", GameSetting.CurrentPitch );
         previewText.color = GameSetting.CurrentPitch < 1 ? new Color( .5f, .5f, 1f ) :
                             GameSetting.CurrentPitch > 1 ? new Color( 1f, .5f, .5f ) : Color.white;
 
@@ -34,7 +34,7 @@ public class SoundPitchOption : OptionSlider
         AudioManager.Inst.Pitch  = GameSetting.CurrentPitch;
 
         //OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
-        previewText.text = $"x{GameSetting.CurrentPitch:F2}";
+        previewText.SetText( "x{0:2}", GameSetting.CurrentPitch );
         previewText.color = GameSetting.CurrentPitch < 1 ? new Color( .5f, .5f, 1f ) :
                             GameSetting.CurrentPitch > 1 ? new Color( 1f, .5f, .5f ) : Color.white;
     }

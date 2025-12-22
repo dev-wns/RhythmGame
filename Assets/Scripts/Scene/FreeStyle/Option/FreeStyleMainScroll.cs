@@ -217,8 +217,8 @@ public class FreeStyleMainScroll : ScrollBase
         size = medianNode.Value.rt.sizeDelta.y + group.spacing;
 
         // Count Text
-        maxText.text = $"{Length}";
-        curText.text = $"{CurrentIndex + 1}";
+        maxText.SetText( "{0}", Length );
+        curText.SetText( "{0}", ( CurrentIndex + 1 ) );
 
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
@@ -312,7 +312,7 @@ public class FreeStyleMainScroll : ScrollBase
 
         UpdateNodePositionX();
 
-        curText.text = $"{CurrentIndex + 1}";
+        curText.SetText( "{0}", ( CurrentIndex + 1 ) );
 
         var songList = songs.First;
         for ( int i = 0; i < songs.Count; i++ )
@@ -346,7 +346,7 @@ public class FreeStyleMainScroll : ScrollBase
 
         UpdateNodePositionX();
 
-        curText.text = $"{CurrentIndex + 1}";
+        curText.SetText( "{0}", ( CurrentIndex + 1 ) );
 
         var songList = songs.First;
         for ( int i = 0; i < songs.Count; i++ )

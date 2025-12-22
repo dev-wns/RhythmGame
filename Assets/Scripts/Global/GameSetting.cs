@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using UnityEngine;
 
 public enum BooleanOption { Off, On, Count }
@@ -143,5 +144,18 @@ public class GameSetting : Singleton<GameSetting>
         }
 
         return false;
+    }
+
+    public static string ToString( GameRandom _random )
+    {
+        return _random switch 
+        {
+            GameRandom.None         => "None",
+            GameRandom.Mirror       => "Mirror",
+            GameRandom.Basic_Random => "BasicRandom",
+            GameRandom.Half_Random  => "HalfRandom",
+            GameRandom.Max_Random   => "MaxRandom",
+            _                       => string.Empty,
+        };
     }
 }

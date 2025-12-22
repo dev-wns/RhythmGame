@@ -75,6 +75,6 @@ public abstract class OptionText : OptionBase
     {
         if ( valueText == null ) return;
 
-        valueText.text = _text;
+        valueText.SetText( _text );
     }
 }

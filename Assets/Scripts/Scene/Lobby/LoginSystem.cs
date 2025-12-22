@@ -32,7 +32,7 @@ public class LoginSystem : MonoBehaviour
     private void OnEnable()
     {
         isFocusEmail = false;
-        message.text = string.Empty;
+        message.SetText( string.Empty );
 
         // 패스워드 타입 설정( 코드로만 수정가능한 듯 )
         password.contentType = TMP_InputField.ContentType.Password;
@@ -99,13 +99,13 @@ public class LoginSystem : MonoBehaviour
             case Error.DB_ERR_DISCONNECTED: break;
             case Error.OK:
             {
-                message.text = "회원가입 완료";
+                message.SetText( "회원가입 완료" );
             }
             break;
 
             case Error.DB_ERR_DUPLICATE_DATA:
             {
-                message.text = "중복된 아이디 입니다.";
+                message.SetText( "중복된 아이디 입니다." );
             }
             break;
 
@@ -135,7 +135,7 @@ public class LoginSystem : MonoBehaviour
 
             default:
             {
-                message.text = "아이디 또는 비밀번호가 일치하지 않습니다.";
+                message.SetText( "아이디 또는 비밀번호가 일치하지 않습니다." );
             }
             break;
         }

@@ -48,14 +48,14 @@ public class FreeStyleReLoad : MonoBehaviour
 
             var text  = textPool.Spawn();
             text.transform.SetAsLastSibling();
-            text.text = $"성공 : {NowPlaying.OriginSongs.Count}  실패 : {fileCount - NowPlaying.OriginSongs.Count}";
+            //text.text = $"성공 : {NowPlaying.OriginSongs.Count}  실패 : {fileCount - NowPlaying.OriginSongs.Count}";
+            text.SetText( "성공 : {0}  실패 : {1}", NowPlaying.OriginSongs.Count, ( fileCount - NowPlaying.OriginSongs.Count ) );
             DisableText( text );
 
             NowPlaying.CurrentScene.IsInputLock = false;
         }
 
         OnReLoadEnd?.Invoke();
-        // NowPlaying.Inst.Search( FreeStyleSearch.SearchText );
     }
 
     private void OnDisable()
@@ -75,7 +75,7 @@ public class FreeStyleReLoad : MonoBehaviour
             {
                 var text = textPool.Spawn();
                 text.transform.SetAsLastSibling();
-                text.text = dataQueue.Dequeue();
+                text.SetText( dataQueue.Dequeue() );
                 index    += 1;
                 DisableText( text );
             }
@@ -85,7 +85,7 @@ public class FreeStyleReLoad : MonoBehaviour
 
         var endText = textPool.Spawn();
         endText.transform.SetAsLastSibling();
-        endText.text = $"성공 : {NowPlaying.OriginSongs.Count}  실패 : {fileCount - NowPlaying.OriginSongs.Count}";
+        endText.SetText( "성공 : {0}  실패 : {1}", NowPlaying.OriginSongs.Count, ( fileCount - NowPlaying.OriginSongs.Count ) );
         DisableText( endText );
 
         NowPlaying.CurrentScene.IsInputLock = false;

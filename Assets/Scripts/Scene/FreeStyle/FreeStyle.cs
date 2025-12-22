@@ -28,7 +28,7 @@ public class FreeStyle : Scene
         DataStorage   dataStorage   = DataStorage.Inst;
         Judgement     judgement     = Judgement.Inst;
 
-        OnScrollChange += () => speedText.text = $"{GameSetting.ScrollSpeed}";
+        OnScrollChange += () => speedText.SetText( "{0}", GameSetting.ScrollSpeed );
     }
 
     protected override void Start()

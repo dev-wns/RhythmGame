@@ -89,7 +89,7 @@ public class PreviewNoteSystem : MonoBehaviour
         bpmIndex     = timingIndex;
         curTiming    = timings[bpmIndex];
         bpmTime      = curTiming.time;
-        bpmText.text = $"{Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.CurrentPitch ) )}";
+        bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.CurrentPitch ) ) );
     }
 
     private void Parse( Song _song )
@@ -114,7 +114,7 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void UpdatePitch( float _pitch )
     {
-        bpmText.text = $"{Mathf.RoundToInt( ( float )( curTiming.bpm * _pitch ) )}";
+        bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * _pitch ) ) );
     }
 
     private void Update()
@@ -139,7 +139,7 @@ public class PreviewNoteSystem : MonoBehaviour
         {
             Timing current = timings[bpmIndex];
             if ( prevBPM != current.bpm )
-                 bpmText.text = $"{Mathf.RoundToInt( ( float ) ( current.bpm * GameSetting.CurrentPitch ) )}";
+                 bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.CurrentPitch ) ) );
             
             prevBPM = current.bpm;
 

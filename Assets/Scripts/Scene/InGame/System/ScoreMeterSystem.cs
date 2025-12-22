@@ -58,8 +58,8 @@ public class ScoreMeterSystem : MonoBehaviour
         if ( diffAbs   <= Judgement.HitRange.Maximum ) return PerfectColor; // ----------------------
         if ( diffAbs   <= Judgement.HitRange.Perfect ) return PerfectColor; //
         if ( diffAbs   <= Judgement.HitRange.Great   ) return GreatColor;   //        정상 판정
-        if ( diffAbs   <= Judgement.HitRange.Good    ) return GreatColor;    //
-        //if ( diffAbs   <= Judgement.HitRange.Bad     ) return GoodColor;     // ---------------------- // 늦은 Bad는 Hit 불가
+        if ( diffAbs   <= Judgement.HitRange.Good    ) return GreatColor;   //
+        //if ( diffAbs   <= Judgement.HitRange.Bad     ) return GoodColor;  // ---------------------- // 늦은 Bad는 Hit 불가
         
         return GoodColor;       
     }
@@ -85,7 +85,6 @@ public class ScoreMeterSystem : MonoBehaviour
         //}
 
         // Score Meter
-
         float diff = -( float )_hitData.diff;// _hitData.isTail ? -( float )( _hitData.diff / Judgement.TailMultiply ) : -( float ) _hitData.diff;
         diff = Global.Math.Clamp( diff, -( float )Judgement.HitRange.Bad, ( float )Judgement.HitRange.Bad );
         ScoreMeterRenderer scoreMeter = pool.Spawn();
