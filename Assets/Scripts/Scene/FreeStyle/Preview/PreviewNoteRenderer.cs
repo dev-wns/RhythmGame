@@ -1,48 +1,67 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRenderer>
 {
     public ObjectPool<PreviewNoteRenderer> pool { get; set; }
     protected Note note;
     public SpriteRenderer head, body, tail;
-    public double Time => note.time;
-    public double Distance => note.distance;
-    public double SliderTime => note.endTime;
-    public double SliderDistance => note.endDistance;
+
+    public MeshRenderer bodyMesh;
+
     public bool IsSlider => note.isSlider;
 
     protected float column;
     protected static readonly Color NoteFailColor = new Color( .5f, .5f, .5f, 1f );
     protected double newDistance;
 
-    protected static bool IsOnlyBody = false;
     private bool isStart;
 
+    private MaterialPropertyBlock headMpb;
+    private MaterialPropertyBlock bodyMpb;
+
+    private static readonly int ColorID  = Shader.PropertyToID( "_Color" );
+
+    private Color color;
     private void Awake()
     {
-        head.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
-        body.transform.position   = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
-        tail.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        //head.transform.localScale = new Vector3( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight, 1f );
+        bodyMesh.transform.position   = new Vector3( 0,                           PreviewNoteSystem.NoteHeight * .5f, 0f );
+        //tail.transform.localScale = new Vector3( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight, 1f );
+
+        //headMpb = new MaterialPropertyBlock();
+        bodyMpb = new MaterialPropertyBlock();
     }
+
 
     public void SetInfo( in Note _note, float _startPos, Color _color )
     {
         note = _note;
-
+        color = _color;
         column = _startPos + ( note.lane * ( PreviewNoteSystem.NoteWidth ) ) + ( ( note.lane + 1 ) * GameSetting.NoteBlank );
         newDistance = note.distance;
 
-        head.enabled = IsOnlyBody && IsSlider ? false :
-                       IsOnlyBody && !IsSlider ? true : true;
-        body.enabled = IsOnlyBody ? true  : IsSlider;
-        tail.enabled = IsOnlyBody ? false : IsSlider;
+        bodyMesh.enabled = IsSlider;
+        //tail.enabled = IsSlider;
 
-        head.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
-        body.transform.localPosition = IsOnlyBody ? Vector2.zero : new Vector2( 0, PreviewNoteSystem.NoteHeight * .5f );
-        tail.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight );
+        //head.transform.localScale = new Vector3( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight, 1f );
+        bodyMesh.transform.localPosition = new Vector3( 0, PreviewNoteSystem.NoteHeight * .5f, 0f );
+        //tail.transform.localScale = new Vector3( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight, 1f );
 
-        head.color = body.color = tail.color = _color;
+        //head.color = body.color = tail.color = _color;
+
+        //head.GetPropertyBlock( headMpb );
+        //headMpb.SetColor( ColorID, _color );
+        //headMpb.SetFloat( "_IsFade", 0f );
+        //head.SetPropertyBlock( headMpb );
+
+        //if ( IsSlider )
+        //{
+        //    body.GetPropertyBlock( bodyMpb );
+        //    bodyMpb.SetColor( ColorID, _color );
+        //    bodyMpb.SetFloat( "_IsFade", 1f );
+        //    body.SetPropertyBlock( bodyMpb );
+        //}
+
         isStart = true;
     }
 
@@ -51,27 +70,43 @@ public class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNoteRendere
         if ( !isStart )
              return;
 
+        float length = 1f;
         if ( IsSlider )
         {
-            if ( Distance < PreviewNoteSystem.Distance )
-                newDistance = PreviewNoteSystem.Distance;
+            if ( note.distance < PreviewNoteSystem.Distance )
+                 newDistance = PreviewNoteSystem.Distance;
 
-            float bodyLength = ( float )( ( SliderDistance - newDistance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight );
+            float bodyLength = ( float )( ( note.endDistance - newDistance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight );
+            length = Global.Math.Clamp( bodyLength - PreviewNoteSystem.NoteHeight, 0f, float.MaxValue );
 
-            float length = Global.Math.Clamp( IsOnlyBody ? bodyLength : bodyLength - PreviewNoteSystem.NoteHeight, 0f, float.MaxValue );
-            body.transform.localScale = new Vector2( PreviewNoteSystem.NoteWidth, length );
-            tail.transform.localPosition   = new Vector2( 0f, length );
+            // Body
+            bodyMesh.transform.localScale = new Vector3( PreviewNoteSystem.NoteWidth, length, 1f );
 
-            transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ) );
-            if ( SliderTime - PreviewNoteSystem.Playback < double.Epsilon )
+
+            // Tail
+            //tail.transform.localPosition = new Vector2( 0f, length );
+            //mpb.SetFloat( "_IsFade", 0f );
+            //tail.SetPropertyBlock( mpb );
+
+            // Parent
+            transform.localPosition = new Vector3( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ), 0f );
+            if ( note.endTime - PreviewNoteSystem.Playback < double.Epsilon )
                  Despawn();
         }
         else
         {
-            transform.localPosition = new Vector2( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ) );
-            if ( Time - PreviewNoteSystem.Playback < double.Epsilon )
+            transform.localPosition = new Vector3( column, -390f + ( ( float )( newDistance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ), 0f );
+            if ( note.time - PreviewNoteSystem.Playback < double.Epsilon )
                  Despawn();
         }
+
+        bodyMpb.Clear();
+        bodyMpb.SetColor( "_Color", color );
+        bodyMpb.SetFloat( "_Offset", Global.Math.Clamp( 150f / length, 0.001f, float.MaxValue ) );
+        //bodyMpb.SetFloat( "_IsFade", 1f );
+        bodyMesh.SetPropertyBlock( bodyMpb );
+
+        //head.SetPropertyBlock( headMpb );
     }
 
     private void Despawn()
