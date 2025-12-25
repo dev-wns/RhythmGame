@@ -1,22 +1,22 @@
-public class TouchEffectOption : OptionText
+using UnityEngine;
+
+public class TouchEffectOption : OptionBoolButton
 {
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.HitEffect ) ? 1 : 0;
-        ChangeText( texts[CurrentIndex] );
-    }
-
-    protected override void CreateObject()
-    {
-        for ( int i = 0; i < ( int )BooleanOption.Count; i++ )
-        {
-            texts.Add( ( ( BooleanOption )i ).ToString() );
-        }
+        CurrentBool = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.HitEffect );
+        title.color = CurrentBool ? Color.white : DisableColor;
     }
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~VisualFlag.HitEffect;
-        else                     GameSetting.CurrentVisualFlag |=  VisualFlag.HitEffect;
+        base.Process();
+
+        if ( CurrentBool ) GameSetting.CurrentVisualFlag |=  VisualFlag.HitEffect;
+        else               GameSetting.CurrentVisualFlag &= ~VisualFlag.HitEffect; 
+
+        title.color = CurrentBool ? Color.white : DisableColor;
+
+        Debug.Log( $"HitEffect  {CurrentBool}" );
     }
 }

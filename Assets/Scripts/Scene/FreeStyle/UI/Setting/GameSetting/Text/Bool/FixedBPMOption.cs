@@ -1,28 +1,26 @@
 using System;
+using UnityEngine;
 
-public class FixedBPMOption : OptionText
+public class FixedBPMOption : OptionBoolButton
 {
     public Action OnChangeOption;
 
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) ? 1 : 0;
-        ChangeText( texts[CurrentIndex] );
-    }
-
-    protected override void CreateObject()
-    {
-        for ( int i = 0; i < ( int )BooleanOption.Count; i++ )
-        {
-            texts.Add( ( ( BooleanOption )i ).ToString() );
-        }
+        CurrentBool = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM );
+        title.color = CurrentBool ? Color.white : DisableColor;
     }
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.FixedBPM;
-        else GameSetting.CurrentGameMode |= GameMode.FixedBPM;
+        base.Process();
 
+        if ( CurrentBool ) GameSetting.CurrentGameMode |=  GameMode.FixedBPM; 
+        else               GameSetting.CurrentGameMode &= ~GameMode.FixedBPM;
+
+        title.color = CurrentBool ? Color.white : DisableColor;
         OnChangeOption?.Invoke();
+
+        Debug.Log( $"FixedBPM  {CurrentBool}" );
     }
 }

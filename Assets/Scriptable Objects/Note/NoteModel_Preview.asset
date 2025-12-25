@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23626fdc0557204ab31cc757cf315f8, type: 3}
+  m_Name: NoteModel_Preview
+  m_EditorClassIdentifier: 
+  block: {fileID: 5344278477311884344, guid: 40fda86f1e51ef54d83c241aa1582017, type: 3}
+  blockFade: {fileID: 7110972658452042028, guid: 59d096a06c426a44bbc7afa2d897307f,
+    type: 3}
+  onlyBody: {fileID: 6506501546583699329, guid: 2119077e3ff726c42b11611b6500f61d,
+    type: 3}
+  round: {fileID: 5344278477311884344, guid: 1d5af68ea9020d044be155e32c0c52e8, type: 3}
+  roundFade: {fileID: 7565556671596603716, guid: 34ec66077530d734ba5ca22b81d061df,
+    type: 3}
+  circle: {fileID: 5344278477311884344, guid: d924ed1d6bdfcc44dafab5fdd7e87e8b, type: 3}

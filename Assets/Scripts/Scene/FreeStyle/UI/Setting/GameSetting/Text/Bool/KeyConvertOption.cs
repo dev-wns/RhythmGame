@@ -1,28 +1,26 @@
 using System;
+using UnityEngine;
 
-public class KeyConvertOption : OptionText
+public class KeyConvertOption : OptionBoolButton
 {
     public Action OnChangeOption;
 
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.HasFlag( GameMode.ConvertKey ) ? 1 : 0;
-        ChangeText( texts[CurrentIndex] );
-    }
-
-    protected override void CreateObject()
-    {
-        for ( int i = 0; i < ( int )BooleanOption.Count; i++ )
-        {
-            texts.Add( ( ( BooleanOption )i ).ToString() );
-        }
+        CurrentBool = GameSetting.HasFlag( GameMode.ConvertKey );
+        title.color = CurrentBool ? Color.white : DisableColor;
     }
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentGameMode &= ~GameMode.ConvertKey;
-        else                     GameSetting.CurrentGameMode |=  GameMode.ConvertKey;
+        base.Process();
 
+        if ( CurrentBool ) GameSetting.CurrentGameMode |=  GameMode.ConvertKey; 
+        else               GameSetting.CurrentGameMode &= ~GameMode.ConvertKey;
+
+        title.color = CurrentBool ? Color.white : DisableColor;
         OnChangeOption?.Invoke();
+
+        Debug.Log( $"7K to 6K  {CurrentBool}" );
     }
 }

@@ -1,22 +1,22 @@
-public class LineEffectOption : OptionText
+using UnityEngine;
+
+public class LineEffectOption : OptionBoolButton
 {
     private void OnEnable()
     {
-        CurrentIndex = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.LaneEffect ) ? 1 : 0;
-        ChangeText( texts[CurrentIndex] );
-    }
-
-    protected override void CreateObject()
-    {
-        for ( int i = 0; i < ( int )BooleanOption.Count; i++ )
-        {
-            texts.Add( ( ( BooleanOption )i ).ToString() );
-        }
+        CurrentBool = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.LaneEffect );
+        title.color = CurrentBool ? Color.white : DisableColor;
     }
 
     public override void Process()
     {
-        if ( CurrentIndex == 0 ) GameSetting.CurrentVisualFlag &= ~VisualFlag.LaneEffect;
-        else                     GameSetting.CurrentVisualFlag |=  VisualFlag.LaneEffect;
+        base.Process();
+
+        if ( CurrentBool ) GameSetting.CurrentVisualFlag |=  VisualFlag.LaneEffect; 
+        else               GameSetting.CurrentVisualFlag &= ~VisualFlag.LaneEffect;
+
+        title.color = CurrentBool ? Color.white : DisableColor;
+
+        Debug.Log( $"LineEffect  {CurrentBool}" );
     }
 }

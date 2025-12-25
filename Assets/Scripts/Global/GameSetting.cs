@@ -1,12 +1,12 @@
 using System;
-using System.Diagnostics;
-using UnityEngine;
 
 public enum BooleanOption { Off, On, Count }
 
 public enum Alignment { Left, Center, Right, Count, }
 
 public enum PitchType { None, Normalize, Nightcore, Count, }
+
+public enum NoteModel { Block, BlockFade, OnlyBody, Round, RoundFade, Circle, Count, }
 
 public enum GameRandom
 {
@@ -50,6 +50,7 @@ public class GameSetting : Singleton<GameSetting>
     public static GameRandom     CurrentRandom        = GameRandom.None;
     public static Alignment      CurrentAlignment     = Alignment.Center;
     public static PitchType      CurrentPitchType     = PitchType.None;
+    public static NoteModel      CurrentNoteModel     = NoteModel.Block;
 
     // Speed
     private static int OriginScrollSpeed = 30;

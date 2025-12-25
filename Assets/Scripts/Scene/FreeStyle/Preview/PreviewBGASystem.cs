@@ -10,7 +10,7 @@ public class PreviewBGASystem : MonoBehaviour
 
     private void Awake()
     {
-        bgPool = new ObjectPool<PreviewBGARenderer>( bgPrefab, 1 );
+        bgPool = new ObjectPool<PreviewBGARenderer>( bgPrefab, transform, 1 );
         scroller.OnSelectSong    += UpdateBGA;
         scroller.OnSoundRestart  += Restart;
         AudioManager.OnUpdatePitch += UpdatePitch;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum OptionType { Title, Button, Slider, Text }
+public enum OptionType { Title, Button, BoolButton, Slider, Text }
 public interface IOption
 {
     public OptionType type { get; }

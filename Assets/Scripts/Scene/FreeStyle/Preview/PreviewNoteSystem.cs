@@ -8,8 +8,14 @@ using TMPro;
 
 public class PreviewNoteSystem : MonoBehaviour
 {
-    private ObjectPool<PreviewNoteRenderer> notePool;
-    public PreviewNoteRenderer notePrefab;
+    [SerializeField] private NoteModelSO     noteModelSO;
+    [SerializeField] private NoteModelOption noteModelOption;
+    private Dictionary<NoteModel, ObjectPool<PreviewNoteRenderer>> pools = new();
+    private ObjectPool<PreviewNoteRenderer> currentPool;
+
+
+    //private ObjectPool<PreviewNoteRenderer> notePool;
+    //public PreviewNoteRenderer notePrefab;
 
     private int spawnIndex;
     private Note curData;
@@ -45,8 +51,10 @@ public class PreviewNoteSystem : MonoBehaviour
         scroll.OnSelectSong += Parse;
         scroll.OnSoundRestart += Restart;
         AudioManager.OnUpdatePitch += UpdatePitch;
+        noteModelOption.OnChangedNoteModel += ChangedNoteModel;
 
-        notePool ??= new ObjectPool<PreviewNoteRenderer>( notePrefab, transform, 5 );
+        //notePool ??= new ObjectPool<PreviewNoteRenderer>( notePrefab, transform, 5 );
+        ChangedNoteModel( GameSetting.CurrentNoteModel );
     }
 
     private void OnDestroy()
@@ -54,9 +62,19 @@ public class PreviewNoteSystem : MonoBehaviour
         AudioManager.OnUpdatePitch -= UpdatePitch;
     }
 
+    private void ChangedNoteModel( NoteModel _type )
+    {
+        if ( !pools.TryGetValue( _type, out currentPool ) )
+        {
+            pools.Add( _type, new ObjectPool<PreviewNoteRenderer>( noteModelSO.GetModel( _type ), transform, 5 ) );
+            currentPool = pools[_type];
+        }
+    }
+
     private void Restart( Song _song )
     {
-        notePool.AllDespawn();
+        currentPool.AllDespawn();
+        //notePool.AllDespawn();
         spawnIndex     = 0;
         timingIndex    = 0;
         Distance       = 0d;
@@ -166,7 +184,7 @@ public class PreviewNoteSystem : MonoBehaviour
     {
         while ( spawnIndex < notes.Count && curData.distance <= _distance + MinDistance )
         {
-            PreviewNoteRenderer note = notePool.Spawn();
+            PreviewNoteRenderer note = currentPool.Spawn();
             
             Color color  = Color.white;
             int keyCount = NowPlaying.CurrentSong.keyCount;
