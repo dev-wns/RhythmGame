@@ -115,8 +115,8 @@ public class FreqSpark : MonoBehaviour
                     topIndexes[j] = i;
                     break;
                 }
-
-                topValues[j] = topValues[j - 1];
+                 
+                topValues[j]  = topValues[j - 1];
                 topIndexes[j] = topIndexes[j - 1];
             }
         }
@@ -134,8 +134,11 @@ public class FreqSpark : MonoBehaviour
                 }
             }
 
-            buffer[i] = Global.Math.Max( value, buffer[i] );
-            buffer[i] -= Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
+            if ( value > buffer[i] ) buffer[i] += riseAmount * Time.deltaTime * ( value - buffer[i] );
+            else                     buffer[i] -= dropAmount * Time.deltaTime * ( buffer[i] - value );
+
+            //buffer[i] = Global.Math.Max( value, buffer[i] );
+            //buffer[i] -= Global.Math.Lerp( 0f, Global.Math.Abs( buffer[i] - value ), dropAmount * Time.deltaTime );
 
             // UI °»½Å
             int index  = isReverse ? freqCount - i - 1 : i;

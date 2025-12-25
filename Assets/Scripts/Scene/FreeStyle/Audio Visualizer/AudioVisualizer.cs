@@ -15,7 +15,7 @@ public class AudioVisualizer : MonoBehaviour
     private float[]  spectrums;
     private float[]  bandBuffer;
     private int[]    bandRange;
-    private int loopCount;
+    private int      loopCount;
 
     public float Average { get; private set; }
     public Spectrum Highest { get; private set; }
@@ -87,7 +87,7 @@ public class AudioVisualizer : MonoBehaviour
             int   bandCount    = 0;
             int   bandIndex    = 0;
             float bandSum      = 0f;
-            float defulatSum   = 0f;
+            float originSum   = 0f;
             for ( int i = 0; i < loopCount; i++ )
             {
                 spectrums[i] = ( stereo[0][i] + stereo[1][i] ) * .5f;
@@ -110,12 +110,12 @@ public class AudioVisualizer : MonoBehaviour
                     if ( Highest.value < spectrums[i] )
                          Highest = new Spectrum( i, spectrums[i] );
 
-                    defulatSum += spectrums[i];
+                    originSum += spectrums[i];
                     averageCount++;
                 }
             }
 
-            Average = defulatSum / avgRange;
+            Average = originSum / avgRange;
             OnUpdateBand?.Invoke( bandBuffer );
             OnUpdate?.Invoke( spectrums );
         }

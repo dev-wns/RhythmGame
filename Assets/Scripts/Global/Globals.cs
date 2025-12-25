@@ -77,6 +77,33 @@ namespace Global
         }
     }
 
+    public static class UI
+    {
+        public enum Pivot
+        {
+            TopLeft, Top, TopRight,
+            Left, Center, Right,
+            BottomLeft, Bottom, BottomRight,
+        }
+
+        public static Vector2 GetPivotVector( Pivot _pivot )
+        {
+            return _pivot switch 
+            {
+                Pivot.TopLeft     => new Vector2(   0f,   1f ),
+                Pivot.Top         => new Vector2( 0.5f,   1f ),
+                Pivot.TopRight    => new Vector2(   1f,   1f ),
+                Pivot.Left        => new Vector2(   0f, 0.5f ),
+                Pivot.Center      => new Vector2( 0.5f, 0.5f ),
+                Pivot.Right       => new Vector2(   1f, 0.5f ),
+                Pivot.BottomLeft  => new Vector2(   0f,   0f ),
+                Pivot.Bottom      => new Vector2( 0.5f,   0f ),
+                Pivot.BottomRight => new Vector2(   1f,   0f ),
+                _                 => new Vector2( 0.5f, 0.5f ),
+            };
+        }
+    }
+
     public static class Screen
     {
         public static int Width  = 1920;

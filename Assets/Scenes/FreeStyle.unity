@@ -9886,7 +9886,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08795a3ce4b1e074ea9e3289b19ec2e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notePrefab: {fileID: 8609986516714012816, guid: 22b2193a580a42b41b9ed681b520faa2,
+  notePrefab: {fileID: 5344278477311884344, guid: d924ed1d6bdfcc44dafab5fdd7e87e8b,
     type: 3}
   scroll: {fileID: 1702868222}
   bpmText: {fileID: 2014829267}
@@ -22196,7 +22196,7 @@ MonoBehaviour:
   posOffset: 6.6875
   discardOffset: 1.525
   riseAmount: 100
-  dropAmount: 10.5
+  dropAmount: 11.5
   isAxisX: 1
   isReverse: 1
   isNormalized: 1

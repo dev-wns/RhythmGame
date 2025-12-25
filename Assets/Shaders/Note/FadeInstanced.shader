@@ -44,6 +44,7 @@ Shader "Custom/FadeInstanced"
 			UNITY_INSTANCING_BUFFER_START( Props )
 				UNITY_DEFINE_INSTANCED_PROP( fixed4,  _Color  )
 				UNITY_DEFINE_INSTANCED_PROP( float,   _Offset )
+				UNITY_DEFINE_INSTANCED_PROP( float2,  _Pivot  )
 			UNITY_INSTANCING_BUFFER_END( Props )
 
 			v2f vert( appdata v )
@@ -52,10 +53,12 @@ Shader "Custom/FadeInstanced"
 				UNITY_SETUP_INSTANCE_ID( v );
 				UNITY_TRANSFER_INSTANCE_ID( v, o );
 
-				float3 pos = v.vertex.xyz;
-				pos.y += 0.5;
+				float3 pos    = v.vertex.xyz;
+				float2 pivot  = UNITY_ACCESS_INSTANCED_PROP( Props, _Pivot );
+				float2 offset = float2( 0.5, 0.5 ) - pivot;
+				pos.xy += offset;
 
-				o.pos = UnityObjectToClipPos( float4(pos, 1.0 ) );//v.vertex );
+				o.pos = UnityObjectToClipPos( float4( pos, 1.0 ) );
                 o.uv = TRANSFORM_TEX( v.uv, _MainTex );
                 o.color = v.color * UNITY_ACCESS_INSTANCED_PROP( Props, _Color );
 
@@ -65,10 +68,10 @@ Shader "Custom/FadeInstanced"
 			fixed4 frag ( v2f i ) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID( i );
-				float offset = UNITY_ACCESS_INSTANCED_PROP( Props, _Offset );
-				fixed4 col   = tex2D( _MainTex, i.uv ) * i.color;
+				float  offset = UNITY_ACCESS_INSTANCED_PROP( Props, _Offset );
+				fixed4 col    = tex2D( _MainTex, i.uv ) * i.color;
 
-				float  alpha = smoothstep( 1.0, 1.0 - offset, i.uv.y );
+				float alpha = smoothstep( 1.0, 1.0 - offset, i.uv.y );
 				col.a *= alpha;
 				
 				return col;

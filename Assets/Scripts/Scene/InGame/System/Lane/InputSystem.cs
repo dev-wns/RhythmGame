@@ -55,17 +55,7 @@ public class InputSystem : MonoBehaviour
             KeyEvent upEvent = new KeyEvent( vKey, KeyState.Up, qpc );
             UpdateInput( NowPlaying.Playback, upEvent );
         }
-        //Note note = notes[index];
-        //if ( note.isSlider && IsEntry )
-        //{
-        //    double tailDiff = note.endTime - NowPlaying.Playback;
-            
-        //    OnChangedLNState?.Invoke( new LNState( lane, KeyState.Up, 0d, 0d ) );
-        //    Judgement.UpdateResult( note, lane, NowPlaying.Playback, lnHeadDiff, tailDiff, KeyState.Up );
-        //    SelectNextNote();
-        //}
     }
-
 
     public void Clear()
     {
@@ -101,7 +91,6 @@ public class InputSystem : MonoBehaviour
         double headDiff = note.time    - playback;
         double tailDiff = note.endTime - playback;
         bool   isSlider = note.isSlider;
-
 
         if ( !isEntry ) // 노트 시작판정
         {

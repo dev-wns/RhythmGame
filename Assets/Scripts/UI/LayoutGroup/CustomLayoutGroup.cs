@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 [ExecuteAlways]
 [RequireComponent( typeof( RectTransform ) )]
-public abstract class CustomLayoutGroup : MonoBehaviour, ILayoutController
+public abstract class CustomLayoutGroup : MonoBehaviour
 {
     public float spacing;
     [Serializable]
