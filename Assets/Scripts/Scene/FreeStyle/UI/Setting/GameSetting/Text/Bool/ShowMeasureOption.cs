@@ -16,7 +16,5 @@ public class ShowMeasureOption : OptionBoolButton
         else               GameSetting.CurrentVisualFlag &= ~VisualFlag.ShowMeasure;
 
         title.color = CurrentBool ? Color.white : DisableColor;
-
-        Debug.Log( $"ShowMeasure  {CurrentBool}" );
     }
 }

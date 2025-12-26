@@ -3,32 +3,22 @@ using System;
 public class GameSetting : Singleton<GameSetting>
 {
     // Mode
-    public static VisualFlag     CurrentVisualFlag    = VisualFlag.All;
-    public static GameMode       CurrentGameMode      = GameMode.NoFail; // | GameMode.AutoPlay;
-    public static GameRandom     CurrentRandom        = GameRandom.None;
-    public static PitchType      CurrentPitchType     = PitchType.None;
-    public static NoteModel      CurrentNoteModel     = NoteModel.Block;
+    public static VisualFlag CurrentVisualFlag = VisualFlag.All;
+    public static GameMode   CurrentGameMode   = GameMode.NoFail; // | GameMode.AutoPlay;
+    public static GameRandom CurrentRandom     = GameRandom.None;
+    public static PitchType  CurrentPitchType  = PitchType.None;
+    public static NoteModel  CurrentNoteModel  = NoteModel.Block;
 
     // Speed
-    private static int OriginScrollSpeed = 30;
-    public static int ScrollSpeed
-    {
-        get => OriginScrollSpeed;
-        set
-        {
-            if ( value < 1 ) return;
-            OriginScrollSpeed = value;
-        }
-    }
+    public static int ScrollSpeed = 30;
 
     public static float Weight => ScrollSpeed * 0.073810f; // 0.001030
     // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
     public static float MinDistance => 1200f / Weight;
 
     // Sound
-    public static int SoundOffset       => -50 + OriginSoundOffset;
-    public static int OriginSoundOffset = 0;
-    public static int ScreenOffset = 0;
+    public static int   SoundOffset = 0;
+    public static float Pitch       = 1.0f;
 
     // Opacity ( 0 ~ 100 )
     public static int BGAOpacity   = 10;
@@ -38,13 +28,13 @@ public class GameSetting : Singleton<GameSetting>
     public static float MeasureHeight = 2.5f;
 
     // Judgement
-    public static float JudgePos         => DefaultJudgePos + JudgeOffset;
-    public static int   JudgeOffset      = -33;
-    public static float JudgeHeight      = 50f;
+    public  static float JudgePos        => DefaultJudgePos + JudgeOffset;
+    public  static int   JudgeOffset     = -33;
+    public  static float JudgeHeight     = 50f;
     private static float DefaultJudgePos = -435f;
 
-    // note
-    public static float NoteSizeMultiplier = 1f;
+    // Note
+    public static int   SliderOffset  = 0;
     public static float NoteWidth     => 125.5f; //120f; // 110.5
     public static float NoteHeight    => 70f; //70f; // 63
     public static float NoteBodyWidth => 110.5f;
@@ -56,30 +46,37 @@ public class GameSetting : Singleton<GameSetting>
     public static float GearStartPos => GearOffsetX - ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
     public static float GearWidth    => ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) );
 
-    // Pitch
-    public  static float CurrentPitch { get => pitch; set => pitch = value; }
-    private static float pitch = 1f;
 
     protected override void Awake()
     {
-        ScrollSpeed       = Config.Inst.Read( ConfigType.ScrollSpeed,  out int   scrollSpeed  ) ? scrollSpeed  : 30;
-        OriginSoundOffset = Config.Inst.Read( ConfigType.SoundOffset,  out int   soundOffset  ) ? soundOffset  : 0;
-        JudgeOffset       = Config.Inst.Read( ConfigType.JudgeOffset,  out int   judgeOffset  ) ? judgeOffset  : 0;
-        BGAOpacity        = Config.Inst.Read( ConfigType.BGAOpacity,   out int   bgaOpacity   ) ? bgaOpacity   : 0;
-        PanelOpacity      = Config.Inst.Read( ConfigType.PanelOpacity, out int   panelOpacity ) ? panelOpacity : 0;
-        GearOffsetX       = Config.Inst.Read( ConfigType.GearOffsetX,  out float gearOffsetX  ) ? gearOffsetX  : 0f;
-         
-        CurrentGameMode = GameMode.None;
-        if ( Config.Inst.Read( ConfigType.AutoPlay,   out bool isAuto     ) && isAuto     ) CurrentGameMode |= GameMode.AutoPlay;
-        if ( Config.Inst.Read( ConfigType.NoFailed,   out bool isNoFail   ) && isNoFail   ) CurrentGameMode |= GameMode.NoFail;
-        if ( Config.Inst.Read( ConfigType.NoSlider,   out bool isNoSlider ) && isNoSlider ) CurrentGameMode |= GameMode.NoSlider;
-        if ( Config.Inst.Read( ConfigType.FixedBPM,   out bool isFixedBPM ) && isFixedBPM ) CurrentGameMode |= GameMode.FixedBPM;
-        if ( Config.Inst.Read( ConfigType.ConvertKey, out bool isConvert  ) && isConvert  ) CurrentGameMode |= GameMode.ConvertKey;
+        // Game Mode
+        if ( !Config.Inst.Read( ConfigType.Random,     out CurrentRandom ) )                 CurrentRandom    = GameRandom.None;
 
-        CurrentVisualFlag = VisualFlag.None;
-        if ( Config.Inst.Read( ConfigType.Measure,    out bool showMeasure ) && showMeasure ) CurrentVisualFlag |= VisualFlag.ShowMeasure;
-        if ( Config.Inst.Read( ConfigType.HitEffect,  out bool hitEffect   ) && hitEffect   ) CurrentVisualFlag |= VisualFlag.HitEffect;
-        if ( Config.Inst.Read( ConfigType.LaneEffect, out bool laneEffect  ) && laneEffect  ) CurrentVisualFlag |= VisualFlag.LaneEffect;
+        CurrentGameMode = GameMode.None;
+        if (  Config.Inst.Read( ConfigType.AutoPlay,   out bool isAuto     ) && isAuto     ) CurrentGameMode |= GameMode.AutoPlay;
+        if (  Config.Inst.Read( ConfigType.NoFailed,   out bool isNoFail   ) && isNoFail   ) CurrentGameMode |= GameMode.NoFail;
+        if (  Config.Inst.Read( ConfigType.NoSlider,   out bool isNoSlider ) && isNoSlider ) CurrentGameMode |= GameMode.NoSlider;
+        if (  Config.Inst.Read( ConfigType.FixedBPM,   out bool isFixedBPM ) && isFixedBPM ) CurrentGameMode |= GameMode.FixedBPM;
+        if (  Config.Inst.Read( ConfigType.ConvertKey, out bool isConvert  ) && isConvert  ) CurrentGameMode |= GameMode.ConvertKey;
+
+        // Game Setting
+        if ( !Config.Inst.Read( ConfigType.NoteModel, out CurrentNoteModel ) ) CurrentNoteModel = NoteModel.Block;
+        ScrollSpeed  = Config.Inst.Read( ConfigType.ScrollSpeed,  out int scrollSpeed  ) ? scrollSpeed  : 1;
+        JudgeOffset  = Config.Inst.Read( ConfigType.JudgeOffset,  out int judgeOffset  ) ? judgeOffset  : 0;
+        SliderOffset = Config.Inst.Read( ConfigType.SliderOffset, out int sliderOffset ) ? sliderOffset : 0;
+
+        // Sound
+        SoundOffset = Config.Inst.Read( ConfigType.SoundOffset,  out int soundOffset  ) ? soundOffset : 0;
+
+        // UI
+        BGAOpacity   = Config.Inst.Read( ConfigType.BGAOpacity,   out int   bgaOpacity   ) ? bgaOpacity   : 100;
+        PanelOpacity = Config.Inst.Read( ConfigType.PanelOpacity, out int   panelOpacity ) ? panelOpacity : 100;
+        GearOffsetX  = Config.Inst.Read( ConfigType.GearOffsetX,  out float gearOffsetX  ) ? gearOffsetX  : 0f;
+
+        CurrentVisualFlag = VisualFlag.All;
+        if ( Config.Inst.Read( ConfigType.Measure,    out bool showMeasure ) && !showMeasure ) CurrentVisualFlag &= ~VisualFlag.ShowMeasure;
+        if ( Config.Inst.Read( ConfigType.HitEffect,  out bool hitEffect   ) && !hitEffect   ) CurrentVisualFlag &= ~VisualFlag.HitEffect;
+        if ( Config.Inst.Read( ConfigType.LaneEffect, out bool laneEffect  ) && !laneEffect  ) CurrentVisualFlag &= ~VisualFlag.LaneEffect;
     }
 
     public static bool HasFlag<T>( T _type ) where T : Enum

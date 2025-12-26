@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class NoSliderOption : OptionBoolButton
 {
-    public Action OnChangeOption;
+    public Action OnChangedOption;
 
     private void OnEnable()
     {
@@ -19,8 +19,6 @@ public class NoSliderOption : OptionBoolButton
         else               GameSetting.CurrentGameMode &= ~GameMode.NoSlider;
 
         title.color = CurrentBool ? Color.white : DisableColor;
-        OnChangeOption?.Invoke();
-
-        Debug.Log( $"NoSlider  {CurrentBool}" );
+        OnChangedOption?.Invoke();
     }
 }

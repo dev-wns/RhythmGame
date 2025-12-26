@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class SongViewer : MonoBehaviour
 {
+    public FreeStyle           scene;
+    public ScrollSpeedOption   speedOption;
     public FreeStyleMainScroll scroller;
     public NoSliderOption      noSliderOption;
     public FixedBPMOption      fixedBPMOption;
@@ -23,10 +25,8 @@ public class SongViewer : MonoBehaviour
     public TextMeshProUGUI bpm;
 
     [Header("Background Type")]
-    public Image  bgTypeImage;
-    public Sprite bgImage;
-    public Sprite bgSprite;
-    public Sprite bgVideo;
+    public BGAIconSO bgaIconSO;
+    public Image     bgaIcon;
 
     private Song song;
     private float pitch;
@@ -34,40 +34,43 @@ public class SongViewer : MonoBehaviour
 
     private void Awake()
     {
-        scroller.OnSelectSong           += SelectChangedSoundInfo;
-        fixedBPMOption.OnChangeOption   += UpdateBPMInfo;
-        noSliderOption.OnChangeOption   += UpdateNoteInfo;
-        keyConvertOption.OnChangeOption += UpdateButton;
-        AudioManager.OnUpdatePitch      += UpdatePitchInfo;
+        scene.OnChangedSpeed             += UpdateScrollSpeed;
+        scroller.OnSelectSong            += SelectChangedSoundInfo;
+        speedOption.OnChangedOption      += UpdateScrollSpeed;
+        fixedBPMOption.OnChangedOption   += UpdateBPMInfo;
+        noSliderOption.OnChangedOption   += UpdateNoteInfo;
+        keyConvertOption.OnChangedOption += UpdateButton;
+        AudioManager.OnUpdatePitch       += UpdatePitchInfo;
     }
 
     private void OnDestroy()
     {
-        scroller.OnSelectSong           -= SelectChangedSoundInfo;
-        fixedBPMOption.OnChangeOption   -= UpdateBPMInfo;
-        noSliderOption.OnChangeOption   -= UpdateNoteInfo;
-        keyConvertOption.OnChangeOption -= UpdateButton;
-        AudioManager.OnUpdatePitch      -= UpdatePitchInfo;
+        scene.OnChangedSpeed             -= UpdateScrollSpeed;
+        scroller.OnSelectSong            -= SelectChangedSoundInfo;
+        speedOption.OnChangedOption      -= UpdateScrollSpeed;
+        fixedBPMOption.OnChangedOption   -= UpdateBPMInfo;
+        noSliderOption.OnChangedOption   -= UpdateNoteInfo;
+        keyConvertOption.OnChangedOption -= UpdateButton;
+        AudioManager.OnUpdatePitch       -= UpdatePitchInfo;
     }
 
     private void SelectChangedSoundInfo( Song _song )
     {
         song = _song;
-        bgTypeImage.sprite = song.hasVideo  ? bgVideo  :
-                             song.hasSprite ? bgSprite :
-                                              bgImage;
-
-        //keySound.color = song.hasKeySound ? Color.white : new Color( 1f, 1f, 1f, .25f );
+        bgaIcon.sprite = bgaIconSO.GetSprite( _song );
 
         speed.SetText( "{0}", GameSetting.ScrollSpeed );
         random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
 
-        rate.SetText( "x{0:2}", ( float )GameSetting.CurrentPitch );
-        rate.color =     GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
-                         GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
+        rate.SetText( "x{0:2}", ( float )GameSetting.Pitch );
+        rate.color =     GameSetting.Pitch < 1f ? new Color( .5f, .5f, 1f ) :
+                         GameSetting.Pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
-        UpdatePitchInfo( GameSetting.CurrentPitch );
+        UpdatePitchInfo( GameSetting.Pitch );
     }
+
+    private void UpdateScrollSpeed() => speed.SetText( "{0}", GameSetting.ScrollSpeed );
+
 
     private void UpdatePitchInfo( float _pitch )
     {
@@ -109,9 +112,9 @@ public class SongViewer : MonoBehaviour
 
     private void UpdateBPMInfo()
     {
-        var mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * GameSetting.CurrentPitch );
-        var minBpm  = Mathf.RoundToInt( ( float )song.minBpm  * GameSetting.CurrentPitch );
-        var maxBpm  = Mathf.RoundToInt( ( float )song.maxBpm  * GameSetting.CurrentPitch );
+        var mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * GameSetting.Pitch );
+        var minBpm  = Mathf.RoundToInt( ( float )song.minBpm  * GameSetting.Pitch );
+        var maxBpm  = Mathf.RoundToInt( ( float )song.maxBpm  * GameSetting.Pitch );
 
         bool isSV = !( song.minBpm == song.maxBpm || GameSetting.HasFlag( GameMode.FixedBPM ) );
         if ( isSV ) bpm.SetText( "{0} ({1} ~ {2})", mainBPM, minBpm, maxBpm );

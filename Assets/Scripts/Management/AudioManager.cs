@@ -180,9 +180,9 @@ public class AudioManager : Singleton<AudioManager>
         if ( Config.Inst.Read( ConfigType.Master, out float masterVolume ) ) SetVolume( masterVolume, ChannelType.Master );
         else                                                                 SetVolume( 1f,           ChannelType.Master );
         if ( Config.Inst.Read( ConfigType.BGM,    out float bgmVolume    ) ) SetVolume( bgmVolume,    ChannelType.BGM );
-        else                                                                 SetVolume( 1f,           ChannelType.BGM );
+        else                                                                 SetVolume( .25f,         ChannelType.BGM );
         if ( Config.Inst.Read( ConfigType.SFX,    out float sfxVolume    ) ) SetVolume( sfxVolume,    ChannelType.SFX );
-        else                                                                 SetVolume( 2f,           ChannelType.SFX );
+        else                                                                 SetVolume( 1f,           ChannelType.SFX );
 
         Debug.Log( $"AudioManager Initialization" );
         //Debug.Log( $"Sound Device : {Drivers[curDriverIndex].name}" );
@@ -513,8 +513,8 @@ public class AudioManager : Singleton<AudioManager>
     {
         if ( dsps.ContainsKey( DSP_TYPE.PITCHSHIFT ) )
         {
-            float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f    / GameSetting.CurrentPitch :
-                           GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.1f  / GameSetting.CurrentPitch : 1f;
+            float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f    / GameSetting.Pitch :
+                           GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.1f  / GameSetting.Pitch : 1f;
 
             ErrorCheck( dsps[DSP_TYPE.PITCHSHIFT].setParameterFloat( ( int ) DSP_PITCHSHIFT.PITCH, offset ) );
         }

@@ -164,7 +164,7 @@ public abstract class Scene : UnityInputAction
     #endregion
 
     #region Input
-    public event Action OnScrollChange;
+    public event Action OnChangedSpeed;
 
     private bool isPressed = false;
     private float pressWaitTime = .5f;
@@ -195,18 +195,22 @@ public abstract class Scene : UnityInputAction
     {
         if ( _isPlus )
         {
+            if ( GameSetting.ScrollSpeed >= 50 )
+                 return;
+
             AudioManager.Inst.Play( SFX.Slider );
             GameSetting.ScrollSpeed += 1;
         }
         else
         {
-            if ( GameSetting.ScrollSpeed > 1 )
-                 AudioManager.Inst.Play( SFX.Slider );
+            if ( GameSetting.ScrollSpeed <= 1 )
+                 return;
 
+            AudioManager.Inst.Play( SFX.Slider );
             GameSetting.ScrollSpeed -= 1;
         }
 
-        OnScrollChange?.Invoke();
+        OnChangedSpeed?.Invoke();
     }
     #endregion
 

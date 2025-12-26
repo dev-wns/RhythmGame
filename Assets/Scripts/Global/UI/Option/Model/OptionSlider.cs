@@ -27,12 +27,21 @@ public abstract class OptionSlider : OptionBase
 
         type = OptionType.Slider;
 
-        if ( slider )
-        {
-            slider.minValue = minValue;
-            slider.maxValue = maxValue;
-        }
+        slider.minValue = minValue;
+        slider.maxValue = maxValue;
     }
+
+    public virtual void OnEnable()
+    {
+        slider.onValueChanged.AddListener( ChangedValue );
+    }
+
+    public virtual void OnDisable()
+    {
+        slider.onValueChanged.RemoveListener( ChangedValue );
+    }
+
+    public abstract void ChangedValue( float _value );
 
     public override void InputProcess()
     {

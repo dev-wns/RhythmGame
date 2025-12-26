@@ -16,7 +16,5 @@ public class AutoPlayOption : OptionBoolButton
         else               GameSetting.CurrentGameMode &= ~GameMode.AutoPlay; 
 
         title.color = CurrentBool ? Color.white : DisableColor;
-
-        Debug.Log( $"AutoPlay  {CurrentBool}" );
     }
 }

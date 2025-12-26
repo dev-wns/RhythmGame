@@ -25,7 +25,7 @@ public class DataStorage : Singleton<DataStorage>
     private List<Texture2D> textures = new (); // Default Texture
     private int             texIndex = 0;      // Default Texture
 
-    [Header( "Result Data" )]
+    [Header( "Record Data" )]
     public  static RecordData CurrentRecord => recordData;
     private static RecordData recordData = new RecordData();
 
@@ -107,7 +107,7 @@ public class DataStorage : Singleton<DataStorage>
                 Samples = new ReadOnlyCollection<KeySound>( samples );
                 ConvertedSamples = samples;
                 if ( !_song.isOnlyKeySound )
-                      AddSample( new KeySound( GameSetting.SoundOffset, _song.audioName, 1f ) );
+                      AddSample( new KeySound( -50 + GameSetting.SoundOffset, _song.audioName, 1f ) );
                 
                 return true;
             }
@@ -182,7 +182,7 @@ public class DataStorage : Singleton<DataStorage>
             BMPImage  img = bitmapLoader.LoadBMP( path );
             Texture2D tex = img.ToTexture2D( TextureFormat.RGBA32 );
 
-            // 전경인 경우 비트맵 배경이 검은색으로 되어있음
+            // 전경일때 대부분의 비트맵 배경은 검은색으로 되어있음
             Color32[] pixels = tex.GetPixels32();
             for ( int i = 0; i < pixels.Length; i++ )
             {
@@ -219,7 +219,7 @@ public class DataStorage : Singleton<DataStorage>
     }
     #endregion
 
-    #region Result Data
+    #region Record Data
     public RecordData CreateNewRecord()
     {
         var newRecord = new RecordData()
@@ -227,7 +227,7 @@ public class DataStorage : Singleton<DataStorage>
             score    = Judgement.CurrentResult.Score,
             accuracy = Judgement.CurrentResult.Accuracy,
             random   = GameSetting.CurrentRandom,
-            pitch    = GameSetting.CurrentPitch,
+            pitch    = GameSetting.Pitch,
             date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
         };
 

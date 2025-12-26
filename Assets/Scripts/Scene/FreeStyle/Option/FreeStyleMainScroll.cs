@@ -103,7 +103,7 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        Playback += ( Time.deltaTime * 1000f ) * GameSetting.CurrentPitch;
+        Playback += ( Time.deltaTime * 1000f ) * GameSetting.Pitch;
         posSlider.value = ( float ) ( Playback / endTime );
 
         if ( canRestart && endTime < Playback )

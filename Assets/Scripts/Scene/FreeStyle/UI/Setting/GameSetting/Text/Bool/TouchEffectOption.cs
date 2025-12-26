@@ -16,7 +16,5 @@ public class TouchEffectOption : OptionBoolButton
         else               GameSetting.CurrentVisualFlag &= ~VisualFlag.HitEffect; 
 
         title.color = CurrentBool ? Color.white : DisableColor;
-
-        Debug.Log( $"HitEffect  {CurrentBool}" );
     }
 }

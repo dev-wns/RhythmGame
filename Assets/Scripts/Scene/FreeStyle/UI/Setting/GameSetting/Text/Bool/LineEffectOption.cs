@@ -16,7 +16,5 @@ public class LineEffectOption : OptionBoolButton
         else               GameSetting.CurrentVisualFlag &= ~VisualFlag.LaneEffect;
 
         title.color = CurrentBool ? Color.white : DisableColor;
-
-        Debug.Log( $"LineEffect  {CurrentBool}" );
     }
 }

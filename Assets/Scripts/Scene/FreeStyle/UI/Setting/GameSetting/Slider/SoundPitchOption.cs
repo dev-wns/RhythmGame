@@ -11,31 +11,31 @@ public class SoundPitchOption : OptionSlider
     {
         base.Awake();
 
-        curValue = Mathf.RoundToInt( GameSetting.CurrentPitch * 100f );
+        curValue = Mathf.RoundToInt( GameSetting.Pitch * 100f );
         UpdateValue( curValue );
     }
 
-    public void InputProcess( float _value )
-    {
-        GameSetting.CurrentPitch = ( float ) Math.Round( _value * .01f, 2 );
-        AudioManager.Inst.Pitch  = GameSetting.CurrentPitch;
+	public override void ChangedValue( float _value )
+	{
+        GameSetting.Pitch = ( float ) Math.Round( _value * .01f, 2 );
+        AudioManager.Inst.Pitch  = GameSetting.Pitch;
 
-        //OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
-        previewText.SetText( "x{0:2}", GameSetting.CurrentPitch );
-        previewText.color = GameSetting.CurrentPitch < 1 ? new Color( .5f, .5f, 1f ) :
-                            GameSetting.CurrentPitch > 1 ? new Color( 1f, .5f, .5f ) : Color.white;
+        //OnPitchUpdate?.Invoke( GameSetting.Pitch );
+        previewText.SetText( "x{0:2}", GameSetting.Pitch );
+        previewText.color = GameSetting.Pitch < 1 ? new Color( .5f, .5f, 1f ) :
+                            GameSetting.Pitch > 1 ? new Color( 1f, .5f, .5f ) : Color.white;
 
         UpdateText( _value );
     }
 
     public override void Process()
     {
-        GameSetting.CurrentPitch = ( float ) Math.Round( curValue * .01f, 2 );
-        AudioManager.Inst.Pitch  = GameSetting.CurrentPitch;
+        GameSetting.Pitch = ( float ) Math.Round( curValue * .01f, 2 );
+        AudioManager.Inst.Pitch  = GameSetting.Pitch;
 
-        //OnPitchUpdate?.Invoke( GameSetting.CurrentPitch );
-        previewText.SetText( "x{0:2}", GameSetting.CurrentPitch );
-        previewText.color = GameSetting.CurrentPitch < 1 ? new Color( .5f, .5f, 1f ) :
-                            GameSetting.CurrentPitch > 1 ? new Color( 1f, .5f, .5f ) : Color.white;
+        //OnPitchUpdate?.Invoke( GameSetting.Pitch );
+        previewText.SetText( "x{0:2}", GameSetting.Pitch );
+        previewText.color = GameSetting.Pitch < 1 ? new Color( .5f, .5f, 1f ) :
+                            GameSetting.Pitch > 1 ? new Color( 1f, .5f, .5f ) : Color.white;
     }
 }

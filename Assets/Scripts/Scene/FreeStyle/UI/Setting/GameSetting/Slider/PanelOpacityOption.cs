@@ -8,7 +8,7 @@ public class PanelOpacityOption : OptionSlider
         UpdateValue( curValue );
     }
 
-    public void InputProcess( float _value )
+    public override void ChangedValue( float _value )
     {
         GameSetting.PanelOpacity = ( int )_value;
         UpdateText( _value );

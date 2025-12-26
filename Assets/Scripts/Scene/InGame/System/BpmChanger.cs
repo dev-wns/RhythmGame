@@ -27,7 +27,7 @@ public class BpmChanger : MonoBehaviour
     private void Clear()
     {
         StopAllCoroutines();
-        text.SetText( "{0}", Mathf.RoundToInt( ( float )( DataStorage.Timings[0].bpm * GameSetting.CurrentPitch ) ) );
+        text.SetText( "{0}", Mathf.RoundToInt( ( float )( DataStorage.Timings[0].bpm * GameSetting.Pitch ) ) );
     }
 
     private void GameStart() => StartCoroutine( UpdateBPM() );
@@ -42,7 +42,7 @@ public class BpmChanger : MonoBehaviour
             yield return new WaitUntil( () => bpmTime < NowPlaying.Playback );
 
             Timing current = timings[bpmIndex];
-            text.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.CurrentPitch ) ) );
+            text.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.Pitch ) ) );
 
             // ´ÙÀ½ BPM
             if ( ++bpmIndex < timings.Count )

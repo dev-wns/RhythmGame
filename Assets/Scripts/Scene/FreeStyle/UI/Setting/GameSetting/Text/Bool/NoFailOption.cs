@@ -16,7 +16,5 @@ public class NoFailOption : OptionBoolButton
         else               GameSetting.CurrentGameMode &= ~GameMode.NoFail;
 
         title.color = CurrentBool ? Color.white : DisableColor;
-
-        Debug.Log( $"NoFail  {CurrentBool}" );
     }
 }

@@ -32,7 +32,7 @@ public class InGame : Scene
                                        antiAliasing == 4 ? 16 : 0;
 
 
-        length  = NowPlaying.CurrentSong.totalTime / GameSetting.CurrentPitch;
+        length  = NowPlaying.CurrentSong.totalTime / GameSetting.Pitch;
         playCts = new CancellationTokenSource();
 
         NowPlaying.OnGameOver += GameOver;
@@ -67,7 +67,7 @@ public class InGame : Scene
 
     protected override void Connect()
     {
-        AudioManager.Inst.Pitch = GameSetting.CurrentPitch;
+        AudioManager.Inst.Pitch = GameSetting.Pitch;
         if ( GameSetting.CurrentPitchType != PitchType.None )
              AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }

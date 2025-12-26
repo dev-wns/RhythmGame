@@ -133,7 +133,7 @@ public class ResultInfomation : MonoBehaviour
         slow.SetText( "{0}", result.Slow );
 
         // bpm
-        if ( Global.Math.Abs( GameSetting.CurrentPitch - 1f ) < .0001f )
+        if ( Global.Math.Abs( GameSetting.Pitch - 1f ) < .0001f )
         {
             int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM );
             if ( song.minBpm == song.maxBpm ) bpm.SetText( "{0}", mainBPM );
@@ -141,12 +141,12 @@ public class ResultInfomation : MonoBehaviour
         }
         else
         {
-            int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * GameSetting.CurrentPitch  );
+            int mainBPM = Mathf.RoundToInt( ( float )song.mainBPM * GameSetting.Pitch  );
             if ( song.minBpm == song.maxBpm ) bpm.SetText( "{0}", mainBPM );
-            else                              bpm.SetText( "{0} ({1} ~ {2})", mainBPM, Mathf.RoundToInt( song.minBpm * GameSetting.CurrentPitch ), Mathf.RoundToInt( song.maxBpm * GameSetting.CurrentPitch ) );
+            else                              bpm.SetText( "{0} ({1} ~ {2})", mainBPM, Mathf.RoundToInt( song.minBpm * GameSetting.Pitch ), Mathf.RoundToInt( song.maxBpm * GameSetting.Pitch ) );
         }
-        bpm.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
-                    GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
+        bpm.color = GameSetting.Pitch < 1f ? new Color( .5f, .5f, 1f ) :
+                    GameSetting.Pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         // Score
         rank.sprite = result.Accuracy >= 95d ? rankAtlas.GetSprite( "Ranking-S" ) :
@@ -158,9 +158,9 @@ public class ResultInfomation : MonoBehaviour
         // GameSettings
         scrollSpeed.SetText( "{0}", GameSetting.ScrollSpeed );
         random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
-        pitch.SetText( "x{0:1}", GameSetting.CurrentPitch );
-        pitch.color = GameSetting.CurrentPitch < 1f ? new Color( .5f, .5f, 1f ) :
-                      GameSetting.CurrentPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
+        pitch.SetText( "x{0:1}", GameSetting.Pitch );
+        pitch.color = GameSetting.Pitch < 1f ? new Color( .5f, .5f, 1f ) :
+                      GameSetting.Pitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
         useModeObj.SetActive( GameSetting.HasFlag( GameMode.AutoPlay ) );
         date.SetText( DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" ) );

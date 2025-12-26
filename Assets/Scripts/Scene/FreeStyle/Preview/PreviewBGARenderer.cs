@@ -246,7 +246,7 @@ public class PreviewBGARenderer : MonoBehaviour
         vp.enabled = true;
         image.texture = renderTexture;
         vp.url = @$"{_song.videoPath}";
-        vp.playbackSpeed = GameSetting.CurrentPitch;
+        vp.playbackSpeed = GameSetting.Pitch;
         vp.Prepare();
 
         double startTick = System.DateTime.Now.TimeOfDay.TotalMilliseconds;

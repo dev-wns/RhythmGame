@@ -48,7 +48,7 @@ public abstract class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNo
             if ( note.distance < PreviewNoteSystem.Distance )
                  distance = PreviewNoteSystem.Distance;
 
-            float bodyLength = ( float )( ( note.endDistance - distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight );
+            float bodyLength = ( float )( ( note.endDistance - distance ) / GameSetting.Pitch * PreviewNoteSystem.Weight );
             float bodyOffset = isRaise ? NoteSize.y : 0f; // 노트 크기만큼 길이를 줄이고( tail도 같이 내려옴 ), Body 위치만 크기의 반절만큼 올린다.
             float length     = Global.Math.Clamp( bodyLength - bodyOffset, 0f, float.MaxValue );
 
@@ -56,7 +56,7 @@ public abstract class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNo
         }
 
         // 부모 갱신
-        transform.localPosition = new Vector3( column, -390f + ( ( float )( distance - PreviewNoteSystem.Distance ) / GameSetting.CurrentPitch * PreviewNoteSystem.Weight ), 0f );
+        transform.localPosition = new Vector3( column, -390f + ( ( float )( distance - PreviewNoteSystem.Distance ) / GameSetting.Pitch * PreviewNoteSystem.Weight ), 0f );
         UpdatePropertyBlock();
 
         if ( despawnTime - PreviewNoteSystem.Playback < double.Epsilon )

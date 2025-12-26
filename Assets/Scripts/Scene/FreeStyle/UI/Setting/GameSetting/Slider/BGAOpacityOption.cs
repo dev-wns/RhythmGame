@@ -8,7 +8,7 @@ public class BGAOpacityOption : OptionSlider
         UpdateValue( curValue );
     }
 
-    public void InputProcess( float _value )
+    public override void ChangedValue( float _value )
     {
         GameSetting.BGAOpacity = ( int )_value;
         UpdateText( _value );

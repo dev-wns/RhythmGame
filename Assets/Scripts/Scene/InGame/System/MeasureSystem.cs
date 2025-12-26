@@ -91,7 +91,7 @@ public class MeasureSystem : MonoBehaviour
             double mspb = ( 60000d / timings[i].bpm ) * Beat; // millisecond per beat
             while ( time < nextTime )
             {
-                measures.Add( NowPlaying.Inst.GetDistance( time + GameSetting.ScreenOffset ) );
+                measures.Add( NowPlaying.Inst.GetDistance( time ) );
                 time += mspb;
             }
         }

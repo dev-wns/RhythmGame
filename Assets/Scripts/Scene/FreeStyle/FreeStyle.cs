@@ -12,7 +12,6 @@ public class FreeStyle : Scene
     public FreeStyleReLoad reload;
     public FreeStyleSearch search;
 
-    public TextMeshProUGUI speedText;
 
     protected override void Awake()
     {
@@ -27,8 +26,6 @@ public class FreeStyle : Scene
         InputManager  inputManager  = InputManager.Inst;
         DataStorage   dataStorage   = DataStorage.Inst;
         Judgement     judgement     = Judgement.Inst;
-
-        OnScrollChange += () => speedText.SetText( "{0}", GameSetting.ScrollSpeed );
     }
 
     protected override void Start()
@@ -45,7 +42,7 @@ public class FreeStyle : Scene
 
     protected override void Connect()
     {
-        AudioManager.Inst.Pitch = GameSetting.CurrentPitch;
+        AudioManager.Inst.Pitch = GameSetting.Pitch;
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
         AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.FFT,        ChannelType.BGM );
     }
@@ -65,16 +62,28 @@ public class FreeStyle : Scene
     public void DisableGameSetting()
     {
         DisableCanvas( SceneAction.Main, gameSetting );
-        Config.Inst.Write( ConfigType.SoundOffset,  GameSetting.OriginSoundOffset  );
+
+        // Game Mode
+        Config.Inst.Write( ConfigType.Random,       ( int )GameSetting.CurrentRandom );
+        Config.Inst.Write( ConfigType.AutoPlay,     GameSetting.HasFlag( GameMode.AutoPlay   ) );
+        Config.Inst.Write( ConfigType.NoFailed,     GameSetting.HasFlag( GameMode.NoFail     ) );
+        Config.Inst.Write( ConfigType.NoSlider,     GameSetting.HasFlag( GameMode.NoSlider   ) );
+        Config.Inst.Write( ConfigType.FixedBPM,     GameSetting.HasFlag( GameMode.FixedBPM   ) );
+        Config.Inst.Write( ConfigType.ConvertKey,   GameSetting.HasFlag( GameMode.ConvertKey ) );
+
+        // Game Setting
+        Config.Inst.Write( ConfigType.NoteModel,    ( int )GameSetting.CurrentNoteModel );
+        Config.Inst.Write( ConfigType.ScrollSpeed,  GameSetting.ScrollSpeed  );
         Config.Inst.Write( ConfigType.JudgeOffset,  GameSetting.JudgeOffset  );
+        Config.Inst.Write( ConfigType.SliderOffset, GameSetting.SliderOffset );
+
+        // Sound
+        Config.Inst.Write( ConfigType.SoundOffset,  GameSetting.SoundOffset );
+
+        // UI
         Config.Inst.Write( ConfigType.BGAOpacity,   GameSetting.BGAOpacity   );
         Config.Inst.Write( ConfigType.PanelOpacity, GameSetting.PanelOpacity );
         Config.Inst.Write( ConfigType.GearOffsetX,  GameSetting.GearOffsetX  );
-        Config.Inst.Write( ConfigType.AutoPlay,     GameSetting.HasFlag( GameMode.AutoPlay      ) );
-        Config.Inst.Write( ConfigType.NoFailed,     GameSetting.HasFlag( GameMode.NoFail        ) );
-        Config.Inst.Write( ConfigType.NoSlider,     GameSetting.HasFlag( GameMode.NoSlider      ) );
-        Config.Inst.Write( ConfigType.FixedBPM,     GameSetting.HasFlag( GameMode.FixedBPM      ) );
-        Config.Inst.Write( ConfigType.ConvertKey,   GameSetting.HasFlag( GameMode.ConvertKey    ) );
         Config.Inst.Write( ConfigType.Measure,      GameSetting.HasFlag( VisualFlag.ShowMeasure ) );
         Config.Inst.Write( ConfigType.HitEffect,    GameSetting.HasFlag( VisualFlag.HitEffect   ) );
         Config.Inst.Write( ConfigType.LaneEffect,   GameSetting.HasFlag( VisualFlag.LaneEffect  ) );

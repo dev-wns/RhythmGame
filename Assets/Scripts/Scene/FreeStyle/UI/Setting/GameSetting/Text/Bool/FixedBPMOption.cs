@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class FixedBPMOption : OptionBoolButton
 {
-    public Action OnChangeOption;
+    public Action OnChangedOption;
 
     private void OnEnable()
     {
@@ -19,8 +19,6 @@ public class FixedBPMOption : OptionBoolButton
         else               GameSetting.CurrentGameMode &= ~GameMode.FixedBPM;
 
         title.color = CurrentBool ? Color.white : DisableColor;
-        OnChangeOption?.Invoke();
-
-        Debug.Log( $"FixedBPM  {CurrentBool}" );
+        OnChangedOption?.Invoke();
     }
 }

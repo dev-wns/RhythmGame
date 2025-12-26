@@ -137,7 +137,7 @@ public class NowPlaying : Singleton<NowPlaying>
     /// <summary> 선택된 음악을 바탕으로 초기화 </summary>
     public void Initialize()
     {
-        MainBPM = CurrentSong.mainBPM * GameSetting.CurrentPitch;
+        MainBPM = CurrentSong.mainBPM * GameSetting.Pitch;
 
         // 모드를 선택한 상태로 InGame 진입 후 계산
         bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  CurrentSong.keyCount == 7;
@@ -368,8 +368,8 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( speed > 0f )
         {
             speed -= ( 1f / 3f ) * Time.deltaTime;
-            float decrease = ( 1f - speed ) * GameSetting.CurrentPitch * .3f;
-            AudioManager.Inst.Pitch = GameSetting.CurrentPitch - decrease;
+            float decrease = ( 1f - speed ) * GameSetting.Pitch * .3f;
+            AudioManager.Inst.Pitch = GameSetting.Pitch - decrease;
 
             Playback += speed * ( 1000f * Time.deltaTime );
             Distance  = distanceCache + ( Playback - DataStorage.Timings[bpmIndex].time );

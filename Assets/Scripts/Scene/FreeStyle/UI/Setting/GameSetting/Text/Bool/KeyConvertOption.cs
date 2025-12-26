@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class KeyConvertOption : OptionBoolButton
 {
-    public Action OnChangeOption;
+    public Action OnChangedOption;
 
     private void OnEnable()
     {
@@ -19,8 +19,6 @@ public class KeyConvertOption : OptionBoolButton
         else               GameSetting.CurrentGameMode &= ~GameMode.ConvertKey;
 
         title.color = CurrentBool ? Color.white : DisableColor;
-        OnChangeOption?.Invoke();
-
-        Debug.Log( $"7K to 6K  {CurrentBool}" );
+        OnChangedOption?.Invoke();
     }
 }

@@ -4,13 +4,15 @@ public class VolumeOption : OptionSlider
 {
     public ChannelType groupType = ChannelType.Master;
 
-    private void OnEnable()
+    public override void OnEnable()
     {
+        base.OnEnable();
+
         curValue = Mathf.RoundToInt( AudioManager.Inst.GetVolume( groupType ) * 100f );
         UpdateValue( curValue );
     }
 
-    public void InputProcess( float _value )
+    public override void ChangedValue( float _value )
     {
         AudioManager.Inst.SetVolume( _value * .01f, groupType );
         UpdateText( _value );

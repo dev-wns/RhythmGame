@@ -4,9 +4,6 @@ public enum ConfigType : int
     // User Section
     Email = 0,
     IsSavedEmail,
-    ScrollSpeed,
-    SoundOffset,
-    JudgeOffset,
 
     // Sound Section
     SoundBuffer = 100,
@@ -15,14 +12,23 @@ public enum ConfigType : int
     SFX,
 
     // GameSetting Section
-    BGAOpacity = 200,
-    PanelOpacity,
-    GearOffsetX,
+    Random = 200,
     AutoPlay,
     NoFailed,
     NoSlider,
     FixedBPM,
     ConvertKey,
+
+    NoteModel,
+    ScrollSpeed,
+    JudgeOffset,
+    SliderOffset,
+
+    SoundOffset,
+
+    BGAOpacity,
+    PanelOpacity,
+    GearOffsetX,
     Measure,
     HitEffect,
     LaneEffect,

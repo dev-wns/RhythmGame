@@ -127,7 +127,7 @@ public class BGASystem : MonoBehaviour
     {
         vp.enabled       = true;
         vp.url           = @$"{NowPlaying.CurrentSong.videoPath}";
-        vp.playbackSpeed = GameSetting.CurrentPitch;
+        vp.playbackSpeed = GameSetting.Pitch;
         vp.targetTexture = renderTexture;
 
         background.texture = renderTexture;

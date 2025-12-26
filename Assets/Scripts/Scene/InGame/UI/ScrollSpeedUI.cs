@@ -35,7 +35,7 @@ public class ScrollSpeedUI : MonoBehaviour
 
     private void Awake()
     {
-        scene.OnScrollChange += UpdateSpeed;
+        scene.OnChangedSpeed += UpdateSpeed;
 
         bgStartSize = new Vector2( background.sizeDelta.x, 0f );
         bgEndSize = background.sizeDelta;
@@ -52,7 +52,7 @@ public class ScrollSpeedUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        scene.OnScrollChange -= UpdateSpeed;
+        scene.OnChangedSpeed -= UpdateSpeed;
     }
 
     private void Start()
