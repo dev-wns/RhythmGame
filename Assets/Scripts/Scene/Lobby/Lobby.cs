@@ -35,13 +35,13 @@ public class Lobby : Scene
             Network.Inst.Send( new Packet( STAGE_INFO_REQ ) );
     }
 
-    public void EnableLoginCanvas() => EnableCanvas( ActionType.Login, loginCanvas, false );
+    public void EnableLoginCanvas() => EnableCanvas( SceneAction.Login, loginCanvas, false );
 
-    public void DisableLoginCanvas() => DisableCanvas( ActionType.Main, loginCanvas, false );
+    public void DisableLoginCanvas() => DisableCanvas( SceneAction.Main, loginCanvas, false );
 
-    public void EnableCreateStageCanvas() => EnableCanvas( ActionType.CreateStage, createStageCanvas );
+    public void EnableCreateStageCanvas() => EnableCanvas( SceneAction.CreateStage, createStageCanvas );
 
-    public void DisableCreateStageCanvas() => DisableCanvas( ActionType.Main, createStageCanvas );
+    public void DisableCreateStageCanvas() => DisableCanvas( SceneAction.Main, createStageCanvas );
 
     public void MoveToStage()
     {
@@ -60,9 +60,9 @@ public class Lobby : Scene
     public override void KeyBind()
     {
         // Login
-        Bind( ActionType.Login, KeyCode.Escape, DisableLoginCanvas );
+        Bind( SceneAction.Login, KeyCode.Escape, DisableLoginCanvas );
 
         // Create Room
-        Bind( ActionType.CreateStage, KeyCode.Escape, DisableCreateStageCanvas );
+        Bind( SceneAction.CreateStage, KeyCode.Escape, DisableCreateStageCanvas );
     }
 }

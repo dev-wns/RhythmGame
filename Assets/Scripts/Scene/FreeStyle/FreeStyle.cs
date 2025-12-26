@@ -57,14 +57,14 @@ public class FreeStyle : Scene
     }
 
     #region Bind Unity Events
-    public void EnableGameSettingCanvas()   => EnableCanvas( ActionType.GameOption, gameSetting );
-    public void EnableSystemSettingCanvas() => EnableCanvas( ActionType.SystemOption, systemSetting, true, false );
-    public void EnableKeySettingCanvas()    => EnableCanvas( ActionType.KeySetting, keySetting );
-    public void EnableReloadCanvas()        => EnableCanvas( ActionType.ReLoad, reload.gameObject );
-    public void EnableExitCanvas()          => EnableCanvas( ActionType.Exit, exit );
+    public void EnableGameSettingCanvas()   => EnableCanvas( SceneAction.GameOption, gameSetting );
+    public void EnableSystemSettingCanvas() => EnableCanvas( SceneAction.SystemOption, systemSetting, true, false );
+    public void EnableKeySettingCanvas()    => EnableCanvas( SceneAction.KeySetting, keySetting );
+    public void EnableReloadCanvas()        => EnableCanvas( SceneAction.ReLoad, reload.gameObject );
+    public void EnableExitCanvas()          => EnableCanvas( SceneAction.Exit, exit );
     public void DisableGameSetting()
     {
-        DisableCanvas( ActionType.Main, gameSetting );
+        DisableCanvas( SceneAction.Main, gameSetting );
         Config.Inst.Write( ConfigType.SoundOffset,  GameSetting.OriginSoundOffset  );
         Config.Inst.Write( ConfigType.JudgeOffset,  GameSetting.JudgeOffset  );
         Config.Inst.Write( ConfigType.BGAOpacity,   GameSetting.BGAOpacity   );
@@ -81,7 +81,7 @@ public class FreeStyle : Scene
     }
     public void DisableSystemOption()
     {
-        DisableCanvas( ActionType.Main, systemSetting, true, false );
+        DisableCanvas( SceneAction.Main, systemSetting, true, false );
         Config.Inst.Write( ConfigType.Resolution,   SystemSetting.CurrentResolution   );
         Config.Inst.Write( ConfigType.FrameLimit,   SystemSetting.CurrentFrameRate    );
         Config.Inst.Write( ConfigType.AntiAliasing, SystemSetting.CurrentAntiAliasing );
@@ -95,14 +95,14 @@ public class FreeStyle : Scene
     }
     public void DisableKeySetting()
     {
-        DisableCanvas( ActionType.Main, keySetting );
+        DisableCanvas( SceneAction.Main, keySetting );
         Config.Inst.Write( ConfigType._4K, InputManager.Keys[GameKeyCount._4] );
         Config.Inst.Write( ConfigType._6K, InputManager.Keys[GameKeyCount._6] );
         Config.Inst.Write( ConfigType._7K, InputManager.Keys[GameKeyCount._7] );
     }
     public void DisableReload()
     {
-        DisableCanvas( ActionType.Main, reload.gameObject );
+        DisableCanvas( SceneAction.Main, reload.gameObject );
     }
 
     public void MoveToLobby()
@@ -110,41 +110,41 @@ public class FreeStyle : Scene
         //AudioManager.Inst.Play( SFX.MenuClick );
         //LoadScene( SceneType.Lobby );
     }
-    public void ExitCancel() => DisableCanvas( ActionType.Main, exit );
+    public void ExitCancel() => DisableCanvas( SceneAction.Main, exit );
     public void Quit() => Application.Quit();
     #endregion
 
     public override void KeyBind()
     {
         // Main
-        Bind( ActionType.Main, KeyState.Down, KeyCode.F3, () => SpeedControlProcess( false ) );
-        Bind( ActionType.Main, KeyState.Hold, KeyCode.F3, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Main, KeyState.Up,   KeyCode.F3, () => UpedSpeedControl() );
+        Bind( SceneAction.Main, KeyState.Down, KeyCode.F3, () => SpeedControlProcess( false ) );
+        Bind( SceneAction.Main, KeyState.Hold, KeyCode.F3, () => PressedSpeedControl( false ) );
+        Bind( SceneAction.Main, KeyState.Up,   KeyCode.F3, () => UpedSpeedControl() );
 
-        Bind( ActionType.Main, KeyState.Down, KeyCode.F4, () => SpeedControlProcess( true ) );
-        Bind( ActionType.Main, KeyState.Hold, KeyCode.F4, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Main, KeyState.Up,   KeyCode.F4, () => UpedSpeedControl() );
+        Bind( SceneAction.Main, KeyState.Down, KeyCode.F4, () => SpeedControlProcess( true ) );
+        Bind( SceneAction.Main, KeyState.Hold, KeyCode.F4, () => PressedSpeedControl( true ) );
+        Bind( SceneAction.Main, KeyState.Up,   KeyCode.F4, () => UpedSpeedControl() );
 
-        Bind( ActionType.GameOption,   KeyCode.Escape, DisableGameSetting );
-        Bind( ActionType.SystemOption, KeyCode.Escape, DisableSystemOption );
+        Bind( SceneAction.GameOption,   KeyCode.Escape, DisableGameSetting );
+        Bind( SceneAction.SystemOption, KeyCode.Escape, DisableSystemOption );
 
         // KeySetting
-        Bind( ActionType.KeySetting, KeyCode.RightArrow, () => { MoveToNextOption( keySetting ); } );
-        Bind( ActionType.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
-        Bind( ActionType.KeySetting, KeyCode.Escape,     DisableKeySetting );
+        Bind( SceneAction.KeySetting, KeyCode.RightArrow, () => { MoveToNextOption( keySetting ); } );
+        Bind( SceneAction.KeySetting, KeyCode.LeftArrow,  () => { MoveToPrevOption( keySetting ); } );
+        Bind( SceneAction.KeySetting, KeyCode.Escape,     DisableKeySetting );
 
         if ( !DataStorage.IsMultiPlaying )
         {
             //ReLoad
-            Bind( ActionType.ReLoad, KeyCode.Escape, DisableReload );
+            Bind( SceneAction.ReLoad, KeyCode.Escape, DisableReload );
         }
 
         // Exit
-        Bind( ActionType.Main, KeyCode.Escape, () => 
+        Bind( SceneAction.Main, KeyCode.Escape, () => 
         {
             if ( !FreeStyleSearch.IsSearching )
-                 EnableCanvas( ActionType.Exit, exit ); 
+                 EnableCanvas( SceneAction.Exit, exit ); 
         } );
-        Bind( ActionType.Exit, KeyCode.Escape, ExitCancel );
+        Bind( SceneAction.Exit, KeyCode.Escape, ExitCancel );
     }
 }

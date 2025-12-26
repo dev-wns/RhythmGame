@@ -17,12 +17,19 @@ public class HeartBeat : MonoBehaviour
 
     private void Awake()
     {
-        mainScroll.OnSelectSong        += UpdateSong;
-        mainScroll.OnSoundRestart      += UpdateSong;
-        AudioManager.OnUpdatePitch     += UpdatePitch;
+        mainScroll.OnSelectSong    += UpdateSong;
+        mainScroll.OnSoundRestart  += UpdateSong;
+        AudioManager.OnUpdatePitch += UpdatePitch;
 
         startSize = transform.localScale.x;
-        endSize = startSize * power;
+        endSize   = startSize * power;
+    }
+
+    private void OnDestroy()
+    {
+        mainScroll.OnSelectSong    -= UpdateSong;
+        mainScroll.OnSoundRestart  -= UpdateSong;
+        AudioManager.OnUpdatePitch -= UpdatePitch;
     }
 
     private void Update()
@@ -37,11 +44,6 @@ public class HeartBeat : MonoBehaviour
         float t    = ( 1f + cos ) * .5f; // 1 -> 0
         float size = Global.Math.Clamp( Global.Math.Lerp( startSize, endSize, t ), startSize, endSize );
         transform.localScale = new Vector2( size, size );
-    }
-
-    private void OnDestroy()
-    {
-        AudioManager.OnUpdatePitch -= UpdatePitch;
     }
 
     private void Initialize( double _bpm )

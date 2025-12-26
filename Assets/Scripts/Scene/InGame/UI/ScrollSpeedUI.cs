@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ScrollSpeedUI : MonoBehaviour
 {
-    private Scene scene;
+    [SerializeField] private InGame scene;
 
     [Header( "Canvas" )]
     public GameObject canvas;
@@ -35,7 +35,6 @@ public class ScrollSpeedUI : MonoBehaviour
 
     private void Awake()
     {
-        scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
         scene.OnScrollChange += UpdateSpeed;
 
         bgStartSize = new Vector2( background.sizeDelta.x, 0f );
@@ -51,40 +50,15 @@ public class ScrollSpeedUI : MonoBehaviour
         textStartSize = speedText.fontSize;
     }
 
+    private void OnDestroy()
+    {
+        scene.OnScrollChange -= UpdateSpeed;
+    }
+
     private void Start()
     {
         textSeq = DOTween.Sequence().Pause().SetAutoKill( false );
         textSeq.Append( DOTween.To( () => textStartSize + TextSizeOffset, x => speedText.fontSize = x, textStartSize, Duration ) );
-    }
-
-    private void UpdateSpeed()
-    {
-        if ( scene.CurrentAction != ActionType.Main )
-            return;
-
-        timer = 0f;
-        speedText.SetText( "{0}", GameSetting.ScrollSpeed );
-        textSeq?.Restart();
-
-        if ( isActive )
-            return;
-
-        canvas.SetActive( true );
-        canvasGroup.DOFade( 1f, .15f );
-
-        // background
-        bgImage.color = Global.Color.Clear;
-        bgImage.DOColor( BGStartColor, Duration );
-
-        background.sizeDelta = bgStartSize;
-        background.DOSizeDelta( bgEndSize, Duration );
-
-        // text
-        speedText.color = Global.Color.ClearA;
-        speedText.DOFade( 1f, Duration );
-
-        isActive = true;
-        isProcessing = false;
     }
 
     private void Update()
@@ -105,4 +79,35 @@ public class ScrollSpeedUI : MonoBehaviour
             } );
         }
     }
+
+    private void UpdateSpeed()
+    {
+        if ( scene.CurrentAction != SceneAction.Main )
+            return;
+
+        timer = 0f;
+        speedText.SetText( "{0}", GameSetting.ScrollSpeed );
+        textSeq?.Restart();
+
+        if ( isActive )
+            return;
+
+        canvas.SetActive( true );
+        canvasGroup.DOFade( 1f, .15f );
+
+        // background
+        bgImage.color = Global.UI.Color.Clear;
+        bgImage.DOColor( BGStartColor, Duration );
+
+        background.sizeDelta = bgStartSize;
+        background.DOSizeDelta( bgEndSize, Duration );
+
+        // text
+        speedText.color = Global.UI.Color.ClearA;
+        speedText.DOFade( 1f, Duration );
+
+        isActive = true;
+        isProcessing = false;
+    }
+
 }

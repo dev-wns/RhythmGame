@@ -15,7 +15,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
     private readonly float fadeTime = .25f;
     private float fadeOffset;
-    private BackgroundType type;
+    private BGA type;
     private double videoOffset = 0d;
     private float pitch = 1f;
 
@@ -79,7 +79,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
     public void Restart( Song _song )
     {
-        if ( type == BackgroundType.Video )
+        if ( type == BGA.Video )
         {
             if ( !ReferenceEquals( CorUpdateVideo, null ) )
             {
@@ -88,7 +88,7 @@ public class PreviewBGARenderer : MonoBehaviour
             }
             CorUpdateVideo = StartCoroutine( LoadVideo( _song ) );
         }
-        else if ( type == BackgroundType.Sprite )
+        else if ( type == BGA.Sprite )
         {
             if ( !ReferenceEquals( CorUpdateSprites, null ) )
             {
@@ -110,7 +110,7 @@ public class PreviewBGARenderer : MonoBehaviour
         
         if ( _song.hasSprite )
         {
-            type = BackgroundType.Sprite;
+            type = BGA.Sprite;
             using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
             {
                 string line;
@@ -138,28 +138,28 @@ public class PreviewBGARenderer : MonoBehaviour
         }
         else if ( File.Exists( _song.videoPath ) )
         {
-            type = BackgroundType.Video;
+            type = BGA.Video;
             CorUpdateVideo = StartCoroutine( LoadVideo( _song ) );
         }
         else
         {
-            type = BackgroundType.Image;
+            type = BGA.Image;
             imageName = _song.imageName;
-            StartCoroutine( LoadTexture( new SpriteSample( imageName ), BackgroundType.Image ) );
+            StartCoroutine( LoadTexture( new SpriteSample( imageName ), BGA.Image ) );
         }
     }
 
-    public IEnumerator LoadTexture( SpriteSample _sprite, BackgroundType _type )
+    public IEnumerator LoadTexture( SpriteSample _sprite, BGA _type )
     {
         var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
         if ( !File.Exists( path ) || textures.ContainsKey( _sprite.name ) )
         {
-            if ( _type == BackgroundType.Image )
+            if ( _type == BGA.Image )
             {
                 image.enabled = true;
                 isDefault     = true;
                 image.texture = DataStorage.Inst.GetDefaultTexture();
-                tf.sizeDelta  = Global.Screen.GetRatio( image.texture );
+                tf.sizeDelta  = Global.UI.Screen.GetRatio( image.texture );
             }
             yield break;
         }
@@ -192,12 +192,12 @@ public class PreviewBGARenderer : MonoBehaviour
             }
         }
 
-        if ( _type == BackgroundType.Image )
+        if ( _type == BGA.Image )
         {
             image.enabled = true;
             isDefault     = false;
             image.texture = tex;
-            tf.sizeDelta  = Global.Screen.GetRatio( image.texture );
+            tf.sizeDelta  = Global.UI.Screen.GetRatio( image.texture );
         }
 
         textures.Add( _sprite.name, tex );
@@ -208,7 +208,7 @@ public class PreviewBGARenderer : MonoBehaviour
     {
         for ( int i = 0; i < sprites.Count; i++ )
         {
-            yield return StartCoroutine( LoadTexture( sprites[i], BackgroundType.Sprite ) );
+            yield return StartCoroutine( LoadTexture( sprites[i], BGA.Sprite ) );
         }
     }
 
@@ -230,7 +230,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
             if ( textures.TryGetValue( curSample.name, out Texture2D texture ) )
             {
-                tf.sizeDelta  = Global.Screen.GetRatio( texture );
+                tf.sizeDelta  = Global.UI.Screen.GetRatio( texture );
                 image.texture = texture;
             }
 
@@ -254,7 +254,7 @@ public class PreviewBGARenderer : MonoBehaviour
         yield return new WaitUntil( () => vp.isPrepared );
 
         image.enabled = true;
-        tf.sizeDelta = new Vector2( Global.Screen.Width, Global.Screen.Height );
+        tf.sizeDelta = new Vector2( Global.UI.Screen.Width, Global.UI.Screen.Height );
 
         double delay = System.DateTime.Now.TimeOfDay.TotalMilliseconds - startTick;
         vp.time = Math.Max( 0d, ( _song.previewTime + _song.audioOffset + videoOffset + delay ) * .001d );

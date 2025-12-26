@@ -7,7 +7,7 @@ using TMPro;
 
 public class FreeStyleMainScroll : ScrollBase
 {
-    public SongUI prefab;
+    public SongScrollerItem prefab;
     public FreeStyleSearch search;
 
     private RectTransform rt => transform as RectTransform;
@@ -26,8 +26,8 @@ public class FreeStyleMainScroll : ScrollBase
     public TextMeshProUGUI curText;
 
     [Header( "Scene" )]
-    private LinkedList<SongUI> songs = new LinkedList<SongUI>();
-    private LinkedListNode<SongUI> medianNode;
+    private LinkedList<SongScrollerItem> songs = new ();
+    private LinkedListNode<SongScrollerItem> medianNode;
     private CustomVerticalLayoutGroup group;
 
     [Header("Time")]
@@ -61,7 +61,7 @@ public class FreeStyleMainScroll : ScrollBase
         if ( !DataStorage.IsMultiPlaying )
         {
             AudioManager.OnReload += OnBufferSetting;
-            search.OnSearch += UpdateLayoutAndSong;
+            search.OnSearch       += UpdateLayoutAndSong;
         }
 
         median = Mathf.FloorToInt( maxShowCount / 2f );
@@ -82,6 +82,7 @@ public class FreeStyleMainScroll : ScrollBase
     private void OnDestroy()
     {
         AudioManager.OnReload -= OnBufferSetting;
+        search.OnSearch       -= UpdateLayoutAndSong;
     }
 
     private void Start()
@@ -96,18 +97,6 @@ public class FreeStyleMainScroll : ScrollBase
         //     AudioManager.Inst.Position = 160000;
         //     AudioManager.Inst.FadeVolume( 0f, 1f, .5f );
         // }
-    }
-
-    public void UpdateScrollView()
-    {
-        Length = NowPlaying.Songs.Count;
-
-        noContents.SetActive( !HasAnySongs );
-        if ( HasAnySongs )
-        {
-            UpdateSongElements();
-            UpdateSong();
-        }
     }
 
     private void Update()
@@ -136,6 +125,18 @@ public class FreeStyleMainScroll : ScrollBase
                 OnSoundRestart?.Invoke( curSong );
                 canRestart = true;
             } );
+        }
+    }
+
+    public void UpdateScrollView()
+    {
+        Length = NowPlaying.Songs.Count;
+
+        noContents.SetActive( !HasAnySongs );
+        if ( HasAnySongs )
+        {
+            UpdateSongElements();
+            UpdateSong();
         }
     }
 
@@ -406,17 +407,17 @@ public class FreeStyleMainScroll : ScrollBase
 
     public void KeyBind()
     {
-        NowPlaying.CurrentScene.Bind( ActionType.Main, KeyCode.Return, SelectChart );
+        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyCode.Return, SelectChart );
 
-        NowPlaying.CurrentScene.Bind( ActionType.Main, KeyState.Down, KeyCode.UpArrow, ScrollDown );
-        NowPlaying.CurrentScene.Bind( ActionType.Main, KeyState.Down, KeyCode.DownArrow, ScrollUp );
+        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Down, KeyCode.UpArrow, ScrollDown );
+        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Down, KeyCode.DownArrow, ScrollUp );
 
         // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
-        NowPlaying.CurrentScene.Bind( ActionType.Main, KeyState.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
-        NowPlaying.CurrentScene.Bind( ActionType.Main, KeyState.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
+        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
+        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
 
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
-        NowPlaying.CurrentScene.Bind( ActionType.Main, KeyState.Up, KeyCode.UpArrow,   KeyUp );
-        NowPlaying.CurrentScene.Bind( ActionType.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
+        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Up, KeyCode.UpArrow,   KeyUp );
+        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
     }
 }

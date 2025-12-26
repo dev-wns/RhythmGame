@@ -23,7 +23,7 @@ public class FreeStyleKeySetting : OptionController
         foreach ( var option in options )
         {
             if ( option.TryGetComponent( out KeySettingOption keyOption ) )
-                tracks.Add( keyOption );
+                 tracks.Add( keyOption );
             else
                 Debug.LogWarning( $"The {option.name} does not have Option Component" );
         }

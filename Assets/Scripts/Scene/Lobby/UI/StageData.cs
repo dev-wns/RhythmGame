@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 
 using static PacketType;
+
 public class StageData : MonoBehaviour
 {
     public TextMeshProUGUI title;

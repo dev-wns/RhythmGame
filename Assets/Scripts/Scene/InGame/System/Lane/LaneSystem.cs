@@ -5,21 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-[StructLayout( LayoutKind.Sequential )]
-public struct KeyEvent
-{
-    public int       vKey;
-    public KeyState  keyState;
-    public long      timestamp;
-
-    public KeyEvent( int _vKey, KeyState _keyState, long _timestamp )
-    {
-        vKey      = _vKey;
-        keyState  = _keyState;
-        timestamp = _timestamp;
-    }
-}
-
 public class LaneSystem : MonoBehaviour
 {
     [Header( "Lane" )]

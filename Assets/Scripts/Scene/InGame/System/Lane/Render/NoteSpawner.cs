@@ -110,7 +110,7 @@ public class NoteSpawner : MonoBehaviour
         // 미스처리된 롱노트 화면 밖에서 디스폰 
         if ( lnMissQueue.TryPeek( out NoteRenderer lnMiss ) )
         {
-            if ( lnMiss.TailPos < -( ( Global.Screen.Height * .5f ) + 100f ) )
+            if ( lnMiss.TailPos < -( ( Global.UI.Screen.Height * .5f ) + 100f ) )
             {
                 lnMiss.Despawn();
                 lnMissQueue.Dequeue();

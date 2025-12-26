@@ -27,11 +27,13 @@ public class LineSpectrum : MonoBehaviour
 
     private void Awake()
     {
-        if ( visualizer is not null )
-        {
-            visualizer.OnUpdate += UpdateSpectrums;
-            CreateSpectrumModel();
-        }
+        visualizer.OnUpdate += UpdateSpectrums;
+        CreateSpectrumModel();
+    }
+
+    private void OnDestroy()
+    {
+        visualizer.OnUpdate -= UpdateSpectrums;
     }
 
     private void CreateSpectrumModel()

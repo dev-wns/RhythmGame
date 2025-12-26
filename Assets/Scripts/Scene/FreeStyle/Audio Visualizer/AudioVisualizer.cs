@@ -40,7 +40,7 @@ public class AudioVisualizer : MonoBehaviour
     private void Start()
     {
         if ( !AudioManager.Inst.GetDSP( FMOD.DSP_TYPE.FFT, out fft ) )
-            Debug.Log( "Unable to get FFT DSP" );
+             Debug.Log( "Unable to get FFT DSP" );
 
         stereo     = new float[2][];
         stereo[0]  = new float[size];

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class LoadingText : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
+
     [Header( "Icon" )]
     public GameObject icon;
     public TextMeshProUGUI loadingText;
@@ -15,18 +17,18 @@ public class LoadingText : MonoBehaviour
 
     private void Awake()
     {
-        InGame scene = GameObject.FindGameObjectWithTag( "Scene" ).GetComponent<InGame>();
-        scene.OnLoadEnd += () =>
-        {
-            loadingText.DOFade( 0f, .5f );
-            completedText.DOFade( 1f, .5f );
-        };
+        scene.OnLoadEnd += FadeStart;
         transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
 
         loadingText.color   = Color.white;
         completedText.color = new Color( 1f, 1f, 1f, 0f );
 
         StartCoroutine( RotateLoadingIcon() );
+    }
+
+    private void OnDestroy()
+    {
+        scene.OnLoadEnd -= FadeStart;
     }
 
     private void OnDisable()
@@ -38,6 +40,12 @@ public class LoadingText : MonoBehaviour
     {
         if ( !ReferenceEquals( loadingText, null ) )
               StartCoroutine( ChangeText() );
+    }
+
+    private void FadeStart()
+    {
+        loadingText.DOFade( 0f, .5f );
+        completedText.DOFade( 1f, .5f );
     }
 
     private IEnumerator ChangeText()

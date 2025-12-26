@@ -19,7 +19,7 @@ public class LoginSystem : MonoBehaviour
     private void Awake()
     {
         // Protocols
-        ProtocolSystem.Inst.Regist( CONFIRM_LOGIN_ACK, AckConfirmMatchData );
+        ProtocolSystem.Inst.Regist( CONFIRM_LOGIN_ACK,   AckConfirmMatchData );
         ProtocolSystem.Inst.Regist( CONFIRM_ACCOUNT_ACK, AckCreateUserData );
     }
 

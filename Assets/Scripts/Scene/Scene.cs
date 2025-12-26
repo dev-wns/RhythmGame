@@ -5,27 +5,23 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Build Index
-public enum SceneType : int
-{
-    FreeStyle = 1, Game, Result, // SiglePlay 
-    Lobby, Stage,                // MultiPlay
-};
-
 [RequireComponent( typeof( SpriteRenderer ) )]
-public abstract class Scene : SceneKeyAction
+public abstract class Scene : UnityInputAction
 {
-    #region Unity Callback
+    protected abstract void Connect();
+
+    protected abstract void Disconnect();
+
+    protected virtual UniTask OnRelease() => UniTask.CompletedTask;
+
     protected virtual void Awake()
     {
-        NowPlaying np = NowPlaying.Inst;
-
         Connect();
         CreateFadeSprite();
 
         NowPlaying.CurrentScene = this;
         KeyBind();
-        ChangeAction( ActionType.Main );
+        ChangeAction( SceneAction.Main );
 
         float maxVol = AudioManager.Inst.GetVolume( ChannelType.BGM, true );
         AudioManager.Inst.SetVolume( maxVol, ChannelType.BGM );
@@ -42,9 +38,7 @@ public abstract class Scene : SceneKeyAction
     {
         Disconnect();
     }
-    #endregion
 
-    #region Scene Load
     public async UniTask LoadScene( SceneType _type )
     {
         DOTween.KillAll();
@@ -62,9 +56,10 @@ public abstract class Scene : SceneKeyAction
         await OnRelease();
         SceneManager.LoadScene( ( int ) _type );
     }
-    #endregion
 
     #region Option Control
+    protected static readonly float CanvasFadeDuration = .15f;
+
     protected void MoveToPrevOption( OptionController _controller )
     {
         _controller.PrevMove();
@@ -77,14 +72,14 @@ public abstract class Scene : SceneKeyAction
         AudioManager.Inst.Play( SFX.MenuSelect );
     }
 
-    protected void EnableCanvas( ActionType _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
+    protected void EnableCanvas( SceneAction _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
     {
         GameObject root = _controller.transform.root.gameObject;
         root.SetActive( true );
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 0f;
-            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.CanvasFadeDuration );
+            DOTween.To( () => 0f, x => group.alpha = x, 1f, CanvasFadeDuration );
         }
         ChangeAction( _changeType );
 
@@ -95,14 +90,14 @@ public abstract class Scene : SceneKeyAction
              AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
     }
 
-    protected void EnableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
+    protected void EnableCanvas( SceneAction _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
     {
         GameObject root = _obj.transform.root.gameObject;
         root.SetActive( true );
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 0f;
-            DOTween.To( () => 0f, x => group.alpha = x, 1f, Global.Const.CanvasFadeDuration );
+            DOTween.To( () => 0f, x => group.alpha = x, 1f, CanvasFadeDuration );
         }
 
         ChangeAction( _changeType );
@@ -114,7 +109,7 @@ public abstract class Scene : SceneKeyAction
              AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, AudioManager.Inst.Volume * .5f, .5f );
     }
 
-    protected void ImmediateDisableCanvas( ActionType _changeType, OptionController _controller )
+    protected void ImmediateDisableCanvas( SceneAction _changeType, OptionController _controller )
     {
         _controller.transform.root.gameObject.SetActive( false );
 
@@ -124,13 +119,13 @@ public abstract class Scene : SceneKeyAction
         AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
 
-    protected void DisableCanvas( ActionType _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
+    protected void DisableCanvas( SceneAction _changeType, OptionController _controller, bool _isSfxPlay = true, bool _hasFadeVolume = true )
     {
         GameObject root = _controller.transform.root.gameObject;
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 1f;
-            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.CanvasFadeDuration ).OnComplete( () => root.SetActive( false ) );
+            DOTween.To( () => 1f, x => group.alpha = x, 0f, CanvasFadeDuration ).OnComplete( () => root.SetActive( false ) );
         }
         else
         {
@@ -145,13 +140,13 @@ public abstract class Scene : SceneKeyAction
              AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
 
-    protected void DisableCanvas( ActionType _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
+    protected void DisableCanvas( SceneAction _changeType, GameObject _obj, bool _isSfxPlay = true, bool _hasFadeVolume = true )
     {
         GameObject root = _obj.transform.root.gameObject;
         if ( root.TryGetComponent( out CanvasGroup group ) )
         {
             group.alpha = 1f;
-            DOTween.To( () => 1f, x => group.alpha = x, 0f, Global.Const.CanvasFadeDuration ).OnComplete( () => root.SetActive( false ) );
+            DOTween.To( () => 1f, x => group.alpha = x, 0f, CanvasFadeDuration ).OnComplete( () => root.SetActive( false ) );
         }
         else
         {
@@ -219,7 +214,6 @@ public abstract class Scene : SceneKeyAction
     private SpriteRenderer blackSprite;
     private static readonly float FadeTime     = .65f;
     private static readonly float FadeWaitTime = .025f;
-    private static readonly float FadeDuration = FadeTime + ( FadeWaitTime * 2f );
 
     private void CreateFadeSprite()
     {
@@ -257,13 +251,5 @@ public abstract class Scene : SceneKeyAction
 
         blackSprite.color = Color.black;
     }
-    #endregion
-
-    #region Abstract
-    protected abstract void Connect();
-
-    protected abstract void Disconnect();
-
-    protected virtual UniTask OnRelease() => UniTask.CompletedTask;
     #endregion
 }

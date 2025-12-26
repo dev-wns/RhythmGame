@@ -11,11 +11,11 @@ public class ResultInfomation : MonoBehaviour
 {
     public SpriteAtlas rankAtlas;
 
-    [Header( "Song Infomation" )]
+    [Header( "Song Info" )]
     public TextMeshProUGUI title;
     public TextMeshProUGUI artist;
 
-    [Header( "Note Infomation" )]
+    [Header( "Note Info" )]
     public TextMeshProUGUI totalNotes;
     public TextMeshProUGUI noteCount;
     public TextMeshProUGUI sliderCount;
@@ -79,11 +79,11 @@ public class ResultInfomation : MonoBehaviour
         var song   = NowPlaying.CurrentSong;
         var result = Judgement.CurrentResult;
 
-        // Song Infomation
+        // Song Info
         title.text  = $"{song.title} [{song.version}]";
         artist.SetText( song.artist );
 
-        // Note Infomation
+        // Note Info
         totalNotes.SetText(  "{0}", NowPlaying.TotalNote + NowPlaying.TotalSlider );
         noteCount.SetText(   "{0}", NowPlaying.TotalNote );
         sliderCount.SetText( "{0}", NowPlaying.TotalSlider );
@@ -181,7 +181,7 @@ public class ResultInfomation : MonoBehaviour
         if ( !System.IO.File.Exists( _path ) )
         {
             originBg.sprite = defaultOrigin;
-            originBg.rectTransform.sizeDelta = Global.Screen.GetRatio( defaultOrigin.texture );
+            originBg.rectTransform.sizeDelta = Global.UI.Screen.GetRatio( defaultOrigin.texture );
             yield break;
         }
 
@@ -217,6 +217,6 @@ public class ResultInfomation : MonoBehaviour
         }
 
         originBg.sprite = spriteBg;
-        originBg.rectTransform.sizeDelta = Global.Screen.GetRatio( spriteBg.texture );
+        originBg.rectTransform.sizeDelta = Global.UI.Screen.GetRatio( spriteBg.texture );
     }
 }

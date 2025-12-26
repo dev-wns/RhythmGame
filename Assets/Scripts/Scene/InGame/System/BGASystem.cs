@@ -6,8 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
-public enum BackgroundType : byte { None, Video, Sprite, Image, }
-
 public class BGASystem : MonoBehaviour
 {
     public RawImage background, foreground;
@@ -17,7 +15,7 @@ public class BGASystem : MonoBehaviour
     public RenderTexture renderTexture;
 
     private Color color;
-    private BackgroundType type;
+    private BGA type;
 
     private void Awake()
     {
@@ -45,7 +43,7 @@ public class BGASystem : MonoBehaviour
 
     private void UpdatePitch( float _pitch )
     {
-        if ( type == BackgroundType.Video )
+        if ( type == BGA.Video )
              vp.playbackSpeed = _pitch;
     }
 
@@ -65,11 +63,11 @@ public class BGASystem : MonoBehaviour
             return;
         }
 
-        type = NowPlaying.CurrentSong.hasVideo ? BackgroundType.Video  :
-               DataStorage.Sprites.Count > 0   ? BackgroundType.Sprite :
-                                                 BackgroundType.Image;
+        type = NowPlaying.CurrentSong.hasVideo ? BGA.Video  :
+               DataStorage.Sprites.Count > 0   ? BGA.Sprite :
+                                                 BGA.Image;
 
-        if ( type == BackgroundType.Image )
+        if ( type == BGA.Image )
         {
             // 이미 프리스타일에서 로딩된 이미지 사용
             await DataStorage.Inst.LoadTexture( new SpriteSample( NowPlaying.CurrentSong.imageName ), () =>
@@ -78,7 +76,7 @@ public class BGASystem : MonoBehaviour
                 {
                     background.color = color;
                     background.texture = texture;
-                    background.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
+                    background.rectTransform.sizeDelta = Global.UI.Screen.GetRatio( texture );
                 }
                 else
                 {
@@ -90,11 +88,11 @@ public class BGASystem : MonoBehaviour
 
     private void GameStart()
     {
-        if ( type == BackgroundType.Video )
+        if ( type == BGA.Video )
         {
             StartCoroutine( UpdateVideo() );
         }
-        else if ( type == BackgroundType.Sprite )
+        else if ( type == BGA.Sprite )
         {
             foreground.gameObject.SetActive( true );
             StartCoroutine( UpdateSprites() );
@@ -104,12 +102,12 @@ public class BGASystem : MonoBehaviour
     private void Clear()
     {
         StopAllCoroutines();
-        if (type == BackgroundType.Video )
+        if (type == BGA.Video )
         {
             vp.Stop();
             ClearRenderTexture();
         }
-        else if ( type == BackgroundType.Sprite )
+        else if ( type == BGA.Sprite )
         {
             background.texture = Texture2D.blackTexture;
             foreground.texture = Texture2D.blackTexture;
@@ -118,7 +116,7 @@ public class BGASystem : MonoBehaviour
 
     private void Pause( bool _isPause )
     {
-        if ( type == BackgroundType.Video )
+        if ( type == BGA.Video )
         {
             if ( _isPause ) vp.Pause();
             else            vp.Play();
@@ -170,7 +168,7 @@ public class BGASystem : MonoBehaviour
             if ( DataStorage.Inst.GetTexture( sprite.name, out Texture2D texture ) )
             {
                 rdr.texture = texture;
-                rdr.rectTransform.sizeDelta = Global.Screen.GetRatio( texture );
+                rdr.rectTransform.sizeDelta = Global.UI.Screen.GetRatio( texture );
             }
 
             yield return waitEnd;

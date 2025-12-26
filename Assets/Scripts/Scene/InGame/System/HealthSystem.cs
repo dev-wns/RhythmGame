@@ -2,18 +2,6 @@ using Cysharp.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
 
-public struct HealthData
-{
-    public double time;
-    public float  health;
-
-    public HealthData( double _time, float _health )
-    {
-        time = _time;
-        health = _health;
-    }
-}
-
 public class HealthSystem : MonoBehaviour
 {
     [Header("Health")]

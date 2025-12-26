@@ -29,6 +29,12 @@ public class FreqBand : MonoBehaviour
         if ( isReverse ) rightBars.Reverse();
         else              leftBars.Reverse();
     }
+
+    private void OnDestroy()
+    {
+        visualizer.OnUpdateBand -= UpdateBand;
+    }
+
     /* 48000 / 4096 : 11.71875 Hertz
      * ------------------------------------
      *     count    : Hertz :    Range

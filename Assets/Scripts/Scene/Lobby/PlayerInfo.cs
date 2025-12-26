@@ -7,7 +7,7 @@ public class PlayerInfo : MonoBehaviour
     [Header( "Group" )]
     public GameObject playerInfo;
 
-    [Header( "Infomation Texts" )]
+    [Header( "Info Texts" )]
     public TextMeshProUGUI userName;
     public TextMeshProUGUI level;
     public TextMeshProUGUI accuracy;

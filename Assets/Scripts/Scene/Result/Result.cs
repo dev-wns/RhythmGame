@@ -57,7 +57,7 @@ public class Result : Scene
 
     public override void KeyBind()
     {
-        Bind( ActionType.Main, KeyCode.Escape, BackToLobby );
-        Bind( ActionType.Main, KeyCode.Return, BackToLobby );
+        Bind( SceneAction.Main, KeyCode.Escape, BackToLobby );
+        Bind( SceneAction.Main, KeyCode.Return, BackToLobby );
     }
 }

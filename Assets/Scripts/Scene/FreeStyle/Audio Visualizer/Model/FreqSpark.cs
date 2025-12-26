@@ -56,6 +56,11 @@ public class FreqSpark : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        visualizer.OnUpdate -= UpdateSpark;
+    }
+
     //private void UpdateSpark( float[] _values )
     //{
     //    for ( int i = 0; i < freqCount; i++ )

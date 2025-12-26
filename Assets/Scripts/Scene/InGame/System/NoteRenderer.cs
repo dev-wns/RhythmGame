@@ -1,6 +1,4 @@
-using DG.Tweening;
 using UnityEngine;
-
 
 public class NoteRenderer : MonoBehaviour, IObjectPool<NoteRenderer>
 {

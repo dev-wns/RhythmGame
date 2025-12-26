@@ -8,14 +8,10 @@ using TMPro;
 
 public class PreviewNoteSystem : MonoBehaviour
 {
-    [SerializeField] private NoteModelSO     noteModelSO;
+    [SerializeField] private PreviewNoteModelSO noteModelSO;
     [SerializeField] private NoteModelOption noteModelOption;
     private Dictionary<NoteModel, ObjectPool<PreviewNoteRenderer>> pools = new();
     private ObjectPool<PreviewNoteRenderer> currentPool;
-
-
-    //private ObjectPool<PreviewNoteRenderer> notePool;
-    //public PreviewNoteRenderer notePrefab;
 
     private int spawnIndex;
     private Note curData;
@@ -48,18 +44,20 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void Awake()
     {
-        scroll.OnSelectSong += Parse;
-        scroll.OnSoundRestart += Restart;
-        AudioManager.OnUpdatePitch += UpdatePitch;
+        scroll.OnSelectSong                += Parse;
+        scroll.OnSoundRestart              += Restart;
         noteModelOption.OnChangedNoteModel += ChangedNoteModel;
+        AudioManager.OnUpdatePitch         += UpdatePitch;
 
-        //notePool ??= new ObjectPool<PreviewNoteRenderer>( notePrefab, transform, 5 );
         ChangedNoteModel( GameSetting.CurrentNoteModel );
     }
 
     private void OnDestroy()
     {
-        AudioManager.OnUpdatePitch -= UpdatePitch;
+        scroll.OnSelectSong                -= Parse;
+        scroll.OnSoundRestart              -= Restart;
+        noteModelOption.OnChangedNoteModel -= ChangedNoteModel;
+        AudioManager.OnUpdatePitch         -= UpdatePitch;
     }
 
     private void ChangedNoteModel( NoteModel _type )
@@ -74,7 +72,7 @@ public class PreviewNoteSystem : MonoBehaviour
     private void Restart( Song _song )
     {
         currentPool.AllDespawn();
-        //notePool.AllDespawn();
+        
         spawnIndex     = 0;
         timingIndex    = 0;
         Distance       = 0d;

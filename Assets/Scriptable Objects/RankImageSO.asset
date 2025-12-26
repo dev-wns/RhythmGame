@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 925790de29348ee45ac7db3bb2e423fc, type: 3}
+  m_Name: RankImageSO
+  m_EditorClassIdentifier: 
+  rankS: {fileID: 21300000, guid: 691b39af82e3f1a42aa567e4990262d9, type: 3}
+  rankA: {fileID: 21300000, guid: bf5a45915f5c84046ba2e0b25f601871, type: 3}
+  rankB: {fileID: 21300000, guid: 727998a0e436f1f4885dd3f6fcc4fad4, type: 3}
+  rankC: {fileID: 21300000, guid: 2f0c80c51c307b745829621b9eb984d4, type: 3}
+  rankD: {fileID: 21300000, guid: 073209e75739345478f6315795cf6215, type: 3}

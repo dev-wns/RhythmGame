@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class PauseInfomation : MonoBehaviour
 {
-    [Header( "Main Infomation" )]
+    [SerializeField] private InGame scene;
+
+    [Header( "Main Info" )]
     public TextMeshProUGUI speed;
     public TextMeshProUGUI rate;
     public TextMeshProUGUI random;
@@ -19,11 +21,9 @@ public class PauseInfomation : MonoBehaviour
 
     private void Awake()
     {
-        var scene = GameObject.FindGameObjectWithTag( "Scene" );
-        if ( scene.TryGetComponent( out InGame inGame ) )
-             inGame.OnScrollChange += UpdateScrollSpeedText;
+        scene.OnScrollChange += UpdateScrollSpeedText;
 
-        // Main Infomation
+        // Main Info
         UpdateScrollSpeedText();
         random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
         rate.SetText( "x{0:2}", ( float )GameSetting.CurrentPitch );
@@ -36,6 +36,11 @@ public class PauseInfomation : MonoBehaviour
         noSlider.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider )   ? Color.white : disableColor;
         fixedBPM.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM )   ? Color.white : disableColor;
         keyConversion.color = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) ? Color.white : disableColor;
+    }
+
+    private void OnDestroy()
+    {
+        scene.OnScrollChange -= UpdateScrollSpeedText;
     }
 
     private void UpdateScrollSpeedText()

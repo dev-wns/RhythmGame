@@ -1,7 +1,5 @@
 using DG.Tweening;
 using System;
-using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
@@ -102,7 +100,7 @@ public class InGame : Scene
         await UniTask.WaitForSeconds( 3.5f, false, PlayerLoopTiming.Update, token );
         if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
         {
-            await DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, Global.Const.CanvasFadeDuration ).ToUniTask( TweenCancelBehaviour.Kill, token );
+            await DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, CanvasFadeDuration ).ToUniTask( TweenCancelBehaviour.Kill, token );
             loadingCanvas.SetActive( false );
         }
 
@@ -117,21 +115,12 @@ public class InGame : Scene
 
         await UniTask.WaitForSeconds( 5f, false, PlayerLoopTiming.Update, token );
 
-        //await NowPlaying.Inst.Release();
-        //DataStorage.Inst.Release();
-
         await LoadScene( SceneType.Result );
     }
 
     public void BackToLobby()
     {
-        UniTask.Void( async () =>
-        {
-            //await NowPlaying.Inst.Release();
-            //DataStorage.Inst.Release();
-
-            await LoadScene( SceneType.FreeStyle );
-        } );
+        UniTask.Void( async () => await LoadScene( SceneType.FreeStyle ) );
     }
 
     public void Restart()
@@ -143,8 +132,8 @@ public class InGame : Scene
                 IsInputLock = true;
                 await FadeOut();
 
-                ImmediateDisableCanvas( ActionType.Main, pause );
-                ImmediateDisableCanvas( ActionType.Main, gameOver );
+                ImmediateDisableCanvas( SceneAction.Main, pause );
+                ImmediateDisableCanvas( SceneAction.Main, gameOver );
 
                 Disconnect();
                 Connect();
@@ -172,50 +161,47 @@ public class InGame : Scene
                 playCts = null;
 
                 await LoadScene( SceneType.Result );
-
-                //await NowPlaying.Inst.Release();
-                //DataStorage.Inst.Release();
             }
             else
             {
-                if ( _isPause ) EnableCanvas( ActionType.Pause, pause );
-                else            DisableCanvas( ActionType.Main, pause );
+                if ( _isPause ) EnableCanvas( SceneAction.Pause, pause );
+                else            DisableCanvas( SceneAction.Main, pause );
 
                 await NowPlaying.Inst.Pause( _isPause );
             }
         } );
     }
 
-    public void GameOver() => EnableCanvas( ActionType.GameOver, gameOver, false );
+    public void GameOver() => EnableCanvas( SceneAction.GameOver, gameOver, false );
 
     public override void KeyBind()
     {
         // Main
         // Scroll Speed Down
-        Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Main, KeyState.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( SceneAction.Main, KeyState.Down, KeyCode.F3, () => SpeedControlProcess( false ) );
+        Bind( SceneAction.Main, KeyState.Hold, KeyCode.F3, () => PressedSpeedControl( false ) );
+        Bind( SceneAction.Main, KeyState.Up,   KeyCode.F3, () => UpedSpeedControl() );
         // Scroll Speed Up                               
-        Bind( ActionType.Main, KeyState.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( ActionType.Main, KeyState.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Main, KeyState.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( SceneAction.Main, KeyState.Down, KeyCode.F4, () => SpeedControlProcess( true ) );
+        Bind( SceneAction.Main, KeyState.Hold, KeyCode.F4, () => PressedSpeedControl( true ) );
+        Bind( SceneAction.Main, KeyState.Up,   KeyCode.F4, () => UpedSpeedControl() );
 
         // Pause
-        Bind( ActionType.Main,  KeyCode.Escape,    () => { Pause( true ); } );
-        Bind( ActionType.Pause, KeyCode.Escape,    () => { Pause( false ); } );
-        Bind( ActionType.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
-        Bind( ActionType.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
+        Bind( SceneAction.Main,  KeyCode.Escape,    () => { Pause( true ); } );
+        Bind( SceneAction.Pause, KeyCode.Escape,    () => { Pause( false ); } );
+        Bind( SceneAction.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
+        Bind( SceneAction.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
         // Scroll Speed Down
-        Bind( ActionType.Pause, KeyState.Down, KeyCode.Alpha1, () => SpeedControlProcess( false ) );
-        Bind( ActionType.Pause, KeyState.Hold, KeyCode.Alpha1, () => PressedSpeedControl( false ) );
-        Bind( ActionType.Pause, KeyState.Up,   KeyCode.Alpha1, () => UpedSpeedControl() );
+        Bind( SceneAction.Pause, KeyState.Down, KeyCode.F3, () => SpeedControlProcess( false ) );
+        Bind( SceneAction.Pause, KeyState.Hold, KeyCode.F3, () => PressedSpeedControl( false ) );
+        Bind( SceneAction.Pause, KeyState.Up,   KeyCode.F3, () => UpedSpeedControl() );
         // Scroll Speed Up
-        Bind( ActionType.Pause, KeyState.Down, KeyCode.Alpha2, () => SpeedControlProcess( true ) );
-        Bind( ActionType.Pause, KeyState.Hold, KeyCode.Alpha2, () => PressedSpeedControl( true ) );
-        Bind( ActionType.Pause, KeyState.Up,   KeyCode.Alpha2, () => UpedSpeedControl() );
+        Bind( SceneAction.Pause, KeyState.Down, KeyCode.F4, () => SpeedControlProcess( true ) );
+        Bind( SceneAction.Pause, KeyState.Hold, KeyCode.F4, () => PressedSpeedControl( true ) );
+        Bind( SceneAction.Pause, KeyState.Up,   KeyCode.F4, () => UpedSpeedControl() );
 
         // GameOver
-        Bind( ActionType.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );
-        Bind( ActionType.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
+        Bind( SceneAction.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );
+        Bind( SceneAction.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
     }
 }

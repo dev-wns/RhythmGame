@@ -1675,6 +1675,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 546c6979c2e5d034e86b6aae54a46186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scene: {fileID: 1220838187}
   speed: {fileID: 1105819276}
   rate: {fileID: 1947065902}
   random: {fileID: 1662564738}
@@ -3955,6 +3956,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f31c76dc63623be4a9c934281cfaa286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scene: {fileID: 1220838187}
   canvas: {fileID: 892106124}
   background: {fileID: 892106125}
   speedText: {fileID: 486825688}
@@ -9255,15 +9257,6 @@ MonoBehaviour:
   loadingText: {fileID: 875501883}
   completedText: {fileID: 1698876043}
   rotateSpeed: 100
-  numSound: {fileID: 1080966337}
-  numDuplicateSound: {fileID: 155175910}
-  bgaSys: {fileID: 376532909}
-  backgroundType: {fileID: 1911710319}
-  spriteGroup: {fileID: 443956549}
-  numTexture: {fileID: 2107811967}
-  numDuplicateTexture: {fileID: 1773787639}
-  background: {fileID: 2003448024}
-  foreground: {fileID: 1836119963}
 --- !u!1 &1288578509
 GameObject:
   m_ObjectHideFlags: 0
