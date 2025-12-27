@@ -7,7 +7,6 @@ using TMPro;
 
 public class FreeStyleMainScroll : ScrollBase
 {
-    public SongScrollerItem prefab;
     public FreeStyleSearch search;
 
     private RectTransform rt => transform as RectTransform;
@@ -15,6 +14,10 @@ public class FreeStyleMainScroll : ScrollBase
     private bool HasAnySongs => Length != 0;
 
     [Header("Scroll")]
+    public  SongScrollerItem prefab;
+    private LinkedList<SongScrollerItem> songs = new ();
+    private LinkedListNode<SongScrollerItem> medianNode;
+    private CustomVerticalLayoutGroup group;
     public int maxShowCount = 7;
 
     private int median;
@@ -25,19 +28,15 @@ public class FreeStyleMainScroll : ScrollBase
     public TextMeshProUGUI maxText;
     public TextMeshProUGUI curText;
 
-    [Header( "Scene" )]
-    private LinkedList<SongScrollerItem> songs = new ();
-    private LinkedListNode<SongScrollerItem> medianNode;
-    private CustomVerticalLayoutGroup group;
-
     [Header("Time")]
-    private readonly float SoundOffset = -50f;
+    private readonly float SoundOffset      = -50f;
     private readonly float ScrollUpdateTime = .075f;
     private readonly float KeyHoldWaitTime  = .5f;
     private readonly float FadeDuration     = 2.5f;
     public  static double Playback;
+    private double startTime;
+    private float lastNoteTime; // 마지막 노트의 처리시간
     private float keyPressTime;
-    private float endTime; // 마지막 노트의 처리시간
     private bool isKeyDown;
     private bool canRestart = true;
     private Coroutine corFadeVolume;
@@ -49,8 +48,8 @@ public class FreeStyleMainScroll : ScrollBase
     public Slider posSlider;
 
     private Song curSong;
-    public event Action<Song>  OnSelectSong;
-    public event Action<Song>  OnSoundRestart;
+    public event Action<Song> OnSelectSong;
+    public event Action<Song> OnSoundRestart;
 
     #region Unity Callback
     private void Awake()
@@ -103,10 +102,11 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        Playback += ( Time.deltaTime * 1000f ) * GameSetting.Pitch;
-        posSlider.value = ( float ) ( Playback / endTime );
+        Playback = curSong.previewTime + SoundOffset + ( Time.realtimeSinceStartupAsDouble - startTime ) * 1000d;
+        //Playback += ( Time.deltaTime * 1000f ) * GameSetting.Pitch;
+        posSlider.value = ( float ) ( Playback / lastNoteTime );
 
-        if ( canRestart && endTime < Playback )
+        if ( canRestart && lastNoteTime < Playback )
         {
             if ( corFadeVolume is not null )
             {
@@ -118,10 +118,11 @@ public class FreeStyleMainScroll : ScrollBase
             corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, FadeDuration * .5f, () => 
             {
                 AudioManager.Inst.Play( AudioManager.Inst.MainSound, 0f );
+                AudioManager.Inst.Position = ( uint )curSong.previewTime;
                 corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, FadeDuration  * .5f );
-                AudioManager.Inst.Position = ( uint ) curSong.previewTime;
 
-                Playback = SoundOffset + curSong.previewTime;
+                startTime = Time.realtimeSinceStartupAsDouble;
+                Playback  = curSong.previewTime + SoundOffset;
                 OnSoundRestart?.Invoke( curSong );
                 canRestart = true;
             } );
@@ -158,20 +159,21 @@ public class FreeStyleMainScroll : ScrollBase
 
         if ( AudioManager.Inst.Load( curSong.audioPath, out FMOD.Sound curSound, true ) )
         {
-            endTime = curSong.totalTime;
+            lastNoteTime = curSong.totalTime;
             curSong.previewTime = GetPreviewTime( curSong.previewTime );
-            Playback = SoundOffset + curSong.previewTime;
 
             // 음악 재생 및 페이드인
             AudioManager.Inst.Play( curSound, 0f );
-            AudioManager.Inst.Position = ( uint ) curSong.previewTime;
+            AudioManager.Inst.Position = ( uint )curSong.previewTime;
+            startTime = Time.realtimeSinceStartupAsDouble;
+            Playback  = curSong.previewTime + SoundOffset;
             OnSelectSong?.Invoke( curSong );
 
             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, .5f );
 
             float duration = FadeDuration * 1000f * .5f;
             float diff     = AudioManager.Inst.Length - curSong.totalTime;
-            endTime        = diff > duration ? curSong.totalTime : AudioManager.Inst.Length - duration;
+            lastNoteTime   = diff > duration ? curSong.totalTime : AudioManager.Inst.Length + 1000f - duration;
             canRestart     = true;
         }
     }
@@ -268,11 +270,11 @@ public class FreeStyleMainScroll : ScrollBase
         if ( AudioManager.Inst.Load( curSong.audioPath, out FMOD.Sound curSound, true ) )
         {
             AudioManager.Inst.Play( curSound );
-            AudioManager.Inst.Position = ( uint ) Playback;
+            AudioManager.Inst.Position = ( uint )Playback;
         }
     }
 
-    private int GetPreviewTime( int _time ) => _time > endTime || _time <= 0 ? ( int )( endTime * .35f ) : ( int )_time;
+    private int GetPreviewTime( int _time ) => _time > lastNoteTime || _time <= 0 ? ( int )( lastNoteTime * .35f ) : ( int )_time;
     #endregion
 
     #region Input
@@ -280,13 +282,10 @@ public class FreeStyleMainScroll : ScrollBase
     {
         if ( !HasAnySongs ) return;
 
-        //GameSetting.NoteSizeMultiplier = NowPlaying.CurrentSong.keyCount == 4 ? 1.25f : 1f;
-
         AudioManager.Inst.Play( SFX.MainClick );
-
-        
         await NowPlaying.CurrentScene.LoadScene( SceneType.Game );
     }
+
     public override void PrevMove()
     {
         base.PrevMove();

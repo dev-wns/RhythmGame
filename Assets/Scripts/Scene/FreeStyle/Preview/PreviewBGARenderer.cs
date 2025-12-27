@@ -7,10 +7,11 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
-public class PreviewBGARenderer : MonoBehaviour
+public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
 {
+    public ObjectPool<PreviewBGARenderer> pool { get; set; }
+
     public Color color;
-    private PreviewBGASystem system;
     private RectTransform tf;
 
     private readonly float fadeTime = .25f;
@@ -31,9 +32,9 @@ public class PreviewBGARenderer : MonoBehaviour
     private Coroutine   CorUpdateVideo;
 
 
-    private static float LoadDelay = 1f / 60f; // 초당 60장 로드
+    private static float LoadDelay = 1f / 30f; // 초당 60장 로드
     private Dictionary<string/* name */, Texture2D> textures = new ();
-    private List<SpriteSample> sprites = new List<SpriteSample>();
+    private List<SpriteSample> sprites = new ();
     private Coroutine CorUpdateSprites;
 
     private void Awake()
@@ -100,11 +101,10 @@ public class PreviewBGARenderer : MonoBehaviour
         }
     }
 
-    public void SetInfo( PreviewBGASystem _system, Song _song )
+    public void Initialize( Song _song )
     {
         // Default Setting
         Clear();
-        system = _system;
         image.color = color;
         videoOffset = _song.videoOffset;
         
@@ -249,8 +249,8 @@ public class PreviewBGARenderer : MonoBehaviour
         vp.playbackSpeed = GameSetting.Pitch;
         vp.Prepare();
 
-        double startTick = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
         double videoOffset = NowPlaying.CurrentSong.videoOffset;
+        double startTick   = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
         yield return new WaitUntil( () => vp.isPrepared );
 
         image.enabled = true;
@@ -303,7 +303,7 @@ public class PreviewBGARenderer : MonoBehaviour
 
         if ( isDefault )
         {
-            system.DeSpawn( this );
+            pool.Despawn( this );
             yield break;
         }
 
@@ -314,6 +314,6 @@ public class PreviewBGARenderer : MonoBehaviour
 
         textures.Clear();
         sprites.Clear();
-        system.DeSpawn( this );
+        pool.Despawn( this );
     }
 }

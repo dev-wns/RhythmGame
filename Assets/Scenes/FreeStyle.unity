@@ -10299,8 +10299,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scroller: {fileID: 1702868222}
-  bgPrefab: {fileID: 1419412381515201341, guid: 7c4fa7096f17bbb4199169bc7de8225f,
-    type: 3}
+  prefab: {fileID: 1419412381515201341, guid: 7c4fa7096f17bbb4199169bc7de8225f, type: 3}
 --- !u!1 &503289616
 GameObject:
   m_ObjectHideFlags: 0
@@ -34777,8 +34776,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3743920d8b8b59d42b080d601451a042, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779, type: 3}
   search: {fileID: 1133842865}
+  prefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779, type: 3}
   maxShowCount: 15
   maxText: {fileID: 2073670476}
   curText: {fileID: 1674481073}

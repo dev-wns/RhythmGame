@@ -1,16 +1,15 @@
-using System.Collections;
 using UnityEngine;
 
 public class PreviewBGASystem : MonoBehaviour
 {
     public FreeStyleMainScroll scroller;
-    public PreviewBGARenderer  bgPrefab;
-    private PreviewBGARenderer background;
-    private ObjectPool<PreviewBGARenderer> bgPool;
+    public PreviewBGARenderer  prefab;
+    private ObjectPool<PreviewBGARenderer> pool;
+    private PreviewBGARenderer background; // current background
 
     private void Awake()
     {
-        bgPool = new ObjectPool<PreviewBGARenderer>( bgPrefab, transform, 1 );
+        pool = new ObjectPool<PreviewBGARenderer>( prefab, transform, 3 );
         scroller.OnSelectSong      += UpdateBGA;
         scroller.OnSoundRestart    += Restart;
         AudioManager.OnUpdatePitch += UpdatePitch;
@@ -31,17 +30,12 @@ public class PreviewBGASystem : MonoBehaviour
     private void UpdateBGA( Song _song )
     {
         background?.Despawn();
-        background = bgPool.Spawn();
-        background.SetInfo( this, _song );
+        background = pool.Spawn();
+        background.Initialize( _song );
     }
 
     private void UpdatePitch( float _pitch )
     {
         background.UpdatePitch( _pitch );
-    }
-
-    public void DeSpawn( PreviewBGARenderer _bg )
-    {
-        bgPool.Despawn( _bg );
     }
 }
