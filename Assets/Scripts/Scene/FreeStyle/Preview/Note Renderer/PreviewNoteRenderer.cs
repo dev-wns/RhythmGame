@@ -27,7 +27,7 @@ public abstract class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNo
     public void SetInfo( in Note _note, float _startPos, Color _color )
     {
         note        = _note;
-        NoteSize    = isCircle ? new Vector3( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteWidth, 1f ) :
+        NoteSize    = isCircle ? new Vector3( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteWidth,  1f ) :
                                  new Vector3( PreviewNoteSystem.NoteWidth, PreviewNoteSystem.NoteHeight, 1f );
         column      = _startPos + ( note.lane * NoteSize.x ) + ( ( note.lane + 1 ) * GameSetting.NoteBlank );
         distance    = note.distance;

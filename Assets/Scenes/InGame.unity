@@ -9253,6 +9253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f8516b330816ef4bb223b597b5e886d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scene: {fileID: 1220838187}
   icon: {fileID: 508539926}
   loadingText: {fileID: 875501883}
   completedText: {fileID: 1698876043}

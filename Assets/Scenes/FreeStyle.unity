@@ -34777,6 +34777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   search: {fileID: 1133842865}
+  pitchOption: {fileID: 1839611852}
   prefab: {fileID: 9024358525023652406, guid: 9fc89feb4f75ed54c8383b9b75ed3779, type: 3}
   maxShowCount: 15
   maxText: {fileID: 2073670476}

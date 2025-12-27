@@ -106,8 +106,8 @@ public class Judgement : Singleton<Judgement>
         // 스코어
         int hitScore = GetHitScore( _hitResult ); // 320, 300, 200, 100, 50, 0
         int hitBonus = GetHitBonus( _hitResult ); // 2, 1, -8, -16, -44, -100
-        Bonus = Math.Clamp( Bonus + hitBonus, 0, 100 ); // 판정에 따라 증감
-        double bonusScore = Math.Sqrt( Bonus ) * Math.Clamp( 64 >> Convert.ToInt32( _hitResult ), 0, HitScore.Maximum / 10 );
+        Bonus = Math.Clamp( Bonus + hitBonus, 10, 100 ); // 판정에 따라 증감
+        double bonusScore = Math.Sqrt( Bonus ) * Math.Clamp( 64 >> Convert.ToInt32( _hitResult ), 0, 32/* HitScore.Maximum / 10 */ );
 
         // 기본 500,000, 보너스 500,000 => 최대 : ( 50만 / 전체판정수 ) * ( 320 + 320 ) / 320;
         Results.Score += MaxScore * ( hitScore + bonusScore ) / HitScore.Maximum;
@@ -187,7 +187,7 @@ public class Judgement : Singleton<Judgement>
             // if ( IsLateMiss( _headDiff )       ) return HitResult.Miss;    // -Good ~ : 노트를 처리하지 못함( Late Miss )
             // if ( headAbs   <= HitRange.Bad     ) return HitResult.Bad;     // ---------------------- // Late Bad는 Hit 불가
 
-            return HitResult.None;                                         // 
+            return HitResult.None;                                         
         }
         else // 롱노트 Tail 판정
         {
