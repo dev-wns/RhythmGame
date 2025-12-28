@@ -2,73 +2,48 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class UnityInputAction : MonoBehaviour
+public class UnityInputAction : MonoBehaviour
 {
     private Dictionary<SceneAction, UnityInputHandler> actions = new ();
-    public SceneAction CurrentAction { get; private set; }
-    public bool IsInputLock { get; set; }
 
-    protected virtual void LateUpdate()
+    public UnityInputHandler GetHandler( SceneAction _sceneAction )
     {
-        if ( IsInputLock || !actions.ContainsKey( CurrentAction ) )
-             return;
-
-        actions[CurrentAction].Process();
+        actions.TryGetValue( _sceneAction, out UnityInputHandler handler );
+        return handler;
     }
 
-    public void ChangeAction( SceneAction _actionType )
+    public void Bind( SceneAction _sceneAction, KeyState _keyState, KeyCode _keyCode, Action _action )
     {
-        if ( !actions.ContainsKey( _actionType ) )
+        if ( !actions.TryGetValue( _sceneAction, out UnityInputHandler handler ) )
         {
-            Bind( _actionType, KeyCode.JoystickButton19, () => { } );
-            //Debug.LogError( $"The bound key does not exist. {_actionType}" );
-            return;
+            handler = new UnityInputHandler();
+            actions.Add( _sceneAction, handler );
         }
 
-        CurrentAction = _actionType;
+        handler.Bind( _keyCode, _keyState, _action );
     }
 
     /// <summary> The input type is KeyDown </summary>
-    public void Bind( SceneAction _actionType, KeyCode _keyCode, Action _action )
+    public void Bind( SceneAction _sceneAction, KeyCode _keyCode, Action _action )
     {
-        if ( actions.ContainsKey( _actionType ) )
-        {
-            actions[_actionType].Bind( _keyCode, KeyState.Down, _action );
-        }
-        else
-        {
-            UnityInputHandler handler = new UnityInputHandler();
-            handler.Bind( _keyCode, KeyState.Down, _action );
-            actions.Add( _actionType, handler );
-        }
+        Bind( _sceneAction, KeyState.Down, _keyCode, _action );
     }
 
-    public void Bind( SceneAction _actionType, KeyState _inputType, KeyCode _keyCode, Action _action )
+    public void Bind( SceneAction _sceneAction, KeyCode _keyCode, InputRepeater _repeater )
     {
-        if ( actions.ContainsKey( _actionType ) )
+        Bind( _sceneAction, KeyState.Down, _keyCode, _repeater.Down );
+        Bind( _sceneAction, KeyState.Hold, _keyCode, _repeater.Hold );
+        Bind( _sceneAction, KeyState.Up,   _keyCode, _repeater.Up   );
+    }
+
+    public void Remove( SceneAction _sceneAction, KeyState _keyState, KeyCode _keyCode, Action _action )
+    {
+        if ( actions.TryGetValue( _sceneAction, out UnityInputHandler handler ) )
         {
-            actions[_actionType].Bind( _keyCode, _inputType, _action );
-        }
-        else
-        {
-            UnityInputHandler handler = new UnityInputHandler();
-            handler.Bind( _keyCode, _inputType, _action );
-            actions.Add( _actionType, handler );
+            handler.Remove( _keyCode, _keyState, _action );
+
+            if ( handler.IsEmpty )
+                 actions.Remove( _sceneAction );
         }
     }
-    public void Remove( SceneAction _actionType, KeyCode _keyCode, Action _action )
-    {
-        if ( !actions.ContainsKey( _actionType ) ) return;
-
-        actions[_actionType].Remove( _keyCode, KeyState.Down, _action );
-    }
-
-    public void Remove( SceneAction _actionType, KeyState _keyType, KeyCode _keyCode, Action _action )
-    {
-        if ( !actions.ContainsKey( _actionType ) ) return;
-
-        actions[_actionType].Remove( _keyCode, _keyType, _action );
-    }
-
-    public abstract void KeyBind();
 }

@@ -4,56 +4,83 @@ using UnityEngine;
 
 public class UnityInputHandler
 {
-    private Dictionary<KeyCode, Dictionary<KeyState, Action>> actions = new Dictionary<KeyCode, Dictionary<KeyState, Action>>();
+    // Warning : Action 내부에서 Bind/Remove를 호출하면, 순회도중 컬렉션이 수정되어 문제가 발생합니다.
+    private Dictionary<KeyCode, Action> downActions = new ();
+    private Dictionary<KeyCode, Action> holdActions = new ();
+    private Dictionary<KeyCode, Action> upActions   = new ();
+
+    private KeyCode activeKey = KeyCode.None;
+    public bool IsEmpty => downActions.Count == 0 && holdActions.Count == 0 && upActions.Count == 0;
+
     public void Process()
     {
-        foreach ( var code in actions.Keys )
+        // 가장 마지막에 누른 키에 대해서만 처리
+        foreach ( KeyCode keyCode in downActions.Keys )
         {
-            foreach ( var type in actions[code].Keys )
+            if ( Input.GetKeyDown( keyCode ) )
             {
-                switch ( type )
-                {
-                    case KeyState.Down: { if ( Input.GetKeyDown( code ) ) { actions[code][type]?.Invoke(); } } break;
-                    case KeyState.Hold: { if ( Input.GetKey(     code ) ) { actions[code][type]?.Invoke(); } } break;
-                    case KeyState.Up:   { if ( Input.GetKeyUp(   code ) ) { actions[code][type]?.Invoke(); } } break;
-                }
+                activeKey = keyCode;
+                downActions[keyCode]?.Invoke();
+            }
+        }
+
+        if ( activeKey == KeyCode.None )
+             return;
+
+        if ( holdActions.ContainsKey( activeKey ) )
+        {
+            if ( Input.GetKey( activeKey ) )
+                 holdActions[activeKey]?.Invoke();
+        }
+
+        if ( upActions.ContainsKey( activeKey ) )
+        {
+            if ( Input.GetKeyUp( activeKey ) )
+            {
+                upActions[activeKey]?.Invoke();
+                activeKey = KeyCode.None;
             }
         }
     }
 
-    public void Remove( KeyCode _code, KeyState _keyType, Action _action )
+    public void Bind( KeyCode _keyCode, KeyState _keyState, Action _action )
     {
-        if ( !actions.ContainsKey( _code ) )           return;
-        if ( !actions[_code].ContainsKey( _keyType ) ) return;
-        if ( actions[_code][_keyType] == null )        return;
+        if ( _action == null ) 
+             return;
 
-        foreach ( var action in actions[_code][_keyType].GetInvocationList() )
-        {
-            if ( Equals( action, _action ) )
-            {
-                actions[_code][_keyType] -= _action;
-                break;
-            }
-        }
+        Dictionary<KeyCode, Action> map = GetActionMap( _keyState );
+        if ( map == null ) return;
+
+        if ( map.ContainsKey( _keyCode ) ) map[_keyCode] += _action;
+        else                               map.Add( _keyCode, _action );
     }
 
-    public void Bind( KeyCode _code, KeyState _type, Action _action )
+    public void Remove( KeyCode _keyCode, KeyState _keyState, Action _action )
     {
         if ( _action == null )
              return;
 
-        if ( actions.ContainsKey( _code ) )
+        Dictionary<KeyCode, Action> map = GetActionMap( _keyState );
+        if ( map == null ) return;
+        if ( map.ContainsKey( _keyCode ) )
         {
-            if ( actions[_code].ContainsKey( _type ) )
-                 actions[_code][_type] += _action;
-            else
-                actions[_code].Add( _type, _action );
+            map[_keyCode] -= _action;
+            if ( map[_keyCode] == null ) 
+                 map.Remove( _keyCode );
+
+            if ( activeKey == _keyCode )
+                 activeKey = KeyCode.None;
         }
-        else
+    }
+
+    private Dictionary<KeyCode, Action> GetActionMap( KeyState _keyState )
+    {
+        return _keyState switch 
         {
-            Dictionary<KeyState, Action> typeAction = new ();
-            typeAction.Add( _type, _action );
-            actions.Add( _code, typeAction );
-        }
+            KeyState.Down => downActions,
+            KeyState.Hold => holdActions,
+            KeyState.Up   => upActions,
+            _             => null 
+        };
     }
 }
