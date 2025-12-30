@@ -123,7 +123,7 @@ public class AudioManager : Singleton<AudioManager>
         // Sound Driver
         List<SoundDriver> drivers = new List<SoundDriver>();
         CreateDriverInfo( OUTPUTTYPE.WASAPI, drivers );
-        CreateDriverInfo( OUTPUTTYPE.ASIO,   drivers );
+        //CreateDriverInfo( OUTPUTTYPE.ASIO,   drivers );
         Drivers = new ReadOnlyCollection<SoundDriver>( drivers );
         ErrorCheck( system.setOutput( Drivers[driverIndex].outputType ) );
         ErrorCheck( system.setDriver( Drivers[driverIndex].index ) );

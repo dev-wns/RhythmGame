@@ -59,6 +59,13 @@ public class InitScene : Scene
             break;
         }
 
+        OnKeyBind += KeyBind;
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        OnKeyBind -= KeyBind;
     }
 
     protected async override void Start()
@@ -76,9 +83,9 @@ public class InitScene : Scene
         icon.transform.rotation = Quaternion.Euler( new Vector3( 0f, 0f, curValue ) );
     }
 
-    public override void KeyBind()
+    public void KeyBind( UnityInputAction _input )
     {
-        Bind( SceneAction.Main, KeyCode.Return, () => { } );
+        _input.Bind( SceneAction.Main, KeyCode.Return, () => { } );
     }
 
     protected override void Connect() { }

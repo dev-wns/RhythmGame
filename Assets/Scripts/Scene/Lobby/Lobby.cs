@@ -17,12 +17,12 @@ public class Lobby : Scene
 
         if ( DataStorage.UserInfo is null )
         {
-            EnableLoginCanvas();
+            //EnableLoginCanvas();
         }
         else
         {
             playerInfo.UpdateUserInfo( DataStorage.UserInfo.Value );
-            DisableLoginCanvas();
+            //DisableLoginCanvas();
         }
     }
 
@@ -35,13 +35,13 @@ public class Lobby : Scene
             Network.Inst.Send( new Packet( STAGE_INFO_REQ ) );
     }
 
-    public void EnableLoginCanvas() => EnableCanvas( SceneAction.Login, loginCanvas, false );
+    //public void EnableLoginCanvas() => EnableCanvas( SceneAction.Login, loginCanvas, false );
 
-    public void DisableLoginCanvas() => DisableCanvas( SceneAction.Main, loginCanvas, false );
+    //public void DisableLoginCanvas() => DisableCanvas( SceneAction.Main, loginCanvas, false );
 
-    public void EnableCreateStageCanvas() => EnableCanvas( SceneAction.CreateStage, createStageCanvas );
+    //public void EnableCreateStageCanvas() => EnableCanvas( SceneAction.CreateStage, createStageCanvas );
 
-    public void DisableCreateStageCanvas() => DisableCanvas( SceneAction.Main, createStageCanvas );
+    //public void DisableCreateStageCanvas() => DisableCanvas( SceneAction.Main, createStageCanvas );
 
     public void MoveToStage()
     {
@@ -57,12 +57,12 @@ public class Lobby : Scene
 
     protected override void Connect() { }
     protected override void Disconnect() { }
-    public override void KeyBind()
-    {
-        // Login
-        Bind( SceneAction.Login, KeyCode.Escape, DisableLoginCanvas );
+    //public override void KeyBind()
+    //{
+    //    // Login
+    //    Bind( SceneAction.Login, KeyCode.Escape, DisableLoginCanvas );
 
-        // Create Room
-        Bind( SceneAction.CreateStage, KeyCode.Escape, DisableCreateStageCanvas );
-    }
+    //    // Create Room
+    //    Bind( SceneAction.CreateStage, KeyCode.Escape, DisableCreateStageCanvas );
+    //}
 }

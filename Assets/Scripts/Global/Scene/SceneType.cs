@@ -8,8 +8,8 @@ public enum SceneType : int
 
 public enum SceneAction : byte
 {
-    Main, Exit,                                                    // Public
-    Search, Comment, GameOption, SystemOption, KeySetting, ReLoad, // FreeStyle
-    Pause, GameOver,                                               // InGame
-    Login, CreateStage,                                            // MultiPlay
+    Main, Exit,                                                      // Public
+    Search, Comment, GameSetting, SystemSetting, KeySetting, ReLoad, // FreeStyle
+    Pause, GameOver,                                                 // InGame
+    Login, CreateStage,                                              // MultiPlay
 }

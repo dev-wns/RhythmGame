@@ -10,7 +10,21 @@ public class GameSetting : Singleton<GameSetting>
     public static NoteModel  CurrentNoteModel  = NoteModel.Block;
 
     // Speed
-    public static int ScrollSpeed = 30;
+    public static int OriginScrollSpeed = 30;
+    public static int ScrollSpeed 
+    {
+        get => OriginScrollSpeed;
+        set
+        {
+            if ( value < 0 || value > 50 )
+                 return;
+
+            OriginScrollSpeed = value;
+            Config.Inst.Write( ConfigType.ScrollSpeed, OriginScrollSpeed );
+            OnChangedSpeed?.Invoke( OriginScrollSpeed );
+        }
+    }
+    public static event Action<int> OnChangedSpeed;
 
     public static float Weight => ScrollSpeed * 0.073810f; // 0.001030
     // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3

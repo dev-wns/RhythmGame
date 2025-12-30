@@ -492,7 +492,7 @@ public class FileConverter : FileReader
         }
     }
 
-    public void AppendString( in string _string )
+    private void AppendString( in string _string )
     {
         writeString.Append( _string );
         writeString.Append( "\n" );

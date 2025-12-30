@@ -1,6 +1,7 @@
 using UnityEngine;
 using Global.Shader.InstancedFade;
-using static Global.UI.Alignment;
+
+using Global.UI;
 
 public abstract class NoteMesh : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public abstract class NoteMesh : MonoBehaviour
     private void Awake()
     {
         mpb = new MaterialPropertyBlock();
-        mpb.SetVector( ShaderID.Pivot, GetPivotVector( pivot ) );
+        mpb.SetVector( ShaderID.Pivot, Alignment.GetPivotVector( pivot ) );
         mesh.sortingOrder = sortingOrder;
     }
 

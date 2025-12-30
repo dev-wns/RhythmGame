@@ -1,16 +1,15 @@
-using DG.Tweening;
+using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
-using System.Threading;
 
 public class InGame : Scene
 {
-    [Header( "InGame" )]
-    public GameObject loadingCanvas;
-    public OptionController pause, gameOver;
-    public event Action OnLoadEnd;
+    [Header( "Canvas Activator" )]
+    [SerializeField] private LoadingActivator  loadingActivator;
+    [SerializeField] private PauseActivator    pauseActivator;
+    [SerializeField] private GameOverActivator gameOverActivator;
 
     [Header( "Fill Timer" )]
     public Image timeImage;
@@ -19,23 +18,19 @@ public class InGame : Scene
     [Header( "Asynchronous" )]
     private CancellationTokenSource playCts;
 
+    public event Action OnLoadEnd;
 
     protected override void Awake()
     {
         base.Awake();
 
         IsInputLock = true;
-        int antiAliasing = ( int )SystemSetting.CurrentAntiAliasing;
-        QualitySettings.antiAliasing = antiAliasing == 1 ? 2 :
-                                       antiAliasing == 2 ? 4 :
-                                       antiAliasing == 3 ? 8 :
-                                       antiAliasing == 4 ? 16 : 0;
-
 
         length  = NowPlaying.CurrentSong.totalTime / GameSetting.Pitch;
         playCts = new CancellationTokenSource();
 
         NowPlaying.OnGameOver += GameOver;
+        OnKeyBind += KeyBind;
     }
 
     protected override async void Start()
@@ -58,6 +53,7 @@ public class InGame : Scene
         playCts = null;
 
         NowPlaying.OnGameOver -= GameOver;
+        OnKeyBind -= KeyBind;
     }
 
     private void Update()
@@ -98,11 +94,13 @@ public class InGame : Scene
 
         // 로딩 후 대기시간
         await UniTask.WaitForSeconds( 3.5f, false, PlayerLoopTiming.Update, token );
-        if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
-        {
-            await DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, CanvasFadeDuration ).ToUniTask( TweenCancelBehaviour.Kill, token );
-            loadingCanvas.SetActive( false );
-        }
+        await loadingActivator.DisableCanvasAsync( token );
+
+        // if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
+        // {
+        //     await DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, CanvasFadeDuration ).ToUniTask( TweenCancelBehaviour.Kill, token );
+        //     loadingCanvas.SetActive( false );
+        // }
 
         // 게임 시작
         NowPlaying.Inst.GameStart();
@@ -110,7 +108,7 @@ public class InGame : Scene
         IsInputLock = false;
 
         // 게임 종료
-        await UniTask.WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count , PlayerLoopTiming.Update, token);
+        await UniTask.WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count , PlayerLoopTiming.Update, token );
         Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.Count} / {NowPlaying.TotalJudge} )" );
 
         await UniTask.WaitForSeconds( 5f, false, PlayerLoopTiming.Update, token );
@@ -132,8 +130,8 @@ public class InGame : Scene
                 IsInputLock = true;
                 await FadeOut();
 
-                ImmediateDisableCanvas( SceneAction.Main, pause );
-                ImmediateDisableCanvas( SceneAction.Main, gameOver );
+                pauseActivator.ImmediateDisableCanvas();
+                gameOverActivator.ImmediateDisableCanvas();
 
                 Disconnect();
                 Connect();
@@ -164,44 +162,22 @@ public class InGame : Scene
             }
             else
             {
-                if ( _isPause ) EnableCanvas( SceneAction.Pause, pause );
-                else            DisableCanvas( SceneAction.Main, pause );
+                if ( _isPause ) pauseActivator.EnableCanvas();
+                else            pauseActivator.DisableCanvas();
 
                 await NowPlaying.Inst.Pause( _isPause );
             }
         } );
     }
 
-    public void GameOver() => EnableCanvas( SceneAction.GameOver, gameOver, false );
+    public void GameOver() => gameOverActivator.EnableCanvas();
 
-    public override void KeyBind()
+    public void KeyBind( UnityInputAction _input )
     {
-        // Main
-        // Scroll Speed Down
-        Bind( SceneAction.Main, KeyState.Down, KeyCode.F3, () => SpeedControlProcess( false ) );
-        Bind( SceneAction.Main, KeyState.Hold, KeyCode.F3, () => PressedSpeedControl( false ) );
-        Bind( SceneAction.Main, KeyState.Up,   KeyCode.F3, () => UpedSpeedControl() );
-        // Scroll Speed Up                               
-        Bind( SceneAction.Main, KeyState.Down, KeyCode.F4, () => SpeedControlProcess( true ) );
-        Bind( SceneAction.Main, KeyState.Hold, KeyCode.F4, () => PressedSpeedControl( true ) );
-        Bind( SceneAction.Main, KeyState.Up,   KeyCode.F4, () => UpedSpeedControl() );
+        _input.Bind( SceneAction.Main,  KeyCode.Escape, () => { Pause( true  ); } );
+        _input.Bind( SceneAction.Pause, KeyCode.Escape, () => { Pause( false ); } );
 
-        // Pause
-        Bind( SceneAction.Main,  KeyCode.Escape,    () => { Pause( true ); } );
-        Bind( SceneAction.Pause, KeyCode.Escape,    () => { Pause( false ); } );
-        Bind( SceneAction.Pause, KeyCode.DownArrow, () => { MoveToNextOption( pause ); } );
-        Bind( SceneAction.Pause, KeyCode.UpArrow,   () => { MoveToPrevOption( pause ); } );
-        // Scroll Speed Down
-        Bind( SceneAction.Pause, KeyState.Down, KeyCode.F3, () => SpeedControlProcess( false ) );
-        Bind( SceneAction.Pause, KeyState.Hold, KeyCode.F3, () => PressedSpeedControl( false ) );
-        Bind( SceneAction.Pause, KeyState.Up,   KeyCode.F3, () => UpedSpeedControl() );
-        // Scroll Speed Up
-        Bind( SceneAction.Pause, KeyState.Down, KeyCode.F4, () => SpeedControlProcess( true ) );
-        Bind( SceneAction.Pause, KeyState.Hold, KeyCode.F4, () => PressedSpeedControl( true ) );
-        Bind( SceneAction.Pause, KeyState.Up,   KeyCode.F4, () => UpedSpeedControl() );
-
-        // GameOver
-        Bind( SceneAction.GameOver, KeyCode.DownArrow, () => { MoveToNextOption( gameOver ); } );
-        Bind( SceneAction.GameOver, KeyCode.UpArrow,   () => { MoveToPrevOption( gameOver ); } );
+        _input.Bind( SceneAction.Main, KeyCode.F3, new InputRepeater( () => { GameSetting.ScrollSpeed -= 1; } ) );
+        _input.Bind( SceneAction.Main, KeyCode.F4, new InputRepeater( () => { GameSetting.ScrollSpeed += 1; } ) );
     }
 }

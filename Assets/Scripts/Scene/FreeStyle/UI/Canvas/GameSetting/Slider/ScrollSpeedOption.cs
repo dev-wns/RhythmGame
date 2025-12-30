@@ -2,7 +2,7 @@ using System;
 
 public class ScrollSpeedOption : OptionSlider
 {
-    public event Action OnChangedOption;
+    //public event Action OnChangedOption;
 
     protected override void Awake()
     {
@@ -16,7 +16,7 @@ public class ScrollSpeedOption : OptionSlider
     {
         GameSetting.ScrollSpeed = ( int )_value;
         UpdateText( _value );
-        OnChangedOption?.Invoke();
+        //OnChangedOption?.Invoke();
     }
 
     public override void Process()

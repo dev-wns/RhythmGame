@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class FreeStyleMainScroll : ScrollBase
 {
+    [SerializeField] private FreeStyle        scene;
     [SerializeField] private FreeStyleSearch  search;
     [SerializeField] private SoundPitchOption pitchOption;
 
@@ -69,7 +70,7 @@ public class FreeStyleMainScroll : ScrollBase
         median = Mathf.FloorToInt( maxShowCount / 2f );
         contentOriginPos = rt.anchoredPosition;
 
-        KeyBind();
+        // KeyBind();
 
         // 객체 할당
         for ( int i = 0; i < maxShowCount; i++ )
@@ -79,12 +80,15 @@ public class FreeStyleMainScroll : ScrollBase
             song.gameObject.SetActive( false );
             songs.AddLast( song );
         }
+
+        scene.OnKeyBind += KeyBind;
     }
 
     private void OnDestroy()
     {
         AudioManager.OnReload -= OnBufferSetting;
         search.OnSearch       -= UpdateLayoutAndSong;
+        scene.OnKeyBind       -= KeyBind;
     }
 
     private void Start()
@@ -417,19 +421,19 @@ public class FreeStyleMainScroll : ScrollBase
     }
     #endregion
 
-    public void KeyBind()
+    public void KeyBind( UnityInputAction _input )
     {
-        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyCode.Return, SelectChart );
+        _input.Bind( SceneAction.Main, KeyCode.Return, SelectChart );
 
-        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Down, KeyCode.UpArrow, ScrollDown );
-        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Down, KeyCode.DownArrow, ScrollUp );
+        _input.Bind( SceneAction.Main, KeyState.Down, KeyCode.UpArrow, ScrollDown );
+        _input.Bind( SceneAction.Main, KeyState.Down, KeyCode.DownArrow, ScrollUp );
 
         // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
-        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
-        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
+        _input.Bind( SceneAction.Main, KeyState.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
+        _input.Bind( SceneAction.Main, KeyState.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
 
         // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
-        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Up, KeyCode.UpArrow,   KeyUp );
-        NowPlaying.CurrentScene.Bind( SceneAction.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
+        _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.UpArrow,   KeyUp );
+        _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
     }
 }

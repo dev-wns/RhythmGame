@@ -27,17 +27,17 @@ public class UnityInputHandler
         if ( activeKey == KeyCode.None )
              return;
 
-        if ( holdActions.ContainsKey( activeKey ) )
+        if ( holdActions.TryGetValue(activeKey, out Action holdAction ) )
         {
             if ( Input.GetKey( activeKey ) )
-                 holdActions[activeKey]?.Invoke();
+                 holdAction?.Invoke();
         }
 
-        if ( upActions.ContainsKey( activeKey ) )
+        if ( upActions.TryGetValue( activeKey, out Action upAction ) )
         {
             if ( Input.GetKeyUp( activeKey ) )
             {
-                upActions[activeKey]?.Invoke();
+                upAction?.Invoke();
                 activeKey = KeyCode.None;
             }
         }

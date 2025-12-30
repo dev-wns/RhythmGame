@@ -35,7 +35,7 @@ public class ScrollSpeedUI : MonoBehaviour
 
     private void Awake()
     {
-        scene.OnChangedSpeed += UpdateSpeed;
+        GameSetting.OnChangedSpeed += UpdateSpeed;
 
         bgStartSize = new Vector2( background.sizeDelta.x, 0f );
         bgEndSize = background.sizeDelta;
@@ -52,7 +52,7 @@ public class ScrollSpeedUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        scene.OnChangedSpeed -= UpdateSpeed;
+        GameSetting.OnChangedSpeed -= UpdateSpeed;
     }
 
     private void Start()
@@ -73,37 +73,37 @@ public class ScrollSpeedUI : MonoBehaviour
             canvasGroup.DOFade( 0f, .15f ).OnComplete( () =>
             {
                 canvas.SetActive( false );
-                isActive = false;
+                isActive     = false;
                 isProcessing = false;
                 timer = 0f;
             } );
         }
     }
 
-    private void UpdateSpeed()
+    private void UpdateSpeed( int _scrollSpeed )
     {
         if ( scene.CurrentAction != SceneAction.Main )
-            return;
+             return;
 
         timer = 0f;
-        speedText.SetText( "{0}", GameSetting.ScrollSpeed );
+        speedText.SetText( "{0}", _scrollSpeed );
         textSeq?.Restart();
 
         if ( isActive )
-            return;
+             return;
 
         canvas.SetActive( true );
         canvasGroup.DOFade( 1f, .15f );
 
         // background
-        bgImage.color = Global.UI.Color.Clear;
+        bgImage.color = Color.clear;
         bgImage.DOColor( BGStartColor, Duration );
 
         background.sizeDelta = bgStartSize;
         background.DOSizeDelta( bgEndSize, Duration );
 
         // text
-        speedText.color = Global.UI.Color.ClearA;
+        speedText.color = new Color( 1f, 1f, 1f, 0f );
         speedText.DOFade( 1f, Duration );
 
         isActive = true;

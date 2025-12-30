@@ -21,10 +21,10 @@ public class PauseInfomation : MonoBehaviour
 
     private void Awake()
     {
-        scene.OnChangedSpeed += UpdateScrollSpeedText;
+        GameSetting.OnChangedSpeed += UpdateScrollSpeed;
 
         // Main Info
-        UpdateScrollSpeedText();
+        UpdateScrollSpeed( GameSetting.ScrollSpeed );
         random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
         rate.SetText( "x{0:2}", ( float )GameSetting.Pitch );
         rate.color = GameSetting.Pitch < 1f ? new Color( .5f, .5f,  1f ) :
@@ -40,11 +40,11 @@ public class PauseInfomation : MonoBehaviour
 
     private void OnDestroy()
     {
-        scene.OnChangedSpeed -= UpdateScrollSpeedText;
+        GameSetting.OnChangedSpeed -= UpdateScrollSpeed;
     }
 
-    private void UpdateScrollSpeedText()
+    private void UpdateScrollSpeed( int _scrollSpeed )
     {
-        speed.SetText( "{0}", GameSetting.ScrollSpeed );
+        speed.SetText( "{0}", _scrollSpeed );
     }
 }

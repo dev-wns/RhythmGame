@@ -55,9 +55,9 @@ public class Result : Scene
 
     protected override void Disconnect() { }
 
-    public override void KeyBind()
+    public void KeyBind( UnityInputAction _input )
     {
-        Bind( SceneAction.Main, KeyCode.Escape, BackToLobby );
-        Bind( SceneAction.Main, KeyCode.Return, BackToLobby );
+        _input.Bind( SceneAction.Main, KeyCode.Escape, BackToLobby );
+        _input.Bind( SceneAction.Main, KeyCode.Return, BackToLobby );
     }
 }

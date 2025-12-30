@@ -3,6 +3,7 @@ using System;
 public enum ChannelType : byte { Master, Clap, BGM, SFX, Count, };
 public enum SFX
 {
+    None,
     MainSelect, MainClick, MainHover, Slider,
     MenuSelect, MenuClick, MenuHover, MenuExit,
     keyboard_Input, Keyboard_Backspace,

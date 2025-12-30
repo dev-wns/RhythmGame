@@ -34,23 +34,23 @@ public class SongViewer : MonoBehaviour
 
     private void Awake()
     {
-        scene.OnChangedSpeed             += UpdateScrollSpeed;
         scroller.OnSelectSong            += SelectChangedSoundInfo;
-        speedOption.OnChangedOption      += UpdateScrollSpeed;
+        //speedOption.OnChangedOption      += UpdateScrollSpeed;
         fixedBPMOption.OnChangedOption   += UpdateBPMInfo;
         noSliderOption.OnChangedOption   += UpdateNoteInfo;
         keyConvertOption.OnChangedOption += UpdateButton;
+        GameSetting.OnChangedSpeed       += UpdateScrollSpeed;
         AudioManager.OnUpdatePitch       += UpdatePitchInfo;
     }
 
     private void OnDestroy()
     {
-        scene.OnChangedSpeed             -= UpdateScrollSpeed;
         scroller.OnSelectSong            -= SelectChangedSoundInfo;
-        speedOption.OnChangedOption      -= UpdateScrollSpeed;
+        //speedOption.OnChangedOption      -= UpdateScrollSpeed;
         fixedBPMOption.OnChangedOption   -= UpdateBPMInfo;
         noSliderOption.OnChangedOption   -= UpdateNoteInfo;
         keyConvertOption.OnChangedOption -= UpdateButton;
+        GameSetting.OnChangedSpeed       -= UpdateScrollSpeed;
         AudioManager.OnUpdatePitch       -= UpdatePitchInfo;
     }
 
@@ -69,7 +69,7 @@ public class SongViewer : MonoBehaviour
         UpdatePitchInfo( GameSetting.Pitch );
     }
 
-    private void UpdateScrollSpeed() => speed.SetText( "{0}", GameSetting.ScrollSpeed );
+    private void UpdateScrollSpeed( int _scrollSpeed ) => speed.SetText( "{0}", _scrollSpeed );
 
 
     private void UpdatePitchInfo( float _pitch )

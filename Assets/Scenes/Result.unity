@@ -1788,8 +1788,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 374339459}
-  - component: {fileID: 374339460}
   - component: {fileID: 374339461}
+  - component: {fileID: 374339462}
+  - component: {fileID: 374339463}
+  - component: {fileID: 374339460}
   m_Layer: 0
   m_Name: Scene
   m_TagString: Scene
@@ -1824,6 +1826,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ed1f3b7335f0184f9d89a52d5792118, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneFader: {fileID: 374339463}
+  inputAction: {fileID: 374339462}
   soundName: PhYnee  Hot Rod.mp3
   highlightPos: 0
 --- !u!212 &374339461
@@ -1881,6 +1885,31 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &374339462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374339458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07b784415623cd0459a8b5f962d352e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &374339463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374339458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86714789d4206f148b7b501f42ad9787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rdr: {fileID: 374339461}
 --- !u!1 &376336385
 GameObject:
   m_ObjectHideFlags: 0
@@ -12251,7 +12280,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 2059212569}
+  - {fileID: 374339459}
   - {fileID: 1914225236}
   - {fileID: 1914133463}
   - {fileID: 1467921373}
-  - {fileID: 374339459}

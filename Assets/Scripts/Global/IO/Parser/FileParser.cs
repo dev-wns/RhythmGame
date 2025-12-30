@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 
 public class FileParser : FileConverter
@@ -106,10 +105,10 @@ public class FileParser : FileConverter
 
     public bool TryParse( string _path, out List<Note> _notes, out List<Timing> _timings, out List<SpriteSample> _sprites, out List<KeySound> _samples )
     {
-        _notes       = new List<Note>();
-        _timings     = new List<Timing>();
-        _samples     = new List<KeySound>();
-        _sprites     = new List<SpriteSample>();
+        _notes   = new List<Note>();
+        _timings = new List<Timing>();
+        _samples = new List<KeySound>();
+        _sprites = new List<SpriteSample>();
 
         try
         {
