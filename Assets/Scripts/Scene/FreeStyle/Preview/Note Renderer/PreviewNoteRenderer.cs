@@ -18,11 +18,10 @@ public abstract class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNo
     protected bool    IsSlider => note.isSlider;
 
     protected static readonly float FadeOffset = 150f;
-    protected static readonly int   OffsetID   = Shader.PropertyToID( "_Offset" );
 
     protected abstract void Initialize();
     protected abstract void OnUpdateSlider( float _length );
-    protected abstract void UpdatePropertyBlock();
+    protected abstract void ApplyMpb();
 
     public void SetInfo( in Note _note, float _startPos, Color _color )
     {
@@ -57,7 +56,7 @@ public abstract class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNo
 
         // 부모 갱신
         transform.localPosition = new Vector3( column, -390f + ( ( float )( distance - PreviewNoteSystem.Distance ) / GameSetting.Pitch * PreviewNoteSystem.Weight ), 0f );
-        UpdatePropertyBlock();
+        ApplyMpb();
 
         if ( despawnTime - PreviewNoteSystem.Playback < double.Epsilon )
              Despawn();

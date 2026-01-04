@@ -1,4 +1,5 @@
 using UnityEngine;
+using Global.Shader.InstancedFade;
 
 public class PreviewNoteNoTail : PreviewNoteRenderer
 {
@@ -18,13 +19,13 @@ public class PreviewNoteNoTail : PreviewNoteRenderer
         body.LocalScale = new Vector3( NoteSize.x, _length, 1f );
 
         float offset = isFade ? Global.Math.Clamp( FadeOffset / _length, 0f, float.MaxValue ) : 0f;
-        body.SetFloatInMpb( OffsetID, offset );
+        body.SetFloatInMpb( ShaderID.Offset, offset );
     }
 
-    protected override void UpdatePropertyBlock()
+    protected override void ApplyMpb()
     {
-        head.UpdatePropertyBlock();
+        head.ApplyMpb();
         if ( IsSlider )
-             body.UpdatePropertyBlock();
+             body.ApplyMpb();
     }
 }

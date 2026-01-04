@@ -49,8 +49,8 @@ public class GameSetting : Singleton<GameSetting>
 
     // Note
     public static int   SliderOffset  = 0;
-    public static float NoteWidth     => 125.5f; //120f; // 110.5
-    public static float NoteHeight    => 70f; //70f; // 63
+    public static float NoteWidth     => 110.5f;// 125.5f;
+    public static float NoteHeight    => 60.5f; // 63
     public static float NoteBodyWidth => 110.5f;
     public static float NoteBlank     =  0f;
     public static float NoteStartPos  => GearOffsetX - ( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;

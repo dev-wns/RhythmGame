@@ -22,5 +22,5 @@ public abstract class NoteMesh : MonoBehaviour
 
     public abstract void Initialize( Vector3 _size, Color _color, bool _isRaise = false );
     public void SetFloatInMpb( int _nameId, float _value ) => mpb.SetFloat( _nameId, _value );
-    public void UpdatePropertyBlock() => mesh.SetPropertyBlock( mpb );
+    public void ApplyMpb() => mesh.SetPropertyBlock( mpb );
 }

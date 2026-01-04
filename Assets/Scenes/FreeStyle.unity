@@ -1854,10 +1854,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 102346163}
-  - component: {fileID: 102346165}
   - component: {fileID: 102346164}
+  - component: {fileID: 102346165}
   m_Layer: 5
-  m_Name: Spectrum Bands
+  m_Name: Bands
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1920,10 +1920,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualizer: {fileID: 1923945052}
   bandCount: 10
-  power: 17.5
-  dropAmount: 30
-  riseAmount: 100
-  isReverse: 0
+  startIndex: 1
+  avgRange: 2048
+  power: 20
+  size: 123
+  dropAmount: 16.5
+  riseAmount: 50
   leftBars:
   - {fileID: 567734871}
   - {fileID: 383252105}
@@ -1946,6 +1948,7 @@ MonoBehaviour:
   - {fileID: 350087154}
   - {fileID: 1337288400}
   - {fileID: 2082215417}
+  isReverse: 0
 --- !u!1 &103959471
 GameObject:
   m_ObjectHideFlags: 0
@@ -21272,7 +21275,7 @@ GameObject:
   - component: {fileID: 1099860060}
   - component: {fileID: 1099860059}
   m_Layer: 5
-  m_Name: Spectrum Spark
+  m_Name: Spark
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21419,16 +21422,37 @@ MonoBehaviour:
   freqCount: 72
   power: 500
   rdr: {fileID: 1099860059}
-  maxHeight: 42.5
-  posOffset: 6.6875
-  discardOffset: 1.525
-  riseAmount: 100
+  blank: 6.6875
+  maxHeight: 40
+  riseAmount: 50
   dropAmount: 11.5
+  topCount: 4
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   isAxisX: 1
   isReverse: 1
-  isNormalized: 1
-  NormalizedRange: 2
-  topCount: 5
 --- !u!1 &1100880491
 GameObject:
   m_ObjectHideFlags: 0
@@ -21650,7 +21674,7 @@ GameObject:
   - component: {fileID: 1115351010}
   - component: {fileID: 1115351011}
   m_Layer: 5
-  m_Name: Spectrum Bars
+  m_Name: Bars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21687,15 +21711,13 @@ MonoBehaviour:
   startIndex: 38
   specCount: 156
   power: 750
-  prefab: {fileID: 2841630171828651903, guid: ed96f5c7888b4654e83ee225a5de76cf, type: 3}
-  width: 3.295
-  blank: 2.855
+  prefab: {fileID: 9013922946958882154, guid: 63251444164521747acdd36725251dd8, type: 3}
+  width: 5.15
+  blank: 1
   alpha: 0.15
-  sortingOrder: 4
-  dropAmount: 25
-  isReverse: 1
-  IsNormalized: 1
-  normalizedRange: 2
+  riseAmount: 100
+  dropAmount: 22.5
+  isReverse: 0
 --- !u!1 &1117477836
 GameObject:
   m_ObjectHideFlags: 0
@@ -39086,9 +39108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb64fa2c0f4143c418e0ec44a96e4062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 4096
-  avgStart: 32
-  avgRange: 72
 --- !u!1 &1924485807
 GameObject:
   m_ObjectHideFlags: 0

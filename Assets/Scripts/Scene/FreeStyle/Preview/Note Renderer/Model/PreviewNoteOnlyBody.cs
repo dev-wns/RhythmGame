@@ -1,4 +1,5 @@
 using UnityEngine;
+using Global.Shader.InstancedFade;
 
 public class PreviewNoteOnlyBody : PreviewNoteRenderer
 {
@@ -14,11 +15,11 @@ public class PreviewNoteOnlyBody : PreviewNoteRenderer
         body.LocalScale = new Vector3( NoteSize.x, _length, 1f );
 
         float offset = isFade ? Global.Math.Clamp( FadeOffset / _length, 0f, float.MaxValue ) : 0f;
-        body.SetFloatInMpb( OffsetID, offset );
+        body.SetFloatInMpb( ShaderID.Offset, offset );
     }
 
-    protected override void UpdatePropertyBlock()
+    protected override void ApplyMpb()
     {
-        body.UpdatePropertyBlock();
+        body.ApplyMpb();
     }
 }

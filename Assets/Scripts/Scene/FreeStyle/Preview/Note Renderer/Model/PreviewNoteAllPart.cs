@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using Global.Shader.InstancedFade;
+
 public class PreviewNoteAllPart : PreviewNoteRenderer
 {
     [SerializeField] private NoteMesh head;
@@ -25,19 +27,19 @@ public class PreviewNoteAllPart : PreviewNoteRenderer
         body.LocalScale = new Vector3( NoteSize.x, _length, 1f );
 
         float fadeOffset = isFade ? Global.Math.Clamp( FadeOffset / _length, 0f, float.MaxValue ) : 0f;
-        body.SetFloatInMpb( OffsetID, fadeOffset );
+        body.SetFloatInMpb( ShaderID.Offset, fadeOffset );
 
         float raiseOffset  = isRaise ? 0f : NoteSize.y;
         tail.LocalPosition = new Vector3( 0f, Global.Math.Clamp( _length - raiseOffset, 0f, float.MaxValue ), 0f );
     }
 
-    protected override void UpdatePropertyBlock()
+    protected override void ApplyMpb()
     {
-        head.UpdatePropertyBlock();
+        head.ApplyMpb();
         if ( IsSlider )
         {
-            tail.UpdatePropertyBlock();
-            body.UpdatePropertyBlock();
+            tail.ApplyMpb();
+            body.ApplyMpb();
         }
     }
 }

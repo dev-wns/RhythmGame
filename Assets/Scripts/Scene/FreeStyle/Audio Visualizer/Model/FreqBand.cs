@@ -1,38 +1,66 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class FreqBand : MonoBehaviour
 {
-    [Header( "- Visualizer -" )]
-    public AudioVisualizer visualizer;
-    [SerializeField] 
-    [Range( 1, 10 )] int   bandCount;
-    public           float power;
+    [Header( "[Visualizer]" )]
+    [SerializeField] private AudioVisualizer visualizer;
+    [Range( 1,  10   )] [SerializeField] private int bandCount;
+    [Range( 0,  4086 )] [SerializeField] private int startIndex;
+    [Range( 10, 4096 )] [SerializeField] private int avgRange;
+    [Min( 0f )]         [SerializeField] private float power;
+    [SerializeField, Title] private int size;
 
-    [Header( "- Renderer -" )]
-    public           float dropAmount;
-    public           float riseAmount;
-    public           bool  isReverse;
+    [Header( "[Renderer]" )]
+    [Min( 0f )] [SerializeField] private float dropAmount;
+    [Min( 0f )] [SerializeField] private float riseAmount;
 
-    public List<SpriteRenderer> leftBars  = new List<SpriteRenderer>();
-    public List<SpriteRenderer> rightBars = new List<SpriteRenderer>();
-    private const int MaxFreqBand = 10;
+    [SerializeField] private List<SpriteRenderer> leftBars  = new ();
+    [SerializeField] private List<SpriteRenderer> rightBars = new ();
 
-    private float[]   alpha;
+    private float[] bands;
+    private int[]   bandStart;
+    private int[]   bandEnd;
+    private float[] buffer;
+
+    [Header( "[Option]" )]
+    [SerializeField] private bool isReverse;
+    private readonly int AverageRange = 1;
+
 
     private void Awake()
     {
-        visualizer.OnUpdateBand += UpdateBand;
-        alpha    = new float[MaxFreqBand];
+        visualizer.OnUpdate += UpdateBand;
+        bands  = new float[bandCount];
+        buffer = new float[bandCount];
 
         if ( isReverse ) rightBars.Reverse();
         else              leftBars.Reverse();
+
+        bandStart = new int[bandCount];
+        bandEnd   = new int[bandCount];
+
+        int endIndex = Global.Math.Clamp( startIndex + avgRange, 0, 4096 );
+        size         = Global.Math.Clamp( endIndex - startIndex, 0, 4096 );
+        for ( int i = 0; i < bandCount; i++ )
+        {
+            float p0 = ( float )i / bandCount;
+            float p1 = ( float )( i + 1 ) / bandCount;
+
+            int start = Mathf.FloorToInt( Mathf.Pow( size, p0 ) ) - 1; // Index 0부터 시작
+            int end   = Mathf.FloorToInt( Mathf.Pow( size, p1 ) ) - 1; 
+
+            start = Global.Math.Clamp( start, 0, size - 1 );
+            end   = Global.Math.Clamp( end, start + 1, size );
+
+            bandStart[i] = startIndex + start;
+            bandEnd[i]   = startIndex + end;
+        }
     }
 
     private void OnDestroy()
     {
-        visualizer.OnUpdateBand -= UpdateBand;
+        visualizer.OnUpdate -= UpdateBand;
     }
 
     /* 48000 / 4096 : 11.71875 Hertz
@@ -52,23 +80,39 @@ public class FreqBand : MonoBehaviour
      * 10. 2048 + 2 : 24023 : 23978 ~ 48000
      * Total : 4096
      */
-    private void UpdateBand( float[] _values )
+
+
+    private void UpdateBand( float[][] _values )
     {
-        for ( int i = 0; i < bandCount; i++ )
-        {
-            float sumValue = 0f;
-            int start = Global.Math.Clamp( i - 1, 0, bandCount - 1 );
-            int end   = Global.Math.Clamp( i + 1, 0, bandCount - 1 );
-            for ( int idx = start; idx <= end; idx++ )
-                sumValue += _values[idx] * power;
-
-            float value = sumValue / ( end - start + 1 );
-
-            alpha[i]  = Global.Math.Max( alpha[i], value );
-            alpha[i] -= Global.Math.Lerp( 0f, Global.Math.Abs( alpha[i] - value ), dropAmount * Time.deltaTime );
-            alpha[i]  = Global.Math.Clamp01( alpha[i] );
-
-            leftBars[i].color = rightBars[i].color = new Color( 1, 1, 1, alpha[i] );
-        }
+         for ( int i = 0; i < bandCount; i++ )
+         {
+             int start = bandStart[i];
+             int end   = bandEnd[i];
+         
+             float sumValue = 0f;
+             for ( int j = start; j < end; j++ )
+             {
+                 float mono = ( _values[0][j] + _values[1][j] ) *.5f;
+                 sumValue += mono;
+             }
+         
+             bands[i] = sumValue / ( end - start );
+         }
+         
+         for ( int i = 0; i < bandCount; i++ )
+         {
+             float sumValue = 0f;
+             int start = Global.Math.Clamp( i - AverageRange,     0, bandCount - 1 );
+             int end   = Global.Math.Clamp( i + AverageRange + 1, 0, bandCount - 1 );
+             for ( int j = start; j < end; j++ )
+                   sumValue += bands[j];
+         
+             float value = sumValue / ( end - start ) * power;
+             if ( value > buffer[i] ) buffer[i] += riseAmount * Global.Math.Max( 0f, value - buffer[i] ) * Time.deltaTime;
+             else                     buffer[i] -= dropAmount * Global.Math.Max( 0f, buffer[i] - value ) * Time.deltaTime;
+             buffer[i] = Global.Math.Clamp01( buffer[i] );
+         
+             leftBars[i].color = rightBars[i].color = new Color( 1f, 1f, 1f, buffer[i] );
+         }
     }
 }
