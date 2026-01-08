@@ -3,20 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 #pragma warning disable CS0162
 
 public class PreviewNoteSystem : MonoBehaviour
 {
+    [SerializeField] private FreeStyle          scene;
+    [SerializeField] private SoundPitchOption   pitchOption;
     [SerializeField] private PreviewNoteModelSO noteModelSO;
-    [SerializeField] private NoteModelOption noteModelOption;
+    [SerializeField] private NoteModelOption    noteModelOption;
+
     private Dictionary<NoteModel, ObjectPool<PreviewNoteRenderer>> pools = new();
     private ObjectPool<PreviewNoteRenderer> currentPool;
 
     private int spawnIndex;
     private Note curData;
-
-    public FreeStyleMainScroll scroll;
 
     private List<Timing> timings;
     private List<Note>   notes;
@@ -31,7 +34,7 @@ public class PreviewNoteSystem : MonoBehaviour
     private double prevBPM;
     private Timing curTiming;
 
-    public static double Playback => FreeStyleMainScroll.Playback + NowPlaying.CurrentSong.audioOffset;
+    public static double Playback => FreeStyle.Playback + Browser.Inst.CurrentSong.audioOffset;
     public static double Distance { get; private set; }
     private static double DistanceCache;
     private float noteStartPos;
@@ -44,20 +47,22 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void Awake()
     {
-        scroll.OnSelectSong                += Parse;
-        scroll.OnSoundRestart              += Restart;
+        scene.OnLoadAsync += Parse;
+        scene.OnStart     += Restart;
+        scene.OnRestart   += Restart;
+        pitchOption.OnUpdatePitch += UpdatePitch;
         noteModelOption.OnChangedNoteModel += ChangedNoteModel;
-        AudioManager.OnUpdatePitch         += UpdatePitch;
 
         ChangedNoteModel( GameSetting.CurrentNoteModel );
     }
 
     private void OnDestroy()
     {
-        scroll.OnSelectSong                -= Parse;
-        scroll.OnSoundRestart              -= Restart;
+        scene.OnLoadAsync -= Parse;
+        scene.OnStart     -= Restart;
+        scene.OnRestart   -= Restart;
+        pitchOption.OnUpdatePitch -= UpdatePitch;
         noteModelOption.OnChangedNoteModel -= ChangedNoteModel;
-        AudioManager.OnUpdatePitch         -= UpdatePitch;
     }
 
     private void ChangedNoteModel( NoteModel _type )
@@ -69,7 +74,7 @@ public class PreviewNoteSystem : MonoBehaviour
         }
     }
 
-    private void Restart( Song _song )
+    private void Restart( in Song _song )
     {
         currentPool.AllDespawn();
         
@@ -105,10 +110,10 @@ public class PreviewNoteSystem : MonoBehaviour
         bpmIndex     = timingIndex;
         curTiming    = timings[bpmIndex];
         bpmTime      = curTiming.time;
-        bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.Pitch ) ) );
+        bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.SoundPitch ) ) );
     }
 
-    private void Parse( Song _song )
+    private async UniTask Parse( Song _song, CancellationToken _token )
     {
         NoteMultiplier = _song.keyCount == 7 ? .55f :
                          _song.keyCount == 6 ? .625f : .775f;
@@ -125,7 +130,8 @@ public class PreviewNoteSystem : MonoBehaviour
                   Debug.LogWarning( $"Parsing failed  Current Chart : {_song.title}" );
         }
 
-        Restart( _song );
+        await UniTask.CompletedTask;
+        //Restart( _song );
     }
 
     private void UpdatePitch( float _pitch )
@@ -135,6 +141,9 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void Update()
     {
+        if ( timings == null ) 
+             return;
+
         for ( int i = timingIndex; i < timings.Count; i++ )
         {
             double time = timings[i].time;
@@ -155,7 +164,7 @@ public class PreviewNoteSystem : MonoBehaviour
         {
             Timing current = timings[bpmIndex];
             if ( prevBPM != current.bpm )
-                 bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.Pitch ) ) );
+                 bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.SoundPitch ) ) );
             
             prevBPM = current.bpm;
 
@@ -185,7 +194,7 @@ public class PreviewNoteSystem : MonoBehaviour
             PreviewNoteRenderer note = currentPool.Spawn();
             
             Color color  = Color.white;
-            int keyCount = NowPlaying.CurrentSong.keyCount;
+            int keyCount = Browser.Inst.CurrentSong.keyCount;
             if      ( keyCount == 4 ) color = curData.lane == 1 || curData.lane == 2 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
             else if ( keyCount == 6 ) color = curData.lane == 1 || curData.lane == 4 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
             else if ( keyCount == 7 ) color = curData.lane == 1 || curData.lane == 5 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) :

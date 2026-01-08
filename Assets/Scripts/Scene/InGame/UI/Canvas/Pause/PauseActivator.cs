@@ -2,15 +2,7 @@ using UnityEngine;
 
 public class PauseActivator : CanvasActivator
 {
-    private InGame inGame;
     [SerializeField] private OptionController controller;
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        inGame = CurrentScene as InGame;
-    }
 
     private void MoveToPrevOption()
     {

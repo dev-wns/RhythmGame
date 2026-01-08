@@ -5,7 +5,7 @@ public class InputRepeater
 {
     private bool  isPressed = false;
     private float waitTime = .5f;
-    private float interval = .05f;
+    private float interval = .075f; //.05f;
     private float elapsed;
 
     public event Action OnRepeat;

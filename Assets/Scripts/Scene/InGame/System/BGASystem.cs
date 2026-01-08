@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using UnityEngine.Video;
 
 public class BGASystem : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
     public RawImage background, foreground;
 
     [Header( "Video" )]
@@ -19,14 +21,21 @@ public class BGASystem : MonoBehaviour
 
     private void Awake()
     {
-        AudioManager.OnUpdatePitch += UpdatePitch;
-        NowPlaying.OnInitialize    += Initialize;
-        NowPlaying.OnGameStart     += GameStart;
-        NowPlaying.OnPause         += Pause;
-        NowPlaying.OnClear         += Clear;
+        //AudioManager.OnUpdatePitch += UpdatePitch;
+        if ( GameSetting.BGAOpacity != 0 )
+        {
+            scene.OnLoadAsync += Load;
+            scene.OnGameStart += GameStart;
+            scene.OnPause     += Pause;
+            scene.OnClear     += Clear;
 
-        color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
-        ClearRenderTexture();
+            color = new Color( 1f, 1f, 1f, GameSetting.BGAOpacity * .01f );
+            ClearRenderTexture();
+        }
+        else
+        {
+            transform.root.gameObject.SetActive( false );
+        }
     }
 
     private void OnDestroy()
@@ -34,18 +43,21 @@ public class BGASystem : MonoBehaviour
         StopAllCoroutines();
         ClearRenderTexture();
 
-        AudioManager.OnUpdatePitch -= UpdatePitch;
-        NowPlaying.OnInitialize    -= Initialize;
-        NowPlaying.OnGameStart     -= GameStart;
-        NowPlaying.OnPause         -= Pause;
-        NowPlaying.OnClear         -= Clear;
+        if ( GameSetting.BGAOpacity != 0 )
+        {
+            //AudioManager.OnUpdatePitch -= UpdatePitch;
+            scene.OnLoadAsync -= Load;
+            scene.OnGameStart -= GameStart;
+            scene.OnPause     -= Pause;
+            scene.OnClear     -= Clear;
+        }
     }
 
-    private void UpdatePitch( float _pitch )
-    {
-        if ( type == BGA.Video )
-             vp.playbackSpeed = _pitch;
-    }
+    //private void UpdatePitch( float _pitch )
+    //{
+    //    if ( type == BGA.Video )
+    //         vp.playbackSpeed = _pitch;
+    //}
 
     private void ClearRenderTexture()
     {
@@ -55,24 +67,34 @@ public class BGASystem : MonoBehaviour
         RenderTexture.active = rt;
     }
 
-    private async void Initialize()
+    private async UniTask Load()
     {
-        if ( GameSetting.BGAOpacity == 0 )
+        //if ( GameSetting.BGAOpacity == 0 )
+        //{
+        //    transform.root.gameObject.SetActive( false );
+        //    return;
+        //}
+
+        type = Browser.Inst.CurrentSong.hasVideo  ? BGA.Video  :
+               DataStorage.Inst.Sprites.Count > 0 ? BGA.Sprite :
+                                                    BGA.Image;
+
+        if ( type == BGA.Video )
         {
-            transform.root.gameObject.SetActive( false );
-            return;
+
         }
-
-        type = NowPlaying.CurrentSong.hasVideo ? BGA.Video  :
-               DataStorage.Sprites.Count > 0   ? BGA.Sprite :
-                                                 BGA.Image;
-
-        if ( type == BGA.Image )
+        else if ( type == BGA.Sprite )
+        {
+            ReadOnlyCollection<SpriteSample> sprites = DataStorage.Inst.Sprites;
+            for ( int i = 0; i < sprites.Count; i++ )
+                  await DataStorage.Inst.LoadTexture( sprites[i] );
+        }
+        else if ( type == BGA.Image )
         {
             // 이미 프리스타일에서 로딩된 이미지 사용
-            await DataStorage.Inst.LoadTexture( new SpriteSample( NowPlaying.CurrentSong.imageName ), () =>
+            await DataStorage.Inst.LoadTexture( new SpriteSample( Browser.Inst.CurrentSong.imageName ), () =>
             {
-                if ( DataStorage.Inst.GetTexture( NowPlaying.CurrentSong.imageName, out Texture2D texture ) )
+                if ( DataStorage.Inst.GetTexture( Browser.Inst.CurrentSong.imageName, out Texture2D texture ) )
                 {
                     background.color = color;
                     background.texture = texture;
@@ -126,8 +148,8 @@ public class BGASystem : MonoBehaviour
     private IEnumerator UpdateVideo()
     {
         vp.enabled       = true;
-        vp.url           = @$"{NowPlaying.CurrentSong.videoPath}";
-        vp.playbackSpeed = GameSetting.Pitch;
+        vp.url           = @$"{Browser.Inst.CurrentSong.videoPath}";
+        vp.playbackSpeed = GameSetting.SoundPitch;
         vp.targetTexture = renderTexture;
 
         background.texture = renderTexture;
@@ -135,7 +157,7 @@ public class BGASystem : MonoBehaviour
 
         vp.Prepare();
 
-        double videoOffset = NowPlaying.CurrentSong.videoOffset;
+        double videoOffset = Browser.Inst.CurrentSong.videoOffset;
         double delay       = Global.Math.Max( 0d, -videoOffset );
         yield return new WaitUntil( () => vp.isPrepared );
         yield return new WaitUntil( () => NowPlaying.Playback >= delay );
@@ -150,7 +172,7 @@ public class BGASystem : MonoBehaviour
 
     private IEnumerator UpdateSprites()
     {
-        var sprites = DataStorage.Sprites;
+        var sprites = DataStorage.Inst.Sprites;
         if ( sprites == null )
              yield break;
 

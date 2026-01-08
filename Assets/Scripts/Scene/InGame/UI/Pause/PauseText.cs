@@ -26,9 +26,9 @@ public class PauseInfomation : MonoBehaviour
         // Main Info
         UpdateScrollSpeed( GameSetting.ScrollSpeed );
         random.SetText( GameSetting.ToString( GameSetting.CurrentRandom ) );
-        rate.SetText( "x{0:2}", ( float )GameSetting.Pitch );
-        rate.color = GameSetting.Pitch < 1f ? new Color( .5f, .5f,  1f ) :
-                     GameSetting.Pitch > 1f ? new Color(  1f, .5f, .5f ) : Color.white;
+        rate.SetText( "x{0:2}", ( float )GameSetting.SoundPitch );
+        rate.color = GameSetting.SoundPitch < 1f ? new Color( .5f, .5f,  1f ) :
+                     GameSetting.SoundPitch > 1f ? new Color(  1f, .5f, .5f ) : Color.white;
 
         // Game Mode
         autoPlay.color      = GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay )   ? Color.white : disableColor;

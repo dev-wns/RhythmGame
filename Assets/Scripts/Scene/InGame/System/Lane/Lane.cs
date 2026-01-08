@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class Lane : LaneBase
 {
+    //private InGame scene;
     public InputSystem  InputSys { get; private set; }
     public NoteSpawner  Spawner  { get; private set; }
     public LaneEffector Effector { get; private set; }
@@ -14,23 +15,23 @@ public class Lane : LaneBase
 
     private void Awake()
     {
-        NowPlaying.OnUpdate    += UpdateLane;
-        NowPlaying.OnGameOver  += GameOver;
-        NowPlaying.OnPause     += Pause;
-        NowPlaying.OnClear     += Clear;
+        //NowPlaying.OnUpdate    += UpdateLane;
+        //NowPlaying.OnGameOver  += GameOver;
+        //NowPlaying.OnPause     += Pause;
+        //NowPlaying.OnClear     += Clear;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnUpdate    -= UpdateLane;
-        NowPlaying.OnGameOver  -= GameOver;
-        NowPlaying.OnPause     -= Pause;
-        NowPlaying.OnClear     -= Clear;
+        //NowPlaying.OnUpdate    -= UpdateLane;
+        //NowPlaying.OnGameOver  -= GameOver;
+        //NowPlaying.OnPause     -= Pause;
+        //scene.OnClear     -= Clear;
     }
 
-    public override void Initialize( int _lane )
+    public override void Initialize( int _lane, int _keyCount )
     {
-        base.Initialize( _lane );
+        base.Initialize( _lane, _keyCount );
 
         if ( !TryGetComponent( out InputSystem inputSys ) )
              Debug.LogError( "InputSystem is not Created" );
@@ -42,18 +43,18 @@ public class Lane : LaneBase
              Debug.Log( "Note Spawner is not Created" );
 
         Spawner = spawner;
-        Spawner.Initialize( this );
+        Spawner.Initialize( this, _keyCount );
 
         if ( !TryGetComponent( out LaneEffector effector ) )
              Debug.Log( "Lane Effector is not Created" );
 
         Effector = effector;
-        Effector.Initialize( this );
+        Effector.Initialize( this, _keyCount );
     }
 
-    private void UpdateLane( double _playback )
+    private void UpdateLane( double _playback, double _distance )
     {
-        Spawner.SpawnNotes( _playback );
+        Spawner.SpawnNotes( _playback, _distance );
         Effector.UpdateEffect();
 
         //CheckHitData();
@@ -111,7 +112,7 @@ public class Lane : LaneBase
         dataQueue.Clear();
     }
 
-    private void GameOver()
+    public void GameOver()
     {
         Effector.Clear();
 
@@ -120,7 +121,7 @@ public class Lane : LaneBase
              curNote.IsKeyDown = false;
     }
 
-    private void Pause( bool _isPause )
+    public void Pause( bool _isPause )
     {
         //Spawner.Pause( _isPause );
         InputSys.Pause( _isPause );

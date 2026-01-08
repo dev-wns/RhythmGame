@@ -2,6 +2,7 @@
 public enum BGA : byte { None, Video, Sprite, Image, }
 public enum SpriteType { None, Background, Foreground, }
 
+public delegate void SongHandler( in Song _song );
 public struct Song
 {
     // 파싱 단계에서 갱신
@@ -55,10 +56,10 @@ public struct Timing
 
     public Timing( double _time, double _bpm )
     {
-        time = _time;
-        bpm = _bpm;
+        time          = _time;
+        bpm           = _bpm;
         isUninherited = 0;
-        beatLength = 0d;
+        beatLength    = 0d;
     }
 
     public Timing( double _time, double _bpm, double _beatLength, int _isUninherited )
@@ -117,7 +118,8 @@ public struct SpriteSample
 {
     public SpriteType type;
     public string name;
-    public double start, end;
+    public double start;
+    public double end;
 
     public SpriteSample( string _name )
     {

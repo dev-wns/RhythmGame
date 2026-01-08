@@ -125,14 +125,14 @@ public class FileParser : FileConverter
             {
                 var split = line.Split( ',' );
 
-                curTiming.time          = double.Parse( split[0] ) / GameSetting.Pitch;
-                curTiming.beatLength    = double.Parse( split[1] ) / GameSetting.Pitch;
+                curTiming.time          = double.Parse( split[0] ) / GameSetting.SoundPitch;
+                curTiming.beatLength    = double.Parse( split[1] ) / GameSetting.SoundPitch;
                 curTiming.bpm           = ( 1d / curTiming.beatLength ) * 60000d;
                 curTiming.isUninherited = int.Parse( split[2] );
 
                 if ( hasFixedBPM )
                 {
-                    curTiming.bpm = NowPlaying.CurrentSong.mainBPM;
+                    curTiming.bpm = Browser.Inst.CurrentSong.mainBPM;
                     uninheritedTimings.Add( curTiming );
                     _timings.Add( curTiming );
 
@@ -155,8 +155,8 @@ public class FileParser : FileConverter
                 var split = line.Split( ',' );
 
                 sprite.type  = ( SpriteType )int.Parse( split[0] );
-                sprite.start = double.Parse( split[1] ) / GameSetting.Pitch;
-                sprite.end   = double.Parse( split[2] ) / GameSetting.Pitch;
+                sprite.start = double.Parse( split[1] ) / GameSetting.SoundPitch;
+                sprite.end   = double.Parse( split[2] ) / GameSetting.SoundPitch;
                 sprite.name  = split[3];
 
                 _sprites.Add( sprite );
@@ -169,7 +169,7 @@ public class FileParser : FileConverter
                 KeySound sample;
                 var split = line.Split( ',' );
 
-                sample.time   = double.Parse( split[0] ) / GameSetting.Pitch;
+                sample.time   = double.Parse( split[0] ) / GameSetting.SoundPitch;
                 sample.volume = float.Parse( split[1] ) * .01f;
                 sample.name   = split[2];
 
@@ -178,7 +178,7 @@ public class FileParser : FileConverter
             #endregion
 
             #region Notes
-            bool isConvert      = GameSetting.HasFlag( GameMode.ConvertKey ) && NowPlaying.CurrentSong.keyCount == 7;
+            bool isConvert      = GameSetting.HasFlag( GameMode.ConvertKey ) && Browser.Inst.CurrentSong.keyCount == 7;
             bool isNoSliderFlag = GameSetting.HasFlag( GameMode.NoSlider );
             while ( ReadLineEndOfStream() )
             {
@@ -186,8 +186,8 @@ public class FileParser : FileConverter
                 var split = line.Split( ',' );
 
                 note.lane       = int.Parse( split[0] );
-                note.time       = double.Parse( split[1] ) / GameSetting.Pitch;
-                note.endTime    = double.Parse( split[2] ) / GameSetting.Pitch;
+                note.time       = double.Parse( split[1] ) / GameSetting.SoundPitch;
+                note.endTime    = double.Parse( split[2] ) / GameSetting.SoundPitch;
                 note.isSlider   = isNoSliderFlag ? false : note.endTime > 0d;
 
                 var keySoundSplit = split[3].Split( ':' );

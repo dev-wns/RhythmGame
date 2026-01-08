@@ -14,7 +14,7 @@ public class JudgeEffectSystem : MonoBehaviour
     private void Awake()
     {
         rdr = GetComponent<SpriteRenderer>();
-        Judgement.OnHitNote += HitEffect;
+        Judgement.Inst.OnHitNote += HitEffect;
 
         endScale = transform.localScale;
         transform.position = new Vector3( transform.position.x + GameSetting.GearOffsetX, transform.position.y, transform.position.z );
@@ -23,7 +23,7 @@ public class JudgeEffectSystem : MonoBehaviour
     private void OnDestroy()
     {
         sequence?.Kill();
-        Judgement.OnHitNote -= HitEffect;
+        Judgement.Inst.OnHitNote -= HitEffect;
     }
 
     private void Start()
@@ -34,7 +34,7 @@ public class JudgeEffectSystem : MonoBehaviour
                  Append( rdr.DOFade( 0f, .5f ) );
     }
 
-    private void HitEffect( HitData _hitData )
+    private void HitEffect( in HitData _hitData )
     {
         if ( _hitData.keyState == KeyState.Up || _hitData.keyState == KeyState.Hold )
              return;

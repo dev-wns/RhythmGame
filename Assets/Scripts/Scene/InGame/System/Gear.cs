@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Gear : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
     [Header( "Gear" )]
     public Transform judge;
     public Transform panel;
@@ -15,15 +16,15 @@ public class Gear : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnInitialize += Initialize;
+        scene.OnInitialize += Initialize;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnInitialize -= Initialize;
+        scene.OnInitialize -= Initialize;
     }
 
-    private void Initialize()
+    private void Initialize( in Song _song )
     {
         UpdatePosition();
 

@@ -47,7 +47,7 @@ public class FreqBar : MonoBehaviour
                                           new Vector3(  GetIndexToPositionX( i - specCount ), 0f, 0f );
             
             bars[i] = Instantiate( prefab, transform );
-            bars[i].Initailze( pos, color );
+            bars[i].Initialize( pos, color );
         }
     }
 

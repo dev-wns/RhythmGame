@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 public class FreeStyleKeySetting : OptionController
 {
     [Header("KeySetting")]
-    public TextMeshProUGUI KeyCountText;
+    [SerializeField] private TextMeshProUGUI KeyCountText;
     private CustomHorizontalLayoutGroup layoutGroup;
-    private List<KeySettingOption> tracks = new List<KeySettingOption>();
+    private List<KeySettingOption> tracks = new ();
     private KeyCode curKeyCode;
     private GameKeyCount[] keyCount = new GameKeyCount[] {GameKeyCount._4,  GameKeyCount._6, GameKeyCount._7};
     private GameKeyCount curKeyCount;

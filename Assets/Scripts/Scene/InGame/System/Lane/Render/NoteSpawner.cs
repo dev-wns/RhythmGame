@@ -24,14 +24,14 @@ public class NoteSpawner : MonoBehaviour
     public  NoteRenderer CurrentNote { get; private set; } // 가장 먼저 스폰된 노트
     private ReadOnlyCollection<Note> datas;
 
-    public void Initialize( Lane _lane )
+    public void Initialize( Lane _lane, int _keyCount )
     {
         lane = _lane.Key;
 
         NoteRenderer note = note1;
-        if (      NowPlaying.KeyCount == 4 ) note = lane == 1 || lane == 2 ? note2 : note1;
-        else if ( NowPlaying.KeyCount == 6 ) note = lane == 1 || lane == 4 ? note2 : note1;
-        else if ( NowPlaying.KeyCount == 7 ) note = lane == 1 || lane == 5 ? note2 : lane == 3 ? noteMedian : note1;
+        if (      _keyCount == 4 ) note = lane == 1 || lane == 2 ? note2 : note1;
+        else if ( _keyCount == 6 ) note = lane == 1 || lane == 4 ? note2 : note1;
+        else if ( _keyCount == 7 ) note = lane == 1 || lane == 5 ? note2 : lane == 3 ? noteMedian : note1;
         pool ??= new ObjectPool<NoteRenderer>( note, 5 );
     }
 
@@ -76,12 +76,12 @@ public class NoteSpawner : MonoBehaviour
         CurrentNote   = null;
     }
 
-    public void SpawnNotes( double _playback )
+    public void SpawnNotes( double _playback, double _distance )
     {
         if ( spawnIndex < datas.Count )
         {
             Note current = datas[spawnIndex];
-            if ( current.distance <= NowPlaying.Distance + GameSetting.MinDistance )
+            if ( current.distance <= _distance + GameSetting.MinDistance )
             {
                 NoteRenderer note = pool.Spawn();
                 note.SetInfo( lane, in current );
@@ -93,14 +93,11 @@ public class NoteSpawner : MonoBehaviour
 
         if ( CurrentNote == null && notes.Count > 0 )
              CurrentNote = notes.Dequeue();
-    }
 
-    private void LateUpdate()
-    {
         // 일찍 처리된 롱노트 판정선에 닿을 때 디스폰
         if ( lnEarlyQueue.TryPeek( out NoteRenderer lnEarly ) )
         {
-            if ( lnEarly.EndTime < NowPlaying.Playback )
+            if ( lnEarly.EndTime < _playback )
             {
                 lnEarly.Despawn();
                 lnEarlyQueue.Dequeue();
@@ -117,7 +114,6 @@ public class NoteSpawner : MonoBehaviour
             }
         }
     }
-
     public void Despawn()
     {
         if ( CurrentNote == null )

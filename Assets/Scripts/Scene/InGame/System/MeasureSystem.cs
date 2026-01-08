@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class MeasureSystem : MonoBehaviour
 {
-    public ObjectPool<MeasureRenderer> pool;
+    [SerializeField] private InGame scene;
+    private ObjectPool<MeasureRenderer> pool;
     public MeasureRenderer mPrefab;
     private List<double/* Distance */> measures = new List<double>();
     private static readonly int Beat = 4;
@@ -13,9 +14,9 @@ public class MeasureSystem : MonoBehaviour
     {
         if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
         {
-            NowPlaying.OnLoadAsync += CreateMeasure;
-            NowPlaying.OnGameStart += GameStart;
-            NowPlaying.OnClear     += Clear;
+            scene.OnLoadInThread += CreateMeasure;
+            scene.OnGameStart += GameStart;
+            scene.OnClear     += Clear;
         }
 
         pool = new ObjectPool<MeasureRenderer>( mPrefab, 10 );
@@ -25,9 +26,9 @@ public class MeasureSystem : MonoBehaviour
     {
         if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
         {
-            NowPlaying.OnLoadAsync -= CreateMeasure;
-            NowPlaying.OnGameStart -= GameStart;
-            NowPlaying.OnClear     -= Clear;
+            scene.OnLoadInThread -= CreateMeasure;
+            scene.OnGameStart -= GameStart;
+            scene.OnClear     -= Clear;
         }
     }
 
@@ -54,10 +55,10 @@ public class MeasureSystem : MonoBehaviour
         }
     }
 
-    private void CreateMeasure()
+    private void CreateMeasure( in Song _song )
     {
-        var    timings       = DataStorage.Timings;
-        var    totalTime     = NowPlaying.CurrentSong.totalTime;
+        var timings = DataStorage.Inst.Timings;
+        //var    totalTime     = _song.totalTime;
         //double startNoteTime = DataStorage.Notes[0].time;
         for ( int i = 0; i < timings.Count; i++ )
         {
@@ -80,7 +81,7 @@ public class MeasureSystem : MonoBehaviour
             }
 
             if ( !hasNextTime )
-                 nextTime = ( double )( totalTime + 60000d );
+                 nextTime = ( double )( _song.totalTime + 60000d );
 
             // 1마디( 4박자 ) | 1박자( 60 / bpm ) | 1/4박자( ( 60d / bpm ) / 4 )
             // |-----|-----|-----|-----| 1마디( 4박자 )

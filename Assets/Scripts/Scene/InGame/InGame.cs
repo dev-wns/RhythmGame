@@ -1,5 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,9 +18,32 @@ public class InGame : Scene
     private double length;
 
     [Header( "Asynchronous" )]
+    private UniTask playTask;
     private CancellationTokenSource playCts;
 
-    public event Action OnLoadEnd;
+    private Song song;
+    // Load Event
+    public delegate void SongHandler( in Song _song );
+    public event SongHandler   OnInitialize;   // Main  Thread
+    public event SongHandler   OnLoadInThread; // Other Thread
+    public event Func<UniTask> OnLoadAsync;    // Main  Thread
+    public event Action        OnLoadEnd;
+    public bool IsLoaded { get; private set; }
+    
+    // GameFlow Event
+    public event Action       OnGameStart;
+    public event Action       OnGameOver;
+    public event Action       OnClear;   // 변수만 초기화하고 재사용할 때
+    public event Action       OnRelease; // 리소스까지 제거
+    public event Action<bool> OnPause;
+    public event Action<double/* Playback */, double/* Distance */> OnUpdate;
+    public bool IsStart  { get; private set; }
+
+    private int totalJudge;
+
+    // External Library
+    [DllImport( "Assistant" )]
+    private static extern void SetTimerResolution( bool isHighQuality );
 
     protected override void Awake()
     {
@@ -26,44 +51,77 @@ public class InGame : Scene
 
         IsInputLock = true;
 
-        length  = NowPlaying.CurrentSong.totalTime / GameSetting.Pitch;
+        length  = Browser.Inst.CurrentSong.totalTime / GameSetting.SoundPitch;
         playCts = new CancellationTokenSource();
 
-        NowPlaying.OnGameOver += GameOver;
+        //NowPlaying.OnGameOver += GameOver;
         OnKeyBind += KeyBind;
+
+        SetTimerResolution( true );
     }
 
     protected override async void Start()
     {
         base.Start();
 
-        NowPlaying.Inst.Initialize();
-        await NowPlaying.Inst.Load();
+        await Load();
 
-        try { await Play(); } // 플레이 도중 일시정지하여 로비로 이동할 경우 ( 비동기 작업 취소 )
-        catch ( OperationCanceledException ) { }
+        playTask = Play( playCts.Token ); // 작업취소 확인을 위한 Task 캐싱
+        await playTask;
+    }
+
+    private async UniTask Load()
+    {
+        NowPlaying.Inst.Initialize( Browser.Inst.CurrentSong /* Origin   Song */ );
+        song       = NowPlaying.Inst.CurrentSong;            /* Playable Song */
+        totalJudge = song.noteCount + song.sliderCount;
+        OnInitialize?.Invoke( song );
+
+        await UniTask.WhenAll( UniTask.RunOnThreadPool( () => OnLoadInThread?.Invoke( in song ) ),
+                               AwaitUniTaskHandlers( OnLoadAsync ) );
+        OnLoadEnd?.Invoke();
+
+        // 로딩 후 대기시간
+        await UniTask.WaitForSeconds( 3.5f, false, PlayerLoopTiming.Update );
+        await loadingActivator.DisableCanvasAsync();
+        IsLoaded = true;
+    }
+
+    private async UniTask AwaitUniTaskHandlers( Func<UniTask> _action )
+    {
+        if ( _action == null )
+             return;
+
+        foreach ( Func<UniTask> handler in _action.GetInvocationList() )
+        {
+            try                        { await handler(); } // 구독자 전부 대기
+            catch ( Exception _error ) { Debug.LogWarning( _error ); }
+        }
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
 
-        playCts?.Cancel();
-        playCts?.Dispose();
-        playCts = null;
+        //playCts?.Cancel();
+        //playCts?.Dispose();
+        //playCts = null;
 
-        NowPlaying.OnGameOver -= GameOver;
+        //NowPlaying.OnGameOver -= GameOver;
         OnKeyBind -= KeyBind;
+        SetTimerResolution( false );
     }
 
     private void Update()
     {
         timeImage.fillAmount = ( float )Global.Math.Clamp( ( NowPlaying.Playback / length ), 0d, 1d );
+        if ( IsLoaded && NowPlaying.IsStart )
+             OnUpdate?.Invoke( NowPlaying.Playback, NowPlaying.Distance );
     }
 
     protected override void Connect()
     {
-        AudioManager.Inst.Pitch = GameSetting.Pitch;
+        AudioManager.Inst.Pitch = GameSetting.SoundPitch;
         if ( GameSetting.CurrentPitchType != PitchType.None )
              AudioManager.Inst.AddDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
@@ -74,55 +132,60 @@ public class InGame : Scene
              AudioManager.Inst.RemoveDSP( FMOD.DSP_TYPE.PITCHSHIFT, ChannelType.BGM );
     }
 
-    protected override async UniTask OnRelease()
+    protected override async UniTask Release()
     {
-        playCts?.Cancel();
-        playCts?.Dispose();
-        playCts = null;
-    
+        if ( playCts != null )
+        {
+            playCts?.Cancel();
+
+            try { await playTask; }
+            catch ( OperationCanceledException )
+            {
+                Debug.Log( "InGame PlayTask Cancel" );
+            }
+            finally
+            {
+                playCts?.Dispose();
+                playCts = null;
+            }
+        }
+
+        OnRelease?.Invoke();
         await NowPlaying.Inst.Release();
         DataStorage.Inst.Release();
     }
 
-    private async UniTask Play()
+    private async UniTask Play( CancellationToken _token )
     {
-        CancellationToken token = playCts.Token;
-
-        // 로딩 완료 체크
-        await UniTask.WaitUntil( () => NowPlaying.IsLoaded, PlayerLoopTiming.Update, token );
-        OnLoadEnd?.Invoke();
-
-        // 로딩 후 대기시간
-        await UniTask.WaitForSeconds( 3.5f, false, PlayerLoopTiming.Update, token );
-        await loadingActivator.DisableCanvasAsync( token );
-
-        // if ( loadingCanvas.TryGetComponent( out CanvasGroup loadingGroup ) )
-        // {
-        //     await DOTween.To( () => 1f, x => loadingGroup.alpha = x, 0f, CanvasFadeDuration ).ToUniTask( TweenCancelBehaviour.Kill, token );
-        //     loadingCanvas.SetActive( false );
-        // }
-
         // 게임 시작
-        NowPlaying.Inst.GameStart();
-        await UniTask.WaitUntil( () => NowPlaying.Playback > 0, PlayerLoopTiming.Update, token );
+        OnGameStart?.Invoke();
+        // NowPlaying.Inst.GameStart();
+        await UniTask.WaitUntil( () => NowPlaying.Playback > 0, PlayerLoopTiming.Update, _token );
         IsInputLock = false;
 
         // 게임 종료
-        await UniTask.WaitUntil( () => NowPlaying.TotalJudge <= Judgement.CurrentResult.Count , PlayerLoopTiming.Update, token );
-        Debug.Log( $"All lanes are empty ( {Judgement.CurrentResult.Count} / {NowPlaying.TotalJudge} )" );
+        await UniTask.WaitUntil( () => totalJudge <= Judgement.Inst.Count , PlayerLoopTiming.Update, _token );
+        Debug.Log( $"All lanes are empty ( {Judgement.Inst.Count} / {totalJudge} )" );
 
-        await UniTask.WaitForSeconds( 5f, false, PlayerLoopTiming.Update, token );
+        await UniTask.WaitForSeconds( 5f, false, PlayerLoopTiming.Update, _token );
 
         await LoadScene( SceneType.Result );
     }
 
     public void BackToLobby()
     {
-        UniTask.Void( async () => await LoadScene( SceneType.FreeStyle ) );
+        // Async Forget( Unity Event )
+        UniTask.Void( async () =>
+        {
+            //IsInputLock = true;
+            //await Stop();
+            await LoadScene( SceneType.FreeStyle );
+        } );
     }
 
     public void Restart()
     {
+        // Async Forget( Unity Event )
         UniTask.Void( async () =>
         {
             try
@@ -136,11 +199,13 @@ public class InGame : Scene
                 Disconnect();
                 Connect();
 
-                NowPlaying.Inst.Clear();
+                OnClear?.Invoke();
+                // NowPlaying.Inst.Clear();
 
                 await FadeIn();
 
-                NowPlaying.Inst.GameStart();
+                OnGameStart?.Invoke();
+                // NowPlaying.Inst.GameStart();
                 await UniTask.WaitUntil( () => NowPlaying.Playback > 0 );
             }
             catch ( Exception _error ) { Debug.LogError( _error ); }
@@ -150,14 +215,13 @@ public class InGame : Scene
 
     public void Pause( bool _isPause )
     {
+        // Async Forget( Unity Event )
         UniTask.Void( async () =>
         {
-            if ( NowPlaying.TotalJudge <= Judgement.CurrentResult.Count )
+            if ( totalJudge <= Judgement.Inst.Count )
             {
-                playCts?.Cancel();
-                playCts?.Dispose();
-                playCts = null;
-
+                //IsInputLock = true;
+                //await Stop();
                 await LoadScene( SceneType.Result );
             }
             else
@@ -166,11 +230,16 @@ public class InGame : Scene
                 else            pauseActivator.DisableCanvas();
 
                 await NowPlaying.Inst.Pause( _isPause );
+                OnPause?.Invoke( _isPause );
             }
         } );
     }
 
-    public void GameOver() => gameOverActivator.EnableCanvas();
+    public void GameOver()
+    {
+        gameOverActivator.EnableCanvas();
+        OnGameOver?.Invoke();
+    }
 
     public void KeyBind( UnityInputAction _input )
     {

@@ -8,15 +8,15 @@ using Cysharp.Threading.Tasks;
 
 public class AudioManager : Singleton<AudioManager>
 {
-    public  static readonly int SampleRate         = 48000;
+    private static readonly int SampleRate         = 48000;
     private static readonly int MaxSoftwareChannel = 128;
     private static readonly int MaxVirtualChannel  = 1000;
 
     private FMOD.System system;
-    private Dictionary<ChannelType, ChannelGroup> groups        = new ();
-    private Dictionary<ChannelType, float>        volumes       = new ();
-    private Dictionary<DSP_TYPE, DSP>             dsps          = new ();
-    private Dictionary<SFX, Sound>                sfxSounds     = new ();
+    private Dictionary<ChannelType, ChannelGroup> groups    = new ();
+    private Dictionary<ChannelType, float>        volumes   = new ();
+    private Dictionary<DSP_TYPE,    DSP>          dsps      = new ();
+    private Dictionary<SFX,         Sound>        sfxSounds = new ();
 
     public ReadOnlyCollection<SoundDriver> Drivers { get; private set; }
     private int driverIndex = 0;
@@ -24,8 +24,7 @@ public class AudioManager : Singleton<AudioManager>
     public FMOD.Sound   MainSound                { get; private set; }
     public FMOD.Channel MainChannel              { get; private set; }
 
-    public static event Action OnReload;
-    public static event Action<float> OnUpdatePitch;
+    public event Action OnReload;
 
     #region Property
     public uint Length => MainSound.getLength( out uint length, TIMEUNIT.MS ) == RESULT.OK ? length : uint.MaxValue;
@@ -68,8 +67,6 @@ public class AudioManager : Singleton<AudioManager>
         {
             ErrorCheck( groups[ChannelType.BGM].setPitch( value ) );
             UpdatePitchShift();
-
-            OnUpdatePitch?.Invoke( value );
         }
     }
     public int ChannelsInUse
@@ -250,6 +247,7 @@ public class AudioManager : Singleton<AudioManager>
         }
         dsps.Clear();
 
+        Release( MainSound );
         foreach ( var sfx in sfxSounds.Values )
         {
             Release( sfx );
@@ -287,12 +285,6 @@ public class AudioManager : Singleton<AudioManager>
     #endregion
 
     #region Unity Event Function
-    protected override void Awake()
-    {
-        base.Awake();
-        Initialize();
-    }
-
     private void Update()
     {
         if ( !IsStop && system.hasHandle() )
@@ -403,11 +395,10 @@ public class AudioManager : Singleton<AudioManager>
 
         // 페이드 인 기준으로 반복문이 끝난 시점에서 볼륨이 _end 값을 넘어가기 때문에 초기화해준다.
         ErrorCheck( _channel.setVolume( _end ) );
-
         _OnCompleted?.Invoke();
     }
 
-    public async UniTask AsyncFadeGroup( ChannelType _type, float _start, float _end, float _t )
+    public async UniTask FadeGroupAsync( ChannelType _type, float _start, float _end, float _t )
     {
         if ( !groups.ContainsKey( _type ) )
              return;
@@ -513,8 +504,8 @@ public class AudioManager : Singleton<AudioManager>
     {
         if ( dsps.ContainsKey( DSP_TYPE.PITCHSHIFT ) )
         {
-            float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f    / GameSetting.Pitch :
-                           GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.1f  / GameSetting.Pitch : 1f;
+            float offset = GameSetting.CurrentPitchType == PitchType.Normalize ? 1f   / GameSetting.SoundPitch :
+                           GameSetting.CurrentPitchType == PitchType.Nightcore ? 1.1f / GameSetting.SoundPitch : 1f;
 
             ErrorCheck( dsps[DSP_TYPE.PITCHSHIFT].setParameterFloat( ( int ) DSP_PITCHSHIFT.PITCH, offset ) );
         }

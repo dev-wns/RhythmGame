@@ -112,7 +112,7 @@ public abstract class CanvasActivator : MonoBehaviour
              AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 1f, .5f );
     }
 
-    public virtual async UniTask DisableCanvasAsync( CancellationToken _token )
+    public virtual async UniTask DisableCanvasAsync( CancellationToken _token = default )
     {
         if ( canvasGroup )
         {

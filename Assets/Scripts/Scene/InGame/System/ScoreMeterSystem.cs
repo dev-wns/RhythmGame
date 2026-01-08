@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ScoreMeterSystem : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
+
     [Header( "Color" )]
     public readonly Color PerfectColor = new Color( .25f,   1f,   1f, .5f );
     public readonly Color GreatColor   = new Color(  .5f,   1f,  .5f, .5f );
@@ -22,8 +24,8 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnClear  += Clear;
-        Judgement.OnHitNote += UpdateScoreMeter;
+        scene.OnClear  += Clear;
+        Judgement.Inst.OnHitNote += UpdateScoreMeter;
 
         pool = new ObjectPool<ScoreMeterRenderer>( prefab, 30, false );
         background.localScale = new Vector2( ( float )HitRange.Miss * .5f, background.localScale.y );
@@ -31,8 +33,8 @@ public class ScoreMeterSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        NowPlaying.OnClear  -= Clear;
-        Judgement.OnHitNote -= UpdateScoreMeter;
+        scene.OnClear  -= Clear;
+        Judgement.Inst.OnHitNote -= UpdateScoreMeter;
     }
 
     private void Clear()
@@ -64,7 +66,7 @@ public class ScoreMeterSystem : MonoBehaviour
         return GoodColor;       
     }
 
-    private void UpdateScoreMeter( HitData _hitData )
+    private void UpdateScoreMeter( in HitData _hitData )
     {
         // if ( _hitData.hitResult < 0 ||                           // Miss 제외
         //      Global.Math.Abs( _hitData.diff ) < double.Epsilon ) // 보정된 판정 제외

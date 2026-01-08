@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class ScoreSystem : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
     [Header("ScoreSystem")]
     private double targetScore;
     private double curScore;
@@ -14,14 +15,14 @@ public class ScoreSystem : MonoBehaviour
 
     private void Awake()
     {
-        Judgement.OnHitNote += UpdateScore;
-        NowPlaying.OnClear  += Clear;
+        Judgement.Inst.OnHitNote += UpdateScore;
+        scene.OnClear  += Clear;
     }
 
     private void OnDestroy()
     {
-        Judgement.OnHitNote -= UpdateScore;
-        NowPlaying.OnClear  -= Clear;
+        Judgement.Inst.OnHitNote -= UpdateScore;
+        scene.OnClear  -= Clear;
     }
 
     private void Clear()
@@ -31,12 +32,12 @@ public class ScoreSystem : MonoBehaviour
         text.SetText( "{0:0000000}", ( int )Global.Math.Round( curScore ) );
     }
     
-    private void UpdateScore( HitData _hitData )
+    private void UpdateScore( in HitData _hitData )
     {
         if ( _hitData.hitResult == HitResult.None )
              return;
 
-        targetScore = Judgement.CurrentResult.Score;
+        targetScore = Judgement.Inst.Score;
         countOffset = ( float )( targetScore - curScore ) / countDuration;
     }
 

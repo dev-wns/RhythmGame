@@ -1,82 +1,118 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Threading;
 using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class Judgement : Singleton<Judgement>
 {
-    public static readonly double TailMultiply = 1.5d;
-    private static ResultData Results;
-    private static double     MaxScore;
-    private static int        Bonus;
+    //private Results result;public int Maximum  { get; set; }
+    public int Maximum  { get; private set; }
+    public int Perfect  { get; private set; }
+    public int Great    { get; private set; }
+    public int Good     { get; private set; }
+    public int Bad      { get; private set; }
+    public int Miss     { get; private set; }
+    public int Fast     { get; private set; }
+    public int Slow     { get; private set; }
+    public int Combo    { get; private set; }
+    public int MaxCombo { get; private set; }
+    public double Score { get; private set; }
 
-    public  static List<HitData>            HitDatas  = new ();
-    private static ConcurrentQueue<HitData> HitDataQueue = new ();
-    private CancellationTokenSource  dataCts;
+    public double Accuracy
+    {
+        get
+        {
+            double current  = ( HitScore.Perfect * ( Maximum + Perfect ) ) + ( HitScore.Great * Great ) + ( HitScore.Good * Good ) + ( HitScore.Bad * Bad );
+            double maxValue = HitScore.Perfect * Count;
+            return Global.Math.Abs( maxValue ) <= double.Epsilon ? 0d : ( current / maxValue ) * 100d;
+        }
+    }
 
-    public static event Action<HitData> OnHitNote;
+    public int Count => Maximum + Perfect + Great + Good + Bad + Miss;
+
+    private double  maxScore;
+    private int     bonus;
+
+    private List<HitData>            hitDatas     = new ();
+    private ConcurrentQueue<HitData> hitDataQueue = new ();
+    //private CancellationTokenSource dataCts;
+
+    public delegate void HitDataHandler( in HitData _data );
+    public event HitDataHandler OnHitNote;
+
+    // public static event Action<HitData> OnHitNote;
 
     protected override void Awake()
     {
         base.Awake();
-
-        NowPlaying.OnInitialize += Initialize;
-        NowPlaying.OnRelease    += Release;
-        NowPlaying.OnClear      += Clear;
+        //NowPlaying.OnInitialize += Initialize; 
+        //NowPlaying.OnRelease    += Release;
+        //NowPlaying.OnClear      += Clear;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnInitialize -= Initialize;
-        NowPlaying.OnRelease    -= Release;
-        NowPlaying.OnClear      -= Clear;
+        //NowPlaying.OnInitialize -= Initialize;
+        //NowPlaying.OnRelease    -= Release;
+        //NowPlaying.OnClear      -= Clear;
     }
 
-    private void Initialize()
+    public void Initialize( in Song _song )
     {
-        MaxScore = 500000d / NowPlaying.TotalJudge;
+        //result = NowPlaying.Inst.CurrentResult;
+        maxScore = 500000d / ( _song.noteCount + _song.sliderCount );
         HitRange.Initialize( 0 );
 
-        DataProcess().Forget();
+        //DataProcess().Forget();
     }
 
-    private void Clear()
+    public void Clear()
     {
-        Bonus = 100; // 게임시작시 최대 보너스로 시작
-        Results = new ResultData();
+        bonus = 100; // 게임시작시 최대 보너스로 시작
+        Maximum  = 0;
+        Perfect  = 0;
+        Great    = 0;
+        Good     = 0;
+        Bad      = 0;
+        Miss     = 0;
+        Fast     = 0;
+        Slow     = 0;
+        Combo    = 0;
+        MaxCombo = 0;
+        Score    = 0d;
+        //Results = new ResultData();
 
-        HitDataQueue.Clear();
-        HitDatas.Clear();
+        hitDataQueue.Clear();
+        hitDatas.Clear();
     }
 
-    private void Release()
-    {
-        dataCts?.Cancel();
-        dataCts?.Dispose();
-        dataCts = null;
-    }
+    //private void Release()
+    //{
+    //    dataCts?.Cancel();
+    //    dataCts?.Dispose();
+    //    dataCts = null;
+    //}
 
-    private async UniTask DataProcess()
+    private async UniTask DataProcess( CancellationToken _token )
     {
-        dataCts?.Cancel();
-        dataCts?.Dispose();
-        dataCts = new CancellationTokenSource();
-        CancellationToken token = dataCts.Token;
+        //dataCts?.Cancel();
+        //dataCts?.Dispose();
+        //dataCts = new CancellationTokenSource();
+        //CancellationToken token = dataCts.Token;
         try
         {
-            while ( !token.IsCancellationRequested )
+            while ( !_token.IsCancellationRequested )
             {
-                while ( HitDataQueue.TryDequeue( out HitData hitData ) )
+                while ( hitDataQueue.TryDequeue( out HitData hitData ) )
                 {
-                    HitDatas.Add( hitData );
+                    hitDatas.Add( hitData );
                     OnHitNote?.Invoke( hitData );
                 }
 
-                await UniTask.Yield( PlayerLoopTiming.Update );
+                await UniTask.Yield( PlayerLoopTiming.Update, _token );
             }
-
         }
         catch ( OperationCanceledException )
         {
@@ -84,58 +120,58 @@ public class Judgement : Singleton<Judgement>
         }
     }
 
-    public static ResultData CurrentResult => Results;
-    public static bool CanBeHit( double _diff ) => -HitRange.Good <= _diff && _diff <= HitRange.Bad;
-    public static bool IsEarlyMiss( double _diff ) => HitRange.Miss >= _diff && _diff > HitRange.Bad;
-    public static bool IsLateMiss( double _diff ) => -HitRange.Good > _diff;
+    //public ResultData CurrentResult => Results;
+    public bool CanBeHit( double _diff ) => -HitRange.Good <= _diff && _diff <= HitRange.Bad;
+    public bool IsEarlyMiss( double _diff ) => HitRange.Miss >= _diff && _diff > HitRange.Bad;
+    public bool IsLateMiss( double _diff ) => -HitRange.Good > _diff;
         
-    public static void AddCombo()
+    public void AddCombo()
     {
         UpdateCombo( HitResult.None );
-        HitDataQueue.Enqueue( new HitData( HitResult.None ) );
+        hitDataQueue.Enqueue( new HitData( HitResult.None ) );
     }
 
-    private static void UpdateCombo( HitResult _hitResult )
+    private void UpdateCombo( HitResult _hitResult )
     {
-        Results.Combo    = _hitResult == HitResult.Miss ? 0 : Results.Combo += 1;
-        Results.MaxCombo = Results.Combo > Results.MaxCombo ? Results.Combo : Results.MaxCombo;
+        Combo    = _hitResult == HitResult.Miss ? 0 : Combo += 1;
+        MaxCombo = Combo > MaxCombo ? Combo : MaxCombo;
     }
 
-    private static void UpdateScore( HitResult _hitResult )
+    private void UpdateScore( HitResult _hitResult )
     {
         // 스코어
         int hitScore = GetHitScore( _hitResult ); // 320, 300, 200, 100, 50, 0
         int hitBonus = GetHitBonus( _hitResult ); // 2, 1, -8, -16, -44, -100
-        Bonus = Math.Clamp( Bonus + hitBonus, 10, 100 ); // 판정에 따라 증감
-        double bonusScore = Math.Sqrt( Bonus ) * Math.Clamp( 64 >> Convert.ToInt32( _hitResult ), 0, 32/* HitScore.Maximum / 10 */ );
+        bonus = Math.Clamp( bonus + hitBonus, 10, 100 ); // 판정에 따라 증감
+        double bonusScore = Math.Sqrt( bonus ) * Math.Clamp( 64 >> Convert.ToInt32( _hitResult ), 0, 32/* HitScore.Maximum / 10 */ );
 
         // 기본 500,000, 보너스 500,000 => 최대 : ( 50만 / 전체판정수 ) * ( 320 + 320 ) / 320;
-        Results.Score += MaxScore * ( hitScore + bonusScore ) / HitScore.Maximum;
+        Score += maxScore * ( hitScore + bonusScore ) / HitScore.Maximum;
     }
 
-    private static void UpdateCount( HitResult _hitResult, double _diff, double _diffAbs, bool _isHead )
+    private void UpdateCount( HitResult _hitResult, double _diff, double _diffAbs, bool _isHead )
     {
         // 판정 카운팅
         switch ( _hitResult )
         {
-            case HitResult.Maximum: Results.Maximum += 1; break;
-            case HitResult.Perfect: Results.Perfect += 1; break;
-            case HitResult.Great:   Results.Great   += 1; break;
-            case HitResult.Good:    Results.Good    += 1; break;
-            case HitResult.Bad:     Results.Bad     += 1; break;
-            case HitResult.Miss:    Results.Miss    += 1; break;
+            case HitResult.Maximum: Maximum += 1; break;
+            case HitResult.Perfect: Perfect += 1; break;
+            case HitResult.Great:   Great   += 1; break;
+            case HitResult.Good:    Good    += 1; break;
+            case HitResult.Bad:     Bad     += 1; break;
+            case HitResult.Miss:    Miss    += 1; break;
             case HitResult.None:    Debug.LogError( "???" ); break;
         }
 
         // Great ~ Bad까지만 집계
         if ( _isHead && ( HitRange.Perfect < _diffAbs && _diffAbs <= HitRange.Bad ) )
         {
-            Results.Fast += _diff > 0d ? 1 : 0;
-            Results.Slow += _diff < 0d ? 1 : 0;
+            Fast += _diff > 0d ? 1 : 0;
+            Slow += _diff < 0d ? 1 : 0;
         }
     }
 
-    public static HitResult UpdateResult( Note _note, int _lane, double _playback, double _headDiff, double _tailDiff, KeyState _keyState )
+    public HitResult UpdateResult( Note _note, int _lane, double _playback, double _headDiff, double _tailDiff, KeyState _keyState )
     {
         bool isHead = _keyState == KeyState.Down;
         HitResult hitResult = GetHitResult( _headDiff, _tailDiff, isHead );
@@ -151,7 +187,7 @@ public class Judgement : Singleton<Judgement>
                  UpdateCount( hitResult, diff, diffAbs, isHead );
 
             UpdateCombo( hitResult ); // 롱노트 Head의 Late Miss도 갱신( Early Miss는 스킵 )
-            HitDataQueue.Enqueue( new HitData( _lane, _playback, _headDiff, hitResult, _keyState ) );
+            hitDataQueue.Enqueue( new HitData( _lane, _playback, _headDiff, hitResult, _keyState ) );
 
             return HitResult.None;
         }
@@ -160,12 +196,12 @@ public class Judgement : Singleton<Judgement>
         UpdateCount( hitResult, diff, diffAbs, isHead );
         UpdateCombo( hitResult );
         UpdateScore( hitResult );
-        HitDataQueue.Enqueue( new HitData( _lane, _playback, diff, hitResult, _keyState ) );
+        hitDataQueue.Enqueue( new HitData( _lane, _playback, diff, hitResult, _keyState ) );
 
         return hitResult;
     }
 
-    private static HitResult GetHitResult( double _headDiff, double _tailDiff, bool _isHead )
+    private HitResult GetHitResult( double _headDiff, double _tailDiff, bool _isHead )
     {
         if ( _isHead ) // 노트, 롱노트 Head 판정
         {
@@ -206,7 +242,7 @@ public class Judgement : Singleton<Judgement>
         }
     }
 
-    private static int GetHitScore( HitResult _result )
+    private int GetHitScore( HitResult _result )
     {
         return _result switch
         { 
@@ -220,7 +256,7 @@ public class Judgement : Singleton<Judgement>
         };
     }
 
-    private static int GetHitBonus( HitResult _result )
+    private int GetHitBonus( HitResult _result )
     {
         return _result switch
         { 

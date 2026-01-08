@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
@@ -9,50 +10,35 @@ public class FreeStyleMainScroll : ScrollBase
 {
     [SerializeField] private FreeStyle        scene;
     [SerializeField] private FreeStyleSearch  search;
-    [SerializeField] private SoundPitchOption pitchOption;
 
     private RectTransform rt => transform as RectTransform;
     private Vector2 contentOriginPos;
     private bool HasAnySongs => Length != 0;
 
     [Header("Scroll")]
-    public  SongScrollerItem prefab;
+    [SerializeField] private SongScrollerItem prefab;
+    [SerializeField] private int maxShowCount = 7;
+
     private LinkedList<SongScrollerItem> songs = new ();
     private LinkedListNode<SongScrollerItem> medianNode;
     private CustomVerticalLayoutGroup group;
-    public int maxShowCount = 7;
 
-    private int median;
+    private int   median;
     private float curPos;
     private float size;
 
     [Header( "Count Text" )]
-    public TextMeshProUGUI maxText;
-    public TextMeshProUGUI curText;
-
-    [Header("Time")]
-    private readonly float SoundOffset      = -50f;
-    private readonly float ScrollUpdateTime = .075f;
-    private readonly float KeyHoldWaitTime  = .5f;
-    private readonly float FadeDuration     = 2.5f;
-    public  static double Playback;
-    private double startTime;
-    private double saveTime;
-    private float lastNoteTime; // 마지막 노트의 처리시간
-    private float keyPressTime;
-    private bool isKeyDown;
-    private bool canRestart = true;
-    private Coroutine corFadeVolume;
+    [SerializeField] private TextMeshProUGUI maxText;
+    [SerializeField] private TextMeshProUGUI curText;
 
     [Header("Contents")]
-    public GameObject noContents;
+    [SerializeField] private GameObject noContents;
 
     [Header("Sound Position UI")]
-    public Slider posSlider;
+    [SerializeField] private Slider posSlider;
 
     private Song curSong;
-    public event Action<Song> OnSelectSong;
-    public event Action<Song> OnSoundRestart;
+    public event Action<Song> OnSelectNotify;
 
     #region Unity Callback
     private void Awake()
@@ -60,17 +46,11 @@ public class FreeStyleMainScroll : ScrollBase
         IsLoop = true;
         group = GetComponent<CustomVerticalLayoutGroup>();
 
-        if ( !DataStorage.IsMultiPlaying )
-        {
-            AudioManager.OnReload     += OnBufferSetting;
-            search.OnSearch           += UpdateLayoutAndSong;
-            pitchOption.OnUpdatePitch += UpdatePitch;
-        }
+        search.OnSearch           += UpdateLayoutAndSong;
+        scene.OnKeyBind           += KeyBind;
 
         median = Mathf.FloorToInt( maxShowCount / 2f );
         contentOriginPos = rt.anchoredPosition;
-
-        // KeyBind();
 
         // 객체 할당
         for ( int i = 0; i < maxShowCount; i++ )
@@ -81,130 +61,52 @@ public class FreeStyleMainScroll : ScrollBase
             songs.AddLast( song );
         }
 
-        scene.OnKeyBind += KeyBind;
     }
 
     private void OnDestroy()
     {
-        AudioManager.OnReload -= OnBufferSetting;
         search.OnSearch       -= UpdateLayoutAndSong;
         scene.OnKeyBind       -= KeyBind;
     }
 
-    private void Start()
+    private async void Start()
     {
-        UpdateScrollView();
-        
-        // if ( !HasAnySongs )
-        // {
-        //     AudioManager.Inst.AllStop();
-        //     AudioManager.Inst.Load( $@"{Application.streamingAssetsPath}\\Default\\Sounds\\Bgm\\Hana.mp3", true, false );
-        //     AudioManager.Inst.Play( 0f );
-        //     AudioManager.Inst.Position = 160000;
-        //     AudioManager.Inst.FadeVolume( 0f, 1f, .5f );
-        // }
-    }
-
-    private void UpdatePitch( float _pitch )
-    {
-        double elapsed = ( Time.realtimeSinceStartupAsDouble - startTime ) * GameSetting.Pitch * 1000d;
-        startTime = Time.realtimeSinceStartupAsDouble;
-        saveTime += elapsed;
-        Playback = saveTime;
-    }
-
-    private void Update()
-    {
-        if ( !HasAnySongs ) return;
-
-        Playback = saveTime + ( ( Time.realtimeSinceStartupAsDouble - startTime ) * GameSetting.Pitch * 1000d );
-        //Playback += ( Time.deltaTime * 1000f ) * GameSetting.Pitch;
-        posSlider.value = ( float ) ( Playback / lastNoteTime );
-
-        if ( canRestart && lastNoteTime < Playback )
-        {
-            if ( corFadeVolume is not null )
-            {
-                AudioManager.Inst.StopCoroutine( corFadeVolume );
-                corFadeVolume = null;
-            }
-
-            canRestart    = false;
-            corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, FadeDuration * .5f, () => 
-            {
-                AudioManager.Inst.Play( AudioManager.Inst.MainSound, 0f );
-                AudioManager.Inst.Position = ( uint )curSong.previewTime;
-                corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, FadeDuration  * .5f );
-
-                startTime = Time.realtimeSinceStartupAsDouble;
-                saveTime  = curSong.previewTime + SoundOffset;
-                Playback  = saveTime;
-                OnSoundRestart?.Invoke( curSong );
-                canRestart = true;
-            } );
-        }
-    }
-
-    public void UpdateScrollView()
-    {
-        Length = NowPlaying.Songs.Count;
+        await UniTask.WaitUntil( () => DataStorage.Inst.IsSongParsing );
+        Length = Browser.Inst.Songs.Count;
 
         noContents.SetActive( !HasAnySongs );
         if ( HasAnySongs )
         {
             UpdateSongElements();
-            UpdateSong();
-        }
-    }
-
-    private void UpdateSong()
-    {
-        if ( corFadeVolume is not null )
-        {
-            AudioManager.Inst.StopCoroutine( corFadeVolume );
-            corFadeVolume = null;
-        }
-
-        // 현재 음악 페이드아웃
-        AudioGroup prevAudio = new AudioGroup( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel );
-        AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, .5f, () => { prevAudio.Release(); } );
-
-        // 새로운 음악 로딩
-        NowPlaying.Inst.UpdateSong( CurrentIndex );
-        curSong = NowPlaying.CurrentSong;
-
-        if ( AudioManager.Inst.Load( curSong.audioPath, out FMOD.Sound curSound, true ) )
-        {
-            lastNoteTime = curSong.totalTime;
-            curSong.previewTime = GetPreviewTime( curSong.previewTime );
-
-            // 음악 재생 및 페이드인
-            AudioManager.Inst.Play( curSound, 0f );
-            AudioManager.Inst.Position = ( uint )curSong.previewTime;
-            AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, curSong.volume, .5f );
-            startTime = Time.realtimeSinceStartupAsDouble;
-            saveTime  = curSong.previewTime + SoundOffset;
-            Playback  = saveTime;
-            OnSelectSong?.Invoke( curSong );
-
-
-            float duration = FadeDuration * 1000f * .5f;
-            float diff     = AudioManager.Inst.Length - curSong.totalTime;
-            lastNoteTime   = diff > duration ? curSong.totalTime : AudioManager.Inst.Length + 1000f - duration;
-            canRestart     = true;
+            SelectNotify();
         }
     }
     #endregion
 
-    #region Update Song & Scroll
+    private void SelectNotify()
+    {
+        curSong = Browser.Inst.Select( CurrentIndex );
+        OnSelectNotify?.Invoke( curSong );
+    }
+
+    private void UpdateLayoutAndSong()
+    {
+        UpdateSongElements();
+        if ( !curSong.title.Contains(   Browser.Inst.CurrentSong.title,   StringComparison.OrdinalIgnoreCase ) &&
+             !curSong.version.Contains( Browser.Inst.CurrentSong.version, StringComparison.OrdinalIgnoreCase ) )
+        {
+            SelectNotify();
+        }
+    }
+
     private void UpdateSongElements()
     {
-        Length = NowPlaying.Songs.Count;
+        Length = Browser.Inst.Songs.Count;
 
         // 이전 UI 이펙트 초기화
         int medianCounts = 0;
         medianNode = songs.First;
-        Select( NowPlaying.CurrentIndex );
+        Select( Browser.Inst.CurrentIndex );
         int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
                                                 ( CurrentIndex - median ) % Length;
 
@@ -217,17 +119,10 @@ public class FreeStyleMainScroll : ScrollBase
             }
 
             song.gameObject.SetActive( HasAnySongs );
-            song.SetInfo( NowPlaying.Songs[index] );
+            song.SetInfo( Browser.Inst.Songs[index] );
             song.PositionReset();
 
             index = index + 1 < Length ? index + 1 : 0;
-        }
-
-        var songList = songs.First;
-        for ( int i = 0; i < songs.Count; i++ )
-        {
-            songList.Value.UpdateColor( i, maxShowCount );
-            songList = songList.Next;
         }
 
         // 레이아웃 갱신
@@ -243,25 +138,26 @@ public class FreeStyleMainScroll : ScrollBase
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
 
-        UpdateNodePositionX();
+        UpdateColor();
+        UpdateNodePosition();
     }
 
-    private void UpdateNodePositionX()
+    private void UpdateNodePosition()
     {
         medianNode.Value.MoveX( 0f );
         int count = 1;
         var prevNode = medianNode.Previous;
         var nextNode = medianNode.Next;
 
-        while ( prevNode is not null && nextNode is not null )
+        while ( prevNode != null && nextNode != null )
         {
-            if ( prevNode is not null )
+            if ( prevNode != null )
             {
                 prevNode.Value.MoveX( 50f * count );
                 prevNode = prevNode.Previous;
             }
 
-            if ( nextNode is not null )
+            if ( nextNode != null )
             {
                 nextNode.Value.MoveX( 50f * count );
                 nextNode = nextNode.Next;
@@ -271,38 +167,17 @@ public class FreeStyleMainScroll : ScrollBase
         }
     }
 
-    private void UpdateLayoutAndSong()
+    private void UpdateColor()
     {
-        UpdateSongElements();
-
-        if ( !curSong.title.Contains(   NowPlaying.CurrentSong.title,   StringComparison.OrdinalIgnoreCase ) &&
-             !curSong.version.Contains( NowPlaying.CurrentSong.version, StringComparison.OrdinalIgnoreCase ) )
+        var songList = songs.First;
+        for ( int i = 0; i < songs.Count; i++ )
         {
-            UpdateSong();
+            songList.Value.UpdateColor( i, maxShowCount );
+            songList = songList.Next;
         }
     }
-
-    private void OnBufferSetting()
-    {
-        if ( AudioManager.Inst.Load( curSong.audioPath, out FMOD.Sound curSound, true ) )
-        {
-            AudioManager.Inst.Play( curSound );
-            AudioManager.Inst.Position = ( uint )Playback;
-        }
-    }
-
-    private int GetPreviewTime( int _time ) => _time > lastNoteTime || _time <= 0 ? ( int )( lastNoteTime * .35f ) : ( int )_time;
-    #endregion
 
     #region Input
-    private async void SelectChart()
-    {
-        if ( !HasAnySongs ) return;
-
-        AudioManager.Inst.Play( SFX.MainClick );
-        await NowPlaying.CurrentScene.LoadScene( SceneType.Game );
-    }
-
     public override void PrevMove()
     {
         base.PrevMove();
@@ -314,7 +189,7 @@ public class FreeStyleMainScroll : ScrollBase
         // Song 정보 수정
         int infoIndex = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
                                                     ( CurrentIndex - median ) % Length;
-        last.SetInfo( NowPlaying.Songs[infoIndex] );
+        last.SetInfo( Browser.Inst.Songs[infoIndex] );
 
         // 노드 이동
         songs.RemoveLast();
@@ -327,17 +202,12 @@ public class FreeStyleMainScroll : ScrollBase
         curPos -= size;
         rt.DOAnchorPosY( curPos, .3f );
 
-        UpdateNodePositionX();
-
         curText.SetText( "{0}", ( CurrentIndex + 1 ) );
 
-        var songList = songs.First;
-        for ( int i = 0; i < songs.Count; i++ )
-        {
-            songList.Value.UpdateColor( i, maxShowCount );
-            songList = songList.Next;
-        }
+        UpdateNodePosition();
+        UpdateColor();
     }
+
     public override void NextMove()
     {
         base.NextMove();
@@ -348,7 +218,7 @@ public class FreeStyleMainScroll : ScrollBase
 
         // Song 정보 수정
         int infoIndex = ( CurrentIndex + median ) % Length;
-        first.SetInfo( NowPlaying.Songs[infoIndex] );
+        first.SetInfo( Browser.Inst.Songs[infoIndex] );
 
         // 노드 이동
         songs.RemoveFirst();
@@ -361,78 +231,36 @@ public class FreeStyleMainScroll : ScrollBase
         curPos += size;
         rt.DOAnchorPosY( curPos, .3f );
 
-        UpdateNodePositionX();
-
         curText.SetText( "{0}", ( CurrentIndex + 1 ) );
 
-        var songList = songs.First;
-        for ( int i = 0; i < songs.Count; i++ )
-        {
-            songList.Value.UpdateColor( i, maxShowCount );
-            songList = songList.Next;
-        }
+        UpdateNodePosition();
+        UpdateColor();
     }
-    private void ScrollDown()
+
+    private void Scroll( Action _action )
     {
         if ( !HasAnySongs ) return;
 
         AudioManager.Inst.Play( SFX.MainSelect );
-        PrevMove();
-
-        if ( !isKeyDown )
-        {
-            isKeyDown = true;
-            keyPressTime = 0f;
-        }
+        _action?.Invoke();
     }
-    private void ScrollUp()
-    {
-        if ( !HasAnySongs ) return;
 
-        AudioManager.Inst.Play( SFX.MainSelect );
-        NextMove();
-
-        if ( !isKeyDown )
-        {
-            isKeyDown = true;
-            keyPressTime = 0f;
-        }
-    }
-    private void KeyHold( Action _action )
-    {
-        if ( !HasAnySongs ) return;
-
-        keyPressTime += Time.deltaTime;
-        if ( keyPressTime >= KeyHoldWaitTime + ScrollUpdateTime )
-        {
-            keyPressTime = KeyHoldWaitTime;
-            _action?.Invoke();
-        }
-    }
     private void KeyUp()
     {
         if ( !HasAnySongs ) return;
 
-        if ( NowPlaying.CurrentIndex != CurrentIndex )
-             UpdateSong();
-
-        isKeyDown = false;
-        keyPressTime = 0f;
+        if ( Browser.Inst.CurrentIndex != CurrentIndex )
+             SelectNotify();
     }
     #endregion
 
     public void KeyBind( UnityInputAction _input )
     {
-        _input.Bind( SceneAction.Main, KeyCode.Return, SelectChart );
+        // UI만 갱신
+        _input.Bind( SceneAction.Main, KeyCode.UpArrow,   new InputRepeater( () => Scroll( PrevMove ) ) );
+        _input.Bind( SceneAction.Main, KeyCode.DownArrow, new InputRepeater( () => Scroll( NextMove ) ) );
 
-        _input.Bind( SceneAction.Main, KeyState.Down, KeyCode.UpArrow, ScrollDown );
-        _input.Bind( SceneAction.Main, KeyState.Down, KeyCode.DownArrow, ScrollUp );
-
-        // 지연시간 이후 일정시간마다 델리게이트 실행 ( Hold 시 0.5초 이후부터 빠르게 스크롤 )
-        _input.Bind( SceneAction.Main, KeyState.Hold, KeyCode.UpArrow,   () => KeyHold( ScrollDown ) );
-        _input.Bind( SceneAction.Main, KeyState.Hold, KeyCode.DownArrow, () => KeyHold( ScrollUp ) );
-
-        // 재고있던 스크롤 시간 초기화 및 비활성화 + 채보변경 타이머 시작
+        // 현재 선택된 채보 알림
         _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.UpArrow,   KeyUp );
         _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
     }

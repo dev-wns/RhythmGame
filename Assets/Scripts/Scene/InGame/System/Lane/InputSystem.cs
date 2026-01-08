@@ -94,29 +94,29 @@ public class InputSystem : MonoBehaviour
 
         if ( !isEntry ) // 노트 시작판정
         {
-            if ( Judgement.IsLateMiss( headDiff ) ) // Head Late Miss
+            if ( Judgement.Inst.IsLateMiss( headDiff ) ) // Head Late Miss
             {
-                Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+                Judgement.Inst.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
                 SelectNextNote();
                 return;
             }
 
             if ( keyState == KeyState.Down )
             {
-                if ( !isSlider && Judgement.IsEarlyMiss( headDiff ) )
+                if ( !isSlider && Judgement.Inst.IsEarlyMiss( headDiff ) )
                 {
-                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+                    Judgement.Inst.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
                     SelectNextNote();
                     return;
                 }
 
-                if ( Judgement.CanBeHit( headDiff ) ) // Head Hit
+                if ( Judgement.Inst.CanBeHit( headDiff ) ) // Head Hit
                 {
-                    Judgement.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
+                    Judgement.Inst.UpdateResult( note, lane, playback, headDiff, 0d, KeyState.Down );
 
                     if ( isSlider )
                     {
-                        isEntry    = true;
+                        isEntry = true;
                         lnHeadDiff = headDiff;
                         OnChangedLNState?.Invoke( new LNState( lane, KeyState.Down, playback, note.endTime ) );
                     }
@@ -129,10 +129,10 @@ public class InputSystem : MonoBehaviour
         }
         else // 롱노트 끝판정
         {
-            if ( Judgement.IsLateMiss( tailDiff ) )
+            if ( Judgement.Inst.IsLateMiss( tailDiff ) )
             {
                 OnChangedLNState?.Invoke( new LNState( lane, KeyState.Up, 0d, 0d ) );
-                Judgement.UpdateResult( note, lane, _playback, lnHeadDiff, tailDiff, KeyState.Up );
+                Judgement.Inst.UpdateResult( note, lane, _playback, lnHeadDiff, tailDiff, KeyState.Up );
                 SelectNextNote();
                 return;
             }
@@ -140,7 +140,7 @@ public class InputSystem : MonoBehaviour
             if ( keyState == KeyState.Up )
             {
                 OnChangedLNState?.Invoke( new LNState( lane, KeyState.Up, 0d, 0d ) );
-                Judgement.UpdateResult( note, lane, _playback, lnHeadDiff, tailDiff, KeyState.Up );
+                Judgement.Inst.UpdateResult( note, lane, _playback, lnHeadDiff, tailDiff, KeyState.Up );
                 SelectNextNote();
             }
         }

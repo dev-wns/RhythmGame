@@ -6,10 +6,10 @@ public class LaneBase : MonoBehaviour
     public int VKey     { get; private set; } // Virtual KeyCode
     public KeyCode UKey { get; private set; } // Unity KeyCode
 
-    public virtual void Initialize( int _lane )
+    public virtual void Initialize( int _lane, int _keyCount )
     {
         Key = _lane;
-        UKey = InputManager.Keys[( GameKeyCount ) NowPlaying.KeyCount][Key];
+        UKey = InputManager.Keys[( GameKeyCount )_keyCount][Key];
         VKey = InputManager.GetVirtualKey( UKey );
 
         // 인덱스에 맞는 위치에 레인 배치

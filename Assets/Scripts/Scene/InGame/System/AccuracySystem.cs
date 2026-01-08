@@ -3,22 +3,21 @@ using UnityEngine;
 
 public class AccuracySystem : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
     public TextMeshProUGUI text;
 
     private void Awake()
     {
-        Judgement.OnHitNote     += UpdateAccuracy;
-        NowPlaying.OnInitialize += Clear;
-        NowPlaying.OnClear      += Clear;
+        Judgement.Inst.OnHitNote += UpdateAccuracy;
+        scene.OnClear            += Clear;
 
-        text.SetText( "{0:2}%", 100.00f );
+        Clear();
     } 
 
     private void OnDestroy()
     {
-        Judgement.OnHitNote     -= UpdateAccuracy;
-        NowPlaying.OnInitialize -= Clear;
-        NowPlaying.OnClear      -= Clear;
+        Judgement.Inst.OnHitNote -= UpdateAccuracy;
+        scene.OnClear            -= Clear;
     }
 
     private void Clear()
@@ -26,8 +25,8 @@ public class AccuracySystem : MonoBehaviour
         text.SetText( "{0:2}%", 100.00f );
     }
 
-    private void UpdateAccuracy( HitData _hitData )
+    private void UpdateAccuracy( in HitData _hitData )
     {
-        text.SetText( "{0:2}%", ( float )Judgement.CurrentResult.Accuracy );
+        text.SetText( "{0:2}%", ( float )Judgement.Inst.Accuracy );
     }
 }

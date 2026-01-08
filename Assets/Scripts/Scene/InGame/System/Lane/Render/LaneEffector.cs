@@ -24,7 +24,7 @@ public class LaneEffector : MonoBehaviour
     [Header( "Input Effect" )]
     public SpriteRenderer inputRenderer;
 
-    public void Initialize( Lane _lane )
+    public void Initialize( Lane _lane, int _keyCount )
     {
         lane = _lane.Key;
         uKey = _lane.UKey;
@@ -36,10 +36,10 @@ public class LaneEffector : MonoBehaviour
             laneRenderer.transform.localScale = new Vector3( GameSetting.NoteWidth, 250f, 1f );
 
             // 레인 색상 선택
-            if (      NowPlaying.KeyCount == 4 ) laneColor = lane == 1 || lane == 2 ? Color.blue : Color.red;
-            else if ( NowPlaying.KeyCount == 6 ) laneColor = lane == 1 || lane == 4 ? Color.blue : Color.red;
-            else if ( NowPlaying.KeyCount == 7 ) laneColor = lane == 1 || lane == 5 ? Color.blue :
-                                                             lane == 3 ? Color.yellow : Color.red;
+            if (      _keyCount == 4 ) laneColor = lane == 1 || lane == 2 ? Color.blue : Color.red;
+            else if ( _keyCount == 6 ) laneColor = lane == 1 || lane == 4 ? Color.blue : Color.red;
+            else if ( _keyCount == 7 ) laneColor = lane == 1 || lane == 5 ? Color.blue :
+                                                   lane == 3 ? Color.yellow : Color.red;
         }
 
         // 타격 이펙트

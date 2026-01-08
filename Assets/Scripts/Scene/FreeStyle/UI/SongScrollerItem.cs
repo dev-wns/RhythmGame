@@ -6,12 +6,11 @@ using UnityEngine.UI;
 
 public class SongScrollerItem : OptionButton
 {
-    public TextMeshProUGUI title, version, artist;
-    public Song song;
+    [SerializeField] private TextMeshProUGUI title, version, artist;
+    [SerializeField] private Vector2 PosCached;
 
     public RectTransform rt { get; private set; }
     private Image panel;
-    public Vector2 PosCached;
 
     private static readonly Color CenterPanelColor   = new Color( .75f, 1f, .75f, 1f );
     private static readonly Color CenterTitleColor   = new Color( 1f, 1f, .75f, 1f );
@@ -109,7 +108,6 @@ public class SongScrollerItem : OptionButton
 
     public void SetInfo( Song _song )
     {
-        song = _song;
         title.SetText(   _song.title   );
         version.SetText( _song.version );
         artist.SetText(  _song.artist  );

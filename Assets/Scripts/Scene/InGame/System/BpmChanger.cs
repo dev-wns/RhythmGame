@@ -4,14 +4,15 @@ using TMPro;
 
 public class BpmChanger : MonoBehaviour
 {
+    [SerializeField] InGame scene;
     private const double DelayTime = ( 1d / 60d ) * 1000d;
     public TextMeshProUGUI text;
 
     private void Awake()
     {
-        NowPlaying.OnInitialize += Clear;
-        NowPlaying.OnGameStart  += GameStart;
-        NowPlaying.OnClear      += Clear;
+        //NowPlaying.OnInitialize += Clear;
+        scene.OnGameStart  += GameStart;
+        scene.OnClear      += Clear;
 
         text.SetText( "{0}", 10000000 ); // capacity
         text.SetText( "{0}", 0 );
@@ -19,22 +20,22 @@ public class BpmChanger : MonoBehaviour
 
     private void OnDestroy()
     {
-        NowPlaying.OnInitialize -= Clear;
-        NowPlaying.OnGameStart  -= GameStart;
-        NowPlaying.OnClear      -= Clear;
+        //NowPlaying.OnInitialize -= Clear;
+        scene.OnGameStart  -= GameStart;
+        scene.OnClear      -= Clear;
     }
 
     private void Clear()
     {
         StopAllCoroutines();
-        text.SetText( "{0}", Mathf.RoundToInt( ( float )( DataStorage.Timings[0].bpm * GameSetting.Pitch ) ) );
+        text.SetText( "{0}", Mathf.RoundToInt( ( float )( DataStorage.Inst.Timings[0].bpm * GameSetting.SoundPitch ) ) );
     }
 
     private void GameStart() => StartCoroutine( UpdateBPM() );
 
     private IEnumerator UpdateBPM()
     {
-        var    timings  = DataStorage.Timings;
+        var    timings  = DataStorage.Inst.Timings;
         int    bpmIndex = 0;
         double bpmTime  = timings[bpmIndex].time;
         while ( bpmIndex < timings.Count )
@@ -42,7 +43,7 @@ public class BpmChanger : MonoBehaviour
             yield return new WaitUntil( () => bpmTime < NowPlaying.Playback );
 
             Timing current = timings[bpmIndex];
-            text.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.Pitch ) ) );
+            text.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.SoundPitch ) ) );
 
             // ´ÙÀ½ BPM
             if ( ++bpmIndex < timings.Count )

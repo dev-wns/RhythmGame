@@ -1,41 +1,58 @@
+using Cysharp.Threading.Tasks;
+using System;
+using System.Threading;
 using UnityEngine;
 
 public class PreviewBGASystem : MonoBehaviour
 {
-    public FreeStyleMainScroll scroller;
-    public PreviewBGARenderer  prefab;
+    [SerializeField] private FreeStyle scene;
+    [SerializeField] private SoundPitchOption pitchOption;
+    [SerializeField] private PreviewBGARenderer prefab;
     private ObjectPool<PreviewBGARenderer> pool;
-    private PreviewBGARenderer background; // current background
+    private PreviewBGARenderer background;
 
     private void Awake()
     {
         pool = new ObjectPool<PreviewBGARenderer>( prefab, transform, 3 );
-        scroller.OnSelectSong      += UpdateBGA;
-        scroller.OnSoundRestart    += Restart;
-        AudioManager.OnUpdatePitch += UpdatePitch;
+        scene.OnLoadAsync += LoadAsync;
+        scene.OnStart     += Play;
+        scene.OnRestart   += Play;
+        pitchOption.OnUpdatePitch += UpdatePitch;
     }
 
     private void OnDestroy()
     {
-        scroller.OnSelectSong      -= UpdateBGA;
-        scroller.OnSoundRestart    -= Restart;
-        AudioManager.OnUpdatePitch -= UpdatePitch;
+        scene.OnLoadAsync -= LoadAsync;
+        scene.OnStart     -= Play;
+        scene.OnRestart   -= Play;
+        pitchOption.OnUpdatePitch -= UpdatePitch;
     }
 
-    private void Restart( Song _song )
+    private void Play( in Song _song )
     {
-        background.Restart( _song );
+        background?.Play( _song );
     }
 
-    private void UpdateBGA( Song _song )
+    private async UniTask LoadAsync( Song _song, CancellationToken _token )
     {
-        background?.Despawn();
-        background = pool.Spawn();
-        background.Initialize( _song );
+        PreviewBGARenderer current = null;
+        try
+        {
+            current = pool.Spawn();
+            await current.LoadAsync( _song, _token );
+
+            background?.Despawn(); // previous
+            background = current;
+        }
+        catch( OperationCanceledException )
+        {
+            current?.Despawn();
+            throw;
+        }
     }
 
     private void UpdatePitch( float _pitch )
     {
-        background.UpdatePitch( _pitch );
+        background?.UpdatePitch( _pitch );
     }
 }

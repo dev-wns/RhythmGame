@@ -9,8 +9,7 @@ public class GameSetting : Singleton<GameSetting>
     public static PitchType  CurrentPitchType  = PitchType.None;
     public static NoteModel  CurrentNoteModel  = NoteModel.Block;
 
-    // Speed
-    public static int OriginScrollSpeed = 30;
+    // Scroll Speed
     public static int ScrollSpeed 
     {
         get => OriginScrollSpeed;
@@ -24,44 +23,47 @@ public class GameSetting : Singleton<GameSetting>
             OnChangedSpeed?.Invoke( OriginScrollSpeed );
         }
     }
-    public static event Action<int> OnChangedSpeed;
+    private static int OriginScrollSpeed;
+    public  static event Action<int> OnChangedSpeed;
 
-    public static float Weight => ScrollSpeed * 0.073810f; // 0.001030
-    // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
+    public static float Weight => ScrollSpeed * 0.073810f; // 0.001030 // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
     public static float MinDistance => 1200f / Weight;
 
     // Sound
-    public static int   SoundOffset = 0;
-    public static float Pitch       = 1.0f;
+    public static float SoundPitch;
+    public static int   SoundOffset;
 
     // Opacity ( 0 ~ 100 )
-    public static int BGAOpacity   = 10;
-    public static int PanelOpacity = 100;
+    public static int BGAOpacity;
+    public static int PanelOpacity;
 
     // Measure
-    public static float MeasureHeight = 2.5f;
+    public static float MeasureHeight => 2.5f;
 
     // Judgement
-    public  static float JudgePos        => DefaultJudgePos + JudgeOffset;
-    public  static int   JudgeOffset     = -33;
-    public  static float JudgeHeight     = 50f;
-    private static float DefaultJudgePos = -435f;
+    public static float JudgePos => -435f + JudgeOffset;
+    public static int   JudgeOffset;
 
     // Note
     public static int   SliderOffset  = 0;
     public static float NoteWidth     => 110.5f;// 125.5f;
     public static float NoteHeight    => 60.5f; // 63
-    public static float NoteBodyWidth => 110.5f;
-    public static float NoteBlank     =  0f;
-    public static float NoteStartPos  => GearOffsetX - ( ( NoteWidth * ( NowPlaying.KeyCount - 1 ) ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
+    public static float NoteBlank     => 0f;
+    public static float NoteStartPos { get; private set; }
 
     // Gear
-    public static float GearOffsetX  = 0f;
-    public static float GearStartPos => GearOffsetX - ( ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) ) ) * .5f;
-    public static float GearWidth    => ( NoteWidth * NowPlaying.KeyCount ) + ( NoteBlank * ( NowPlaying.KeyCount + 1 ) );
+    public static float GearOffsetX;
+    public static float GearStartPos { get; private set; }
+    public static float GearWidth    { get; private set; }
 
+    public void UpdatePosition( int _keyCount )
+    {
+        NoteStartPos = GearOffsetX - ( ( NoteWidth * ( _keyCount - 1 ) ) + ( NoteBlank * ( _keyCount + 1 ) ) ) * .5f;
+        GearStartPos = GearOffsetX - ( ( NoteWidth * _keyCount ) + ( NoteBlank * ( _keyCount + 1 ) ) ) * .5f;
+        GearWidth    = ( NoteWidth * _keyCount ) + ( NoteBlank * ( _keyCount + 1 ) );
+    }
 
-    protected override void Awake()
+    public void Initialize()
     {
         // Game Mode
         if ( !Config.Inst.Read( ConfigType.Random,     out CurrentRandom ) )                 CurrentRandom    = GameRandom.None;
@@ -80,6 +82,7 @@ public class GameSetting : Singleton<GameSetting>
         SliderOffset = Config.Inst.Read( ConfigType.SliderOffset, out int sliderOffset ) ? sliderOffset : 0;
 
         // Sound
+        SoundPitch  = 1.0f;
         SoundOffset = Config.Inst.Read( ConfigType.SoundOffset,  out int soundOffset  ) ? soundOffset : 0;
 
         // UI

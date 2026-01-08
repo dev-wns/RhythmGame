@@ -5,6 +5,7 @@ using TMPro;
 
 public class ComboSystem : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
     [Header("ComboSystem")]
     private float curCombo;
     private float targetCombo;
@@ -19,8 +20,8 @@ public class ComboSystem : MonoBehaviour
 
     private void Awake()
     {
-        Judgement.OnHitNote += UpdateCombo;
-        NowPlaying.OnClear  += Clear;
+        Judgement.Inst.OnHitNote += UpdateCombo;
+        scene.OnClear  += Clear;
 
         var rt = transform as RectTransform;
         rt.anchoredPosition = new Vector2( rt.anchoredPosition.x + GameSetting.GearOffsetX, rt.anchoredPosition.y );
@@ -34,8 +35,8 @@ public class ComboSystem : MonoBehaviour
     {
         effectSeq?.Kill();
 
-        Judgement.OnHitNote -= UpdateCombo;
-        NowPlaying.OnClear  -= Clear;
+        Judgement.Inst.OnHitNote -= UpdateCombo;
+        scene.OnClear  -= Clear;
     }
 
 
@@ -86,12 +87,12 @@ public class ComboSystem : MonoBehaviour
         }
     }
 
-    private void UpdateCombo( HitData _hitData )
+    private void UpdateCombo( in HitData _hitData )
     {
         if ( _hitData.hitResult != HitResult.Miss && _hitData.keyState == KeyState.Up )
              return;
 
-        targetCombo = Judgement.CurrentResult.Combo;
+        targetCombo = Judgement.Inst.Combo;
         if ( _hitData.hitResult == HitResult.Miss )
         {
             diffCached = Global.Math.Clamp( Global.Math.Abs( curCombo - targetCombo ), 100f, 1000f );

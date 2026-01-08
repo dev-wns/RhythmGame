@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class HealthSystem : MonoBehaviour
 {
+    [SerializeField] private InGame scene;
+
     [Header("Health")]
     public SpriteRenderer healthRenderer;
     public static readonly float MaxHealth = 1f;
@@ -20,21 +22,22 @@ public class HealthSystem : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnInitialize += Clear;
-        NowPlaying.OnGameStart  += GameStart;
-        NowPlaying.OnClear      += Clear;
-        Judgement.OnHitNote     += UpdateHealth;
+        Judgement.Inst.OnHitNote += UpdateHealth;
+        // NowPlaying.OnInitialize += Clear;
+        scene.OnGameStart  += GameStart;
+        scene.OnClear      += Clear;
 
         healthTileCached = healthRenderer.size;
         healthTileOffset = healthRenderer.size.y;
+        Clear();
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnInitialize -= Clear;
-        NowPlaying.OnGameStart  -= GameStart;
-        NowPlaying.OnClear      -= Clear;
-        Judgement.OnHitNote     -= UpdateHealth;
+        Judgement.Inst.OnHitNote -= UpdateHealth;
+        // NowPlaying.OnInitialize -= Clear;
+        scene.OnGameStart  -= GameStart;
+        scene.OnClear      -= Clear;
     }
 
     private void Clear()
@@ -101,7 +104,7 @@ public class HealthSystem : MonoBehaviour
         }
     }
 
-    private void UpdateHealth( HitData _hitData )
+    private void UpdateHealth( in HitData _hitData )
     {
         HitResult hitResult = _hitData.hitResult;
         switch ( hitResult )

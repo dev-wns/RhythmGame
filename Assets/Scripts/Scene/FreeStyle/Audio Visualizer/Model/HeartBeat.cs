@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class HeartBeat : MonoBehaviour
 {
-    public FreeStyleMainScroll mainScroll;
-    public SoundPitchOption pitchOption;
+    [SerializeField] private FreeStyle scene;
+    [SerializeField] private SoundPitchOption pitchOption;
     private float startSize, endSize;
 
     [Header( "BPM" )]
@@ -17,9 +17,9 @@ public class HeartBeat : MonoBehaviour
 
     private void Awake()
     {
-        mainScroll.OnSelectSong    += UpdateSong;
-        mainScroll.OnSoundRestart  += UpdateSong;
-        AudioManager.OnUpdatePitch += UpdatePitch;
+        scene.OnStart   += UpdateSong;
+        scene.OnRestart += UpdateSong;
+        pitchOption.OnUpdatePitch += UpdatePitch;
 
         startSize = transform.localScale.x;
         endSize   = startSize * power;
@@ -27,9 +27,9 @@ public class HeartBeat : MonoBehaviour
 
     private void OnDestroy()
     {
-        mainScroll.OnSelectSong    -= UpdateSong;
-        mainScroll.OnSoundRestart  -= UpdateSong;
-        AudioManager.OnUpdatePitch -= UpdatePitch;
+        scene.OnStart   -= UpdateSong;
+        scene.OnRestart -= UpdateSong;
+        pitchOption.OnUpdatePitch -= UpdatePitch;
     }
 
     private void Update()
@@ -49,15 +49,15 @@ public class HeartBeat : MonoBehaviour
     private void Initialize( double _bpm )
     {
         spb  = ( float )( 60d / _bpm );
-        time = ( float )( FreeStyleMainScroll.Playback * GameSetting.Pitch * .001d ) % spb;
+        time = ( float )( FreeStyle.Playback * GameSetting.SoundPitch * .001d ) % spb;
         transform.localScale = new Vector2( startSize, startSize );
     }
 
-    private void UpdateSong( Song _song )
+    private void UpdateSong( in Song _song )
     {
         isStop = false;
         curBPM = _song.mainBPM;
-        Initialize( curBPM * GameSetting.Pitch );
+        Initialize( curBPM * GameSetting.SoundPitch );
     }
 
     private void UpdatePitch( float _pitch )

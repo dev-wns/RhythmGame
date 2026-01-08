@@ -1,5 +1,6 @@
 using UnityEngine;
 using Global.UI;
+using Global.Shader.InstancedFade;
 
 public class SpectrumBar : MonoBehaviour
 {
@@ -24,13 +25,13 @@ public class SpectrumBar : MonoBehaviour
         mpb = new MaterialPropertyBlock();
     }
 
-    public void Initailze( Vector3 _pos, Color _color )
+    public void Initialize( Vector3 _pos, Color _color )
     {
         transform.localPosition = _pos;
         transform.localScale    = Vector3.one;
 
         mesh.sortingOrder = sortingOrder;
-        mpb.SetVector( "_Pivot", Alignment.GetPivotVector( pivot ) );
-        mpb.SetColor(  "_Color", _color );
+        mpb.SetVector( ShaderID.Pivot, Alignment.GetPivotVector( pivot ) );
+        mpb.SetColor(  ShaderID.Color, _color );
     }
 }

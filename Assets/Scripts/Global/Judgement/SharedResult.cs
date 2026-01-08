@@ -28,28 +28,28 @@ public struct HitData
     }
 }
 
-public struct ResultData
-{
-    public int Maximum;
-    public int Perfect;
-    public int Great;
-    public int Good;
-    public int Bad;
-    public int Miss;
-    public int Fast;
-    public int Slow;
-    public int Combo;
-    public int MaxCombo;
-    public double Score;
+//public struct ResultData
+//{
+//    public int Maximum;
+//    public int Perfect;
+//    public int Great;
+//    public int Good;
+//    public int Bad;
+//    public int Miss;
+//    public int Fast;
+//    public int Slow;
+//    public int Combo;
+//    public int MaxCombo;
+//    public double Score;
 
-    public double Accuracy
-    {
-        get
-        {
-            double current  = ( HitScore.Perfect * ( Maximum + Perfect ) ) + ( HitScore.Great * Great ) + ( HitScore.Good * Good ) + ( HitScore.Bad * Bad );
-            double maxValue = HitScore.Perfect * Count;
-            return Global.Math.Abs( maxValue ) <= double.Epsilon ? 0d : ( current / maxValue ) * 100d;
-        }
-    }
-    public int Count => Maximum + Perfect + Great + Good + Bad + Miss;
-}
+//    public double Accuracy
+//    {
+//        get
+//        {
+//            double current  = ( HitScore.Perfect * ( Maximum + Perfect ) ) + ( HitScore.Great * Great ) + ( HitScore.Good * Good ) + ( HitScore.Bad * Bad );
+//            double maxValue = HitScore.Perfect * Count;
+//            return Global.Math.Abs( maxValue ) <= double.Epsilon ? 0d : ( current / maxValue ) * 100d;
+//        }
+//    }
+//    public int Count => Maximum + Perfect + Great + Good + Bad + Miss;
+//}

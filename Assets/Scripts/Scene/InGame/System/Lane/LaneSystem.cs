@@ -8,8 +8,11 @@ using UnityEngine;
 public class LaneSystem : MonoBehaviour
 {
     [Header( "Lane" )]
+    [SerializeField] private InGame scene;
+    [SerializeField] private AudioPlayer audioPlayer;
     public  Lane prefab;
     private List<Lane> lanes = new();
+    private int keyCount;
 
     [Header( "Hold Process" )]
     private int    bitHolding;
@@ -25,48 +28,73 @@ public class LaneSystem : MonoBehaviour
 
     private void Awake()
     {
-        NowPlaying.OnInitialize     += Initialize;
-        NowPlaying.OnLoadAsync      += DivideNotes;
+        scene.OnInitialize += Initialize;
+        scene.OnLoadInThread += DivideNotes;
+        scene.OnGameOver   += GameOver;
+        scene.OnPause      += Pause;
+        scene.OnClear      += Clear;
+        scene.OnRelease    += Release;
         NowPlaying.OnUpdateInThread += UpdateInput;
-        NowPlaying.OnClear          += Clear;
-        NowPlaying.OnRelease        += Release;
-        Judgement.OnHitNote         += Transfer;
+        Judgement.Inst.OnHitNote    += Transfer;
     }
 
     private void OnDestroy()
     {
-        NowPlaying.OnInitialize     -= Initialize;
-        NowPlaying.OnLoadAsync      -= DivideNotes;
+        scene.OnInitialize -= Initialize;
+        scene.OnLoadInThread -= DivideNotes;
+        scene.OnGameOver   -= GameOver;
+        scene.OnPause      -= Pause;
+        scene.OnClear      -= Clear;
+        scene.OnRelease    -= Release;
         NowPlaying.OnUpdateInThread -= UpdateInput;
-        NowPlaying.OnClear          -= Clear;
-        NowPlaying.OnRelease        -= Release;
-        Judgement.OnHitNote         -= Transfer;
+        Judgement.Inst.OnHitNote    -= Transfer;
 
         Notes = null;
+    }
+
+    private void GameOver()
+    {
+        foreach ( Lane lane in lanes )
+        {
+            lane.GameOver();
+        }
+    }
+
+    private void Pause( bool _isPause )
+    {
+        foreach ( Lane lane in lanes )
+        {
+            lane.Pause( _isPause );
+        }
     }
 
     private void Clear()
     {
         bitHolding = 0;
+        foreach( Lane lane in lanes )
+        {
+            lane.Clear();
+        }
     }
 
     private void Release()
     {
         Notes = null;
-        for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
+        for ( int lane = 0; lane < keyCount; lane++ )
         {
             InputSystem inputSys = lanes[lane].InputSys;
             inputSys.OnChangedLNState -= DetectHoldNote;
         }
     }
 
-    private void Initialize()
+    private void Initialize( in Song _song )
     {
-        Notes = new ReadOnlyCollection<Note>[NowPlaying.KeyCount];
-        for ( int lane = 0; lane < NowPlaying.KeyCount; lane++ )
+        keyCount = _song.keyCount;
+        Notes = new ReadOnlyCollection<Note>[keyCount];
+        for ( int lane = 0; lane < keyCount; lane++ )
         {
             lanes.Add( Instantiate( prefab, transform ) );
-            lanes[lane].Initialize( lane );
+            lanes[lane].Initialize( lane, keyCount );
             
             InputSystem inputSys = lanes[lane].InputSys;
             inputSys.OnChangedLNState += DetectHoldNote;
@@ -88,7 +116,7 @@ public class LaneSystem : MonoBehaviour
             while ( lnStartTime + LNComboInterval <= _playback &&
                     lnStartTime + LNComboInterval <= lnEndTime )
             {
-                Judgement.AddCombo();
+                Judgement.Inst.AddCombo();
                 lnStartTime += LNComboInterval;
             }
         }
@@ -119,39 +147,38 @@ public class LaneSystem : MonoBehaviour
         }
     }
 
-    private void Transfer( HitData _data )
+    private void Transfer( in HitData _data )
     {
         lanes[_data.lane].AddData( _data );
     }
 
     /// <summary> 게임모드가 적용된 상태로 노트를 분할합니다. </summary>
-    private void DivideNotes()
+    private void DivideNotes( in Song _song )
     {
-        int keyCount    = NowPlaying.KeyCount;
         bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) && NowPlaying.CurrentSong.keyCount == 7;
+        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) && Browser.Inst.CurrentSong.keyCount == 7;
 
         const double Epsilon           = .5d; // 0.5 ms
         List<int/* lane */> emptyLanes = new List<int>( keyCount );
         List<Note>[] notes             = Array.ConvertAll( new int[keyCount], _ => new List<Note>() );
         double[] prevTimes             = Enumerable.Repeat( double.MinValue, keyCount ).ToArray();
-        double   msPerBeat             = ( 60000d / NowPlaying.MainBPM ) / 4d; // 1/4박자( 16분음표 )
+        double   msPerBeat             = ( 60000d / _song.mainBPM ) / 4d; // 1/4박자( 16분음표 )
 
         GetPerformanceCounter( out long qpc );
         int seed             = ( int )( DateTime.Now.Ticks ^ qpc ); // 현재시간 xor 시스템시간
         System.Random random = new System.Random( seed );
         
-        for ( int i = 0; i < DataStorage.Notes.Count; i++ )
+        for ( int i = 0; i < DataStorage.Inst.Notes.Count; i++ )
         {
-            Note newNote = DataStorage.Notes[i];
+            Note newNote = DataStorage.Inst.Notes[i];
             newNote.isSlider = isNoSlider ? false : newNote.isSlider;
             if ( isConvert )
             {
                 if ( newNote.lane == 3 )
                 {
                     // 잘린 노트의 키음은 자동재생되도록 한다.
-                    DataStorage.Inst.LoadSound( newNote.keySound.name );
-                    DataStorage.Inst.AddSample( newNote.keySound );
+                    //DataStorage.Inst.LoadSound( newNote.keySound.name );
+                    audioPlayer.AddSample( newNote.keySound );
                     continue;
                 }
                 else if ( newNote.lane > 3 )

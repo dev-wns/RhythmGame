@@ -1,11 +1,12 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 #pragma warning disable CS0162
@@ -14,16 +15,9 @@ public class NowPlaying : Singleton<NowPlaying>
 {
     public static Scene CurrentScene;
 
-    [Header( "Song" )]
-    public static ReadOnlyCollection<Song> OriginSongs { get; private set; } // 원본 음악 리스트
-    public static ReadOnlyCollection<Song> Songs       { get; private set; } // 검색 등으로 변환된 리스트
-    public static Song CurrentSong { get; private set; }
-    public static int CurrentIndex { get; private set; }
-    public static int KeyCount     { get; private set; }
-    public static int TotalJudge   { get; private set; }
-    public static int TotalNote    { get; private set; }
-    public static int TotalSlider  { get; private set; }
-    public static double MainBPM   { get; private set; }
+    public Song      CurrentSong   { get; private set; } // 게임 모드 등으로 인해 바뀐 음악 정보
+    //public Results CurrentResult { get; private set; } = new ();
+    public Record    CurrentRecord { get; private set; } = new ();
 
     [Header( "Time" )]
     public  static double Playback { get; private set; } // ms 기준
@@ -38,10 +32,10 @@ public class NowPlaying : Singleton<NowPlaying>
     private static readonly double WaitPauseTime = 2000d;
 
     [Header( "Thread" )]
-    private Task                    timeTask;
+    private UniTask                 timeTask;
     private CancellationTokenSource timeCts;
 
-    // DLL
+    //// DLL
     [DllImport( "Assistant" )]
     public static extern bool EnableRawInput( bool isEnable );
     [DllImport( "Assistant" )]
@@ -52,132 +46,103 @@ public class NowPlaying : Singleton<NowPlaying>
     private static extern void SetTimerResolution( bool isHighQuality );
     //
     public static bool IsStart  { get; private set; }
-    public static bool IsLoaded { get; private set; }
+    //public static bool IsLoaded { get; private set; }
 
     // Load Event
-    public static event Action<Song>  OnParsing;    // 약식 데이터 파싱 ( 프리스타일 곡 목록 등에 사용 )
-    public static event Action        OnInitialize; // Main  Thread
-    public static event Func<UniTask> OnLoad;       // Main  Thread
-    public static event Action        OnLoadAsync;  // Other Thread
-    public static event Action        OnLoadEnd;
-    public static event Action<double/* Playback */> OnUpdate;
+    //public static event Action<Song>  OnParsing;    // 약식 데이터 파싱 ( 프리스타일 곡 목록 등에 사용 )
+    //public static event Action        OnInitialize; // Main  Thread
+    //public static event Func<UniTask> OnLoad;       // Main  Thread
+    //public static event Action        OnLoadAsync;  // Other Thread
+    //public static event Action        OnLoadEnd;
+    //public static event Action<double/* Playback */> OnUpdate;
     public static event Action<double/* Playback */> OnUpdateInThread;
 
     // Game Event
-    public static event Action OnGameStart;
-    public static event Action OnGameOver;
-    public static event Action OnRelease;
-    public static event Action OnClear;          // 변수만 초기화하고 재사용할 때
-    public static event Action<bool> OnPause;
+    //public static event Action OnGameStart;
+    //public static event Action OnGameOver;
+    //public static event Action OnRelease;
+    //public static event Action OnClear;          // 변수만 초기화하고 재사용할 때
+    //public static event Action<bool> OnPause;
 
     #region Unity Event Function
     protected override void Awake()
     {
         base.Awake();
 
-        SetTimerResolution( true );
+        //SetTimerResolution( true );
         GetPerformanceFrequency( out frequency );
-        LoadSongs();
-               
-        if ( Songs.Count > 0 )
-             UpdateSong( 0 );
+
+        AudioManager.Inst.Initialize();
+        GameSetting.Inst.Initialize();
+        SystemSetting.Inst.Initialize();
+        InputManager.Inst.Initialize();
+
+        Judgement judgement = Judgement.Inst;
+        Browser   browser   = Browser.Inst;
     }
 
     private async void OnDestroy()
     {
-        SetTimerResolution( false );
+        //SetTimerResolution( false );
         await Release();
     }
 
-    private void Update()
-    {
-        if ( IsLoaded && IsStart )
-             OnUpdate?.Invoke( Playback );
-    }
+    //private void Update()
+    //{
+    //    if ( IsLoaded && IsStart )
+    //         OnUpdate?.Invoke( Playback );
+    //}
     #endregion
 
     #region Load
-    /// <summary> 음악의 기본 정보 파싱 ( 플레이하기 전 프리스타일 등에서 표시될 최소 정보 ) </summary>
-    public bool LoadSongs()
-    {
-        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
-        List<Song> newSongs = new List<Song>();
-        string[] files = Global.IO.Path.GetFilesInSubDirectories( Global.IO.Path.SoundDirectory, "*.osu" );
-        for ( int i = 0; i < files.Length; i++ )
-        {
-            using ( FileParser parser = new FileParser() )
-            {
-                if ( parser.TryParse( files[i], out Song newSong ) )
-                     newSongs.Add( newSong );
-
-                OnParsing?.Invoke( newSong );
-            }
-        }
-
-        newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
-        for ( int i = 0; i < newSongs.Count; i++ )
-        {
-            Song song   = newSongs[i];
-            song.index  = i;
-            newSongs[i] = song;
-        }
-        OriginSongs = new ReadOnlyCollection<Song>( newSongs );
-        Songs = OriginSongs;
-
-        // 파일 수정하고 싶을 때 사용
-        //for ( int i = 0; i < OriginSongs.Count; i++ )
-        //{
-        //    using ( FileParser parser = new FileParser() )
-        //        parser.ReWrite( OriginSongs[i] );
-        //}
-
-        return true;
-    }
-
     /// <summary> 선택된 음악을 바탕으로 초기화 </summary>
-    public void Initialize()
+    public void Initialize( in Song _song )
     {
-        MainBPM = CurrentSong.mainBPM * GameSetting.Pitch;
+        Song song    = _song;
+        song.mainBPM = _song.mainBPM * GameSetting.SoundPitch;
 
-        // 모드를 선택한 상태로 InGame 진입 후 계산
-        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  CurrentSong.keyCount == 7;
-        KeyCount        = isConvert  ? 6 : CurrentSong.keyCount;
-        TotalNote       = isConvert  ? CurrentSong.noteCount   - CurrentSong.delNoteCount   : CurrentSong.noteCount;
-        TotalSlider     = isConvert  ? CurrentSong.sliderCount - CurrentSong.delSliderCount : CurrentSong.sliderCount;
+        // 게임 모드가 적용되어 바뀐 정보
+        bool isConvert   = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  _song.keyCount == 7;
+        song.keyCount    = isConvert ? 6 : _song.keyCount;
+        song.noteCount   = isConvert ? _song.noteCount   - _song.delNoteCount   : _song.noteCount;
+        song.sliderCount = isConvert ? _song.sliderCount - _song.delSliderCount : _song.sliderCount;
 
-        bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        TotalNote       = isNoSlider ? TotalNote + TotalSlider : TotalNote;
-        TotalSlider     = isNoSlider ? 0 : TotalSlider;
-        TotalJudge      = TotalNote + TotalSlider;
+        bool isNoSlider  = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
+        song.noteCount   = isNoSlider ? song.noteCount + song.sliderCount : song.noteCount;
+        song.sliderCount = isNoSlider ? 0 : song.sliderCount;
 
-        // 선 파싱 ( 게임에 필요한 모든 정보 파싱 )
-        if ( !DataStorage.Inst.LoadChart( CurrentSong ) )
-        {
-            // Go to FreeStyle
-        }
+        GameSetting.Inst.UpdatePosition( song.keyCount );
+        CurrentSong = song;
+        Clear();
 
-        // 후 계산
-        OnInitialize?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
+        // // 선 파싱 ( 게임에 필요한 모든 정보 파싱 )
+        // if ( !DataStorage.Inst.LoadChart( _song ) )
+        // {
+        //     // Go to FreeStyle
+        // }
+        // 
+        // // 후 계산
+        // OnInitialize?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
     }
 
     /// <summary> 선택된 음악의 리소스 로딩 </summary>
-    public async UniTask Load()
-    {
-        await UniTask.WhenAll( UniTask.RunOnThreadPool( () => OnLoadAsync?.Invoke() ),
-                               UniTask.Create( async () =>
-                               {
-                                   if ( OnLoad == null )
-                                        return;
+    //public async UniTask Load()
+    //{
+        //await UniTask.WhenAll( UniTask.RunOnThreadPool( () => OnLoadAsync?.Invoke() ),
+        //                       UniTask.Create( async () =>
+        //                       {
+        //                           if ( OnLoad == null )
+        //                               return;
 
-                                   foreach ( Func<UniTask> handler in OnLoad.GetInvocationList() )
-                                             await handler(); // 구독자 전부 대기
-                                } ) );
-        OnLoadEnd?.Invoke();
+        //                           foreach ( Func<UniTask> handler in OnLoad.GetInvocationList() )
+        //                               await handler(); // 구독자 전부 대기
+        //                       } ) );
+        //OnLoadEnd?.Invoke();
 
         // 기본 변수 초기화
-        Clear();
-        IsLoaded = true;
-    }
+        //Clear();
+        //IsLoaded = true;
+    //}
     #endregion
 
     #region Thread
@@ -187,7 +152,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
         long endTick         = 0;
         long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
-        var  timings     = DataStorage.Timings;
+        var  timings     = DataStorage.Inst.Timings;
         SpinWait spinner = new SpinWait();
 
         Debug.Log( $"Time Thread Start( {_targetFrame} Frame )" );
@@ -204,7 +169,7 @@ public class NowPlaying : Singleton<NowPlaying>
                 for ( int i = bpmIndex; i < timings.Count; i++ )
                 {
                     double time = timings[i].time;
-                    double bpm  = timings[i].bpm / MainBPM;
+                    double bpm  = timings[i].bpm / CurrentSong.mainBPM;
 
                     // 지나간 타이밍에 대한 거리
                     if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
@@ -231,88 +196,19 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         if ( timeCts != null )
         {
-            timeCts.Cancel();
-            try
-            {
-                if ( timeTask != null )
-                     await timeTask;
-            }
+            timeCts?.Cancel();
+
+            try { await timeTask; }
             catch ( OperationCanceledException )
             {
                 Debug.Log( "Time Thread Cancel" );
             }
             finally
             {
-                timeCts.Dispose();
-                timeCts  = null;
-                timeTask = null;
+                timeCts?.Dispose();
+                timeCts = null;
             }
         }
-    }
-    #endregion
-
-    #region Search
-    public int Search( string _keyword )
-    {
-        if ( OriginSongs.Count == 0 || _keyword.Replace( " ", string.Empty ) == string.Empty )
-        {
-            Songs = OriginSongs;
-            UpdateSong( CurrentSong.index );
-
-            return -1;
-        }
-
-        List<Song> newSongs = new List<Song>();
-        string keyword = _keyword.Replace( " ", string.Empty );
-        bool   isSV    = keyword.ToUpper().CompareTo( "SV" ) == 0;
-        for ( int i = 0; i < OriginSongs.Count; i++ )
-        {
-            if ( isSV )
-            {
-                if ( OriginSongs[i].minBpm != OriginSongs[i].maxBpm )
-                     newSongs.Add( OriginSongs[i] );
-            }
-            else
-            {
-                if ( OriginSongs[i].title.Replace(   " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].version.Replace( " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].artist.Replace(  " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) ||
-                     OriginSongs[i].source.Replace(  " ", string.Empty ).Contains( keyword, StringComparison.OrdinalIgnoreCase ) )
-                     newSongs.Add( OriginSongs[i] );
-            }
-        }
-
-        int prevIndex = 0;
-        Songs = newSongs.Count == 0 ? OriginSongs : new ReadOnlyCollection<Song>( newSongs );
-        for ( int i = 0; i < Songs.Count; i++ )
-        {
-            if ( Songs[i].title.Contains(   CurrentSong.title,   StringComparison.OrdinalIgnoreCase ) &&
-                 Songs[i].version.Contains( CurrentSong.version, StringComparison.OrdinalIgnoreCase ) )
-            {
-                prevIndex = i;
-                break;
-            }
-        }
-
-        UpdateSong( prevIndex );
-
-        return newSongs.Count;
-    }
-
-    public void Search( Song _song )
-    {
-        int prevIndex = 0;
-        for ( int i = 0; i < OriginSongs.Count; i++ )
-        {
-            if ( OriginSongs[i].title.Contains(   _song.title,   StringComparison.OrdinalIgnoreCase ) &&
-                 OriginSongs[i].version.Contains( _song.version, StringComparison.OrdinalIgnoreCase ) )
-            {
-                prevIndex = i;
-                break;
-            }
-        }
-
-        UpdateSong( prevIndex );
     }
     #endregion
    
@@ -330,7 +226,9 @@ public class NowPlaying : Singleton<NowPlaying>
         bpmIndex      = 0;
         IsStart       = false;
 
-        OnClear?.Invoke();
+        Judgement.Inst.Clear();
+
+        //OnClear?.Invoke();
     }
 
     public async UniTask Release()
@@ -340,19 +238,19 @@ public class NowPlaying : Singleton<NowPlaying>
         else                           Debug.LogWarning( "Assistant.dll Release Failed" );
 
         IsStart   = false;
-        IsLoaded  = false;
+        //IsLoaded  = false;
 
-        OnRelease?.Invoke();
+        //OnRelease?.Invoke();
     }
 
     public void GameStart()
     {
-        OnGameStart?.Invoke();
+        //OnGameStart?.Invoke();
 
         if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
         else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
         timeCts ??= new CancellationTokenSource();
-        timeTask = Task.Run( () => { TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ); } );
+        timeTask = UniTask.RunOnThreadPool( () => { TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ); } );
         AudioManager.Inst.Pause = false;
         IsStart                 = true;
     }
@@ -368,16 +266,16 @@ public class NowPlaying : Singleton<NowPlaying>
         while ( speed > 0f )
         {
             speed -= ( 1f / 3f ) * Time.deltaTime;
-            float decrease = ( 1f - speed ) * GameSetting.Pitch * .3f;
-            AudioManager.Inst.Pitch = GameSetting.Pitch - decrease;
+            float decrease = ( 1f - speed ) * GameSetting.SoundPitch * .3f;
+            AudioManager.Inst.Pitch = GameSetting.SoundPitch - decrease;
 
             Playback += speed * ( 1000f * Time.deltaTime );
-            Distance  = distanceCache + ( Playback - DataStorage.Timings[bpmIndex].time );
+            Distance  = distanceCache + ( Playback - DataStorage.Inst.Timings[bpmIndex].time );
 
             await UniTask.Yield( PlayerLoopTiming.Update );
         }
 
-        OnGameOver?.Invoke();
+        //OnGameOver?.Invoke();
         CurrentScene.IsInputLock = false;
     }
 
@@ -393,7 +291,7 @@ public class NowPlaying : Singleton<NowPlaying>
 
             saveTime = Playback;
             AudioManager.Inst.Pause  = true;
-            OnPause?.Invoke( true );
+            //OnPause?.Invoke( true );
         }
         else
         {
@@ -405,7 +303,7 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         CurrentScene.IsInputLock = true;
         double recoil  = Playback - WaitPauseTime;
-        var    timings = DataStorage.Timings;
+        var    timings = DataStorage.Inst.Timings;
         while ( Playback > recoil )
         {
             Playback -= Time.deltaTime * 1200f;
@@ -424,23 +322,15 @@ public class NowPlaying : Singleton<NowPlaying>
 
         if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
         else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
-        OnPause?.Invoke( false );
+
+        //OnPause?.Invoke( false );
         timeCts ??= new CancellationTokenSource();
-        timeTask = Task.Run( () => TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ) );
+        timeTask = UniTask.RunOnThreadPool( () => TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ) );
         AudioManager.Inst.Pause  = false;
         IsStart                  = true;
         CurrentScene.IsInputLock = false;
     }
     #endregion
-
-    public void UpdateSong( int _index )
-    {
-        if ( _index >= Songs.Count )
-             throw new Exception( "out of range" );
-
-        CurrentIndex = _index;
-        CurrentSong  = Songs[_index];
-    }
 
     public double TickToPlayback( long _tick )
     {
@@ -450,11 +340,11 @@ public class NowPlaying : Singleton<NowPlaying>
     public double GetDistance( double _time )
     {
         double result  = 0d;
-        var    timings = DataStorage.Timings;
+        var    timings = DataStorage.Inst.Timings;
         for ( int i = 0; i < timings.Count; i++ )
         {
             double time = timings[i].time;
-            double bpm  = timings[i].bpm / MainBPM;
+            double bpm  = timings[i].bpm / CurrentSong.mainBPM;
 
             // 지나간 타이밍에 대한 거리
             if ( i + 1 < timings.Count && timings[i + 1].time < _time )

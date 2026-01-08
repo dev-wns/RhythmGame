@@ -4,32 +4,34 @@ using UnityEngine.UI;
 
 public class RecordViewer : MonoBehaviour
 {
-    public RankImageSO rankImageSO;
-    public FreeStyleMainScroll mainScroll;
+    [SerializeField] private FreeStyle scene;
+    [SerializeField] private RankImageSO rankImageSO;
 
-    public GameObject noRecord;
-    public GameObject infomation;
+    [SerializeField] private GameObject noRecord;
+    [SerializeField] private GameObject infomation;
 
     private RectTransform rt;
 
     [Header("Information")]
-    public Image rankImage;
-    public TextMeshProUGUI chaos;
-    public TextMeshProUGUI score;
-    public TextMeshProUGUI rate;
-    public TextMeshProUGUI accuracy;
-    public TextMeshProUGUI date;
+    [SerializeField] private Image rankImage;
+    [SerializeField] private TextMeshProUGUI chaos;
+    [SerializeField] private TextMeshProUGUI score;
+    [SerializeField] private TextMeshProUGUI rate;
+    [SerializeField] private TextMeshProUGUI accuracy;
+    [SerializeField] private TextMeshProUGUI date;
 
     [Header("Movement Effect")]
-    public float startPosX;
+    [SerializeField] private float startPosX;
     private float endPosX;
     private readonly float duration = .25f;
 
     private float time;
+    private Record record;
 
     private void Awake()
     {
-        mainScroll.OnSelectSong += UpdateRecord;
+        record = NowPlaying.Inst.CurrentRecord;
+        scene.OnStart += UpdateRecord;
         rt = transform as RectTransform;
 
         endPosX = rt.anchoredPosition.x;
@@ -37,7 +39,7 @@ public class RecordViewer : MonoBehaviour
 
     private void OnDestroy()
     {
-        mainScroll.OnSelectSong -= UpdateRecord;
+        scene.OnStart -= UpdateRecord;
     }
 
     private void Update()
@@ -48,11 +50,11 @@ public class RecordViewer : MonoBehaviour
         rt.anchoredPosition = new Vector2( Global.Math.Clamp( posX, startPosX, endPosX ), rt.anchoredPosition.y );
     }
 
-    public void UpdateRecord( Song _song )
+    public void UpdateRecord( in Song _song )
     {
         time = 0f;
 
-        if ( !DataStorage.Inst.UpdateRecord() )
+        if ( !record.UpdateRecord() )
         {
             noRecord.SetActive( true );
             infomation.SetActive( false );
@@ -62,7 +64,7 @@ public class RecordViewer : MonoBehaviour
             noRecord.SetActive( false );
             infomation.SetActive( true );
 
-            RecordData data = DataStorage.CurrentRecord;
+            RecordData data = record.CurrentData;
             chaos.SetText( data.random.ToString().Replace( '_', ' ' ) );
             score.text = $"{data.score:N0}";
             rate.SetText( "x{0:1}", data.pitch );

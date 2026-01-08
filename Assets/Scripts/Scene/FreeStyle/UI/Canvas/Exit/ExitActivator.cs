@@ -6,7 +6,7 @@ public class ExitActivator : CanvasActivator
 
     public override void EnableCanvas()
     {
-        if ( !FreeStyleSearch.IsSearching )
+        if ( !Browser.Inst.IsSearching )
              base.EnableCanvas();
     }
 

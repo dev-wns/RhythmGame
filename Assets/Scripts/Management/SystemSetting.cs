@@ -11,9 +11,8 @@ public class SystemSetting : Singleton<SystemSetting>
     public static int InputTargetFrame => int.Parse( CurrentPollingRate.ToString().Replace( "_", " " ) );
     public static string CurrentSoundBufferString => CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
 
-    protected override void Awake()
+    public void Initialize()
     {
-        base.Awake();
         if ( !Config.Inst.Read( ConfigType.Resolution,   out CurrentResolution   ) ) CurrentResolution   = Resolution._1920_1080;
         if ( !Config.Inst.Read( ConfigType.FrameLimit,   out CurrentFrameRate    ) ) CurrentFrameRate    = FrameRate.vSync;
         if ( !Config.Inst.Read( ConfigType.AntiAliasing, out CurrentAntiAliasing ) ) CurrentAntiAliasing = AntiAliasing.None;

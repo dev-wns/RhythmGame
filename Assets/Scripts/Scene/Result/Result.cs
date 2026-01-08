@@ -23,7 +23,10 @@ public class Result : Scene
         }
 
         if ( !GameSetting.HasFlag( GameMode.AutoPlay ) )
-              DataStorage.Inst.CreateNewRecord();
+        {
+            Record record = NowPlaying.Inst.CurrentRecord;
+            record.CreateNewRecord();
+        }
 
         isStart = true;
     }

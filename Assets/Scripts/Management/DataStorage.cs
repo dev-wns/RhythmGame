@@ -25,18 +25,30 @@ public class DataStorage : Singleton<DataStorage>
     private List<Texture2D> textures = new (); // Default Texture
     private int             texIndex = 0;      // Default Texture
 
-    [Header( "Record Data" )]
-    public  static RecordData CurrentRecord => recordData;
-    private static RecordData recordData = new RecordData();
+    //[Header( "Record Data" )]
+    //public  static RecordData CurrentRecord => recordData;
+    //private static RecordData recordData = new RecordData();
 
-    [Header( "Origin Chart" )]
-    public static ReadOnlyCollection<Note>         Notes   { get; private set; }
-    public static ReadOnlyCollection<Timing>       Timings { get; private set; } // BPM Timing
-    public static ReadOnlyCollection<SpriteSample> Sprites { get; private set; } // 이미지로 이루어진 BGA의 재생 데이터
-    public static ReadOnlyCollection<KeySound>     Samples { get; private set; }
-    
-    [Header( "Converted Chart" )]
-    public static List<KeySound> ConvertedSamples { get; private set; }
+    [Header( "Origin Datas" )]
+    public ReadOnlyCollection<Song>         Songs   { get; private set; } // 원본 음악 리스트
+    public ReadOnlyCollection<Note>         Notes   { get; private set; }
+    public ReadOnlyCollection<Timing>       Timings { get; private set; } // BPM Timing
+    public ReadOnlyCollection<SpriteSample> Sprites { get; private set; } // 이미지로 이루어진 BGA의 재생 데이터
+    public ReadOnlyCollection<KeySound>     Samples { get; private set; }
+
+    // Song Parsing
+    public bool IsSongParsing { get; private set; }
+    public event Action<Song>                     OnSongParsed;
+    public event Action<ReadOnlyCollection<Song>> OnSongsParsed;
+
+    // Chart Parsing
+    //public event Action<ReadOnlyCollection<Note>>         OnLoadedNote;
+    //public event Action<ReadOnlyCollection<Timing>>       OnLoadedTiming;
+    //public event Action<ReadOnlyCollection<SpriteSample>> OnLoadedSprite;
+    //public event Action<ReadOnlyCollection<KeySound>>     OnLoadedSample;
+
+    //[Header( "Converted Chart" )]
+    //public List<KeySound> ConvertedSamples { get; private set; }
 
     protected override void Awake()
     {
@@ -44,28 +56,28 @@ public class DataStorage : Singleton<DataStorage>
 
         LoadAssetsAsync( "DefaultTexture", ( Texture2D texture ) => textures.Add( texture ) );
 
-        NowPlaying.OnLoadAsync += () =>
-        {
-            for ( int i = 0; i < Samples.Count; i++ )
-                  LoadSound( Samples[i].name );
-        };
+        //NowPlaying.OnLoadAsync += () =>
+        //{
+        //    for ( int i = 0; i < Samples.Count; i++ )
+        //          LoadSound( Samples[i].name );
+        //};
 
-        NowPlaying.OnLoad += async () => 
-        {
-            for ( int i = 0; i < Sprites.Count; i++ )
-                  await LoadTexture( Sprites[i] );
-        };
+        //NowPlaying.OnLoad += async () => 
+        //{
+        //    for ( int i = 0; i < Sprites.Count; i++ )
+        //          await LoadTexture( Sprites[i] );
+        //};
 
-        NowPlaying.OnLoadEnd += () =>
-        {
-            // 특정모드 선택으로 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
-            ConvertedSamples.Sort( delegate ( KeySound _left, KeySound _right )
-            {
-                if      ( _left.time > _right.time ) return 1;
-                else if ( _left.time < _right.time ) return -1;
-                else                                 return 0;
-            } );    
-        };
+        //NowPlaying.OnLoadEnd += () =>
+        //{
+        //    // 특정모드 선택으로 키음이 추가될 수 있다. ( 시간 오름차순 정렬 )
+        //    ConvertedSamples.Sort( delegate ( KeySound _left, KeySound _right )
+        //    {
+        //        if      ( _left.time > _right.time ) return 1;
+        //        else if ( _left.time < _right.time ) return -1;
+        //        else                                 return 0;
+        //    } );    
+        //};
     }
 
     private void OnApplicationQuit()
@@ -88,8 +100,48 @@ public class DataStorage : Singleton<DataStorage>
         Timings = null;
         Sprites = null;
         Samples = null;
-        ConvertedSamples = null;
+        //ConvertedSamples = null;
         Debug.Log( $"DataStorage Release" );
+    }
+
+    /// <summary> 음악의 기본 정보 파싱 ( 플레이하기 전 프리스타일 등에서 표시될 최소 정보 ) </summary>
+    public bool LoadSongs()
+    {
+        IsSongParsing = false;
+        // StreamingAsset\\Songs 안의 모든 파일 순회하며 파싱
+        List<Song> newSongs = new List<Song>();
+        string[] files = Global.IO.Path.GetFilesInSubDirectories( Global.IO.Path.SoundDirectory, "*.osu" );
+        for ( int i = 0; i < files.Length; i++ )
+        {
+            using ( FileParser parser = new FileParser() )
+            {
+                if ( parser.TryParse( files[i], out Song newSong ) )
+                     newSongs.Add( newSong );
+
+                OnSongParsed?.Invoke( newSong );
+            }
+        }
+
+        newSongs.Sort( ( _left, _right ) => _left.title.CompareTo( _right.title ) );
+        for ( int i = 0; i < newSongs.Count; i++ )
+        {
+            Song song   = newSongs[i];
+            song.index  = i;
+            newSongs[i] = song;
+        }
+        Songs = new ReadOnlyCollection<Song>( newSongs );
+        OnSongsParsed?.Invoke( Songs );
+
+        IsSongParsing = true;
+
+        // 파일 수정하고 싶을 때 사용
+        //for ( int i = 0; i < OriginSongs.Count; i++ )
+        //{
+        //    using ( FileParser parser = new FileParser() )
+        //        parser.ReWrite( OriginSongs[i] );
+        //}
+
+        return Songs.Count != 0;
     }
 
     public bool LoadChart( in Song _song )
@@ -105,9 +157,9 @@ public class DataStorage : Singleton<DataStorage>
                 Timings = new ReadOnlyCollection<Timing>( timings );
                 Sprites = new ReadOnlyCollection<SpriteSample>( sprites );
                 Samples = new ReadOnlyCollection<KeySound>( samples );
-                ConvertedSamples = samples;
-                if ( !_song.isOnlyKeySound )
-                      AddSample( new KeySound( -50 + GameSetting.SoundOffset, _song.audioName, 1f ) );
+                //ConvertedSamples = samples;
+                //if ( !_song.isOnlyKeySound )
+                //      AddSample( new KeySound( -50 + GameSetting.SoundOffset, _song.audioName, 1f ) );
                 
                 return true;
             }
@@ -152,13 +204,12 @@ public class DataStorage : Singleton<DataStorage>
     #endregion
 
     #region Sound
-    public void AddSample( KeySound _keySound ) => ConvertedSamples.Add( _keySound );
     public bool GetSound( string _name, out FMOD.Sound _sound ) => loadedSounds.TryGetValue( _name, out _sound );
     public void LoadSound( string _name )
     {
         if ( !loadedSounds.ContainsKey( _name ) )
         {
-            string path = Path.Combine( NowPlaying.CurrentSong.directory, _name );
+            string path = Path.Combine( Browser.Inst.CurrentSong.directory, _name );
             if ( AudioManager.Inst.Load( path, out FMOD.Sound sound ) )
                  loadedSounds.Add( _name, sound );
         }
@@ -170,7 +221,7 @@ public class DataStorage : Singleton<DataStorage>
     public Texture2D GetDefaultTexture() => textures[( ++texIndex < textures.Count ? texIndex : texIndex = 0 )];
     public async UniTask LoadTexture( SpriteSample _sprite, Action _OnCompleted = null )
     {
-        var path = Path.Combine( NowPlaying.CurrentSong.directory, _sprite.name );
+        var path = Path.Combine( Browser.Inst.CurrentSong.directory, _sprite.name );
 
         // 파일이 없거나, 이미 로딩된 파일일 경우
         if ( !File.Exists( path ) || loadedTextures.ContainsKey( _sprite.name ) )
@@ -219,68 +270,68 @@ public class DataStorage : Singleton<DataStorage>
     }
     #endregion
 
-    #region Record Data
-    public RecordData CreateNewRecord()
-    {
-        var newRecord = new RecordData()
-        {
-            score    = Judgement.CurrentResult.Score,
-            accuracy = Judgement.CurrentResult.Accuracy,
-            random   = GameSetting.CurrentRandom,
-            pitch    = GameSetting.Pitch,
-            date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
-        };
+    //#region Record Data
+    //public RecordData CreateNewRecord()
+    //{
+    //    var newRecord = new RecordData()
+    //    {
+    //        score    = Judgement.CurrentResult.Score,
+    //        accuracy = Judgement.CurrentResult.Accuracy,
+    //        random   = GameSetting.CurrentRandom,
+    //        pitch    = GameSetting.SoundPitch,
+    //        date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
+    //    };
 
-        if ( recordData.score > newRecord.score )
-             return recordData;
+    //    if ( recordData.score > newRecord.score )
+    //         return recordData;
 
-        string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );
-        try
-        {
-            FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
-            using ( FileStream stream = new FileStream( path, mode ) )
-            {
-                using ( StreamWriter writer = new StreamWriter( stream, System.Text.Encoding.UTF8 ) )
-                {
-                    writer.Write( JsonConvert.SerializeObject( newRecord, Formatting.Indented ) );
-                }
-            }
-            recordData = newRecord;
-        }
-        catch ( Exception )
-        {
-            if ( File.Exists( path ) )
-                 File.Delete( path );
+    //    string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.CurrentSong.filePath )}.json" );
+    //    try
+    //    {
+    //        FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
+    //        using ( FileStream stream = new FileStream( path, mode ) )
+    //        {
+    //            using ( StreamWriter writer = new StreamWriter( stream, System.Text.Encoding.UTF8 ) )
+    //            {
+    //                writer.Write( JsonConvert.SerializeObject( newRecord, Formatting.Indented ) );
+    //            }
+    //        }
+    //        recordData = newRecord;
+    //    }
+    //    catch ( Exception )
+    //    {
+    //        if ( File.Exists( path ) )
+    //             File.Delete( path );
 
-            Debug.LogError( $"Record Write Error : {path}" );
-        }
+    //        Debug.LogError( $"Record Write Error : {path}" );
+    //    }
 
-        return newRecord;
-    }
+    //    return newRecord;
+    //}
 
-    public bool UpdateRecord()
-    {
-        string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( NowPlaying.CurrentSong.filePath )}.json" );
-        if ( !File.Exists( path ) )
-        {
-            recordData = new RecordData();
-            return false;
-        }
+    //public bool UpdateRecord()
+    //{
+    //    string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.CurrentSong.filePath )}.json" );
+    //    if ( !File.Exists( path ) )
+    //    {
+    //        recordData = new RecordData();
+    //        return false;
+    //    }
 
-        using ( StreamReader stream = new StreamReader( path ) )
-        {
-            try
-            {
-                recordData = JsonConvert.DeserializeObject<RecordData>( stream.ReadToEnd() );
-            }
-            catch ( Exception )
-            {
-                Debug.LogWarning( $"Record Deserialize Error : {NowPlaying.CurrentSong.filePath}" );
-                return false;
-            }
-        }
+    //    using ( StreamReader stream = new StreamReader( path ) )
+    //    {
+    //        try
+    //        {
+    //            recordData = JsonConvert.DeserializeObject<RecordData>( stream.ReadToEnd() );
+    //        }
+    //        catch ( Exception )
+    //        {
+    //            Debug.LogWarning( $"Record Deserialize Error : {Browser.Inst.CurrentSong.filePath}" );
+    //            return false;
+    //        }
+    //    }
 
-        return true;
-    }
-    #endregion
+    //    return true;
+    //}
+    //#endregion
 }
