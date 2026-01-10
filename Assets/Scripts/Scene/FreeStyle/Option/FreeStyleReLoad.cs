@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class FreeStyleReLoad : MonoBehaviour
+public class FreeStyleReload : MonoBehaviour
 {
     [SerializeField] private FreeStyle scene;
     [SerializeField] private TextMeshProUGUI prefab;
@@ -16,7 +16,7 @@ public class FreeStyleReLoad : MonoBehaviour
     private ObjectPool<TextMeshProUGUI> uiPool;
     private Queue<TextMeshProUGUI>  uiQueue   = new ();
     private ConcurrentQueue<string> dataQueue = new ();
-    [SerializeField] private UnityEvent OnReLoadEnd;
+    [SerializeField] private UnityEvent OnReloadEnd;
 
     private Coroutine corUpdateTexts;
     private Song prevSelectedSong;
@@ -60,7 +60,7 @@ public class FreeStyleReLoad : MonoBehaviour
 
         uiBack.SetActive( true );
         scene.IsInputLock = false;
-        OnReLoadEnd?.Invoke();
+        OnReloadEnd?.Invoke();
     }
 
     private void OnDisable()

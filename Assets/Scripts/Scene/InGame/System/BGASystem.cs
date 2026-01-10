@@ -87,12 +87,12 @@ public class BGASystem : MonoBehaviour
         {
             ReadOnlyCollection<SpriteSample> sprites = DataStorage.Inst.Sprites;
             for ( int i = 0; i < sprites.Count; i++ )
-                  await DataStorage.Inst.LoadTexture( sprites[i] );
+                  await DataStorage.Inst.LoadTextureAsync( sprites[i] );
         }
         else if ( type == BGA.Image )
         {
             // 이미 프리스타일에서 로딩된 이미지 사용
-            await DataStorage.Inst.LoadTexture( new SpriteSample( Browser.Inst.CurrentSong.imageName ), () =>
+            await DataStorage.Inst.LoadTextureAsync( new SpriteSample( Browser.Inst.CurrentSong.imageName ), () =>
             {
                 if ( DataStorage.Inst.GetTexture( Browser.Inst.CurrentSong.imageName, out Texture2D texture ) )
                 {

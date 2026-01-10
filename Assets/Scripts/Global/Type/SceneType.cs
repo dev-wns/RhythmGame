@@ -1,15 +1,14 @@
 
-// Build Index
-public enum SceneType : int
+public enum SceneType : int // Build Index
 {
-    FreeStyle = 1, Game, Result, // SiglePlay 
+    FreeStyle = 1, Game, Result, // SinglePlay 
     Lobby, Stage,                // MultiPlay
 };
 
 public enum SceneAction : byte
 {
     Main, Exit,                                             // Public
-    Search, GameSetting, SystemSetting, KeySetting, ReLoad, // FreeStyle
+    Search, GameSetting, SystemSetting, KeySetting, Reload, // FreeStyle
     Pause, GameOver,                                        // InGame
     Login, CreateStage,                                     // MultiPlay
 }

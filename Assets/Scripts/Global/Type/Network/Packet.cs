@@ -47,8 +47,8 @@ public struct Packet
             Buffer.BlockCopy( json, 0, data, Network.HeaderSize, json.Length );
     }
 
-    public static Type FromJson<Type>( in Packet _packet )
+    public static T FromJson<T>( in Packet _packet )
     {
-        return JsonConvert.DeserializeObject<Type>( System.Text.Encoding.UTF8.GetString( _packet.data ) );
+        return JsonConvert.DeserializeObject<T>( System.Text.Encoding.UTF8.GetString( _packet.data ) );
     }
 }

@@ -8,18 +8,19 @@ public class InputRepeater
     private float interval = .075f; //.05f;
     private float elapsed;
 
-    public event Action OnRepeat;
+    private event Action OnRepeat;
     
     public InputRepeater() { }
     public InputRepeater( Action _action ) 
     {
         if ( _action != null )
-             OnRepeat += _action; 
+             OnRepeat = _action; 
     }
 
     public void Down()
     {
-        elapsed = 0f;
+        elapsed   = 0f;
+        isPressed = false;
         OnRepeat?.Invoke();
     }
 

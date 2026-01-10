@@ -8,8 +8,8 @@ using DG.Tweening;
 public abstract class Scene : MonoBehaviour
 {
     [SerializeField] private SceneFader sceneFader;
-    [SerializeField] private UnityInputAction inputAction;
-    private UnityInputHandler inputHandler;
+    private UnityInputAction  inputAction = new (); // Action Map
+    private UnityInputHandler inputHandler;         // Actor
     public SceneAction CurrentAction { get; private set; }
     public bool IsInputLock { get; set; }
     public event Action<UnityInputAction> OnKeyBind;

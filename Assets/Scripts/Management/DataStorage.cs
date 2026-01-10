@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
@@ -13,10 +14,10 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 
 public class DataStorage : Singleton<DataStorage>
 {
-    [Header( "Network" )]
-    public static bool IsMultiPlaying { get; set; } = false;
-    public static USER_INFO? UserInfo { get; set; }
-    public static STAGE_INFO? StageInfo { get; set; }
+    //[Header( "Network" )]
+    //public static bool IsMultiPlaying { get; set; } = false;
+    //public static USER_INFO? UserInfo { get; set; }
+    //public static STAGE_INFO? StageInfo { get; set; }
 
     [Header( "Resource" )]
     private BMPLoader bitmapLoader = new ();
@@ -157,9 +158,6 @@ public class DataStorage : Singleton<DataStorage>
                 Timings = new ReadOnlyCollection<Timing>( timings );
                 Sprites = new ReadOnlyCollection<SpriteSample>( sprites );
                 Samples = new ReadOnlyCollection<KeySound>( samples );
-                //ConvertedSamples = samples;
-                //if ( !_song.isOnlyKeySound )
-                //      AddSample( new KeySound( -50 + GameSetting.SoundOffset, _song.audioName, 1f ) );
                 
                 return true;
             }
@@ -168,7 +166,6 @@ public class DataStorage : Singleton<DataStorage>
         return false;
     }
 
-    #region Addressable
     public void LoadAssetsAsync<T>( string _label, Action<T> _OnCompleted ) where T : UnityEngine.Object
     {
         AsyncOperationHandle<IList<IResourceLocation>> locationHandle = Addressables.LoadResourceLocationsAsync( _label, typeof( T ) );
@@ -201,9 +198,7 @@ public class DataStorage : Singleton<DataStorage>
             Addressables.Release( locationHandle );
         };
     }
-    #endregion
 
-    #region Sound
     public bool GetSound( string _name, out FMOD.Sound _sound ) => loadedSounds.TryGetValue( _name, out _sound );
     public void LoadSound( string _name )
     {
@@ -214,34 +209,33 @@ public class DataStorage : Singleton<DataStorage>
                  loadedSounds.Add( _name, sound );
         }
     }
-    #endregion
 
-    #region Texture
     public bool GetTexture( string _name, out Texture2D _tex ) => loadedTextures.TryGetValue( _name, out _tex );
     public Texture2D GetDefaultTexture() => textures[( ++texIndex < textures.Count ? texIndex : texIndex = 0 )];
-    public async UniTask LoadTexture( SpriteSample _sprite, Action _OnCompleted = null )
+    public async UniTask LoadTextureAsync( SpriteSample _sprite, Action _OnCompleted = null )
     {
         var path = Path.Combine( Browser.Inst.CurrentSong.directory, _sprite.name );
-
-        // 파일이 없거나, 이미 로딩된 파일일 경우
         if ( !File.Exists( path ) || loadedTextures.ContainsKey( _sprite.name ) )
              return;
         
         if ( Path.GetExtension( path ) == ".bmp" )
         {
-            // 비트맵 파일은 런타임에서 읽히지 않음( 외부 도움 )
+            // 비트맵 파일은 UnityWebRequest로 로딩되지 않음( 외부 도움 )
             BMPImage  img = bitmapLoader.LoadBMP( path );
             Texture2D tex = img.ToTexture2D( TextureFormat.RGBA32 );
 
             // 전경일때 대부분의 비트맵 배경은 검은색으로 되어있음
-            Color32[] pixels = tex.GetPixels32();
-            for ( int i = 0; i < pixels.Length; i++ )
+            if ( _sprite.type == SpriteType.Foreground )
             {
-                if ( pixels[i].r == 0 && pixels[i].g == 0 && pixels[i].b == 0 )
-                     pixels[i].a = 0;
+                Color32[] pixels = tex.GetPixels32();
+                for ( int i = 0; i < pixels.Length; i++ )
+                {
+                    if ( pixels[i].r == 0 && pixels[i].g == 0 && pixels[i].b == 0 )
+                         pixels[i].a = 0;
+                }
+                tex.SetPixels32( pixels );
+                tex.Apply();
             }
-            tex.SetPixels32( pixels );
-            tex.Apply();
 
             loadedTextures.Add( _sprite.name, tex );
         }
@@ -266,72 +260,64 @@ public class DataStorage : Singleton<DataStorage>
         }
 
         _OnCompleted?.Invoke();
-        await UniTask.Yield( PlayerLoopTiming.Update );
     }
-    #endregion
 
-    //#region Record Data
-    //public RecordData CreateNewRecord()
-    //{
-    //    var newRecord = new RecordData()
-    //    {
-    //        score    = Judgement.CurrentResult.Score,
-    //        accuracy = Judgement.CurrentResult.Accuracy,
-    //        random   = GameSetting.CurrentRandom,
-    //        pitch    = GameSetting.SoundPitch,
-    //        date     = DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" )
-    //    };
+    public async UniTask<Texture2D> LoadTextureAsync( string _dir, string _name, CancellationToken _token )
+    {
+        string path = Path.Combine( _dir, _name );
+        return await LoadTextureAsync( path, SpriteType.Background, _token );
+    }
 
-    //    if ( recordData.score > newRecord.score )
-    //         return recordData;
+    public async UniTask<Texture2D> LoadTextureAsync( string _dir, SpriteSample _sprite, CancellationToken _token )
+    {
+        string path = Path.Combine( _dir, _sprite.name );
+        return await LoadTextureAsync( path, _sprite.type, _token );
+    }
 
-    //    string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.CurrentSong.filePath )}.json" );
-    //    try
-    //    {
-    //        FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
-    //        using ( FileStream stream = new FileStream( path, mode ) )
-    //        {
-    //            using ( StreamWriter writer = new StreamWriter( stream, System.Text.Encoding.UTF8 ) )
-    //            {
-    //                writer.Write( JsonConvert.SerializeObject( newRecord, Formatting.Indented ) );
-    //            }
-    //        }
-    //        recordData = newRecord;
-    //    }
-    //    catch ( Exception )
-    //    {
-    //        if ( File.Exists( path ) )
-    //             File.Delete( path );
+    public async UniTask<Texture2D> LoadTextureAsync( string _path, SpriteType _type, CancellationToken _token )
+    {
+        if ( !File.Exists( _path ) ) return null;
 
-    //        Debug.LogError( $"Record Write Error : {path}" );
-    //    }
+        Texture2D tex = null;
+        if ( Path.GetExtension( _path ) == ".bmp" )
+        {
+            // 비트맵 파일은 UnityWebRequest에서 읽히지 않음( 외부 도움 )
+            BMPImage img = bitmapLoader.LoadBMP( _path );
+            tex = img.ToTexture2D( TextureFormat.RGB24 );
 
-    //    return newRecord;
-    //}
+            // 전경일때 대부분의 비트맵 배경은 검은색으로 되어있음
+            if ( _type == SpriteType.Foreground )
+            {
+                Color32[] pixels = tex.GetPixels32();
+                for ( int i = 0; i < pixels.Length; i++ )
+                {
+                    if ( pixels[i].r == 0 && pixels[i].g == 0 && pixels[i].b == 0 )
+                        pixels[i].a = 0;
+                }
+                tex.SetPixels32( pixels );
+                tex.Apply();
+            }
+        }
+        else
+        {
+            // 그 외 JPG, JPEG, PNG 등 이미지 파일 로딩
+            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( _path, true ) )
+            {
+                www.method = UnityWebRequest.kHttpVerbGET;
+                using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
+                {
+                    www.downloadHandler = handler;
+                    await www.SendWebRequest().WithCancellation( _token );
 
-    //public bool UpdateRecord()
-    //{
-    //    string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.CurrentSong.filePath )}.json" );
-    //    if ( !File.Exists( path ) )
-    //    {
-    //        recordData = new RecordData();
-    //        return false;
-    //    }
+                    if ( www.result == UnityWebRequest.Result.ConnectionError ||
+                         www.result == UnityWebRequest.Result.ProtocolError )
+                         throw new Exception( www.error );
 
-    //    using ( StreamReader stream = new StreamReader( path ) )
-    //    {
-    //        try
-    //        {
-    //            recordData = JsonConvert.DeserializeObject<RecordData>( stream.ReadToEnd() );
-    //        }
-    //        catch ( Exception )
-    //        {
-    //            Debug.LogWarning( $"Record Deserialize Error : {Browser.Inst.CurrentSong.filePath}" );
-    //            return false;
-    //        }
-    //    }
+                    tex = handler.texture;
+                }
+            }
+        }
 
-    //    return true;
-    //}
-    //#endregion
+        return tex;
+    }
 }

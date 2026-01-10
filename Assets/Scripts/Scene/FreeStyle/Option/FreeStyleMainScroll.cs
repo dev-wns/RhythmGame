@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class FreeStyleMainScroll : ScrollBase
 {
@@ -34,13 +33,12 @@ public class FreeStyleMainScroll : ScrollBase
     [Header("Contents")]
     [SerializeField] private GameObject noContents;
 
-    [Header("Sound Position UI")]
-    [SerializeField] private Slider posSlider;
+    [Header( "Notify" )]
+    private Song  curSong;
+    private Tween notifyTween;
+    private const float NotifyDelay = .125f;
+    public  event Action<Song> OnSelectNotify;
 
-    private Song curSong;
-    public event Action<Song> OnSelectNotify;
-
-    #region Unity Callback
     private void Awake()
     {
         IsLoop = true;
@@ -60,13 +58,15 @@ public class FreeStyleMainScroll : ScrollBase
             song.gameObject.SetActive( false );
             songs.AddLast( song );
         }
-
     }
 
     private void OnDestroy()
     {
         search.OnSearch       -= UpdateLayoutAndSong;
         scene.OnKeyBind       -= KeyBind;
+
+        notifyTween?.Kill();
+        notifyTween = null;
     }
 
     private async void Start()
@@ -77,11 +77,19 @@ public class FreeStyleMainScroll : ScrollBase
         noContents.SetActive( !HasAnySongs );
         if ( HasAnySongs )
         {
-            UpdateSongElements();
+            Initialize();
             SelectNotify();
         }
     }
-    #endregion
+
+    private void LazyNotify()
+    {
+        if ( CurrentIndex != Browser.Inst.CurrentIndex )
+        {
+            notifyTween?.Kill();
+            notifyTween = DOVirtual.DelayedCall( NotifyDelay, SelectNotify );
+        }
+    }
 
     private void SelectNotify()
     {
@@ -91,7 +99,7 @@ public class FreeStyleMainScroll : ScrollBase
 
     private void UpdateLayoutAndSong()
     {
-        UpdateSongElements();
+        Initialize();
         if ( !curSong.title.Contains(   Browser.Inst.CurrentSong.title,   StringComparison.OrdinalIgnoreCase ) &&
              !curSong.version.Contains( Browser.Inst.CurrentSong.version, StringComparison.OrdinalIgnoreCase ) )
         {
@@ -99,28 +107,27 @@ public class FreeStyleMainScroll : ScrollBase
         }
     }
 
-    private void UpdateSongElements()
+    private void Initialize()
     {
         Length = Browser.Inst.Songs.Count;
 
         // 이전 UI 이펙트 초기화
-        int medianCounts = 0;
-        medianNode = songs.First;
         Select( Browser.Inst.CurrentIndex );
-        int index = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
-                                                ( CurrentIndex - median ) % Length;
+        int index = ( CurrentIndex - median + Length ) % Length; // First Object Index
 
+        int medianIndex = 0;
+        medianNode = songs.First;
         foreach ( var song in songs )
         {
-            if ( medianCounts < median )
+            if ( medianIndex < median )
             {
                 medianNode = medianNode.Next;
-                medianCounts++;
+                medianIndex++;
             }
 
             song.gameObject.SetActive( HasAnySongs );
             song.SetInfo( Browser.Inst.Songs[index] );
-            song.PositionReset();
+            song.ResetPosition();
 
             index = index + 1 < Length ? index + 1 : 0;
         }
@@ -129,11 +136,11 @@ public class FreeStyleMainScroll : ScrollBase
         group.Initialize();
         group.SetLayoutVertical();
 
-        size = medianNode.Value.rt.sizeDelta.y + group.spacing;
+        size = medianNode.Value.rt.sizeDelta.y + group.Spacing;
 
         // Count Text
-        maxText.SetText( "{0}", Length );
-        curText.SetText( "{0}", ( CurrentIndex + 1 ) );
+        maxText?.SetText( "{0}", Length );
+        curText?.SetText( "{0}", ( CurrentIndex + 1 ) );
 
         rt.anchoredPosition = contentOriginPos;
         curPos = contentOriginPos.y;
@@ -181,15 +188,15 @@ public class FreeStyleMainScroll : ScrollBase
     public override void PrevMove()
     {
         base.PrevMove();
+
         // 객체 위치 스왑
         var first = songs.First.Value;
         var last  = songs.Last.Value;
         last.rt.anchoredPosition = new Vector2( first.rt.anchoredPosition.x, first.rt.anchoredPosition.y + size );
 
         // Song 정보 수정
-        int infoIndex = CurrentIndex - median < 0 ? Length - ( Global.Math.Abs( CurrentIndex - median + 1 ) % Length ) - 1 :
-                                                    ( CurrentIndex - median ) % Length;
-        last.SetInfo( Browser.Inst.Songs[infoIndex] );
+        int index = ( CurrentIndex - median + Length ) % Length; // First Object Index
+        last.SetInfo( Browser.Inst.Songs[index] );
 
         // 노드 이동
         songs.RemoveLast();
@@ -211,6 +218,7 @@ public class FreeStyleMainScroll : ScrollBase
     public override void NextMove()
     {
         base.NextMove();
+
         // 객체 위치 스왑
         var first = songs.First.Value;
         var last  = songs.Last.Value;
@@ -244,14 +252,6 @@ public class FreeStyleMainScroll : ScrollBase
         AudioManager.Inst.Play( SFX.MainSelect );
         _action?.Invoke();
     }
-
-    private void KeyUp()
-    {
-        if ( !HasAnySongs ) return;
-
-        if ( Browser.Inst.CurrentIndex != CurrentIndex )
-             SelectNotify();
-    }
     #endregion
 
     public void KeyBind( UnityInputAction _input )
@@ -261,7 +261,10 @@ public class FreeStyleMainScroll : ScrollBase
         _input.Bind( SceneAction.Main, KeyCode.DownArrow, new InputRepeater( () => Scroll( NextMove ) ) );
 
         // 현재 선택된 채보 알림
-        _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.UpArrow,   KeyUp );
-        _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.DownArrow, KeyUp );
+        _input.Bind( SceneAction.Main, KeyState.Down, KeyCode.UpArrow,   () => notifyTween?.Kill() );
+        _input.Bind( SceneAction.Main, KeyState.Down, KeyCode.DownArrow, () => notifyTween?.Kill() );
+
+        _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.UpArrow,   LazyNotify );
+        _input.Bind( SceneAction.Main, KeyState.Up, KeyCode.DownArrow, LazyNotify );
     }
 }

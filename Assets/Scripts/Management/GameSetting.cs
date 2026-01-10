@@ -26,7 +26,7 @@ public class GameSetting : Singleton<GameSetting>
     private static int OriginScrollSpeed;
     public  static event Action<int> OnChangedSpeed;
 
-    public static float Weight => ScrollSpeed * 0.073810f; // 0.001030 // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
+    public static float Weight => ( ScrollSpeed / SoundPitch ) * 0.073810f; // 0.001030 // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
     public static float MinDistance => 1200f / Weight;
 
     // Sound

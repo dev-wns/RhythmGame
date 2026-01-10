@@ -4,6 +4,6 @@ public class ReloadActivator : CanvasActivator
 {
     protected override void KeyBind( UnityInputAction _input )
     {
-        _input.Bind( SceneAction.ReLoad, KeyCode.Escape, DisableCanvas );
+        _input.Bind( SceneAction.Reload, KeyCode.Escape, DisableCanvas );
     }
 }

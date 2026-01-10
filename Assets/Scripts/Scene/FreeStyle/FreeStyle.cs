@@ -1,7 +1,9 @@
-using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
+using System.Diagnostics;
 
 public class FreeStyle : Scene
 {
@@ -11,24 +13,26 @@ public class FreeStyle : Scene
     private Song song;
     private double totalTime;
     private double startTick;
-    private double saveTime;
-    public  static double Playback;
+    private int    saveTime;
+    public  static int Playback { get; private set; }
 
-    private readonly float FadeDuration = 2.5f;
-    private readonly float SoundOffset  = -50f;
-    private readonly int   InputDelay   = 150;
+    private readonly float FadeDuration = 1.5f;
+    private readonly int SoundOffset  = -50;
     private bool canRestart = true;
 
     // Event
-    public event Func<Song, CancellationToken, UniTask> OnLoadAsync;
     public event SongHandler OnStart;
     public event SongHandler OnRestart;
+    public event Func<Song, CancellationToken, UniTask> OnLoadAsync;
 
     // Synchronize
     private CancellationTokenSource loadCts;
 
     private Coroutine corFadeVolume;
     private bool isStart;
+
+    // UI
+    [SerializeField] private Slider posSlider;
 
     protected override void Awake()
     {
@@ -45,6 +49,9 @@ public class FreeStyle : Scene
     {
         base.OnDestroy();
 
+        loadCts?.Cancel();
+        loadCts?.Dispose();
+
         OnKeyBind -= KeyBind;
         mainScroll.OnSelectNotify  -= UpdateSong;
         pitchOption.OnUpdatePitch  -= UpdatePitch;
@@ -57,17 +64,18 @@ public class FreeStyle : Scene
     {
         base.Start();
 
-        if ( DataStorage.Inst.LoadSongs() )
-        {
-            //Searcher.Initialize();
-        }
+        DataStorage.Inst.LoadSongs();
     }
 
     private void Update()
     {
         if ( !isStart ) return;
 
-        Playback = saveTime + ( ( Time.realtimeSinceStartupAsDouble - startTick ) * GameSetting.SoundPitch * 1000d );
+        double diff = Time.realtimeSinceStartupAsDouble - startTick;
+        Playback = ( int )Math.Round( saveTime + ( diff * GameSetting.SoundPitch * 1000d ) );
+        //OnUpdate?.Invoke( Playback );
+        posSlider.value = ( float )( Playback / totalTime );
+
         if ( canRestart && totalTime < Playback )
         {
             if ( corFadeVolume is not null )
@@ -77,15 +85,15 @@ public class FreeStyle : Scene
             }
 
             canRestart = false;
-            corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, FadeDuration * .5f, () =>
+            corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, FadeDuration, () =>
             {
                 AudioManager.Inst.Play( AudioManager.Inst.MainSound, 0f );
-                AudioManager.Inst.Position = ( uint ) song.previewTime;
-                corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, song.volume, FadeDuration * .5f );
+                AudioManager.Inst.Position = ( uint )song.previewTime;
+                corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, song.volume, FadeDuration );
 
                 startTick = Time.realtimeSinceStartupAsDouble;
-                saveTime = song.previewTime + SoundOffset;
-                Playback = saveTime;
+                saveTime  = song.previewTime + SoundOffset;
+                Playback  = saveTime;
                 OnRestart?.Invoke( in song );
                 canRestart = true;
             } );
@@ -98,19 +106,16 @@ public class FreeStyle : Scene
         loadCts?.Cancel();
         loadCts?.Dispose();
         loadCts = new CancellationTokenSource();
-        CancellationTokenSource currentCts = loadCts;
+        CancellationTokenSource currentCts = loadCts; // 이 비동기 흐름은 최신 곡이 아닐 수도 있기에 캐싱된 Cts 사용
         try 
         {
-            // 연타로 인한 불필요한 로딩 완화
-            await UniTask.Delay( InputDelay, true, PlayerLoopTiming.Update, currentCts.Token );
-
             if ( !AudioManager.Inst.Load( _song.audioPath, out FMOD.Sound curSound, true/* Stream */ ) )
-                 return; // Finally 실행
+                 return;
 
             song = _song;
-            if ( song.previewTime <= 0 || song.previewTime > song.totalTime )
-                 song.previewTime = ( int )( song.totalTime * .35f );
+            song.previewTime = GetPreviewTime( song );
 
+            DataStorage.Inst.LoadChart( in song );
             await AwaitUniTaskHandlers( OnLoadAsync, song, currentCts.Token );
 
             // 이전 음악 페이드아웃 + 사운드 리소스 해제
@@ -122,20 +127,20 @@ public class FreeStyle : Scene
             AudioGroup prevAudio = new AudioGroup( AudioManager.Inst.MainSound, AudioManager.Inst.MainChannel );
             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, AudioManager.Inst.Volume, 0f, .5f, () => { prevAudio.Release(); } );
             
-            // 현재 비동기 흐름에서 Cancel 됐는지 확인( 최신 곡이 아닐 수도 있기에 캐싱된 Cts로 확인 )
             if ( currentCts.IsCancellationRequested )
-                 return; // Finally 실행
+                 return; // Finally 진입
 
             // 최신 음악 재생 및 페이드인
             AudioManager.Inst.Play( curSound, 0f );
-            AudioManager.Inst.Position = ( uint )song.previewTime;
+
+            AudioManager.Inst.Position = ( uint ) song.previewTime;
             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, song.volume, .5f );
-            
+
             startTick = Time.realtimeSinceStartupAsDouble;
             saveTime  = song.previewTime + SoundOffset;
             Playback  = saveTime;
             
-            float duration   = FadeDuration * 1000f * .5f;
+            float duration   = FadeDuration * 1000f;
             float diff       = AudioManager.Inst.Length - song.totalTime;
             totalTime = diff > duration ? song.totalTime : AudioManager.Inst.Length + 1000f - duration;
             
@@ -143,7 +148,6 @@ public class FreeStyle : Scene
             canRestart = true;
             isStart    = true;
         }
-        catch( OperationCanceledException ) { /* Debug.LogWarning( _error ); */ } // 정상
         finally
         {
             // 이전 비동기 흐름이 최신 Cts를 해제하지않도록 방지
@@ -163,8 +167,8 @@ public class FreeStyle : Scene
         foreach ( Func<Song, CancellationToken, UniTask> handler in _action.GetInvocationList() )
         {
             // 리소스 로딩이 실패하더라도 있는만큼만 보여줌( 다른 Task 작업은 계속 진행 )
-            try                 { await handler( _song, _token ); } // 구독자 전부 대기
-            catch ( Exception ) { /* Debug.LogWarning( _error ); */ }
+            try                        { await handler( _song, _token ); } // 구독자 전부 대기
+            catch ( Exception _error ) { Debug.LogWarning( _error ); }
         }
     }
 
@@ -174,11 +178,14 @@ public class FreeStyle : Scene
         await NowPlaying.CurrentScene.LoadScene( SceneType.Game );
     }
 
+    private int GetPreviewTime( in Song _song ) => _song.previewTime <= 0 || _song.previewTime > _song.totalTime ? ( int )( _song.totalTime * .35f ) : _song.previewTime;
+
     private void UpdateAudioBuffer()
     {
         if ( AudioManager.Inst.Load( song.audioPath, out FMOD.Sound curSound, true ) )
         {
-            Playback = saveTime + ( ( Time.realtimeSinceStartupAsDouble - startTick ) * GameSetting.SoundPitch * 1000d );
+            double diff = Time.realtimeSinceStartupAsDouble - startTick;
+            Playback = ( int )Math.Round( saveTime + ( diff * GameSetting.SoundPitch * 1000d ) );
             AudioManager.Inst.Play( curSound );
             AudioManager.Inst.Position = ( uint )Playback;
         }
@@ -186,7 +193,7 @@ public class FreeStyle : Scene
 
     private void UpdatePitch( float _pitch )
     {
-        saveTime  = AudioManager.Inst.Position;
+        saveTime  = ( int )AudioManager.Inst.Position;
         startTick = Time.realtimeSinceStartupAsDouble;
     }
 

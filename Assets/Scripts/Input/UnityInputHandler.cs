@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class UnityInputHandler
 {
-    // Warning : Action 내부에서 Bind/Remove를 호출하면, 순회도중 컬렉션이 수정되어 문제가 발생합니다.
+    // Action 내부에서 Bind/Remove를 호출하면, 순회도중 컬렉션이 수정되어 문제가 발생합니다.
     private Dictionary<KeyCode, Action> downActions = new ();
     private Dictionary<KeyCode, Action> holdActions = new ();
     private Dictionary<KeyCode, Action> upActions   = new ();
@@ -14,7 +14,7 @@ public class UnityInputHandler
 
     public void Process()
     {
-        // 가장 마지막에 누른 키에 대해서만 처리
+        // 중복 입력 시 가장 마지막에 누른 키만 처리
         foreach ( KeyCode keyCode in downActions.Keys )
         {
             if ( Input.GetKeyDown( keyCode ) )

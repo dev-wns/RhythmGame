@@ -1,10 +1,11 @@
+using Cysharp.Threading.Tasks;
 using FMOD;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 
 public class AudioManager : Singleton<AudioManager>
 {
@@ -107,7 +108,7 @@ public class AudioManager : Singleton<AudioManager>
         ErrorCheck( system.getSoftwareFormat( out int sampleRate, out SPEAKERMODE mode, out int numRawSpeakers ) );
         ErrorCheck( system.setSoftwareFormat( SampleRate, SPEAKERMODE.STEREO, numRawSpeakers ) );
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
-        ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 4 ) );
+        ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 2 ) );
 
         // System Initialize
         IntPtr extraDriverData = new IntPtr();
@@ -157,7 +158,8 @@ public class AudioManager : Singleton<AudioManager>
         {
             ErrorCheck( system.createDSPByType( DSP_TYPE.PITCHSHIFT, out DSP dsp ) );
             ErrorCheck( dsp.setParameterFloat( ( int ) DSP_PITCHSHIFT.MAXCHANNELS, 0 ) );
-            ErrorCheck( dsp.setParameterFloat( ( int ) DSP_PITCHSHIFT.FFTSIZE, 2048 ) );
+            ErrorCheck( dsp.setParameterFloat( ( int ) DSP_PITCHSHIFT.FFTSIZE, 4096 ) );
+            ErrorCheck( dsp.setParameterFloat( ( int ) DSP_PITCHSHIFT.OVERLAP, 16 ) );
             dsps.Add( DSP_TYPE.PITCHSHIFT, dsp );
         }
 
@@ -261,7 +263,7 @@ public class AudioManager : Singleton<AudioManager>
         Debug.Log( "AudioManager Release" );
     }
 
-    public void ReLoad()
+    public void Reload()
     {
         IsStop = true;
         // caching
@@ -305,17 +307,17 @@ public class AudioManager : Singleton<AudioManager>
     }
     #endregion
 
-    public bool Load( string _path, out Sound _sound, bool _isStream = false )
+    public bool Load( string _path, out Sound _sound, bool _isStream = false, bool _isNonBlock = false )
     {
         _sound = new Sound();
         if ( !System.IO.File.Exists( @_path ) )
-              return false;
+             return false;
 
-        MODE mode  = _isStream     ? MODE.CREATESTREAM : MODE.CREATESAMPLE;
-             mode |= MODE.LOOP_OFF | MODE.ACCURATETIME | MODE.LOWMEM; // | MODE.VIRTUAL_PLAYFROMSTART
+        MODE mode  = _isStream ? MODE.CREATESTREAM : MODE.CREATECOMPRESSEDSAMPLE;
+             mode |= MODE.LOOP_OFF | MODE.ACCURATETIME;
+        if ( _isNonBlock ) mode |= MODE.NONBLOCKING;
 
-        ErrorCheck( system.createSound( _path, mode, out _sound ) );
-        return true;
+        return ErrorCheck( system.createSound( _path, mode, out _sound ) );
     }
 
     private void Load( SFX _type, string _path )
@@ -489,7 +491,23 @@ public class AudioManager : Singleton<AudioManager>
         if ( !dsps.ContainsKey( _dspType ) )
              return;
 
-        ErrorCheck( groups[_channelType].addDSP( CHANNELCONTROL_DSP_INDEX.TAIL, dsps[_dspType] ) );
+        int pos = CHANNELCONTROL_DSP_INDEX.HEAD;
+        switch( _dspType )
+        {
+            // Head
+            case DSP_TYPE.PITCHSHIFT:
+
+            pos = CHANNELCONTROL_DSP_INDEX.HEAD;
+            break;
+
+            // Tail
+            case DSP_TYPE.FFT:
+
+            pos = CHANNELCONTROL_DSP_INDEX.TAIL;
+            break;
+        }
+
+        ErrorCheck( groups[_channelType].addDSP( pos, dsps[_dspType] ) );
     }
 
     public void RemoveDSP( DSP_TYPE _dspType, ChannelType _channelType )

@@ -7,19 +7,19 @@ using UnityEngine.UI;
 public class SongScrollerItem : OptionButton
 {
     [SerializeField] private TextMeshProUGUI title, version, artist;
-    [SerializeField] private Vector2 PosCached;
+    [SerializeField] private Vector2 posCache;
 
     public RectTransform rt { get; private set; }
     private Image panel;
 
-    private static readonly Color CenterPanelColor   = new Color( .75f, 1f, .75f, 1f );
-    private static readonly Color CenterTitleColor   = new Color( 1f, 1f, .75f, 1f );
-    private static readonly Color CenterVersionColor = new Color( .75f, 1f, 1f, 1f );
-    private static readonly Color CenterArtistColor  = new Color( .69f, .675f, .65f, 1f );
+    private static readonly Color CenterPanelColor    = new Color( .75f,   1f,  .75f, 1f );
+    private static readonly Color CenterTitleColor    = new Color(   1f,   1f,  .75f, 1f );
+    private static readonly Color CenterVersionColor  = new Color( .75f,   1f,    1f, 1f );
+    private static readonly Color CenterArtistColor   = new Color( .69f, .675f, .65f, 1f );
 
-    private static readonly Color DefaultPanelColor   = new Color( 1f, 1f, 1f, 1f );
-    private static readonly Color DefaultTitleColor   = new Color( 1f, 1f, 1f, 1f );
-    private static readonly Color DefaultVersionColor = new Color( 1f, 1f, 1f, 1f );
+    private static readonly Color DefaultPanelColor   = new Color(   1f,    1f,   1f, 1f );
+    private static readonly Color DefaultTitleColor   = new Color(   1f,    1f,   1f, 1f );
+    private static readonly Color DefaultVersionColor = new Color(   1f,    1f,   1f, 1f );
     private static readonly Color DefaultArtistColor  = new Color( .69f, .675f, .65f, 1f );
 
     [Header( "Fade Effect" )]
@@ -27,22 +27,21 @@ public class SongScrollerItem : OptionButton
     private int   maxIndex;
     private int   halfIndex;
     private float alpha;
-    private float startAlpha;
     private float endAlpha;
     private static readonly float Duration = .15f;
-    private Coroutine corFadeAlpha;
 
     protected override void Awake()
     {
         base.Awake();
         rt = transform as RectTransform;
         panel = GetComponent<Image>();
-        PosCached = rt.anchoredPosition;
+        posCache = rt.anchoredPosition;
     }
 
     public void MoveX( float _offset )
     {
-        rt.DOAnchorPosX( PosCached.x + _offset, .5f );
+        rt.DOKill();
+        rt.DOAnchorPosX( posCache.x + _offset, .5f );
     }
 
     public void Initialize( int _maxIndex )
@@ -52,40 +51,14 @@ public class SongScrollerItem : OptionButton
         alpha     = 1f;
     }
 
+    private Tween colorTween;
     public void UpdateColor( int _index, int _max )
     {
-        startAlpha = alpha;
         endAlpha   = 1f - ( .215f * Global.Math.Abs( _index - halfIndex ) );
         isCenter   = _index == halfIndex;
 
-        if ( corFadeAlpha is not null )
-        {
-            StopCoroutine( corFadeAlpha );
-            corFadeAlpha = null;
-        }
-        corFadeAlpha = StartCoroutine( Fade() );
-    }
-
-    private IEnumerator Fade()
-    {
-        if ( Global.Math.Abs( startAlpha - endAlpha ) < float.Epsilon )
-        {
-            alpha = endAlpha;
-            SetAlpha( alpha );
-            yield break;
-        }
-
-        float offset = endAlpha - startAlpha;
-        while( startAlpha < endAlpha ? alpha < endAlpha : // FadeIn
-                                       alpha > endAlpha ) // FadeOut
-        {
-            yield return YieldCache.WaitForEndOfFrame;
-            alpha += ( offset * Time.deltaTime ) / Duration;
-            SetAlpha( alpha );
-        }
-
-        alpha = endAlpha;
-        SetAlpha( alpha );
+        colorTween?.Kill();
+        colorTween = DOTween.To( () => alpha, x => { alpha = x; SetAlpha( alpha ); }, endAlpha, Duration );
     }
 
     private void SetAlpha( float _alpha )
@@ -113,8 +86,8 @@ public class SongScrollerItem : OptionButton
         artist.SetText(  _song.artist  );
     }
 
-    public void PositionReset()
+    public void ResetPosition()
     {
-        rt.anchoredPosition = PosCached;
+        rt.anchoredPosition = posCache;
     }
 }

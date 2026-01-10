@@ -9,7 +9,9 @@ public class PreviewBGASystem : MonoBehaviour
     [SerializeField] private SoundPitchOption pitchOption;
     [SerializeField] private PreviewBGARenderer prefab;
     private ObjectPool<PreviewBGARenderer> pool;
-    private PreviewBGARenderer background;
+    private PreviewBGARenderer previous;
+    private PreviewBGARenderer current;
+
 
     private void Awake()
     {
@@ -30,19 +32,23 @@ public class PreviewBGASystem : MonoBehaviour
 
     private void Play( in Song _song )
     {
-        background?.Play( _song );
+        previous?.Despawn();
+        previous = null;
+
+        current?.Play( _song );
     }
 
     private async UniTask LoadAsync( Song _song, CancellationToken _token )
     {
-        PreviewBGARenderer current = null;
+        //PreviewBGARenderer current = null;
         try
         {
-            current = pool.Spawn();
+            previous = current;
+            current  = pool.Spawn();
             await current.LoadAsync( _song, _token );
 
-            background?.Despawn(); // previous
-            background = current;
+            // background?.Despawn(); // previous
+            // background = current;
         }
         catch( OperationCanceledException )
         {
@@ -53,6 +59,6 @@ public class PreviewBGASystem : MonoBehaviour
 
     private void UpdatePitch( float _pitch )
     {
-        background?.UpdatePitch( _pitch );
+        current?.UpdatePitch( _pitch );
     }
 }

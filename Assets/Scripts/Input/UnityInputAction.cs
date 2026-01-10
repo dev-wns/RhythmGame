@@ -2,28 +2,26 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnityInputAction : MonoBehaviour
+public class UnityInputAction
 {
     private Dictionary<SceneAction, UnityInputHandler> actions = new ();
 
     public UnityInputHandler GetHandler( SceneAction _sceneAction )
-    {
-        actions.TryGetValue( _sceneAction, out UnityInputHandler handler );
-        return handler;
-    }
-
-    public void Bind( SceneAction _sceneAction, KeyState _keyState, KeyCode _keyCode, Action _action )
     {
         if ( !actions.TryGetValue( _sceneAction, out UnityInputHandler handler ) )
         {
             handler = new UnityInputHandler();
             actions.Add( _sceneAction, handler );
         }
+        return handler;
+    }
 
+    public void Bind( SceneAction _sceneAction, KeyState _keyState, KeyCode _keyCode, Action _action )
+    {
+        UnityInputHandler handler = GetHandler( _sceneAction );
         handler.Bind( _keyCode, _keyState, _action );
     }
 
-    /// <summary> The input type is KeyDown </summary>
     public void Bind( SceneAction _sceneAction, KeyCode _keyCode, Action _action )
     {
         Bind( _sceneAction, KeyState.Down, _keyCode, _action );

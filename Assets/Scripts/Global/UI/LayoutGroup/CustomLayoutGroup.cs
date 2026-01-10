@@ -7,12 +7,10 @@ using UnityEngine;
 [RequireComponent( typeof( RectTransform ) )]
 public abstract class CustomLayoutGroup : MonoBehaviour
 {
-    public float spacing;
     [Serializable]
     protected struct RectOffset
     {
         public float left, right, top, bottom;
-
         public RectOffset( float _left, float _right, float _top, float _bottom )
         {
             left = _left;
@@ -21,14 +19,14 @@ public abstract class CustomLayoutGroup : MonoBehaviour
             bottom = _bottom;
         }
     }
-    [SerializeField]
-    protected RectOffset padding;
-    [SerializeField]
-    protected TextAnchor childAlignment = TextAnchor.MiddleCenter;
+    
+    public float Spacing => spacing;
+    [SerializeField] protected float      spacing;
+    [SerializeField] protected RectOffset padding;
+    [SerializeField] protected TextAnchor childAlignment = TextAnchor.MiddleCenter;
     protected Vector2 anchor;
 
-    [SerializeField]
-    protected List<RectTransform> rectChildren = new List<RectTransform>();
+    [SerializeField] protected List<RectTransform> rectChildren = new List<RectTransform>();
     public bool ShouldIncludeDisabledObject { get; private set; }
 
     public virtual void Initialize( bool _shouldIncludeDisabledObject = false )
@@ -73,6 +71,7 @@ public abstract class CustomLayoutGroup : MonoBehaviour
     }
 #endif
 
+    // 런타임 중 위치 갱신이 필요할때 호출( SpriteRenderer 사용가능 )
     public abstract void SetLayoutHorizontal();
     public abstract void SetLayoutVertical();
 

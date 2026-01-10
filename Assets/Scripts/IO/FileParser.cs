@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 public class FileParser : FileConverter
 {
@@ -116,48 +117,49 @@ public class FileParser : FileConverter
             while ( ReadLine() != "[Timings]" ) { }
 
             #region Timings
-            Timing curTiming  = new Timing();
-            Timing prevTiming = new Timing( double.MinValue, double.MinValue );
+            //Timing curTiming  = new Timing();
+            //Timing prevTiming = new Timing( double.MinValue, double.MinValue );
             
-            List<Timing> uninheritedTimings = new List<Timing>();
-            bool hasFixedBPM = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM );
+            //List<Timing> uninheritedTimings = new List<Timing>();
+            //bool hasFixedBPM = GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM );
             while ( ReadLine() != "[Sprites]" )
             {
                 var split = line.Split( ',' );
 
-                curTiming.time          = double.Parse( split[0] ) / GameSetting.SoundPitch;
-                curTiming.beatLength    = double.Parse( split[1] ) / GameSetting.SoundPitch;
-                curTiming.bpm           = ( 1d / curTiming.beatLength ) * 60000d;
-                curTiming.isUninherited = int.Parse( split[2] );
+                Timing timing        = new Timing();
+                timing.time          = double.Parse( split[0] );// / GameSetting.SoundPitch;
+                timing.beatLength    = double.Parse( split[1] );// / GameSetting.SoundPitch;
+                timing.bpm           = ( 1d / timing.beatLength ) * 60000d;
+                timing.isUninherited = int.Parse( split[2] );
 
-                if ( hasFixedBPM )
-                {
-                    curTiming.bpm = Browser.Inst.CurrentSong.mainBPM;
-                    uninheritedTimings.Add( curTiming );
-                    _timings.Add( curTiming );
+                //if ( hasFixedBPM )
+                //{
+                //    curTiming.bpm = Browser.Inst.CurrentSong.mainBPM;
+                //    uninheritedTimings.Add( curTiming );
+                //    _timings.Add( curTiming );
 
-                    while ( ReadLine() != "[Sprites]" ) { }
-                    break;
-                }
+                //    while ( ReadLine() != "[Sprites]" ) { }
+                //    break;
+                //}
 
-                if ( curTiming.isUninherited == 1 )
-                     uninheritedTimings.Add( curTiming );
+                //if ( timing.isUninherited == 1 )
+                //     uninheritedTimings.Add( timing );
 
-                _timings.Add( curTiming );
-                prevTiming = curTiming;
+                _timings.Add( timing );
+                //prevTiming = curTiming;
             }
             #endregion
 
             #region Sprite Samples
             while ( ReadLine() != "[Samples]" )
             {
-                SpriteSample sprite;
                 var split = line.Split( ',' );
 
-                sprite.type  = ( SpriteType )int.Parse( split[0] );
-                sprite.start = double.Parse( split[1] ) / GameSetting.SoundPitch;
-                sprite.end   = double.Parse( split[2] ) / GameSetting.SoundPitch;
-                sprite.name  = split[3];
+                SpriteSample sprite = new SpriteSample();
+                sprite.type         = ( SpriteType )int.Parse( split[0] );
+                sprite.start        = double.Parse( split[1] );// / GameSetting.SoundPitch;
+                sprite.end          = double.Parse( split[2] );// / GameSetting.SoundPitch;
+                sprite.name         = split[3];
 
                 _sprites.Add( sprite );
             }
@@ -166,29 +168,30 @@ public class FileParser : FileConverter
             #region BGM
             while ( ReadLine() != "[Notes]" )
             {
-                KeySound sample;
                 var split = line.Split( ',' );
 
-                sample.time   = double.Parse( split[0] ) / GameSetting.SoundPitch;
-                sample.volume = float.Parse( split[1] ) * .01f;
-                sample.name   = split[2];
+                KeySound sample = new KeySound();
+                sample.time     = double.Parse( split[0] );// / GameSetting.SoundPitch;
+                sample.volume   = float.Parse( split[1] ) * .01f;
+                sample.name     = split[2];
 
                 _samples.Add( sample );
             }
             #endregion
 
             #region Notes
-            bool isConvert      = GameSetting.HasFlag( GameMode.ConvertKey ) && Browser.Inst.CurrentSong.keyCount == 7;
-            bool isNoSliderFlag = GameSetting.HasFlag( GameMode.NoSlider );
+            //bool isConvert      = GameSetting.HasFlag( GameMode.ConvertKey ) && Browser.Inst.CurrentSong.keyCount == 7;
+            //bool isNoSliderFlag = GameSetting.HasFlag( GameMode.NoSlider );
             while ( ReadLineEndOfStream() )
             {
-                Note note = new Note();
                 var split = line.Split( ',' );
 
+                Note note       = new Note();
                 note.lane       = int.Parse( split[0] );
-                note.time       = double.Parse( split[1] ) / GameSetting.SoundPitch;
-                note.endTime    = double.Parse( split[2] ) / GameSetting.SoundPitch;
-                note.isSlider   = isNoSliderFlag ? false : note.endTime > 0d;
+                note.time       = double.Parse( split[1] );// / GameSetting.SoundPitch;
+                note.endTime    = double.Parse( split[2] );// / GameSetting.SoundPitch;
+                note.isSlider   = note.endTime > 0d;
+                //note.isSlider   = isNoSliderFlag ? false : note.endTime > 0d;
 
                 var keySoundSplit = split[3].Split( ':' );
                 note.keySound = new KeySound( note.time, keySoundSplit[1], float.Parse( keySoundSplit[0] ) * .01f );
@@ -209,29 +212,46 @@ public class FileParser : FileConverter
     }
 
     /// <summary> 프리스타일에서 사용할 최소 차트 </summary>
-    public bool TryParse( string _path, out List<Note> _notes, out List<Timing> _timings )
+    public bool TryParse( in Song _song, out List<Note> _notes, out List<Timing> _timings )
     {
         _notes   = new List<Note>();
         _timings = new List<Timing>();
+        //_sprites = new List<SpriteSample>();
+        //_samples = new List<KeySound>();
         try
         {
-            OpenFile( _path );
+            OpenFile( _song.filePath );
             while ( ReadLine() != "[Timings]" )
             { }
 
             #region Timings
-            Timing curTiming = new Timing();
             while ( ReadLine() != "[Sprites]" )
             {
                 var split = line.Split( ',' );
 
-                curTiming.time       = double.Parse( split[0] );
-                curTiming.beatLength = double.Parse( split[1] );
-                curTiming.bpm        = ( 1d / curTiming.beatLength ) * 60000d;
+                Timing timing     = new Timing();
+                timing.time       = double.Parse( split[0] );
+                timing.beatLength = double.Parse( split[1] );
+                timing.bpm        = ( 1d / timing.beatLength ) * 60000d;
 
-                _timings.Add( curTiming );
+                _timings.Add( timing );
             }
             #endregion
+
+            //#region Sprite Samples
+            //while ( ReadLine() != "[Samples]" )
+            //{
+            //    var split = line.Split( ',' );
+
+            //    SpriteSample sprite = new SpriteSample();
+            //    sprite.type  = ( SpriteType ) int.Parse( split[0] );
+            //    sprite.start = double.Parse( split[1] );
+            //    sprite.end   = double.Parse( split[2] );
+            //    sprite.name  = split[3];
+
+            //    _sprites.Add( sprite );
+            //}
+            //#endregion
 
             #region Notes
             while ( ReadLine() != "[Notes]" ) { }
@@ -241,10 +261,17 @@ public class FileParser : FileConverter
                 Note note = new Note();
                 var split = line.Split( ',' );
 
-                note.lane       = int.Parse( split[0] );
-                note.time       = double.Parse( split[1] );
-                note.endTime    = double.Parse( split[2] );
-                note.isSlider   = note.endTime > 0d ? true : false;
+                note.lane     = int.Parse( split[0] );
+                note.time     = double.Parse( split[1] );
+                note.endTime  = double.Parse( split[2] );
+                note.isSlider = note.endTime > 0d;
+
+                // note.distance = GetDistance( note.time, _song.mainBPM, _timings );
+                // if ( note.endTime > 0d )
+                // {
+                //     note.isSlider    = true;
+                //     note.endDistance = GetDistance( note.endTime, _song.mainBPM, _timings );
+                // }
 
                 _notes.Add( note );
             }
@@ -260,5 +287,28 @@ public class FileParser : FileConverter
         }
 
         return true;
+    }
+
+    public double GetDistance( double _time, double _mainBPM, List<Timing> _timings )
+    {
+        double result  = 0d;
+        for ( int i = 0; i < _timings.Count; i++ )
+        {
+            double time = _timings[i].time;
+            double bpm  = _timings[i].bpm / _mainBPM;
+
+            // 지나간 타이밍에 대한 거리
+            if ( i + 1 < _timings.Count && _timings[i + 1].time < _time )
+            {
+                result += bpm * ( _timings[i + 1].time - time );
+                continue;
+            }
+
+            // 현재 타이밍에 대한 거리
+            result += bpm * ( _time - time );
+            break;
+        }
+
+        return result;
     }
 }

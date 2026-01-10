@@ -53,7 +53,7 @@ public class FileConverter : FileReader
 
         public bool this[int _key] => bits[_key];
     }
-    private class Accumulate
+    protected class Accumulate
     {
         public double time;
         public double bpm;
@@ -428,11 +428,11 @@ public class FileConverter : FileReader
 
             // 비교될 새로운 타이밍 추가
             if ( !isFind )
-                accumulate.Add( new Accumulate( nextTime - uninheritedTimings[i].time, uninheritedTimings[i].bpm ) );
+                 accumulate.Add( new Accumulate( nextTime - uninheritedTimings[i].time, uninheritedTimings[i].bpm ) );
         }
 
         if ( accumulate.Count == 0 )
-            throw new Exception( "The MainBPM was not found." );
+             throw new Exception( "The MainBPM was not found." );
 
         // 가장 오래 지속되는 BPM이 첫번째 요소가 되도록 내림차순 정렬
         accumulate.Sort( delegate ( Accumulate _left, Accumulate _right )

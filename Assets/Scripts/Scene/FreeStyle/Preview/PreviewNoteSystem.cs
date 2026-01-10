@@ -1,10 +1,11 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
-using Cysharp.Threading.Tasks;
+using System.IO;
 using System.Threading;
+using TMPro;
+using UnityEngine;
 
 #pragma warning disable CS0162
 
@@ -18,31 +19,32 @@ public class PreviewNoteSystem : MonoBehaviour
     private Dictionary<NoteModel, ObjectPool<PreviewNoteRenderer>> pools = new();
     private ObjectPool<PreviewNoteRenderer> currentPool;
 
-    private int spawnIndex;
-    private Note curData;
+    private static Song song = new ();
+    private Note  curData;
+    private int   spawnIndex;
+    private float startNotePos;
+    private int startNoteIndex;
 
-    private List<Timing> timings;
-    private List<Note>   notes;
+    private List<Note>   notes   = new ();
+    private List<Timing> timings = new ();
     private int timingIndex;
-    private double mainBPM;
+    private int startTimingIndex;
 
     private const double DelayTime = ( 1d / 60d ) * 1000d;
 
-    public TextMeshProUGUI bpmText;
-    private int bpmIndex;
+    [SerializeField] TextMeshProUGUI bpmText;
+    private int    bpmIndex;
     private double bpmTime;
     private double prevBPM;
     private Timing curTiming;
 
-    public static double Playback => FreeStyle.Playback + Browser.Inst.CurrentSong.audioOffset;
-    public static double Distance { get; private set; }
+    public  static int Playback => FreeStyle.Playback + song.audioOffset;
+    public  static double Distance { get; private set; }
     private static double DistanceCache;
-    private float noteStartPos;
+    private static double StartDistanceCache;
 
-    public static float NoteWidth;
-    public static float NoteHeight;
-    public static float Weight => GameSetting.Weight * .775f;
-    public static float MinDistance => 1200f / Weight;
+    public  static float NoteWidth;
+    public  static float NoteHeight;
     private static float NoteMultiplier;
 
     private void Awake()
@@ -61,7 +63,7 @@ public class PreviewNoteSystem : MonoBehaviour
         scene.OnLoadAsync -= Parse;
         scene.OnStart     -= Restart;
         scene.OnRestart   -= Restart;
-        pitchOption.OnUpdatePitch -= UpdatePitch;
+        pitchOption.OnUpdatePitch          -= UpdatePitch;
         noteModelOption.OnChangedNoteModel -= ChangedNoteModel;
     }
 
@@ -74,64 +76,71 @@ public class PreviewNoteSystem : MonoBehaviour
         }
     }
 
-    private void Restart( in Song _song )
+    private async UniTask Parse( Song _song, CancellationToken _token )
     {
-        currentPool.AllDespawn();
-        
-        spawnIndex     = 0;
-        timingIndex    = 0;
-        Distance       = 0d;
-        DistanceCache  = 0d;
+        song = _song;
+        NoteMultiplier = song.keyCount == 7 ? .55f :
+                         song.keyCount == 6 ? .625f : .775f;
 
-        for ( spawnIndex = 0; spawnIndex < notes.Count; spawnIndex++ )
+        NoteWidth  = 110.5f * NoteMultiplier;
+        NoteHeight = 63f    * NoteMultiplier;
+
+        startNotePos = -( ( NoteWidth * ( song.keyCount - 1 ) ) + ( GameSetting.NoteBlank * ( song.keyCount + 1 ) ) ) * .5f;
+
+        timings.Clear();
+        timings.AddRange( DataStorage.Inst.Timings );
+
+        notes.Clear();
+        notes.AddRange( DataStorage.Inst.Notes );
+
+        double noteTime    = 0d;
+        double previewTime = song.previewTime + song.audioOffset - 50;
+        for ( startNoteIndex = 0; startNoteIndex < notes.Count; startNoteIndex++ )
         {
-            if ( notes[spawnIndex].time > Playback )
-            {
+            Note note = notes[startNoteIndex];
+            if ( note.time > previewTime || ( note.time < previewTime && note.endTime > previewTime ) )
+            {   
+                noteTime = note.time;
+                spawnIndex = startNoteIndex;
                 curData = notes[spawnIndex];
-                curData.distance = GetDistance( curData.time );
-                if ( curData.isSlider )
-                     curData.endDistance = GetDistance( curData.endTime );
-
                 break;
             }
         }
 
-        for ( timingIndex = 0; timingIndex + 1 < timings.Count; timingIndex++ )
+        StartDistanceCache = 0d;
+        for ( int i = 0; i < timings.Count; i++ )
         {
-            double time = timings[timingIndex].time;
-            double bpm  = timings[timingIndex].bpm / mainBPM;
+            double time = timings[i].time;
+            double bpm  = timings[i].bpm / song.mainBPM;
 
-            if ( timings[timingIndex + 1].time > Playback )
-                 break;
+            if ( i + 1 < timings.Count && timings[i + 1].time < previewTime )
+            {
+                StartDistanceCache += bpm * ( timings[i + 1].time - time );
+                continue;
+            }
 
-            DistanceCache += bpm * ( timings[timingIndex + 1].time - time );
-        }
-
-        bpmIndex     = timingIndex;
-        curTiming    = timings[bpmIndex];
-        bpmTime      = curTiming.time;
-        bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.SoundPitch ) ) );
-    }
-
-    private async UniTask Parse( Song _song, CancellationToken _token )
-    {
-        NoteMultiplier = _song.keyCount == 7 ? .55f :
-                         _song.keyCount == 6 ? .625f : .775f;
-
-        NoteWidth  = 110.5f * NoteMultiplier;
-        NoteHeight = 63f * NoteMultiplier;
-
-        noteStartPos = -( ( NoteWidth * ( _song.keyCount - 1 ) ) + ( GameSetting.NoteBlank * ( _song.keyCount + 1 ) ) ) * .5f;
-
-        mainBPM = _song.mainBPM;
-        using ( FileParser parser = new FileParser() )
-        {
-            if ( !parser.TryParse( _song.filePath, out notes, out timings ) )
-                  Debug.LogWarning( $"Parsing failed  Current Chart : {_song.title}" );
+            startTimingIndex = i;
+            break;
         }
 
         await UniTask.CompletedTask;
-        //Restart( _song );
+    }
+
+    private void Restart( in Song _song )
+    {
+        currentPool.AllDespawn();
+        
+        spawnIndex     = startNoteIndex;
+        curData        = notes[spawnIndex];
+
+        timingIndex    = startTimingIndex;
+        Distance       = StartDistanceCache;
+        DistanceCache  = StartDistanceCache;
+
+        bpmIndex       = timingIndex;
+        curTiming      = timings[timingIndex];
+        bpmTime        = curTiming.time;
+        bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.SoundPitch ) ) );
     }
 
     private void UpdatePitch( float _pitch )
@@ -141,24 +150,24 @@ public class PreviewNoteSystem : MonoBehaviour
 
     private void Update()
     {
-        if ( timings == null ) 
-             return;
-
         for ( int i = timingIndex; i < timings.Count; i++ )
         {
             double time = timings[i].time;
-            double bpm  = timings[i].bpm / mainBPM;
+            double bpm  = timings[i].bpm / song.mainBPM;
 
             if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
             {
-                timingIndex += 1;
+                timingIndex   += 1;
                 DistanceCache += bpm * ( timings[i + 1].time - time );
-                break;
+                continue;
+                //break;
             }
 
             Distance = DistanceCache + ( bpm * ( Playback - time ) );
-            break; 
+            break;
         }
+
+        SpawnNotes( Distance );
 
         if ( bpmIndex < timings.Count && bpmTime < Playback )
         {
@@ -183,13 +192,11 @@ public class PreviewNoteSystem : MonoBehaviour
                 bpmTime = needDelay ? current.time + DelayTime : current.time;
             }
         }
-
-        SpawnNotes( Distance );
     }
 
     private void SpawnNotes( double _distance )
     {
-        while ( spawnIndex < notes.Count && curData.distance <= _distance + MinDistance )
+        while ( spawnIndex < notes.Count && curData.distance <= _distance + GameSetting.MinDistance )
         {
             PreviewNoteRenderer note = currentPool.Spawn();
             
@@ -200,7 +207,7 @@ public class PreviewNoteSystem : MonoBehaviour
             else if ( keyCount == 7 ) color = curData.lane == 1 || curData.lane == 5 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) :
                                               curData.lane == 3                      ? new Color( 1f, 0.8274511f, 0.2117647f, 1f ) : Color.white;
 
-            note.SetInfo( curData, noteStartPos, color );
+            note.SetInfo( curData, startNotePos, color );
             if ( ++spawnIndex < notes.Count )
             {
                 curData = notes[spawnIndex];
@@ -217,7 +224,7 @@ public class PreviewNoteSystem : MonoBehaviour
         for ( int i = 0; i < timings.Count; i++ )
         {
             double time = timings[i].time;
-            double bpm  = timings[i].bpm / mainBPM;
+            double bpm  = timings[i].bpm / song.mainBPM;
 
             if ( i + 1 < timings.Count && timings[i + 1].time < _time )
             {

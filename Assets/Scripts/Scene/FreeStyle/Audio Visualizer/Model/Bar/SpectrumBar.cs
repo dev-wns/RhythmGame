@@ -20,7 +20,7 @@ public class SpectrumBar : MonoBehaviour
         }
     }
 
-    public void Awake()
+    private void Awake()
     {
         mpb = new MaterialPropertyBlock();
     }

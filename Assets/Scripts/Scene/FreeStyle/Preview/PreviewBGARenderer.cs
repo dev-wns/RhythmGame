@@ -1,11 +1,10 @@
-using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Collections;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -16,6 +15,7 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
     private RectTransform tf;
 
     private BGA type;
+    private string directory;
     private static readonly float FadeDuration = .25f;
 
     [Header( "[Image]" )]
@@ -52,13 +52,22 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
     private void OnDestroy()
     {
         StopAllCoroutines();
+        spriteCts?.Cancel();
+        spriteCts?.Dispose();
+        spriteCts = null;
+
+        vp.targetTexture = null;
+        vp?.Stop();
+
         foreach ( Texture2D texture in textures.Values )
         {
             DestroyImmediate( texture );
         }
+        textures.Clear();
+        sprites.Clear();
+        textures = null;
+        sprites  = null;
 
-        vp.targetTexture = null;
-        vp?.Stop();
         if ( renderTexture )
         {
             if ( renderTexture.IsCreated() )
@@ -111,112 +120,10 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
         }
     }
 
-    public async UniTask LoadAsync( Song _song, CancellationToken _token )
-    {
-        Clear();
-                
-        if ( _song.hasSprite )
-        {
-            type = BGA.Sprite;
-            using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
-            {
-                string line;
-                while ( ( line = reader.ReadLine() ) != "[Sprites]" ) { }
-                while ( ( line = reader.ReadLine() ) != "[Samples]" )
-                {
-                    _token.ThrowIfCancellationRequested();
-
-                    SpriteSample sprite;
-                    var split = line.Split( ',' );
-
-                    sprite.type = ( SpriteType ) int.Parse( split[0] );
-                    if ( sprite.type != SpriteType.Background )
-                         continue;
-
-                    sprite.start = double.Parse( split[1] );
-                    sprite.end   = double.Parse( split[2] );
-                    sprite.name  = split[3];
-
-                    if ( sprite.start > _song.previewTime )
-                         sprites.Add( sprite );
-                }
-            }
-
-            // 스프라이트는 로딩된만큼만 보여주기 때문에 개인 Cts 사용
-            spriteCts = new CancellationTokenSource();
-            LoadSpritesAsync( spriteCts.Token ).Forget();
-        }
-        else if ( File.Exists( _song.videoPath ) )
-        {
-            type = BGA.Video;
-            try { await LoadVideoAsync( _song, _token ); }
-            finally { isLoading = false; }
-        }
-        else
-        {
-            type = BGA.Image;
-            imageName = _song.imageName;
-            try { await LoadTextureAsync( new SpriteSample( imageName ), BGA.Image, _token ); }
-            finally { isLoading = false; }
-        }
-    }
-
-    public async UniTask LoadTextureAsync( SpriteSample _sprite, BGA _type, CancellationToken _token )
-    {
-        var path = Path.Combine( Browser.Inst.CurrentSong.directory, _sprite.name );
-        if ( !File.Exists( path ) || textures.ContainsKey( _sprite.name ) )
-             return;
-
-        Texture2D tex;
-        if ( Path.GetExtension( path ) == ".bmp" )
-        {
-            // 비트맵 파일은 런타임에서 읽히지 않음( 외부 도움 )
-            BMPLoader bitmapLoader = new BMPLoader();
-            BMPImage img = bitmapLoader.LoadBMP( path );
-            tex = img.ToTexture2D( TextureFormat.RGB24 );
-        }
-        else
-        {
-            // 그 외 JPG, JPEG, PNG 등 이미지 파일 로딩
-            using ( UnityWebRequest www = UnityWebRequestTexture.GetTexture( path, true ) )
-            {
-                www.method = UnityWebRequest.kHttpVerbGET;
-                using ( DownloadHandlerTexture handler = new DownloadHandlerTexture() )
-                {
-                    www.downloadHandler = handler;
-                    await www.SendWebRequest().WithCancellation( _token );
-
-                    if ( www.result == UnityWebRequest.Result.ConnectionError ||
-                         www.result == UnityWebRequest.Result.ProtocolError )
-                         throw new Exception( www.error );
-
-                    tex = handler.texture;
-                }
-            }
-        }
-
-        textures.Add( _sprite.name, tex );
-    }
-
-    private async UniTask LoadSpritesAsync( CancellationToken _token )
-    {
-        try
-        {
-            for ( int i = 0; i < sprites.Count; i++ )
-            {
-                _token.ThrowIfCancellationRequested();
-                await LoadTextureAsync( sprites[i], BGA.Sprite, _token );
-                await UniTask.Yield();
-            }
-        }
-        finally { isLoading = false; }
-    }
-
     private IEnumerator UpdateSprites()
     {
         int curIndex = 0;
-
-        SpriteSample curSample = curIndex < sprites.Count ? sprites[curIndex] : new SpriteSample();
+        SpriteSample curSample    = curIndex < sprites.Count ? sprites[curIndex] : new SpriteSample();
         WaitUntil waitSpriteStart = new WaitUntil( () => curSample.start <= AudioManager.Inst.Position );
         WaitUntil waitSpriteEnd   = new WaitUntil( () => curSample.end   <= AudioManager.Inst.Position );
 
@@ -238,6 +145,91 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
             if ( ++curIndex < sprites.Count )
                  curSample = sprites[curIndex];
         }
+
+    }
+
+    public async UniTask LoadAsync( Song _song, CancellationToken _token )
+    {
+        Clear();
+
+        directory = _song.directory;
+        if ( _song.hasSprite )
+        {
+            type = BGA.Sprite;
+            //using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
+            //{
+            //    string line;
+            //    while ( ( line = reader.ReadLine() ) != "[Sprites]" ) { }
+            //    while ( ( line = reader.ReadLine() ) != "[Samples]" )
+            //    {
+            //        SpriteSample sprite;
+            //        var split = line.Split( ',' );
+
+            //        sprite.type = ( SpriteType )int.Parse( split[0] );
+            //        if ( sprite.type != SpriteType.Background )
+            //             continue;
+
+            //        sprite.start = double.Parse( split[1] );
+            //        sprite.end   = double.Parse( split[2] );
+            //        sprite.name  = split[3];
+
+            //        _token.ThrowIfCancellationRequested();
+            //        if ( sprite.start > _song.previewTime )
+            //             sprites.Add( sprite );
+            //    }
+            //}
+
+            sprites.Clear();
+            foreach ( SpriteSample sprite in DataStorage.Inst.Sprites )
+            {
+                _token.ThrowIfCancellationRequested();
+                if ( sprite.start > _song.previewTime )
+                     sprites.Add( sprite );
+            }
+
+            // 스프라이트는 로딩된만큼만 보여주기 때문에 개인 Cts 사용
+            spriteCts = new CancellationTokenSource();
+            LoadSpritesAsync( spriteCts.Token ).Forget();
+        }
+        else if ( File.Exists( _song.videoPath ) )
+        {
+            type = BGA.Video;
+            try     { await LoadVideoAsync( _song, _token ); }
+            finally { isLoading = false; }
+        }
+        else
+        {
+            type = BGA.Image;
+            imageName = _song.imageName;
+            try 
+            {
+                if ( !textures.ContainsKey( imageName ) )
+                {
+                    Texture2D tex = await DataStorage.Inst.LoadTextureAsync( _song.imagePath, SpriteType.Background, _token );
+                    if ( tex != null ) textures.Add( imageName, tex );
+                }
+            }
+            finally { isLoading = false; }
+        }
+    }
+
+    private async UniTask LoadSpritesAsync( CancellationToken _token )
+    {
+        try
+        {
+            for ( int i = 0; i < sprites.Count; i++ )
+            {
+                _token.ThrowIfCancellationRequested();
+                if ( !textures.ContainsKey( sprites[i].name ) &&
+                      sprites[i].type == SpriteType.Background )
+                {
+                    Texture2D tex = await DataStorage.Inst.LoadTextureAsync( directory, sprites[i], _token );
+                    if ( tex != null ) textures.Add( sprites[i].name, tex );
+                    await UniTask.Yield();
+                }
+            }
+        }
+        finally { isLoading = false; }
     }
 
     private async UniTask LoadVideoAsync( Song _song, CancellationToken _token )
@@ -246,14 +238,12 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
         image.texture = renderTexture;
         vp.url        = @$"{_song.videoPath}";
 
-        double videoOffset = Browser.Inst.CurrentSong.videoOffset;
         tf.sizeDelta  = new Vector2( Global.UI.Screen.Width, Global.UI.Screen.Height );
-        videoTime = Global.Math.Max( 0d, ( _song.previewTime + _song.audioOffset + videoOffset ) * .001d );
+        videoTime     = Global.Math.Max( 0d, ( _song.previewTime + _song.audioOffset + _song.videoOffset ) * .001d );
         
         vp.Prepare();
         await UniTask.WaitUntil( () => vp.isPrepared, PlayerLoopTiming.Update, _token );
-
-        isLoading     = false;
+        
         // AudioOffset : 프리스타일에서 노트와 음악의 영점 맞추기
         // VideoOffset : 비디오 재생 지연시간
         // PreviewTime : 해당 위치를 기준으로 계산
@@ -263,6 +253,7 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
     {
         ClearRenderTexture();
         tf.SetAsFirstSibling();
+        directory     = string.Empty;
         isLoading     = true;
         isDefault     = false;
         image.enabled = false;
@@ -293,7 +284,7 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
 
     private IEnumerator FadeAfterDespawn()
     {
-        while ( image.color.a >= 0f )
+        while ( image.color.a > 0f )
         {
             Color newColor = image.color;
             newColor.a -= Time.deltaTime / FadeDuration;
@@ -302,7 +293,7 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
             yield return null;
         }
 
-        if ( isDefault )
+        if ( isDefault ) // 기본 이미지셋 사용 중
         {
             pool.Despawn( this );
             yield break;

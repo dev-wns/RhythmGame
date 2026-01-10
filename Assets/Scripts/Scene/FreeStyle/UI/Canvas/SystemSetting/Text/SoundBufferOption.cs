@@ -27,6 +27,6 @@ public class SoundBufferOption : OptionText
     public override void Process()
     {
         SystemSetting.CurrentSoundBuffer = ( SoundBuffer )CurrentIndex;
-        AudioManager.Inst.ReLoad();
+        AudioManager.Inst.Reload();
     }
 }
