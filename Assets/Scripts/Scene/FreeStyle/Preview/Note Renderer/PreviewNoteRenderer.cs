@@ -23,7 +23,7 @@ public abstract class PreviewNoteRenderer : MonoBehaviour, IObjectPool<PreviewNo
     protected abstract void OnUpdateSlider( float _length );
     protected abstract void ApplyMpb();
 
-    private static float Weight => GameSetting.Weight * .775f;
+    private static float Weight => GameSetting.Weight;// * .775f;
 
     public void SetInfo( in Note _note, float _startPos, Color _color )
     {

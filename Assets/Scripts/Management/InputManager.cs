@@ -21,7 +21,7 @@ public class InputManager : Singleton<InputManager>
     public static KeyCode GetKeyCode( int _vKey )           => VKeyToUnity.TryGetValue( _vKey, out KeyCode keyCode ) ? keyCode : KeyCode.None;
     #endregion
 
-    public void Initialize()
+    public void ReadUserData()
     {
         // 기본 키 설정
         if ( Config.Inst.Read( ConfigType._4K, out KeyCode[] _4K_KeyCodes ) ) KeyBind( GameKeyCount._4, _4K_KeyCodes );
@@ -32,6 +32,11 @@ public class InputManager : Singleton<InputManager>
 
         if ( Config.Inst.Read( ConfigType._7K, out KeyCode[] _7K_KeyCodes ) ) KeyBind( GameKeyCount._7, _7K_KeyCodes );
         else                                                                  KeyBind( GameKeyCount._7, new KeyCode[] { KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.Space, KeyCode.P, KeyCode.LeftBracket, KeyCode.RightBracket, } );
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
         KeyMapping();
     }
 

@@ -26,10 +26,6 @@ public class DataStorage : Singleton<DataStorage>
     private List<Texture2D> textures = new (); // Default Texture
     private int             texIndex = 0;      // Default Texture
 
-    //[Header( "Record Data" )]
-    //public  static RecordData CurrentRecord => recordData;
-    //private static RecordData recordData = new RecordData();
-
     [Header( "Origin Datas" )]
     public ReadOnlyCollection<Song>         Songs   { get; private set; } // 원본 음악 리스트
     public ReadOnlyCollection<Note>         Notes   { get; private set; }
@@ -41,15 +37,6 @@ public class DataStorage : Singleton<DataStorage>
     public bool IsSongParsing { get; private set; }
     public event Action<Song>                     OnSongParsed;
     public event Action<ReadOnlyCollection<Song>> OnSongsParsed;
-
-    // Chart Parsing
-    //public event Action<ReadOnlyCollection<Note>>         OnLoadedNote;
-    //public event Action<ReadOnlyCollection<Timing>>       OnLoadedTiming;
-    //public event Action<ReadOnlyCollection<SpriteSample>> OnLoadedSprite;
-    //public event Action<ReadOnlyCollection<KeySound>>     OnLoadedSample;
-
-    //[Header( "Converted Chart" )]
-    //public List<KeySound> ConvertedSamples { get; private set; }
 
     protected override void Awake()
     {
@@ -204,7 +191,7 @@ public class DataStorage : Singleton<DataStorage>
     {
         if ( !loadedSounds.ContainsKey( _name ) )
         {
-            string path = Path.Combine( Browser.Inst.CurrentSong.directory, _name );
+            string path = Path.Combine( Browser.Inst.SelectedSong.directory, _name );
             if ( AudioManager.Inst.Load( path, out FMOD.Sound sound ) )
                  loadedSounds.Add( _name, sound );
         }
@@ -214,7 +201,7 @@ public class DataStorage : Singleton<DataStorage>
     public Texture2D GetDefaultTexture() => textures[( ++texIndex < textures.Count ? texIndex : texIndex = 0 )];
     public async UniTask LoadTextureAsync( SpriteSample _sprite, Action _OnCompleted = null )
     {
-        var path = Path.Combine( Browser.Inst.CurrentSong.directory, _sprite.name );
+        var path = Path.Combine( Browser.Inst.SelectedSong.directory, _sprite.name );
         if ( !File.Exists( path ) || loadedTextures.ContainsKey( _sprite.name ) )
              return;
         

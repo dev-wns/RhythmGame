@@ -28,28 +28,7 @@ public class FrameRateOption : OptionText
 
     public override void Process()
     {
-        var type = ( FrameRate )CurrentIndex;
-
-
-        //QualitySettings.vSyncCount = SystemSetting.CurrentFrameRate == FrameRate.vSync ? 1 : 0;
-        //switch ( type )
-        //{
-        //    case FrameRate.vSync:
-        //    case FrameRate.No_Limit: Application.targetFrameRate = 0; break;
-
-        //    case FrameRate._60:
-        //    case FrameRate._144:
-        //    case FrameRate._240:
-        //    case FrameRate._960:
-        //    {
-        //        QualitySettings.vSyncCount = 0;
-        //        var frame = ( type ).ToString().Replace( "_", " " );
-        //        Application.targetFrameRate = int.Parse( frame );
-        //    }
-        //    break;
-        //}
-
-        SystemSetting.CurrentFrameRate = type;
-        SystemSetting.Inst.UpdateScreen();
+        SystemSetting.CurrentFrameRate = ( FrameRate )CurrentIndex;
+        SystemSetting.Inst.ApplyScreenSetting();
     }
 }

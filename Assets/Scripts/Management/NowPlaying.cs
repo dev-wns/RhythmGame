@@ -7,6 +7,8 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
+using UnityEditor;
 using UnityEngine;
 
 #pragma warning disable CS0162
@@ -15,202 +17,128 @@ public class NowPlaying : Singleton<NowPlaying>
 {
     public static Scene CurrentScene;
 
+    private readonly Timer     SysTimer   = new ();
+    private readonly GameTimer LogicTimer = new ();
+
     public Song      CurrentSong   { get; private set; } // 게임 모드 등으로 인해 바뀐 음악 정보
-    //public Results CurrentResult { get; private set; } = new ();
     public Record    CurrentRecord { get; private set; } = new ();
 
+    public  static readonly int AudioLeadIn   = -3000;
+    private static readonly int WaitPauseTime = 2000;
+
     [Header( "Time" )]
-    public  static double Playback { get; private set; } // ms 기준
-    public  static double Distance { get; private set; }
-    private long   frequency;
-    private long   startTick;
-    private double distanceCache;
-    private double saveTime;
-    private int    bpmIndex;
+    public  static int    Playback  { get; private set; } // ms 기준
+    public  static double Distance  { get; private set; }
 
-    public  static readonly double AudioLeadIn   = 3000d;
-    private static readonly double WaitPauseTime = 2000d;
+    private TimingMap timingMap = new ();
+    //private int       saveMs;
 
-    [Header( "Thread" )]
-    private UniTask                 timeTask;
-    private CancellationTokenSource timeCts;
+    //private long   frequency;
+    //private long   startTick;
+    //private double distanceCache;
+    //private int    bpmIndex;
 
-    //// DLL
-    [DllImport( "Assistant" )]
-    public static extern bool EnableRawInput( bool isEnable );
-    [DllImport( "Assistant" )]
-    private static extern bool GetPerformanceCounter( out long performanceCount );
-    [DllImport( "Assistant" )]
-    private static extern bool GetPerformanceFrequency( out long frequency );
-    [DllImport( "Assistant" )]
-    private static extern void SetTimerResolution( bool isHighQuality );
-    //
+    [DllImport( "Assistant" )] private static extern void SetTimerResolution( bool isHighQuality );
+    
     public static bool IsStart  { get; private set; }
-    //public static bool IsLoaded { get; private set; }
-
-    // Load Event
-    //public static event Action<Song>  OnParsing;    // 약식 데이터 파싱 ( 프리스타일 곡 목록 등에 사용 )
-    //public static event Action        OnInitialize; // Main  Thread
-    //public static event Func<UniTask> OnLoad;       // Main  Thread
-    //public static event Action        OnLoadAsync;  // Other Thread
-    //public static event Action        OnLoadEnd;
-    //public static event Action<double/* Playback */> OnUpdate;
     public static event Action<double/* Playback */> OnUpdateInThread;
 
-    // Game Event
-    //public static event Action OnGameStart;
-    //public static event Action OnGameOver;
-    //public static event Action OnRelease;
-    //public static event Action OnClear;          // 변수만 초기화하고 재사용할 때
-    //public static event Action<bool> OnPause;
-
-    #region Unity Event Function
     protected override void Awake()
     {
         base.Awake();
 
-        //SetTimerResolution( true );
-        GetPerformanceFrequency( out frequency );
+        SystemSetting.Inst.ReadUserData();
+        GameSetting.Inst.ReadUserData();
+        InputManager.Inst.ReadUserData();
 
         AudioManager.Inst.Initialize();
-        GameSetting.Inst.Initialize();
-        SystemSetting.Inst.Initialize();
-        InputManager.Inst.Initialize();
 
         Judgement judgement = Judgement.Inst;
         Browser   browser   = Browser.Inst;
+
+        SetTimerResolution( true );
     }
 
-    private async void OnDestroy()
+    private void OnDestroy()
     {
-        //SetTimerResolution( false );
-        await Release();
+        SetTimerResolution( false );
+        
+        IsStart = false;
     }
 
-    //private void Update()
-    //{
-    //    if ( IsLoaded && IsStart )
-    //         OnUpdate?.Invoke( Playback );
-    //}
-    #endregion
+    private void Update()
+    {
+        if ( !IsStart ) return;
 
-    #region Load
+        // AudioLeadIn +
+        Playback = ( int )Math.Round( LogicTimer.Milliseconds * GameSetting.SoundPitch );
+        Distance = timingMap.TimeToDistance( Playback );
+    }
+
     /// <summary> 선택된 음악을 바탕으로 초기화 </summary>
     public void Initialize( in Song _song )
     {
-        Song song    = _song;
-        song.mainBPM = _song.mainBPM * GameSetting.SoundPitch;
+        timingMap.Initialize( _song.mainBPM, DataStorage.Inst.Timings );
+        CurrentSong = GameSetting.Inst.ApplyGameMode( in _song );
 
-        // 게임 모드가 적용되어 바뀐 정보
-        bool isConvert   = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  _song.keyCount == 7;
-        song.keyCount    = isConvert ? 6 : _song.keyCount;
-        song.noteCount   = isConvert ? _song.noteCount   - _song.delNoteCount   : _song.noteCount;
-        song.sliderCount = isConvert ? _song.sliderCount - _song.delSliderCount : _song.sliderCount;
-
-        bool isNoSlider  = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        song.noteCount   = isNoSlider ? song.noteCount + song.sliderCount : song.noteCount;
-        song.sliderCount = isNoSlider ? 0 : song.sliderCount;
-
-        GameSetting.Inst.UpdatePosition( song.keyCount );
-        CurrentSong = song;
         Clear();
-
-        // // 선 파싱 ( 게임에 필요한 모든 정보 파싱 )
-        // if ( !DataStorage.Inst.LoadChart( _song ) )
-        // {
-        //     // Go to FreeStyle
-        // }
-        // 
-        // // 후 계산
-        // OnInitialize?.Invoke(); // 객체 생성 등의 초기화( 채보 선택 후 한번만 실행 )
     }
 
-    /// <summary> 선택된 음악의 리소스 로딩 </summary>
-    //public async UniTask Load()
+    //private void TimeUpdate( long _targetFrame, CancellationToken _token )
     //{
-        //await UniTask.WhenAll( UniTask.RunOnThreadPool( () => OnLoadAsync?.Invoke() ),
-        //                       UniTask.Create( async () =>
-        //                       {
-        //                           if ( OnLoad == null )
-        //                               return;
+    //    GetPerformanceCounter( out startTick );
 
-        //                           foreach ( Func<UniTask> handler in OnLoad.GetInvocationList() )
-        //                               await handler(); // 구독자 전부 대기
-        //                       } ) );
-        //OnLoadEnd?.Invoke();
+    //    long logicInterval = Frequency / _targetFrame;
+    //    long logicNextTick = startTick + logicInterval;
 
-        // 기본 변수 초기화
-        //Clear();
-        //IsLoaded = true;
+    //    //var  timings     = DataStorage.Inst.Timings;
+    //    SpinWait spinner = new SpinWait();
+
+    //    Debug.Log( $"Time Thread Start( {_targetFrame} Frame )" );
+    //    while ( !_token.IsCancellationRequested )
+    //    {
+    //        GetPerformanceCounter( out long now );
+    //        Playback = TickToPlayback( now );
+    //        if ( now >= logicNextTick )
+    //        {
+    //            do
+    //            {
+    //                if ( _token.IsCancellationRequested ) break;
+    //                logicNextTick += logicInterval;
+
+    //            } while ( now >= logicNextTick );
+
+    //            // OnUpdateInThread?.Invoke( Playback );
+    //            LogicFps?.Update( now );
+    //            spinner.Reset();
+
+    //            //// 이동된 거리 계산
+    //            //for ( int i = bpmIndex; i < timings.Count; i++ )
+    //            //{
+    //            //    double time = timings[i].time;
+    //            //    double bpm  = timings[i].bpm / CurrentSong.mainBPM;
+
+    //            //    // 지나간 타이밍에 대한 거리
+    //            //    if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
+    //            //    {
+    //            //        bpmIndex += 1;
+    //            //        distanceCache += bpm * ( timings[i + 1].time - time );
+    //            //        break;
+    //            //    }
+
+    //            //    // 이전 타이밍까지의 거리( 캐싱 ) + 현재 타이밍에 대한 거리
+    //            //    Distance = distanceCache + ( bpm * ( Playback - time ) );
+    //            //    break;
+    //            //}
+    //        }
+    //        else spinner.SpinOnce();
+            
+    //        SpinCount = spinner.Count;
+    //        LoopFps?.Update( now );
+    //    }
+
+    //    Debug.Log( "Time Thread End" );
     //}
-    #endregion
-
-    #region Thread
-    private void TimeUpdate( long _targetFrame, CancellationToken _token )
-    {
-        GetPerformanceCounter( out startTick );
-
-        long endTick         = 0;
-        long targetTicks = frequency / _targetFrame; // 1 seconds = 10,000,000 ticks
-        var  timings     = DataStorage.Inst.Timings;
-        SpinWait spinner = new SpinWait();
-
-        Debug.Log( $"Time Thread Start( {_targetFrame} Frame )" );
-        while ( true )
-        {
-            _token.ThrowIfCancellationRequested();
-
-            GetPerformanceCounter( out endTick );
-            if ( targetTicks <= ( endTick - startTick ) )
-            {
-                // 시간 갱신
-                Playback = TickToPlayback( endTick );// saveTime + ( ( double )( endTick - startTick ) / frequency * 1000d ); // ms
-                // 이동된 거리 계산
-                for ( int i = bpmIndex; i < timings.Count; i++ )
-                {
-                    double time = timings[i].time;
-                    double bpm  = timings[i].bpm / CurrentSong.mainBPM;
-
-                    // 지나간 타이밍에 대한 거리
-                    if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
-                    {
-                        bpmIndex += 1;
-                        distanceCache += bpm * ( timings[i + 1].time - time );
-                        break;
-                    }
-
-                    // 이전 타이밍까지의 거리( 캐싱 ) + 현재 타이밍에 대한 거리
-                    Distance = distanceCache + ( bpm * ( Playback - time ) );
-                    break;
-                }
-
-                OnUpdateInThread?.Invoke( Playback );
-            }
-
-            spinner.SpinOnce();
-            //spinner.Reset();
-        }
-    }
-
-    private async UniTask StopTimeTask()
-    {
-        if ( timeCts != null )
-        {
-            timeCts?.Cancel();
-
-            try { await timeTask; }
-            catch ( OperationCanceledException )
-            {
-                Debug.Log( "Time Thread Cancel" );
-            }
-            finally
-            {
-                timeCts?.Dispose();
-                timeCts = null;
-            }
-        }
-    }
-    #endregion
    
     #region Playing
     /// <summary> 기본 변수 초기화 </summary>
@@ -218,12 +146,12 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         AudioManager.Inst.AllStop();
 
-        saveTime      = -AudioLeadIn;
-        Playback      = double.MinValue;
+        //saveMs        = -AudioLeadIn;
+        Playback      = int.MinValue;
         Distance      = double.MinValue;
-        distanceCache = 0d;
-        startTick     = 0;
-        bpmIndex      = 0;
+        //distanceCache = 0d;
+        //startTick     = 0;
+        //bpmIndex      = 0;
         IsStart       = false;
 
         Judgement.Inst.Clear();
@@ -233,9 +161,9 @@ public class NowPlaying : Singleton<NowPlaying>
 
     public async UniTask Release()
     {
-        await StopTimeTask();
-        if ( EnableRawInput( false ) ) Debug.LogWarning( "Assistant.dll Release Successed" );
-        else                           Debug.LogWarning( "Assistant.dll Release Failed" );
+        //await StopTimeTask();
+        //if ( EnableRawInput( false ) ) Debug.LogWarning( "Assistant.dll Release Successed" );
+        //else                           Debug.LogWarning( "Assistant.dll Release Failed" );
 
         IsStart   = false;
         //IsLoaded  = false;
@@ -247,10 +175,10 @@ public class NowPlaying : Singleton<NowPlaying>
     {
         //OnGameStart?.Invoke();
 
-        if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
-        else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
-        timeCts ??= new CancellationTokenSource();
-        timeTask = UniTask.RunOnThreadPool( () => { TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ); } );
+        //if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
+        //else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
+        // timeCts ??= new CancellationTokenSource();
+        // timeTask = UniTask.RunOnThreadPool( () => { TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ); } );
         AudioManager.Inst.Pause = false;
         IsStart                 = true;
     }
@@ -260,7 +188,7 @@ public class NowPlaying : Singleton<NowPlaying>
         IsStart   = false;
         CurrentScene.IsInputLock = true;
 
-        await StopTimeTask();
+        //await StopTimeTask();
         
         float speed = 1f;
         while ( speed > 0f )
@@ -269,8 +197,8 @@ public class NowPlaying : Singleton<NowPlaying>
             float decrease = ( 1f - speed ) * GameSetting.SoundPitch * .3f;
             AudioManager.Inst.Pitch = GameSetting.SoundPitch - decrease;
 
-            Playback += speed * ( 1000f * Time.deltaTime );
-            Distance  = distanceCache + ( Playback - DataStorage.Inst.Timings[bpmIndex].time );
+            Playback += ( int )Math.Round( ( speed * 1000f ) * Time.deltaTime );
+            //Distance  = distanceCache + ( Playback - DataStorage.Inst.Timings[bpmIndex].time );
 
             await UniTask.Yield( PlayerLoopTiming.Update );
         }
@@ -279,63 +207,84 @@ public class NowPlaying : Singleton<NowPlaying>
         CurrentScene.IsInputLock = false;
     }
 
+    public void Pause()
+    {
+        IsStart = false;
+
+        AudioManager.Inst.Pause = true;
+        LogicTimer.Pause();
+    }
+
+    public void Resume()
+    {
+        IsStart = true;
+
+        AudioManager.Inst.Pause = false;
+        LogicTimer.Resume();
+    }
+
     /// <returns> FALSE : Playback is higher than the last note time. </returns>
-    public async UniTask Pause( bool _isPause )
-    {
-        if ( _isPause )
-        {
-            IsStart = false;
-            await StopTimeTask();
-            if ( EnableRawInput( false ) ) Debug.LogWarning( "Assistant.dll Release Successed" );
-            else                           Debug.LogWarning( "Assistant.dll Release Failed" );
+    //public async UniTask Pause( bool _isPause )
+    //{
+    //    if ( _isPause )
+    //    {
+    //        IsStart = false;
 
-            saveTime = Playback;
-            AudioManager.Inst.Pause  = true;
-            //OnPause?.Invoke( true );
-        }
-        else
-        {
-            await Continue();
-        }
-    }
+    //        LogicTimer.Pause();
+    //        AudioManager.Inst.Pause = true;
 
-    private async UniTask Continue()
-    {
-        CurrentScene.IsInputLock = true;
-        double recoil  = Playback - WaitPauseTime;
-        var    timings = DataStorage.Inst.Timings;
-        while ( Playback > recoil )
-        {
-            Playback -= Time.deltaTime * 1200f;
-            Distance = distanceCache + ( Playback - timings[bpmIndex].time );
+    //        //await StopTimeTask();
+    //        //if ( EnableRawInput( false ) ) Debug.LogWarning( "Assistant.dll Release Successed" );
+    //        //else                           Debug.LogWarning( "Assistant.dll Release Failed" );
 
-            await UniTask.Yield( PlayerLoopTiming.Update );
-        }
+    //        //saveMs = Playback;
+    //        //AudioManager.Inst.Pause  = true;
+    //        //OnPause?.Invoke( true );
+    //    }
+    //    else
+    //    {
+    //        await Continue();
+    //    }
+    //}
 
-        while ( Playback < saveTime )
-        {
-            Playback += Time.deltaTime * 1200f;
-            Distance = distanceCache + ( Playback - timings[bpmIndex].time );
+    //private async UniTask Continue()
+    //{
+    //    CurrentScene.IsInputLock = true;
+    //    double recoil  = Playback - WaitPauseTime;
+    //    var    timings = DataStorage.Inst.Timings;
+    //    while ( Playback > recoil )
+    //    {
+    //        Playback -= ( int )Math.Round( Time.deltaTime * 1200f );
+    //        //Distance = distanceCache + ( Playback - timings[bpmIndex].time );
 
-            await UniTask.Yield( PlayerLoopTiming.Update );
-        }
+    //        await UniTask.Yield( PlayerLoopTiming.Update );
+    //    }
 
-        if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
-        else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
+    //    while ( Playback < saveMs )
+    //    {
+    //        Playback += ( int ) Math.Round( Time.deltaTime * 1200f );
+    //        //Distance = distanceCache + ( Playback - timings[bpmIndex].time );
 
-        //OnPause?.Invoke( false );
-        timeCts ??= new CancellationTokenSource();
-        timeTask = UniTask.RunOnThreadPool( () => TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ) );
-        AudioManager.Inst.Pause  = false;
-        IsStart                  = true;
-        CurrentScene.IsInputLock = false;
-    }
+    //        await UniTask.Yield( PlayerLoopTiming.Update );
+    //    }
+
+    //    //if ( EnableRawInput( true ) ) Debug.LogWarning( "Assistant.dll Initialize Successed" );
+    //    //else                          Debug.LogWarning( "Assistant.dll Initialize Failed" );
+
+    //    //OnPause?.Invoke( false );
+    //    //timeCts ??= new CancellationTokenSource();
+    //    //timeTask = UniTask.RunOnThreadPool( () => TimeUpdate( SystemSetting.InputTargetFrame, timeCts.Token ) );
+    //    AudioManager.Inst.Pause  = false;
+    //    IsStart                  = true;
+    //    CurrentScene.IsInputLock = false;
+    //}
     #endregion
 
-    public double TickToPlayback( long _tick )
-    {
-        return saveTime + ( ( double )( _tick - startTick ) / frequency * 1000d ); // ms
-    }
+    //public int TickToPlayback( long _tick )
+    //{
+    //    double second = ( double )( _tick - startTick ) / frequency; // double Type Divide
+    //    return saveMs + ( int )Math.Round( second * 1000d );
+    //}
 
     public double GetDistance( double _time )
     {

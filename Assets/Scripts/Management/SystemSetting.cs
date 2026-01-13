@@ -7,23 +7,57 @@ public class SystemSetting : Singleton<SystemSetting>
     public static ScreenMode   CurrentScreenMode   = ScreenMode.Windowed;
     public static SoundBuffer  CurrentSoundBuffer  = SoundBuffer._64;
     public static AntiAliasing CurrentAntiAliasing = AntiAliasing.None;
-    public static PollingRate  CurrentPollingRate  = PollingRate._3000;
-    public static int InputTargetFrame => int.Parse( CurrentPollingRate.ToString().Replace( "_", " " ) );
-    public static string CurrentSoundBufferString => CurrentSoundBuffer.ToString().Replace( "_", " " ).Trim();
 
-    public void Initialize()
+    public uint SoundBufferToInt( SoundBuffer _type )
+    {
+        return _type switch 
+        {
+            SoundBuffer._64   => 64,
+            SoundBuffer._128  => 128,
+            SoundBuffer._256  => 256,
+            SoundBuffer._512  => 512,
+            SoundBuffer._1024 => 1024,
+            _                 => 1024,
+        };
+    }
+
+    public Vector2 ResolustionToVector( Resolution _type )
+    {
+        return _type switch 
+        {
+            Resolution._1280_720  => new Vector2( 1280, 720 ),
+            Resolution._1600_900  => new Vector2( 1600, 900 ),
+            Resolution._1920_1080 => new Vector2( 1920, 1080 ),
+            _                     => new Vector2( 1920, 1080 ),
+        };
+    }
+
+    public int FrameRateToInt( FrameRate _type )
+    {
+        return _type switch 
+        {
+            FrameRate._60  => 60,
+            FrameRate._144 => 144,
+            FrameRate._240 => 240,
+            FrameRate._360 => 360,
+            FrameRate._480 => 480,
+            FrameRate._960 => 960,
+            _              => 0,
+        };
+    }
+
+    public void ReadUserData()
     {
         if ( !Config.Inst.Read( ConfigType.Resolution,   out CurrentResolution   ) ) CurrentResolution   = Resolution._1920_1080;
         if ( !Config.Inst.Read( ConfigType.FrameLimit,   out CurrentFrameRate    ) ) CurrentFrameRate    = FrameRate.vSync;
         if ( !Config.Inst.Read( ConfigType.AntiAliasing, out CurrentAntiAliasing ) ) CurrentAntiAliasing = AntiAliasing.None;
         if ( !Config.Inst.Read( ConfigType.ScreenMode,   out CurrentScreenMode   ) ) CurrentScreenMode   = ScreenMode.Windowed;
         if ( !Config.Inst.Read( ConfigType.SoundBuffer,  out CurrentSoundBuffer  ) ) CurrentSoundBuffer  = SoundBuffer._1024;
-        if ( !Config.Inst.Read( ConfigType.PollingRate,  out CurrentPollingRate  ) ) CurrentPollingRate  = PollingRate._1000;
 
-        UpdateScreen();
+        ApplyScreenSetting();
     }
 
-    public void UpdateScreen()
+    public void ApplyScreenSetting()
     {
         QualitySettings.antiAliasing = ( int )CurrentAntiAliasing;
         QualitySettings.vSyncCount   = CurrentFrameRate == FrameRate.vSync ? 1 : 0;
@@ -35,29 +69,23 @@ public class SystemSetting : Singleton<SystemSetting>
             case FrameRate._240:
             case FrameRate._360:
             case FrameRate._480:
-            case FrameRate._960:
-            {
-                var frame = ( CurrentFrameRate ).ToString().Replace( "_", " " );
-                Application.targetFrameRate = int.Parse( frame );
-            } break;
+            case FrameRate._960: Application.targetFrameRate = FrameRateToInt( CurrentFrameRate );
+            break;
         }
 
-        var replace = CurrentResolution.ToString().Replace( "_", " " );
-        var split   = replace.Trim().Split( ' ' );
-        var width   = int.Parse( split[0] );
-        var height  = int.Parse( split[1] );
+        Vector2 screen = ResolustionToVector( CurrentResolution );
         switch ( CurrentScreenMode )
         {
             case ScreenMode.Exclusive_FullScreen:
-            Screen.SetResolution( width, height, FullScreenMode.ExclusiveFullScreen );
+            Screen.SetResolution( ( int )screen.x, ( int )screen.y, FullScreenMode.ExclusiveFullScreen );
             break;
 
             case ScreenMode.FullScreen_Window:
-            Screen.SetResolution( width, height, FullScreenMode.FullScreenWindow );
+            Screen.SetResolution( ( int )screen.x, ( int )screen.y, FullScreenMode.FullScreenWindow );
             break;
 
             case ScreenMode.Windowed:
-            Screen.SetResolution( width, height, FullScreenMode.Windowed );
+            Screen.SetResolution( ( int )screen.x, ( int )screen.y, FullScreenMode.Windowed );
             break;
         }
     }

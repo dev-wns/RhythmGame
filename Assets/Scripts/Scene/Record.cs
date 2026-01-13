@@ -21,7 +21,7 @@ public class Record
         if ( CurrentData.score > newRecord.score )
              return CurrentData;
 
-        string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.CurrentSong.filePath )}.json" );
+        string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.SelectedSong.filePath )}.json" );
         try
         {
             FileMode mode = File.Exists( path ) ? FileMode.Truncate : FileMode.Create;
@@ -47,7 +47,7 @@ public class Record
 
     public bool UpdateRecord()
     {
-        string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.CurrentSong.filePath )}.json" );
+        string path = Path.Combine( Global.IO.Path.RecordDirectory, $"{Path.GetFileNameWithoutExtension( Browser.Inst.SelectedSong.filePath )}.json" );
         if ( !File.Exists( path ) )
         {
             //recordData = new RecordData();
@@ -62,7 +62,7 @@ public class Record
             }
             catch ( Exception )
             {
-                Debug.LogWarning( $"Record Deserialize Error : {Browser.Inst.CurrentSong.filePath}" );
+                Debug.LogWarning( $"Record Deserialize Error : {Browser.Inst.SelectedSong.filePath}" );
                 return false;
             }
         }

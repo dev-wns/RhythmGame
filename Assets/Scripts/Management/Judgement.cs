@@ -70,7 +70,7 @@ public class Judgement : Singleton<Judgement>
 
     public void Clear()
     {
-        bonus = 100; // 게임시작시 최대 보너스로 시작
+        bonus    = 100; // 최대 보너스
         Maximum  = 0;
         Perfect  = 0;
         Great    = 0;
@@ -82,7 +82,6 @@ public class Judgement : Singleton<Judgement>
         Combo    = 0;
         MaxCombo = 0;
         Score    = 0d;
-        //Results = new ResultData();
 
         hitDataQueue.Clear();
         hitDatas.Clear();

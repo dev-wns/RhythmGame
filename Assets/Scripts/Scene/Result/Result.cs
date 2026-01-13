@@ -22,7 +22,7 @@ public class Result : Scene
             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, 1f, 2f );
         }
 
-        if ( !GameSetting.HasFlag( GameMode.AutoPlay ) )
+        if ( !GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) )
         {
             Record record = NowPlaying.Inst.CurrentRecord;
             record.CreateNewRecord();

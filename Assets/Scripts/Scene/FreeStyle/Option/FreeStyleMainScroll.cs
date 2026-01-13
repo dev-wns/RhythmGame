@@ -44,8 +44,8 @@ public class FreeStyleMainScroll : ScrollBase
         IsLoop = true;
         group = GetComponent<CustomVerticalLayoutGroup>();
 
-        search.OnSearch           += UpdateLayoutAndSong;
-        scene.OnKeyBind           += KeyBind;
+        search.OnSearch += UpdateLayoutAndSong;
+        scene.OnKeyBind += KeyBind;
 
         median = Mathf.FloorToInt( maxShowCount / 2f );
         contentOriginPos = rt.anchoredPosition;
@@ -100,8 +100,8 @@ public class FreeStyleMainScroll : ScrollBase
     private void UpdateLayoutAndSong()
     {
         Initialize();
-        if ( !curSong.title.Contains(   Browser.Inst.CurrentSong.title,   StringComparison.OrdinalIgnoreCase ) &&
-             !curSong.version.Contains( Browser.Inst.CurrentSong.version, StringComparison.OrdinalIgnoreCase ) )
+        if ( !curSong.title.Contains(   Browser.Inst.SelectedSong.title,   StringComparison.OrdinalIgnoreCase ) &&
+             !curSong.version.Contains( Browser.Inst.SelectedSong.version, StringComparison.OrdinalIgnoreCase ) )
         {
             SelectNotify();
         }
@@ -146,11 +146,15 @@ public class FreeStyleMainScroll : ScrollBase
         curPos = contentOriginPos.y;
 
         UpdateColor();
-        UpdateNodePosition();
+        UpdatePosition();
     }
 
-    private void UpdateNodePosition()
+    private void UpdatePosition()
     {
+        rt.DOKill();
+        rt.DOAnchorPosY( curPos, .3f );
+
+        medianNode.Value.DOKill();
         medianNode.Value.MoveX( 0f );
         int count = 1;
         var prevNode = medianNode.Previous;
@@ -207,11 +211,9 @@ public class FreeStyleMainScroll : ScrollBase
         medianNode = medianNode.Previous;
 
         curPos -= size;
-        rt.DOAnchorPosY( curPos, .3f );
-
         curText.SetText( "{0}", ( CurrentIndex + 1 ) );
 
-        UpdateNodePosition();
+        UpdatePosition();
         UpdateColor();
     }
 
@@ -237,11 +239,9 @@ public class FreeStyleMainScroll : ScrollBase
         medianNode = medianNode.Next;
 
         curPos += size;
-        rt.DOAnchorPosY( curPos, .3f );
-
         curText.SetText( "{0}", ( CurrentIndex + 1 ) );
 
-        UpdateNodePosition();
+        UpdatePosition();
         UpdateColor();
     }
 

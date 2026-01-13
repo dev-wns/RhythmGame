@@ -51,7 +51,7 @@ public class InGame : Scene
 
         IsInputLock = true;
 
-        length  = Browser.Inst.CurrentSong.totalTime / GameSetting.SoundPitch;
+        length  = Browser.Inst.SelectedSong.totalTime / GameSetting.SoundPitch;
         playCts = new CancellationTokenSource();
 
         //NowPlaying.OnGameOver += GameOver;
@@ -72,8 +72,8 @@ public class InGame : Scene
 
     private async UniTask Load()
     {
-        NowPlaying.Inst.Initialize( Browser.Inst.CurrentSong /* Origin   Song */ );
-        song       = NowPlaying.Inst.CurrentSong;            /* Playable Song */
+        NowPlaying.Inst.Initialize( Browser.Inst.SelectedSong /* Origin   Song */ );
+        song       = NowPlaying.Inst.CurrentSong;             /* Playable Song */
         totalJudge = song.noteCount + song.sliderCount;
         OnInitialize?.Invoke( song );
 
@@ -229,7 +229,7 @@ public class InGame : Scene
                 if ( _isPause ) pauseActivator.EnableCanvas();
                 else            pauseActivator.DisableCanvas();
 
-                await NowPlaying.Inst.Pause( _isPause );
+                //await NowPlaying.Inst.Pause( _isPause );
                 OnPause?.Invoke( _isPause );
             }
         } );

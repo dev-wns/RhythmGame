@@ -75,9 +75,9 @@ public class BGASystem : MonoBehaviour
         //    return;
         //}
 
-        type = Browser.Inst.CurrentSong.hasVideo  ? BGA.Video  :
-               DataStorage.Inst.Sprites.Count > 0 ? BGA.Sprite :
-                                                    BGA.Image;
+        type = Browser.Inst.SelectedSong.hasVideo  ? BGA.Video  :
+               DataStorage.Inst.Sprites.Count > 0  ? BGA.Sprite :
+                                                     BGA.Image;
 
         if ( type == BGA.Video )
         {
@@ -92,9 +92,9 @@ public class BGASystem : MonoBehaviour
         else if ( type == BGA.Image )
         {
             // 이미 프리스타일에서 로딩된 이미지 사용
-            await DataStorage.Inst.LoadTextureAsync( new SpriteSample( Browser.Inst.CurrentSong.imageName ), () =>
+            await DataStorage.Inst.LoadTextureAsync( new SpriteSample( Browser.Inst.SelectedSong.imageName ), () =>
             {
-                if ( DataStorage.Inst.GetTexture( Browser.Inst.CurrentSong.imageName, out Texture2D texture ) )
+                if ( DataStorage.Inst.GetTexture( Browser.Inst.SelectedSong.imageName, out Texture2D texture ) )
                 {
                     background.color = color;
                     background.texture = texture;
@@ -148,7 +148,7 @@ public class BGASystem : MonoBehaviour
     private IEnumerator UpdateVideo()
     {
         vp.enabled       = true;
-        vp.url           = @$"{Browser.Inst.CurrentSong.videoPath}";
+        vp.url           = @$"{Browser.Inst.SelectedSong.videoPath}";
         vp.playbackSpeed = GameSetting.SoundPitch;
         vp.targetTexture = renderTexture;
 
@@ -157,7 +157,7 @@ public class BGASystem : MonoBehaviour
 
         vp.Prepare();
 
-        double videoOffset = Browser.Inst.CurrentSong.videoOffset;
+        double videoOffset = Browser.Inst.SelectedSong.videoOffset;
         double delay       = Global.Math.Max( 0d, -videoOffset );
         yield return new WaitUntil( () => vp.isPrepared );
         yield return new WaitUntil( () => NowPlaying.Playback >= delay );

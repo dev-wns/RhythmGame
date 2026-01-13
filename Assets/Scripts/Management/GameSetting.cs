@@ -15,7 +15,7 @@ public class GameSetting : Singleton<GameSetting>
         get => OriginScrollSpeed;
         set
         {
-            if ( value < 0 || value > 50 )
+            if ( value < 1 || value > 50 )
                  return;
 
             OriginScrollSpeed = value;
@@ -26,7 +26,8 @@ public class GameSetting : Singleton<GameSetting>
     private static int OriginScrollSpeed;
     public  static event Action<int> OnChangedSpeed;
 
-    public static float Weight => ( ScrollSpeed / SoundPitch ) * 0.073810f; // 0.001030 // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
+    public static float Weight => ( ( 9 + ScrollSpeed ) * 0.039638f ) / SoundPitch;
+    // 0.001030 // 0.069161f = 6.7 / 0.071193f = 6.8 / 0.071226f = 6.9 / 0.072258 = 7.0 / 0.073295 = 7.1 / 0.074325 = 7.2 / 0.075355 = 7.3
     public static float MinDistance => 1200f / Weight;
 
     // Sound
@@ -56,24 +57,40 @@ public class GameSetting : Singleton<GameSetting>
     public static float GearStartPos { get; private set; }
     public static float GearWidth    { get; private set; }
 
-    public void UpdatePosition( int _keyCount )
+    public Song ApplyGameMode( in Song _song )
     {
-        NoteStartPos = GearOffsetX - ( ( NoteWidth * ( _keyCount - 1 ) ) + ( NoteBlank * ( _keyCount + 1 ) ) ) * .5f;
-        GearStartPos = GearOffsetX - ( ( NoteWidth * _keyCount ) + ( NoteBlank * ( _keyCount + 1 ) ) ) * .5f;
-        GearWidth    = ( NoteWidth * _keyCount ) + ( NoteBlank * ( _keyCount + 1 ) );
+        Song newSong = _song;
+        newSong.mainBPM = _song.mainBPM * SoundPitch;
+
+        // 게임 모드가 적용되어 바뀐 정보
+        if ( CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  _song.keyCount == 7 )
+        {
+            newSong.keyCount     = 6;
+            newSong.noteCount   -= _song.delNoteCount;
+            newSong.sliderCount -= _song.delSliderCount;
+        }
+        
+        if ( CurrentGameMode.HasFlag( GameMode.NoSlider ) )
+        {
+            newSong.noteCount  += newSong.sliderCount;
+            newSong.sliderCount = 0;
+        }
+
+
+        int keyCount = newSong.keyCount;
+        NoteStartPos = GearOffsetX - ( ( NoteWidth * ( keyCount - 1 ) ) + ( NoteBlank * ( keyCount + 1 ) ) ) * .5f;
+        GearStartPos = GearOffsetX - ( ( NoteWidth *   keyCount       ) + ( NoteBlank * ( keyCount + 1 ) ) ) * .5f;
+        GearWidth    = ( NoteWidth * keyCount ) + ( NoteBlank * ( keyCount + 1 ) );
+
+        return newSong;
     }
 
-    public void Initialize()
+    public void ReadUserData()
     {
         // Game Mode
-        if ( !Config.Inst.Read( ConfigType.Random,     out CurrentRandom ) )                 CurrentRandom    = GameRandom.None;
-
-        CurrentGameMode = GameMode.None;
-        if (  Config.Inst.Read( ConfigType.AutoPlay,   out bool isAuto     ) && isAuto     ) CurrentGameMode |= GameMode.AutoPlay;
-        if (  Config.Inst.Read( ConfigType.NoFailed,   out bool isNoFail   ) && isNoFail   ) CurrentGameMode |= GameMode.NoFail;
-        if (  Config.Inst.Read( ConfigType.NoSlider,   out bool isNoSlider ) && isNoSlider ) CurrentGameMode |= GameMode.NoSlider;
-        if (  Config.Inst.Read( ConfigType.FixedBPM,   out bool isFixedBPM ) && isFixedBPM ) CurrentGameMode |= GameMode.FixedBPM;
-        if (  Config.Inst.Read( ConfigType.ConvertKey, out bool isConvert  ) && isConvert  ) CurrentGameMode |= GameMode.ConvertKey;
+        if ( !Config.Inst.Read( ConfigType.Random,    out CurrentRandom     ) ) CurrentRandom     = GameRandom.None;
+        if ( !Config.Inst.Read( ConfigType.GameMode,  out CurrentGameMode   ) ) CurrentGameMode   = GameMode.None;
+        if ( !Config.Inst.Read( ConfigType.VisualFag, out CurrentVisualFlag ) ) CurrentVisualFlag = VisualFlag.None;
 
         // Game Setting
         if ( !Config.Inst.Read( ConfigType.NoteModel, out CurrentNoteModel ) ) CurrentNoteModel = NoteModel.Block;
@@ -89,32 +106,6 @@ public class GameSetting : Singleton<GameSetting>
         BGAOpacity   = Config.Inst.Read( ConfigType.BGAOpacity,   out int   bgaOpacity   ) ? bgaOpacity   : 100;
         PanelOpacity = Config.Inst.Read( ConfigType.PanelOpacity, out int   panelOpacity ) ? panelOpacity : 100;
         GearOffsetX  = Config.Inst.Read( ConfigType.GearOffsetX,  out float gearOffsetX  ) ? gearOffsetX  : 0f;
-
-        CurrentVisualFlag = VisualFlag.All;
-        if ( Config.Inst.Read( ConfigType.Measure,    out bool showMeasure ) && !showMeasure ) CurrentVisualFlag &= ~VisualFlag.ShowMeasure;
-        if ( Config.Inst.Read( ConfigType.HitEffect,  out bool hitEffect   ) && !hitEffect   ) CurrentVisualFlag &= ~VisualFlag.HitEffect;
-        if ( Config.Inst.Read( ConfigType.LaneEffect, out bool laneEffect  ) && !laneEffect  ) CurrentVisualFlag &= ~VisualFlag.LaneEffect;
-    }
-
-    public static bool HasFlag<T>( T _type ) where T : Enum
-    {
-        try
-        {
-            switch ( _type )
-            {
-                case VisualFlag: return CurrentVisualFlag.HasFlag( _type );
-                case GameMode:   return CurrentGameMode.HasFlag(   _type );
-                case GameRandom: return CurrentRandom.HasFlag(     _type );
-                case PitchType:  return CurrentPitchType.HasFlag(  _type );
-                default: throw new Exception( $"{_type} is Invalid Value" );
-            }
-        }
-        catch ( Exception _error )
-        {
-            Debug.LogError( _error );
-        }
-
-        return false;
     }
 
     public static string ToString( GameRandom _random )

@@ -72,7 +72,7 @@ public class InputSystem : MonoBehaviour
         if ( vKey == _keyEvent.vKey )
         {
             keyState = _keyEvent.keyState;
-            playback = NowPlaying.Inst.TickToPlayback( _keyEvent.timestamp );
+            //playback = NowPlaying.Inst.TickToPlayback( _keyEvent.timestamp );
         }
 
         //  키음 선 실행

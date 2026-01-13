@@ -40,7 +40,7 @@ public class FreeStyleReload : MonoBehaviour
         uiBack.SetActive( false );
 
         uiCount          = 0;
-        prevSelectedSong = Browser.Inst.CurrentSong;
+        prevSelectedSong = Browser.Inst.SelectedSong;
         corUpdateTexts   = StartCoroutine( UpdateTexts() );
 
         await UniTask.RunOnThreadPool( DataStorage.Inst.LoadSongs );

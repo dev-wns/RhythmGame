@@ -156,28 +156,6 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
         if ( _song.hasSprite )
         {
             type = BGA.Sprite;
-            //using ( StreamReader reader = new StreamReader( @$"\\?\{_song.filePath}" ) )
-            //{
-            //    string line;
-            //    while ( ( line = reader.ReadLine() ) != "[Sprites]" ) { }
-            //    while ( ( line = reader.ReadLine() ) != "[Samples]" )
-            //    {
-            //        SpriteSample sprite;
-            //        var split = line.Split( ',' );
-
-            //        sprite.type = ( SpriteType )int.Parse( split[0] );
-            //        if ( sprite.type != SpriteType.Background )
-            //             continue;
-
-            //        sprite.start = double.Parse( split[1] );
-            //        sprite.end   = double.Parse( split[2] );
-            //        sprite.name  = split[3];
-
-            //        _token.ThrowIfCancellationRequested();
-            //        if ( sprite.start > _song.previewTime )
-            //             sprites.Add( sprite );
-            //    }
-            //}
 
             sprites.Clear();
             foreach ( SpriteSample sprite in DataStorage.Inst.Sprites )
@@ -224,9 +202,11 @@ public class PreviewBGARenderer : MonoBehaviour, IObjectPool<PreviewBGARenderer>
                       sprites[i].type == SpriteType.Background )
                 {
                     Texture2D tex = await DataStorage.Inst.LoadTextureAsync( directory, sprites[i], _token );
-                    if ( tex != null ) textures.Add( sprites[i].name, tex );
-                    await UniTask.Yield();
+                    if ( tex != null ) 
+                         textures.Add( sprites[i].name, tex );
                 }
+
+                await UniTask.Yield( _token );
             }
         }
         finally { isLoading = false; }

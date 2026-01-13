@@ -4,7 +4,7 @@ public class PollingRateOption : OptionText
 {
     private void OnEnable()
     {
-        CurrentIndex = ( int ) SystemSetting.CurrentPollingRate;
+        //CurrentIndex = ( int ) SystemSetting.CurrentPollingRate;
         ChangeText( texts[CurrentIndex] );
     }
 
@@ -25,6 +25,6 @@ public class PollingRateOption : OptionText
 
     public override void Process()
     {
-        SystemSetting.CurrentPollingRate = ( PollingRate ) CurrentIndex;
+        //SystemSetting.CurrentPollingRate = ( PollingRate ) CurrentIndex;
     }
 }

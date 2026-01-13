@@ -156,7 +156,7 @@ public class LaneSystem : MonoBehaviour
     private void DivideNotes( in Song _song )
     {
         bool isNoSlider = GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
-        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) && Browser.Inst.CurrentSong.keyCount == 7;
+        bool isConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) && Browser.Inst.SelectedSong.keyCount == 7;
 
         const double Epsilon           = .5d; // 0.5 ms
         List<int/* lane */> emptyLanes = new List<int>( keyCount );

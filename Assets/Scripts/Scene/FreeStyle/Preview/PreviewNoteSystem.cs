@@ -201,7 +201,7 @@ public class PreviewNoteSystem : MonoBehaviour
             PreviewNoteRenderer note = currentPool.Spawn();
             
             Color color  = Color.white;
-            int keyCount = Browser.Inst.CurrentSong.keyCount;
+            int keyCount = Browser.Inst.SelectedSong.keyCount;
             if      ( keyCount == 4 ) color = curData.lane == 1 || curData.lane == 2 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
             else if ( keyCount == 6 ) color = curData.lane == 1 || curData.lane == 4 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) : Color.white;
             else if ( keyCount == 7 ) color = curData.lane == 1 || curData.lane == 5 ? new Color( 0.2078432f, 0.7843138f, 1f, 1f ) :

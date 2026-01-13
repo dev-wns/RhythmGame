@@ -10,7 +10,7 @@ public class Browser : Singleton<Browser>
     private List<Song> buffer = new ();
 
     public int  CurrentIndex { get; private set; }
-    public Song CurrentSong  { get; private set; }
+    public Song SelectedSong { get; private set; }
 
     public string SearchText  { get; private set; } = string.Empty;
     public bool   IsSearching { get; private set; }
@@ -40,8 +40,8 @@ public class Browser : Singleton<Browser>
              throw new Exception( "out of range" );
 
         CurrentIndex = _index;
-        CurrentSong  = Songs[_index];
-        return CurrentSong;
+        SelectedSong = Songs[_index];
+        return SelectedSong;
     }
 
     public int Search( string _keyword )
@@ -50,7 +50,7 @@ public class Browser : Singleton<Browser>
         if ( originSongs.Count == 0 || string.IsNullOrEmpty( keyword ) )
         {
             Songs = originSongs;
-            Select( CurrentSong.index );
+            Select( SelectedSong.index );
 
             return -1;
         }
@@ -78,8 +78,8 @@ public class Browser : Singleton<Browser>
         Songs = buffer.Count == 0 ? originSongs : new ReadOnlyCollection<Song>( buffer );
         for ( int i = 0; i < Songs.Count; i++ )
         {
-            if ( Songs[i].title.Contains(   CurrentSong.title,   StringComparison.OrdinalIgnoreCase ) &&
-                 Songs[i].version.Contains( CurrentSong.version, StringComparison.OrdinalIgnoreCase ) )
+            if ( Songs[i].title.Contains(   SelectedSong.title,   StringComparison.OrdinalIgnoreCase ) &&
+                 Songs[i].version.Contains( SelectedSong.version, StringComparison.OrdinalIgnoreCase ) )
             {
                 prevIndex = i;
                 break;
@@ -90,8 +90,9 @@ public class Browser : Singleton<Browser>
         
         SearchText  = _keyword;
         IsSearching = SearchText != string.Empty;
+        buffer.Clear();
 
-        return buffer.Count;
+        return Songs.Count;
     }
 
     public void Search( Song _song )

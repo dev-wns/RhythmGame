@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
 
 public class AudioManager : Singleton<AudioManager>
@@ -105,10 +104,12 @@ public class AudioManager : Singleton<AudioManager>
         ErrorCheck( system.setOutput( OUTPUTTYPE.AUTODETECT ) );
 
         // To do Before System Initialize
+
+        SoundBuffer bufferSize = SystemSetting.CurrentSoundBuffer;
         ErrorCheck( system.getSoftwareFormat( out int sampleRate, out SPEAKERMODE mode, out int numRawSpeakers ) );
         ErrorCheck( system.setSoftwareFormat( SampleRate, SPEAKERMODE.STEREO, numRawSpeakers ) );
         ErrorCheck( system.setSoftwareChannels( MaxSoftwareChannel ) );
-        ErrorCheck( system.setDSPBufferSize( uint.Parse( SystemSetting.CurrentSoundBufferString ), 2 ) );
+        ErrorCheck( system.setDSPBufferSize( SystemSetting.Inst.SoundBufferToInt( bufferSize ), 4 ) );
 
         // System Initialize
         IntPtr extraDriverData = new IntPtr();

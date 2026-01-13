@@ -7,7 +7,7 @@ public class KeyConvertOption : OptionBoolButton
 
     private void OnEnable()
     {
-        CurrentBool = GameSetting.HasFlag( GameMode.ConvertKey );
+        CurrentBool = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey );
         title.color = CurrentBool ? Color.white : DisableColor;
     }
 

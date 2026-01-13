@@ -12,7 +12,7 @@ public class MeasureSystem : MonoBehaviour
 
     private void Awake()
     {
-        if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
+        if ( GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.ShowMeasure ) )
         {
             scene.OnLoadInThread += CreateMeasure;
             scene.OnGameStart += GameStart;
@@ -24,7 +24,7 @@ public class MeasureSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        if ( GameSetting.HasFlag( VisualFlag.ShowMeasure ) )
+        if ( GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.ShowMeasure ) )
         {
             scene.OnLoadInThread -= CreateMeasure;
             scene.OnGameStart -= GameStart;

@@ -30,7 +30,7 @@ public class LaneEffector : MonoBehaviour
         uKey = _lane.UKey;
 
         // ∑π¿Œ ¿Ã∆Â∆Æ
-        if ( GameSetting.HasFlag( VisualFlag.LaneEffect ) )
+        if ( GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.LaneEffect ) )
         {
             laneRenderer.transform.position   = new Vector3( transform.position.x, GameSetting.JudgePos, transform.position.z );
             laneRenderer.transform.localScale = new Vector3( GameSetting.NoteWidth, 250f, 1f );
@@ -43,7 +43,7 @@ public class LaneEffector : MonoBehaviour
         }
 
         // ≈∏∞› ¿Ã∆Â∆Æ
-        if ( hasHitEffect = GameSetting.HasFlag( VisualFlag.HitEffect ) )
+        if ( hasHitEffect = GameSetting.CurrentVisualFlag.HasFlag( VisualFlag.HitEffect ) )
         {
             hitOffset = .16f / hitSprites.Count;
             hitRenderer.transform.localScale = new Vector2( GameSetting.NoteWidth * 2, GameSetting.NoteWidth * 2 );

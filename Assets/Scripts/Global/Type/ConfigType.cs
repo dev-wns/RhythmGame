@@ -1,46 +1,50 @@
 
 public enum ConfigType : int
 {
-    // User Section
+    // ===================================================
+    // ================== User Section ===================
+    // ===================================================
     Email = 0,
-    IsSavedEmail,
+    SavedEmail,
 
-    // Sound Section
-    SoundBuffer = 100,
+    // ===================================================
+    // ================== Sound Section ==================
+    // ===================================================
+    SoundOffset = 100,
+    SoundBuffer,
     Master,
     BGM,
     SFX,
 
-    // GameSetting Section
-    Random = 200,
-    AutoPlay,
-    NoFailed,
-    NoSlider,
-    FixedBPM,
-    ConvertKey,
+    // ===================================================
+    // ================== Game Section ===================
+    // ===================================================
+    ScrollSpeed = 200,
+    
+    Random,
+    GameMode,
+    VisualFag,
 
     NoteModel,
-    ScrollSpeed,
     JudgeOffset,
-    SliderOffset,
-
-    SoundOffset,
 
     BGAOpacity,
     PanelOpacity,
     GearOffsetX,
-    Measure,
-    HitEffect,
-    LaneEffect,
 
-    // SystemSetting Section
+    SliderOffset,
+
+    // ===================================================
+    // ================== System Section =================
+    // ===================================================
     Resolution = 300,
     FrameLimit,
     AntiAliasing,
     ScreenMode,
-    PollingRate,
 
-    // KeySetting0 Section
+    // ===================================================
+    // ================== Input Section ==================
+    // ===================================================
     _4K = 400,
     _6K,
     _7K,

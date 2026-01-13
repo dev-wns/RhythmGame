@@ -76,7 +76,7 @@ public class ResultInfomation : MonoBehaviour
 
     private void Awake()
     {
-        var song   = Browser.Inst.CurrentSong;
+        var song   = Browser.Inst.SelectedSong;
 
         bool isConvert   = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  song.keyCount == 7;
         int  totalNote   = isConvert ? song.noteCount   - song.delNoteCount   : song.noteCount;
@@ -169,11 +169,11 @@ public class ResultInfomation : MonoBehaviour
         pitch.color = GameSetting.SoundPitch < 1f ? new Color( .5f, .5f, 1f ) :
                       GameSetting.SoundPitch > 1f ? new Color( 1f, .5f, .5f ) : Color.white;
 
-        useModeObj.SetActive( GameSetting.HasFlag( GameMode.AutoPlay ) );
+        useModeObj.SetActive( GameSetting.CurrentGameMode.HasFlag( GameMode.AutoPlay ) );
         date.SetText( DateTime.Now.ToString( "yyyy. MM. dd @ hh:mm:ss tt" ) );
 
         // Background
-        StartCoroutine( LoadBackground( Browser.Inst.CurrentSong.imagePath ) );
+        StartCoroutine( LoadBackground( Browser.Inst.SelectedSong.imagePath ) );
     }
 
     private void OnDestroy()

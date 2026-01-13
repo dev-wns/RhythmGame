@@ -8,14 +8,14 @@ public class Config : Singleton<Config>
     private static readonly string ConfigPath  = System.IO.Path.Combine( Global.IO.Path.DataDirectory, "config.ini" );
     private StringBuilder text = new StringBuilder( 255 );
 
-    [DllImport( "kernel32.dll" )] private static extern uint GetPrivateProfileString( string _section, string _key, string _default, StringBuilder _result, uint _size, string _path );
-    [DllImport( "kernel32.dll" )] private static extern bool WritePrivateProfileString( string _section, string _key, string _value, string _path );
+    [DllImport( "kernel32.dll" )] private static extern uint GetPrivateProfileString( string section, string key, string def, StringBuilder result, uint size, string path );
+    [DllImport( "kernel32.dll" )] private static extern bool WritePrivateProfileString( string _section, string key, string value, string path );
 
     // Value가 어떤 타입인지 모르기 때문에 Read, Write시 타입에 맞도록 잘 사용해야함
-    public bool Read<TVal>( ConfigType _key, out TVal _value )
+    public bool Read<T>( ConfigType _key, out T _value )
     {
         text.Clear();
-        Type type = typeof( TVal );
+        Type type = typeof( T );
         try
         {
             if ( !IsSupportedType( type ) )
@@ -27,7 +27,7 @@ public class Config : Singleton<Config>
             if ( string.IsNullOrEmpty( value ) )
                  throw new ArgumentNullException();
 
-            _value = type.IsEnum ? ( TVal )Enum.Parse( type, value ) : ( TVal )Convert.ChangeType( value, type );
+            _value = type.IsEnum ? ( T )Enum.Parse( type, value ) : ( T )Convert.ChangeType( value, type );
         }
         catch
         {
@@ -39,11 +39,11 @@ public class Config : Singleton<Config>
         return true;
     }
 
-    public void Write<TVal>( ConfigType _key, TVal _value )
+    public void Write<T>( ConfigType _key, T _value )
     {
         try
         {
-            Type type = typeof( TVal );
+            Type type = typeof( T );
             if ( !IsSupportedType( type ) )
                  throw new NotSupportedException();
 
@@ -100,8 +100,7 @@ public class Config : Singleton<Config>
                _type == typeof( double ) ||
                _type == typeof( bool   ) ||
                _type == typeof( short  ) ||
-               _type == typeof( long   ) ||
-               _type.IsEnum;
+               _type == typeof( long   );
     }
 
     private string GetSectionName( ConfigType _type )

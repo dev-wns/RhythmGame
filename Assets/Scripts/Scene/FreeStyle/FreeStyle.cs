@@ -1,9 +1,8 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
-using System.Diagnostics;
 
 public class FreeStyle : Scene
 {
@@ -12,12 +11,12 @@ public class FreeStyle : Scene
 
     private Song song;
     private double totalTime;
-    private double startTick;
     private int    saveTime;
-    public  static int Playback { get; private set; }
+    public static int Playback { get; private set; }
+    private GameTimer timer = new();
 
     private readonly float FadeDuration = 1.5f;
-    private readonly int SoundOffset  = -50;
+    private readonly int   SoundOffset  = -50;
     private bool canRestart = true;
 
     // Event
@@ -71,8 +70,8 @@ public class FreeStyle : Scene
     {
         if ( !isStart ) return;
 
-        double diff = Time.realtimeSinceStartupAsDouble - startTick;
-        Playback = ( int )Math.Round( saveTime + ( diff * GameSetting.SoundPitch * 1000d ) );
+        // double diff = Time.realtimeSinceStartupAsDouble - startTick;
+        Playback = ( int )Math.Round( saveTime + ( timer.Milliseconds * GameSetting.SoundPitch ) );
         //OnUpdate?.Invoke( Playback );
         posSlider.value = ( float )( Playback / totalTime );
 
@@ -91,7 +90,7 @@ public class FreeStyle : Scene
                 AudioManager.Inst.Position = ( uint )song.previewTime;
                 corFadeVolume = AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, song.volume, FadeDuration );
 
-                startTick = Time.realtimeSinceStartupAsDouble;
+                timer.Restart();
                 saveTime  = song.previewTime + SoundOffset;
                 Playback  = saveTime;
                 OnRestart?.Invoke( in song );
@@ -136,7 +135,7 @@ public class FreeStyle : Scene
             AudioManager.Inst.Position = ( uint ) song.previewTime;
             AudioManager.Inst.Fade( AudioManager.Inst.MainChannel, 0f, song.volume, .5f );
 
-            startTick = Time.realtimeSinceStartupAsDouble;
+            timer.Restart();
             saveTime  = song.previewTime + SoundOffset;
             Playback  = saveTime;
             
@@ -184,8 +183,7 @@ public class FreeStyle : Scene
     {
         if ( AudioManager.Inst.Load( song.audioPath, out FMOD.Sound curSound, true ) )
         {
-            double diff = Time.realtimeSinceStartupAsDouble - startTick;
-            Playback = ( int )Math.Round( saveTime + ( diff * GameSetting.SoundPitch * 1000d ) );
+            Playback = ( int )Math.Round( saveTime + ( timer.Milliseconds * GameSetting.SoundPitch ) );
             AudioManager.Inst.Play( curSound );
             AudioManager.Inst.Position = ( uint )Playback;
         }
@@ -193,8 +191,8 @@ public class FreeStyle : Scene
 
     private void UpdatePitch( float _pitch )
     {
-        saveTime  = ( int )AudioManager.Inst.Position;
-        startTick = Time.realtimeSinceStartupAsDouble;
+        saveTime = ( int )AudioManager.Inst.Position;
+        timer.Restart();
     }
 
     protected override void Connect()

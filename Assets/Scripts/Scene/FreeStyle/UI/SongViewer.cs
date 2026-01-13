@@ -88,7 +88,7 @@ public class SongViewer : MonoBehaviour
 
     private void UpdateButton()
     {
-        hasKeyConvert  = GameSetting.HasFlag( GameMode.ConvertKey ) && song.keyCount == 7;
+        hasKeyConvert  = GameSetting.CurrentGameMode.HasFlag( GameMode.ConvertKey ) && song.keyCount == 7;
         keyCount.color = hasKeyConvert ? new Color( .5f, 1f, .5f, 1f ) : Color.white;
         keyCount.SetText( "{0}K", hasKeyConvert ? 6 : song.keyCount );
 
@@ -97,7 +97,7 @@ public class SongViewer : MonoBehaviour
 
     private void UpdateNoteInfo()
     {
-        bool hasNoSlider = song.sliderCount != 0 && GameSetting.HasFlag( GameMode.NoSlider );
+        bool hasNoSlider = song.sliderCount != 0 && GameSetting.CurrentGameMode.HasFlag( GameMode.NoSlider );
         var slider       = hasKeyConvert ? song.sliderCount - song.delSliderCount : song.sliderCount;
         var note         = hasKeyConvert ? song.noteCount   - song.delNoteCount   : song.noteCount;
 
@@ -114,7 +114,7 @@ public class SongViewer : MonoBehaviour
         var minBpm  = Mathf.RoundToInt( ( float )song.minBpm  * GameSetting.SoundPitch );
         var maxBpm  = Mathf.RoundToInt( ( float )song.maxBpm  * GameSetting.SoundPitch );
 
-        bool isSV = !( song.minBpm == song.maxBpm || GameSetting.HasFlag( GameMode.FixedBPM ) );
+        bool isSV = !( song.minBpm == song.maxBpm || GameSetting.CurrentGameMode.HasFlag( GameMode.FixedBPM ) );
         if ( isSV ) bpm.SetText( "{0} ({1} ~ {2})", mainBPM, minBpm, maxBpm );
         else        bpm.SetText( "{0}", mainBPM );
         bpm.color = pitch < 1f ? new Color( .5f, .5f, 1f ) :
