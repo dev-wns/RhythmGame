@@ -356,12 +356,12 @@ public class AudioManager : Singleton<AudioManager>
              ErrorCheck( system.playSound( sound, groups[ChannelType.SFX], false, out FMOD.Channel channel ) );
     }
 
-    public Coroutine Fade( FMOD.Channel _channel, float _start, float _end, float _t, Action _OnCompleted = null )
+    public Coroutine Fade( FMOD.Channel _channel, float _start, float _end, float _duration, Action _OnCompleted = null )
     {
-        return StartCoroutine( FadeVolume( _channel, _start, _end, _t, _OnCompleted ) );
+        return StartCoroutine( FadeVolume( _channel, _start, _end, _duration, _OnCompleted ) );
     }
 
-    public IEnumerator FadeVolume( FMOD.Channel _channel, float _start, float _end, float _t, Action _OnCompleted )
+    public IEnumerator FadeVolume( FMOD.Channel _channel, float _start, float _end, float _duration, Action _OnCompleted )
     {
         // https://qa.fmod.com/t/fmod-isplaying-question-please-help/11481
         // isPlaying이 INVALID_HANDLE을 반환할 때 false와 동일하게 취급한다.
@@ -379,21 +379,21 @@ public class AudioManager : Singleton<AudioManager>
             yield break;
         }
 
-        float elapsedVolume = _start;
-        float offset = _end - _start;
+        float elapsed = _start;
+        float diff    = _end - _start;
         ErrorCheck( _channel.setVolume( _start ) );
-        while ( _start < _end ? elapsedVolume < _end : // FADEIN
-                                elapsedVolume > _end ) // FADEOUT
+        while ( _start < _end ? elapsed < _end : // FADEIN
+                                elapsed > _end ) // FADEOUT
         {
             yield return YieldCache.WaitForEndOfFrame;
-            elapsedVolume += ( offset * Time.deltaTime ) / _t;
+            elapsed += ( diff / _duration ) * Time.deltaTime;
             if ( _channel.isPlaying( out isPlaying ) != RESULT.OK )
             {
                 _OnCompleted?.Invoke();
                 yield break;
             }
 
-            ErrorCheck( _channel.setVolume( elapsedVolume ) );
+            ErrorCheck( _channel.setVolume( elapsed ) );
         }
 
         // 페이드 인 기준으로 반복문이 끝난 시점에서 볼륨이 _end 값을 넘어가기 때문에 초기화해준다.
@@ -401,7 +401,7 @@ public class AudioManager : Singleton<AudioManager>
         _OnCompleted?.Invoke();
     }
 
-    public async UniTask FadeGroupAsync( ChannelType _type, float _start, float _end, float _t )
+    public async UniTask FadeGroupAsync( ChannelType _type, float _start, float _end, float _duration )
     {
         if ( !groups.ContainsKey( _type ) )
              return;
@@ -417,15 +417,15 @@ public class AudioManager : Singleton<AudioManager>
             return;
         }
 
-        float elapsedVolume = _start;
-        float offset = _end - _start;
+        float elapsed = _start;
+        float diff = _end - _start;
         ErrorCheck( channel.setVolume( _start ) );
-        while ( _start < _end ? elapsedVolume < _end : // FADEIN
-                                elapsedVolume > _end ) // FADEOUT
+        while ( _start < _end ? elapsed < _end : // FADEIN
+                                elapsed > _end ) // FADEOUT
         {
             await UniTask.WaitForEndOfFrame();
-            elapsedVolume += ( offset * Time.deltaTime ) / _t;
-            ErrorCheck( channel.setVolume( elapsedVolume ) );
+            elapsed += ( diff  / _duration ) * Time.deltaTime;
+            ErrorCheck( channel.setVolume( elapsed ) );
         }
 
         // 페이드 인 기준으로 반복문이 끝난 시점에서 볼륨이 _end 값을 넘어가기 때문에 초기화해준다.

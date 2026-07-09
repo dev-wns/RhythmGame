@@ -96,7 +96,7 @@ public class FreqBand : MonoBehaviour
                  sumValue += mono;
              }
          
-             bands[i] = sumValue / ( end - start );
+             bands[i] = sumValue / ( end - start ) * power;
          }
          
          for ( int i = 0; i < bandCount; i++ )
@@ -107,7 +107,7 @@ public class FreqBand : MonoBehaviour
              for ( int j = start; j < end; j++ )
                    sumValue += bands[j];
          
-             float value = sumValue / ( end - start ) * power;
+             float value = sumValue / ( end - start );
              if ( value > buffer[i] ) buffer[i] += riseAmount * Global.Math.Max( 0f, value - buffer[i] ) * Time.deltaTime;
              else                     buffer[i] -= dropAmount * Global.Math.Max( 0f, buffer[i] - value ) * Time.deltaTime;
              buffer[i] = Global.Math.Clamp01( buffer[i] );

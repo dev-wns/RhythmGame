@@ -48,11 +48,11 @@ public class SystemSetting : Singleton<SystemSetting>
 
     public void ReadUserData()
     {
-        if ( !Config.Inst.Read( ConfigType.Resolution,   out CurrentResolution   ) ) CurrentResolution   = Resolution._1920_1080;
-        if ( !Config.Inst.Read( ConfigType.FrameLimit,   out CurrentFrameRate    ) ) CurrentFrameRate    = FrameRate.vSync;
-        if ( !Config.Inst.Read( ConfigType.AntiAliasing, out CurrentAntiAliasing ) ) CurrentAntiAliasing = AntiAliasing.None;
-        if ( !Config.Inst.Read( ConfigType.ScreenMode,   out CurrentScreenMode   ) ) CurrentScreenMode   = ScreenMode.Windowed;
-        if ( !Config.Inst.Read( ConfigType.SoundBuffer,  out CurrentSoundBuffer  ) ) CurrentSoundBuffer  = SoundBuffer._1024;
+        CurrentResolution   = Config.Inst.Read( ConfigType.Resolution,   out int resolution   ) ? ( Resolution   )resolution   : Resolution._1920_1080;
+        CurrentFrameRate    = Config.Inst.Read( ConfigType.FrameLimit,   out int frameRate    ) ? ( FrameRate    )frameRate    : FrameRate.vSync;
+        CurrentAntiAliasing = Config.Inst.Read( ConfigType.AntiAliasing, out int antiAliasing ) ? ( AntiAliasing )antiAliasing : AntiAliasing.None;
+        CurrentScreenMode   = Config.Inst.Read( ConfigType.ScreenMode,   out int screenMode   ) ? ( ScreenMode   )screenMode   : ScreenMode.Windowed;
+        CurrentSoundBuffer  = Config.Inst.Read( ConfigType.SoundBuffer,  out int soundBuffer  ) ? ( SoundBuffer  )soundBuffer  : SoundBuffer._1024;
 
         ApplyScreenSetting();
     }

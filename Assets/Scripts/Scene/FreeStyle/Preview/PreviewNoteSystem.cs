@@ -93,16 +93,13 @@ public class PreviewNoteSystem : MonoBehaviour
         notes.Clear();
         notes.AddRange( DataStorage.Inst.Notes );
 
-        double noteTime    = 0d;
         double previewTime = song.previewTime + song.audioOffset - 50;
         for ( startNoteIndex = 0; startNoteIndex < notes.Count; startNoteIndex++ )
         {
             Note note = notes[startNoteIndex];
             if ( note.time > previewTime || ( note.time < previewTime && note.endTime > previewTime ) )
             {   
-                noteTime = note.time;
                 spawnIndex = startNoteIndex;
-                curData = notes[spawnIndex];
                 break;
             }
         }
@@ -131,7 +128,6 @@ public class PreviewNoteSystem : MonoBehaviour
         currentPool.AllDespawn();
         
         spawnIndex     = startNoteIndex;
-        curData        = notes[spawnIndex];
 
         timingIndex    = startTimingIndex;
         Distance       = StartDistanceCache;
@@ -141,6 +137,11 @@ public class PreviewNoteSystem : MonoBehaviour
         curTiming      = timings[timingIndex];
         bpmTime        = curTiming.time;
         bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.SoundPitch ) ) );
+
+        curData = notes[spawnIndex];
+        curData.distance = GetDistance( curData.time );
+        if ( curData.isSlider )
+             curData.endDistance = GetDistance( curData.endTime );
     }
 
     private void UpdatePitch( float _pitch )

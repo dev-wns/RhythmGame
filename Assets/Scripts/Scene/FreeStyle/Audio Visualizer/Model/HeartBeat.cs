@@ -49,7 +49,7 @@ public class HeartBeat : MonoBehaviour
     private void Initialize( double _bpm )
     {
         spb  = ( float )( 60d / _bpm );
-        time = ( float )( FreeStyle.Playback * GameSetting.SoundPitch * .001d ) % spb;
+        time = ( float )( NowPlaying.Playback * GameSetting.SoundPitch * .001d ) % spb;
         transform.localScale = new Vector2( startSize, startSize );
     }
 

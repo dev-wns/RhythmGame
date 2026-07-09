@@ -60,7 +60,7 @@ public class GameSetting : Singleton<GameSetting>
     public Song ApplyGameMode( in Song _song )
     {
         Song newSong = _song;
-        newSong.mainBPM = _song.mainBPM * SoundPitch;
+        //newSong.mainBPM = _song.mainBPM * SoundPitch;
 
         // 게임 모드가 적용되어 바뀐 정보
         if ( CurrentGameMode.HasFlag( GameMode.ConvertKey ) &&  _song.keyCount == 7 )
@@ -76,6 +76,8 @@ public class GameSetting : Singleton<GameSetting>
             newSong.sliderCount = 0;
         }
 
+        // 프리뷰 지점이 없을때 중간부터 재생
+        newSong.previewTime = _song.previewTime <= 0 || _song.previewTime > _song.totalTime ? ( int )( _song.totalTime * .35f ) : _song.previewTime;
 
         int keyCount = newSong.keyCount;
         NoteStartPos = GearOffsetX - ( ( NoteWidth * ( keyCount - 1 ) ) + ( NoteBlank * ( keyCount + 1 ) ) ) * .5f;
@@ -88,15 +90,15 @@ public class GameSetting : Singleton<GameSetting>
     public void ReadUserData()
     {
         // Game Mode
-        if ( !Config.Inst.Read( ConfigType.Random,    out CurrentRandom     ) ) CurrentRandom     = GameRandom.None;
-        if ( !Config.Inst.Read( ConfigType.GameMode,  out CurrentGameMode   ) ) CurrentGameMode   = GameMode.None;
-        if ( !Config.Inst.Read( ConfigType.VisualFag, out CurrentVisualFlag ) ) CurrentVisualFlag = VisualFlag.None;
+        CurrentRandom     = Config.Inst.Read( ConfigType.Random,    out int random ) ? ( GameRandom )random : GameRandom.None;
+        CurrentGameMode   = Config.Inst.Read( ConfigType.GameMode,  out int mode   ) ? ( GameMode   )mode   : GameMode.None;
+        CurrentVisualFlag = Config.Inst.Read( ConfigType.VisualFag, out int visual ) ? ( VisualFlag )visual : VisualFlag.None;
 
         // Game Setting
-        if ( !Config.Inst.Read( ConfigType.NoteModel, out CurrentNoteModel ) ) CurrentNoteModel = NoteModel.Block;
-        ScrollSpeed  = Config.Inst.Read( ConfigType.ScrollSpeed,  out int scrollSpeed  ) ? scrollSpeed  : 1;
-        JudgeOffset  = Config.Inst.Read( ConfigType.JudgeOffset,  out int judgeOffset  ) ? judgeOffset  : 0;
-        SliderOffset = Config.Inst.Read( ConfigType.SliderOffset, out int sliderOffset ) ? sliderOffset : 0;
+        CurrentNoteModel = Config.Inst.Read( ConfigType.NoteModel,    out int model        ) ? ( NoteModel )model : NoteModel.Block;
+        ScrollSpeed      = Config.Inst.Read( ConfigType.ScrollSpeed,  out int scrollSpeed  ) ? scrollSpeed  : 1;
+        JudgeOffset      = Config.Inst.Read( ConfigType.JudgeOffset,  out int judgeOffset  ) ? judgeOffset  : 0;
+        SliderOffset     = Config.Inst.Read( ConfigType.SliderOffset, out int sliderOffset ) ? sliderOffset : 0;
 
         // Sound
         SoundPitch  = 1.0f;
