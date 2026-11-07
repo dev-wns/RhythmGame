@@ -72,13 +72,13 @@ public class NowPlaying : Singleton<NowPlaying>
 
         // AudioLeadIn +
         Playback = ( int )Math.Round( LogicTimer.Milliseconds * GameSetting.SoundPitch );
-        Distance = timingMap.TimeToDistance( Playback );
+        //Distance = timingMap.TimeToDistance( Playback );
     }
 
     /// <summary> 선택된 음악을 바탕으로 초기화 </summary>
     public void Initialize( in Song _song )
     {
-        timingMap.Initialize( _song.mainBPM, DataStorage.Inst.Timings );
+        timingMap.Initialize( in _song );
         CurrentSong = GameSetting.Inst.ApplyGameMode( in _song );
 
         Clear();

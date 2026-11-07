@@ -7,31 +7,28 @@ public class TimingMap
     private ReadOnlyCollection<Timing> Timings;
     private ReadOnlyCollection<double> AccDistances; // 구간별 누적된 거리
     private double mainBPM;
-    private int    pos;
+    public  int Pos { get; private set; }
     
-    public void Initialize( double _mainBPM, ReadOnlyCollection<Timing> _timings )
+    public void Initialize( in Song _song )
     {
-        if ( _mainBPM <= double.Epsilon || _timings == null ) return;
+        Pos     = 0;
+        mainBPM = _song.mainBPM;
+        Timings = DataStorage.Inst.Timings;
 
-        List<double> accList = new List<double>( _timings.Count + 1 );
-        accList.Add( 0d ); // 현재 위치의 이전값을 보기에 첫 요소는 0
+        if ( mainBPM <= double.Epsilon || Timings == null ) return;
 
-        double elapsed  = 0d;
-        double prevTime = 0d;
-        for ( int i = 0; i < _timings.Count; i++ )
+        double   cache = 0d;
+        double[] accList = new double[Timings.Count];
+        for ( int i = 0; i < Timings.Count; i++ )
         {
-            double time = _timings[i].time;
-            double bpm  = _timings[i].bpm / _mainBPM;
-
-            elapsed += bpm * ( time - prevTime );
-
-            accList.Add( elapsed );
-            prevTime = time;
+            accList[i] = cache;
+            if ( i + 1 < Timings.Count )
+            {
+                double bpm = Timings[i].bpm / mainBPM;
+                cache += bpm * ( Timings[i + 1].time - Timings[i].time );
+            }
         }
 
-        pos          = 0;
-        mainBPM      = _mainBPM;
-        Timings      = _timings;
         AccDistances = new ReadOnlyCollection<double>( accList );
     }
 
@@ -40,26 +37,34 @@ public class TimingMap
         Timings      = null;
         AccDistances = null;
         mainBPM      = 0;
-        pos          = 0;
+        Pos          = 0;
     }
 
     public double TimeToDistance( double _time )
     {
         if ( Timings == null || Timings.Count == 0 ) return 0d;
 
-        while ( pos > 0 && _time < Timings[pos].time ) pos--;
-        for ( int i = pos; i < Timings.Count; i++ )
-        {
-            if ( Timings[i].time > _time ) // 다음 타이밍일 때 종료
-                 break;  
+        while ( Pos + 1 < Timings.Count && Timings[Pos + 1].time <= _time ) Pos++;
+        while ( Pos > 0                 && Timings[Pos].time     >  _time ) Pos--;
 
-            pos = i; // 현재 타이밍 위치
+        Timing current  = Timings[Pos];
+        double bpm      = current.bpm / mainBPM;
+        double distance = bpm * ( _time - current.time );
+
+        return AccDistances[Pos] + distance; // 누적된 이전 값 + 현재 값( 타이밍 시작시간 ~ 현재시간 )
+    }
+
+    public void Seek( double _time )
+    {
+        int left  = 0;
+        int right = Timings.Count - 1;
+        while ( left <= right )
+        {
+            int mid = ( left + right ) >> 1;
+            if ( Timings[mid].time <= _time ) left  = mid + 1;
+            else                              right = mid - 1;
         }
 
-        Timing timing   = Timings[pos];
-        double bpm      = timing.bpm / mainBPM;
-        double distance = bpm * ( _time - timing.time );
-
-        return AccDistances[pos] + distance; // 이전 타이밍 누적값 + 현재 타이밍 시작시간부터의 거리
+        Pos = Mathf.Max( 0, right );
     }
 }

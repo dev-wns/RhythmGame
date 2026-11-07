@@ -1,9 +1,15 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="UniTask.csproj" />
+  <Project Path="UniTask.Linq.csproj" />
   <Project Path="FMODUnityEditor.csproj" />
   <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="UniTask.Addressables.csproj" />
   <Project Path="FMODUnityResonanceEditor.csproj" />
   <Project Path="FMODUnity.csproj" />
+  <Project Path="UniTask.TextMeshPro.csproj" />
+  <Project Path="UniTask.DOTween.csproj" />
   <Project Path="FMODUnityResonance.csproj" />
+  <Project Path="UniTask.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

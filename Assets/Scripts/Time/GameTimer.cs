@@ -3,14 +3,14 @@ public class GameTimer : Timer
 {
     private enum TimeState : byte { Idle, Running, Paused }
     private TimeState state;
-    protected long saveTick;
+    protected long elapsed;
 
     public GameTimer() : base() { Restart(); }
-    public override long GetTicks( long _now ) => state == TimeState.Running ? saveTick + ( _now - startTick ) : saveTick;
+    public override long GetTicks( long _now ) => state == TimeState.Running ? elapsed + ( _now - startTick ) : elapsed;
 
     public void Restart()
     {
-        saveTick  = 0;
+        elapsed   = 0;
         startTick = NowTick;
         state     = TimeState.Running;
     }
@@ -19,7 +19,7 @@ public class GameTimer : Timer
     {
         if ( state != TimeState.Running ) return;
 
-        saveTick += ( NowTick - startTick );
+        elapsed += ( NowTick - startTick );
         state = TimeState.Paused;
     }
 

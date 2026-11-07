@@ -7,7 +7,8 @@ public class HeartBeat : MonoBehaviour
     private float startSize, endSize;
 
     [Header( "BPM" )]
-    private double curBPM;
+    //private double curBPM;
+    private Timing timing;
     private float spb;
 
     public  float duration = .1f;
@@ -17,9 +18,10 @@ public class HeartBeat : MonoBehaviour
 
     private void Awake()
     {
-        scene.OnStart   += UpdateSong;
-        scene.OnRestart += UpdateSong;
+        //scene.OnStart   += UpdateSong;
+        //scene.OnRestart += UpdateSong;
         pitchOption.OnUpdatePitch += UpdatePitch;
+        PreviewNoteSystem.OnUpdateTiming += UpdateBPM;
 
         startSize = transform.localScale.x;
         endSize   = startSize * power;
@@ -27,16 +29,18 @@ public class HeartBeat : MonoBehaviour
 
     private void OnDestroy()
     {
-        scene.OnStart   -= UpdateSong;
-        scene.OnRestart -= UpdateSong;
+        // scene.OnStart   -= UpdateSong;
+        // scene.OnRestart -= UpdateSong;
         pitchOption.OnUpdatePitch -= UpdatePitch;
+        PreviewNoteSystem.OnUpdateTiming -= UpdateBPM;
     }
 
     private void Update()
     {
         if ( isStop ) return;
 
-        time += Time.deltaTime;
+        // time += Time.deltaTime;
+        time = ( float )( PreviewNoteSystem.Playback - timing.time ) * .001f;
         if ( spb < time )
              time %= spb;
 
@@ -49,19 +53,29 @@ public class HeartBeat : MonoBehaviour
     private void Initialize( double _bpm )
     {
         spb  = ( float )( 60d / _bpm );
-        time = ( float )( NowPlaying.Playback * GameSetting.SoundPitch * .001d ) % spb;
+        time = ( float )( PreviewNoteSystem.Playback - timing.time ) * .001f % spb;
+
+        //time = ( float )( NowPlaying.Playback * GameSetting.SoundPitch * .001d ) % spb;
         transform.localScale = new Vector2( startSize, startSize );
     }
 
-    private void UpdateSong( in Song _song )
+    //private void UpdateSong( in Song _song )
+    //{
+    //    isStop = false;
+    //    curBPM = _song.mainBPM;
+    //    Initialize( curBPM * GameSetting.SoundPitch );
+    //}
+
+    private void UpdateBPM( Timing _timing )
     {
         isStop = false;
-        curBPM = _song.mainBPM;
-        Initialize( curBPM * GameSetting.SoundPitch );
+        timing = _timing;
+        //curBPM = _timing.bpm;
+        Initialize( timing.bpm * GameSetting.SoundPitch );
     }
 
     private void UpdatePitch( float _pitch )
     {
-        Initialize( curBPM * _pitch );
+        Initialize( timing.bpm * _pitch );
     }
 }

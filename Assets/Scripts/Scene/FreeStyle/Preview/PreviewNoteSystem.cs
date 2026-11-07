@@ -23,12 +23,14 @@ public class PreviewNoteSystem : MonoBehaviour
     private Note  curData;
     private int   spawnIndex;
     private float startNotePos;
-    private int startNoteIndex;
+    private int   startNoteIndex;
 
     private List<Note>   notes   = new ();
     private List<Timing> timings = new ();
-    private int timingIndex;
-    private int startTimingIndex;
+    TimingMap timingMap = new();
+    private int bpmCache;
+    //private int timingIndex;
+    //private int startTimingIndex;
 
     private const double DelayTime = ( 1d / 60d ) * 1000d;
 
@@ -46,6 +48,8 @@ public class PreviewNoteSystem : MonoBehaviour
     public  static float NoteWidth;
     public  static float NoteHeight;
     private static float NoteMultiplier;
+
+    public static Action<Timing> OnUpdateTiming;
 
     private void Awake()
     {
@@ -104,21 +108,25 @@ public class PreviewNoteSystem : MonoBehaviour
             }
         }
 
-        StartDistanceCache = 0d;
-        for ( int i = 0; i < timings.Count; i++ )
-        {
-            double time = timings[i].time;
-            double bpm  = timings[i].bpm / song.mainBPM;
+        //StartDistanceCache = 0d;
+        //for ( int i = 0; i < timings.Count; i++ )
+        //{
+        //    double time = timings[i].time;
+        //    double bpm  = timings[i].bpm / song.mainBPM;
 
-            if ( i + 1 < timings.Count && timings[i + 1].time < previewTime )
-            {
-                StartDistanceCache += bpm * ( timings[i + 1].time - time );
-                continue;
-            }
+        //    if ( i + 1 < timings.Count && timings[i + 1].time < previewTime )
+        //    {
+        //        StartDistanceCache += bpm * ( timings[i + 1].time - time );
+        //        continue;
+        //    }
 
-            startTimingIndex = i;
-            break;
-        }
+        //    startTimingIndex = i;
+        //    break;
+        //}
+
+        timingMap.Initialize( song );
+        timingMap.Seek( previewTime );
+        bpmCache = timingMap.Pos;
 
         await UniTask.CompletedTask;
     }
@@ -129,52 +137,42 @@ public class PreviewNoteSystem : MonoBehaviour
         
         spawnIndex     = startNoteIndex;
 
-        timingIndex    = startTimingIndex;
+        //timingIndex    = startTimingIndex;
         Distance       = StartDistanceCache;
         DistanceCache  = StartDistanceCache;
 
-        bpmIndex       = timingIndex;
-        curTiming      = timings[timingIndex];
-        bpmTime        = curTiming.time;
+        bpmIndex  = bpmCache;
+        curTiming = timings[bpmCache];
+        bpmTime   = curTiming.time;
         bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * GameSetting.SoundPitch ) ) );
 
         curData = notes[spawnIndex];
-        curData.distance = GetDistance( curData.time );
+        curData.distance = timingMap.TimeToDistance( curData.time ); //GetDistance( curData.time );
         if ( curData.isSlider )
-             curData.endDistance = GetDistance( curData.endTime );
+             curData.endDistance = timingMap.TimeToDistance( curData.endTime ); //GetDistance( curData.endTime );
+
+        OnUpdateTiming?.Invoke( curTiming );
     }
 
     private void UpdatePitch( float _pitch )
     {
         bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( curTiming.bpm * _pitch ) ) );
+        
     }
 
     private void Update()
     {
-        for ( int i = timingIndex; i < timings.Count; i++ )
-        {
-            double time = timings[i].time;
-            double bpm  = timings[i].bpm / song.mainBPM;
-
-            if ( i + 1 < timings.Count && timings[i + 1].time < Playback )
-            {
-                timingIndex   += 1;
-                DistanceCache += bpm * ( timings[i + 1].time - time );
-                continue;
-                //break;
-            }
-
-            Distance = DistanceCache + ( bpm * ( Playback - time ) );
-            break;
-        }
-
+        Distance = timingMap.TimeToDistance( Playback );
         SpawnNotes( Distance );
 
         if ( bpmIndex < timings.Count && bpmTime < Playback )
         {
             Timing current = timings[bpmIndex];
             if ( prevBPM != current.bpm )
-                 bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.SoundPitch ) ) );
+            {
+                bpmText.SetText( "{0}", Mathf.RoundToInt( ( float )( current.bpm * GameSetting.SoundPitch ) ) );
+                OnUpdateTiming?.Invoke( current );
+            }
             
             prevBPM = current.bpm;
 
@@ -212,30 +210,30 @@ public class PreviewNoteSystem : MonoBehaviour
             if ( ++spawnIndex < notes.Count )
             {
                 curData = notes[spawnIndex];
-                curData.distance = GetDistance( curData.time );
+                curData.distance = timingMap.TimeToDistance( curData.time );// GetDistance( curData.time );
                 if ( curData.isSlider )
-                     curData.endDistance = GetDistance( curData.endTime );
+                    curData.endDistance = timingMap.TimeToDistance( curData.endTime ); // GetDistance( curData.endTime );
             }
         }
     }
 
-    public double GetDistance( double _time )
-    {
-        double result = 0d;
-        for ( int i = 0; i < timings.Count; i++ )
-        {
-            double time = timings[i].time;
-            double bpm  = timings[i].bpm / song.mainBPM;
+    //public double GetDistance( double _time )
+    //{
+    //    double result = 0d;
+    //    for ( int i = 0; i < timings.Count; i++ )
+    //    {
+    //        double time = timings[i].time;
+    //        double bpm  = timings[i].bpm / song.mainBPM;
 
-            if ( i + 1 < timings.Count && timings[i + 1].time < _time )
-            {
-                result += bpm * ( timings[i + 1].time - time );
-                continue;
-            }
+    //        if ( i + 1 < timings.Count && timings[i + 1].time < _time )
+    //        {
+    //            result += bpm * ( timings[i + 1].time - time );
+    //            continue;
+    //        }
 
-            result += bpm * ( _time - time );
-            break;
-        }
-        return result;
-    }
+    //        result += bpm * ( _time - time );
+    //        break;
+    //    }
+    //    return result;
+    //}
 }
